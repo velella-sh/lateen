@@ -238,6 +238,7 @@
   "theme": "Theme",
   "theme_dark": "dark",
   "theme_light": "light",
+  "theme_system": "system",
   "translation_key": "Translation key",
   "translation_missing": "This page hasn't been translated yet. Read it in:",
   "trust_chip": "Trust: {level}",

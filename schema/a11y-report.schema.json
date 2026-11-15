@@ -90,7 +90,11 @@
         "additionalProperties": false,
         "properties": {
           "name": { "type": "string" },
-          "theme": { "type": "string", "enum": ["light", "dark"] },
+          "theme": {
+            "type": "string",
+            "enum": ["light", "dark", "system"],
+            "description": "light and dark are chosen and stored by the theme script; system is the browser's own scheme, used by the no-JavaScript journey."
+          },
           "result": { "type": "string", "enum": ["pass", "fail", "skip"] },
           "detail": { "type": "string" }
         }

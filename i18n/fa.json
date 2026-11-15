@@ -238,6 +238,7 @@
   "theme": "تم",
   "theme_dark": "تیره",
   "theme_light": "روشن",
+  "theme_system": "سیستم",
   "translation_key": "کلید ترجمه",
   "translation_missing": "این صفحه هنوز ترجمه نشده است. آن را به این زبان بخوانید:",
   "trust_chip": "اعتماد: {level}",

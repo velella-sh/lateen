@@ -79,6 +79,8 @@ export const CASES: readonly AuditCase[] = [
   { name: "fixture tutorial", site: "fixtures", path: "/tutorial/", layout: "tutorial", lang: "en", ...DESKTOP },
   { name: "fixture versions", site: "fixtures", path: "/versions/", layout: "versions", lang: "en", ...DESKTOP },
   { name: "fixture reports", site: "fixtures", path: "/reports/", layout: "doc", lang: "en", ...DESKTOP },
+  { name: "fixture reports persian", site: "fixtures", path: "/fa/reports/", layout: "doc", lang: "fa", ...DESKTOP },
+  { name: "fixture reports arabic", site: "fixtures", path: "/ar/reports/", layout: "doc", lang: "ar", ...DESKTOP },
   { name: "fixture not found", site: "fixtures", path: "/404.html", layout: "not-found", lang: "en", ...DESKTOP },
   { name: "fixture persian", site: "fixtures", path: "/fa/", layout: "doc", lang: "fa", ...DESKTOP },
   { name: "fixture arabic", site: "fixtures", path: "/ar/", layout: "doc", lang: "ar", ...DESKTOP },
@@ -220,9 +222,11 @@ export function reportFindingsFrom(item: AuditCase, theme: Theme, violations: re
 }
 
 /** One keyboard or no-JavaScript journey and what it showed. */
+export type JourneyTheme = Theme | "system";
+
 export interface JourneyResult {
   readonly name: string;
-  readonly theme: Theme;
+  readonly theme: JourneyTheme;
   readonly result: "pass" | "fail" | "skip";
   readonly detail?: string;
 }
@@ -409,15 +413,35 @@ async function expectFocus(page: Page, selector: string): Promise<void> {
 }
 
 /**
- * One keyboard or no-JavaScript journey. Each runs in its own context so a page it visits or a
- * clipboard permission it needs cannot change the audit's state; a failed step is reported with its
- * message rather than stopping the rest of the matrix.
+ * The themes a journey is actually run in. The no-JavaScript page has no theme script and no stored
+ * choice, so it follows the browser's own scheme; that run is reported as `system` and is never
+ * duplicated as a light or dark row that was not executed.
+ */
+export function journeyThemes(name: JourneyName): readonly JourneyTheme[] {
+  return name === "read without JavaScript" ? ["system"] : THEMES;
+}
+
+/** Focuses a control with the keyboard's focus model and fails unless it is the active element. */
+async function focusControl(page: Page, selector: string) {
+  const control = page.locator(selector).first();
+  await control.waitFor({ state: "visible" });
+  await control.focus();
+  await expectFocus(page, selector);
+  return control;
+}
+
+/**
+ * One keyboard or no-JavaScript journey. Every interactive step starts from keyboard focus and an
+ * Enter or Space key press; the test never calls `click()`, so a pointer-only control would fail.
+ * Each journey runs in its own context so the page it visits or the clipboard permission it needs
+ * cannot change the audit's state; a failed step is reported with its message rather than stopping
+ * the rest of the matrix.
  */
 async function runJourney(
   browser: Browser,
   servers: { readonly docs: StaticServer; readonly fixtures: StaticServer },
   name: JourneyName,
-  theme: Theme,
+  theme: JourneyTheme,
 ): Promise<JourneyResult> {
   const noScript = name === "read without JavaScript";
   const context = await browser.newContext({
@@ -437,38 +461,43 @@ async function runJourney(
     const page = await context.newPage();
     if (name === "open the navigation") {
       await page.goto(`${servers.docs.url}/lateen/install/`, { waitUntil: "load" });
-      await page.locator("[data-drawer-open]").click();
+      await focusControl(page, "[data-drawer-open]");
+      await page.keyboard.press("Enter");
       await page.locator("dialog[data-drawer][open]").waitFor({ state: "visible" });
       if ((await page.locator("[data-drawer-open]").getAttribute("aria-expanded")) !== "true") {
         throw new Error("the navigation trigger does not say it is expanded");
       }
+      await page.waitForFunction(() => document.activeElement?.closest("dialog[data-drawer]") !== null);
       await page.keyboard.press("Escape");
       await page.locator("dialog[data-drawer][open]").waitFor({ state: "hidden" });
       await expectFocus(page, "[data-drawer-open]");
     } else if (name === "search the site") {
       await page.goto(`${servers.docs.url}/lateen/install/`, { waitUntil: "load" });
-      await page.locator("[data-search-open]").click();
+      await focusControl(page, "[data-search-open]");
+      await page.keyboard.press("Enter");
       await page.locator("dialog[data-search][open]").waitFor({ state: "visible" });
-      await page.locator(`#${SEARCH_INPUT_ID}`).fill("install");
+      await expectFocus(page, `#${SEARCH_INPUT_ID}`);
+      await page.keyboard.type("install");
       await page.locator("[role='option']").first().waitFor({ state: "visible" });
       await page.keyboard.press("Escape");
       await page.locator("dialog[data-search][open]").waitFor({ state: "hidden" });
       await expectFocus(page, "[data-search-open]");
     } else if (name === "change the language") {
       await page.goto(`${servers.fixtures.url}/fa/`, { waitUntil: "load" });
-      await page.locator("[data-language-switcher] a[hreflang='ar']").first().click();
+      await focusControl(page, "[data-language-switcher] a[hreflang='ar']");
+      await page.keyboard.press("Enter");
       await page.waitForURL((url) => url.pathname === "/ar/");
       if ((await page.locator("html").getAttribute("lang")) !== "ar") throw new Error("the Arabic page did not set lang");
     } else if (name === "copy a code block") {
       await page.goto(`${servers.docs.url}/lateen/components/code/`, { waitUntil: "load" });
-      const button = page.locator(".code-copy").first();
-      await button.waitFor({ state: "visible" });
-      await button.click();
+      await focusControl(page, ".code-copy");
+      await page.keyboard.press("Space");
       await page.waitForFunction(() => (document.querySelector(".code-copy-status")?.textContent ?? "") !== "");
       const status = page.locator(".code-copy-status").first();
       if ((await status.textContent())?.trim() === "") throw new Error("the copy control said nothing");
       const copied = await page.evaluate(() => navigator.clipboard.readText());
       if (copied.trim() === "") throw new Error("the clipboard is empty after a copy");
+      await expectFocus(page, ".code-copy");
     } else {
       await page.goto(`${servers.docs.url}/lateen/install/`, { waitUntil: "load" });
       const article = page.locator("article");
@@ -487,14 +516,14 @@ async function runJourney(
   }
 }
 
-/** Every journey in both themes, in the report's order. */
+/** Every journey in the themes it actually runs in, in the report's order. */
 export async function runJourneys(
   browser: Browser,
   servers: { readonly docs: StaticServer; readonly fixtures: StaticServer },
 ): Promise<JourneyResult[]> {
   const results: JourneyResult[] = [];
   for (const name of JOURNEYS) {
-    for (const theme of THEMES) results.push(await runJourney(browser, servers, name, theme));
+    for (const theme of journeyThemes(name)) results.push(await runJourney(browser, servers, name, theme));
   }
   return results;
 }

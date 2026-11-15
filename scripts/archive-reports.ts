@@ -72,9 +72,13 @@ export function totalsOf(report: unknown): { javascript: number; css: number } {
   return { javascript: sum(totals.map((item) => item.javascript?.gzip ?? 0)), css: sum(totals.map((item) => item.css?.gzip ?? 0)) };
 }
 
-/** The table on `site/reports.md`, rebuilt from the index; an empty archive says so. */
+/** The table on `site/reports.md`, rebuilt from the index; an empty archive says so in the table itself. */
 export function tableOf(releases: readonly ReleaseEntry[]): string {
   const rows = ["| Version | Reports | JavaScript gzip | CSS gzip | Change |", "| --- | --- | --- | --- | --- |"];
+  if (releases.length === 0) {
+    rows.push("| — | No release is stored yet. | | | |");
+    return rows.join("\n");
+  }
   let previous: ReleaseEntry | undefined;
   for (const release of releases) {
     const change =
@@ -112,9 +116,9 @@ permalink: /reports/${version}/
 The two reports this version shipped with. They are stored under \`site/_data/reports/${version}/\` and
 their hashes are recorded in the archive index, so a later release cannot quietly replace them.
 
-::a11y-report{from=reports.${version}.a11y}
+::a11y-report{from=reports/${version}/a11y}
 
-::budget-report{from=reports.${version}.performance}
+::budget-report{from=reports/${version}/performance}
 `;
 }
 
@@ -131,10 +135,13 @@ function readReport(file: string, schemaName: string): unknown {
   return value;
 }
 
-/** Stores a release's reports, refuses to overwrite one, and rebuilds the index page. */
-export function archive(version: string, a11yFile: string, performanceFile: string): void {
+/**
+ * Stores a release's reports, refuses to overwrite one, and rebuilds the index page. `base` is the
+ * repository root; a test passes a temporary copy so it never touches the real archive.
+ */
+export function archive(version: string, a11yFile: string, performanceFile: string, base = root): void {
   if (!/^\d+\.\d+\.\d+$/.test(version)) throw new Error(`"${version}" is not a release version such as 0.3.0`);
-  const dir = join(root, REPORTS);
+  const dir = join(base, REPORTS);
   const target = join(dir, version);
   if (existsSync(target)) throw new Error(`${version}: already stored; an archived report is never rewritten`);
 
@@ -160,9 +167,9 @@ export function archive(version: string, a11yFile: string, performanceFile: stri
     return 0;
   });
   writeFileSync(join(dir, "index.yml"), stringify({ releases }, { lineWidth: 0 }));
-  writeFileSync(join(root, PAGE), pageWith(readFileSync(join(root, PAGE), "utf8"), tableOf(releases)));
-  mkdirSync(join(root, "site/reports", version), { recursive: true });
-  writeFileSync(join(root, "site/reports", version, "index.md"), releasePage(version));
+  writeFileSync(join(base, PAGE), pageWith(readFileSync(join(base, PAGE), "utf8"), tableOf(releases)));
+  mkdirSync(join(base, "site/reports", version), { recursive: true });
+  writeFileSync(join(base, "site/reports", version, "index.md"), releasePage(version));
   console.log(`stored ${version} and updated ${PAGE}`);
 }
 

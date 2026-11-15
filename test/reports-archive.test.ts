@@ -6,6 +6,7 @@ import { join } from "node:path";
 import { test } from "node:test";
 import { stringify } from "yaml";
 import { archive, readIndex, tableOf, totalsOf, verifyArchive, type ReleaseEntry } from "../scripts/archive-reports.ts";
+import { dataAt } from "../src/report.ts";
 
 const root = new URL("../", import.meta.url).pathname;
 const archiveDir = join(root, "site/_data/reports");
@@ -87,4 +88,11 @@ test("the totals add every route's JavaScript and CSS gzip", () => {
     { javascript: 120, css: 50 },
   );
   assert.deepEqual(totalsOf({}), { javascript: 0, css: 0 });
+});
+
+test("a slash path keeps a version with dots as one data key", () => {
+  const site = { data: { reports: { "0.3.0": { a11y: { tool: "lateen/a11y-report" } } } } } as never;
+  assert.deepEqual(dataAt(site, "reports/0.3.0/a11y"), { tool: "lateen/a11y-report" });
+  assert.deepEqual(dataAt(site, "/reports/0.3.0/a11y/"), { tool: "lateen/a11y-report" });
+  assert.equal(dataAt(site, "reports.0.3.0.a11y"), undefined);
 });

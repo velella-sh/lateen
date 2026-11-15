@@ -45,9 +45,9 @@ function table(label: string, head: readonly string[], rows: readonly (readonly 
   );
 }
 
-/** "light" and "dark" in the page language. */
+/** "light", "dark", and the browser's own "system" scheme in the page language. */
 const themeLabel = (lang: string, theme: string): string =>
-  t(lang, theme === "dark" ? "theme_dark" : "theme_light");
+  t(lang, theme === "dark" ? "theme_dark" : theme === "system" ? "theme_system" : "theme_light");
 
 /** The rule name, linked to axe's help page when the report carries one. */
 function ruleCell(finding: A11yReport["findings"][number]) {

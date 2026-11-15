@@ -38,12 +38,16 @@ export function safeHref(value: unknown): string | undefined {
   }
 }
 
-/** The value `from` names in `site.data`, with `.` separating folder keys; `undefined` when it is absent. */
+/**
+ * The value `from` names in `site.data`. Keys are separated by `/`, so a key that itself contains a
+ * dot (a release version such as `0.3.0`) is one segment and needs no escaping: `reports/0.3.0/a11y`.
+ * Empty segments are ignored, so a leading slash reads the same. `undefined` when a key is absent.
+ */
 export function dataAt(site: Site, from: string | undefined): unknown {
   const path = text(from);
   if (path === undefined) return undefined;
   let node: unknown = site.data;
-  for (const key of path.split(".")) {
+  for (const key of path.split("/").filter((segment) => segment !== "")) {
     if (!isRecord(node) || !Object.prototype.hasOwnProperty.call(node, key)) return undefined;
     node = node[key];
   }
@@ -73,9 +77,12 @@ export interface A11yKnown {
   readonly target: string;
 }
 
+/** A journey runs in a chosen theme, or in the browser's own color scheme when no script can choose. */
+export type JourneyTheme = "light" | "dark" | "system";
+
 export interface A11yJourney {
   readonly name: string;
-  readonly theme: "light" | "dark";
+  readonly theme: JourneyTheme;
   readonly result: "pass" | "fail" | "skip";
   readonly detail?: string;
 }
@@ -101,6 +108,10 @@ function themeOf(value: unknown): "light" | "dark" | undefined {
 
 function impactOf(value: unknown): Impact | undefined {
   return value === "minor" || value === "moderate" || value === "serious" || value === "critical" ? value : undefined;
+}
+
+function journeyThemeOf(value: unknown): JourneyTheme | undefined {
+  return value === "light" || value === "dark" || value === "system" ? value : undefined;
 }
 
 function resultOf(value: unknown): "pass" | "fail" | "skip" | undefined {
@@ -172,7 +183,7 @@ export function a11yReportOf(site: Site, from: string | undefined): A11yReport |
     ? data.journeys.flatMap((row) => {
         if (!isRecord(row)) return [];
         const name = text(row.name);
-        const theme = themeOf(row.theme);
+        const theme = journeyThemeOf(row.theme);
         const result = resultOf(row.result);
         if (name === undefined || theme === undefined || result === undefined) return [];
         const detail = text(row.detail);

@@ -11,11 +11,11 @@ This page lists the WCAG 2.2 success criteria at levels A and AA that the Lateen
 
 `npm run test:a11y` builds the Lateen docs site and a small fixture site, serves them on a loopback port, and runs [axe-core](https://github.com/dequelabs/axe-core) in Chromium through [`@axe-core/playwright`](https://github.com/dequelabs/axe-core-npm). It runs the WCAG 2.2 A and AA rules.
 
-The matrix is 44 page states, covering:
+The matrix is 50 page states, covering:
 
 - **Every layout:** api, changelog, doc, home, not-found, search-results, tutorial, and versions.
 - **Every theme:** light and dark, set the way the theme switch stores the choice.
-- **Every locale:** English and the right-to-left Persian and Arabic pages.
+- **Every locale:** English and the right-to-left Persian and Arabic pages, including a report page in each that uses all three report components.
 - **Component states:** code tabs, disclosures closed and open, tabs, a terminal, a table, a form, and callouts.
 - **Open overlays:** the mobile drawer and the search palette.
 

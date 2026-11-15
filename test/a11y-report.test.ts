@@ -46,8 +46,9 @@ test("the matrix is one row per case and theme, in a stable order", () => {
   const report = buildA11yReport(input) as { matrix: { case: string; theme: string }[]; summary: { states: number } };
   assert.equal(report.matrix.length, CASES.length * THEMES.length);
   assert.equal(report.summary.states, CASES.length * THEMES.length);
-  const keys = report.matrix.map((row) => `${row.case}/${row.theme}`);
-  assert.deepEqual(keys, [...keys].sort());
+  const keys = report.matrix.map((row) => [row.case, row.theme] as const);
+  const sorted = [...keys].sort((a, b) => (a[0] === b[0] ? (a[1] < b[1] ? -1 : 1) : a[0] < b[0] ? -1 : 1));
+  assert.deepEqual(keys, sorted);
 });
 
 test("every impact is counted, and two runs on the same commit write the same file", () => {

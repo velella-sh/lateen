@@ -26,8 +26,11 @@ const REPORT = {
     },
   ],
   known: [{ case: "*", theme: "dark", rule: "region", target: "main" }],
-  journeys: [{ name: "search the site", theme: "light", result: "pass" }],
-  summary: { states: 2, findings: { minor: 0, moderate: 1, serious: 0, critical: 0 }, journeys: { pass: 1, fail: 0, skip: 0 } },
+  journeys: [
+    { name: "search the site", theme: "light", result: "pass" },
+    { name: "read without JavaScript", theme: "system", result: "pass" },
+  ],
+  summary: { states: 2, findings: { minor: 0, moderate: 1, serious: 0, critical: 0 }, journeys: { pass: 2, fail: 0, skip: 0 } },
 };
 
 function renderReport(props: Record<string, string>, data: Readonly<Record<string, unknown>> = { "accessibility-report": REPORT }, lang = "en") {
@@ -81,6 +84,13 @@ test("a known finding is open by name, and * means every page", () => {
   assert.match(text(doc), /Known findings that are still open/);
   assert.match(text(doc), /Every page/);
   assert.match(text(doc), /region/);
+});
+
+test("a no-JavaScript journey says it ran in the browser's own scheme", () => {
+  const doc = renderReport({});
+  const row = [...doc.querySelectorAll("tr")].find((item) => text(item).includes("read without JavaScript"));
+  assert.ok(row);
+  assert.match(text(row as unknown as Element), /system/);
 });
 
 test("a clean report says so in words instead of leaving a blank table", () => {

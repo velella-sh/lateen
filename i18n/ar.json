@@ -238,6 +238,7 @@
   "theme": "المظهر",
   "theme_dark": "داكن",
   "theme_light": "فاتح",
+  "theme_system": "النظام",
   "translation_key": "مفتاح الترجمة",
   "translation_missing": "لم تُترجم هذه الصفحة بعد. اقرأها باللغة:",
   "trust_chip": "الثقة: {level}",
