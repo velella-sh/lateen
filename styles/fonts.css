@@ -87,17 +87,33 @@
   unicode-range: U+0000, U+000D, U+0020, U+0041, U+00A0, U+060C-060D, U+0610-0612, U+0615, U+061B, U+061F, U+0621-063A, U+063D, U+0640-0658, U+065A-065B, U+0660-0671, U+0674, U+0679, U+067C, U+067E, U+0681, U+0685-0686, U+0688-0689, U+0691, U+0693, U+0695-0696, U+0698, U+069A, U+06A0-06A1, U+06A4, U+06A9-06AD, U+06AF, U+06B5, U+06BA, U+06BC-06BE, U+06C0-06C3, U+06C6-06D0, U+06D2-06D5, U+06DC-06DE, U+06E9, U+06F0-06F9, U+0762-0763, U+200C-200E, U+2010-2011, U+FB50-FB51, U+FB56-FB59, U+FB66-FB6D, U+FB7A-FB7D, U+FB88-FB95, U+FB9E-FB9F, U+FBA5, U+FBA7-FBB1, U+FBBF-FBC0, U+FBD3-FBDC, U+FBDE-FBDF, U+FBE2-FBE3, U+FBE8-FBE9, U+FBFC-FBFF, U+FD3E-FD3F, U+FDF2, U+FDFC, U+FE70-FE74, U+FE76-FEFC;
 }
 
-/* Size-adjusted local fallbacks, one per family, computed against the regular
- * weight. Bold is synthesized in the fallback for the swap window. */
+/* Size-adjusted local fallbacks, one per family. `size-adjust` is measured: the width of a long
+ * sample sentence in the web font divided by its width in the local font (Geist / Arial 104.9%,
+ * Geist Bold / Arial Bold 103.1%, Geist Mono / Courier New 100%, Vazirmatn / Tahoma 93.4%). Each
+ * override is the web font's hhea metric over its units-per-em, divided by `size-adjust` (the browser
+ * scales the overrides by it again), so the line box matches the web font's. Wrong values here make the
+ * fallback render oversized with a tall line box, and the first visit, before the fonts are cached,
+ * paints a broken page. */
 @font-face {
   font-family: "Geist Fallback";
   font-style: normal;
   font-weight: 400;
   src: local("Arial");
-  size-adjust: 133.44%;
-  ascent-override: 76.16%;
-  descent-override: 77.8%;
-  line-gap-override: 229.08%;
+  size-adjust: 104.92%;
+  ascent-override: 87.69%;
+  descent-override: 20.97%;
+  line-gap-override: 9.53%;
+}
+
+@font-face {
+  font-family: "Geist Fallback";
+  font-style: normal;
+  font-weight: 700;
+  src: local("Arial Bold"), local("Arial-BoldMT");
+  size-adjust: 103.11%;
+  ascent-override: 89.22%;
+  descent-override: 21.34%;
+  line-gap-override: 9.7%;
 }
 
 @font-face {
@@ -106,8 +122,8 @@
   font-weight: 400;
   src: local("Courier New");
   size-adjust: 99.98%;
-  ascent-override: 120.74%;
-  descent-override: 98.25%;
+  ascent-override: 100.52%;
+  descent-override: 29.51%;
   line-gap-override: 0%;
 }
 
@@ -116,9 +132,9 @@
   font-style: normal;
   font-weight: 400;
   src: local("Tahoma");
-  size-adjust: 126.7%;
-  ascent-override: 80.89%;
-  descent-override: 205.24%;
+  size-adjust: 93.36%;
+  ascent-override: 109.84%;
+  descent-override: 57.54%;
   line-gap-override: 0%;
 }
 
