@@ -422,7 +422,8 @@ test("the committed budget covers every fixture route and asset class", () => {
   const budget = JSON.parse(readFileSync(budgetPath, "utf8")) as Budget;
   assert.ok(budget.note?.includes("not a product target"), "the budget should say what its numbers mean");
   assert.ok(budget.note?.includes(FONT_CLASS), "the budget should say what its font numbers mean");
-  assert.deepEqual(Object.keys(budget.routes).sort(), ["/", "/guide/", "/reference/"]);
+  assert.deepEqual(Object.keys(budget.routes).sort(), ["/", "/guide/", "/reference/", "/reports/"]);
+  assert.equal(budget.routes["/reports/"]?.["js/components"].count, 0, "the report page ships no component island");
   for (const [route, classes] of Object.entries(budget.routes)) {
     for (const assetClass of ASSET_CLASSES) assert.ok(classes[assetClass], `${route} has no ${assetClass} baseline`);
     assert.ok(classes["css/base"].gzip > 0, `${route} should load the base stylesheet`);

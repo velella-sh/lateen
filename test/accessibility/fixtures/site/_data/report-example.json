@@ -1,0 +1,64 @@
+{
+  "accessibility": {
+    "tool": "lateen/a11y-report",
+    "version": 1,
+    "commit": "0123456",
+    "tools": {
+      "node": "v24.0.0",
+      "playwright": "1.65.0",
+      "axe": "4.14.0",
+      "chromium": "140.0.0"
+    },
+    "rules": ["wcag2a", "wcag2aa", "wcag21a", "wcag21aa", "wcag22aa"],
+    "matrix": [
+      { "case": "example home", "site": "docs", "path": "/", "layout": "home", "lang": "en", "theme": "light", "width": 1280, "height": 900 },
+      { "case": "example home", "site": "docs", "path": "/", "layout": "home", "lang": "en", "theme": "dark", "width": 1280, "height": 900 },
+      { "case": "example persian", "site": "fixtures", "path": "/fa/", "layout": "doc", "lang": "fa", "theme": "light", "width": 1280, "height": 900 }
+    ],
+    "findings": [
+      {
+        "case": "example home",
+        "theme": "light",
+        "rule": "color-contrast",
+        "impact": "moderate",
+        "target": ".example-eyebrow",
+        "help": "Elements must meet minimum color contrast ratio thresholds",
+        "helpUrl": "https://dequeuniversity.com/rules/axe/4.14/color-contrast"
+      }
+    ],
+    "known": [{ "case": "*", "theme": "dark", "rule": "region", "target": "main" }],
+    "journeys": [
+      { "name": "open the navigation", "theme": "light", "result": "pass" },
+      { "name": "read without JavaScript", "theme": "dark", "result": "pass" }
+    ],
+    "summary": { "states": 3, "findings": { "minor": 0, "moderate": 1, "serious": 0, "critical": 0 }, "journeys": { "pass": 2, "fail": 0, "skip": 0 } }
+  },
+  "performance": {
+    "tool": "lateen/performance-report",
+    "version": 1,
+    "commit": "0123456",
+    "tolerance": 64,
+    "routes": [
+      {
+        "route": "/",
+        "classes": [
+          { "name": "css/base", "raw": 18400, "gzip": 5100, "count": 1, "budget": { "gzip": 5200, "count": 1 } },
+          { "name": "css/page", "raw": 2200, "gzip": 900, "count": 1, "budget": { "gzip": 900, "count": 1 } },
+          { "name": "js/chrome", "raw": 21000, "gzip": 7200, "count": 3, "budget": { "gzip": 7200, "count": 3 } }
+        ]
+      },
+      {
+        "route": "/guide/",
+        "classes": [
+          { "name": "css/base", "raw": 18400, "gzip": 5100, "count": 1, "budget": { "gzip": 5200, "count": 1 } },
+          { "name": "css/page", "raw": 3100, "gzip": 1200, "count": 1, "budget": { "gzip": 1200, "count": 1 } },
+          { "name": "js/chrome", "raw": 21000, "gzip": 7200, "count": 3, "budget": { "gzip": 7200, "count": 3 } }
+        ]
+      }
+    ],
+    "totals": [
+      { "route": "/", "javascript": { "raw": 21000, "gzip": 7200 }, "css": { "raw": 20600, "gzip": 6000 } },
+      { "route": "/guide/", "javascript": { "raw": 21000, "gzip": 7200 }, "css": { "raw": 21500, "gzip": 6300 } }
+    ]
+  }
+}

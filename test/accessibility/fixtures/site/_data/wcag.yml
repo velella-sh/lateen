@@ -1,0 +1,416 @@
+# yaml-language-server: $schema=../../schema/wcag-checks.schema.json
+# Every WCAG 2.2 level A and AA success criterion, how Lateen checks it, and the evidence for a manual check.
+criteria:
+  - id: "1.1.1"
+    principle: perceivable
+    name: Non-text Content
+    level: A
+    url: https://www.w3.org/WAI/WCAG22/Understanding/non-text-content.html
+    how: automated
+    notes: axe checks that a text alternative exists; a person still reads whether it is meaningful.
+  - id: "1.2.1"
+    principle: perceivable
+    name: Audio-only and Video-only (Prerecorded)
+    level: A
+    url: https://www.w3.org/WAI/WCAG22/Understanding/audio-only-and-video-only-prerecorded.html
+    how: not-applicable
+    notes: The theme ships no prerecorded audio or video of its own; media is embedded from a provider.
+  - id: "1.2.2"
+    principle: perceivable
+    name: Captions (Prerecorded)
+    level: A
+    url: https://www.w3.org/WAI/WCAG22/Understanding/captions-prerecorded.html
+    how: not-applicable
+    notes: "Captions belong to the embedded media's source, which the theme does not host."
+  - id: "1.2.3"
+    principle: perceivable
+    name: Audio Description or Media Alternative (Prerecorded)
+    level: A
+    url: https://www.w3.org/WAI/WCAG22/Understanding/audio-description-or-media-alternative-prerecorded.html
+    how: not-applicable
+    notes: The theme hosts no prerecorded media and writes no audio description.
+  - id: "1.2.4"
+    principle: perceivable
+    name: Captions (Live)
+    level: AA
+    url: https://www.w3.org/WAI/WCAG22/Understanding/captions-live.html
+    how: not-applicable
+    notes: The theme hosts no live media.
+  - id: "1.2.5"
+    principle: perceivable
+    name: Audio Description (Prerecorded)
+    level: AA
+    url: https://www.w3.org/WAI/WCAG22/Understanding/audio-description-prerecorded.html
+    how: not-applicable
+    notes: The theme hosts no prerecorded media and writes no audio description.
+  - id: "1.3.1"
+    principle: perceivable
+    name: Info and Relationships
+    level: A
+    url: https://www.w3.org/WAI/WCAG22/Understanding/info-and-relationships.html
+    how: automated
+    notes: "List, table, and ARIA parent-child structure."
+  - id: "1.3.2"
+    principle: perceivable
+    name: Meaningful Sequence
+    level: A
+    url: https://www.w3.org/WAI/WCAG22/Understanding/meaningful-sequence.html
+    how: manual
+    notes: A person follows the reading order with a screen reader.
+  - id: "1.3.3"
+    principle: perceivable
+    name: Sensory Characteristics
+    level: A
+    url: https://www.w3.org/WAI/WCAG22/Understanding/sensory-characteristics.html
+    how: manual
+    notes: "No instruction relies on shape, size, position, or sound; a person reads each one."
+  - id: "1.3.4"
+    principle: perceivable
+    name: Orientation
+    level: AA
+    url: https://www.w3.org/WAI/WCAG22/Understanding/orientation.html
+    how: manual
+    notes: The layout does not lock orientation; a person checks both orientations.
+  - id: "1.3.5"
+    principle: perceivable
+    name: Identify Input Purpose
+    level: AA
+    url: https://www.w3.org/WAI/WCAG22/Understanding/identify-input-purpose.html
+    how: not-applicable
+    notes: "The only form is the variables demo, which asks for no personal data."
+  - id: "1.4.1"
+    principle: perceivable
+    name: Use of Color
+    level: A
+    url: https://www.w3.org/WAI/WCAG22/Understanding/use-of-color.html
+    how: automated
+    notes: "Links in text are underlined or otherwise marked, not told apart by colour alone."
+  - id: "1.4.2"
+    principle: perceivable
+    name: Audio Control
+    level: A
+    url: https://www.w3.org/WAI/WCAG22/Understanding/audio-control.html
+    how: not-applicable
+    notes: The theme plays no audio.
+  - id: "1.4.3"
+    principle: perceivable
+    name: Contrast (Minimum)
+    level: AA
+    url: https://www.w3.org/WAI/WCAG22/Understanding/contrast-minimum.html
+    how: automated
+    notes: "Rendered text is checked at 4.5:1 (3:1 for large text) in light and dark; a person also reads it."
+  - id: "1.4.4"
+    principle: perceivable
+    name: Resize Text
+    level: AA
+    url: https://www.w3.org/WAI/WCAG22/Understanding/resize-text.html
+    how: manual
+    notes: axe catches a viewport that blocks zoom; a person also checks the layout at 200%.
+    checked:
+      date: "2026-11-14"
+      version: 0.2.2
+      evidence: https://github.com/velella-sh/lateen/blob/main/site/accessibility.md#release-candidate-qa-record
+  - id: "1.4.5"
+    principle: perceivable
+    name: Images of Text
+    level: AA
+    url: https://www.w3.org/WAI/WCAG22/Understanding/images-of-text.html
+    how: manual
+    notes: Headings and interface text are real text; a person checks that no image replaces them.
+  - id: "1.4.10"
+    principle: perceivable
+    name: Reflow
+    level: AA
+    url: https://www.w3.org/WAI/WCAG22/Understanding/reflow.html
+    how: manual
+    notes: "Checked at a 320 px wide window: nothing may scroll sideways."
+    checked:
+      date: "2026-11-14"
+      version: 0.2.2
+      evidence: https://github.com/velella-sh/lateen/blob/main/site/accessibility.md#release-candidate-qa-record
+  - id: "1.4.11"
+    principle: perceivable
+    name: Non-text Contrast
+    level: AA
+    url: https://www.w3.org/WAI/WCAG22/Understanding/non-text-contrast.html
+    how: manual
+    notes: "Focus rings and interface marks are checked at 3:1."
+  - id: "1.4.12"
+    principle: perceivable
+    name: Text Spacing
+    level: AA
+    url: https://www.w3.org/WAI/WCAG22/Understanding/text-spacing.html
+    how: manual
+    notes: axe catches inline styles that block spacing overrides; a person also checks the result.
+  - id: "1.4.13"
+    principle: perceivable
+    name: Content on Hover or Focus
+    level: AA
+    url: https://www.w3.org/WAI/WCAG22/Understanding/content-on-hover-or-focus.html
+    how: manual
+    notes: Popovers open on focus and close with Escape.
+  - id: "2.1.1"
+    principle: operable
+    name: Keyboard
+    level: A
+    url: https://www.w3.org/WAI/WCAG22/Understanding/keyboard.html
+    how: manual
+    notes: axe finds scroll regions that cannot take focus; a person also operates every control.
+    checked:
+      date: "2026-11-14"
+      version: 0.2.2
+      evidence: https://github.com/velella-sh/lateen/blob/main/site/accessibility.md#release-candidate-qa-record
+  - id: "2.1.2"
+    principle: operable
+    name: No Keyboard Trap
+    level: A
+    url: https://www.w3.org/WAI/WCAG22/Understanding/no-keyboard-trap.html
+    how: manual
+    notes: The drawer and the search palette trap focus only while open and return it on close.
+    checked:
+      date: "2026-11-14"
+      version: 0.2.2
+      evidence: https://github.com/velella-sh/lateen/blob/main/site/accessibility.md#release-candidate-qa-record
+  - id: "2.1.4"
+    principle: operable
+    name: Character Key Shortcuts
+    level: A
+    url: https://www.w3.org/WAI/WCAG22/Understanding/character-key-shortcuts.html
+    how: manual
+    notes: The site's single-key shortcuts are disabled by default in unmodified form and can be turned off.
+  - id: "2.2.1"
+    principle: operable
+    name: Timing Adjustable
+    level: A
+    url: https://www.w3.org/WAI/WCAG22/Understanding/timing-adjustable.html
+    how: not-applicable
+    notes: The theme sets no time limit on reading or on a task.
+  - id: "2.2.2"
+    principle: operable
+    name: "Pause, Stop, Hide"
+    level: A
+    url: https://www.w3.org/WAI/WCAG22/Understanding/pause-stop-hide.html
+    how: manual
+    notes: The announcement bar is the only moving content and it can be dismissed.
+  - id: "2.3.1"
+    principle: operable
+    name: Three Flashes or Below Threshold
+    level: A
+    url: https://www.w3.org/WAI/WCAG22/Understanding/three-flashes-or-below-threshold.html
+    how: not-applicable
+    notes: The theme flashes nothing.
+  - id: "2.4.1"
+    principle: operable
+    name: Bypass Blocks
+    level: A
+    url: https://www.w3.org/WAI/WCAG22/Understanding/bypass-blocks.html
+    how: automated
+    notes: A skip link is the first stop.
+  - id: "2.4.2"
+    principle: operable
+    name: Page Titled
+    level: A
+    url: https://www.w3.org/WAI/WCAG22/Understanding/page-titled.html
+    how: automated
+    notes: "Every page has a title from its front matter, its first heading, or its file name."
+  - id: "2.4.3"
+    principle: operable
+    name: Focus Order
+    level: A
+    url: https://www.w3.org/WAI/WCAG22/Understanding/focus-order.html
+    how: manual
+    notes: A person checks which element has focus at each step.
+  - id: "2.4.4"
+    principle: operable
+    name: Link Purpose (In Context)
+    level: A
+    url: https://www.w3.org/WAI/WCAG22/Understanding/link-purpose-in-context.html
+    how: automated
+    notes: Every link has text that names where it goes.
+  - id: "2.4.5"
+    principle: operable
+    name: Multiple Ways
+    level: AA
+    url: https://www.w3.org/WAI/WCAG22/Understanding/multiple-ways.html
+    how: manual
+    notes: "The site offers navigation, search, and a sitemap; a person checks more than one way is present."
+  - id: "2.4.6"
+    principle: operable
+    name: Headings and Labels
+    level: AA
+    url: https://www.w3.org/WAI/WCAG22/Understanding/headings-and-labels.html
+    how: automated
+    notes: Headings and labels describe their topic.
+  - id: "2.4.7"
+    principle: operable
+    name: Focus Visible
+    level: AA
+    url: https://www.w3.org/WAI/WCAG22/Understanding/focus-visible.html
+    how: manual
+    notes: A person checks that the focus ring is visible at each step.
+    checked:
+      date: "2026-11-14"
+      version: 0.2.2
+      evidence: https://github.com/velella-sh/lateen/blob/main/site/accessibility.md#release-candidate-qa-record
+  - id: "2.4.11"
+    principle: operable
+    name: Focus Not Obscured (Minimum)
+    level: AA
+    url: https://www.w3.org/WAI/WCAG22/Understanding/focus-not-obscured-minimum.html
+    how: manual
+    notes: The sticky header and sidebar are checked against a focused link.
+  - id: "2.5.1"
+    principle: operable
+    name: Pointer Gestures
+    level: A
+    url: https://www.w3.org/WAI/WCAG22/Understanding/pointer-gestures.html
+    how: not-applicable
+    notes: No control needs a multipoint or path-based gesture.
+  - id: "2.5.2"
+    principle: operable
+    name: Pointer Cancellation
+    level: A
+    url: https://www.w3.org/WAI/WCAG22/Understanding/pointer-cancellation.html
+    how: manual
+    notes: "Every action fires on release, and a person checks the pointer journeys."
+  - id: "2.5.3"
+    principle: operable
+    name: Label in Name
+    level: A
+    url: https://www.w3.org/WAI/WCAG22/Understanding/label-in-name.html
+    how: automated
+    notes: A control's visible label is part of its accessible name.
+  - id: "2.5.4"
+    principle: operable
+    name: Motion Actuation
+    level: A
+    url: https://www.w3.org/WAI/WCAG22/Understanding/motion-actuation.html
+    how: not-applicable
+    notes: No control responds to device motion.
+  - id: "2.5.7"
+    principle: operable
+    name: Dragging Movements
+    level: AA
+    url: https://www.w3.org/WAI/WCAG22/Understanding/dragging-movements.html
+    how: not-applicable
+    notes: No control is dragged.
+  - id: "2.5.8"
+    principle: operable
+    name: Target Size (Minimum)
+    level: AA
+    url: https://www.w3.org/WAI/WCAG22/Understanding/target-size-minimum.html
+    how: automated
+    notes: Interactive targets meet the 24 by 24 CSS pixel minimum or have an equivalent control.
+  - id: "3.1.1"
+    principle: understandable
+    name: Language of Page
+    level: A
+    url: https://www.w3.org/WAI/WCAG22/Understanding/language-of-page.html
+    how: automated
+    notes: Every page sets lang and dir; the Persian and Arabic pages are in the matrix.
+  - id: "3.1.2"
+    principle: understandable
+    name: Language of Parts
+    level: AA
+    url: https://www.w3.org/WAI/WCAG22/Understanding/language-of-parts.html
+    how: manual
+    notes: Mixed-direction text is isolated; a person checks the wording.
+  - id: "3.2.1"
+    principle: understandable
+    name: On Focus
+    level: A
+    url: https://www.w3.org/WAI/WCAG22/Understanding/on-focus.html
+    how: manual
+    notes: Focus alone changes nothing; a person tabs through every control.
+  - id: "3.2.2"
+    principle: understandable
+    name: On Input
+    level: A
+    url: https://www.w3.org/WAI/WCAG22/Understanding/on-input.html
+    how: manual
+    notes: Changing a field or a choice runs no navigation; a person checks the forms.
+  - id: "3.2.3"
+    principle: understandable
+    name: Consistent Navigation
+    level: AA
+    url: https://www.w3.org/WAI/WCAG22/Understanding/consistent-navigation.html
+    how: manual
+    notes: One layout renders the navigation on every page.
+  - id: "3.2.4"
+    principle: understandable
+    name: Consistent Identification
+    level: AA
+    url: https://www.w3.org/WAI/WCAG22/Understanding/consistent-identification.html
+    how: manual
+    notes: The same control keeps the same name and icon across pages.
+  - id: "3.2.6"
+    principle: understandable
+    name: Consistent Help
+    level: A
+    url: https://www.w3.org/WAI/WCAG22/Understanding/consistent-help.html
+    how: manual
+    notes: The theme offers no help mechanism of its own; a site that adds one places it consistently.
+  - id: "3.3.1"
+    principle: understandable
+    name: Error Identification
+    level: A
+    url: https://www.w3.org/WAI/WCAG22/Understanding/error-identification.html
+    how: manual
+    notes: The variables demo names the field and shows a visible localized error.
+    checked:
+      date: "2026-11-14"
+      version: 0.2.2
+      evidence: https://github.com/velella-sh/lateen/blob/main/site/accessibility.md#release-candidate-qa-record
+  - id: "3.3.2"
+    principle: understandable
+    name: Labels or Instructions
+    level: A
+    url: https://www.w3.org/WAI/WCAG22/Understanding/labels-or-instructions.html
+    how: automated
+    notes: Every input has a label or instructions.
+  - id: "3.3.3"
+    principle: understandable
+    name: Error Suggestion
+    level: AA
+    url: https://www.w3.org/WAI/WCAG22/Understanding/error-suggestion.html
+    how: manual
+    notes: The variables demo says what a value must look like.
+  - id: "3.3.4"
+    principle: understandable
+    name: "Error Prevention (Legal, Financial, Data)"
+    level: AA
+    url: https://www.w3.org/WAI/WCAG22/Understanding/error-prevention-legal-financial-data.html
+    how: not-applicable
+    notes: "The theme takes no legal, financial, or personal-data transaction."
+  - id: "3.3.7"
+    principle: understandable
+    name: Redundant Entry
+    level: A
+    url: https://www.w3.org/WAI/WCAG22/Understanding/redundant-entry.html
+    how: not-applicable
+    notes: The theme has no multi-step form that could ask for the same information twice.
+  - id: "3.3.8"
+    principle: understandable
+    name: Accessible Authentication (Minimum)
+    level: AA
+    url: https://www.w3.org/WAI/WCAG22/Understanding/accessible-authentication-minimum.html
+    how: not-applicable
+    notes: The theme has no authentication.
+  - id: "4.1.2"
+    principle: robust
+    name: "Name, Role, Value"
+    level: A
+    url: https://www.w3.org/WAI/WCAG22/Understanding/name-role-value.html
+    how: automated
+    notes: "axe checks names, roles, and ARIA state; a person also checks the behaviour."
+  - id: "4.1.3"
+    principle: robust
+    name: Status Messages
+    level: AA
+    url: https://www.w3.org/WAI/WCAG22/Understanding/status-messages.html
+    how: manual
+    notes: Status messages are announced without moving focus; a person checks the copy and form messages.
+    checked:
+      date: "2026-11-14"
+      version: 0.2.2
+      evidence: https://github.com/velella-sh/lateen/blob/main/site/accessibility.md#release-candidate-qa-record

@@ -1,0 +1,52 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://velella.sh/lateen/schema/wcag-checks.schema.json",
+  "title": "Lateen WCAG checks",
+  "description": "Every WCAG 2.2 level A and AA success criterion, how the theme checks it, and the evidence behind a manual check. A criterion is linked, never copied, so the wording stays with the W3C. `checked` is present only when the date, the version, and the evidence exist; without it the checklist says the check is not recorded yet.",
+  "type": "object",
+  "required": ["criteria"],
+  "additionalProperties": false,
+  "properties": {
+    "criteria": {
+      "type": "array",
+      "minItems": 55,
+      "maxItems": 55,
+      "items": {
+        "type": "object",
+        "required": ["id", "principle", "name", "level", "url", "how", "notes"],
+        "additionalProperties": false,
+        "properties": {
+          "id": {
+            "type": "string",
+            "pattern": "[1-4]\\.[0-9]+\\.[0-9]+",
+            "description": "The criterion number, exactly as the W3C writes it."
+          },
+          "principle": {
+            "type": "string",
+            "enum": ["perceivable", "operable", "understandable", "robust"],
+            "description": "The principle the criterion belongs to, from the first digit of its number."
+          },
+          "name": { "type": "string", "description": "The criterion's short name, so a reader can find it." },
+          "level": { "type": "string", "enum": ["A", "AA"] },
+          "url": { "type": "string", "description": "The W3C's Understanding page for the criterion." },
+          "how": {
+            "type": "string",
+            "enum": ["automated", "manual", "not-applicable"],
+            "description": "The primary way it is checked; `notes` carries a partial automated check."
+          },
+          "notes": { "type": "string", "description": "What is checked, or why the criterion does not apply." },
+          "checked": {
+            "type": "object",
+            "required": ["date", "version", "evidence"],
+            "additionalProperties": false,
+            "properties": {
+              "date": { "type": "string", "pattern": "\\d{4}-\\d{2}-\\d{2}" },
+              "version": { "type": "string" },
+              "evidence": { "type": "string", "description": "A link to where the check is recorded." }
+            }
+          }
+        }
+      }
+    }
+  }
+}

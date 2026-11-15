@@ -1,0 +1,90 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://velella.sh/lateen/schema/performance-report.schema.json",
+  "title": "Lateen performance report",
+  "description": "What the performance budget measured on one commit: the bytes and asset count of every route and asset class, its checked-in budget when there is one, and the JavaScript and CSS totals a public claim talks about. Lists are ordered by route and asset class; no wall-clock time is recorded, so two runs on the same commit write the same file.",
+  "type": "object",
+  "required": ["tool", "version", "commit", "tolerance", "routes", "totals"],
+  "additionalProperties": false,
+  "properties": {
+    "tool": { "type": "string", "enum": ["lateen/performance-report"] },
+    "version": { "type": "integer", "enum": [1] },
+    "commit": {
+      "type": "string",
+      "pattern": "[0-9a-f]{7,40}",
+      "description": "The commit the budget measured. It identifies the run instead of a timestamp."
+    },
+    "tolerance": {
+      "type": "integer",
+      "minimum": 0,
+      "description": "The gzip difference the gate allows between zlib builds, in bytes per asset class."
+    },
+    "routes": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "type": "object",
+        "required": ["route", "classes"],
+        "additionalProperties": false,
+        "properties": {
+          "route": { "type": "string" },
+          "classes": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "required": ["name", "raw", "gzip", "count"],
+              "additionalProperties": false,
+              "properties": {
+                "name": {
+                  "type": "string",
+                  "enum": ["css/base", "css/page", "js/chrome", "js/components", "js/inline", "font/self-hosted"]
+                },
+                "raw": { "type": "integer", "minimum": 0 },
+                "gzip": { "type": "integer", "minimum": 0 },
+                "count": { "type": "integer", "minimum": 0 },
+                "budget": {
+                  "type": "object",
+                  "required": ["gzip", "count"],
+                  "additionalProperties": false,
+                  "properties": {
+                    "gzip": { "type": "integer", "minimum": 0 },
+                    "count": { "type": "integer", "minimum": 0 }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "totals": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["route", "javascript", "css"],
+        "additionalProperties": false,
+        "properties": {
+          "route": { "type": "string" },
+          "javascript": {
+            "type": "object",
+            "required": ["raw", "gzip"],
+            "additionalProperties": false,
+            "properties": {
+              "raw": { "type": "integer", "minimum": 0 },
+              "gzip": { "type": "integer", "minimum": 0 }
+            }
+          },
+          "css": {
+            "type": "object",
+            "required": ["raw", "gzip"],
+            "additionalProperties": false,
+            "properties": {
+              "raw": { "type": "integer", "minimum": 0 },
+              "gzip": { "type": "integer", "minimum": 0 }
+            }
+          }
+        }
+      }
+    }
+  }
+}

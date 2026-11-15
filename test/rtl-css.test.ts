@@ -414,3 +414,16 @@ test("the mixed block fixture mirrors navigation arrows and leaves content symbo
     assert.equal(window.getComputedStyle(node).transform, "none", `${selector} should not mirror`);
   }
 });
+
+test("the report components read only tokens and keep every direction logical", () => {
+  const defined = new Set([...tokensCss.matchAll(/(--[a-z0-9-]+)\s*:/g)].map((match) => match[1] ?? ""));
+  for (const path of ["../components/a11y-report/style.css", "../components/budget-report/style.css", "../components/wcag-checklist/style.css"]) {
+    const text = read(path);
+    for (const declaration of declarations(text)) {
+      assert.ok(!rawColor(declaration.value), `${path}: raw color ${declaration.property}: ${declaration.value}`);
+    }
+    for (const token of new Set([...stripComments(text).matchAll(/var\(\s*(--[a-z0-9-]+)/g)].map((match) => match[1] ?? ""))) {
+      assert.ok(defined.has(token), `${path} reads ${token}, which styles/tokens.css does not define`);
+    }
+  }
+});

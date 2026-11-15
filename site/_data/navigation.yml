@@ -47,6 +47,8 @@ main:
         url: /components/steps/
       - title: Table
         url: /components/table/
+      - title: Reports
+        url: /components/reports/
       - title: Terminal
         url: /components/terminal/
   - title: Customize
@@ -58,3 +60,7 @@ main:
         url: /add-component/
       - title: Accessibility
         url: /accessibility/
+      - title: Performance
+        url: /performance/
+      - title: Reports
+        url: /reports/

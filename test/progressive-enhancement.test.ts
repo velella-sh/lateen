@@ -164,3 +164,13 @@ test("all island entry points are modules, so a blocked module leaves the docume
   const data = attrs(document, "script[data-output-evidence]", "type");
   assert.deepEqual(data, ["application/json"]);
 });
+
+test("the report components render their tables before any island and ship no client script", () => {
+  const reports = site.document("/reports/");
+  for (const selector of [".a11y-report table", ".budget-report table", ".wcag-checklist table"]) {
+    assert.ok(reports.querySelector(selector), `${selector} is in the server-rendered page`);
+  }
+  assert.match(textOf(reports.querySelector(".budget-report")), /within the budget/);
+  const scripts = all(reports, "script[src]").map((script) => script.getAttribute("src") ?? "");
+  assert.ok(!scripts.some((src) => /a11y-report|budget-report|wcag-checklist/.test(src)), "no report component ships an island");
+});

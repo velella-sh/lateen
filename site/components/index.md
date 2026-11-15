@@ -49,6 +49,7 @@ The engine turns a directive into the component whose folder has the same name u
 | [Output block](./output-block/) | The result of a command, apart from the command above it. |
 | [Page status](./page-status/) | An experimental, beta, or deprecated banner from front matter. |
 | [Reading time](./reading-time/) | A chip under the title with the page's reading time and word count. |
+| [Reports](./reports/) | An accessibility report, a performance budget, and the WCAG checklist, from site data. |
 | [Schema table](./schema-table/) | A JSON Schema from `_data` as a table of properties. |
 | [Status banner](./status-banner/) | A page-level deprecated, experimental, or old-version banner, with a replacement link. |
 | [Steps](./steps/) | A numbered sequence or tutorial. |

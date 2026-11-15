@@ -16,7 +16,7 @@ concurrency:
 jobs:
   deploy:
     runs-on: ubuntu-latest
-    timeout-minutes: 15
+    timeout-minutes: 40
     environment:
       name: github-pages
       url: ${{ steps.deploy.outputs.page_url }}
@@ -34,6 +34,18 @@ jobs:
           node-version: "24"
       - name: Install
         run: npm ci --no-audit --no-fund
+        working-directory: lateen
+      - name: Install Chromium for the accessibility gate
+        run: npx playwright install --with-deps chromium
+        working-directory: lateen
+      - name: Write the accessibility report
+        run: node scripts/test-a11y.ts --report site/_data/accessibility-report.json
+        working-directory: lateen
+      - name: Write the performance report
+        run: node scripts/performance-budget.ts --report site/_data/performance-report.json
+        working-directory: lateen
+      - name: Require both reports
+        run: test -s site/_data/accessibility-report.json && test -s site/_data/performance-report.json
         working-directory: lateen
       - name: Build the site
         run: lateen/node_modules/.bin/mizzen build lateen/site --theme lateen --out "$RUNNER_TEMP/site"

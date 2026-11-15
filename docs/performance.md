@@ -19,7 +19,9 @@ node scripts/performance-budget.ts
 ```
 
 It prints one row per route and asset class, then one row per font file with the `@font-face` context
-that loads it, then checks the result against `fixtures/performance/budget.json`. Exit code 0 means
+that loads it, then checks the result against `fixtures/performance/budget.json`. Add
+`--report <file>` to write the same numbers as JSON, validated against
+`schema/performance-report.schema.json`. Exit code 0 means
 every route is within the budget. Exit code 1 lists each problem with the route and the asset class it
 belongs to, and for a font the file itself, for example:
 

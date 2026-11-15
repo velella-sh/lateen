@@ -284,3 +284,23 @@ test("only the @page rule uses a physical length", () => {
     .map((declaration) => `${declaration.property}: ${declaration.value}`);
   assert.deepEqual(raw, []);
 });
+
+test("the report components print at page width, keep rows whole, and drop the decorative bar", () => {
+  const scroll = blocks(css).find((block) => block.selector.includes(".a11y-report-scroll") && block.selector.includes(".wcag-checklist-scroll"));
+  assert.ok(scroll, "no printed rule for the report tables' scroll regions");
+  assert.match(scroll.body, /overflow:\s*visible/);
+  assert.match(scroll.body, /max-inline-size:\s*none/);
+  assert.match(scroll.body, /border:\s*0/);
+
+  const tables = blocks(css).find((block) => block.selector.includes(".a11y-report-table") && block.selector.includes(".wcag-checklist-table"));
+  assert.ok(tables);
+  assert.match(tables.body, /inline-size:\s*100%/);
+
+  const rows = blocks(css).find((block) => block.selector.includes(".budget-report-table tr"));
+  assert.ok(rows);
+  assert.match(rows.body, /break-inside:\s*avoid/);
+
+  const bar = blocks(css).find((block) => block.selector.split(",").map((part) => part.trim()).includes(".budget-report-bar"));
+  assert.ok(bar, "the bar is not hidden in print");
+  assert.match(bar.body, /display:\s*none/);
+});

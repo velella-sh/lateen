@@ -195,6 +195,33 @@
     box-shadow: none;
   }
 
+  /* The report tables are static content: they shrink to the page and keep their rows whole. */
+  .a11y-report-scroll,
+  .budget-report-scroll,
+  .wcag-checklist-scroll {
+    max-inline-size: none;
+    overflow: visible;
+    border: 0;
+  }
+
+  .a11y-report-table,
+  .budget-report-table,
+  .wcag-checklist-table {
+    inline-size: 100%;
+    min-inline-size: 0;
+  }
+
+  .a11y-report-table tr,
+  .budget-report-table tr,
+  .wcag-checklist-table tr {
+    break-inside: avoid;
+  }
+
+  /* The bar repeats a number that is already printed; paper needs only the number. */
+  .budget-report-bar {
+    display: none;
+  }
+
   thead {
     display: table-header-group;
   }
