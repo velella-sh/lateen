@@ -48,7 +48,7 @@ export interface AuditCase {
   readonly lang: "en" | "fa" | "ar";
   readonly width: number;
   readonly height: number;
-  readonly open?: "drawer" | "search";
+  readonly open?: "drawer" | "search" | "ask";
 }
 
 const DESKTOP = { width: 1280, height: 900 } as const;
@@ -70,6 +70,7 @@ export const CASES: readonly AuditCase[] = [
   { name: "docs terminal", site: "docs", path: "/lateen/components/terminal/", layout: "doc", lang: "en", ...DESKTOP },
   { name: "docs tabs", site: "docs", path: "/lateen/components/tabs/", layout: "doc", lang: "en", ...DESKTOP },
   { name: "docs callout", site: "docs", path: "/lateen/components/callout/", layout: "doc", lang: "en", ...DESKTOP },
+  { name: "docs ask agent", site: "docs", path: "/lateen/ask-agent/", layout: "doc", lang: "en", ...DESKTOP },
   { name: "docs not found", site: "docs", path: "/lateen/404.html", layout: "not-found", lang: "en", ...DESKTOP },
   { name: "fixture home", site: "fixtures", path: "/", layout: "home", lang: "en", ...DESKTOP },
   { name: "fixture document", site: "fixtures", path: "/doc/", layout: "doc", lang: "en", ...DESKTOP },
@@ -86,6 +87,7 @@ export const CASES: readonly AuditCase[] = [
   { name: "fixture arabic", site: "fixtures", path: "/ar/", layout: "doc", lang: "ar", ...DESKTOP },
   { name: "docs drawer open", site: "docs", path: "/lateen/install/", layout: "doc", lang: "en", ...MOBILE, open: "drawer" },
   { name: "docs search open", site: "docs", path: "/lateen/install/", layout: "doc", lang: "en", ...DESKTOP, open: "search" },
+  { name: "docs ask agent open", site: "docs", path: "/lateen/install/", layout: "doc", lang: "en", ...DESKTOP, open: "ask" },
 ];
 
 /** The WCAG 2.2 A and AA rules axe runs; best-practice rules are out of scope. */
@@ -237,6 +239,7 @@ export const JOURNEYS = [
   "search the site",
   "change the language",
   "copy a code block",
+  "ask your agent",
   "read without JavaScript",
 ] as const;
 export type JourneyName = (typeof JOURNEYS)[number];
@@ -401,7 +404,16 @@ function readBaseline(file: string): readonly BaselineEntry[] {
 }
 
 /** Reveals the island, opens the overlay, and waits for the dialog to report itself open. */
-async function openOverlay(page: Page, overlay: "drawer" | "search"): Promise<void> {
+async function openOverlay(page: Page, overlay: "drawer" | "search" | "ask"): Promise<void> {
+  if (overlay === "ask") {
+    await page.locator("[data-search-open]").click();
+    await page.locator("dialog[data-search][open]").waitFor({ state: "visible" });
+    await page.locator(`#${SEARCH_INPUT_ID}`).fill("install theme");
+    await page.locator("[data-ask-agent-open]").waitFor({ state: "visible" });
+    await page.locator("[data-ask-agent-open]").click();
+    await page.locator(".ask-agent-panel").waitFor({ state: "visible" });
+    return;
+  }
   const trigger = overlay === "drawer" ? "[data-drawer-open]" : "[data-search-open]";
   await page.locator(trigger).click();
   await page.locator(`dialog[data-${overlay}][open]`).waitFor({ state: "visible" });
@@ -448,7 +460,9 @@ async function runJourney(
     viewport: noScript ? { width: 1280, height: 900 } : name === "open the navigation" ? { width: 390, height: 844 } : { width: 1280, height: 900 },
     ...(noScript ? { javaScriptEnabled: false } : {}),
   });
-  if (name === "copy a code block") await context.grantPermissions(["clipboard-read", "clipboard-write"]);
+  if (name === "copy a code block" || name === "ask your agent") {
+    await context.grantPermissions(["clipboard-read", "clipboard-write"]);
+  }
   try {
     if (!noScript) {
       await context.addInitScript(
@@ -498,6 +512,26 @@ async function runJourney(
       const copied = await page.evaluate(() => navigator.clipboard.readText());
       if (copied.trim() === "") throw new Error("the clipboard is empty after a copy");
       await expectFocus(page, ".code-copy");
+    } else if (name === "ask your agent") {
+      await page.goto(`${servers.docs.url}/lateen/install/`, { waitUntil: "load" });
+      await focusControl(page, "[data-search-open]");
+      await page.keyboard.press("Enter");
+      await page.locator("dialog[data-search][open]").waitFor({ state: "visible" });
+      await expectFocus(page, `#${SEARCH_INPUT_ID}`);
+      await page.keyboard.type("install theme");
+      await page.locator("[data-ask-agent-open]").waitFor({ state: "visible" });
+      await page.keyboard.press("ArrowUp");
+      await page.keyboard.press("Enter");
+      await page.locator(".ask-agent-panel").waitFor({ state: "visible" });
+      await page.waitForFunction(() => document.activeElement?.closest(".ask-agent-panel") !== null);
+      await focusControl(page, ".ask-agent-copy");
+      await page.keyboard.press("Space");
+      await page.waitForFunction(() => (document.querySelector(".ask-agent-status")?.textContent ?? "") !== "");
+      const copied = await page.evaluate(() => navigator.clipboard.readText());
+      if (!copied.includes("install theme")) throw new Error("the copied prompt does not carry the question");
+      await page.keyboard.press("Escape");
+      await page.locator("dialog[data-search][open]").waitFor({ state: "hidden" });
+      await expectFocus(page, "[data-search-open]");
     } else {
       await page.goto(`${servers.docs.url}/lateen/install/`, { waitUntil: "load" });
       const article = page.locator("article");

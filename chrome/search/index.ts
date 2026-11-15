@@ -2,6 +2,7 @@ import { h } from "preact";
 import type { ComponentChildren } from "preact";
 import type { Chrome } from "@velella/mizzen/contracts";
 import { patternOf, t } from "../../i18n/index.ts";
+import askAgent from "../ask-agent/index.ts";
 import commandPalette from "../command-palette/index.ts";
 
 /** Id the search field's label points to, and the one the listbox is named by; the page has one dialog. */
@@ -52,6 +53,9 @@ const search: Chrome = (props) =>
       "data-search-copied": t(props.page.lang, "copied"),
       "data-search-copy-failed": t(props.page.lang, "search_copy_failed"),
       "data-search-actions": t(props.page.lang, "command_actions"),
+      "data-search-ask-heading": t(props.page.lang, "ask_agent_heading"),
+      "data-search-ask-label": patternOf(props.page.lang, "ask_agent_label"),
+      "data-search-ask-hint": t(props.page.lang, "ask_agent_hint"),
       "aria-label": t(props.page.lang, "search"),
       hidden: true,
     },
@@ -89,6 +93,7 @@ const search: Chrome = (props) =>
         ),
       ),
       h("p", { class: "search-status", role: "status", "data-search-status": "" }, ""),
+      h("div", { class: "ask-agent", "data-ask-agent": "", hidden: true }),
       h(
         "div",
         {
@@ -100,6 +105,7 @@ const search: Chrome = (props) =>
         },
       ),
       commandPalette(props) as ComponentChildren,
+      askAgent(props) as ComponentChildren,
     ),
   );
 

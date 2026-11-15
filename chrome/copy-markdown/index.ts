@@ -1,39 +1,10 @@
 import { h } from "preact";
 import type { Chrome } from "@velella/mizzen/contracts";
 import { t } from "../../i18n/index.ts";
+import { markdownTwin } from "./twin.ts";
 
-/**
- * The Markdown twin of a page URL, by the same rule as the engine's `twinUrl`: a pretty
- * URL (`/guide/install/`) gives `/guide/install/index.md`, the site root gives `/index.md`, and
- * `/404.html` gives `/404.md`. A URL that names another file has no twin.
- *
- * The rule is repeated here so the unit stands alone, as the engine repeats it for its output; it
- * must stay in step with `packages/engine/src/outputs/twins.ts`.
- */
-export function twinUrl(url: string): string | undefined {
-  const last = url.slice(url.lastIndexOf("/") + 1);
-  if (/\.html?$/i.test(last)) return `${url.slice(0, url.length - last.length)}${last.replace(/\.html?$/i, ".md")}`;
-  if (last.includes(".")) return undefined;
-  return `${url.endsWith("/") ? url : `${url}/`}index.md`;
-}
-
-/** The page URL with the site's base in front, only when the URL does not already carry it. */
-export function pageUrl(url: string, base = ""): string {
-  const root = base.replace(/\/+$/, "");
-  if (root === "" || url === root || url.startsWith(`${root}/`)) return url;
-  return `${root}${url}`;
-}
-
-/**
- * The page's Markdown twin as the published site serves it: the twin rule applied to the
- * base-aware page URL, so the base goes in exactly once. Engine page URLs already carry the base;
- * a URL that does not, outside a subpath deployment, gets it here instead of staying
- * root-relative. The same joining rule the command palette's page actions use and the provider
- * menu applies to its absolute links, so every Markdown twin on the site names one address.
- */
-export function markdownTwin(url: string, base = ""): string | undefined {
-  return twinUrl(pageUrl(url, base));
-}
+// The twin rule is shared with the ask-agent island, which may not import the server catalog.
+export { markdownTwin, pageUrl, twinUrl } from "./twin.ts";
 
 /**
  * Copy page as Markdown: a button that copies the page's Markdown twin, a plain link to the same

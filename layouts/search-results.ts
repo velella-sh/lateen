@@ -2,6 +2,7 @@ import { h } from "preact";
 import type { ComponentChildren } from "preact";
 import type { Layout, LayoutProps } from "@velella/mizzen/contracts";
 import base from "./base.ts";
+import { askAgentSection } from "../chrome/ask-agent/index.ts";
 import { patternOf, t } from "../i18n/index.ts";
 
 /** Id of the query field, which its label points to. */
@@ -173,6 +174,7 @@ function content(props: LayoutProps): ComponentChildren {
     h("p", { class: "search-results-status", role: "status", "data-search-status": "" }, ""),
     h("noscript", null, h("p", { class: "search-results-nojs" }, t(lang, "search_results_js"))),
     h("ol", { class: "search-results-list", "data-search-results": "" }),
+    askAgentSection(props) as ComponentChildren,
     h("script", { type: "module", dangerouslySetInnerHTML: { __html: clientScript(props) } }),
   );
 }
