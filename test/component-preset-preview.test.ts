@@ -9,8 +9,8 @@ import { JSDOM } from "jsdom";
 import type { ComponentProps, Page, Site } from "@velella/mizzen/contracts";
 import presetPreview, { optionsText, scopedClass } from "../components/preset-preview/index.ts";
 import { activate, update, type AccentPicker, type PreviewRoot } from "../components/preset-preview/client.ts";
-import { contrastRatios, fill, formatRatio } from "../components/preset-preview/ratios.ts";
-import { ensureContrast } from "../src/color.ts";
+import { contrastRatios, fill, formatRatio, parsePalette } from "../components/preset-preview/ratios.ts";
+import { accentTokens, tokenCssValue } from "../src/accent.ts";
 
 const page = { lang: "en", dir: "ltr", url: "/presets/", title: "Presets", frontMatter: {}, headings: [], html: "", markdown: "", kind: "doc", source: { file: "site/presets.md", line: 1, column: 1, endLine: 1, endColumn: 1 } } as unknown as Page;
 const site = { config: { base: "", theme: { options: {} } }, pages: [], nav: {}, data: {} } as unknown as Site;
@@ -44,17 +44,19 @@ test("without a picker there is no input and no ratios", () => {
   assert.equal(document.querySelector("[data-preset-ratios]"), null);
 });
 
-test("a picker shows the accent, both canvases, and the preset's ratios without JavaScript", () => {
+test("a picker shows the accent, its palette, and the preset's ratios without JavaScript", () => {
   const { document } = render({ preset: "orchard", picker: "true" });
   const input = document.querySelector<HTMLInputElement>("[data-preset-accent]");
   assert.ok(input);
   assert.equal(input.type, "color");
   assert.equal(input.value, "#3f7d4e");
-  const canvasLight = input.getAttribute("data-canvas-light") ?? "";
-  const canvasDark = input.getAttribute("data-canvas-dark") ?? "";
-  const ratios = contrastRatios("#3f7d4e", { light: canvasLight, dark: canvasDark });
+  const palette = parsePalette(input.getAttribute("data-palette"));
+  assert.ok(palette);
+  assert.equal(palette.light.surfaces.length, 3);
+  assert.equal(palette.dark.surfaces.length, 3);
+  assert.notEqual(palette.light.surfaces[0], "#e5e9f0", "the tint moves the preset's canvas");
+  const ratios = contrastRatios("#3f7d4e", { light: palette.light.surfaces[0] ?? "", dark: palette.dark.surfaces[0] ?? "" });
   assert.ok(ratios);
-  assert.notEqual(canvasLight, "#e5e9f0", "the tint moves the preset's canvas");
   assert.equal(input.getAttribute("data-ratio-accent"), "{light} in light, {dark} in dark");
   const accent = document.querySelector("[data-preset-ratio='accent']")?.textContent;
   assert.equal(accent, `${formatRatio(ratios.accentLight)} in light, ${formatRatio(ratios.accentDark)} in dark`);
@@ -73,11 +75,13 @@ test("an unknown preset names itself instead of rendering an empty block", () =>
   assert.equal(document.querySelector(".preset-preview-missing")?.textContent, "Unknown preset midnight.");
 });
 
-test("the island rewrites both ratio lines and the preview's accent", () => {
+test("the island rewrites both ratio lines and applies the whole accent family", () => {
   const { document } = render({ preset: "harbor", picker: "true" });
   const input = document.querySelector("[data-preset-accent]");
   const root = document.querySelector("[data-preset-preview]");
   assert.ok(input && root);
+  const palette = parsePalette(input.getAttribute("data-palette"));
+  assert.ok(palette);
   let listener: (() => void) | undefined;
   const picker = {
     value: "#ff0000",
@@ -96,27 +100,31 @@ test("the island rewrites both ratio lines and the preview's accent", () => {
   } as unknown as PreviewRoot;
   assert.equal(activate(picker, preview), true);
   assert.ok(listener);
-  const light = input.getAttribute("data-canvas-light") ?? "";
-  const dark = input.getAttribute("data-canvas-dark") ?? "";
-  const ratios = contrastRatios("#ff0000", { light, dark });
+  const ratios = contrastRatios("#ff0000", { light: palette.light.surfaces[0] ?? "", dark: palette.dark.surfaces[0] ?? "" });
   assert.ok(ratios);
   assert.equal(
     root.querySelector("[data-preset-ratio='accent']")?.textContent,
     fill("{light} in light, {dark} in dark", { light: formatRatio(ratios.accentLight), dark: formatRatio(ratios.accentDark) }),
   );
-  assert.equal(
-    properties.get("--color-accent"),
-    `light-dark(${ensureContrast("#ff0000", light, 4.5)}, ${ensureContrast("#ff0000", dark, 4.5)})`,
+  const expected = accentTokens(
+    "#ff0000",
+    { light: palette.light.surfaces, dark: palette.dark.surfaces },
+    { light: palette.light.text, dark: palette.dark.text },
   );
+  for (const [name, token] of Object.entries(expected)) {
+    assert.equal(properties.get(`--${name}`), tokenCssValue(token), `--${name} follows the chosen accent`);
+  }
+  for (const name of ["accent", "accent-hover", "on-accent", "link", "link-hover", "focus", "selection"]) {
+    assert.ok(properties.has(`--color-${name}`), `--color-${name} is set`);
+  }
+  for (const name of ["state-focus-ring", "state-selected-bg", "state-selected-fg"]) {
+    assert.ok(properties.has(`--${name}`), `--${name} is set`);
+  }
+  assert.notEqual(properties.get("--color-accent"), "light-dark(#ff0000, #ff0000)", "the chosen colour is corrected");
   listener();
 });
 
-test("the island ignores a value that is not a colour", () => {
-  const picker = {
-    value: "not-a-colour",
-    getAttribute: (name: string) => ({ "data-ratio-accent": "{light}/{dark}", "data-ratio-on-accent": "{light}/{dark}", "data-canvas-light": "#ffffff", "data-canvas-dark": "#000000" })[name],
-    addEventListener: () => {},
-  } as AccentPicker;
+test("the island ignores a value that is not a colour or a palette it cannot read", () => {
   let touched = false;
   const root = {
     style: { setProperty: () => (touched = true), removeProperty: () => {} },
@@ -125,7 +133,16 @@ test("the island ignores a value that is not a colour", () => {
       return null;
     },
   } as unknown as PreviewRoot;
+  const palette = JSON.stringify({ light: { surfaces: ["#ffffff", "#ffffff", "#ffffff"], text: "#000000" }, dark: { surfaces: ["#000000", "#000000", "#000000"], text: "#ffffff" } });
+  const picker = {
+    value: "not-a-colour",
+    getAttribute: (name: string) => ({ "data-ratio-accent": "{light}/{dark}", "data-ratio-on-accent": "{light}/{dark}", "data-palette": palette })[name],
+    addEventListener: () => {},
+  } as AccentPicker;
   update(picker, root);
+  assert.equal(touched, false);
+  const broken = { ...picker, getAttribute: () => "{not json" } as AccentPicker;
+  update(broken, root);
   assert.equal(touched, false);
 });
 

@@ -58,9 +58,13 @@ A value that cannot be used (a colour that is not a hex value, an unknown radius
 origin, an unknown preset name) is ignored rather than failing the build. The page carries a CSS
 comment naming the option, so the mistake is visible in the output and in the page source.
 
-## Limits
+## Font preloads
 
-The engine preloads the theme's `font-display: optional` faces from its base stylesheet, in the head,
-after the layout has rendered. A site with custom fonts still receives those preload links; the theme
-puts the custom family first, so the faces are not used for text, and an engine change would be needed
-to drop the requests. This is the one part of the custom-font promise the theme cannot finish alone.
+A shipped face declared with `font-display: optional` is preloaded, because it is used only when it is
+there at the first paint. When a site replaces `Geist` or `Geist Mono`, the `base` layout asks the
+engine to leave that family out of this page's preload links through `LayoutProps.hints.skipFontPreload`.
+The custom family goes first in the token stack and the shipped face stays behind it as a fallback, so
+a missing glyph still reads; the reader simply does not download the replaced face before the page
+needs it. Sans and mono are independent: replacing one leaves the other's preloads alone, and a site
+without custom fonts keeps every preload it had. The hint is part of the render cache entry, so a
+cached page suppresses the same families it did when it was rendered.

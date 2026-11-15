@@ -5,7 +5,7 @@ import assert from "node:assert/strict";
 import { test } from "node:test";
 import { h } from "preact";
 import { renderToString } from "preact-render-to-string";
-import code, { adjustShiki } from "../components/code/index.ts";
+import code, { adjustShiki, buildTheme } from "../components/code/index.ts";
 import { brandTokens, codeBackgrounds, DEFAULT_CODE, presetNames, resolveBrand, type BrandTokens } from "../src/brand.ts";
 import { contrast, parseHex } from "../src/color.ts";
 
@@ -78,10 +78,11 @@ test("a rendered code block keeps every emitted token readable on the preset's b
       code({ props: { lang: "ts" }, html: "const answer = 42;", page: {}, site } as never) as never,
     );
     const backgrounds = codeBackgrounds(options);
+    assert.ok(backgrounds);
     const emitted = [...html.matchAll(/--shiki-(light|dark):(#[0-9a-f]{6})/g)];
     assert.ok(emitted.length > 0, `${name}: the block is highlighted`);
     for (const [, mode, colour] of emitted) {
-      const against = mode === "light" ? backgrounds.light : backgrounds.dark;
+      const against: string = mode === "light" ? backgrounds.light : backgrounds.dark;
       assert.ok(ratio(colour ?? "", against) >= 4.5, `${name} ${mode}: ${colour} on ${against}`);
     }
   }
@@ -90,7 +91,64 @@ test("a rendered code block keeps every emitted token readable on the preset's b
 test("the code background a preset produces comes from its neutral", () => {
   const options = { preset: "harbor" };
   const backgrounds = codeBackgrounds(options);
+  assert.ok(backgrounds);
   assert.notEqual(backgrounds.light, DEFAULT_CODE.light.bg);
   assert.notEqual(backgrounds.dark, DEFAULT_CODE.dark.bg);
-  assert.deepEqual(codeBackgrounds({}), { light: DEFAULT_CODE.light.bg, dark: DEFAULT_CODE.dark.bg });
+  assert.equal(codeBackgrounds({}), undefined, "no tint means Shiki's own colours and background stay untouched");
+  assert.equal(codeBackgrounds({ brand: { accent: "#ff0000", radius: "large" } }), undefined);
+});
+
+/** Every foreground the actual shipped theme emits: the editor colour and one per syntax scope. */
+function themeForegrounds(theme: ReturnType<typeof buildTheme>): string[] {
+  const colours = new Set<string>();
+  const editor = theme.colors?.["editor.foreground"];
+  if (typeof editor === "string") colours.add(editor);
+  for (const setting of theme.settings ?? []) {
+    const colour = setting.settings?.foreground;
+    if (typeof colour === "string") colours.add(colour);
+  }
+  return [...colours].sort();
+}
+
+test("the shipped themes carry every syntax scope, including variable", () => {
+  for (const mode of ["light", "dark"] as const) {
+    const theme = buildTheme(mode);
+    const scopes = (theme.settings ?? [])
+      .map((setting) => (Array.isArray(setting.scope) ? setting.scope.join(", ") : (setting.scope ?? "")))
+      .join(", ");
+    for (const scope of ["comment", "keyword", "string", "constant.numeric", "entity.name.function", "entity.name.tag", "punctuation", "variable"]) {
+      assert.ok(scopes.includes(scope), `${mode}: ${scope}`);
+    }
+  }
+});
+
+test("every actual shipped theme colour survives every preset through adjustShiki", () => {
+  for (const preset of presetNames()) {
+    const backgrounds = codeBackgrounds({ preset });
+    assert.ok(backgrounds, preset);
+    for (const mode of ["light", "dark"] as const) {
+      const theme = buildTheme(mode);
+      const foregrounds = themeForegrounds(theme);
+      assert.ok(foregrounds.length >= 8, `${mode}: the theme carries every scope colour`);
+      for (const colour of foregrounds) {
+        const line = `<span style="--shiki-${mode}:${colour}">x</span>`;
+        const adjusted = adjustShiki(line, backgrounds);
+        const value = new RegExp(`--shiki-${mode}:(#[0-9a-f]{6})`).exec(adjusted)?.[1] ?? "";
+        const against: string = mode === "light" ? backgrounds.light : backgrounds.dark;
+        assert.ok(ratio(value, against) >= 4.5, `${preset} ${mode}: ${colour} -> ${value} on ${against}`);
+      }
+    }
+  }
+});
+
+/** The code block the previous engine wrote for this input, byte for byte. */
+const NO_BRAND_CODE =
+  '<pre class="code" tabindex="0" data-lang="ts"><code><span class="line"><span style="--shiki-light:#4A6990;--shiki-dark:#9F8FC0">const</span><span style="--shiki-light:#886021;--shiki-dark:#E6C384"> answer</span><span style="--shiki-light:#4A6990;--shiki-dark:#9F8FC0"> =</span><span style="--shiki-light:#86597D;--shiki-dark:#FFA066"> 42</span><span style="--shiki-light:#4C566A;--shiki-dark:#C8C093">;</span></span></code></pre>';
+
+test("a page without a brand or preset renders code exactly as it did before", () => {
+  const render = (site: unknown): string =>
+    renderToString(code({ props: { lang: "ts" }, html: "const answer = 42;", page: {}, site } as never) as never);
+  assert.equal(render({}), NO_BRAND_CODE);
+  assert.equal(render({ config: { base: "", theme: { options: {} } } }), NO_BRAND_CODE);
+  assert.equal(render({ config: { base: "", theme: { options: { brand: { accent: "#ff0000", radius: "large" } } } } }), NO_BRAND_CODE);
 });

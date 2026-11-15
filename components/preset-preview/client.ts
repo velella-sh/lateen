@@ -1,9 +1,11 @@
 /* Preset preview island: the accent try-out. The server render already shows the preset's own
- * accent and its ratios; this script lets a reader pick another colour, applies it to the preview
- * block only, and rewrites the two ratio lines. Values stay in the browser: no request, no storage,
- * and the rest of the page keeps the site's own look. */
+ * accent and its ratios; this script lets a reader pick another colour, derives the same accent
+ * family the build would, applies every one of those tokens to the preview block only, and rewrites
+ * the two ratio lines. Values stay in the browser: no request, no storage, and the rest of the page
+ * keeps the site's own look. */
 
-import { adjustedAccent, contrastRatios, fill, formatRatio } from "./ratios.ts";
+import { accentTokens, tokenCssValue } from "../../src/accent.ts";
+import { contrastRatios, fill, formatRatio, parsePalette } from "./ratios.ts";
 
 /** The accent input inside a preview that has the picker. */
 export const PICKER_SELECTOR = "[data-preset-accent]";
@@ -36,17 +38,19 @@ const attribute = (picker: AccentPicker, name: string): string | undefined => {
 };
 
 /**
- * Rewrites the two ratio lines and applies the corrected accent to the preview block. The block's
- * custom property gets `light-dark()`, so both schemes follow the chosen colour; the ratios read
- * the same two canvases the server render used.
+ * Rewrites the two ratio lines and applies the whole accent family to the preview block: accent,
+ * hover, on-accent, link, focus, selection, and the selected state, from the same derivation the
+ * build uses. The block's custom properties get `light-dark()`, so both schemes follow the chosen
+ * colour. A value that is not a colour, or a palette this version cannot read, leaves the preview
+ * as the server rendered it.
  */
 export function update(picker: AccentPicker, root: PreviewRoot): void {
   const template = attribute(picker, "data-ratio-accent");
   const onAccentTemplate = attribute(picker, "data-ratio-on-accent");
-  const light = attribute(picker, "data-canvas-light");
-  const dark = attribute(picker, "data-canvas-dark");
-  if (template === undefined || onAccentTemplate === undefined || light === undefined || dark === undefined) return;
-  const ratios = contrastRatios(picker.value, { light, dark });
+  const palette = parsePalette(attribute(picker, "data-palette"));
+  if (template === undefined || onAccentTemplate === undefined || palette === undefined) return;
+  const canvas = { light: palette.light.surfaces[0] ?? "", dark: palette.dark.surfaces[0] ?? "" };
+  const ratios = contrastRatios(picker.value, canvas);
   if (ratios === undefined) return;
   const accent = root.querySelector(`${RATIO_SELECTOR}[data-preset-ratio="accent"]`);
   const onAccent = root.querySelector(`${RATIO_SELECTOR}[data-preset-ratio="on-accent"]`);
@@ -59,10 +63,11 @@ export function update(picker: AccentPicker, root: PreviewRoot): void {
       dark: formatRatio(ratios.onAccentDark),
     });
   }
-  root.style.setProperty(
-    "--color-accent",
-    `light-dark(${adjustedAccent(picker.value, light)}, ${adjustedAccent(picker.value, dark)})`,
-  );
+  const tokens = accentTokens(picker.value, { light: palette.light.surfaces, dark: palette.dark.surfaces }, {
+    light: palette.light.text,
+    dark: palette.dark.text,
+  });
+  for (const [name, token] of Object.entries(tokens)) root.style.setProperty(`--${name}`, tokenCssValue(token));
 }
 
 /** Wires one picker: applies its current value, then updates on every input. */

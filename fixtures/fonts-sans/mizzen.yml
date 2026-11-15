@@ -1,0 +1,15 @@
+# A site that replaces only the sans family: the sans preloads go, the mono ones stay.
+title: Font sans
+description: A fixture with a custom sans family.
+lang: en
+base: ""
+search: false
+theme:
+  options:
+    brand:
+      fonts:
+        sans:
+          family: "Example Sans"
+          files:
+            - src: /fonts/example-400.woff2
+              weight: 400

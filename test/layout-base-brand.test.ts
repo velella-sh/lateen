@@ -30,7 +30,7 @@ function configWith(overrides: Partial<SiteConfig> = {}): SiteConfig {
   };
 }
 
-function layoutProps(config: SiteConfig = configWith()): LayoutProps {
+function layoutProps(config: SiteConfig = configWith(), hints?: LayoutProps["hints"]): LayoutProps {
   const page: Page = {
     url: "/",
     source: pos,
@@ -51,10 +51,18 @@ function layoutProps(config: SiteConfig = configWith()): LayoutProps {
     pager: {},
     head: { title: "Home · Example", meta: [], links: [], jsonLd: [] },
     islands: [],
+    ...(hints === undefined ? {} : { hints }),
   };
 }
 
-const render = (config?: SiteConfig): string => renderToString(h(base, layoutProps(config)));
+const render = (config?: SiteConfig, hints?: LayoutProps["hints"]): string =>
+  renderToString(h(base, layoutProps(config, hints)));
+
+/** Collects the families the layout asks the engine not to preload. */
+const skipping = (): { readonly families: string[]; readonly hints: LayoutProps["hints"] } => {
+  const families: string[] = [];
+  return { families, hints: { skipFontPreload: (family: string) => families.push(family) } };
+};
 
 test("a brand writes one style element inside the head, after the title", () => {
   const html = render(configWith({ theme: { options: { preset: "harbor" } } }));
@@ -114,4 +122,29 @@ test("custom fonts are requested through the site base", () => {
   assert.match(html, /@font-face \{ font-family: "Example Sans";/);
   assert.match(html, /url\("\/lateen\/fonts\/example-sans-400\.woff2"\)/);
   assert.match(html, /--type-font-body: "Example Sans", Geist,/);
+});
+
+const sans = { family: "Example Sans", files: [{ src: "/fonts/sans.woff2", weight: 400 }] };
+const mono = { family: "Example Mono", files: [{ src: "/fonts/mono.woff2", weight: 400 }] };
+
+test("a replaced sans or mono family asks the engine to leave its preload out, independently", () => {
+  const onlySans = skipping();
+  render(configWith({ theme: { options: { brand: { fonts: { sans } } } } }), onlySans.hints);
+  assert.deepEqual(onlySans.families, ["Geist"]);
+
+  const onlyMono = skipping();
+  render(configWith({ theme: { options: { brand: { fonts: { mono } } } } }), onlyMono.hints);
+  assert.deepEqual(onlyMono.families, ["Geist Mono"]);
+
+  const both = skipping();
+  render(configWith({ theme: { options: { brand: { fonts: { sans, mono } } } } }), both.hints);
+  assert.deepEqual(both.families, ["Geist", "Geist Mono"]);
+});
+
+test("a site without custom fonts asks for no preload change", () => {
+  for (const options of [{}, { preset: "harbor" }, { brand: { accent: "#2f6f9f", radius: "large" } }]) {
+    const skipped = skipping();
+    render(configWith({ theme: { options } }), skipped.hints);
+    assert.deepEqual(skipped.families, [], JSON.stringify(options));
+  }
 });

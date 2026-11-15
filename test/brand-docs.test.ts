@@ -43,6 +43,8 @@ test("the preset page shows every shipped preset", () => {
 test("the new pages are reachable from the site navigation and the components index", () => {
   const navigation = read("site/_data/navigation.yml");
   for (const url of ["/brand-options/", "/presets/"]) assert.ok(navigation.includes(url), url);
-  assert.match(read("site/components/index.md"), /\[Preset preview\]\(\.\/preset-preview\/\)/);
+  const index = read("site/components/index.md");
+  assert.match(index, /\[Brand options\]\(\/brand-options\/\)/, "the components index links the brand options");
+  assert.match(index, /\[Preset preview\]\(\.\/preset-preview\/\)/);
   assert.match(read("site/tokens.md"), /\[Brand options\]\(\/brand-options\/\)/);
 });

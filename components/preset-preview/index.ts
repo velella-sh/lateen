@@ -2,7 +2,7 @@ import { h } from "preact";
 import type { ComponentProps } from "@velella/mizzen/contracts";
 import { t, patternOf } from "../../i18n/index.ts";
 import { brandTokens, DEFAULT_COLORS, previewCss, resolveBrand, type Brand } from "../../src/brand.ts";
-import { contrastRatios, formatRatio } from "./ratios.ts";
+import { contrastRatios, formatRatio, paletteJson, type PreviewPalette } from "./ratios.ts";
 
 /** The Markdown directive this component handles: `::preset-preview{preset=harbor picker}`. */
 export const directive = "preset-preview";
@@ -25,24 +25,23 @@ export function scopedClass(preset: string): string {
   return `preset-preview-${preset}`;
 }
 
-/** The canvas and text of the preview, from the preset's own neutral palette or the theme's. */
-function surfaces(brand: Brand): { light: { canvas: string; text: string }; dark: { canvas: string; text: string } } {
+/** The palette of the preview, from its preset's own neutral palette or the theme's. */
+function paletteOf(brand: Brand): PreviewPalette {
   const tokens = brandTokens(brand);
   const value = (name: string, scheme: "light" | "dark", fallback: string): string => {
     const token = tokens[name];
     if (token === undefined) return fallback;
     return scheme === "light" ? token.light : token.dark;
   };
-  return {
-    light: {
-      canvas: value("color-canvas", "light", DEFAULT_COLORS.light.canvas),
-      text: value("color-text", "light", DEFAULT_COLORS.light.text),
-    },
-    dark: {
-      canvas: value("color-canvas", "dark", DEFAULT_COLORS.dark.canvas),
-      text: value("color-text", "dark", DEFAULT_COLORS.dark.text),
-    },
-  };
+  const scheme = (mode: "light" | "dark") => ({
+    surfaces: [
+      value("color-canvas", mode, DEFAULT_COLORS[mode].canvas),
+      value("color-surface", mode, DEFAULT_COLORS[mode].surface),
+      value("color-surface-raised", mode, DEFAULT_COLORS[mode]["surface-raised"]),
+    ],
+    text: value("color-text", mode, DEFAULT_COLORS[mode].text),
+  });
+  return { light: scheme("light"), dark: scheme("dark") };
 }
 
 /** The options a site copies for this preset. */
@@ -64,9 +63,9 @@ export default function presetPreview({ props, page }: ComponentProps<PresetPrev
     return h("p", { class: "preset-preview preset-preview-missing" }, t(page.lang, "preset_preview_unknown", { name: name || "?" }));
   }
   const scope = scopedClass(name);
-  const surfacesOfBrand = surfaces(brand);
+  const palette = paletteOf(brand);
   const accent = brand.accent ?? DEFAULT_COLORS.light.accent;
-  const ratios = contrastRatios(accent, { light: surfacesOfBrand.light.canvas, dark: surfacesOfBrand.dark.canvas });
+  const ratios = contrastRatios(accent, { light: palette.light.surfaces[0] ?? "", dark: palette.dark.surfaces[0] ?? "" });
   const picker = props.picker !== undefined && !(typeof props.picker === "string" && FALSE_WORDS.has(props.picker.toLowerCase()));
   return h(
     "div",
@@ -93,8 +92,7 @@ export default function presetPreview({ props, page }: ComponentProps<PresetPrev
             type: "color",
             value: accent.toLowerCase(),
             "data-preset-accent": true,
-            "data-canvas-light": surfacesOfBrand.light.canvas,
-            "data-canvas-dark": surfacesOfBrand.dark.canvas,
+            "data-palette": paletteJson(palette),
             "data-ratio-accent": patternOf(page.lang, "preset_preview_ratio_accent"),
             "data-ratio-on-accent": patternOf(page.lang, "preset_preview_ratio_on_accent"),
           }),

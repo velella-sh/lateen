@@ -1,0 +1,6 @@
+# A site with no custom fonts: its pages keep the theme's optional-font preloads.
+title: Font default
+description: A fixture with the theme's own fonts.
+lang: en
+base: ""
+search: false

@@ -71,9 +71,9 @@ theme:
 ```
 
 The family goes first in the token stack and the theme's own fallbacks stay behind it, so a missing
-glyph or a slow file still reads in the shipped fonts. The engine preloads the theme's own faces from
-its base stylesheet; a page that brings custom fonts still receives those preload links, but the
-custom family is used for text.
+glyph or a slow file still reads in the shipped fonts. A replaced family's preload is left out: a page
+that brings its own sans or mono does not download the theme's face first, while a page without custom
+fonts keeps every preload it had.
 
 ## Contrast
 

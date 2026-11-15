@@ -7,7 +7,10 @@
 import { readdirSync, readFileSync } from "node:fs";
 import { join } from "node:path";
 import { fileURLToPath } from "node:url";
-import { bestOn, contrast, ensureContrast, fromOklch, mix, parseHex, toHex, toOklch } from "./color.ts";
+import { accentTokens, tokenCssValue, type BrandToken, type BrandTokens } from "./accent.ts";
+import { ensureContrast, fromOklch, mix, parseHex, toHex, toOklch } from "./color.ts";
+
+export type { BrandToken, BrandTokens } from "./accent.ts";
 
 /** The shipped presets, one JSON file of brand options per preset. */
 export const PRESETS_DIR = new URL("../tokens/presets/", import.meta.url);
@@ -57,15 +60,7 @@ export interface BrandResult {
 }
 
 /** A token the brand may set, with a light and a dark value. */
-export interface BrandToken {
-  readonly light: string;
-  readonly dark: string;
-}
-
-/** The tokens a brand changes, by their frozen `tokens/names.json` name. */
-export type BrandTokens = Readonly<Record<string, BrandToken>>;
-
-const ratio = { text: 4.5, ring: 3 } as const;
+const TEXT_RATIO = 4.5;
 
 /**
  * The theme's own colours, repeated here because the brand derives from them. `test/brand.test.ts`
@@ -361,74 +356,11 @@ function neutralTokens(neutral: string, scheme: "light" | "dark"): Record<string
   for (const role of ["text", "heading", "muted"]) {
     let value = tokens[role];
     if (value === undefined) continue;
-    for (const surface of surfaces) value = ensureContrast(value, surface, ratio.text);
+    for (const surface of surfaces) value = ensureContrast(value, surface, TEXT_RATIO);
     tokens[role] = value;
   }
   tokens.heading = tokens.text ?? base.heading;
   return tokens;
-}
-
-/** A selection background that keeps the page text readable, close to the canvas. */
-function selection(accent: string, text: string, scheme: "light" | "dark"): string {
-  const source = toOklch(accent) ?? { l: 0.6, c: 0, h: 0 };
-  const step = scheme === "light" ? 0.005 : -0.005;
-  let lightness = scheme === "light" ? 0.94 : 0.3;
-  for (let attempt = 0; attempt < 100; attempt += 1) {
-    const value = fromOklch({ l: lightness, c: Math.min(source.c, 0.05), h: source.h });
-    const textRgb = parseHex(text);
-    const background = parseHex(value);
-    if (textRgb !== undefined && background !== undefined && contrast(textRgb, background) >= ratio.text) return value;
-    lightness = Math.min(1, Math.max(0, lightness + step));
-  }
-  return scheme === "light" ? "#ffffff" : "#000000";
-}
-
-/** Moves a colour's lightness by `amount`, keeping hue and chroma. */
-function shift(colourValue: string, amount: number): string {
-  const source = toOklch(colourValue);
-  if (source === undefined) return colourValue;
-  return fromOklch({ l: Math.min(1, Math.max(0, source.l + amount)), c: source.c, h: source.h });
-}
-
-/** The accent family: accent, hover, on-accent, links, focus, selection, and the selected state. */
-function accentTokens(
-  accent: string,
-  surfaces: { light: readonly string[]; dark: readonly string[] },
-  text: { light: string; dark: string },
-): BrandTokens {
-  const derived: Record<string, { light: string; dark: string }> = {};
-  const against = (colour: string, scheme: "light" | "dark", ratio: number): string => {
-    let value = colour;
-    for (const surface of surfaces[scheme]) value = ensureContrast(value, surface, ratio);
-    return value;
-  };
-  for (const scheme of ["light", "dark"] as const) {
-    // The accent is read as text on the canvas, the surface, and the raised surface, so it is held
-    // to the text ratio on all three; the last correction also covers the two before it.
-    const base = against(accent, scheme, ratio.text);
-    const hover = against(shift(base, scheme === "light" ? -0.06 : 0.06), scheme, ratio.text);
-    const onAccent = ensureContrast(bestOn(base), base, ratio.text);
-    const focus = against(base, scheme, ratio.ring);
-    const selected = selection(accent, text[scheme], scheme);
-    const selectedFg = ensureContrast(base, selected, ratio.text);
-    const values: Record<string, string> = {
-      accent: base,
-      "accent-hover": hover,
-      "on-accent": onAccent,
-      link: base,
-      "link-hover": hover,
-      focus,
-      selection: selected,
-      "state-focus-ring": focus,
-      "state-selected-bg": selected,
-      "state-selected-fg": selectedFg,
-    };
-    for (const [name, value] of Object.entries(values)) {
-      const token = name.startsWith("state-") ? name : `color-${name}`;
-      derived[token] = { ...(derived[token] ?? { light: "", dark: "" }), [scheme]: value };
-    }
-  }
-  return derived;
 }
 
 /** The code colours: the block background from the neutral surface, every syntax colour re-checked on it. */
@@ -454,7 +386,7 @@ function codeTokens(neutral: { light: Record<string, string>; dark: Record<strin
       punctuation: base.punctuation,
     };
     for (const [role, value] of Object.entries({ bg, fg, border, ...syntax })) {
-      const adjusted = role === "bg" || role === "border" ? value : ensureContrast(value, bg, ratio.text);
+      const adjusted = role === "bg" || role === "border" ? value : ensureContrast(value, bg, TEXT_RATIO);
       derived[`code-${role}`] = { ...(derived[`code-${role}`] ?? { light: "", dark: "" }), [scheme]: adjusted };
     }
     const highlight = "code-line-highlight";
@@ -582,9 +514,7 @@ function fontTokens(brand: Brand): BrandTokens {
 
 /** One `:root:root` block (or a scoped class) with a `light-dark()` value per token. */
 export function tokensCss(tokens: BrandTokens, selector = ":root:root"): string {
-  const lines = Object.entries(tokens).map(
-    ([name, value]) => `  --${name}: ${value.light === value.dark ? value.light : `light-dark(${value.light}, ${value.dark})`};`,
-  );
+  const lines = Object.entries(tokens).map(([name, value]) => `  --${name}: ${tokenCssValue(value)};`);
   return lines.length === 0 ? "" : `${selector} {\n${lines.join("\n")}\n}`;
 }
 
@@ -606,16 +536,24 @@ export function previewCss(brand: Brand, selector: string): string {
 }
 
 /** The two code-block backgrounds a site's brand produces, cached by the options object the engine hands every unit. */
-const backdrops = new WeakMap<object, { readonly light: string; readonly dark: string }>();
+const backdrops = new WeakMap<object, { readonly light: string; readonly dark: string } | null>();
 
-/** The code-block backgrounds for a site's options: the tinted surface when it sets a neutral, else the theme's own. */
-export function codeBackgrounds(options: unknown): { readonly light: string; readonly dark: string } {
-  const fallback = { light: DEFAULT_CODE.light.bg, dark: DEFAULT_CODE.dark.bg };
-  if (typeof options !== "object" || options === null) return fallback;
+/**
+ * The code-block backgrounds for a site's options: the tinted surface when the brand sets a neutral,
+ * and `undefined` when it does not. `undefined` means the page is unchanged: Shiki's own colours were
+ * checked against its own background, so a site without a tint writes exactly the HTML it wrote before
+ * this option existed.
+ */
+export function codeBackgrounds(options: unknown): { readonly light: string; readonly dark: string } | undefined {
+  if (typeof options !== "object" || options === null) return undefined;
   const cached = backdrops.get(options);
-  if (cached !== undefined) return cached;
+  if (cached !== undefined) return cached ?? undefined;
   const { brand } = resolveBrand(options);
-  const tokens = brand === undefined ? {} : brandTokens(brand);
+  if (brand?.neutral === undefined) {
+    backdrops.set(options, null);
+    return undefined;
+  }
+  const tokens = brandTokens(brand);
   const background = (scheme: "light" | "dark"): string => tokens["code-bg"]?.[scheme] ?? DEFAULT_CODE[scheme].bg;
   const resolved = { light: background("light"), dark: background("dark") };
   backdrops.set(options, resolved);
