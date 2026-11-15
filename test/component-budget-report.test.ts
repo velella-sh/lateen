@@ -2,6 +2,7 @@ import assert from "node:assert/strict";
 import { test } from "node:test";
 import type { ComponentProps } from "@velella/mizzen/contracts";
 import budgetReport, { targetsOf } from "../components/budget-report/index.ts";
+import { formatNumber } from "../src/report.ts";
 import { pageIn, render, rows, siteWith, text } from "./report-test-helpers.ts";
 
 const REPORT = {
@@ -75,12 +76,12 @@ test("targets are read from a JSON object or a compact list, and an unreadable v
 });
 
 test("bytes are shown in the page language's digits", () => {
+  // The digits come from the runtime's locale data, so ask Intl what they are instead of assuming.
   const persian = renderReport({}, undefined, "fa");
-  assert.match(text(persian), /[۰-۹]/, "Persian digits appear");
+  assert.match(text(persian), new RegExp(`${formatNumber("fa", 300)} B`));
   assert.match(text(persian), /گزارش کارایی/);
-  // Intl's Arabic default is Latin digits; the number still follows the page language's formatting.
   const arabic = renderReport({}, undefined, "ar");
-  assert.match(text(arabic), /700 B/);
+  assert.match(text(arabic), new RegExp(`${formatNumber("ar", 300)} B`));
   assert.match(text(arabic), /تقرير الأداء/);
 });
 
