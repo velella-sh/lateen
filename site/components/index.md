@@ -48,6 +48,7 @@ The engine turns a directive into the component whose folder has the same name u
 | [OS tabs](./os-tabs/) | Install instructions grouped by operating system, defaulting to the reader's system. |
 | [Output block](./output-block/) | The result of a command, apart from the command above it. |
 | [Page status](./page-status/) | An experimental, beta, or deprecated banner from front matter. |
+| [Preset preview](./preset-preview/) | One preset of the theme in its own scoped block, with the options to copy. |
 | [Reading time](./reading-time/) | A chip under the title with the page's reading time and word count. |
 | [Reports](./reports/) | An accessibility report, a performance budget, and the WCAG checklist, from site data. |
 | [Schema table](./schema-table/) | A JSON Schema from `_data` as a table of properties. |

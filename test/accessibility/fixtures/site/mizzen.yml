@@ -14,3 +14,8 @@ languages:
     prefix: /ar
 navigation: _data/navigation.yml
 search: false
+theme:
+  options:
+    preset: graphite
+    brand:
+      accent: "#2f6f9f"

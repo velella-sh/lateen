@@ -2,6 +2,8 @@ import { readFileSync } from "node:fs";
 import { h } from "preact";
 import type { ComponentProps } from "@velella/mizzen/contracts";
 import mermaid from "../mermaid/index.ts";
+import { codeBackgrounds } from "../../src/brand.ts";
+import { ensureContrast, parseHex } from "../../src/color.ts";
 import { createHighlighterCoreSync } from "shiki/core";
 import { createJavaScriptRegexEngine } from "shiki/engine/javascript";
 import { bundledLanguages } from "shiki/langs";
@@ -67,6 +69,27 @@ function get(): HighlighterCore {
     engine: createJavaScriptRegexEngine(),
   });
   return highlighter;
+}
+
+/** The two backgrounds a brand gives the code block, or the theme's own when it sets no neutral tint. */
+export interface CodeBackdrops {
+  readonly light: string;
+  readonly dark: string;
+}
+
+/**
+ * Re-checks every highlighted token against the brand's code background. Shiki writes each colour as
+ * `--shiki-light` and `--shiki-dark` on the token; being inline, they cannot be overridden by a
+ * stylesheet, so a colour that falls below 4.5:1 is corrected here, at emit time, keeping the shipped
+ * theme's hue and only moving its lightness. A token without a hex value (`inherit`) is left alone.
+ */
+export function adjustShiki(html: string, backdrops: CodeBackdrops | undefined): string {
+  if (backdrops === undefined) return html;
+  return html.replace(/--shiki-(light|dark):(#[0-9a-fA-F]{6})/g, (match, mode: string, colour: string) => {
+    if (parseHex(colour) === undefined) return match;
+    const against = mode === "light" ? backdrops.light : backdrops.dark;
+    return `--shiki-${mode}:${ensureContrast(colour, against, 4.5)}`;
+  });
 }
 
 /** Languages whose grammar is loaded. Only these are highlighted; anything else renders as plain text. */
@@ -218,7 +241,11 @@ export default function code({ props, html, page, site }: ComponentProps<CodePro
   const hl = get();
   const grammar = ALIASES[lang] ?? lang;
   const known = hl.getLoadedLanguages().includes(grammar);
-  const out = hl.codeToHtml(text, { lang: known ? grammar : "text", themes: { light: "lateen-light", dark: "lateen-dark" }, defaultColor: false });
+  const options = site.config?.theme?.options;
+  const out = adjustShiki(
+    hl.codeToHtml(text, { lang: known ? grammar : "text", themes: { light: "lateen-light", dark: "lateen-dark" }, defaultColor: false }),
+    codeBackgrounds(options),
+  );
   const inner = /<code[^>]*>([\s\S]*)<\/code>/.exec(out)?.[1] ?? "";
   return h(
     "pre",
@@ -240,7 +267,7 @@ const IDENTIFY = /<pre class="code"((?:\s+[^>]*)?)>/g;
  * span the engine stamped after the component ran. A `mermaid` fence is left alone: the engine sends it to
  * the diagram component.
  */
-export function highlightFences(html: string): string {
+export function highlightFences(html: string, backdrops?: CodeBackdrops): string {
   if (!html.includes("<pre")) return html;
   const hl = get();
   return html
@@ -249,7 +276,10 @@ export function highlightFences(html: string): string {
       const name = lang ?? "text";
       const grammar = ALIASES[name] ?? name;
       const known = hl.getLoadedLanguages().includes(grammar);
-      const out = hl.codeToHtml(sourceText(body), { lang: known ? grammar : "text", themes: { light: "lateen-light", dark: "lateen-dark" }, defaultColor: false });
+      const out = adjustShiki(
+        hl.codeToHtml(sourceText(body), { lang: known ? grammar : "text", themes: { light: "lateen-light", dark: "lateen-dark" }, defaultColor: false }),
+        backdrops,
+      );
       const inner = /<code[^>]*>([\s\S]*)<\/code>/.exec(out)?.[1] ?? "";
       const src = /data-src="([^"]*)"/.exec(srcAttr)?.[1];
       const idAttr = src === undefined ? "" : ` id="${blockId(src)}"`;

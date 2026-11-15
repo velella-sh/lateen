@@ -11,6 +11,8 @@ This page stands for the heavy end of a documentation site: several components t
 island, each adding its module to this route's page bundle. The prose is deliberately short so the
 measurement is mostly the components themselves.
 
+::preset-preview{preset=clay}
+
 :::code-tabs{labels='["npm","pnpm"]'}
 ```bash
 npm install @velella/lateen

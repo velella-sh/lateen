@@ -56,6 +56,10 @@ main:
     children:
       - title: Tokens and options
         url: /tokens/
+      - title: Brand options
+        url: /brand-options/
+      - title: Presets
+        url: /presets/
       - title: Add a component
         url: /add-component/
       - title: Accessibility

@@ -84,6 +84,10 @@ export const CASES: readonly AuditCase[] = [
   { name: "fixture not found", site: "fixtures", path: "/404.html", layout: "not-found", lang: "en", ...DESKTOP },
   { name: "fixture persian", site: "fixtures", path: "/fa/", layout: "doc", lang: "fa", ...DESKTOP },
   { name: "fixture arabic", site: "fixtures", path: "/ar/", layout: "doc", lang: "ar", ...DESKTOP },
+  { name: "fixture brand", site: "fixtures", path: "/brand/", layout: "doc", lang: "en", ...DESKTOP },
+  { name: "fixture brand persian", site: "fixtures", path: "/fa/brand/", layout: "doc", lang: "fa", ...DESKTOP },
+  { name: "fixture brand arabic", site: "fixtures", path: "/ar/brand/", layout: "doc", lang: "ar", ...DESKTOP },
+  { name: "fixture brand mobile", site: "fixtures", path: "/brand/", layout: "doc", lang: "en", ...MOBILE },
   { name: "docs drawer open", site: "docs", path: "/lateen/install/", layout: "doc", lang: "en", ...MOBILE, open: "drawer" },
   { name: "docs search open", site: "docs", path: "/lateen/install/", layout: "doc", lang: "en", ...DESKTOP, open: "search" },
 ];

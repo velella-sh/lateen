@@ -17,6 +17,9 @@ navigation: _data/navigation.yml
 search: { text: 300 }
 theme:
   options:
+    preset: harbor
+    brand:
+      accent: "#0b6e4f"
     trust:
       contextPackUrl: "https://example.com/context?page={url}&build={build}&lang={lang}&version={version}"
       suggestEditUrl: "https://example.com/edit/{source}"

@@ -96,6 +96,8 @@ export function classOf(path: string): AssetClass {
   if (/^assets\/theme\/page-[^/]+\.css$/.test(path)) return "css/page";
   if (path.startsWith("assets/theme/islands/chrome/")) return "js/chrome";
   if (path.startsWith("assets/theme/islands/components/")) return "js/components";
+  // A module under `src/` is shared code an island imports; it ships with the component bundle.
+  if (path.startsWith("assets/theme/islands/src/")) return "js/components";
   if (path.startsWith("assets/theme/fonts/")) {
     throw new Error(`${path}: a font is measured from the stylesheet that declares it, not from the page`);
   }

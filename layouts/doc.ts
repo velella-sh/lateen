@@ -20,6 +20,7 @@ import driftBanner from "../components/drift-banner/index.ts";
 import pageStatus, { type PageStatusProps } from "../components/page-status/index.ts";
 import readingTime from "../components/reading-time/index.ts";
 import trustPanel from "../components/trust-panel/index.ts";
+import { codeBackgrounds } from "../src/brand.ts";
 
 /**
  * True when the body already supplies the page's `h1`, by the same rule as the engine's
@@ -49,6 +50,7 @@ function statusProps(page: LayoutProps["page"]): PageStatusProps {
  */
 function article(props: LayoutProps): ComponentChildren {
   const { page } = props;
+  const backdrops = codeBackgrounds(props.site.config.theme.options);
   return h(
     "article",
     { class: "doc", "data-pagefind-body": true },
@@ -59,7 +61,7 @@ function article(props: LayoutProps): ComponentChildren {
     trustPanel({ props: {}, page, site: props.site, html: "" }) as ComponentChildren,
     lastUpdated(props) as ComponentChildren,
     readingTime({ props: {}, page, site: props.site, html: "" }) as ComponentChildren,
-    h("div", { class: "doc-body", dangerouslySetInnerHTML: { __html: highlightFences(page.html) } }),
+    h("div", { class: "doc-body", dangerouslySetInnerHTML: { __html: highlightFences(page.html, backdrops) } }),
     editPage(props) as ComponentChildren,
     h(
       "div",

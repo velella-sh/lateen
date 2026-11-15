@@ -7,6 +7,7 @@
 import assert from "node:assert/strict";
 import { existsSync, readFileSync } from "node:fs";
 import { test } from "node:test";
+import { brandCss } from "../src/brand.ts";
 
 const read = (path: string): string => readFileSync(new URL(path, import.meta.url), "utf8");
 
@@ -254,5 +255,17 @@ test("the report components add no forced-color override and read only tokens", 
     for (const declaration of declarations(text)) {
       assert.ok(!rawColor(declaration.value), `${path}: raw color ${declaration.property}: ${declaration.value}`);
     }
+  }
+});
+
+test("a brand and a preset preview never bypass the system palette", () => {
+  const branded = brandCss({ accent: "#2f6f9f", neutral: "#8ea3b5", radius: "large" });
+  for (const declaration of declarations(branded)) {
+    assert.ok(declaration.property.startsWith("--"), `a brand only declares tokens, not ${declaration.property}`);
+  }
+  const preview = read("../components/preset-preview/style.css");
+  assert.match(preview, /@media \(forced-colors: active\) \{[\s\S]*border: 1px solid CanvasText;/);
+  for (const declaration of declarations(preview)) {
+    if (declaration.property === "color") assert.match(declaration.value, /^var\(--/, "a preview color comes from a token");
   }
 });

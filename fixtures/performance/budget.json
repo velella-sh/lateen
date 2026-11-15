@@ -268,8 +268,8 @@
         "count": 1
       },
       "css/page": {
-        "raw": 10242,
-        "gzip": 1748,
+        "raw": 13340,
+        "gzip": 2182,
         "count": 1
       },
       "js/chrome": {
@@ -278,9 +278,9 @@
         "count": 20
       },
       "js/components": {
-        "raw": 17000,
-        "gzip": 6196,
-        "count": 5
+        "raw": 23618,
+        "gzip": 8827,
+        "count": 8
       },
       "js/inline": {
         "raw": 293,

@@ -9,6 +9,7 @@ import { readdirSync, readFileSync } from "node:fs";
 import { test } from "node:test";
 import { JSDOM } from "jsdom";
 import { loadTokens } from "../scripts/tokens.ts";
+import { brandCss } from "../src/brand.ts";
 
 const read = (path: string): string => readFileSync(new URL(path, import.meta.url), "utf8");
 
@@ -426,4 +427,11 @@ test("the report components read only tokens and keep every direction logical", 
       assert.ok(defined.has(token), `${path} reads ${token}, which styles/tokens.css does not define`);
     }
   }
+});
+
+test("a site's own family leads the RTL stack and keeps the shipped fallbacks", () => {
+  const css = brandCss({ sans: { family: "Example Sans", files: [{ src: "/x.woff2", weight: "400", style: "normal" }] } });
+  assert.match(css, /--rtl-font-body: "Example Sans", Vazirmatn, Geist, "Vazirmatn Fallback", "Geist Fallback", system-ui, sans-serif;/);
+  assert.match(css, /--rtl-font-heading: "Example Sans", Vazirmatn,/);
+  assert.deepEqual(physicalLines(css), [], "a brand declares tokens, never a physical edge");
 });
