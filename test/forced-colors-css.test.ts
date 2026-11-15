@@ -246,3 +246,13 @@ test("disabled text and icons use their own system values", () => {
     assert.equal(plainValue(declaration.value), "currentColor", `an icon must draw with currentColor, not ${declaration.value}`);
   }
 });
+
+test("the report components add no forced-color override and read only tokens", () => {
+  for (const path of ["../components/a11y-report/style.css", "../components/budget-report/style.css", "../components/wcag-checklist/style.css"]) {
+    const text = read(path);
+    assert.doesNotMatch(text, /forced-color-adjust/, path);
+    for (const declaration of declarations(text)) {
+      assert.ok(!rawColor(declaration.value), `${path}: raw color ${declaration.property}: ${declaration.value}`);
+    }
+  }
+});

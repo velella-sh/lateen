@@ -1,0 +1,133 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://velella.sh/lateen/schema/a11y-report.schema.json",
+  "title": "Lateen accessibility report",
+  "description": "What the accessibility gate ran and found on one commit. Every list is ordered by a stable key and carries no wall-clock time, so two runs on the same commit write the same file. `findings` keeps every impact the gate saw, including the moderate and minor ones the gate does not fail on; `known` is the gate's baseline, so a reader can tell an old finding from a new one.",
+  "type": "object",
+  "required": ["tool", "version", "commit", "tools", "rules", "matrix", "findings", "known", "journeys", "summary"],
+  "additionalProperties": false,
+  "properties": {
+    "tool": { "type": "string", "enum": ["lateen/a11y-report"] },
+    "version": { "type": "integer", "enum": [1] },
+    "commit": {
+      "type": "string",
+      "pattern": "[0-9a-f]{7,40}",
+      "description": "The commit the gate ran on. It identifies the run instead of a timestamp."
+    },
+    "tools": {
+      "type": "object",
+      "required": ["node", "playwright", "axe", "chromium"],
+      "additionalProperties": false,
+      "properties": {
+        "node": { "type": "string" },
+        "playwright": { "type": "string" },
+        "axe": { "type": "string" },
+        "chromium": { "type": "string" }
+      }
+    },
+    "rules": {
+      "type": "array",
+      "minItems": 1,
+      "items": { "type": "string" },
+      "description": "The axe rule tags the gate ran."
+    },
+    "matrix": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "type": "object",
+        "required": ["case", "site", "path", "layout", "lang", "theme", "width", "height"],
+        "additionalProperties": false,
+        "properties": {
+          "case": { "type": "string" },
+          "site": { "type": "string", "enum": ["docs", "fixtures"] },
+          "path": { "type": "string" },
+          "layout": { "type": "string" },
+          "lang": { "type": "string", "enum": ["en", "fa", "ar"] },
+          "theme": { "type": "string", "enum": ["light", "dark"] },
+          "width": { "type": "integer" },
+          "height": { "type": "integer" },
+          "open": { "type": "string", "enum": ["drawer", "search"] }
+        }
+      }
+    },
+    "findings": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["case", "theme", "rule", "impact", "target", "help", "helpUrl"],
+        "additionalProperties": false,
+        "properties": {
+          "case": { "type": "string" },
+          "theme": { "type": "string", "enum": ["light", "dark"] },
+          "rule": { "type": "string" },
+          "impact": { "type": "string", "enum": ["minor", "moderate", "serious", "critical"] },
+          "target": { "type": "string" },
+          "help": { "type": "string" },
+          "helpUrl": { "type": "string" }
+        }
+      }
+    },
+    "known": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["case", "theme", "rule", "target"],
+        "additionalProperties": false,
+        "properties": {
+          "case": { "type": "string" },
+          "theme": { "type": "string", "enum": ["light", "dark"] },
+          "rule": { "type": "string" },
+          "target": { "type": "string" }
+        }
+      }
+    },
+    "journeys": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["name", "theme", "result"],
+        "additionalProperties": false,
+        "properties": {
+          "name": { "type": "string" },
+          "theme": {
+            "type": "string",
+            "enum": ["light", "dark", "system"],
+            "description": "light and dark are chosen and stored by the theme script; system is the browser's own scheme, used by the no-JavaScript journey."
+          },
+          "result": { "type": "string", "enum": ["pass", "fail", "skip"] },
+          "detail": { "type": "string" }
+        }
+      }
+    },
+    "summary": {
+      "type": "object",
+      "required": ["states", "findings", "journeys"],
+      "additionalProperties": false,
+      "properties": {
+        "states": { "type": "integer", "minimum": 1 },
+        "findings": {
+          "type": "object",
+          "required": ["minor", "moderate", "serious", "critical"],
+          "additionalProperties": false,
+          "properties": {
+            "minor": { "type": "integer", "minimum": 0 },
+            "moderate": { "type": "integer", "minimum": 0 },
+            "serious": { "type": "integer", "minimum": 0 },
+            "critical": { "type": "integer", "minimum": 0 }
+          }
+        },
+        "journeys": {
+          "type": "object",
+          "required": ["pass", "fail", "skip"],
+          "additionalProperties": false,
+          "properties": {
+            "pass": { "type": "integer", "minimum": 0 },
+            "fail": { "type": "integer", "minimum": 0 },
+            "skip": { "type": "integer", "minimum": 0 }
+          }
+        }
+      }
+    }
+  }
+}

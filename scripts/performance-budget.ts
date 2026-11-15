@@ -1,13 +1,14 @@
 // Measures the JavaScript, CSS, and self-hosted fonts the theme ships on `fixtures/performance`,
 // compares each route and asset class with the checked-in budget, and fails when one grows. The budget is
 // a regression baseline, not a product target: see docs/performance.md for the adjustment policy.
-// Usage: node scripts/performance-budget.ts [--update]
+// Usage: node scripts/performance-budget.ts [--update] [--report <file>]
 import { spawnSync } from "node:child_process";
 import { existsSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join, posix, relative } from "node:path";
 import { fileURLToPath } from "node:url";
 import { gzipSync } from "node:zlib";
+import { commitOf, reportPath, schemaAt, writeReport } from "./report.ts";
 
 export const root = fileURLToPath(new URL("../", import.meta.url));
 export const fixture = join(root, "fixtures/performance");
@@ -499,6 +500,61 @@ export function compare(measured: Measurements, budget: Budget): string[] {
   return failures;
 }
 
+/**
+ * The report as the schema describes it: every route and asset class in a stable order, its budget
+ * when the checked-in budget has one, and the JavaScript and CSS totals per route. No clock: the
+ * commit identifies the run, so two runs on the same commit write the same file.
+ */
+export function buildPerformanceReport(
+  measured: Measurements,
+  budget: Budget | undefined,
+  commit: string,
+): Readonly<Record<string, unknown>> {
+  const routes = Object.keys(measured)
+    .sort()
+    .map((route) => {
+      const baseline = budget?.routes[route];
+      return {
+        route,
+        classes: ASSET_CLASSES.flatMap((name) => {
+          const value = measured[route]?.[name];
+          if (value === undefined) return [];
+          const limit = baseline?.[name];
+          return [
+            {
+              name,
+              raw: value.raw,
+              gzip: value.gzip,
+              count: value.count,
+              ...(limit === undefined ? {} : { budget: { gzip: limit.gzip, count: limit.count } }),
+            },
+          ];
+        }),
+      };
+    });
+  const totals = routes.map((route) => {
+    const sum = (prefix: string) => {
+      let raw = 0;
+      let gzip = 0;
+      for (const item of route.classes) {
+        if (!item.name.startsWith(prefix)) continue;
+        raw += item.raw;
+        gzip += item.gzip;
+      }
+      return { raw, gzip };
+    };
+    return { route: route.route, javascript: sum("js/"), css: sum("css/") };
+  });
+  return {
+    tool: "lateen/performance-report",
+    version: 1,
+    commit,
+    tolerance: TOLERANCE_BYTES,
+    routes,
+    totals,
+  };
+}
+
 const NOTE =
   "Measured baseline for fixtures/performance, not a product target. Update with `node scripts/performance-budget.ts --update` " +
   "and explain in the pull request what grew and why. gzip is level 9 per asset; count is the stylesheets, modules, inline " +
@@ -507,16 +563,20 @@ const NOTE =
 
 export function main(argv = process.argv.slice(2)): void {
   const measured = measure();
+  const reportFile = reportPath(argv);
   console.log(formatTable(measured));
   console.log(formatFonts(measured));
+  const budget = existsSync(budgetPath) ? (JSON.parse(readFileSync(budgetPath, "utf8")) as Budget) : undefined;
+  if (reportFile !== undefined) {
+    writeReport(reportFile, schemaAt("performance-report.schema.json"), buildPerformanceReport(measured, budget, commitOf()));
+  }
   if (argv.includes("--update")) {
-    const budget: Budget = { note: NOTE, routes: measured };
-    writeFileSync(budgetPath, `${JSON.stringify(budget, null, 2)}\n`);
+    const updated: Budget = { note: NOTE, routes: measured };
+    writeFileSync(budgetPath, `${JSON.stringify(updated, null, 2)}\n`);
     console.log(`wrote ${relative(root, budgetPath)}`);
     return;
   }
-  if (!existsSync(budgetPath)) throw new Error(`${budgetPath} is missing; run with --update to record the baseline`);
-  const budget = JSON.parse(readFileSync(budgetPath, "utf8")) as Budget;
+  if (budget === undefined) throw new Error(`${budgetPath} is missing; run with --update to record the baseline`);
   const failures = compare(measured, budget);
   if (failures.length > 0) {
     console.error(`FAIL: ${failures.length} performance budget problem(s):`);

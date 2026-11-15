@@ -11,11 +11,11 @@ This page lists the WCAG 2.2 success criteria at levels A and AA that the Lateen
 
 `npm run test:a11y` builds the Lateen docs site and a small fixture site, serves them on a loopback port, and runs [axe-core](https://github.com/dequelabs/axe-core) in Chromium through [`@axe-core/playwright`](https://github.com/dequelabs/axe-core-npm). It runs the WCAG 2.2 A and AA rules.
 
-The matrix is 44 page states, covering:
+The matrix is 50 page states, covering:
 
 - **Every layout:** api, changelog, doc, home, not-found, search-results, tutorial, and versions.
 - **Every theme:** light and dark, set the way the theme switch stores the choice.
-- **Every locale:** English and the right-to-left Persian and Arabic pages.
+- **Every locale:** English and the right-to-left Persian and Arabic pages, including a report page in each that uses all three report components.
 - **Component states:** code tabs, disclosures closed and open, tabs, a terminal, a table, a form, and callouts.
 - **Open overlays:** the mobile drawer and the search palette.
 
@@ -39,6 +39,10 @@ To reproduce one failure without running the whole matrix, filter by case name:
 npm run test:a11y -- --only "docs home"
 ```
 
+Add `--report <file>` to write the whole run as JSON, validated against
+[`schema/a11y-report.schema.json`](https://github.com/velella-sh/lateen/blob/main/schema/a11y-report.schema.json).
+The deploy does this on the commit it publishes.
+
 The failing output names the case, the theme, the rule, and the element's selector, plus axe's help link. CI runs the same command in the `a11y` job of `.github/workflows/ci.yml`.
 
 ## What automation cannot check
@@ -51,33 +55,25 @@ axe checks the rules it has; a pass is not an audit. A person still reviews each
 - **Keyboard traps and focus order.** Open every overlay, tab through it, and close it with Escape.
 - **Language of parts and consistent navigation.** Read mixed-direction text and compare the navigation across pages.
 
-## Criteria
+## Checklist
 
-11 of 21 criteria have an automated check, three of them only in part. The rest are checked only by hand. Automated tools find only part of the problems for any criterion, so a person still reviews each release.
+Every WCAG 2.2 level A and AA success criterion is listed once, grouped by principle, with how
+Lateen checks it and the evidence behind a manual check. A criterion that does not apply to a docs
+theme says why. No criterion text is copied here: each row links to the W3C's own wording. A manual
+check with no recorded date, version, and evidence reads "not recorded yet", so the list never
+claims a check that did not happen.
 
-| Criterion | Name | Level | Tested by | Notes |
-| --- | --- | --- | --- | --- |
-| 1.1.1 | Non-text content | A | axe gate, by hand | axe checks that an alternative exists; whether it is meaningful is read by a person. |
-| 1.3.1 | Info and relationships | A | axe gate | List, table, and ARIA parent-child structure. |
-| 1.3.2 | Meaningful sequence | A | by hand | A person follows the reading order with a screen reader. |
-| 1.4.1 | Use of color | A | axe gate | Links in text are underlined or otherwise marked. |
-| 1.4.3 | Contrast (minimum) | AA | axe gate, by hand | Rendered text is checked at 4.5:1 (3:1 for large text), in light and dark. |
-| 1.4.4 | Resize text | AA | axe gate (partly), by hand | axe catches a viewport that blocks zoom; a person checks the layout at 200%. |
-| 1.4.10 | Reflow | AA | by hand | Checked at a 320 px wide window: nothing may scroll sideways. |
-| 1.4.11 | Non-text contrast | AA | by hand | Focus rings and interface marks are checked at 3:1. |
-| 1.4.12 | Text spacing | AA | axe gate (partly), by hand | axe catches inline styles that block spacing overrides; a person checks the result. |
-| 1.4.13 | Content on hover or focus | AA | by hand | Popovers open on focus and close with Escape. |
-| 2.1.1 | Keyboard | A | axe gate (partly), by hand | axe finds scroll regions that cannot take focus; a person operates every control. |
-| 2.1.2 | No keyboard trap | A | by hand | The drawer and the search palette trap focus only while open, and return it on close. |
-| 2.4.1 | Bypass blocks | A | axe gate | A skip link is the first stop. |
-| 2.4.3 | Focus order | A | by hand | A person checks which element has focus at each step. |
-| 2.4.7 | Focus visible | AA | by hand | A person checks that the focus ring is visible at each step. |
-| 2.4.11 | Focus not obscured (minimum) | AA | by hand | The sticky header and sidebar are checked against a focused link. |
-| 2.5.8 | Target size (minimum) | AA | axe gate | axe's target-size rule. |
-| 3.1.1 | Language of page | A | axe gate | Every page sets `lang` and `dir`; the Persian and Arabic pages are in the matrix. |
-| 3.1.2 | Language of parts | AA | by hand | Mixed-direction text is isolated; a person checks the wording. |
-| 3.2.3 | Consistent navigation | AA | by hand | One layout renders the navigation on every page. |
-| 4.1.2 | Name, role, value | A | axe gate, by hand | axe checks names, roles, and ARIA state; a person checks the behavior. |
+::wcag-checklist{from=wcag}
+
+## This site's report
+
+The deploy runs the accessibility gate on the commit it publishes, writes the report into the site's
+data before the build, and the page shows that commit. When you read this page from a checkout
+that has not run the gate, the section says the report is missing instead of showing an old one.
+
+::a11y-report{from=accessibility-report}
+
+Every release's stored reports are on the [reports page](/reports/).
 
 ## Release candidate QA record
 

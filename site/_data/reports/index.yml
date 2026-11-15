@@ -1,0 +1,4 @@
+# Releases whose two reports are stored, one entry per version. `scripts/archive-reports.ts` writes
+# this file at release time and refuses to rewrite a version that is already here; `test/reports-archive.test.ts`
+# checks every stored file against the hash recorded beside it.
+releases: []

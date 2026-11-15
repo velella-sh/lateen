@@ -30,3 +30,8 @@ A change to behavior needs a test beside the others in `test/`. A change to the 
 - Never commit compiled output.
 - Keep a pull request to one change, and describe what it fixes and how you checked it.
 - Security problems go through the organization's security policy, not a public issue.
+
+## Releasing
+
+Maintainers release from a checkout; the reports of the release commit are archived before the tag
+is created. The commands and the order are in [`docs/release.md`](./docs/release.md).
