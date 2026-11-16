@@ -159,9 +159,9 @@ test("keyboard and pointer meet the same native controls, with no duplicate ids 
   assert.equal(new Set(ids).size, ids.length, "no id is repeated");
 
   const shortcuts = attrs(document, "[aria-keyshortcuts]", "aria-keyshortcuts");
-  assert.deepEqual(shortcuts, ["m"], "one page action owns the one character shortcut");
+  assert.deepEqual(shortcuts, ["m", "y"], "one page action and the source mode switch own the character shortcuts");
   const shortcutRows = all(document, ".shortcuts-list .shortcut-action").map(textOf);
-  assert.deepEqual(shortcutRows, ["SearchNeeds JavaScript", "Copy page as MarkdownNeeds JavaScript", "Show this dialogNeeds JavaScript"]);
+  assert.deepEqual(shortcutRows, ["SearchNeeds JavaScript", "Copy page as MarkdownNeeds JavaScript", "Toggle source modeNeeds JavaScript", "Show this dialogNeeds JavaScript"]);
 
   // Pointer and keyboard reach the same elements because they are native controls.
   for (const control of all(document, "button")) {

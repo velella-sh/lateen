@@ -49,3 +49,7 @@ from `state` and `color`: no chart token references a status, callout, or state 
 `test/tokens.test.ts` checks every colour: 3:1 against `color-canvas` and `color-surface` in both themes,
 and a minimum OKLab distance between every pair (8 for categories, 5 for the sequential steps) in normal vision and under
 simulated protanopia, deuteranopia, and tritanopia (`test/support-chart-colour.ts`).
+
+## Status
+
+`tokens/status.json` holds the colours of a record's status: five tones (`positive`, `caution`, `negative`, `neutral`, `info`), each with `fg`, `bg` and `border`, as `status-<tone>-<part>`, with light and dark values. They are their own values, not references to the callout colours, so a tone can change without touching callouts. `test/tokens.test.ts` requires every `fg` to reach 4.5:1 on its `bg` and every `border` 3:1 on the canvas, in both schemes.

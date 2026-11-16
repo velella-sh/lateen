@@ -118,6 +118,21 @@
   --chart-pattern-6: horizontal;
   --chart-pattern-7: diagonal-reverse;
   --chart-pattern-8: grid;
+  --status-positive-fg: light-dark(#14532d, #bbf7d0);
+  --status-positive-bg: light-dark(#dcfce7, #14532d);
+  --status-positive-border: light-dark(#16803c, #22c55e);
+  --status-caution-fg: light-dark(#713f12, #fde68a);
+  --status-caution-bg: light-dark(#fef3c7, #422006);
+  --status-caution-border: light-dark(#b45309, #f59e0b);
+  --status-negative-fg: light-dark(#7f1d1d, #fecaca);
+  --status-negative-bg: light-dark(#fee2e2, #450a0a);
+  --status-negative-border: light-dark(#dc2626, #ef4444);
+  --status-neutral-fg: light-dark(#374151, #e5e7eb);
+  --status-neutral-bg: light-dark(#f3f4f6, #1f2937);
+  --status-neutral-border: light-dark(#6b7280, #9ca3af);
+  --status-info-fg: light-dark(#1e3a8a, #bfdbfe);
+  --status-info-bg: light-dark(#dbeafe, #172554);
+  --status-info-border: light-dark(#2563eb, #60a5fa);
 }
 
 @media (prefers-reduced-motion: reduce) {

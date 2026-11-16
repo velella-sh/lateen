@@ -53,6 +53,9 @@
   .theme-toggle,
   [data-theme-toggle],
   .terminal-copy,
+  .cli-demo-bar,
+  .install-tabs-list,
+  .install-tabs-radio,
   .code-copy,
   .code-copy-bar,
   .code-copy-status,
@@ -127,8 +130,21 @@
   .os-tabs-panel,
   .os-tabs-panel[hidden],
   .code-tabs-panel,
-  .code-tabs-panel[hidden] {
+  .code-tabs-panel[hidden],
+  .install-tabs-panel,
+  .install-tabs-panel[hidden] {
     display: block !important;
+  }
+
+  .cli-demo,
+  .install-tabs {
+    break-inside: avoid;
+  }
+
+  .install-tabs:not([data-single]) .install-tabs-panel::before {
+    content: attr(data-manager);
+    display: block;
+    font-weight: 600;
   }
 
   .tabs-title,

@@ -489,5 +489,127 @@
     "pattern-6": "horizontal",
     "pattern-7": "diagonal-reverse",
     "pattern-8": "grid"
+  },
+  "status": {
+    "positive-fg": {
+      "$value": "#14532d",
+      "$extensions": {
+        "lateen": {
+          "dark": "#bbf7d0"
+        }
+      }
+    },
+    "positive-bg": {
+      "$value": "#dcfce7",
+      "$extensions": {
+        "lateen": {
+          "dark": "#14532d"
+        }
+      }
+    },
+    "positive-border": {
+      "$value": "#16803c",
+      "$extensions": {
+        "lateen": {
+          "dark": "#22c55e"
+        }
+      }
+    },
+    "caution-fg": {
+      "$value": "#713f12",
+      "$extensions": {
+        "lateen": {
+          "dark": "#fde68a"
+        }
+      }
+    },
+    "caution-bg": {
+      "$value": "#fef3c7",
+      "$extensions": {
+        "lateen": {
+          "dark": "#422006"
+        }
+      }
+    },
+    "caution-border": {
+      "$value": "#b45309",
+      "$extensions": {
+        "lateen": {
+          "dark": "#f59e0b"
+        }
+      }
+    },
+    "negative-fg": {
+      "$value": "#7f1d1d",
+      "$extensions": {
+        "lateen": {
+          "dark": "#fecaca"
+        }
+      }
+    },
+    "negative-bg": {
+      "$value": "#fee2e2",
+      "$extensions": {
+        "lateen": {
+          "dark": "#450a0a"
+        }
+      }
+    },
+    "negative-border": {
+      "$value": "#dc2626",
+      "$extensions": {
+        "lateen": {
+          "dark": "#ef4444"
+        }
+      }
+    },
+    "neutral-fg": {
+      "$value": "#374151",
+      "$extensions": {
+        "lateen": {
+          "dark": "#e5e7eb"
+        }
+      }
+    },
+    "neutral-bg": {
+      "$value": "#f3f4f6",
+      "$extensions": {
+        "lateen": {
+          "dark": "#1f2937"
+        }
+      }
+    },
+    "neutral-border": {
+      "$value": "#6b7280",
+      "$extensions": {
+        "lateen": {
+          "dark": "#9ca3af"
+        }
+      }
+    },
+    "info-fg": {
+      "$value": "#1e3a8a",
+      "$extensions": {
+        "lateen": {
+          "dark": "#bfdbfe"
+        }
+      }
+    },
+    "info-bg": {
+      "$value": "#dbeafe",
+      "$extensions": {
+        "lateen": {
+          "dark": "#172554"
+        }
+      }
+    },
+    "info-border": {
+      "$value": "#2563eb",
+      "$extensions": {
+        "lateen": {
+          "dark": "#60a5fa"
+        }
+      }
+    }
   }
 }

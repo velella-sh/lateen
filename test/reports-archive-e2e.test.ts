@@ -16,6 +16,7 @@ function buildSite(site: string, out: string): string {
   const run = spawnSync(process.execPath, [MIZZEN, "build", site, "--theme", ".", "--out", out], {
     cwd: root,
     encoding: "utf8",
+    env: { ...process.env, NODE_V8_COVERAGE: "" },
   });
   if (run.status !== 0) throw new Error(`mizzen build failed:\n${run.stderr || run.stdout || run.error?.message || "no output"}`);
   return out;
