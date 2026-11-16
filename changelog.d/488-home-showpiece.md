@@ -1,0 +1,1 @@
+- Home showpiece (#488): `home: { style: showpiece }` in a home page's front matter recomposes it from the hero, backdrop, motif, stat strip, feature grid, frame and call-to-action band, reading new `stats`, `features`, `demo` and `cta` keys, and leaving out each section that has no data. A `home` page without the option renders byte for byte as before.

@@ -10,7 +10,9 @@
 
 /* The header bar shares the home page's width, so its logo and the hero start on the same line. */
 body:has(.home-hero) .header-inner,
-body:has(.home-hero) .site-footer-inner {
+body:has(.home-hero) .site-footer-inner,
+body:has(.home-showpiece) .header-inner,
+body:has(.home-showpiece) .site-footer-inner {
   max-inline-size: var(--home-w);
 }
 
@@ -220,4 +222,45 @@ body:has(.home-hero) .site-footer-inner {
 .home-section-links a:focus-visible {
   outline: 2px solid var(--state-focus-ring);
   outline-offset: 2px;
+}
+
+/* Showpiece style: the hero sits over its backdrop, and each later section is spaced apart. The
+   components carry their own look; this only stacks them. Hidden decoration drops out in print. */
+.home-showpiece {
+  display: grid;
+  gap: var(--space-16);
+  padding-block-end: var(--space-16);
+}
+
+.home-showpiece-hero {
+  position: relative;
+  isolation: isolate;
+}
+
+.home-showpiece-motif {
+  position: absolute;
+  inset-block: 0;
+  inset-inline-end: 0;
+  inline-size: 40%;
+  z-index: -1;
+  opacity: 0.6;
+  pointer-events: none;
+}
+
+.home-showpiece-motif svg {
+  display: block;
+  inline-size: 100%;
+  block-size: 100%;
+}
+
+@media (max-width: 48rem) {
+  .home-showpiece-motif {
+    display: none;
+  }
+}
+
+@media print {
+  .home-showpiece-motif {
+    display: none;
+  }
 }
