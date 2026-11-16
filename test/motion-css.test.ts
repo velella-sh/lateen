@@ -10,7 +10,7 @@ const root = new URL("../", import.meta.url).pathname;
 const cssFiles = (dir: string): string[] =>
   readdirSync(join(root, dir), { withFileTypes: true, recursive: true })
     .filter((entry) => entry.isFile() && entry.name.endsWith(".css"))
-    .map((entry) => join(entry.parentPath ?? entry.path, entry.name).slice(root.length));
+    .map((entry) => join(entry.parentPath, entry.name).slice(root.length));
 
 const files = [...cssFiles("styles"), ...cssFiles("components"), ...cssFiles("chrome"), ...cssFiles("layouts")].filter((file) => file !== "styles/tokens.css" && file !== "styles/print.css");
 const strip = (text: string): string => text.replace(/\/\*[\s\S]*?\*\//g, "");
