@@ -13,6 +13,7 @@ The list is static and names `Ctrl/Cmd+K` for search rather than the platform's 
 | --- | --- | --- |
 | `/`, `Ctrl/Cmd+K` | Search | yes (`chrome/search/client.ts`) |
 | `m` | Copy page as Markdown | yes (`chrome/copy-markdown`, T05) |
+| `y` | Toggle source mode | yes (`chrome/source-mode/client.ts`) |
 | `?` | This dialog | yes (`client.ts`) |
 
 The launcher sits outside the dialog because it is the only way back in while the preference is off: `?` then types normally, and the pointer control plus every modified key (`Ctrl/Cmd+K`) still work. The preference is read on each key press, so a change takes effect without a reload.

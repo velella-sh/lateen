@@ -5,22 +5,12 @@
  * The template's buttons start `hidden`, so nothing is revealed unless the browser has a clipboard
  * to write to; a page without JavaScript keeps no controls at all.
  *
- * The island is type-stripped and shipped on its own, so it imports nothing and echoes the small
- * span grammar the engine writes into `data-src`.
+ * The span grammar the engine writes into `data-src` is read by `src/source-span.ts`, shared with source mode.
  */
 
-/** One source span: `path:line:column-endLine:endColumn`; the end is inclusive. */
-export interface Span {
-  readonly file: string;
-  readonly line: number;
-  readonly column: number;
-  readonly endLine: number;
-  readonly endColumn: number;
-}
+import { parseSpan, type Span } from "../../src/source-span.ts";
 
-const FULL_SPAN = /^(.*):(\d+):(\d+)-(\d+):(\d+)$/;
-const POINT_WITH_COLUMN = /^(.*):(\d+):(\d+)$/;
-const POINT = /^(.*):(\d+)$/;
+export { parseSpan, type Span };
 
 /**
  * A stable DOM id for a code block from its source span: `code-docs-a-md-3-1-9-12`. It is the same
@@ -42,51 +32,6 @@ export const MAX_TEXT = 8000;
 
 /** How long the button shows the result before it goes back to its label. */
 export const RESET_MS = 2000;
-
-/** Every part of a span is at least 1: lines and columns are 1-based. */
-function positive(...values: readonly number[]): boolean {
-  return values.every((value) => Number.isInteger(value) && value >= 1);
-}
-
-/** A parsed span, or `undefined` when a part is missing or its end runs before its start. */
-function spanOfParts(
-  file: string | undefined,
-  line: number,
-  column: number,
-  endLine: number,
-  endColumn: number,
-): Span | undefined {
-  if (!file || !positive(line, column, endLine, endColumn)) return undefined;
-  if (endLine < line || (endLine === line && endColumn < column)) return undefined;
-  return { file, line, column, endLine, endColumn };
-}
-
-/**
- * Parses a `data-src` value: the full span, or one of the two point forms (`path:line` and
- * `path:line:column`), whose end equals the start. Numbers are taken from the right, so a path may
- * contain a colon.
- */
-export function parseSpan(value: string): Span | undefined {
-  const full = FULL_SPAN.exec(value);
-  if (full) {
-    return spanOfParts(full[1], Number(full[2]), Number(full[3]), Number(full[4]), Number(full[5]));
-  }
-
-  const withColumn = POINT_WITH_COLUMN.exec(value);
-  if (withColumn) {
-    const line = Number(withColumn[2]);
-    const column = Number(withColumn[3]);
-    return spanOfParts(withColumn[1], line, column, line, column);
-  }
-
-  const point = POINT.exec(value);
-  if (point) {
-    const line = Number(point[2]);
-    return spanOfParts(point[1], line, 1, line, 1);
-  }
-
-  return undefined;
-}
 
 /**
  * The block text as the prompt carries it. Line structure is kept, so a multiline block arrives

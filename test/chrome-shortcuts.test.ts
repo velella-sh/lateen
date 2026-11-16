@@ -142,16 +142,17 @@ test("lists every shortcut the theme defines, and says which ones need JavaScrip
     /class="shortcuts-open"[^>]*><kbd class="shortcut-key" aria-hidden="true">\?<\/kbd>/,
     "the launcher carries the key",
   );
-  assert.deepEqual(keys, ["/", "Ctrl/Cmd+K", "m", "?"]);
+  assert.deepEqual(keys, ["/", "Ctrl/Cmd+K", "m", "y", "?"]);
   assert.deepEqual(
     SHORTCUTS.map((shortcut) => shortcut.label),
-    ["search", "copy_page_md", "shortcuts_open"],
+    ["search", "copy_page_md", "shortcuts_source_mode", "shortcuts_open"],
   );
   assert.ok(SHORTCUTS.every((shortcut) => shortcut.needsScript), "every theme shortcut is a client island");
   assert.match(rendered, /<dd class="shortcut-action">Search<span class="shortcut-needs-js">Needs JavaScript<\/span><\/dd>/);
   assert.match(rendered, /<dd class="shortcut-action">Copy page as Markdown<span class="shortcut-needs-js">/);
+  assert.match(rendered, /<dd class="shortcut-action">Toggle source mode<span class="shortcut-needs-js">/);
   assert.match(rendered, /<dd class="shortcut-action">Show this dialog<span class="shortcut-needs-js">/);
-  assert.equal([...rendered.matchAll(/class="shortcut-needs-js"/g)].length, 3);
+  assert.equal([...rendered.matchAll(/class="shortcut-needs-js"/g)].length, 4);
 });
 
 test("the heading, close label, dialog label, and notes follow the page language", () => {

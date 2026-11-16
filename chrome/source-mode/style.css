@@ -1,0 +1,91 @@
+/* Source mode: a switch and a `file:line` label beside every top-level block. Labels exist in the page
+   but are not rendered (and so not read) until the root carries `.source-mode`; they are absolutely
+   placed, so turning the mode on shifts no content. Logical properties put the label in the start margin
+   in both writing directions. */
+
+.source-mode-switch {
+  position: fixed;
+  inset-block-end: calc(var(--space-4) + var(--space-8));
+  inset-inline-end: var(--space-4);
+  z-index: var(--layer-popover);
+}
+
+.source-mode-switch[hidden] {
+  display: none;
+}
+
+.source-mode-button {
+  padding-block: var(--space-1);
+  padding-inline: var(--space-3);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  background: var(--color-surface-raised);
+  color: var(--color-text);
+  font-family: var(--type-font-ui);
+  font-size: var(--type-size-sm);
+  box-shadow: var(--shadow-md);
+  cursor: pointer;
+}
+
+.source-mode-button:hover {
+  border-color: var(--color-accent);
+  color: var(--color-heading);
+}
+
+.source-mode-button[aria-pressed="true"] {
+  border-color: var(--color-accent);
+  color: var(--color-heading);
+}
+
+.source-mode-button:focus-visible {
+  outline: 2px solid var(--state-focus-ring);
+  outline-offset: 2px;
+}
+
+/* Visually hidden live region: the announcement is for assistive technology. */
+.source-mode-status {
+  position: absolute;
+  inline-size: 1px;
+  block-size: 1px;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+}
+
+.source-label {
+  display: none;
+}
+
+.source-mode .doc-body [data-src] {
+  position: relative;
+}
+
+/* Narrow screens: the label sits above the block, out of flow. */
+.source-mode .source-label {
+  display: block;
+  position: absolute;
+  inset-block-end: 100%;
+  inset-inline-start: 0;
+  max-inline-size: 100%;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  unicode-bidi: isolate;
+  color: var(--color-muted);
+  font-family: var(--type-font-mono);
+  font-size: var(--type-size-xs);
+  line-height: var(--type-leading-tight);
+  pointer-events: none;
+}
+
+/* Wide screens: the start margin, beside the block's first line. */
+@media (min-width: 90rem) {
+  .source-mode .source-label {
+    inset-block-end: auto;
+    inset-block-start: 0;
+    inset-inline-start: auto;
+    inset-inline-end: calc(100% + var(--space-3));
+    max-inline-size: 14rem;
+    text-align: end;
+  }
+}

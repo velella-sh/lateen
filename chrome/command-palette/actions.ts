@@ -17,7 +17,8 @@ export type ThemeChoice = "light" | "dark" | "system";
 export type PaletteRun =
   | { readonly kind: "theme"; readonly choice: ThemeChoice }
   | { readonly kind: "copy"; readonly url: string }
-  | { readonly kind: "section"; readonly id: string };
+  | { readonly kind: "section"; readonly id: string }
+  | { readonly kind: "source" };
 
 /** One row of the palette: a stable id, the label a reader sees, an optional hint, and what it runs. */
 export interface PaletteAction {
@@ -54,7 +55,7 @@ export function pageUrl(url: string, base = ""): string {
 /**
  * Every action the palette offers for a page, in reading order: the three theme choices, the copy
  * action when the page has a Markdown twin, then one jump per section heading (the page title is not
- * a section). Labels and hints come from the page language's string table.
+ * a section), then the source mode switch. Labels and hints come from the page language's string table.
  */
 export function paletteActions(input: PaletteInput): readonly PaletteAction[] {
   const { page } = input;
@@ -92,6 +93,13 @@ export function paletteActions(input: PaletteInput): readonly PaletteAction[] {
       run: { kind: "section", id: heading.id },
     });
   }
+
+  actions.push({
+    id: "source-mode",
+    label: t(lang, "source_mode_label"),
+    hint: t(lang, "command_source_mode"),
+    run: { kind: "source" },
+  });
 
   return actions;
 }

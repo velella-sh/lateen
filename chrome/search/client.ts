@@ -388,6 +388,7 @@ export interface PaletteHandlers {
   theme?(choice: ThemeChoice): void;
   copy?(url: string): void | Promise<void>;
   section?(id: string): void;
+  source?(): void;
 }
 
 /** A keyboard or dialog event as the dialog reads it. */
@@ -741,6 +742,7 @@ export function isPaletteRun(value: unknown): value is PaletteRun {
   const run = value as { kind?: unknown; choice?: unknown; url?: unknown; id?: unknown };
   if (run.kind === "theme") return isThemeChoice(run.choice);
   if (run.kind === "copy") return typeof run.url === "string" && run.url !== "";
+  if (run.kind === "source") return true;
   if (run.kind === "section") return typeof run.id === "string" && run.id !== "";
   return false;
 }
@@ -885,6 +887,13 @@ export function activate(parts: SearchParts, env: SearchEnv): void {
           },
         );
       }
+      return;
+    }
+    if (command.kind === "source") {
+      // Source mode is the switch's own: the palette presses it, so the button, class, storage, and
+      // announcement stay one code path.
+      dialog.close();
+      handlers.source?.();
       return;
     }
     // The heading is where the reader is going, so it keeps focus: the close handler must not take it
@@ -1082,6 +1091,7 @@ interface PaletteGlobals {
   readonly document?: {
     readonly documentElement?: ThemeRoot;
     getElementById?(id: string): SectionTarget | null;
+    querySelector?(selector: string): { click?(): void } | null;
   };
   readonly localStorage?: { setItem(key: string, value: string): void };
   readonly navigator?: { readonly clipboard?: { writeText(text: string): Promise<void> } };
@@ -1113,6 +1123,9 @@ export function liveHandlers(globals: PaletteGlobals = globalThis as unknown as 
       return fetchText(url).then((response) =>
         response.ok ? response.text() : Promise.reject(new Error("The page's Markdown is unavailable.")),
       ).then((markdown) => clipboard.writeText(markdown));
+    },
+    source() {
+      globals.document?.querySelector?.("[data-source-mode] .source-mode-button")?.click?.();
     },
     section(id) {
       const heading = globals.document?.getElementById?.(id);

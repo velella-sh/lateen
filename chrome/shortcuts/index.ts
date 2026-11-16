@@ -29,6 +29,7 @@ interface Shortcut {
 export const SHORTCUTS: readonly Shortcut[] = [
   { keys: ["/", "Ctrl/Cmd+K"], label: "search", needsScript: true },
   { keys: ["m"], label: "copy_page_md", needsScript: true },
+  { keys: ["y"], label: "shortcuts_source_mode", needsScript: true },
   { keys: ["?"], label: "shortcuts_open", needsScript: true },
 ];
 
