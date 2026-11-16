@@ -96,3 +96,17 @@ export function fitUrl(root: string, host: Host, title: string, body: string, ex
   const candidate = issueUrl(root, host, title, `${points.slice(0, low).join("")}${ELLIPSIS}`, extra);
   return candidate.length <= MAX_URL ? candidate : undefined;
 }
+
+/**
+ * The repository browser's URL for one line of a file: `${root}/blob/${branch}/${path}#L${line}` on GitHub and
+ * `${root}/-/blob/${branch}/${path}#L${line}` on GitLab. `undefined` for any other forge or an empty path.
+ */
+export function lineUrlOf(repository: RepositoryConfig, file: string, line: number): string | undefined {
+  const host = hostOf(repository);
+  if (host === undefined) return undefined;
+  const path = sourcePath(file);
+  if (path.trim() === "" || !Number.isInteger(line) || line < 1) return undefined;
+  const branch = repository.branch ?? DEFAULT_BRANCH;
+  const blob = host === "gitlab" ? "/-/blob" : "/blob";
+  return `${webRoot(repository.url)}${blob}/${encodeURIComponent(branch)}/${encodePath(path)}#L${line}`;
+}

@@ -20,7 +20,8 @@ import { liveHandlers } from "../chrome/search/client.ts";
 
 function renderFor(lang: string): string {
   const page = { lang, dir: lang === "en" ? "ltr" : "rtl" } as unknown as Page;
-  return render(h("div", null, sourceMode({ page } as unknown as ChromeProps) as never));
+  const site = { config: { theme: {} } };
+  return render(h("div", null, sourceMode({ site, page } as unknown as ChromeProps) as never));
 }
 
 test("the switch renders hidden, with a pressed state, a shortcut hint, and a status region", () => {

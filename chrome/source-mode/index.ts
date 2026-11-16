@@ -1,7 +1,32 @@
 import { h } from "preact";
 import type { Chrome } from "@velella/mizzen/contracts";
-import { t } from "../../i18n/index.ts";
+import { patternOf, t } from "../../i18n/index.ts";
+import { hostOf } from "../../src/repository.ts";
+import { acceptEditorTemplate } from "./editor.ts";
 import { SOURCE_MODE_KEY_CHAR } from "./state.ts";
+
+/** The `theme.options.sourceMode.editor` template, when it passes the scheme allowlist; else `undefined`. */
+export function editorOf(options: Readonly<Record<string, unknown>> | undefined): string | undefined {
+  const block = options?.sourceMode;
+  if (typeof block !== "object" || block === null || Array.isArray(block)) return undefined;
+  return acceptEditorTemplate((block as Record<string, unknown>).editor);
+}
+
+/** Message keys the island reads as `data-msg-*` patterns, with their `{name}` placeholders intact. */
+const MESSAGES = [
+  "source_copy_label",
+  "source_copied",
+  "source_copy_failed",
+  "source_repo_label",
+  "source_repo_link",
+  "source_editor_label",
+  "source_editor_link",
+  "source_folder_prompt",
+  "source_folder_saved",
+  "source_jump_other",
+  "source_jump_none",
+  "source_jump_nearest",
+] as const;
 
 /**
  * The source mode switch: one toggle button that shows `file:line` beside every block while it is on.
@@ -9,8 +34,12 @@ import { SOURCE_MODE_KEY_CHAR } from "./state.ts";
  * nothing. The `role=status` region sits beside the button, not inside it, and is where `client.ts`
  * announces each change in the page language (the two messages ride on the root as data attributes).
  */
-const sourceMode: Chrome = ({ page }) => {
+const sourceMode: Chrome = ({ site, page }) => {
   const lang = page.lang;
+  const repository = site.config.repository;
+  const editor = editorOf(site.config.theme.options);
+  const messages: Record<string, string> = {};
+  for (const key of MESSAGES) messages[`data-msg-${key.slice("source_".length).replaceAll("_", "-")}`] = patternOf(lang, key);
   return h(
     "div",
     {
@@ -19,6 +48,12 @@ const sourceMode: Chrome = ({ page }) => {
       "data-on-message": t(lang, "source_mode_on"),
       "data-off-message": t(lang, "source_mode_off"),
       hidden: true,
+      ...messages,
+      // Only a repository with a known host gets line links; any other forge has no URL to write.
+      ...(repository !== undefined && hostOf(repository) !== undefined
+        ? { "data-repository": JSON.stringify({ url: repository.url, branch: repository.branch }) }
+        : {}),
+      ...(editor === undefined ? {} : { "data-editor": editor }),
     },
     h(
       "button",
@@ -30,6 +65,9 @@ const sourceMode: Chrome = ({ page }) => {
       },
       t(lang, "source_mode_label"),
     ),
+    editor === undefined
+      ? null
+      : h("button", { type: "button", class: "source-folder-button" }, t(lang, "source_folder_button")),
     h("span", { class: "source-mode-status", role: "status" }, ""),
   );
 };
