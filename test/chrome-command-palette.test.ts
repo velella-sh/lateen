@@ -145,6 +145,7 @@ test("paletteActions lists the theme choices, copy, and sections in reading orde
     "copy-markdown",
     "section-requirements",
     "section-cache",
+    "source-mode",
   ]);
   assert.deepEqual(
     actions.slice(0, 3).map((action) => action.run),
@@ -169,6 +170,7 @@ test("the page title is not offered as a section, and a page without a twin gets
     "theme-system",
     "section-requirements",
     "section-cache",
+    "source-mode",
   ]);
   assert.equal(actions.some((action) => action.run?.kind === "copy"), false);
 });
@@ -227,7 +229,7 @@ test("every action id is unique and names its kind", () => {
   const actions = paletteActions({ page: pageWith(), base: "" });
   assert.equal(new Set(actionIds(actions)).size, actions.length);
   for (const action of actions) {
-    assert.match(action.id, /^(theme|copy|section)-/);
+    assert.match(action.id, /^(theme|copy|section|source)-/);
   }
 });
 
@@ -270,7 +272,7 @@ test("the script JSON cannot close its own tag", () => {
 
   assert.doesNotMatch(json, /</);
   assert.match(json, /\\u003c B/);
-  assert.equal((JSON.parse(json) as PalettePayload).actions.at(-1)?.label, "A < B");
+  assert.equal((JSON.parse(json) as PalettePayload).actions.find((action) => action.id === "section-less")?.label, "A < B");
 });
 
 test("the search dialog keeps one dialog and unique ids, and carries the palette payload", () => {
@@ -567,10 +569,10 @@ test("a redraw keeps the active option on the same action, by key rather than by
   await tick();
 
   const last = rowsOf(results).length;
-  assert.equal(last, 6, "an empty query lists every action");
-  for (let step = 0; step < last; step += 1) dialog.fire("keydown", key("ArrowDown", input));
-  assert.equal(input.active, `search-option-${last}`, "the walk ends on the section jump");
-  assert.equal(rowsOf(results)[last - 1]?.attrs["data-search-option"], "action:section-cache#0");
+  assert.equal(last, 7, "an empty query lists every action");
+  for (let step = 0; step < last - 1; step += 1) dialog.fire("keydown", key("ArrowDown", input));
+  assert.equal(input.active, `search-option-${last - 1}`, "the walk ends on the section jump");
+  assert.equal(rowsOf(results)[last - 2]?.attrs["data-search-option"], "action:section-cache#0");
 
   input.type("cache");
   await tick();
@@ -627,7 +629,7 @@ test("closing a palette list clears the selection and restores focus to the sear
   assert.equal(button.focused, 1);
 });
 
-test("the dialog's listbox holds six options, each one its row's own control", async () => {
+test("the dialog's listbox holds seven options, each one its row's own control", async () => {
   const { button, results, parts } = partsOf(payloadOf(pageWith()));
   activate(parts, envWith(apiOf([])));
   button.click();
@@ -636,11 +638,11 @@ test("the dialog's listbox holds six options, each one its row's own control", a
   const all = walkAll(results.nodes);
   assert.equal(all.some((node) => node.tag === "script"), false);
   assert.equal(all.some((node) => node.tag === "img"), false);
-  assert.equal(all.filter((node) => node.attrs["data-palette-action"] !== undefined).length, 6);
+  assert.equal(all.filter((node) => node.attrs["data-palette-action"] !== undefined).length, 7);
 
   const rows = all.filter((node) => node.tag === "li");
-  assert.equal(rows.length, 6, "one row per action");
-  assert.equal(rowsOf(results).length, 6, "and one option per row");
+  assert.equal(rows.length, 7, "one row per action");
+  assert.equal(rowsOf(results).length, 7, "and one option per row");
   for (const [index, row] of rows.entries()) {
     assert.equal(row.attrs.role, "presentation", "the row is the list's shape, not a second choice");
     const option = row.children[0];
