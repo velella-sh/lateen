@@ -24,6 +24,10 @@ npm test
 
 A change to behavior needs a test beside the others in `test/`. A change to the docs site is checked with `node ../mizzen/bin/mizzen.ts check site` and must report 0 errors.
 
+## Visual baselines
+
+`npm run test:visual` takes the screenshots and compares each with `test/visual/baselines/<case>.png`. A failure writes the before, after, diff and a side-by-side image into `test/visual/out/review/` and prints their paths; a screenshot with no baseline fails and says how to create one. Baselines change only with `node scripts/test-visual.ts --update`, and only in a pull request labeled `visual-change` that says what changed. Record them on CI, not on your machine: fonts and the rasteriser differ locally. See `docs/design/visual-gates.md`.
+
 ## Ground rules
 
 - Use only erasable TypeScript syntax (no `enum`, `namespace`, or parameter properties) and import local files with their `.ts` extension.

@@ -4,7 +4,9 @@
 // network, reduced motion, no animation, no caret, a fixed time zone and a fixed locale.
 //
 // Setup: npm ci && npx playwright install chromium
-// Usage: node scripts/test-visual.ts [--only <page name substring>] [--out <folder>]
+// Usage: node scripts/test-visual.ts [--only <page name substring>] [--out <folder>] [--update]
+// Each shot is compared with test/visual/baselines/<case>.png; a failure writes before, after and diff
+// images into <out>/review/. --update writes the baselines and is the only thing that does.
 import { mkdirSync, rmSync } from "node:fs";
 import { join, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
@@ -12,11 +14,15 @@ import { chromium, type Browser, type BrowserContext, type Page } from "playwrig
 import { buildFixture } from "../test/visual/fixtures/build.ts";
 import { PAGES, type FixturePage } from "../test/visual/fixtures/pages.ts";
 import { startServer } from "./test-a11y.ts";
+import { formatReview, reviewShots } from "./visual-review.ts";
 
 const ROOT = fileURLToPath(new URL("../", import.meta.url));
 
 /** Where the screenshots go; `.gitignore` keeps it out of the repository. */
 export const OUT_DIR = join(ROOT, "test/visual/out");
+
+/** The committed baselines. */
+export const BASELINE_DIR = join(ROOT, "test/visual/baselines");
 
 export const VIEWPORTS = {
   desktop: { width: 1280, height: 900 },
@@ -129,8 +135,16 @@ async function main(): Promise<void> {
     const at = argv.indexOf(flag);
     return at === -1 ? undefined : argv[at + 1];
   };
-  const files = await runVisual({ ...(value("--only") !== undefined ? { only: value("--only") as string } : {}), ...(value("--out") !== undefined ? { out: value("--out") as string } : {}) });
-  console.log(`wrote ${files.length} screenshots to ${value("--out") ?? OUT_DIR}`);
+  const out = value("--out");
+  const only = value("--only");
+  const files = await runVisual({ ...(only !== undefined ? { only } : {}), ...(out !== undefined ? { out } : {}) });
+  const shots = resolve(out ?? OUT_DIR);
+  console.log(`wrote ${files.length} screenshots to ${shots}`);
+  const update = argv.includes("--update");
+  if (update && process.env["CI"] === undefined) console.warn("note: baselines are recorded on CI (docs/design/visual-gates.md); a local baseline should not be committed");
+  const { lines, ok } = formatReview(reviewShots({ shots, baselines: BASELINE_DIR, review: join(shots, "review"), update }));
+  console.log(lines.join("\n"));
+  if (!ok) process.exitCode = 1;
 }
 
 if (process.argv[1] === fileURLToPath(import.meta.url)) {
