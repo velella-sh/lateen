@@ -26,6 +26,7 @@ function configWith(overrides: Partial<SiteConfig> = {}): SiteConfig {
     search: { text: 300 },
     redirects: {},
     outputs: {},
+    collections: {},
     ...overrides,
   };
 }
@@ -43,7 +44,7 @@ function layoutProps(config: SiteConfig = configWith(), hints?: LayoutProps["hin
     markdown: "",
     kind: "doc",
   };
-  const site: Site = { config, pages: [page], nav: {}, data: {} };
+  const site: Site = { config, pages: [page], nav: {}, data: {}, collections: {} };
   return {
     site,
     page,
