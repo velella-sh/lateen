@@ -1,0 +1,1 @@
+- Visual gates rules: `docs/design/visual-gates.md` decides the runner, the comparer, the thresholds, the baseline size caps, the masked regions and the rule for changing baselines (#494).
