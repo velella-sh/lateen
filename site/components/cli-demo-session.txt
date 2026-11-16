@@ -1,0 +1,5 @@
+$ example install example-package
+Resolving packages
+Installed 1 package
+# a comment
+! error: example failure

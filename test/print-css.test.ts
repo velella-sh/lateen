@@ -168,6 +168,9 @@ test("print.css hides every piece of chrome and every screen-only control", () =
     ".terminal-copy",
     ".page-footer-copy",
     ".code-tabs-list",
+    ".cli-demo-bar",
+    ".install-tabs-list",
+    ".install-tabs-radio",
   ]) {
     assert.ok(hidden.has(selector), `print.css does not hide ${selector}`);
   }
@@ -313,4 +316,13 @@ test("the brand's colours follow the printed light scheme", () => {
   }
   assert.doesNotMatch(branded, /color-scheme/, "a brand never overrides the print palette's forced scheme");
   assert.match(css, /color-scheme:\s*light\s*!important/, "print still forces the light scheme, so the light half is used");
+});
+
+test("install tabs print every panel under its manager name, and cli demo and install tabs stay whole", () => {
+  const body = printBody(css);
+  const panel = blocks(body).filter((block) => block.selector.includes(".install-tabs-panel[hidden]"));
+  assert.ok(panel.some((block) => /display:\s*block\s*!important/.test(block.body)), "install-tabs panels stay hidden on paper");
+  assert.match(body, /\.install-tabs-panel::before\s*\{[^}]*attr\(data-manager\)/);
+  const whole = blocks(body).find((block) => /^\.cli-demo,\s*\.install-tabs$/.test(block.selector));
+  assert.ok(whole && /break-inside:\s*avoid/.test(whole.body), "cli-demo and install-tabs may break across pages");
 });

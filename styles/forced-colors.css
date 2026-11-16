@@ -29,6 +29,10 @@
     .callout,
     .card,
     .changelog-entry,
+    .cli-demo,
+    .cli-demo-label-visible,
+    .install-tabs,
+    .install-tabs-tab,
     .code,
     .code-tabs,
     .copy-markdown-key,
@@ -228,7 +232,8 @@
   .sidebar-nav h6[aria-current="true"],
   .toc a[aria-current="true"],
   .section-tab[aria-current="page"],
-  .code-tabs-tab[aria-selected="true"] {
+  .code-tabs-tab[aria-selected="true"],
+  .install-tabs-radio:checked ~ .install-tabs-list .install-tabs-tab {
     background-color: Highlight !important;
     color: HighlightText !important;
     text-decoration: underline;

@@ -1,0 +1,159 @@
+/* CLI demo: a terminal session as fixed text. Every line says what it is without colour: commands start with a prompt, errors carry an "error" label, comments are italic with their # mark. Prompts and labels are never selected, so a selection copies only the text. */
+
+.cli-demo {
+  margin-block: var(--space-4);
+  max-inline-size: 100%;
+  border: 1px solid var(--code-border);
+  border-radius: var(--radius-md);
+  background-color: var(--code-bg);
+  color: var(--code-fg);
+  font-family: var(--type-font-mono);
+  font-size: var(--type-size-sm);
+  line-height: var(--type-leading-body);
+  direction: ltr;
+  unicode-bidi: isolate;
+  text-align: start;
+}
+
+.cli-demo-bar {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--space-2);
+  padding-block: var(--space-1);
+  padding-inline: var(--space-2);
+  border-block-end: 1px solid var(--code-border);
+}
+
+.cli-demo-bar[hidden] {
+  display: none;
+}
+
+.cli-demo-button {
+  padding-block: 0;
+  padding-inline: var(--space-2);
+  font: inherit;
+  font-family: var(--type-font-ui);
+  font-size: var(--type-size-xs);
+  color: var(--code-fg);
+  background-color: transparent;
+  border: 1px solid var(--code-border);
+  border-radius: var(--radius-sm);
+  cursor: pointer;
+}
+
+.cli-demo-button[hidden] {
+  display: none;
+}
+
+.cli-demo-button:hover {
+  background-color: var(--state-hover-bg);
+}
+
+.cli-demo-button:focus-visible,
+.cli-demo-body:focus-visible {
+  outline: 2px solid var(--state-focus-ring);
+  outline-offset: 2px;
+}
+
+.cli-demo-status {
+  margin-inline-start: auto;
+  color: var(--color-muted);
+  font-family: var(--type-font-ui);
+  font-size: var(--type-size-xs);
+}
+
+.cli-demo-status:empty {
+  display: none;
+}
+
+/* Long lines scroll inside the block, which can take focus so the keyboard can scroll it. */
+.cli-demo-body {
+  margin: 0;
+  padding-block: var(--space-3);
+  padding-inline: var(--space-4);
+  max-inline-size: 100%;
+  overflow-x: auto;
+  overscroll-behavior-inline: contain;
+  font: inherit;
+  color: inherit;
+  white-space: pre;
+  tab-size: 2;
+}
+
+.cli-demo-body code {
+  display: block;
+  inline-size: max-content;
+  min-inline-size: 100%;
+  font: inherit;
+}
+
+/* Each line is a block, so an empty output line keeps its height. */
+.cli-demo-line {
+  display: block;
+  min-block-size: 1lh;
+}
+
+.cli-demo-line[hidden] {
+  display: none;
+}
+
+.cli-demo-prompt {
+  color: var(--color-muted);
+  font-weight: var(--type-weight-bold);
+  user-select: none;
+}
+
+.cli-demo-command .cli-demo-text {
+  font-weight: var(--type-weight-medium);
+}
+
+.cli-demo-comment {
+  color: var(--color-muted);
+  font-style: italic;
+}
+
+/* Output is read by a screen reader as "output", said once per run and never shown. */
+.cli-demo-label {
+  position: absolute;
+  inline-size: 1px;
+  block-size: 1px;
+  margin: -1px;
+  padding: 0;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+  user-select: none;
+}
+
+/* An error is told by its label, not only by a colour; the text stays in the code colour so it keeps its contrast. */
+.cli-demo-label-visible {
+  position: static;
+  inline-size: auto;
+  block-size: auto;
+  margin: 0;
+  margin-inline-end: var(--space-2);
+  padding-inline: var(--space-1);
+  overflow: visible;
+  clip-path: none;
+  border: 1px solid var(--color-danger);
+  border-radius: var(--radius-sm);
+  color: var(--code-fg);
+  font-family: var(--type-font-ui);
+  font-size: var(--type-size-xs);
+  font-weight: var(--type-weight-bold);
+  text-transform: uppercase;
+}
+
+.cli-demo-error .cli-demo-text {
+  text-decoration: underline wavy var(--color-danger);
+  text-decoration-thickness: 1px;
+  text-underline-offset: 0.2em;
+}
+
+.cli-demo-diagnostic {
+  margin: 0;
+  padding: var(--space-3);
+  font-family: var(--type-font-ui);
+  color: var(--code-fg);
+}
