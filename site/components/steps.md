@@ -7,7 +7,7 @@ redirect_from:
   - /blocks/steps/
 ---
 
-Steps turn an ordered list into a numbered sequence with a line between the numbers. It is for a procedure the reader follows in order: install, configure, build.
+Steps turn an ordered list into a numbered sequence with a stable anchor and the number written as text on each step. It is for a procedure the reader follows in order: install, configure, build.
 
 ## Syntax
 
@@ -34,6 +34,6 @@ None.
 
 ## Notes
 
-- The body must be an ordered list. Each item is one step; the numbers come from CSS for the page's language.
+- The body must be an ordered list. Each item is one step; each step gets an anchor (`#step-1`, `#step-2`) and its number as text, written with the digits of the page language.
 - The directive is for a sequence, not for a bulleted list. For options or features, a plain list reads better.
 - A step can hold a paragraph, a code block, or a callout; keep each step to one action.
