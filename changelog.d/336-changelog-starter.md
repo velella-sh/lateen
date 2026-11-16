@@ -1,0 +1,1 @@
+- Changelog starter (#336): `starters/changelog/` is a complete small release notes site with five invented releases, a versions page, a feed page, a "what is new" home section that links to the latest release, and a guide to adding a release.
