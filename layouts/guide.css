@@ -1,0 +1,10 @@
+/* Guide layout: the doc layout's columns with a summary bar under the title. The bar's own look lives
+   in components/guide-summary/style.css. Token names and logical properties only. */
+
+.guide > .guide-summary + * {
+  margin-block-start: var(--space-6);
+}
+
+.guide-body > :first-child {
+  margin-block-start: 0;
+}
