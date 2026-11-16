@@ -3,8 +3,6 @@
   "known": [
     { "case": "*", "theme": "light", "rule": "color-contrast", "target": ".edit-page-link" },
     { "case": "*", "theme": "light", "rule": "color-contrast", "target": ".page-footer-feedback > a" },
-    { "case": "*", "theme": "light", "rule": "color-contrast", "target": ".section-tab" },
-    { "case": "*", "theme": "light", "rule": "color-contrast", "target": ".section-tab[href$=\"components/\"][aria-current=\"page\"]" },
     { "case": "*", "theme": "light", "rule": "color-contrast", "target": ".home-btn-primary" },
     { "case": "*", "theme": "light", "rule": "color-contrast", "target": ".home-eyebrow" },
     { "case": "fixture versions", "theme": "light", "rule": "color-contrast", "target": ".versions-status-deprecated > .versions-status-label" },
