@@ -1,0 +1,17 @@
+# A changelog site for an invented product, read by Mizzen. Replace the title, url, and repository.
+title: Tidewater
+description: Tidewater is an invented product, used here to show a complete changelog site.
+lang: en
+url: https://example.com
+base: ""
+search: { text: 300 }
+repository:
+  url: https://github.com/example/tidewater
+  branch: main
+  dir: ""
+theme:
+  name: "@velella/lateen"
+  options:
+    footer:
+      copyright: "© Example"
+      license: "MIT license"
