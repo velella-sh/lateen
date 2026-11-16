@@ -1,0 +1,114 @@
+{
+  "cat-1": {
+    "$value": "#38289a",
+    "$extensions": {
+      "lateen": {
+        "dark": "#00d3a8"
+      }
+    }
+  },
+  "cat-2": {
+    "$value": "#b27323",
+    "$extensions": {
+      "lateen": {
+        "dark": "#a16dec"
+      }
+    }
+  },
+  "cat-3": {
+    "$value": "#770c00",
+    "$extensions": {
+      "lateen": {
+        "dark": "#d76100"
+      }
+    }
+  },
+  "cat-4": {
+    "$value": "#1487c2",
+    "$extensions": {
+      "lateen": {
+        "dark": "#e9e72c"
+      }
+    }
+  },
+  "cat-5": {
+    "$value": "#7a5164",
+    "$extensions": {
+      "lateen": {
+        "dark": "#cc9bff"
+      }
+    }
+  },
+  "cat-6": {
+    "$value": "#464fd2",
+    "$extensions": {
+      "lateen": {
+        "dark": "#9ef7dc"
+      }
+    }
+  },
+  "cat-7": {
+    "$value": "#532b56",
+    "$extensions": {
+      "lateen": {
+        "dark": "#00a08e"
+      }
+    }
+  },
+  "cat-8": {
+    "$value": "#a62e0a",
+    "$extensions": {
+      "lateen": {
+        "dark": "#f79c00"
+      }
+    }
+  },
+  "seq-1": {
+    "$value": "#4b7cba",
+    "$extensions": {
+      "lateen": {
+        "dark": "#5788c7"
+      }
+    }
+  },
+  "seq-2": {
+    "$value": "#3464a0",
+    "$extensions": {
+      "lateen": {
+        "dark": "#6ea1e2"
+      }
+    }
+  },
+  "seq-3": {
+    "$value": "#20508a",
+    "$extensions": {
+      "lateen": {
+        "dark": "#87bafd"
+      }
+    }
+  },
+  "seq-4": {
+    "$value": "#083c75",
+    "$extensions": {
+      "lateen": {
+        "dark": "#a0d5ff"
+      }
+    }
+  },
+  "seq-5": {
+    "$value": "#002960",
+    "$extensions": {
+      "lateen": {
+        "dark": "#b9efff"
+      }
+    }
+  },
+  "pattern-1": "solid",
+  "pattern-2": "diagonal",
+  "pattern-3": "dots",
+  "pattern-4": "crosshatch",
+  "pattern-5": "vertical",
+  "pattern-6": "horizontal",
+  "pattern-7": "diagonal-reverse",
+  "pattern-8": "grid"
+}

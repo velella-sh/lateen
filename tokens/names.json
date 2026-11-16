@@ -376,6 +376,120 @@
       }
     }
   },
+  "chart": {
+    "cat-1": {
+      "$value": "#888888",
+      "$extensions": {
+        "lateen": {
+          "dark": "#888888"
+        }
+      }
+    },
+    "cat-2": {
+      "$value": "#888888",
+      "$extensions": {
+        "lateen": {
+          "dark": "#888888"
+        }
+      }
+    },
+    "cat-3": {
+      "$value": "#888888",
+      "$extensions": {
+        "lateen": {
+          "dark": "#888888"
+        }
+      }
+    },
+    "cat-4": {
+      "$value": "#888888",
+      "$extensions": {
+        "lateen": {
+          "dark": "#888888"
+        }
+      }
+    },
+    "cat-5": {
+      "$value": "#888888",
+      "$extensions": {
+        "lateen": {
+          "dark": "#888888"
+        }
+      }
+    },
+    "cat-6": {
+      "$value": "#888888",
+      "$extensions": {
+        "lateen": {
+          "dark": "#888888"
+        }
+      }
+    },
+    "cat-7": {
+      "$value": "#888888",
+      "$extensions": {
+        "lateen": {
+          "dark": "#888888"
+        }
+      }
+    },
+    "cat-8": {
+      "$value": "#888888",
+      "$extensions": {
+        "lateen": {
+          "dark": "#888888"
+        }
+      }
+    },
+    "seq-1": {
+      "$value": "#888888",
+      "$extensions": {
+        "lateen": {
+          "dark": "#888888"
+        }
+      }
+    },
+    "seq-2": {
+      "$value": "#888888",
+      "$extensions": {
+        "lateen": {
+          "dark": "#888888"
+        }
+      }
+    },
+    "seq-3": {
+      "$value": "#888888",
+      "$extensions": {
+        "lateen": {
+          "dark": "#888888"
+        }
+      }
+    },
+    "seq-4": {
+      "$value": "#888888",
+      "$extensions": {
+        "lateen": {
+          "dark": "#888888"
+        }
+      }
+    },
+    "seq-5": {
+      "$value": "#888888",
+      "$extensions": {
+        "lateen": {
+          "dark": "#888888"
+        }
+      }
+    },
+    "pattern-1": "solid",
+    "pattern-2": "diagonal",
+    "pattern-3": "dots",
+    "pattern-4": "crosshatch",
+    "pattern-5": "vertical",
+    "pattern-6": "horizontal",
+    "pattern-7": "diagonal-reverse",
+    "pattern-8": "grid"
+  },
   "status": {
     "positive-fg": {
       "$value": "#14532d",
