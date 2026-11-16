@@ -1,0 +1,1 @@
+- Status legend (#270): `::status-legend` lists every value the site maps in `theme.options.status.values` as its status badge with an optional per-language `description`; `values` lists a subset in order, and a site with no map renders nothing.
