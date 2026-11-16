@@ -1,0 +1,1 @@
+- Feature grid (#483): `feature-grid` shows items with an icon, a title, a text and an optional link in two to four columns, with one optional wide item; a linked card is one tab stop. `icons/index.ts` gains `iconByName`.

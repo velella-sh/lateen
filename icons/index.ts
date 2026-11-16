@@ -104,3 +104,12 @@ export type IconName =
  * direction-neutral and render as-is everywhere.
  */
 export const rtl: ReadonlySet<IconName> = new Set<IconName>(["arrow", "chevron", "external"]);
+
+/** The icon markup for a name in the set, or undefined for any other value. Lets front matter pick an icon by name. */
+export function iconByName(name: unknown): string | undefined {
+  if (typeof name !== "string") return undefined;
+  const icons: Readonly<Record<IconName, string>> = {
+    search, menu, close, chevron, copy, check, external, edit, sun, moon, github, info, warning, danger, tip, link, file, folder, terminal, arrow, minus,
+  };
+  return Object.hasOwn(icons, name) ? icons[name as IconName] : undefined;
+}
