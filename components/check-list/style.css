@@ -1,0 +1,92 @@
+/* Check list: commands with the result to expect below each. Token names and logical properties only. */
+
+.check-list {
+  display: grid;
+  gap: var(--space-4);
+  margin-block: var(--space-6);
+  padding: 0;
+  list-style: none;
+}
+
+.check-item {
+  min-inline-size: 0;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  background-color: var(--color-surface);
+  overflow: hidden;
+}
+
+.check-command {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  padding-inline-end: var(--space-3);
+}
+
+.check-code {
+  flex: 1;
+  min-inline-size: 0;
+  margin: 0;
+  padding: var(--space-3);
+  overflow-x: auto;
+  background: none;
+  border: 0;
+  text-align: start;
+}
+
+.check-copy {
+  flex: none;
+  padding-block: var(--space-1);
+  padding-inline: var(--space-2);
+  border: 1px solid var(--color-border-strong);
+  border-radius: var(--radius-sm);
+  background-color: var(--color-canvas);
+  color: var(--color-text);
+  font: inherit;
+  font-size: var(--type-size-sm);
+  cursor: pointer;
+}
+
+.check-copy[hidden] {
+  display: none;
+}
+
+.check-expected {
+  padding: var(--space-3);
+  border-block-start: 1px solid var(--color-border);
+  color: var(--color-text);
+}
+
+.check-expected-label {
+  display: block;
+  margin-block-end: var(--space-1);
+  color: var(--color-muted);
+  font-family: var(--type-font-ui);
+  font-size: var(--type-size-sm);
+  font-weight: var(--type-weight-medium);
+}
+
+.check-expected-body > :first-child {
+  margin-block-start: 0;
+}
+
+.check-expected-body > :last-child {
+  margin-block-end: 0;
+}
+
+@media print {
+  .check-copy {
+    display: none;
+  }
+
+  .check-item {
+    break-inside: avoid;
+  }
+}
+
+@media (forced-colors: active) {
+  .check-item,
+  .check-copy {
+    border-color: CanvasText;
+  }
+}
