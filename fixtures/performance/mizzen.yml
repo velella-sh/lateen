@@ -8,6 +8,14 @@ base: ""
 search: false
 theme:
   options:
+    installTabs:
+      managers:
+        - name: npm
+          command: npm install {package}
+        - name: pnpm
+          command: pnpm add {package}
+        - name: yarn
+          command: yarn add {package}
     preset: harbor
     brand:
       accent: "#0b6e4f"

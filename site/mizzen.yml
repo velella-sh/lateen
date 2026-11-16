@@ -10,6 +10,14 @@ repository:
   dir: site
 theme:
   options:
+    installTabs:
+      managers:
+        - name: npm
+          command: npm install {package}
+        - name: pnpm
+          command: pnpm add {package}
+        - name: yarn
+          command: yarn add {package}
     logo:
       light: /brand/mark-light.svg
       dark: /brand/mark-dark.svg
