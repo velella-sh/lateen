@@ -3,7 +3,7 @@
 .header {
   position: sticky;
   inset-block-start: 0;
-  z-index: 10;
+  z-index: var(--layer-header);
   background: var(--color-canvas);
   border-block-end: thin solid var(--border-subtle);
 }

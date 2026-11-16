@@ -1,0 +1,38 @@
+[
+  {
+    "file": "chrome/page-agent-menu/style.css",
+    "kind": "z-index",
+    "value": "20",
+    "reason": "The menu panel must sit above the sticky header (layer-header, 10) and below the drawer; no layer token names a menu, and the value equals layer-drawer only by coincidence. Move it to a menu layer token when the layer scale gains one."
+  },
+  {
+    "file": "components/backdrop/style.css",
+    "kind": "colour",
+    "value": "#000",
+    "reason": "A mask-image uses only the alpha channel, so the colour is never painted and has no theme value; #000 means fully opaque."
+  },
+  {
+    "file": "components/table/style.css",
+    "kind": "z-index",
+    "value": "3",
+    "reason": "Stacking inside the table's own scroll container: the sticky first column must stay above the sticky header cells (z-index 2) it crosses. It never competes with page layers."
+  },
+  {
+    "file": "layouts/home.css",
+    "kind": "font-size",
+    "value": "2.75rem",
+    "reason": "The home title is a larger fluid display than size-display (clamp lower bound). It is replaced by the hero component's display size, so it is listed until that move."
+  },
+  {
+    "file": "layouts/home.css",
+    "kind": "font-size",
+    "value": "7vw",
+    "reason": "The preferred value of the home title's fluid clamp; see the 2.75rem entry."
+  },
+  {
+    "file": "layouts/home.css",
+    "kind": "font-size",
+    "value": "5rem",
+    "reason": "The upper bound of the home title's fluid clamp; see the 2.75rem entry."
+  }
+]
