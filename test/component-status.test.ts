@@ -31,7 +31,7 @@ test("each tone renders its class, its text, and an icon of its own hidden from 
 
 test("a missing, blank, or unknown tone is neutral", () => {
   for (const tone of [undefined, "", "  ", "bogus", "positive!"]) {
-    assert.match(render({ tone }, "x"), /class="status status-neutral"/);
+    assert.match(render({ tone } as StatusProps, "x"), /class="status status-neutral"/);
   }
   assert.equal(toneOf(" Positive "), "positive");
   assert.equal(toneOf(3), "neutral");

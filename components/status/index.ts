@@ -1,6 +1,7 @@
 import { h } from "preact";
 import type { Component } from "@velella/mizzen/contracts";
 import { check, danger, info, minus, warning } from "../../icons/index.ts";
+import { resolveStatus } from "./values.ts";
 
 /** The Markdown directive this component handles: `:status[Done]{tone=positive}`. */
 export const directive = "status";
@@ -27,6 +28,8 @@ export type StatusProps = {
   tone?: string;
   /** Text shown when the directive has no body. */
   label?: string;
+  /** A data value to look up in `theme.options.status.values`: `:status{value=done}`. */
+  value?: string;
   /** Source position, kept as `data-src`. */
   src?: string;
 };
@@ -45,13 +48,19 @@ export function classNameOf(tone: StatusTone): string {
 
 /**
  * A small label with a tone's colours and icon. The icon is hidden from assistive technology: the
- * text carries the meaning.
+ * text carries the meaning. `:status{value=…}` takes the tone and the page-language label from the site's
+ * `theme.options.status.values`; a value with no entry shows as written, neutral.
  */
-const status: Component<StatusProps> = ({ props, html }) => {
-  const tone = toneOf(props.tone);
+const status: Component<StatusProps> = ({ props, html, page, site }) => {
+  const value = typeof props.value === "string" && props.value.trim() !== "" ? props.value.trim() : undefined;
+  // `value` reads the site's map; without it, the directive's own tone and text are used.
+  const mapped = value === undefined ? undefined : resolveStatus(value, page?.lang ?? "en", site?.config);
+  const tone = mapped?.tone ?? toneOf(props.tone);
   const src = typeof props.src === "string" && props.src !== "" ? props.src : undefined;
   const label =
-    html === ""
+    mapped !== undefined
+      ? h("span", { class: "status-label" }, mapped.label)
+      : html === ""
       ? h("span", { class: "status-label" }, props.label ?? "")
       : h("span", { class: "status-label", dangerouslySetInnerHTML: { __html: html } });
   return h(
