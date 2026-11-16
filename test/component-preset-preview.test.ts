@@ -149,3 +149,15 @@ test("the island ignores a value that is not a colour or a palette it cannot rea
 test("two renders of the same preset are the same bytes", () => {
   assert.equal(render({ preset: "graphite", picker: "true" }).html, render({ preset: "graphite", picker: "true" }).html);
 });
+
+test("the preview shows the preset's home look: its backdrop, intensity and motif", () => {
+  for (const [name, variant, soft] of [["clay", "glow", true], ["graphite", "grid", false], ["harbor", "glow", false], ["orchard", "grid", true], ["plum", "glow", true]] as const) {
+    const { document } = render({ preset: name });
+    const hero = document.querySelector("[data-preset-hero]");
+    assert.ok(hero, name);
+    assert.ok(hero.querySelector(`.backdrop-${variant}`), `${name} backdrop`);
+    assert.equal(hero.querySelector(".backdrop")?.classList.contains("backdrop-soft"), soft, `${name} intensity`);
+    assert.ok(hero.querySelector("svg.motif"), `${name} motif`);
+    assert.equal(hero.querySelector(".motif")?.getAttribute("aria-hidden"), "true");
+  }
+});

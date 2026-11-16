@@ -223,6 +223,8 @@
   "posts": "Posts",
   "preset_preview_accent": "Accent colour",
   "preset_preview_accent_text": "Accent text on canvas",
+  "preset_preview_hero_lead": "The home page of a site on this preset.",
+  "preset_preview_hero_title": "Build docs that read well",
   "preset_preview_on_accent": "Text on accent",
   "preset_preview_options": "Copy these options",
   "preset_preview_ratio_accent": "{light} in light, {dark} in dark",

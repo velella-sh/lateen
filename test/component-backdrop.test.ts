@@ -98,3 +98,12 @@ test("style.css uses only token custom properties and logical properties", () =>
   assert.deepEqual([...new Set(used)].filter((n) => !allowed.has(n)), []);
   assert.doesNotMatch(css, /\b(?:margin|padding|border)-(?:left|right)\b|\b(?:left|right)\s*:/);
 });
+
+test("a soft backdrop adds the soft class and stays under the standard tint", async () => {
+  const { default: backdrop } = await import("../components/backdrop/index.ts");
+  const { renderToString } = await import("preact-render-to-string");
+  const { h } = await import("preact");
+  const html = renderToString(h(backdrop as never, { props: { variant: "grid", intensity: "soft" } } as never));
+  assert.match(html, /class="backdrop backdrop-grid backdrop-soft"/);
+  assert.doesNotMatch(renderToString(h(backdrop as never, { props: { variant: "grid" } } as never)), /backdrop-soft/);
+});

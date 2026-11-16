@@ -2,5 +2,10 @@
   "accent": "#6b4f9e",
   "neutral": "#a79bb8",
   "radius": "medium",
-  "density": "comfortable"
+  "density": "comfortable",
+  "showpiece": {
+    "backdrop": "glow",
+    "motif": "plum-bloom",
+    "intensity": "soft"
+  }
 }

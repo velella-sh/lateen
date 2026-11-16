@@ -2,5 +2,10 @@
   "accent": "#3f7d4e",
   "neutral": "#9caf8a",
   "radius": "small",
-  "density": "comfortable"
+  "density": "comfortable",
+  "showpiece": {
+    "backdrop": "grid",
+    "motif": "orchard-row",
+    "intensity": "soft"
+  }
 }

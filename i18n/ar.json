@@ -223,6 +223,8 @@
   "posts": "التدوينات",
   "preset_preview_accent": "لون التمييز",
   "preset_preview_accent_text": "نص التمييز على الخلفية",
+  "preset_preview_hero_lead": "الصفحة الرئيسية لموقع بهذا الإعداد المسبق.",
+  "preset_preview_hero_title": "ابنِ وثائق سهلة القراءة",
   "preset_preview_on_accent": "النص على لون التمييز",
   "preset_preview_options": "انسخ هذه الخيارات",
   "preset_preview_ratio_accent": "{light} في الفاتح، {dark} في الداكن",

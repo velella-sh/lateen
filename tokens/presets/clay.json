@@ -2,5 +2,10 @@
   "accent": "#a2553f",
   "neutral": "#c2a58f",
   "radius": "large",
-  "density": "comfortable"
+  "density": "comfortable",
+  "showpiece": {
+    "backdrop": "glow",
+    "motif": "clay-kiln",
+    "intensity": "soft"
+  }
 }

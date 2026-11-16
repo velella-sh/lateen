@@ -15,6 +15,19 @@
   line-height: var(--type-leading-body);
 }
 
+.preset-preview-hero {
+  position: relative;
+  isolation: isolate;
+}
+
+.preset-preview-motif {
+  position: absolute;
+  inset-block: 0;
+  inset-inline-end: 0;
+  z-index: -1;
+  inline-size: 40%;
+}
+
 .preset-preview-sample {
   display: flex;
   flex-wrap: wrap;
@@ -157,6 +170,7 @@
     break-inside: avoid;
   }
 
+  .preset-preview-motif,
   .preset-preview-picker {
     display: none;
   }

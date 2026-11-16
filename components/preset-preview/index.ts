@@ -1,7 +1,9 @@
-import { h } from "preact";
+import { h, type ComponentChildren } from "preact";
 import type { ComponentProps } from "@velella/mizzen/contracts";
 import { t, patternOf } from "../../i18n/index.ts";
 import { brandTokens, DEFAULT_COLORS, previewCss, resolveBrand, type Brand } from "../../src/brand.ts";
+import backdrop from "../backdrop/index.ts";
+import motif from "../motif/index.ts";
 import { contrastRatios, formatRatio, paletteJson, type PreviewPalette } from "./ratios.ts";
 
 /** The Markdown directive this component handles: `::preset-preview{preset=harbor picker}`. */
@@ -44,6 +46,13 @@ function paletteOf(brand: Brand): PreviewPalette {
   return { light: scheme("light"), dark: scheme("dark") };
 }
 
+/** The backdrop of the preview's home sample, drawn with the preset's own variant and intensity. */
+function backdropOf(brand: Brand, page: ComponentProps["page"], site: ComponentProps["site"]): ComponentChildren {
+  const look = brand.showpiece;
+  const props = { variant: look?.backdrop, intensity: look?.intensity };
+  return (backdrop as unknown as (input: unknown) => ComponentChildren)({ props, page, site, html: "" });
+}
+
 /** The options a site copies for this preset. */
 export function optionsText(preset: string): string {
   return `theme:\n  options:\n    preset: ${preset}`;
@@ -56,7 +65,7 @@ export function optionsText(preset: string): string {
  * chosen colour produces in both schemes; the island updates them, and the server render already
  * shows the preset's own accent for a reader without JavaScript.
  */
-export default function presetPreview({ props, page }: ComponentProps<PresetPreviewProps>) {
+export default function presetPreview({ props, page, site }: ComponentProps<PresetPreviewProps>) {
   const name = typeof props.preset === "string" ? props.preset.trim() : "";
   const { brand } = resolveBrand({ preset: name });
   if (brand === undefined) {
@@ -71,6 +80,16 @@ export default function presetPreview({ props, page }: ComponentProps<PresetPrev
     "div",
     { class: `preset-preview ${scope}`, "data-preset-preview": name },
     h("style", { dangerouslySetInnerHTML: { __html: previewCss(brand, `.${scope}`) } }),
+    h(
+      "div",
+      { class: "preset-preview-hero", "data-preset-hero": true },
+      backdropOf(brand, page, site),
+      brand.showpiece?.motif === undefined
+        ? null
+        : h("div", { class: "preset-preview-motif" }, (motif as (input: ComponentProps) => unknown)({ props: { seed: brand.showpiece.motif }, page, site, html: "" } as unknown as ComponentProps) as ComponentChildren),
+      h("p", { class: "preset-preview-body" }, t(page.lang, "preset_preview_hero_title")),
+      h("p", { class: "preset-preview-muted" }, t(page.lang, "preset_preview_hero_lead")),
+    ),
     h(
       "div",
       { class: "preset-preview-sample" },

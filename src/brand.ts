@@ -45,6 +45,16 @@ export interface Brand {
   readonly mono?: FontFamily;
   readonly radius?: Radius;
   readonly density?: Density;
+  readonly showpiece?: Showpiece;
+}
+
+/** The showpiece look of a preset: the backdrop variant, the motif seed and the backdrop intensity. */
+export const INTENSITIES = ["soft", "standard"] as const;
+export type Intensity = (typeof INTENSITIES)[number];
+export interface Showpiece {
+  readonly backdrop?: string;
+  readonly motif?: string;
+  readonly intensity?: Intensity;
 }
 
 /** One value that was not usable. The layout renders it as a CSS comment naming the option. */
@@ -278,6 +288,7 @@ function brandOptions(value: unknown, option: string, problems: BrandProblem[]):
     mono?: FontFamily;
     radius?: Radius;
     density?: Density;
+    showpiece?: Showpiece;
   } = {};
   if (value.accent !== undefined) {
     if (isHex(value.accent)) brand.accent = colour(value.accent);
@@ -309,6 +320,26 @@ function brandOptions(value: unknown, option: string, problems: BrandProblem[]):
     if (typeof value.density === "string" && (DENSITIES as readonly string[]).includes(value.density)) {
       brand.density = value.density as Density;
     } else problems.push({ option: `${option}.density`, message: `must be one of ${DENSITIES.join(", ")}` });
+  }
+  if (value.showpiece !== undefined) {
+    if (!isRecord(value.showpiece)) problems.push({ option: `${option}.showpiece`, message: "must be an object" });
+    else {
+      const look: { backdrop?: string; motif?: string; intensity?: Intensity } = {};
+      const { backdrop, motif, intensity } = value.showpiece;
+      if (backdrop !== undefined) {
+        if (typeof backdrop === "string" && ["glow", "grid", "none"].includes(backdrop)) look.backdrop = backdrop;
+        else problems.push({ option: `${option}.showpiece.backdrop`, message: "must be one of glow, grid, none" });
+      }
+      if (motif !== undefined) {
+        if (typeof motif === "string" && motif.trim() !== "") look.motif = motif.trim();
+        else problems.push({ option: `${option}.showpiece.motif`, message: "must be a non-empty seed text" });
+      }
+      if (intensity !== undefined) {
+        if (typeof intensity === "string" && (INTENSITIES as readonly string[]).includes(intensity)) look.intensity = intensity as Intensity;
+        else problems.push({ option: `${option}.showpiece.intensity`, message: `must be one of ${INTENSITIES.join(", ")}` });
+      }
+      if (Object.keys(look).length > 0) brand.showpiece = look;
+    }
   }
   return Object.keys(brand).length === 0 ? undefined : brand;
 }

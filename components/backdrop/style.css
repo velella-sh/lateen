@@ -31,6 +31,10 @@
   mask-image: radial-gradient(ellipse 70% 80% at 50% 0%, #000, transparent);
 }
 
+.backdrop-soft {
+  opacity: 0.6;
+}
+
 @media print {
   .backdrop {
     display: none;
