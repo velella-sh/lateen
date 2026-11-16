@@ -518,3 +518,13 @@ test("sidebar and pager states: active marker, collapsed group, and pager surfac
   assert.match(pager, /\.pager-link \{[^}]*background: var\(--elevation-low-bg\)/s);
   assert.match(pager, /\.pager-link:hover \{[^}]*background: var\(--elevation-mid-bg\)/s);
 });
+
+test("the showpiece units are right-to-left ready and their arrow mirrors (#491)", () => {
+  const files = themeCss().map((file) => file.path);
+  for (const unit of ["hero", "backdrop", "feature-grid", "frame", "stat-strip", "cta-band", "motif"]) {
+    assert.ok(files.includes(`components/${unit}/style.css`), unit);
+  }
+  assert.match(read("../layouts/home.css"), /\.home-showpiece/);
+  const a11y = read("./accessibility/fixtures/site/fa/showpiece.md") + read("./accessibility/fixtures/site/ar/showpiece.md");
+  assert.equal((a11y.match(/^dir: rtl$/gm) ?? []).length, 2, "the Persian and Arabic showpiece pages are right to left");
+});

@@ -334,3 +334,15 @@ test("refined components print flat: no shadow, sticky header, blur, motion, tin
   assert.match(css, /\.code \[data-line\]::before\s*\{\s*content:\s*none/);
   assert.match(css, /\.code \.highlighted\s*\{\s*background:\s*none/);
 });
+
+test("the showpiece decoration drops in print and its bands print as plain text with borders (#491)", () => {
+  for (const unit of ["backdrop", "motif"]) {
+    const text = read(`../components/${unit}/style.css`);
+    assert.match(text.slice(text.indexOf("@media print")), /display:\s*none/, unit);
+  }
+  assert.match(read("../layouts/home.css"), /@media print\s*\{\s*\.home-showpiece-motif\s*\{\s*display:\s*none/);
+  for (const unit of ["hero", "cta-band", "stat-strip", "feature-grid", "frame"]) {
+    assert.match(read(`../components/${unit}/style.css`), /@media print/, unit);
+  }
+  assert.match(read("../components/cta-band/style.css").slice(read("../components/cta-band/style.css").indexOf("@media print")), /background:\s*none/);
+});

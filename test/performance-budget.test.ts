@@ -422,7 +422,7 @@ test("the committed budget covers every fixture route and asset class", () => {
   const budget = JSON.parse(readFileSync(budgetPath, "utf8")) as Budget;
   assert.ok(budget.note?.includes("not a product target"), "the budget should say what its numbers mean");
   assert.ok(budget.note?.includes(FONT_CLASS), "the budget should say what its font numbers mean");
-  assert.deepEqual(Object.keys(budget.routes).sort(), ["/", "/cli-demo/", "/guide/", "/reference/", "/reports/"]);
+  assert.deepEqual(Object.keys(budget.routes).sort(), ["/", "/cli-demo/", "/guide/", "/reference/", "/reports/", "/showpiece/"]);
   // Only the shared `src/source-span.ts` and `src/repository.ts` modules, which source mode imports; no component island.
   assert.equal(budget.routes["/reports/"]?.["js/components"].count, 2, "the report page ships no component island, only the shared span and repository readers");
   for (const [route, classes] of Object.entries(budget.routes)) {

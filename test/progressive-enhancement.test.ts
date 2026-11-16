@@ -198,3 +198,15 @@ test("a brand and its preset preview are in the first paint, before any island",
   const html = site.html("/brand/");
   assert.ok(html.indexOf("preset-preview") < html.indexOf("type=\"module\""));
 });
+
+test("the showpiece page is complete before any island: every section, one h1, (#491)", () => {
+  const page = site.document("/showpiece/");
+  for (const name of ["hero", "stat-strip", "feature-grid", "frame", "cta-band", "backdrop", "motif"]) {
+    assert.equal(all(page, `.${name}`).length, 1, name);
+  }
+  assert.equal(all(page, "h1").length, 1);
+  assert.match(textOf(page.body), /Docs people trust/);
+  assert.match(textOf(page.body), /Try it today/);
+  const inline = (path: string) => (site.html(path).match(/<script(?![^>]*type="module")[^>]*>/gi) ?? []).length;
+  assert.ok(inline("/showpiece/") <= inline("/showpiece-partial/") + 1, "the showpiece adds no inline script of its own");
+});

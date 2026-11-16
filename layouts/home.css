@@ -265,19 +265,18 @@ body:has(.home-showpiece) .site-footer-inner {
   }
 }
 
-/* Scroll entrance: each showpiece section fades and rises as it enters the view. It is progressive
+/* Scroll entrance: each showpiece section rises as it enters the view. It never changes opacity: a section below the fold
+   keeps full text contrast, which the accessibility gate measures at the resting scroll position. It is progressive
    enhancement: the resting style above is the finished page, nothing is hidden by a rule outside the
    feature query, and a browser without scroll-driven animation, reduced motion, print and forced
    colours all show the page complete. CSS only; no script. */
 @supports (animation-timeline: view()) {
   @keyframes home-showpiece-enter {
     from {
-      opacity: 0;
       transform: translateY(var(--space-6));
     }
 
     to {
-      opacity: 1;
       transform: none;
     }
   }

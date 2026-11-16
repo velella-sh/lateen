@@ -302,3 +302,15 @@ test("the refined frames keep a border in forced colors (#477)", () => {
   const borders = /:where\(\s*([^)]*?)\)\s*\{\s*border-color:\s*ButtonBorder\s*!important/s.exec(text)?.[1] ?? "";
   for (const name of [".card", ".code", ".code-title", ".table-scroll", ".badge", ".callout", ".pager-link"]) assert.ok(borders.includes(name), `${name} keeps its border`);
 });
+
+test("the showpiece decoration is hidden and its entrance is off in forced colors (#491)", () => {
+  for (const unit of ["backdrop", "motif"]) {
+    const text = read(`../components/${unit}/style.css`);
+    assert.match(text.slice(text.indexOf("@media (forced-colors: active)")), /display:\s*none/, unit);
+  }
+  assert.match(read("../components/hero/style.css"), /@media \(forced-colors: active\)/);
+  assert.match(read("../layouts/home.css"), /\(forced-colors: active\)\s*\{\s*\.home-showpiece > :not\(\.home-showpiece-hero\)\s*\{\s*animation: none/);
+  for (const unit of ["frame", "stat-strip", "feature-grid", "cta-band"]) {
+    assert.match(read(`../components/${unit}/style.css`), /border/, `${unit} keeps a border`);
+  }
+});
