@@ -51,16 +51,19 @@ export interface CompareResult {
   readonly message?: string;
 }
 
+/** Reads a byte; an index past the end reads 0. */
+const at = (a: ArrayLike<number>, i: number): number => a[i] ?? 0;
+
 const blend = (channel: number, alpha: number): number => 255 + (channel - 255) * alpha;
 
 /** The normalised perceptual delta (0..1) between the pixels at `i` in `a` and `b`, alpha blended onto white. */
 function delta(a: Uint8Array, b: Uint8Array, i: number): number {
-  const alphaA = a[i + 3] / 255;
-  const alphaB = b[i + 3] / 255;
-  const yA = 0.29889531 * blend(a[i], alphaA) + 0.58662247 * blend(a[i + 1], alphaA) + 0.11448223 * blend(a[i + 2], alphaA);
-  const yB = 0.29889531 * blend(b[i], alphaB) + 0.58662247 * blend(b[i + 1], alphaB) + 0.11448223 * blend(b[i + 2], alphaB);
-  const rA = blend(a[i], alphaA), gA = blend(a[i + 1], alphaA), bA = blend(a[i + 2], alphaA);
-  const rB = blend(b[i], alphaB), gB = blend(b[i + 1], alphaB), bB = blend(b[i + 2], alphaB);
+  const alphaA = at(a, i + 3) / 255;
+  const alphaB = at(b, i + 3) / 255;
+  const rA = blend(at(a, i), alphaA), gA = blend(at(a, i + 1), alphaA), bA = blend(at(a, i + 2), alphaA);
+  const rB = blend(at(b, i), alphaB), gB = blend(at(b, i + 1), alphaB), bB = blend(at(b, i + 2), alphaB);
+  const yA = 0.29889531 * rA + 0.58662247 * gA + 0.11448223 * bA;
+  const yB = 0.29889531 * rB + 0.58662247 * gB + 0.11448223 * bB;
   const iA = 0.59597799 * rA - 0.2741761 * gA - 0.32180189 * bA;
   const iB = 0.59597799 * rB - 0.2741761 * gB - 0.32180189 * bB;
   const qA = 0.21147017 * rA - 0.52261711 * gA + 0.31114694 * bA;
@@ -128,9 +131,9 @@ export function compareImages(baseline: Raster, current: Raster, options: Compar
   let changed = 0;
   for (let p = 0; p < flags.length; p++) {
     const i = p * 4;
-    const alpha = baseline.data[i + 3] / 255;
+    const alpha = at(baseline.data, i + 3) / 255;
     // Dimmed baseline: the pixel blended onto white and faded towards white.
-    for (let c = 0; c < 3; c++) out[i + c] = Math.round(255 - (255 - blend(baseline.data[i + c], alpha)) * 0.25);
+    for (let c = 0; c < 3; c++) out[i + c] = Math.round(255 - (255 - blend(at(baseline.data, i + c), alpha)) * 0.25);
     out[i + 3] = 255;
     if (masked[p]) {
       out[i] = 200; out[i + 1] = 215; out[i + 2] = 255; // masked: a pale blue wash
@@ -162,20 +165,20 @@ export function decodePng(file: Uint8Array): Raster {
   if (buf.length < 8 || !buf.subarray(0, 8).equals(SIGNATURE)) throw new Error("Not a PNG file");
   let width = 0, height = 0, type = -1;
   const idat: Buffer[] = [];
-  for (let at = 8; at + 8 <= buf.length;) {
-    const size = buf.readUInt32BE(at);
-    const name = buf.toString("latin1", at + 4, at + 8);
-    const body = buf.subarray(at + 8, at + 8 + size);
+  for (let pos = 8; pos + 8 <= buf.length;) {
+    const size = buf.readUInt32BE(pos);
+    const name = buf.toString("latin1", pos + 4, pos + 8);
+    const body = buf.subarray(pos + 8, pos + 8 + size);
     if (name === "IHDR") {
       width = body.readUInt32BE(0);
       height = body.readUInt32BE(4);
-      type = body[9];
-      if (body[8] !== 8 || ![0, 2, 4, 6].includes(type) || body[12] !== 0) {
+      type = at(body, 9);
+      if (at(body, 8) !== 8 || ![0, 2, 4, 6].includes(type) || at(body, 12) !== 0) {
         throw new Error("Unsupported PNG: only non-interlaced 8-bit grey, RGB and RGBA are read");
       }
     } else if (name === "IDAT") idat.push(body);
     else if (name === "IEND") break;
-    at += 12 + size;
+    pos += 12 + size;
   }
   const channels = { 0: 1, 2: 3, 4: 2, 6: 4 }[type as 0 | 2 | 4 | 6];
   if (!channels || width === 0 || height === 0) throw new Error("Not a valid PNG: missing IHDR");
@@ -184,12 +187,12 @@ export function decodePng(file: Uint8Array): Raster {
   if (raw.length < (stride + 1) * height) throw new Error("Not a valid PNG: image data is short");
   const px = new Uint8Array(stride * height);
   for (let y = 0; y < height; y++) {
-    const filter = raw[y * (stride + 1)];
+    const filter = at(raw, y * (stride + 1));
     for (let x = 0; x < stride; x++) {
-      const v = raw[y * (stride + 1) + 1 + x];
-      const left = x >= channels ? px[y * stride + x - channels] : 0;
-      const up = y > 0 ? px[(y - 1) * stride + x] : 0;
-      const upLeft = y > 0 && x >= channels ? px[(y - 1) * stride + x - channels] : 0;
+      const v = at(raw, y * (stride + 1) + 1 + x);
+      const left = x >= channels ? at(px, y * stride + x - channels) : 0;
+      const up = y > 0 ? at(px, (y - 1) * stride + x) : 0;
+      const upLeft = y > 0 && x >= channels ? at(px, (y - 1) * stride + x - channels) : 0;
       let add = 0;
       if (filter === 1) add = left;
       else if (filter === 2) add = up;
@@ -206,11 +209,11 @@ export function decodePng(file: Uint8Array): Raster {
   for (let p = 0; p < width * height; p++) {
     const s = p * channels, d = p * 4;
     if (channels === 1 || channels === 2) {
-      data[d] = data[d + 1] = data[d + 2] = px[s];
-      data[d + 3] = channels === 2 ? px[s + 1] : 255;
+      data[d] = data[d + 1] = data[d + 2] = at(px, s);
+      data[d + 3] = channels === 2 ? at(px, s + 1) : 255;
     } else {
-      data[d] = px[s]; data[d + 1] = px[s + 1]; data[d + 2] = px[s + 2];
-      data[d + 3] = channels === 4 ? px[s + 3] : 255;
+      data[d] = at(px, s); data[d + 1] = at(px, s + 1); data[d + 2] = at(px, s + 2);
+      data[d + 3] = channels === 4 ? at(px, s + 3) : 255;
     }
   }
   return { width, height, data };
@@ -232,7 +235,7 @@ export function encodePng(image: Raster): Buffer {
   for (let y = 0; y < height; y++) {
     for (let x = 0; x < width; x++) {
       const s = (y * width + x) * 4, d = y * (width * 3 + 1) + 1 + x * 3;
-      raw[d] = data[s]; raw[d + 1] = data[s + 1]; raw[d + 2] = data[s + 2];
+      raw[d] = at(data, s); raw[d + 1] = at(data, s + 1); raw[d + 2] = at(data, s + 2);
     }
   }
   const ihdr = Buffer.alloc(13);
