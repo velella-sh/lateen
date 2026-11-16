@@ -1,0 +1,55 @@
+/* Stat strip: three to six figures in one row; two rows on a narrow screen. */
+
+.stat-strip {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 9rem), 1fr));
+  margin-block: var(--space-6);
+  padding: 0;
+  list-style: none;
+  border-block: 1px solid var(--color-border);
+}
+
+.stat {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-1);
+  min-inline-size: 0;
+  padding: var(--space-4);
+  overflow-wrap: anywhere;
+}
+
+.stat-value {
+  font-size: var(--type-size-2xl);
+  font-weight: 700;
+  line-height: 1.1;
+  font-variant-numeric: tabular-nums;
+}
+
+.stat-label {
+  color: var(--color-muted);
+  font-size: var(--type-size-sm);
+}
+
+a.stat-label {
+  color: var(--color-link);
+}
+
+/* At most three per row on a narrow screen, so six figures make two rows. */
+@media (max-width: 40rem) {
+  .stat-strip {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+}
+
+@media print {
+  .stat-strip,
+  .stat {
+    border-color: currentColor;
+  }
+  .stat-strip {
+    border: 1px solid currentColor;
+  }
+  .stat {
+    border-inline-end: 1px solid currentColor;
+  }
+}
