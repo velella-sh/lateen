@@ -41,7 +41,8 @@ test("the resting state is the final state: no hidden content outside the animat
   assert.doesNotMatch(rest, /opacity:\s*0\s*;/);
   assert.doesNotMatch(rest, /visibility:\s*hidden/);
   const keyframes = block(entrance, entrance.indexOf("@keyframes"));
-  assert.match(keyframes.slice(keyframes.indexOf("to")), /opacity: 1/);
+  assert.doesNotMatch(keyframes, /opacity/, "text keeps full contrast below the fold");
+  assert.match(keyframes.slice(keyframes.indexOf("to")), /transform: none/);
 });
 
 test("the entrance adds no script", () => {

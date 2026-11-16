@@ -1,0 +1,1 @@
+- Showpiece pages join the accessibility, performance, RTL, print, forced-colors and no-script gates (#491). The scroll entrance no longer changes opacity, so a section below the fold keeps full text contrast.
