@@ -1,0 +1,1 @@
+- Showpiece rules: `docs/design/showpiece.md` fixes the sections of a showpiece page, the fallback for each missing section, and the limits the `showpiece` epic (#479) follows (#480).
