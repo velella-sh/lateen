@@ -1,0 +1,1 @@
+- Starters: `starters/` is published, `starters/README.md` defines a starter, `npm run check:starters` builds and checks every one (CI runs it), and the documentation starter ships in English with optional Persian and Arabic variants.
