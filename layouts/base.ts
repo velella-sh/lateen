@@ -7,6 +7,7 @@ import footnotePopover from "../chrome/footnote-popover/index.ts";
 import { alternateLinks, canonicalLink } from "../chrome/language-switcher/index.ts";
 import siteFooter from "../chrome/site-footer/index.ts";
 import shortcuts from "../chrome/shortcuts/index.ts";
+import sourceMode from "../chrome/source-mode/index.ts";
 import skipLinks, { MAIN_ID, NAVIGATION_ID } from "../chrome/skip-links/index.ts";
 import { THEME_KEY } from "../chrome/theme-toggle/key.ts";
 import { brandCss, problemComment, resolveBrand } from "../src/brand.ts";
@@ -161,6 +162,7 @@ export default function base(props: BaseProps) {
       footnotePopover(props) as ComponentChildren,
       footerNode == null ? null : h("footer", null, footerNode),
       shortcuts(props) as ComponentChildren,
+      sourceMode(props) as ComponentChildren,
       ...islands.map((island) => h("script", { type: "module", src: island.src })),
     ),
   );
