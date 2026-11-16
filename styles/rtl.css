@@ -26,6 +26,7 @@
   --type-leading-tight: var(--rtl-leading-tight);
   --type-leading-display: var(--rtl-leading-display);
   --type-leading-snug: var(--rtl-leading-snug);
+  --type-size-display: var(--rtl-size-display);
   --type-tracking-display: var(--rtl-letter-spacing);
   --type-tracking-heading: var(--rtl-letter-spacing);
 }

@@ -181,6 +181,7 @@
     "size-xl": "1.5rem",
     "size-2xl": "2rem",
     "size-3xl": "2.5rem",
+    "size-display": "3rem",
     "leading-tight": "1.2",
     "leading-body": "1.6",
     "leading-heading": "1.2",
@@ -204,7 +205,8 @@
     "leading-tight": "1.35",
     "letter-spacing": "normal",
     "leading-display": "1.4",
-    "leading-snug": "1.4"
+    "leading-snug": "1.4",
+    "size-display": "2.5rem"
   },
   "space": {
     "1": "0.25rem",

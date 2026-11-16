@@ -7,5 +7,6 @@
   "leading-tight": "1.35",
   "letter-spacing": "normal",
   "leading-display": "1.45",
-  "leading-snug": "1.45"
+  "leading-snug": "1.45",
+  "size-display": "clamp(2.25rem, calc(1.7rem + 2.4vw), 3.75rem)"
 }

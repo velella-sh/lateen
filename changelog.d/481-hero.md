@@ -1,0 +1,1 @@
+- Hero (#481): the `hero` component draws an eyebrow, the page's one `h1`, a lead, actions and an optional visual slot, with `start`, `center` and `split` alignments; adds the fluid `type-size-display` token with its Persian and Arabic value.
