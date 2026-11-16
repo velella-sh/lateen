@@ -11,8 +11,8 @@
   display: grid;
   gap: var(--space-1);
   padding: var(--space-3) var(--space-4);
-  background: var(--color-surface);
-  border: 1px solid var(--color-border);
+  background: var(--elevation-low-bg);
+  border: thin solid var(--elevation-low-border);
   border-radius: var(--radius-md);
   color: var(--color-text);
   text-decoration: none;
@@ -24,7 +24,12 @@
 }
 
 .pager-link:hover {
-  border-color: var(--color-accent);
+  border-color: var(--border-strong);
+  background: var(--elevation-mid-bg);
+}
+
+.pager-link:active {
+  background: var(--state-active-bg);
 }
 
 .pager-link:hover .pager-title {
