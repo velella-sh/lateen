@@ -211,6 +211,33 @@
     box-shadow: none;
   }
 
+  /* Refined components print flat: a sticky header, a lift, a blur or a fade is a screen effect. */
+  .table-scroll,
+  .table-scroll th,
+  .table-scroll td,
+  .card,
+  .link-card,
+  .badge,
+  .pager-link,
+  .code,
+  .code-title,
+  .callout {
+    position: static;
+    box-shadow: none;
+    backdrop-filter: none;
+    animation: none;
+    transition: none;
+  }
+
+  /* Line numbers are decoration; a highlighted line keeps no tint. */
+  .code [data-line]::before {
+    content: none;
+  }
+
+  .code .highlighted {
+    background: none;
+  }
+
   /* The report tables are static content: they shrink to the page and keep their rows whole. */
   .a11y-report-scroll,
   .budget-report-scroll,

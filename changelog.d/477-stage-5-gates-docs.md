@@ -1,0 +1,1 @@
+- Refinement gates and docs (#477, #478): a refinement fixture page in English, Persian and Arabic joins the accessibility matrix (desktop and mobile, light and dark); the badge label now mixes its variant colour with the text colour so it reaches 4.5:1; refined components print flat; and a Refinement page documents the rules, the tokens and the brand radius and density options.

@@ -60,7 +60,7 @@ test("every callout variant gets its own class", () => {
   }
 });
 
-test("each variant reads its color from the callout token it shares", () => {
+test("each variant's label mixes the callout token it shares with the text colour (contrast)", () => {
   const expected: Record<string, string> = {
     note: "--color-info",
     tip: "--color-success",
@@ -69,7 +69,7 @@ test("each variant reads its color from the callout token it shares", () => {
     caution: "--color-danger",
   };
   for (const [variant, token] of Object.entries(expected)) {
-    const rule = new RegExp(`\\.badge-${variant}\\s*\\{[^}]*color:\\s*var\\(${token}\\)`);
+    const rule = new RegExp(`\\.badge-${variant}\\s*\\{[^}]*color:\\s*color-mix\\([^)]*var\\(${token}\\)`);
     assert.match(css, rule, `.badge-${variant} uses var(${token})`);
   }
 });

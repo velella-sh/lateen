@@ -296,3 +296,9 @@ test("controls share one hover, pressed and focus recipe, and the ring still dra
     assert.match(unit(path), /:focus-within|:focus-visible/, `${path} shows its control on focus`);
   }
 });
+
+test("the refined frames keep a border in forced colors (#477)", () => {
+  const text = readFileSync(new URL("../styles/forced-colors.css", import.meta.url), "utf8");
+  const borders = /:where\(\s*([^)]*?)\)\s*\{\s*border-color:\s*ButtonBorder\s*!important/s.exec(text)?.[1] ?? "";
+  for (const name of [".card", ".code", ".code-title", ".table-scroll", ".badge", ".callout", ".pager-link"]) assert.ok(borders.includes(name), `${name} keeps its border`);
+});
