@@ -57,6 +57,32 @@ test("the state tokens cover every interaction state and the focus ring reads in
   }
 });
 
+test("the status tones keep text at 4.5:1 on their background and borders at 3:1 on the canvas, in both schemes", () => {
+  const tokens = loadTokens();
+  const value = (name: string, mode: "light" | "dark"): string => {
+    const token = tokens.get(name);
+    const found = mode === "light" ? token?.light : token?.dark ?? token?.light;
+    assert.ok(found && /^#[0-9a-f]{6}$/i.test(found), `${name} has no ${mode} six-digit value`);
+    return found;
+  };
+  let checked = 0;
+  for (const tone of ["positive", "caution", "negative", "neutral", "info"]) {
+    for (const part of ["fg", "bg", "border"]) {
+      for (const mode of ["light", "dark"] as const) {
+        assert.ok(tokens.get(`status-${tone}-${part}`)?.dark, `status-${tone}-${part} needs a dark value`);
+        checked += 1;
+      }
+    }
+    for (const mode of ["light", "dark"] as const) {
+      const text = contrast(value(`status-${tone}-fg`, mode), value(`status-${tone}-bg`, mode));
+      assert.ok(text >= 4.5, `${mode} status-${tone}-fg is ${text.toFixed(2)}:1 on its background; it needs 4.5:1`);
+      const border = contrast(value(`status-${tone}-border`, mode), value("color-canvas", mode));
+      assert.ok(border >= 3, `${mode} status-${tone}-border is ${border.toFixed(2)}:1 on the canvas; it needs 3:1`);
+    }
+  }
+  assert.equal(checked, 30);
+});
+
 test("light and dark go through light-dark() and data-theme overrides", () => {
   const css = buildCss(loadTokens(folder()));
   assert.match(css, /--color-canvas: light-dark\(#fff, #000\);/);

@@ -71,6 +71,9 @@ export const terminal = '<svg xmlns="http://www.w3.org/2000/svg" width="24" heig
 /** A right-pointing arrow, for pagers and forward actions. */
 export const arrow = '<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></svg>';
 
+/** A circle with a dash, for a neutral status. */
+export const minus = '<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><circle cx="12" cy="12" r="10"/><path d="M8 12h8"/></svg>';
+
 /** The name of every icon in the set. */
 export type IconName =
   | "search"
@@ -92,7 +95,8 @@ export type IconName =
   | "file"
   | "folder"
   | "terminal"
-  | "arrow";
+  | "arrow"
+  | "minus";
 
 /**
  * The icons that point along the reading direction. In a right-to-left page a component that
