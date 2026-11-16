@@ -1,0 +1,1 @@
+- Showpiece: each preset now carries a backdrop variant, a motif seed and an intensity (`showpiece` in `tokens/presets/*.json`). The `home` showpiece uses them when the page sets none, `preset-preview` shows the home look, and tests check text contrast on every preset's backdrop in both themes. Accents are unchanged.

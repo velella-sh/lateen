@@ -2,5 +2,10 @@
   "accent": "#4a5568",
   "neutral": "#8b9199",
   "radius": "none",
-  "density": "compact"
+  "density": "compact",
+  "showpiece": {
+    "backdrop": "grid",
+    "motif": "graphite-plate",
+    "intensity": "standard"
+  }
 }

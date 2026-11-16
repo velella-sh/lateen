@@ -12,6 +12,8 @@ export const DEFAULT_VARIANT: BackdropVariant = "glow";
 export type BackdropProps = {
   /** `glow`, `grid` or `none`; anything else is dropped and the default is used. */
   variant?: string | undefined;
+  /** `soft` draws a fainter tint; anything else is the standard tint. */
+  intensity?: string | undefined;
 };
 
 /** The variant to draw: the requested one when it is known, otherwise the default. */
@@ -32,7 +34,7 @@ export function variantOf(value: unknown): BackdropVariant {
 const backdrop: Component<BackdropProps> = ({ props }) => {
   const variant = variantOf(props?.variant);
   if (variant === "none") return null;
-  return h("div", { class: `backdrop backdrop-${variant}`, "aria-hidden": "true" });
+  return h("div", { class: `backdrop backdrop-${variant}${props?.intensity === "soft" ? " backdrop-soft" : ""}`, "aria-hidden": "true" });
 };
 
 export default backdrop;

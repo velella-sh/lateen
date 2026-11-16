@@ -101,3 +101,48 @@ test("a preset from another folder is applied like a shipped one", () => {
     rmSync(dir, { recursive: true, force: true });
   }
 });
+
+test("every preset names a backdrop variant, a motif seed and an intensity, and keeps its accent", () => {
+  const accents: Record<string, string> = { clay: "#a2553f", graphite: "#4a5568", harbor: "#2f6f9f", orchard: "#3f7d4e", plum: "#6b4f9e" };
+  for (const name of PRESETS) {
+    const result = resolveBrand({ preset: name });
+    assert.deepEqual(result.problems, [], name);
+    const look = result.brand?.showpiece;
+    assert.ok(look !== undefined, `${name} has a showpiece look`);
+    assert.ok(["glow", "grid", "none"].includes(look.backdrop ?? ""), `${name} backdrop`);
+    assert.ok((look.motif ?? "") !== "", `${name} motif`);
+    assert.ok(["soft", "standard"].includes(look.intensity ?? ""), `${name} intensity`);
+    assert.equal(result.brand?.accent, accents[name], `${name} keeps its accent`);
+  }
+  assert.equal(new Set(PRESETS.map((name) => resolveBrand({ preset: name }).brand?.showpiece?.motif)).size, PRESETS.length, "motif seeds differ");
+});
+
+test("text on each preset's backdrop keeps 4.5:1 in both schemes at the strongest tint", () => {
+  const tint = { soft: 0.06, standard: 0.1 } as const;
+  for (const name of PRESETS) {
+    const brand = resolveBrand({ preset: name }).brand;
+    assert.ok(brand?.showpiece?.intensity !== undefined);
+    const tokens = brandTokens(brand);
+    for (const scheme of ["light", "dark"] as const) {
+      const canvas = parseHex(at(tokens, "color-canvas", scheme));
+      const accent = parseHex(at(tokens, "color-accent", scheme));
+      assert.ok(canvas !== undefined && accent !== undefined);
+      const w: number = tint[brand.showpiece.intensity as "soft" | "standard"];
+      const bg: { r: number; g: number; b: number } = { r: accent.r * w + canvas.r * (1 - w), g: accent.g * w + canvas.g * (1 - w), b: accent.b * w + canvas.b * (1 - w) };
+      for (const role of ["text", "heading", "muted"]) {
+        const fg = parseHex(at(tokens, `color-${role}`, scheme));
+        assert.ok(fg !== undefined);
+        assert.ok(contrast(fg, bg) >= 4.5, `${name} ${scheme}: ${role} on the backdrop`);
+      }
+    }
+  }
+});
+
+test("a malformed showpiece option is ignored by name", () => {
+  const result = resolveBrand({ brand: { showpiece: { backdrop: "swirl", intensity: "loud", motif: "" } } });
+  assert.deepEqual(result.problems.map((problem) => problem.option), [
+    "theme.options.brand.showpiece.backdrop",
+    "theme.options.brand.showpiece.motif",
+    "theme.options.brand.showpiece.intensity",
+  ]);
+});

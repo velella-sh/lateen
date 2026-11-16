@@ -10,6 +10,7 @@ import frame from "../components/frame/index.ts";
 import hero from "../components/hero/index.ts";
 import motif from "../components/motif/index.ts";
 import statStrip from "../components/stat-strip/index.ts";
+import { resolveBrand } from "../src/brand.ts";
 import base from "./base.ts";
 
 /**
@@ -190,12 +191,13 @@ function showpieceContent(props: LayoutProps): ComponentChildren {
   const shared = { page, site, html: "" };
   const blocks: ComponentChildren[] = [];
 
-  const seed = stringAt(options, "motif");
+  const look = resolveBrand(site.config.theme.options).brand?.showpiece;
+  const seed = stringAt(options, "motif") ?? look?.motif;
   blocks.push(
     h(
       "div",
       { class: "home-showpiece-hero" },
-      call(backdrop, { ...shared, props: defined({ variant: stringAt(options, "backdrop") }) }),
+      call(backdrop, { ...shared, props: defined({ variant: stringAt(options, "backdrop") ?? look?.backdrop, intensity: look?.intensity }) }),
       seed === undefined || seed === "" ? null : h("div", { class: "home-showpiece-motif" }, call(motif, { ...shared, props: { seed } })),
       call(hero, {
         ...shared,

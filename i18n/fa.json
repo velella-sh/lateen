@@ -223,6 +223,8 @@
   "posts": "نوشته‌ها",
   "preset_preview_accent": "رنگ تأکید",
   "preset_preview_accent_text": "متن تأکید روی زمینه",
+  "preset_preview_hero_lead": "صفحهٔ اصلی سایتی با این پیش‌تنظیم.",
+  "preset_preview_hero_title": "مستندهایی بسازید که خوانا باشند",
   "preset_preview_on_accent": "متن روی رنگ تأکید",
   "preset_preview_options": "این گزینه‌ها را کپی کنید",
   "preset_preview_ratio_accent": "{light} در روشن، {dark} در تیره",
