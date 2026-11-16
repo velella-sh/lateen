@@ -1,0 +1,1 @@
+- Visual gates image comparer: `scripts/visual-compare.ts` compares two PNGs pixel by pixel with the `0.1` threshold and `0.1%` share limit from `docs/design/visual-gates.md`, returns the changed share and boxes, writes a diff image, honours masked regions and fails a size mismatch naming both sizes (#497).
