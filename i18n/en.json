@@ -204,6 +204,7 @@
   "rejected": "Rejected",
   "related_posts": "Related posts",
   "releases": "Releases",
+  "report_issue": "Report a problem with this page",
   "report_missing": "This build has no {name} report, so this section cannot show one.",
   "required": "Required",
   "reviewed": "Reviewed",
