@@ -1,4 +1,1 @@
----
-type: changed
----
-Refine the focus, hover and press states of controls (#471), code blocks (#473), and tables, callouts, cards and badges (#474). CSS and tokens only: one shared focus ring, a hairline code frame with quiet line highlights and numbers, a sticky table header, and a card that lifts with a shadow instead of moving.
+- Component refinement (#471, #473, #474): one shared focus ring and consistent hover and press states on controls, cards, tabs and the sidebar; a hairline code frame with quiet line highlights, line numbers, a thin scrollbar and inline code sized from its text; a sticky table header with hairline rows and end-aligned numbers; callout icons aligned to the first line; cards that lift with a shadow instead of moving. CSS only; markup is unchanged.
