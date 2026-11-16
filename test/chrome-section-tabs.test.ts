@@ -26,6 +26,7 @@ const config: SiteConfig = {
   search: { text: 300 },
   redirects: {},
   outputs: {},
+  collections: {},
 };
 
 /** True for the right-to-left page languages the theme ships catalogs for, including regional codes. */
@@ -77,6 +78,7 @@ function propsWith(
     pages: [page],
     nav: items === undefined ? {} : { main: items },
     data: {},
+    collections: {},
   };
   return { site, page, trail, pager: {} satisfies Pager };
 }

@@ -22,6 +22,7 @@ const config: SiteConfig = {
   search: { text: 300 },
   redirects: {},
   outputs: {},
+  collections: {},
 };
 
 function layoutProps(overrides: Partial<Page> = {}): LayoutProps {
@@ -38,7 +39,7 @@ function layoutProps(overrides: Partial<Page> = {}): LayoutProps {
     kind: "doc",
     ...overrides,
   };
-  const site: Site = { config, pages: [page], nav: {}, data: {} };
+  const site: Site = { config, pages: [page], nav: {}, data: {}, collections: {} };
   return {
     site,
     page,
@@ -238,6 +239,7 @@ function multilingual(current: Page, overrides: Partial<SiteConfig> = {}): Layou
       pages: [en, fa],
       nav: {},
       data: {},
+      collections: {},
     },
   };
 }

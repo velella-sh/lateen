@@ -24,6 +24,7 @@ function configWith(overrides: Partial<SiteConfig> = {}): SiteConfig {
     search: { text: 300 },
     redirects: {},
     outputs: {},
+    collections: {},
     ...overrides,
   };
 }
@@ -42,7 +43,7 @@ function layoutProps(config: Partial<SiteConfig> = {}, pageOverrides: Partial<Pa
     kind: "doc",
     ...pageOverrides,
   };
-  const site: Site = { config: configWith(config), pages: [page], nav: { main: [] }, data: {} };
+  const site: Site = { config: configWith(config), pages: [page], nav: { main: [] }, data: {}, collections: {} };
   return {
     site,
     page,
