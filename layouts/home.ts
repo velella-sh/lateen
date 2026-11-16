@@ -1,8 +1,15 @@
 import { Fragment, h } from "preact";
 import type { ComponentChildren } from "preact";
-import type { Layout, LayoutProps } from "@velella/mizzen/contracts";
+import type { ComponentProps, Layout, LayoutProps } from "@velella/mizzen/contracts";
 import drawer from "../chrome/drawer/index.ts";
 import header from "../chrome/header/index.ts";
+import backdrop from "../components/backdrop/index.ts";
+import ctaBand from "../components/cta-band/index.ts";
+import featureGrid from "../components/feature-grid/index.ts";
+import frame from "../components/frame/index.ts";
+import hero from "../components/hero/index.ts";
+import motif from "../components/motif/index.ts";
+import statStrip from "../components/stat-strip/index.ts";
 import base from "./base.ts";
 
 /**
@@ -19,6 +26,20 @@ import base from "./base.ts";
  *
  * The page body renders after the hero and the section grids. Values that do not match the shape
  * above are dropped, never a broken page.
+ *
+ * Showpiece style: `home: { style: showpiece }` recomposes the page from the showpiece components, in
+ * this order, each left out when it has no data (see `docs/design/showpiece.md`):
+ *
+ * 1. hero (`hero`, `actions`), over a backdrop (`home.backdrop`: `glow`, `grid` or `none`) and an
+ *    optional motif (`home.motif`: the seed text);
+ * 2. stat strip (`stats: [{ value, label, url }]`);
+ * 3. feature grid (`features: [{ title, description, icon, url }]`, else the `sections` entries);
+ * 4. framed demo (`demo: { title, caption }`): the frame wraps the page body, which then is not
+ *    drawn a second time;
+ * 5. call to action (`cta: { title, lead, package, actions }`): the first action with a label and a
+ *    URL is the band's action.
+ *
+ * Any other value of `home.style`, or none, is the layout above, unchanged.
  */
 
 /** An arrow pointing toward the reading direction; `style.css` mirrors it under `dir="rtl"`. */
@@ -136,12 +157,99 @@ function content(props: LayoutProps): ComponentChildren {
   return blocks;
 }
 
+/** The record without its undefined values, for components that forbid explicit `undefined`. */
+function defined(record: Readonly<Record<string, unknown>>): Record<string, string> {
+  return Object.fromEntries(Object.entries(record).filter(([, v]) => v !== undefined)) as Record<string, string>;
+}
+
+/** Runs a component with its input and returns what it drew; the engine's node type is opaque. */
+function call<P extends Readonly<Record<string, unknown>>>(
+  component: (input: ComponentProps<P>) => unknown,
+  input: ComponentProps<P>,
+): ComponentChildren {
+  return component(input) as ComponentChildren;
+}
+
+/** True when the page opts in to the showpiece composition. */
+function isShowpiece(props: LayoutProps): boolean {
+  const option = props.page.frontMatter.home;
+  return isRecord(option) && option.style === "showpiece";
+}
+
+/** The `home` option record, or an empty one. */
+function optionsOf(props: LayoutProps): Readonly<Record<string, unknown>> {
+  const option = props.page.frontMatter.home;
+  return isRecord(option) ? option : {};
+}
+
+/** The showpiece content: hero, stat strip, feature grid, framed demo, call to action, then the body. */
+function showpieceContent(props: LayoutProps): ComponentChildren {
+  const { page, site } = props;
+  const fm = page.frontMatter;
+  const options = optionsOf(props);
+  const shared = { page, site, html: "" };
+  const blocks: ComponentChildren[] = [];
+
+  const seed = stringAt(options, "motif");
+  blocks.push(
+    h(
+      "div",
+      { class: "home-showpiece-hero" },
+      call(backdrop, { ...shared, props: defined({ variant: stringAt(options, "backdrop") }) }),
+      seed === undefined || seed === "" ? null : h("div", { class: "home-showpiece-motif" }, call(motif, { ...shared, props: { seed } })),
+      call(hero, {
+        ...shared,
+        props: {
+          ...(isRecord(fm.hero)
+            ? defined({ eyebrow: stringAt(fm.hero, "eyebrow"), title: stringAt(fm.hero, "title"), lead: stringAt(fm.hero, "lead") })
+            : {}),
+          actions: fm.actions,
+        },
+      }),
+    ),
+  );
+
+  blocks.push(call(statStrip, { ...shared, props: {} }));
+
+  const features = Array.isArray(fm.features) ? fm.features : recordsOf(fm.sections);
+  blocks.push(featureGrid({ features }));
+
+  let bodyUsed = false;
+  const demo = fm.demo;
+  if (isRecord(demo) && page.html.trim() !== "") {
+    bodyUsed = true;
+    blocks.push(
+      h("div", { class: "home-showpiece-demo" }, call(frame, { page, site, html: page.html, props: defined({ title: stringAt(demo, "title"), caption: stringAt(demo, "caption") }) })),
+    );
+  }
+
+  const cta = fm.cta;
+  if (isRecord(cta)) {
+    const action = recordsOf(cta.actions).find((a) => stringAt(a, "label") !== undefined && stringAt(a, "url") !== undefined);
+    blocks.push(
+      call(ctaBand, {
+        ...shared,
+        props: defined({
+          title: stringAt(cta, "title"),
+          lead: stringAt(cta, "lead"),
+          package: stringAt(cta, "package"),
+          label: action === undefined ? undefined : stringAt(action, "label"),
+          url: action === undefined ? undefined : stringAt(action, "url"),
+        }),
+      }),
+    );
+  }
+
+  if (!bodyUsed && page.html.length > 0) blocks.push(h("div", { dangerouslySetInnerHTML: { __html: page.html } }));
+  return h("div", { class: "home-showpiece" }, blocks);
+}
+
 /** The home page: the base document shell around the hero, the section grids, and the page body. */
 const home: Layout = (props) =>
   base({
     ...props,
     header: h(Fragment, null, header(props) as ComponentChildren, drawer(props) as ComponentChildren),
-    main: content(props),
+    main: isShowpiece(props) ? showpieceContent(props) : content(props),
   });
 
 export default home;
