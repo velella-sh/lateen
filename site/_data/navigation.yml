@@ -21,6 +21,8 @@ main:
         url: /components/cards/
       - title: Changelog entry
         url: /components/changelog-entry/
+      - title: CLI demo
+        url: /components/cli-demo/
       - title: Code
         url: /components/code/
       - title: Code tabs

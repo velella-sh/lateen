@@ -33,7 +33,7 @@ test("English, Persian, and Arabic report pages render all three components in b
       filter: (path) => !path.split(sep).includes(".mizzen"),
     });
     const out = join(work, "out");
-    const run = spawnSync(process.execPath, [MIZZEN, "build", source, "--theme", ".", "--out", out], { cwd: root, encoding: "utf8" });
+    const run = spawnSync(process.execPath, [MIZZEN, "build", source, "--theme", ".", "--out", out], { cwd: root, encoding: "utf8", env: { ...process.env, NODE_V8_COVERAGE: "" } });
     if (run.status !== 0) throw new Error(`mizzen build failed:\n${run.stderr || run.stdout || run.error?.message || "no output"}`);
 
     for (const page of PAGES) {
