@@ -24,6 +24,10 @@
   --type-leading-body: var(--rtl-leading-body);
   --type-leading-heading: var(--rtl-leading-heading);
   --type-leading-tight: var(--rtl-leading-tight);
+  --type-leading-display: var(--rtl-leading-display);
+  --type-leading-snug: var(--rtl-leading-snug);
+  --type-tracking-display: var(--rtl-letter-spacing);
+  --type-tracking-heading: var(--rtl-letter-spacing);
 }
 
 /* Some units set letter spacing on the element itself (the home title, the search group title),

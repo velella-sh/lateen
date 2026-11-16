@@ -32,7 +32,7 @@
     }
   },
   "heading": {
-    "$value": "#111111",
+    "$value": "#1a2030",
     "$extensions": {
       "lateen": {
         "dark": "#dcd7ba"
@@ -92,6 +92,22 @@
     "$extensions": {
       "lateen": {
         "dark": "#7e9cd8"
+      }
+    }
+  },
+  "surface-sunken": {
+    "$value": "#e3e7ee",
+    "$extensions": {
+      "lateen": {
+        "dark": "#181820"
+      }
+    }
+  },
+  "link-visited": {
+    "$value": "#5b3f99",
+    "$extensions": {
+      "lateen": {
+        "dark": "#b8a0dc"
       }
     }
   }

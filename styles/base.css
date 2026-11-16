@@ -49,9 +49,20 @@ body {
   font-family: var(--type-font-heading);
   font-weight: var(--type-weight-bold);
   line-height: var(--type-leading-heading);
+  letter-spacing: var(--type-tracking-heading);
   text-wrap: balance;
   /* The sticky header is one `--space-16` tall, so an anchored heading lands below it. */
   scroll-margin-block-start: var(--space-16);
+}
+
+/* More space above a heading than below it: a section break is wider than a subsection break,
+   and a heading straight after another sits closer. */
+:where(h2) {
+  margin-block-start: var(--space-12);
+}
+
+:where(h1, h2, h3, h4, h5, h6) + :where(h2, h3, h4, h5, h6) {
+  margin-block-start: var(--space-4);
 }
 
 :where(h1, h2, h3, h4, h5, h6):first-child {
@@ -60,14 +71,23 @@ body {
 
 :where(h1) {
   font-size: var(--type-size-2xl);
+  line-height: var(--type-leading-display);
+  letter-spacing: var(--type-tracking-display);
 }
 
 :where(h2) {
   font-size: var(--type-size-xl);
+  line-height: var(--type-leading-snug);
 }
 
 :where(h3) {
   font-size: var(--type-size-lg);
+  line-height: var(--type-leading-snug);
+}
+
+:where(h4, h5, h6) {
+  font-weight: var(--type-weight-medium);
+  letter-spacing: normal;
 }
 
 :where(h4) {
@@ -76,6 +96,11 @@ body {
 
 :where(h5, h6) {
   font-size: var(--type-size-sm);
+}
+
+/* Paragraphs avoid a lone last word where the browser supports it. */
+:where(p, li, blockquote) {
+  text-wrap: pretty;
 }
 
 :where(p, ul, ol, blockquote, figure) {
@@ -98,6 +123,11 @@ body {
   color: var(--color-link);
   text-decoration: underline;
   text-decoration-thickness: from-font;
+}
+
+/* A visited link in the article reads as visited; chrome and components keep their own link colours. */
+:where(.doc-body a:visited) {
+  color: var(--color-link-visited);
 }
 
 :where(a:hover) {
@@ -171,6 +201,7 @@ table {
 
 th,
 td {
+  font-variant-numeric: tabular-nums;
   padding-block: var(--space-2);
   padding-inline: var(--space-3);
   border-block-end: thin solid var(--color-border);
@@ -192,4 +223,25 @@ td code {
   display: block;
   max-inline-size: 100%;
   overflow-x: auto;
+}
+
+/* Calm motion: hover and press changes ease on a surface or colour, never on layout, and the theme
+   change crossfades its colours. Every duration and easing is a motion token, which a reader who
+   prefers reduced motion gets as zero (`styles/tokens.css`). */
+:where(a, button, summary, [role="button"]) {
+  transition:
+    background-color var(--motion-fast) var(--motion-ease),
+    border-color var(--motion-fast) var(--motion-ease),
+    color var(--motion-fast) var(--motion-ease);
+}
+
+:where(button, [role="button"]):active {
+  transition-duration: var(--motion-press);
+}
+
+:where(body, header, nav, aside, main, footer, article, pre, table, th, td, blockquote) {
+  transition:
+    background-color var(--motion-base) var(--motion-ease-in-out),
+    border-color var(--motion-base) var(--motion-ease-in-out),
+    color var(--motion-base) var(--motion-ease-in-out);
 }

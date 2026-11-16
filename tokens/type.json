@@ -14,5 +14,9 @@
   "leading-heading": "1.2",
   "leading-code": "1.8",
   "measure-min": "65ch",
-  "measure-max": "80ch"
+  "measure-max": "80ch",
+  "tracking-display": "-0.025em",
+  "tracking-heading": "-0.015em",
+  "leading-display": "1.1",
+  "leading-snug": "1.3"
 }

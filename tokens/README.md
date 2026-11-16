@@ -53,3 +53,19 @@ simulated protanopia, deuteranopia, and tritanopia (`test/support-chart-colour.t
 ## Status
 
 `tokens/status.json` holds the colours of a record's status: five tones (`positive`, `caution`, `negative`, `neutral`, `info`), each with `fg`, `bg` and `border`, as `status-<tone>-<part>`, with light and dark values. They are their own values, not references to the callout colours, so a tone can change without touching callouts. `test/tokens.test.ts` requires every `fg` to reach 4.5:1 on its `bg` and every `border` 3:1 on the canvas, in both schemes.
+
+## Border and elevation
+
+`tokens/names.json` holds `border-subtle`, `border-default` and `border-strong`, each with a light and a dark value. `border-default` follows `color-border`, so a brand neutral still reaches it. `border-strong` reaches 3:1 against the canvas in both themes (`test/tokens.test.ts`), so it can mark a control's edge.
+
+Three elevation levels, `low`, `mid` and `high`, each have three tokens: `elevation-<level>-shadow`, `-bg` and `-border`. In the light theme the shadow is two soft layers over a white surface. In the dark theme the shadow layers are transparent and the surface is lighter with a hairline border instead, because a shadow does not show on a dark canvas. A component sets all three together:
+
+```css
+box-shadow: var(--elevation-mid-shadow);
+background-color: var(--elevation-mid-bg);
+border: thin solid var(--elevation-mid-border);
+```
+
+## Radius
+
+`tokens/radius.json` holds the corner scale (`sm`, `md`, `lg`, `full`, plus the `ctl` and `card` steps). `src/brand.ts` multiplies these same tokens for the brand `radius` option, so there is one mechanism.

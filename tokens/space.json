@@ -6,5 +6,6 @@
   "6": "1.5rem",
   "8": "2rem",
   "12": "3rem",
-  "16": "4rem"
+  "16": "4rem",
+  "page": "clamp(1rem, 0.5rem + 2.5vw, 2rem)"
 }

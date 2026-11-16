@@ -155,3 +155,58 @@ test("base.css stays under the 8 KB budget when minified", () => {
   const bytes = Buffer.byteLength(minified);
   assert.ok(bytes > 0 && bytes < 8 * 1024, `minified base.css is ${bytes} bytes; the budget is 8192`);
 });
+
+const rtlCss = read("../styles/rtl.css");
+const bodyOf = (source: string, selector: RegExp): string => blocks(source).filter((block) => selector.test(block.selector)).map((block) => block.body).join("\n");
+
+test("headings set tracking, leading and weight per size and wrap balanced; paragraphs wrap pretty (#468)", () => {
+  const h1 = bodyOf(css, /^:where\(h1\)$/);
+  assert.match(h1, /line-height:\s*var\(--type-leading-display\)/);
+  assert.match(h1, /letter-spacing:\s*var\(--type-tracking-display\)/);
+  for (const heading of ["h2", "h3"]) assert.match(bodyOf(css, new RegExp(`^:where\\(${heading}\\)$`)), /line-height:\s*var\(--type-leading-snug\)/, heading);
+  assert.match(bodyOf(css, /^:where\(h4, h5, h6\)$/), /font-weight:\s*var\(--type-weight-medium\)/);
+  assert.match(bodyOf(css, /^:where\(h1, h2, h3, h4, h5, h6\)$/), /text-wrap:\s*balance/);
+  assert.match(bodyOf(css, /^:where\(p, li, blockquote\)$/), /text-wrap:\s*pretty/);
+});
+
+test("tables, version numbers and the changelog use tabular numerals (#468)", () => {
+  assert.match(bodyOf(css, /^th,\s*td$/), /font-variant-numeric:\s*tabular-nums/);
+  assert.match(read("../styles/parts-changelog-entry.css"), /\.changelog-entry-version\s*\{[^}]*tabular-nums/);
+  assert.match(read("../components/version-badge/style.css"), /\.version-badge-value\s*\{[^}]*tabular-nums/);
+});
+
+test("the new type tokens exist, and Arabic-script text takes its leading from tokens/rtl.json with no letter spacing (#468)", () => {
+  for (const token of ["type-tracking-display", "type-tracking-heading", "type-leading-display", "type-leading-snug", "rtl-leading-display", "rtl-leading-snug"]) {
+    assert.match(tokensCss, new RegExp(`--${token}:`), token);
+  }
+  const root = bodyOf(rtlCss, /^:root:lang\(fa\),\s*:root:lang\(ar\)$/);
+  assert.match(root, /--type-leading-display:\s*var\(--rtl-leading-display\)/);
+  assert.match(root, /--type-leading-snug:\s*var\(--rtl-leading-snug\)/);
+  assert.match(root, /--type-tracking-display:\s*var\(--rtl-letter-spacing\)/);
+  assert.match(root, /--type-tracking-heading:\s*var\(--rtl-letter-spacing\)/);
+  for (const match of rtlCss.matchAll(/letter-spacing:\s*([^;]+);/g)) assert.equal((match[1] ?? "").trim(), "var(--rtl-letter-spacing)", "Arabic-script rules never set a literal letter-spacing");
+  assert.match(tokensCss, /--rtl-letter-spacing:\s*normal/);
+});
+
+test("headings take more space above than below, and the first heading stays flush (#469)", () => {
+  const above = bodyOf(css, /^:where\(h1, h2, h3, h4, h5, h6\)$/);
+  assert.match(above, /margin-block:\s*var\(--space-8\) var\(--space-4\)/);
+  assert.match(bodyOf(css, /^:where\(h2\)$/), /margin-block-start:\s*var\(--space-12\)/);
+  assert.ok(css.indexOf(":where(h2) {") < css.indexOf(":first-child {"), "the first-child reset must come after the section margin, or an h2 at the top is not flush");
+  assert.match(css, /--space-8\)[^}]*\}[\s\S]*:where\(p, ul, ol, blockquote, figure\)\s*\{\s*margin-block:\s*0 var\(--space-4\)/, "one gap between blocks");
+});
+
+test("the doc, tutorial and guide layouts take every gap from the spacing tokens, and page padding is fluid (#469)", () => {
+  for (const file of ["doc", "tutorial", "guide"]) {
+    const source = read(`../layouts/${file}.css`);
+    const bad = declarations(source).filter((d) => /^(margin|padding|gap|row-gap|column-gap)(-|$)/.test(d.property) && rawLength(d.value));
+    assert.deepEqual(bad.map((d) => `${file}.css:${d.line} ${d.property}: ${d.value}`), []);
+  }
+  assert.match(read("../layouts/doc.css"), /padding-inline:\s*var\(--space-page\)/);
+  assert.match(tokensCss, /--space-page:\s*clamp\(/);
+});
+
+test("the line-length limits are unchanged (#469)", () => {
+  assert.match(tokensCss, /--type-measure-min:\s*65ch/);
+  assert.match(tokensCss, /--type-measure-max:\s*80ch/);
+});
