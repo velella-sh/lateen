@@ -1,0 +1,27 @@
+# A documentation site for an invented tool, read by Mizzen. Replace the title, url, and repository.
+title: Sandbar
+description: Sandbar is an invented task runner, used here to show a complete documentation site.
+lang: en
+url: https://example.com
+base: ""
+languages:
+  - code: en
+    name: English
+    prefix: ""
+  - code: fa
+    name: فارسی
+    prefix: /fa
+  - code: ar
+    name: العربية
+    prefix: /ar
+search: { text: 300 }
+repository:
+  url: https://github.com/example/sandbar
+  branch: main
+  dir: ""
+theme:
+  name: "@velella/lateen"
+  options:
+    footer:
+      copyright: "© Example"
+      license: "MIT license"

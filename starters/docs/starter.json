@@ -1,0 +1,11 @@
+{
+  "title": "Documentation",
+  "description": "A documentation site for one tool: home page, getting started, two reference pages, a changelog and a not-found page.",
+  "languages": {
+    "default": "en",
+    "optional": [
+      { "code": "fa", "name": "فارسی", "prefix": "/fa" },
+      { "code": "ar", "name": "العربية", "prefix": "/ar" }
+    ]
+  }
+}

@@ -39,6 +39,7 @@
     "test:performance": "node scripts/performance-budget.ts",
     "test:coverage": "node scripts/tokens.ts --check && mkdir -p coverage && node --test --experimental-test-coverage --test-coverage-exclude=\"test/**\" --test-coverage-exclude=\"scripts/**\" --test-reporter=spec --test-reporter-destination=stdout --test-reporter=lcov --test-reporter-destination=coverage/lcov.info \"test/**/*.test.ts\"",
     "coverage:badge": "node scripts/coverage-badge.ts coverage/lcov.info coverage/coverage.json",
+    "check:starters": "node scripts/check-starters.ts",
     "typecheck": "tsc --noEmit -p tsconfig.json"
   },
   "dependencies": {
@@ -70,6 +71,7 @@
     "i18n",
     "icons",
     "skills",
+    "starters",
     "!skills/*-workspace",
     "!skills/**/evals",
     "CHANGELOG.md"
