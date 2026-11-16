@@ -18,25 +18,25 @@
 
 .badge-note {
   border-color: var(--color-info);
-  color: var(--color-info);
+  color: color-mix(in srgb, var(--color-info) 60%, var(--color-text));
 }
 
 .badge-tip {
   border-color: var(--color-success);
-  color: var(--color-success);
+  color: color-mix(in srgb, var(--color-success) 60%, var(--color-text));
 }
 
 .badge-important {
   border-color: var(--color-accent);
-  color: var(--color-accent);
+  color: color-mix(in srgb, var(--color-accent) 60%, var(--color-text));
 }
 
 .badge-warning {
   border-color: var(--color-warning);
-  color: var(--color-warning);
+  color: color-mix(in srgb, var(--color-warning) 60%, var(--color-text));
 }
 
 .badge-caution {
   border-color: var(--color-danger);
-  color: var(--color-danger);
+  color: color-mix(in srgb, var(--color-danger) 60%, var(--color-text));
 }

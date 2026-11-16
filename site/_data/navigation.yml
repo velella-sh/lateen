@@ -60,6 +60,8 @@ main:
         url: /tokens/
       - title: Brand options
         url: /brand-options/
+      - title: Refinement
+        url: /refinement/
       - title: Presets
         url: /presets/
       - title: Add a component

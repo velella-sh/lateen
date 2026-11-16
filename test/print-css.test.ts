@@ -326,3 +326,11 @@ test("install tabs print every panel under its manager name, and cli demo and in
   const whole = blocks(body).find((block) => /^\.cli-demo,\s*\.install-tabs$/.test(block.selector));
   assert.ok(whole && /break-inside:\s*avoid/.test(whole.body), "cli-demo and install-tabs may break across pages");
 });
+
+test("refined components print flat: no shadow, sticky header, blur, motion, tint or line numbers (#477)", () => {
+  const flat = rule(css, ".table-scroll,\n  .table-scroll th,\n  .table-scroll td,\n  .card,\n  .link-card,\n  .badge,\n  .pager-link,\n  .code,\n  .code-title,\n  .callout");
+  assert.ok(flat, "no flat rule for the refined components");
+  for (const re of [/position:\s*static/, /box-shadow:\s*none/, /backdrop-filter:\s*none/, /animation:\s*none/, /transition:\s*none/]) assert.match(flat.body, re);
+  assert.match(css, /\.code \[data-line\]::before\s*\{\s*content:\s*none/);
+  assert.match(css, /\.code \.highlighted\s*\{\s*background:\s*none/);
+});
