@@ -1,6 +1,18 @@
 import { h } from "preact";
 import type { Chrome, Heading, Page, RepositoryConfig, Site, SiteConfig, SourcePos } from "@velella/mizzen/contracts";
 import { t } from "../../i18n/index.ts";
+import {
+  DEFAULT_BRANCH,
+  clipTitle,
+  encodePath,
+  fitUrl,
+  hostOf,
+  oneLine,
+  sourcePath,
+  webRoot,
+} from "../../src/repository.ts";
+
+export { hostOf };
 
 /*
  * "Edit this page" in the page footer, and per-heading "suggest an edit" links.
@@ -24,23 +36,8 @@ export const HEADINGS_CLASS = "edit-page-headings";
 /** Class on a heading's "suggest an edit" link, both in the footer list and inside a heading. */
 export const HEADING_LINK_CLASS = "edit-page-heading-link";
 
-/** Branch edit links point to when the config names none, the same default the engine uses. */
-const DEFAULT_BRANCH = "main";
-
-/** The host's issue title limit; the title is cut to this many code points, ellipsis included. */
-const MAX_TITLE = 256;
-
-/** Longest issue URL written; the engine caps at the same length. */
-const MAX_URL = 8000;
-
-/** Marks a value that had to be cut to fit {@link MAX_URL}. */
-const ELLIPSIS = "…";
-
 /** Only a web address is linked, so a data file cannot inject `javascript:` or `data:`. */
 const SAFE_HREF = /^https?:\/\/[^\s]+$/i;
-
-/** The repository host an edit or issue URL is shaped for. */
-type Host = "github" | "gitlab";
 
 /** True for a plain object, never an array or `null`. */
 function isRecord(value: unknown): value is Record<string, unknown> {
@@ -52,48 +49,6 @@ function text(value: unknown): string | undefined {
   if (typeof value !== "string") return undefined;
   const trimmed = value.trim();
   return trimmed === "" ? undefined : trimmed;
-}
-
-/** Collapses whitespace, so a title with newlines still reads as one line in the issue form. */
-function oneLine(value: string): string {
-  return value.replace(/\s+/g, " ").trim();
-}
-
-/** The repository's web URL without trailing slashes. */
-function webRoot(url: string): string {
-  return url.trim().replace(/\/+$/, "");
-}
-
-/**
- * The host whose URL shape applies, from the repository's web URL: `github` for a host that names GitHub,
- * `gitlab` for gitlab.com and a self-hosted GitLab, and `undefined` for any other forge, which has no URL
- * this unit can write without guessing. An unparseable URL also reads as `undefined`.
- */
-export function hostOf(repository: RepositoryConfig): Host | undefined {
-  let host: string;
-  try {
-    const parsed = new URL(repository.url);
-    if (parsed.protocol !== "https:" && parsed.protocol !== "http:") return undefined;
-    host = parsed.hostname.toLowerCase();
-  } catch {
-    return undefined;
-  }
-  if (host.includes("github")) return "github";
-  if (host.includes("gitlab")) return "gitlab";
-  return undefined;
-}
-
-/** A source path with forward slashes and no leading `./` or `/`, as the repository browser names it. */
-function sourcePath(file: string): string {
-  return file
-    .replace(/\\/g, "/")
-    .replace(/^(?:\.\/)+/, "")
-    .replace(/^\/+/, "");
-}
-
-/** Encodes each segment of a `/`-separated path, keeping the separators. */
-function encodePath(path: string): string {
-  return path.split("/").map(encodeURIComponent).join("/");
 }
 
 /**
@@ -173,9 +128,7 @@ function titleOf(page: Page, heading: Heading): string {
   const pageTitle = oneLine(page.title) || page.url;
   const headingText = oneLine(heading.text) || heading.id;
   const full = `Suggest edit: ${pageTitle} — ${headingText}`;
-  const points = [...full];
-  if (points.length <= MAX_TITLE) return full;
-  return `${points.slice(0, MAX_TITLE - 1).join("")}${ELLIPSIS}`;
+  return clipTitle(full);
 }
 
 /** The issue body: the page, its source file and line, and the heading anchor, each on its own line. */
@@ -188,33 +141,6 @@ function bodyOf(page: Page, heading: Heading, source: { file: string; line: numb
     `Heading: ${heading.id}`,
     "",
   ].join("\n");
-}
-
-/** The host's new-issue URL for an already-built title and body. */
-function issueUrl(root: string, host: Host, title: string, body: string): string {
-  const encodedTitle = encodeURIComponent(title.toWellFormed());
-  const encodedBody = encodeURIComponent(body.toWellFormed());
-  return host === "gitlab"
-    ? `${root}/-/issues/new?issue[title]=${encodedTitle}&issue[description]=${encodedBody}`
-    : `${root}/issues/new?title=${encodedTitle}&body=${encodedBody}`;
-}
-
-/** The URL, cut to {@link MAX_URL} by shortening the body, never inside a code point. */
-function fitUrl(root: string, host: Host, title: string, body: string): string | undefined {
-  const full = issueUrl(root, host, title, body);
-  if (full.length <= MAX_URL) return full;
-
-  const points = [...body];
-  let low = 0;
-  let high = points.length;
-  while (low < high) {
-    const middle = Math.ceil((low + high) / 2);
-    const candidate = issueUrl(root, host, title, `${points.slice(0, middle).join("")}${ELLIPSIS}`);
-    if (candidate.length <= MAX_URL) low = middle;
-    else high = middle - 1;
-  }
-  const candidate = issueUrl(root, host, title, `${points.slice(0, low).join("")}${ELLIPSIS}`);
-  return candidate.length <= MAX_URL ? candidate : undefined;
 }
 
 /**
