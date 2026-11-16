@@ -5,7 +5,31 @@
   inset-block-start: 0;
   z-index: 10;
   background: var(--color-canvas);
-  border-block-end: 1px solid var(--color-border);
+  border-block-end: thin solid var(--border-subtle);
+}
+
+/* Where the browser can tie an animation to the scroll position, the hairline starts transparent and
+   fades in over the first few rem of scroll, with no script. Elsewhere it is simply always there. */
+@supports (animation-timeline: scroll()) {
+  .header {
+    animation: header-hairline var(--motion-base) linear both;
+    animation-timeline: scroll(root block);
+    animation-range: 0 var(--space-8);
+  }
+
+  @keyframes header-hairline {
+    from {
+      border-block-end-color: transparent;
+    }
+  }
+}
+
+/* A blurred, slightly see-through backdrop where it is supported; the solid canvas above is the fallback. */
+@supports (backdrop-filter: blur(1px)) {
+  .header {
+    background: color-mix(in srgb, var(--color-canvas) 85%, transparent);
+    backdrop-filter: blur(var(--space-3));
+  }
 }
 
 /* The bar lines up with the page columns below it: same width cap and side padding as `.layout`. */

@@ -3,7 +3,7 @@
 .site-footer {
   margin-block-start: var(--space-12);
   padding-block: var(--space-8);
-  border-block-start: 1px solid var(--color-border);
+  border-block-start: thin solid var(--border-subtle);
   font-family: var(--type-font-ui);
   font-size: var(--type-size-sm);
   color: var(--color-muted);

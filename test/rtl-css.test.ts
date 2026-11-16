@@ -472,3 +472,49 @@ test("code blocks keep their direction under RTL and draw numbers from data-line
   assert.match(code, /\.code \{[^}]*direction: ltr/);
   assert.match(code, /\[data-line\]::before \{[^}]*content: attr\(data-line\)[^}]*user-select: none/);
 });
+
+// Right-to-left refinement (#476): Vazirmatn weights match Geist, shadows have no horizontal offset
+// that would need mirroring, and active markers are logical borders that mirror by themselves.
+test("Vazirmatn ships the same three weights as Geist, so a mixed line looks even", () => {
+  const fonts = read("../styles/fonts.css");
+  const weights = (family: string): string[] => [...fonts.matchAll(new RegExp(`font-family: "${family}";[^}]*?font-weight: (\\d+)`, "g"))].map((m) => m[1] ?? "").sort();
+  assert.deepEqual(weights("Vazirmatn"), ["400", "500", "700"]);
+  assert.deepEqual(weights("Geist"), ["400", "500", "700"]);
+});
+
+test("no shadow token has a horizontal offset, so none needs mirroring in right-to-left", () => {
+  for (const match of tokensCss.matchAll(/--(?:shadow-[a-z]+|elevation-[a-z]+-shadow): ([^;]+);/g)) {
+    for (const layer of (match[1] ?? "").split(/,(?![^(]*\))/)) {
+      assert.match(layer.trim(), /^(?:inset )?0 /, `${match[0]}: a horizontal offset must be mirrored under RTL`);
+    }
+  }
+});
+
+test("active markers are logical borders, so they sit at the right edge in right-to-left", () => {
+  const sidebar = stripComments(read("../chrome/sidebar/style.css"));
+  const toc = stripComments(read("../chrome/toc/style.css"));
+  assert.match(sidebar, /border-inline-start: var\(--space-1\) solid transparent/);
+  assert.match(sidebar, /a\[aria-current="page"\] \{\s*border-inline-start-color: var\(--color-accent\)/);
+  assert.match(toc, /border-inline-start-color: var\(--color-accent\)/);
+});
+
+test("icons align to the text baseline and quotes use the script's own pair in Persian and Arabic", () => {
+  assert.match(css, /:root:lang\(fa\) :where\(svg\),\s*:root:lang\(ar\) :where\(svg\) \{\s*vertical-align: middle/);
+  assert.match(css, /quotes: "\\00ab" "\\00bb"/);
+});
+
+test("the header hairline needs no script and has a solid fallback", () => {
+  const header = stripComments(read("../chrome/header/style.css"));
+  assert.match(header, /\.header \{[^}]*background: var\(--color-canvas\)[^}]*border-block-end: thin solid var\(--border-subtle\)/s);
+  assert.match(header, /@supports \(animation-timeline: scroll\(\)\)/);
+  assert.match(header, /@supports \(backdrop-filter: blur\(1px\)\)/);
+  assert.doesNotMatch(header, /addEventListener|IntersectionObserver/);
+});
+
+test("sidebar and pager states: active marker, collapsed group, and pager surface tokens", () => {
+  const sidebar = stripComments(read("../chrome/sidebar/style.css"));
+  assert.match(sidebar, /details\[open\] > summary \{\s*color: var\(--color-heading\)/);
+  const pager = stripComments(read("../chrome/pager/style.css"));
+  assert.match(pager, /\.pager-link \{[^}]*background: var\(--elevation-low-bg\)/s);
+  assert.match(pager, /\.pager-link:hover \{[^}]*background: var\(--elevation-mid-bg\)/s);
+});

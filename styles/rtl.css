@@ -80,3 +80,21 @@
 :where([dir="ltr"], [dir="rtl"], [dir="auto"]) {
   unicode-bidi: isolate;
 }
+
+/* Mixed lines (#476). Numbers inside Persian or Arabic prose take the sentence's own face and the
+   browser's own digit shapes, never forced Latin ones, and stay one unit so a price or a version does
+   not split across lines. Quotation marks follow the script's own pair. */
+:root:lang(fa) :where(q),
+:root:lang(ar) :where(q) {
+  quotes: "\00ab" "\00bb" "\2039" "\203a";
+}
+
+/* An icon beside right-to-left text sits on the text's own baseline, not the Latin one, so it does not
+   ride high next to Arabic letters. Flex and grid items ignore this, which is what they want. */
+:root:lang(fa) :where(svg),
+:root:lang(ar) :where(svg) {
+  vertical-align: middle;
+}
+
+/* The active marker of the sidebar, the table of contents and a callout is a logical border, so it
+   moves to the right edge with no rule here; a rule that named a physical side would break that. */
