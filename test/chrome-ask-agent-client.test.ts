@@ -31,6 +31,7 @@ function siteConfig(options: Readonly<Record<string, unknown>> = {}): SiteConfig
     search: { text: 300 },
     redirects: {},
     outputs: {},
+    collections: {},
   };
 }
 
@@ -51,7 +52,7 @@ function pageWith(lang = "en"): Page {
 
 function props(options: Readonly<Record<string, unknown>> = {}, lang = "en"): ChromeProps {
   const page = pageWith(lang);
-  const site: Site = { config: siteConfig(options), pages: [page], nav: {}, data: {} };
+  const site: Site = { config: siteConfig(options), pages: [page], nav: {}, data: {}, collections: {} };
   return { site, page, trail, pager };
 }
 
