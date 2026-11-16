@@ -24,6 +24,7 @@ function configWith(overrides: Partial<SiteConfig> = {}): SiteConfig {
     search: { text: 300 },
     redirects: {},
     outputs: {},
+    collections: {},
     ...overrides,
   };
 }
@@ -42,7 +43,7 @@ function layoutProps(config: Partial<SiteConfig> = {}, pageOverrides: Partial<Pa
     kind: "doc",
     ...pageOverrides,
   };
-  const site: Site = { config: configWith(config), pages: [page], nav: { main: [] }, data: {} };
+  const site: Site = { config: configWith(config), pages: [page], nav: { main: [] }, data: {}, collections: {} };
   return {
     site,
     page,
@@ -319,4 +320,15 @@ test("the stylesheet keeps focus visible and highlights matches", () => {
   assert.match(css, /\.search-results-submit:focus-visible\s*\{[\s\S]*outline: 2px solid var\(--state-focus-ring\)/);
   assert.match(css, /\.search-results-link:focus-visible\s*\{[\s\S]*outline: 2px solid var\(--state-focus-ring\)/);
   assert.match(css, /\.search-results-excerpt mark\s*\{[\s\S]*background-color: var\(--color-selection\)/);
+});
+
+test("the results page carries the ask section and the site's llms.txt", () => {
+  const page = out({ base: "/example", url: "https://example.com" });
+  assert.match(page, /<section class="ask-agent-section" data-ask-agent-section(?:="")?>/);
+  assert.match(page, /<a href="\/example\/llms\.txt">Read llms\.txt<\/a>/);
+  assert.match(page, /Pick an agent you already use, or copy the prompt\./);
+});
+
+test("the ask section stays out when the site publishes no Markdown twins", () => {
+  assert.doesNotMatch(out({ outputs: { twins: false } }), /data-ask-agent-section/);
 });

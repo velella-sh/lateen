@@ -61,6 +61,7 @@ const config: SiteConfig = {
   search: { text: 300 },
   redirects: {},
   outputs: {},
+  collections: {},
 };
 
 function pageWith(overrides: Partial<Page> = {}): Page {
@@ -80,7 +81,7 @@ function pageWith(overrides: Partial<Page> = {}): Page {
 }
 
 function props(overrides: Partial<SiteConfig> = {}, page: Page = pageWith()): ChromeProps {
-  const site: Site = { config: { ...config, ...overrides }, pages: [page], nav: { main: [] }, data: {} };
+  const site: Site = { config: { ...config, ...overrides }, pages: [page], nav: { main: [] }, data: {}, collections: {} };
   return { site, page, trail: [], pager: {} };
 }
 
@@ -183,12 +184,22 @@ test("the dialog carries every message the island shows, in the page language", 
   assert.equal(attribute(out, "data-search-copied"), "Copied");
   assert.equal(attribute(out, "data-search-copy-failed"), "Copy failed.");
   assert.equal(attribute(out, "data-search-actions"), "Actions");
+  assert.equal(attribute(out, "data-search-ask-heading"), "Ask your agent");
+  assert.equal(attribute(out, "data-search-ask-label"), "Ask your agent about “{query}”");
+  assert.equal(attribute(out, "data-search-ask-hint"), "Copy a prompt for your own agent");
+});
+
+test("the dialog carries the ask panel's data and a hidden slot, with no panel before its island", () => {
+  const out = html(search(props()));
+  assert.match(out, /<script type="application\/json" data-ask-agent-config(?:="")?[^>]*>/);
+  assert.match(out, /<div class="ask-agent" data-ask-agent(?:="")? hidden>/);
+  assert.equal(out.includes("ask-agent-panel"), false);
 });
 
 test("the dialog reads right to left and speaks Persian without JavaScript", () => {
   const page = pageWith({ lang: "fa", dir: "rtl", url: "/fa/guide/install/" });
   const input: ChromeProps = {
-    site: { config: { ...config, lang: "fa", dir: "rtl" }, pages: [page], nav: { main: [] }, data: {} },
+    site: { config: { ...config, lang: "fa", dir: "rtl" }, pages: [page], nav: { main: [] }, data: {}, collections: {} },
     page,
     trail: [],
     pager: {},
@@ -198,6 +209,7 @@ test("the dialog reads right to left and speaks Persian without JavaScript", () 
   assert.match(out, /aria-label="جست‌وجو"/);
   assert.match(out, /placeholder="جست‌وجو در مستندات"/);
   assert.match(out, /aria-label="بستن جست‌وجو"/);
+  assert.match(out, /data-search-ask-heading="از دستیار خود بپرسید"/);
   assert.match(out, /data-search-lang="fa"/);
   assert.match(out, /data-search-empty="نتیجه‌ای برای «\{query\}» پیدا نشد\."/);
   assert.match(out, /data-search-count-one="\{n\} نتیجه\."/);
@@ -806,13 +818,14 @@ function apiOf(data: readonly SearchRecord[], terms: string[] = []): PagefindApi
 
 function envWith(
   api: PagefindApi,
-  options: { lang?: string; messages?: SearchMessages } = {},
+  options: { lang?: string; messages?: SearchMessages; ask?: (question: string, records: readonly SearchRecord[]) => void } = {},
 ): SearchEnv & { readonly calls: string[] } {
   const env = {
     calls: [] as string[],
     document: fakeDocument(),
     lang: options.lang ?? "en",
     messages: options.messages ?? MESSAGES,
+    ...(options.ask === undefined ? {} : { ask: options.ask }),
     load(url: string) {
       env.calls.push(url);
       return Promise.resolve(api);
@@ -833,6 +846,9 @@ function messagesFor(lang: "fa" | "ar"): SearchMessages {
     empty: text.search_results_empty ?? "",
     otherSection: text.search_other_section ?? "",
     actions: text.command_actions ?? "",
+    askHeading: text.ask_agent_heading ?? "",
+    askLabel: text.ask_agent_label ?? "",
+    askHint: text.ask_agent_hint ?? "",
     counts: {
       zero: text.search_count_zero ?? "",
       one: text.search_count_one ?? "",
@@ -1560,4 +1576,55 @@ test("the group heading and action hint clear AA in both themes, including a sel
     assert.match(rule, /color: var\(--color-muted\);/, `${selector} uses muted in light`);
     assert.match(css, new RegExp(`:root\\[data-theme="dark"\\] ${selector.replace(".", "\\.")}`), `${selector} has a dark override`);
   }
+});
+
+test("a question of two words ends the list with the ask row", async () => {
+  const { button, input, results, parts } = partsOf();
+  activate(parts, envWith(apiOf(records), { ask: () => {} }));
+  button.click();
+  await tick();
+
+  input.type("cache rules");
+  await tick();
+
+  const rows = rowsOf(results);
+  const last = rows.at(-1);
+  assert.ok(last, "the list has a row");
+  assert.equal(last.attrs["data-ask-agent-open"] !== undefined, true);
+  assert.equal(textOf(last), "Ask your agent about “cache rules”Copy a prompt for your own agent");
+  assert.deepEqual(sectionTitles(drawn(results)).at(-1), "Ask your agent");
+});
+
+test("a one-word query gets no ask row", async () => {
+  const { button, input, results, parts } = partsOf();
+  activate(parts, envWith(apiOf(records), { ask: () => {} }));
+  button.click();
+  await tick();
+
+  input.type("cache");
+  await tick();
+
+  assert.equal(
+    rowsOf(results).some((row) => row.attrs["data-ask-agent-open"] !== undefined),
+    false,
+  );
+});
+
+test("choosing the ask row hands the panel the question and the results on screen", async () => {
+  const { button, input, results, parts } = partsOf();
+  const calls: Array<{ question: string; urls: readonly string[] }> = [];
+  activate(
+    parts,
+    envWith(apiOf(records), {
+      ask: (question, found) => calls.push({ question, urls: found.map((record) => record.url) }),
+    }),
+  );
+  button.click();
+  await tick();
+
+  input.type("cache rules");
+  await tick();
+
+  rowsOf(results).at(-1)?.click();
+  assert.deepEqual(calls, [{ question: "cache rules", urls: records.map((record) => record.url) }]);
 });

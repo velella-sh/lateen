@@ -62,6 +62,8 @@ main:
         url: /presets/
       - title: Add a component
         url: /add-component/
+      - title: Ask your agent
+        url: /ask-agent/
       - title: Accessibility
         url: /accessibility/
       - title: Performance

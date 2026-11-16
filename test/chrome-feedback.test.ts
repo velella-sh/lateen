@@ -42,6 +42,7 @@ function siteConfig(options: Readonly<Record<string, unknown>> = {}): SiteConfig
     search: { text: 300 },
     redirects: {},
     outputs: {},
+    collections: {},
   };
 }
 
@@ -64,13 +65,13 @@ function pageWith(lang = "en", dir: Page["dir"] = "ltr", version?: unknown): Pag
 }
 
 function props(page: Page = pageWith(), options: Readonly<Record<string, unknown>> = {}): ChromeProps {
-  const site: Site = { config: siteConfig(options), pages: [page], nav: {}, data: {} };
+  const site: Site = { config: siteConfig(options), pages: [page], nav: {}, data: {}, collections: {} };
   return { site, page, trail, pager };
 }
 
 function layoutProps(options: Readonly<Record<string, unknown>>): LayoutProps {
   const page = pageWith();
-  const site: Site = { config: siteConfig(options), pages: [page], nav: {}, data: {} };
+  const site: Site = { config: siteConfig(options), pages: [page], nav: {}, data: {}, collections: {} };
   return {
     site,
     page,

@@ -38,6 +38,7 @@ const config: SiteConfig = {
   search: { text: 300 },
   redirects: {},
   outputs: {},
+  collections: {},
 };
 
 function pageFor(lang = "en"): Page {
@@ -55,7 +56,7 @@ function pageFor(lang = "en"): Page {
   };
 }
 
-const site: Site = { config, pages: [pageFor()], nav: {}, data: {} };
+const site: Site = { config, pages: [pageFor()], nav: {}, data: {}, collections: {} };
 
 function render(props: ChangelogEntryProps, body = "<p>Body text.</p>", lang = "en"): string {
   return renderOn(pageFor(lang), props, body);

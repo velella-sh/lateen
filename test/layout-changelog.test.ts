@@ -32,6 +32,7 @@ function configWith(overrides: Partial<SiteConfig> = {}): SiteConfig {
     search: { text: 300 },
     redirects: {},
     outputs: {},
+    collections: {},
     ...overrides,
   };
 }
@@ -65,7 +66,7 @@ function layoutProps(
   nav: Site["nav"]["main"] = [],
   config: Partial<SiteConfig> = {},
 ): LayoutProps {
-  const site: Site = { config: configWith(config), pages: [page], nav: { main: nav }, data: {} };
+  const site: Site = { config: configWith(config), pages: [page], nav: { main: nav }, data: {}, collections: {} };
   return {
     site,
     page,

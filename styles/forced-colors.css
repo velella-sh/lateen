@@ -258,6 +258,7 @@
 
   /* Buttons and button-shaped links take the system button fill, border, and text. */
   .announcement-dismiss,
+  .ask-agent-copy,
   .copy-markdown-button,
   .copy-markdown-link,
   .diff-block-copy,
@@ -272,6 +273,7 @@
   }
 
   /* A text field is a field: its surface and text come from the system field pair. */
+  .ask-agent-prompt,
   .search-input {
     background-color: Field !important;
     border-color: ButtonBorder !important;

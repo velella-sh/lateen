@@ -54,6 +54,7 @@ const config: SiteConfig = {
   search: { text: 300 },
   redirects: {},
   outputs: {},
+  collections: {},
 };
 
 const page: Page = {
@@ -69,7 +70,7 @@ const page: Page = {
   kind: "doc",
 };
 
-const site: Site = { config, pages: [page], nav: {}, data: {} };
+const site: Site = { config, pages: [page], nav: {}, data: {}, collections: {} };
 
 const BODY = [
   "<h3>macOS</h3>",

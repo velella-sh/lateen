@@ -18,6 +18,8 @@
 
 import type { PaletteAction, PalettePayload, PaletteRun, ThemeChoice } from "../command-palette/actions.ts";
 import { activateShortcuts, type ShortcutEvent } from "./shortcut.ts";
+import { activateAskAgent, parseAskConfig, type AskDocument, type AskElement, type AskResult } from "../ask-agent/client.ts";
+import { browserFetch } from "../copy-markdown/island.ts";
 
 /*
  * The search combobox's option model: the rows one query produces, in the order the dialog shows them,
@@ -38,6 +40,9 @@ import { activateShortcuts, type ShortcutEvent } from "./shortcut.ts";
 /** The group heading when the server sends no label. */
 export const ACTIONS_LABEL = "Actions";
 
+/** The ask group's heading when the server sends no label. */
+export const ASK_HEADING = "Ask your agent";
+
 /** The filter the engine writes on every indexed page; its first value is the page's section. */
 export const SECTION_FILTER = "section";
 
@@ -50,8 +55,8 @@ export const OPTION_ID_PREFIX = "search-option-";
 /** The id prefix of a group heading, which the group's `aria-labelledby` points at. */
 export const GROUP_ID_PREFIX = "search-group-";
 
-/** The two kinds of row the dialog shows: a page from the index, or an action from the palette. */
-export type OptionKind = "result" | "action";
+/** The three kinds of row the dialog shows: a page from the index, an action, or the ask-agent row. */
+export type OptionKind = "result" | "action" | "ask";
 
 /** One result Pagefind returns, as `data()` gives it. */
 export interface SearchRecord {
@@ -90,6 +95,8 @@ export interface OptionRow {
   readonly record?: SearchRecord | undefined;
   /** The action behind an action row. */
   readonly action?: PaletteAction | undefined;
+  /** The ask option behind the ask row. */
+  readonly ask?: AskOption | undefined;
 }
 
 /** One heading and the rows under it: a section of results, or the actions. */
@@ -114,6 +121,14 @@ export interface OptionList {
 export interface OptionLabels {
   readonly otherSection?: string | undefined;
   readonly actionsLabel?: string | undefined;
+  readonly askHeading?: string | undefined;
+}
+
+/** The ask row: the reader's question, its label, and the hint that says what it does. */
+export interface AskOption {
+  readonly question: string;
+  readonly label: string;
+  readonly hint?: string | undefined;
 }
 
 /** Only links the browser can follow: a `javascript:` or `data:` URL from the index is never a link. */
@@ -161,18 +176,31 @@ export function actionKey(id: string, occurrence: number): string {
   return `action:${id}#${occurrence}`;
 }
 
+/** The key of the ask row: its question and which ask row with that question it is. */
+export function askKey(question: string, occurrence: number): string {
+  return `ask:${question}#${occurrence}`;
+}
+
+/** The words a reader typed: two of them make a question worth handing to an agent. */
+export function wordCount(query: string): number {
+  return query.trim().split(/\s+/).filter((word) => word !== "").length;
+}
+
 /**
  * The listbox's rows for one query: the page results first, grouped by section in rank order, then the
- * matched actions under one heading. Ids count every row in that order, so the row a reader reaches by
- * arrowing down is the row the pointer finds third, and both are `search-option-3`.
+ * matched actions under one heading, then — when the query is a question — the ask row under its own
+ * heading. Ids count every row in that order, so the row a reader reaches by arrowing down is the row
+ * the pointer finds third, and both are `search-option-3`.
  */
 export function optionList(
   records: readonly SearchRecord[],
   actions: readonly PaletteAction[],
   labels: OptionLabels = {},
+  ask?: AskOption | undefined,
 ): OptionList {
   const otherSection = labels.otherSection ?? OTHER_SECTION;
   const actionsLabel = labels.actionsLabel ?? ACTIONS_LABEL;
+  const askHeading = labels.askHeading ?? ASK_HEADING;
   const seen = new Map<string, number>();
 
   /** The next occurrence of `base`, so two rows with the same identity still get different keys. */
@@ -222,6 +250,16 @@ export function optionList(
     }
   }
 
+  if (ask !== undefined) {
+    open("ask", askHeading);
+    add({
+      id: optionId(rows.length),
+      key: askKey(ask.question, occurrence(`ask:${ask.question}`)),
+      kind: "ask",
+      ask,
+    });
+  }
+
   return { groups, rows };
 }
 
@@ -251,6 +289,9 @@ export interface SearchMessages {
   readonly counts: Readonly<Record<PluralCategory, string>>;
   readonly otherSection: string;
   readonly actions: string;
+  readonly askHeading: string;
+  readonly askLabel: string;
+  readonly askHint: string;
 }
 
 export const MESSAGES: SearchMessages = {
@@ -270,6 +311,9 @@ export const MESSAGES: SearchMessages = {
   },
   otherSection: "Other",
   actions: "Actions",
+  askHeading: "Ask your agent",
+  askLabel: "Ask your agent about “{query}”",
+  askHint: "Copy a prompt for your own agent",
 };
 
 
@@ -390,6 +434,8 @@ export interface SearchEnv {
   lang?: string | undefined;
   /** The page language's messages; the island reads them from the dialog's attributes. */
   messages?: SearchMessages | undefined;
+  /** Opens the ask panel with the question and the results the dialog currently shows. */
+  ask?: ((question: string, records: readonly SearchRecord[]) => void) | undefined;
 }
 
 /**
@@ -524,6 +570,29 @@ function actionContent(
   return button;
 }
 
+/** The ask row's option: its question as the label, the hint that says what happens, and the click. */
+function askContent(row: OptionRow, ask: AskOption, doc: SearchDocument, open: (question: string) => void): SearchElement {
+  const button = doc.createElement("button");
+  button.setAttribute("type", "button");
+  button.setAttribute("class", "search-ask-button");
+  button.setAttribute("data-ask-agent-open", "");
+  optionAttributes(button, row);
+  button.addEventListener?.("click", () => open(ask.question));
+
+  const label = doc.createElement("span");
+  label.setAttribute("class", "search-action-label");
+  label.append(doc.createTextNode(ask.label));
+  button.append(label);
+
+  if (ask.hint !== undefined && ask.hint !== "") {
+    const hint = doc.createElement("span");
+    hint.setAttribute("class", "search-action-hint");
+    hint.append(doc.createTextNode(ask.hint));
+    button.append(hint);
+  }
+  return button;
+}
+
 /** A drawn row: the shape the list shows, and the option inside it that a reader chooses. */
 interface DrawnRow {
   readonly item: SearchElement;
@@ -531,7 +600,7 @@ interface DrawnRow {
 }
 
 /**
- * One row, of either kind. The `li` is the list's shape rather than a choice of its own, so it carries
+ * One row, of any kind. The `li` is the list's shape rather than a choice of its own, so it carries
  * no role: a row is never counted twice, and a pointer entering anywhere in it names its option.
  */
 function optionNode(row: OptionRow, index: number, render: OptionRender): DrawnRow {
@@ -542,6 +611,11 @@ function optionNode(row: OptionRow, index: number, render: OptionRender): DrawnR
   let option: SearchElement | undefined;
   const action = row.action;
   if (row.kind === "action" && action !== undefined) option = actionContent(row, action, render.doc, render.run);
+  const ask = row.ask;
+  if (row.kind === "ask" && ask !== undefined && render.ask !== undefined) {
+    const open = render.ask;
+    option = askContent(row, ask, render.doc, open);
+  }
   const record = row.record;
   if (record !== undefined) option = resultContent(row, record, render.doc);
   if (option === undefined) {
@@ -574,6 +648,8 @@ export interface RenderedOption {
 export interface OptionRender {
   readonly doc: SearchDocument;
   readonly run: (run: PaletteRun) => void;
+  /** Called with the ask row's question; absent leaves the ask row inert. */
+  readonly ask?: ((question: string) => void) | undefined;
   /** Called with the row's position when a pointer enters it, so the active option follows. */
   readonly hover?: ((index: number) => void) | undefined;
 }
@@ -783,6 +859,8 @@ export function activate(parts: SearchParts, env: SearchEnv): void {
   // The list as drawn now, and which of its rows the field points at. `-1` is no active option.
   let options: readonly RenderedOption[] = [];
   let active = -1;
+  // The records behind the rows on screen, so the ask panel names the pages the reader is looking at.
+  let lastRecords: readonly SearchRecord[] = [];
 
   dialog.hidden = false;
   button.hidden = false;
@@ -840,11 +918,31 @@ export function activate(parts: SearchParts, env: SearchEnv): void {
   /** Draws the page results and the matched actions, then puts the active option back where it was. */
   const draw = (records: readonly SearchRecord[], matched: readonly PaletteAction[]): void => {
     const key = options[active]?.key;
-    const list = optionList(records, matched, { otherSection: messages.otherSection, actionsLabel: palette.label });
+    lastRecords = records;
+    const question = input.value.trim();
+    const askHandler = env.ask;
+    const ask =
+      askHandler !== undefined && wordCount(question) >= 2
+        ? { question, label: fill(messages.askLabel, { query: question }), hint: messages.askHint }
+        : undefined;
+    const list = optionList(
+      records,
+      matched,
+      { otherSection: messages.otherSection, actionsLabel: palette.label, askHeading: messages.askHeading },
+      ask,
+    );
     options = renderOptions(results, list, {
       doc: env.document,
       run: execute,
       hover: (index) => markActive(index),
+      ...(askHandler === undefined
+        ? {}
+        : {
+            ask: (asked: string) => {
+              markActive(-1);
+              askHandler(asked, lastRecords);
+            },
+          }),
     });
     // A row the new query dropped takes the active option with it; the field then names nothing.
     markActive(key === undefined ? -1 : options.findIndex((option) => option.key === key));
@@ -1027,13 +1125,23 @@ export function liveHandlers(globals: PaletteGlobals = globalThis as unknown as 
 }
 
 // The island runs in a browser; the theme's tsconfig has no DOM lib, so these are the globals it needs.
-declare const document: {
+interface BrowserDocument {
   querySelector(selector: string): unknown;
   createElement(tag: string): SearchElement;
   createTextNode(text: string): SearchNode;
   addEventListener(type: "keydown", listener: (event: ShortcutEvent) => void): void;
+}
+declare const document: BrowserDocument;
+declare const navigator: {
+  readonly platform: string;
+  readonly clipboard?: { writeText(text: string): Promise<void> } | undefined;
 };
-declare const navigator: { readonly platform: string };
+declare const location: { readonly search: string };
+
+/** Watches the results page's list for the rows its inline script draws. */
+declare const MutationObserver: new (callback: () => void) => {
+  observe(target: unknown, options: { readonly childList: boolean }): void;
+};
 
 /** The dialog as the island reads its translated messages from. */
 export interface MessageSource {
@@ -1057,6 +1165,9 @@ export function messagesFrom(element: MessageSource): SearchMessages {
     empty: attributeOf(element, "data-search-empty") ?? MESSAGES.empty,
     otherSection: attributeOf(element, "data-search-other-section") ?? MESSAGES.otherSection,
     actions: attributeOf(element, "data-search-actions") ?? MESSAGES.actions,
+    askHeading: attributeOf(element, "data-search-ask-heading") ?? MESSAGES.askHeading,
+    askLabel: attributeOf(element, "data-search-ask-label") ?? MESSAGES.askLabel,
+    askHint: attributeOf(element, "data-search-ask-hint") ?? MESSAGES.askHint,
     counts: {
       zero: attributeOf(element, "data-search-count-zero") ?? MESSAGES.counts.zero,
       one: attributeOf(element, "data-search-count-one") ?? MESSAGES.counts.one,
@@ -1087,9 +1198,22 @@ if (typeof document !== "undefined") {
   const results = document.querySelector("[data-search-results]");
   const status = document.querySelector("[data-search-status]");
   const palette = document.querySelector("[data-palette-actions]") as SearchPaletteSource | null;
+  const askRoot = document.querySelector("[data-ask-agent]");
+  const askSource = document.querySelector("[data-ask-agent-config]") as SearchPaletteSource | null;
   if (dialog && button && close && input && results && status) {
     const source = dialog as unknown as MessageSource;
     const messages = messagesFrom(source);
+    const askAgent =
+      askRoot === null || askRoot === undefined
+        ? undefined
+        : activateAskAgent({
+            document: document as unknown as AskDocument,
+            root: askRoot as AskElement,
+            config: parseAskConfig(askSource?.textContent ?? null),
+            clipboard: navigator.clipboard,
+            fetchText: browserFetch,
+            lang: langFrom(source),
+          });
     activate(
       {
         dialog: dialog as SearchDialog,
@@ -1106,8 +1230,40 @@ if (typeof document !== "undefined") {
         palette: parsePalette(palette?.textContent ?? null, messages.actions),
         lang: langFrom(source),
         messages,
+        ...(askAgent === undefined ? {} : { ask: askAgent.open }),
       },
     );
+    if (askAgent !== undefined) {
+      (dialog as SearchDialog).addEventListener("close", () => askAgent.hide());
+    }
+    // The search results page draws its own list; the ask section fills in when it has rows.
+    const section = document.querySelector("[data-ask-agent-section]");
+    const pageList = document.querySelector("[data-search-results]");
+    if (askAgent !== undefined && section !== null && section !== undefined && pageList !== null && pageList !== undefined) {
+      const askResults = (): AskResult[] => {
+        const links = (pageList as { querySelectorAll(selector: string): Iterable<unknown> }).querySelectorAll("a");
+        const found: AskResult[] = [];
+        for (const link of links) {
+          const anchor = link as {
+            getAttribute(name: string): string | null;
+            querySelector(selector: string): { textContent: string | null } | null;
+          };
+          const url = anchor.getAttribute("href");
+          if (url === null || url === "") continue;
+          const title = anchor.querySelector(".search-results-title")?.textContent ?? undefined;
+          found.push({ url, ...(title === undefined ? {} : { title }) });
+        }
+        return found;
+      };
+      const fill = (): void => {
+        const query = new URLSearchParams(location.search).get("q") ?? "";
+        const found = askResults();
+        if (query.trim() === "" || found.length === 0) return;
+        askAgent.open(query, found, section as AskElement, false);
+      };
+      new MutationObserver(fill).observe(pageList, { childList: true });
+      fill();
+    }
     // ⌘K/Ctrl+K and `/` press this button from anywhere, exactly as a pointer would.
     activateShortcuts(
       { button: button as unknown as SearchButton },

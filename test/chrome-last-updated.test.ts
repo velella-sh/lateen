@@ -42,6 +42,7 @@ function configFor(lang: string): SiteConfig {
     search: { text: 300 },
     redirects: {},
     outputs: {},
+    collections: {},
   };
 }
 
@@ -61,7 +62,7 @@ function pageWith(frontMatter: Record<string, unknown> = {}, lang = "en"): Page 
 }
 
 function props(page: Page, data: Readonly<Record<string, unknown>> = {}): ChromeProps {
-  const site: Site = { config: configFor(page.lang), pages: [page], nav: {}, data };
+  const site: Site = { config: configFor(page.lang), pages: [page], nav: {}, data, collections: {} };
   return { site, page, trail, pager };
 }
 

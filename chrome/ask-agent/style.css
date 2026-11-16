@@ -1,0 +1,164 @@
+/* Ask your agent: the prompt panel inside the search dialog and the static section on the results page. */
+
+/* The dialog's reserved slot stays out of the flow until the island fills it. */
+.ask-agent[hidden] {
+  display: none;
+}
+
+.ask-agent-panel {
+  display: grid;
+  gap: var(--space-2);
+  padding: var(--space-3);
+  border-block-start: 1px solid var(--color-border);
+}
+
+.ask-agent-title {
+  margin: 0;
+  color: var(--color-heading);
+  font-family: var(--type-font-ui);
+  font-size: var(--type-size-base);
+  font-weight: var(--type-weight-medium);
+}
+
+.ask-agent-explain,
+.ask-agent-size,
+.ask-agent-providers-heading {
+  margin: 0;
+  color: var(--color-muted);
+  font-family: var(--type-font-ui);
+  font-size: var(--type-size-sm);
+  line-height: var(--type-leading-body);
+}
+
+.ask-agent-prompt {
+  inline-size: 100%;
+  max-block-size: 14rem;
+  padding: var(--space-2);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-ctl);
+  background: var(--color-canvas);
+  color: var(--color-text);
+  font-family: var(--type-font-mono);
+  font-size: var(--type-size-sm);
+  line-height: var(--type-leading-body);
+  resize: vertical;
+}
+
+.ask-agent-prompt:focus-visible {
+  outline: 2px solid var(--state-focus-ring);
+  outline-offset: 2px;
+}
+
+.ask-agent-option {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  color: var(--color-text);
+  font-family: var(--type-font-ui);
+  font-size: var(--type-size-sm);
+}
+
+.ask-agent-copy {
+  justify-self: start;
+  padding-block: var(--space-1);
+  padding-inline: var(--space-3);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  background: var(--color-surface);
+  color: var(--color-text);
+  font-family: var(--type-font-ui);
+  font-size: var(--type-size-sm);
+  cursor: pointer;
+}
+
+.ask-agent-copy:hover {
+  border-color: var(--color-accent);
+  color: var(--color-heading);
+}
+
+.ask-agent-copy:focus-visible {
+  outline: 2px solid var(--state-focus-ring);
+  outline-offset: 2px;
+}
+
+.ask-agent-providers {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-1) var(--space-3);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.ask-agent-provider {
+  color: var(--color-accent);
+  font-family: var(--type-font-ui);
+  font-size: var(--type-size-sm);
+}
+
+.ask-agent-provider:hover {
+  color: var(--color-heading);
+}
+
+.ask-agent-provider:focus-visible {
+  outline: 2px solid var(--state-focus-ring);
+  outline-offset: 2px;
+}
+
+.ask-agent-status {
+  min-block-size: 1em;
+  margin: 0;
+  color: var(--color-muted);
+  font-family: var(--type-font-ui);
+  font-size: var(--type-size-xs);
+}
+
+/* The section on the search results page: the no-JavaScript answer and the panel's home there. */
+.ask-agent-section {
+  margin-block-start: var(--space-4);
+  padding-block-start: var(--space-3);
+  border-block-start: 1px solid var(--color-border);
+}
+
+.ask-agent-section-title {
+  margin-block: 0 var(--space-2);
+  color: var(--color-heading);
+  font-size: var(--type-size-lg);
+}
+
+.ask-agent-section-text,
+.ask-agent-section-link {
+  margin-block: 0 var(--space-2);
+  color: var(--color-muted);
+  font-family: var(--type-font-ui);
+  font-size: var(--type-size-sm);
+  line-height: var(--type-leading-body);
+}
+
+/* The dialog and the section both sit on the raised surface, where muted is too faint in the dark theme. */
+:root[data-theme="dark"] .ask-agent-explain,
+:root[data-theme="dark"] .ask-agent-size,
+:root[data-theme="dark"] .ask-agent-providers-heading,
+:root[data-theme="dark"] .ask-agent-status,
+:root[data-theme="dark"] .ask-agent-section-text,
+:root[data-theme="dark"] .ask-agent-section-link {
+  color: var(--color-text);
+}
+
+/* Forced colors: the textarea and buttons keep a visible edge, and the accent links stay underlined. */
+@media (forced-colors: active) {
+  .ask-agent-prompt,
+  .ask-agent-copy {
+    border-color: CanvasText;
+  }
+
+  .ask-agent-provider {
+    text-decoration: underline;
+  }
+}
+
+@media (max-width: 48rem) {
+  .ask-agent-panel {
+    padding-inline: var(--space-2);
+  }
+}

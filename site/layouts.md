@@ -16,3 +16,6 @@ A page picks a layout with `layout` in its front matter, or gets one from `defau
 | `versions` | The versions index: a page's versions from `site.data.versions` or the `versions` front matter key, each row linked to the same page when it exists and marked with Latest, Deprecated, or Dev in text. |
 
 Each layout is `layouts/<name>.ts`; the rules for adding one are in `layouts/README.md`.
+
+The `search-results` layout also carries the [ask your agent](/ask-agent/) section, which hands a
+question from search to the reader's own agent.

@@ -28,6 +28,7 @@ function configWith(options: Readonly<Record<string, unknown>>, lang = "en"): Si
     search: { text: 300 },
     redirects: {},
     outputs: {},
+    collections: {},
   };
 }
 
@@ -51,7 +52,7 @@ const pager: Pager = {};
 function props(options: Readonly<Record<string, unknown>>, pageLang = "en", siteLang = "en"): ChromeProps {
   const config = configWith(options, siteLang);
   const read: Page = { ...page, lang: pageLang, dir: dirOf(pageLang) };
-  const site: Site = { config, pages: [read], nav: {}, data: {} };
+  const site: Site = { config, pages: [read], nav: {}, data: {}, collections: {} };
   return { site, page: read, trail, pager };
 }
 

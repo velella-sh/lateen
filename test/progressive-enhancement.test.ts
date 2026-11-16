@@ -72,6 +72,13 @@ test("no control that needs an island is visible before hydration", () => {
     assert.equal(control.hasAttribute("hidden"), true, `${selector} starts hidden`);
   }
 
+  // The ask panel is built by its island; the dialog reserves only a hidden slot for it.
+  const ask = document.querySelector("[data-ask-agent]");
+  assert.ok(ask, "the dialog reserves a slot for the ask panel");
+  assert.equal(ask.hasAttribute("hidden"), true, "the ask slot starts hidden");
+  assert.equal(document.querySelector("[data-ask-agent-open]"), null, "no ask row is drawn without the island");
+  assert.equal(document.querySelector(".ask-agent-panel"), null, "no prompt panel is drawn without the island");
+
   // The block action is inert until the island clones it out of the template.
   const template = document.querySelector("template[data-block-actions]") as HTMLTemplateElement | null;
   assert.ok(template);

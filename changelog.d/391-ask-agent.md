@@ -1,0 +1,1 @@
+- Ask your agent: search offers an "Ask your agent" row that builds a prompt from the question and the related pages in the browser, copies it, or opens it in a configured agent; the site sends nothing, page text is fetched only when asked, and the search results page explains the same flow without JavaScript.

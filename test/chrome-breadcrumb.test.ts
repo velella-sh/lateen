@@ -22,6 +22,7 @@ const config: SiteConfig = {
   search: { text: 300 },
   redirects: {},
   outputs: {},
+  collections: {},
 };
 
 const page: Page = {
@@ -46,7 +47,7 @@ const fullTrail: Trail = [guides, gettingStarted, install];
 
 function props(trail: Trail, lang = "en"): ChromeProps {
   const localized: Page = { ...page, lang, dir: lang === "en" ? "ltr" : "rtl" };
-  const site: Site = { config, pages: [localized], nav: {}, data: {} };
+  const site: Site = { config, pages: [localized], nav: {}, data: {}, collections: {} };
   return { site, page: localized, trail, pager };
 }
 

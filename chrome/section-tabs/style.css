@@ -28,9 +28,10 @@
   text-decoration: none;
 }
 
+/* The underline already says which section is current; the accent text is too faint on the header. */
 .section-tab[aria-current="page"] {
   border-block-end-color: var(--color-accent);
-  color: var(--color-accent);
+  color: var(--color-heading);
 }
 
 /* The scroll container clips outward rings, so the ring sits inside. */

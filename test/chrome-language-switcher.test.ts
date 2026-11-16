@@ -35,6 +35,7 @@ function configWith(overrides: Partial<SiteConfig> = {}): SiteConfig {
     search: { text: 300 },
     redirects: {},
     outputs: {},
+    collections: {},
     ...overrides,
   };
 }
@@ -75,7 +76,7 @@ function props(
   data: Site["data"] = {},
   pages: readonly Page[] = pagesForSite(config, page),
 ): ChromeProps {
-  const site: Site = { config, pages, nav: {}, data };
+  const site: Site = { config, pages, nav: {}, data, collections: {} };
   return { site, page, trail, pager };
 }
 
