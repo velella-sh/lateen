@@ -41,6 +41,7 @@ const config: SiteConfig = {
   search: { text: 300 },
   redirects: {},
   outputs: {},
+  collections: {},
 };
 
 const page: Page = {
@@ -56,7 +57,7 @@ const page: Page = {
   kind: "doc",
 };
 
-const site: Site = { config, pages: [page], nav: {}, data: {} };
+const site: Site = { config, pages: [page], nav: {}, data: {}, collections: {} };
 
 const PRE_NPM = '<pre class="code" data-lang="bash"><code>npm install mizzen</code></pre>';
 const PRE_PNPM = '<pre class="code" data-lang="bash"><code>pnpm add mizzen</code></pre>';

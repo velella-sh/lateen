@@ -36,6 +36,7 @@ function configWith(overrides: Partial<SiteConfig> = {}): SiteConfig {
     search: { text: 300 },
     redirects: {},
     outputs: {},
+    collections: {},
     ...overrides,
   };
 }
@@ -64,7 +65,7 @@ const tree: NavTree = {
 
 function props(nav: NavTree, lang = "en"): LayoutProps {
   const page = pageAt(lang);
-  const site: Site = { config: configWith({ lang, dir: lang === "en" ? "ltr" : "rtl" }), pages: [page], nav, data: {} };
+  const site: Site = { config: configWith({ lang, dir: lang === "en" ? "ltr" : "rtl" }), pages: [page], nav, data: {}, collections: {} };
   return {
     site,
     page,

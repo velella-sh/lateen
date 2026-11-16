@@ -46,6 +46,7 @@ const config: SiteConfig = {
   search: { text: 300 },
   redirects: {},
   outputs: {},
+  collections: {},
 };
 
 function pageWith(overrides: Partial<Page> = {}): Page {
@@ -66,7 +67,7 @@ function pageWith(overrides: Partial<Page> = {}): Page {
 
 function props(overrides: Partial<Page> = {}): ChromeProps {
   const page = pageWith(overrides);
-  const site: Site = { config, pages: [page], nav: { main: [] }, data: {} };
+  const site: Site = { config, pages: [page], nav: { main: [] }, data: {}, collections: {} };
   return { site, page, trail: [], pager: {} };
 }
 

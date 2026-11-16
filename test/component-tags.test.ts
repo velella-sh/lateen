@@ -31,6 +31,7 @@ const config: SiteConfig = {
   search: { text: 300 },
   redirects: {},
   outputs: {},
+  collections: {},
 };
 
 /** A page whose front matter holds the given tags. */
@@ -49,7 +50,7 @@ function pageWith(frontMatter: Record<string, unknown> = {}): Page {
   };
 }
 
-const site: Site = { config, pages: [pageWith()], nav: {}, data: {} };
+const site: Site = { config, pages: [pageWith()], nav: {}, data: {}, collections: {} };
 
 type VNode = { type: unknown; props: { children?: unknown; [key: string]: unknown } };
 

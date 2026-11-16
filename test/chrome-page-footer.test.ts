@@ -27,6 +27,7 @@ function siteConfig(repo?: RepositoryConfig): SiteConfig {
     search: { text: 300 },
     redirects: {},
     outputs: {},
+    collections: {},
   };
 }
 
@@ -49,7 +50,7 @@ function pageWith(frontMatter: Record<string, unknown> = {}, source: SourcePos =
 }
 
 function props(page: Page, repo?: RepositoryConfig): ChromeProps {
-  const site: Site = { config: siteConfig(repo), pages: [page], nav: {}, data: {} };
+  const site: Site = { config: siteConfig(repo), pages: [page], nav: {}, data: {}, collections: {} };
   return { site, page, trail, pager };
 }
 

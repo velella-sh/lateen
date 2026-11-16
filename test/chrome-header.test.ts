@@ -24,6 +24,7 @@ function configWith(overrides: Partial<SiteConfig> = {}): SiteConfig {
     search: { text: 300 },
     redirects: {},
     outputs: {},
+    collections: {},
     ...overrides,
   };
 }
@@ -45,7 +46,7 @@ const trail: Trail = [];
 const pager: Pager = {};
 
 function props(config: SiteConfig, current: Page = page): ChromeProps {
-  const site: Site = { config, pages: [current], nav: {}, data: {} };
+  const site: Site = { config, pages: [current], nav: {}, data: {}, collections: {} };
   return { site, page: current, trail, pager };
 }
 
@@ -235,7 +236,7 @@ test("logo, title, repository, version, language, and theme actions keep their m
 
 test("the header places the section tabs from the main navigation", () => {
   const tabbed: NavItem & { readonly tab: true } = { title: "Guides", url: "/example/guides/", tab: true };
-  const site: Site = { config: configWith(), pages: [page], nav: { main: [tabbed] }, data: {} };
+  const site: Site = { config: configWith(), pages: [page], nav: { main: [tabbed] }, data: {}, collections: {} };
   const out = html(header({ site, page, trail, pager }));
   assert.match(
     out,

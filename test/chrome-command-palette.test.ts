@@ -62,6 +62,7 @@ const config: SiteConfig = {
   search: { text: 300 },
   redirects: {},
   outputs: {},
+  collections: {},
 };
 
 function heading(depth: Heading["depth"], id: string, text: string): Heading {
@@ -91,7 +92,7 @@ function pageWith(overrides: Partial<Page> = {}): Page {
 }
 
 function props(overrides: Partial<SiteConfig> = {}, page: Page = pageWith()): ChromeProps {
-  const site: Site = { config: { ...config, ...overrides }, pages: [page], nav: { main: [] }, data: {} };
+  const site: Site = { config: { ...config, ...overrides }, pages: [page], nav: { main: [] }, data: {}, collections: {} };
   return { site, page, trail: [], pager: {} };
 }
 

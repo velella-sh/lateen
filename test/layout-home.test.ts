@@ -22,6 +22,7 @@ function configWith(overrides: Partial<SiteConfig> = {}): SiteConfig {
     search: { text: 300 },
     redirects: {},
     outputs: {},
+    collections: {},
     ...overrides,
   };
 }
@@ -39,7 +40,7 @@ function layoutProps(frontMatter: Record<string, unknown> = {}, html = ""): Layo
     markdown: "",
     kind: "doc",
   };
-  const site: Site = { config: configWith(), pages: [page], nav: {}, data: {} };
+  const site: Site = { config: configWith(), pages: [page], nav: {}, data: {}, collections: {} };
   return {
     site,
     page,

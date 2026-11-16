@@ -22,6 +22,7 @@ const config: SiteConfig = {
   search: { text: 300 },
   redirects: {},
   outputs: {},
+  collections: {},
 };
 
 function pageAt(url: string): Page {
@@ -41,7 +42,7 @@ function pageAt(url: string): Page {
 
 function props(nav: NavTree, url: string): ChromeProps {
   const page = pageAt(url);
-  const site: Site = { config, pages: [page], nav, data: {} };
+  const site: Site = { config, pages: [page], nav, data: {}, collections: {} };
   return { site, page, trail: [], pager: {} };
 }
 

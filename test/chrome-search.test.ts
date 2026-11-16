@@ -61,6 +61,7 @@ const config: SiteConfig = {
   search: { text: 300 },
   redirects: {},
   outputs: {},
+  collections: {},
 };
 
 function pageWith(overrides: Partial<Page> = {}): Page {
@@ -80,7 +81,7 @@ function pageWith(overrides: Partial<Page> = {}): Page {
 }
 
 function props(overrides: Partial<SiteConfig> = {}, page: Page = pageWith()): ChromeProps {
-  const site: Site = { config: { ...config, ...overrides }, pages: [page], nav: { main: [] }, data: {} };
+  const site: Site = { config: { ...config, ...overrides }, pages: [page], nav: { main: [] }, data: {}, collections: {} };
   return { site, page, trail: [], pager: {} };
 }
 
@@ -188,7 +189,7 @@ test("the dialog carries every message the island shows, in the page language", 
 test("the dialog reads right to left and speaks Persian without JavaScript", () => {
   const page = pageWith({ lang: "fa", dir: "rtl", url: "/fa/guide/install/" });
   const input: ChromeProps = {
-    site: { config: { ...config, lang: "fa", dir: "rtl" }, pages: [page], nav: { main: [] }, data: {} },
+    site: { config: { ...config, lang: "fa", dir: "rtl" }, pages: [page], nav: { main: [] }, data: {}, collections: {} },
     page,
     trail: [],
     pager: {},

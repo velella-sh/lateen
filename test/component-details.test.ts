@@ -21,6 +21,7 @@ const config: SiteConfig = {
   search: { text: 300 },
   redirects: {},
   outputs: {},
+  collections: {},
 };
 
 const page: Page = {
@@ -36,7 +37,7 @@ const page: Page = {
   kind: "doc",
 };
 
-const site: Site = { config, pages: [page], nav: {}, data: {} };
+const site: Site = { config, pages: [page], nav: {}, data: {}, collections: {} };
 
 function render(props: DetailsProps, body = "<p>Body text.</p>"): string {
   return html(details({ props, page, site, html: body }));
