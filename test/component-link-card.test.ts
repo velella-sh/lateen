@@ -305,7 +305,7 @@ test("the card stays one link with an inert record and no client JavaScript", ()
 });
 
 test("style.css shows a focus ring on the whole link", () => {
-  assert.match(css, /\.link-card:focus-visible\s*\{[^}]*outline:\s*2px solid var\(--state-focus-ring\)/s);
+  assert.doesNotMatch(css, /\.link-card:focus-visible/, "the link card takes the shared focus ring from styles/base.css");
 });
 
 test("style.css lays several cards out in a responsive grid", () => {

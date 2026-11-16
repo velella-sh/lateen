@@ -59,9 +59,8 @@
   color: var(--color-text);
 }
 
-.sidebar-nav a:focus-visible {
-  outline: 2px solid var(--state-focus-ring);
-  outline-offset: 2px;
+.sidebar-nav a:active {
+  background: var(--state-active-bg);
 }
 
 .sidebar-nav a[aria-current="page"] {
@@ -103,7 +102,10 @@
   content: "\2212";
 }
 
-.sidebar-nav summary:focus-visible {
-  outline: 2px solid var(--state-focus-ring);
-  outline-offset: 2px;
+.sidebar-nav summary:hover {
+  background: var(--state-hover-bg);
+}
+
+.sidebar-nav summary:active {
+  background: var(--state-active-bg);
 }

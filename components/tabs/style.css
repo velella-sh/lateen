@@ -48,13 +48,16 @@
   color: var(--color-heading);
 }
 
+.tabs > [role="tablist"] > [role="tab"]:active {
+  background-color: var(--state-active-bg);
+}
+
 .tabs > [role="tablist"] > [role="tab"][aria-selected="true"] {
   border-block-end-color: var(--color-accent);
   color: var(--color-heading);
 }
 
 .tabs > [role="tablist"] > [role="tab"]:focus-visible {
-  outline: 2px solid var(--state-focus-ring);
   outline-offset: calc(var(--space-1) * -1);
 }
 

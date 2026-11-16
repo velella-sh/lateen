@@ -29,8 +29,10 @@ body {
   background-color: var(--color-selection);
 }
 
+/* The one focus recipe: a medium ring, offset from the edge so it never touches the control's own border.
+   Units reuse it and add no outline of their own. It keeps 3:1 on every surface (test/tokens.test.ts). */
 :focus-visible {
-  outline: thin solid var(--state-focus-ring);
+  outline: medium solid var(--state-focus-ring);
   outline-offset: var(--space-1);
 }
 
@@ -141,6 +143,8 @@ body {
 
 /* Inline code reads as a chip. Code blocks are a `pre`, so they keep their own component styles. */
 :where(:not(pre) > code) {
+  /* Sized from the surrounding text, so it follows a heading or a small note. */
+  font-size: smaller;
   padding-block: 0;
   padding-inline: var(--space-1);
   border: thin solid var(--code-border);
