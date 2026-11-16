@@ -33,6 +33,7 @@ const config: SiteConfig = {
   search: { text: 300 },
   redirects: {},
   outputs: {},
+  collections: {},
 };
 
 /** Markup in the shape remark-gfm writes: a reference in the text, its note at the end, a back-link in the note. */
@@ -67,7 +68,7 @@ function pageWith(html: string, kind: Page["kind"] = "doc"): Page {
 
 function props(html: string, kind: Page["kind"] = "doc"): ChromeProps {
   const page = pageWith(html, kind);
-  const site: Site = { config, pages: [page], nav: {}, data: {} };
+  const site: Site = { config, pages: [page], nav: {}, data: {}, collections: {} };
   return { site, page, trail: [], pager: {} };
 }
 

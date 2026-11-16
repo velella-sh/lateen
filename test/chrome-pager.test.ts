@@ -22,6 +22,7 @@ const config: SiteConfig = {
   search: { text: 300 },
   redirects: {},
   outputs: {},
+  collections: {},
 };
 
 const trail: Trail = [];
@@ -44,7 +45,7 @@ const next: NavLink = { title: "Configure", url: "/example/guide/configure/" };
 
 function props(links: Pager, lang = "en"): ChromeProps {
   const localized: Page = { ...page, lang, dir: lang === "en" ? "ltr" : "rtl" };
-  const site: Site = { config, pages: [localized], nav: {}, data: {} };
+  const site: Site = { config, pages: [localized], nav: {}, data: {}, collections: {} };
   return { site, page: localized, trail, pager: links };
 }
 

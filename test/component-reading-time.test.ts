@@ -300,6 +300,7 @@ function configWith(overrides: Partial<SiteConfig> = {}): SiteConfig {
     search: { text: 300 },
     redirects: {},
     outputs: {},
+    collections: {},
     ...overrides,
   };
 }
@@ -321,7 +322,7 @@ function pageWith(overrides: Partial<Page> = {}): Page {
 }
 
 function layoutProps(page: Page, data: Site["data"]): LayoutProps {
-  const site: Site = { config: configWith(), pages: [page], nav: { main: [] }, data };
+  const site: Site = { config: configWith(), pages: [page], nav: { main: [] }, data, collections: {} };
   return {
     site,
     page,

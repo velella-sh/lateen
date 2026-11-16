@@ -34,6 +34,7 @@ const config: SiteConfig = {
   search: { text: 300 },
   redirects: {},
   outputs: {},
+  collections: {},
 };
 
 /** The base path the test navigation is published under. */
@@ -56,7 +57,7 @@ function pageAt(url: string): Page {
 
 function propsAt(nav: NavTree, url: string): ChromeProps {
   const page = pageAt(url);
-  const site: Site = { config, pages: [page], nav, data: {} };
+  const site: Site = { config, pages: [page], nav, data: {}, collections: {} };
   return { site, page, trail: [], pager: {} };
 }
 

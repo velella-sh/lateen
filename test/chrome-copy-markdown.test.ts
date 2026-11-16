@@ -42,6 +42,7 @@ function siteConfig(base = "/example"): SiteConfig {
     search: { text: 300 },
     redirects: {},
     outputs: {},
+    collections: {},
   };
 }
 
@@ -64,7 +65,7 @@ function pageWith(url = "/example/guide/install/", kind: Page["kind"] = "doc", l
 }
 
 function props(page: Page = pageWith(), base = "/example"): ChromeProps {
-  const site: Site = { config: siteConfig(base), pages: [page], nav: {}, data: {} };
+  const site: Site = { config: siteConfig(base), pages: [page], nav: {}, data: {}, collections: {} };
   return { site, page, trail, pager };
 }
 

@@ -33,6 +33,7 @@ function siteConfig(options: Readonly<Record<string, unknown>> = {}, url?: strin
     search: { text: 300 },
     redirects: {},
     outputs: {},
+    collections: {},
   };
 }
 
@@ -60,7 +61,7 @@ function props(
   url?: string,
   base = "/example",
 ): ChromeProps {
-  const site: Site = { config: siteConfig(options, url, base), pages: [page], nav: {}, data: {} };
+  const site: Site = { config: siteConfig(options, url, base), pages: [page], nav: {}, data: {}, collections: {} };
   return { site, page, trail, pager };
 }
 

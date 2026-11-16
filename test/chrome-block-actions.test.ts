@@ -42,6 +42,7 @@ function siteConfig(): SiteConfig {
     search: { text: 300 },
     redirects: {},
     outputs: {},
+    collections: {},
   };
 }
 
@@ -64,7 +65,7 @@ function pageWith(lang = "en", dir: Page["dir"] = "ltr"): Page {
 }
 
 function props(page: Page = pageWith()): ChromeProps {
-  const site: Site = { config: siteConfig(), pages: [page], nav: {}, data: {} };
+  const site: Site = { config: siteConfig(), pages: [page], nav: {}, data: {}, collections: {} };
   return { site, page, trail, pager };
 }
 
@@ -118,7 +119,7 @@ test("the label and the prompt follow the page language", () => {
 
 test("a doc page carries the template once, after the article", () => {
   const page = pageWith();
-  const site: Site = { config: siteConfig(), pages: [page], nav: {}, data: {} };
+  const site: Site = { config: siteConfig(), pages: [page], nav: {}, data: {}, collections: {} };
   const layoutProps: LayoutProps = {
     site,
     page,

@@ -22,6 +22,7 @@ const config: SiteConfig = {
   search: { text: 300 },
   redirects: {},
   outputs: {},
+  collections: {},
 };
 
 const trail: Trail = [];
@@ -44,7 +45,7 @@ function pageWith(headings: Heading[], lang = "en"): Page {
 
 function props(headings: Heading[], lang = "en"): ChromeProps {
   const page = pageWith(headings, lang);
-  const site: Site = { config, pages: [page], nav: {}, data: {} };
+  const site: Site = { config, pages: [page], nav: {}, data: {}, collections: {} };
   return { site, page, trail, pager };
 }
 

@@ -46,6 +46,7 @@ function configWith(
     search: { text: 300 },
     redirects: {},
     outputs: {},
+    collections: {},
   };
 }
 
@@ -80,6 +81,7 @@ function props(
     pages: [page],
     nav: {},
     data,
+    collections: {},
   };
   return { site, page, trail: [], pager: {} };
 }
@@ -137,7 +139,7 @@ test("an unknown forge, an unparseable URL, and an empty source path give no edi
 
 test("without a repository the block renders nothing at all (AC3)", () => {
   assert.equal(render(props(pageWith(), null)), "");
-  assert.equal(editHref({ config: configWith(), pages: [pageWith()], nav: {}, data: {} }, pageWith()), undefined);
+  assert.equal(editHref({ config: configWith(), pages: [pageWith()], nav: {}, data: {}, collections: {} }, pageWith()), undefined);
 });
 
 test("a non-document page gets no edit block", () => {
