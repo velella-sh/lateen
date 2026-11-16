@@ -1,0 +1,1 @@
+- Timeline decision: `docs/design/timeline.md` chooses a table with CSS bars, fixes the input shape (rows, dated segments, a status per segment), and lists what the component will not do (#251).
