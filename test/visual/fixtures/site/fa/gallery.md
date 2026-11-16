@@ -1,0 +1,387 @@
+---
+title: گالری مؤلفه‌ها
+description: هر مؤلفه در حالت پیش‌فرض و گونه‌هایش، با محتوای ثابت.
+layout: doc
+permalink: /fa/gallery/
+lang: fa
+dir: rtl
+stats:
+  - value: "12"
+    label: صفحه
+  - value: "3"
+    label: ویژگی
+  - value: "1,204"
+    label: تعداد
+guide:
+  from: "0.2"
+  to: "0.3"
+  time: 20 min
+  risk: done
+---
+
+همهٔ مؤلفه‌های پوسته در حالت پیش‌فرض و گونه‌هایشان. محتوا و تاریخ‌ها ثابت‌اند.
+
+## a11y-report
+
+::a11y-report{from=report-example/accessibility}
+
+## backdrop
+
+::backdrop
+
+## badge
+
+::badge{label="New" variant=tip}
+::badge{label="Beta" variant=important}
+::badge{label="Old" variant=caution}
+
+## before-after
+
+:::before-after
+```ts
+const dir = "build";
+```
+
+```ts
+const dir = "dist";
+```
+:::
+
+## budget-report
+
+::budget-report{from=report-example/performance targets="js=8000,css=7000"}
+
+## callout
+
+:::callout{type=note title="نکته"}
+یک نکته با نوار تأکید.
+:::
+
+:::callout{type=tip title="نکته"}
+یک نکتهٔ مفید.
+:::
+
+:::callout{type=important title="نکته"}
+یک نکتهٔ مهم.
+:::
+
+:::callout{type=warning title="احتیاط"}
+یک هشدار.
+:::
+
+:::callout{type=caution title="احتیاط"}
+یک هشدار احتیاط.
+:::
+
+## cards
+
+Layout component: the home layout draws it from `sections` in front matter, so see the home page of this fixture.
+
+## changelog-entry
+
+:::changelog-entry{version="1.2.0" date="2026-11-09" categories="added,fixed"}
+- بسته را نصب کنید.
+- ساخت را اجرا کنید.
+:::
+
+## check-list
+
+:::check-list
+- `npm run build` — ساخت را اجرا کنید.
+- `npm test` — خروجی را بخوانید.
+:::
+
+## cli-demo
+
+:::cli-demo{play}
+```sh
+$ example install example-package
+Installed 1 package
+$ example run missing-task
+! error: no task named missing-task
+```
+:::
+
+## code
+
+```ts {2} title="answer.ts" showLineNumbers
+const question = "life";
+export const answer = 42;
+```
+
+Inline `code` in a sentence.
+
+## code-tabs
+
+:::code-tabs{labels='["npm","pnpm"]'}
+```bash
+npm install mizzen
+```
+
+```bash
+pnpm add mizzen
+```
+:::
+
+## cta-band
+
+::cta-band{title="گالری مؤلفه‌ها" lead="هر مؤلفه در حالت پیش‌فرض و گونه‌هایش، با محتوای ثابت." label="خانه" url="/fa/"}
+
+## details
+
+:::details{summary="نمایش جزئیات"}
+محتوای پنهان.
+:::
+
+:::details{summary="پیش‌فرض باز" open}
+محتوای پنهان.
+:::
+
+## diff-block
+
+:::diff-block
+```diff
+ publish:
+-  dir: build
++  dir: dist
+ keep:
+```
+:::
+
+## drift-banner
+
+::drift-banner
+
+## embed
+
+::embed{src="https://example.com/embed" title="Example embed"}
+
+## embed-code
+
+::embed-code{src="/refinement/" title="Example"}
+
+## endpoint
+
+:::endpoint{method=get path="/users/{id}" parameters='[{"name":"id","type":"uuid","required":true,"description":"The user id."}]'}
+محتوای پنهان.
+:::
+
+:::endpoint{method=post path="/users"}
+محتوای پنهان.
+:::
+
+## feature-grid
+
+Layout component: a layout passes it the `features` list, which Markdown cannot supply yet.
+
+## figure
+
+::figure{src="/assets/gallery.svg" alt="یک دایرهٔ آبی و یک مستطیل" caption="شرح تصویر."}
+
+## file-tree
+
+:::file-tree{label="Project layout"}
+- content/ # pages
+  - **index.md** # home
+- mizzen.yml
+:::
+
+## frame
+
+:::frame{title="گالری مؤلفه‌ها" caption="شرح تصویر."}
+محتوای پنهان.
+:::
+
+## guide-summary
+
+::guide-summary
+
+## heading-anchor
+
+### گالری مؤلفه‌ها
+
+#### هر مؤلفه در حالت پیش‌فرض و گونه‌هایش، با محتوای ثابت.
+
+## hero
+
+::hero{eyebrow="ویژگی" title="گالری مؤلفه‌ها" lead="هر مؤلفه در حالت پیش‌فرض و گونه‌هایش، با محتوای ثابت." align=start}
+
+::hero{eyebrow="ویژگی" title="گالری مؤلفه‌ها" lead="هر مؤلفه در حالت پیش‌فرض و گونه‌هایش، با محتوای ثابت." align=center}
+
+## install-tabs
+
+::install-tabs{package="@velella/lateen"}
+
+## kbd
+
+Press :kbd[Ctrl]+:kbd[K] to search.
+
+## key-value
+
+:::key-value
+نسخه: 1.0
+پروانه: MIT
+:::
+
+## link-card
+
+::link-card{href="/fa/" title="خانه" description="کارتی که با اشاره بالا می‌آید."}
+
+## mermaid
+
+```mermaid
+flowchart LR
+  A[Source] --> B[Build] --> C[Site]
+```
+
+## motif
+
+::motif{seed="gallery" pattern="contours"}
+
+## os-tabs
+
+:::os-tabs{id="gallery-os"}
+### macOS
+
+```bash
+brew install mizzen
+```
+
+### ویندوز
+
+```powershell
+winget install mizzen
+```
+
+### لینوکس
+
+```bash
+curl -fsSL https://get.mizzen.dev | sh
+```
+:::
+
+## output-block
+
+:::output-block{label="Build" stream=stdout exit=0 duration=340}
+Written 12 pages to dist
+:::
+
+## page-status
+
+::page-status{status=deprecated since="0.2" replaced_by="/fa/gallery/"}
+
+## preset-preview
+
+::preset-preview{preset=graphite}
+
+## reading-time
+
+::reading-time{minutes=3 words=600 showWords}
+
+## schema-table
+
+::schema-table{data="schema-table" label="Widget options"}
+
+## stat-strip
+
+::stat-strip
+
+## status
+
+:status[Done]{tone=positive} :status[Late]{tone=negative} :status[Soon]{tone=caution}
+
+## status-banner
+
+::status-banner{status=deprecated replacement="/fa/gallery/" version="0.2.0"}
+
+## status-legend
+
+::status-legend
+
+## steps
+
+:::steps
+1. بسته را نصب کنید.
+2. ساخت را اجرا کنید.
+3. خروجی را بخوانید.
+:::
+
+## symbol-popover
+
+::symbol-popover{name="runExample" signature="runExample(input: Input): Promise<Result>" href="/fa/gallery/"}
+
+## table
+
+| نام | تعداد |
+| --- | ---: |
+| الف | 12 |
+| ب | 1,204 |
+
+## tabs
+
+:::tabs{group="gallery-tabs"}
+### یک
+
+برگهٔ اول.
+
+### دو
+
+برگهٔ دوم.
+:::
+
+## tags
+
+::tags{items='["راهنما",{"label":"مرجع","url":"/fa/gallery/"}]'}
+
+## terminal
+
+:::terminal
+$ npm install mizzen
+added 1 package
+
+$ npm run build
+Built 12 pages.
+:::
+
+## tested-chip
+
+::tested-chip{passed=2 failed=0 lastPassed=2026-11-09}
+
+::tested-chip{passed=0 failed=1 lastPassed=2026-11-09}
+
+## trap
+
+:::trap
+یک هشدار احتیاط.
+:::
+
+## trust-panel
+
+:::trust-panel{level=verified reasons="3 of 3 examples passed|No drift findings" lastReviewer="Ada Lovelace" buildId="build-42" generatedAt="2026-03-06" reviewedAt="2026-03-04"}
+:::
+
+:::trust-panel{level=review-due reasons="Reviewed more than 90 days ago."}
+:::
+
+## variables-form
+
+::variables-form{id="gallery" group="gallery"}
+
+## version-badge
+
+::version-badge{version=0.3}
+
+::version-badge{version=0.3 variant=changed}
+
+## version-diff
+
+:::version-diff{from="v1" to="v2" changes='[{"kind":"added","title":"Retries"},{"kind":"removed","title":"Legacy flags"},{"kind":"changed","title":"Install"}]'}
+:::
+
+## video
+
+::video{src="https://www.youtube.com/watch?v=aqz-KE-bpKQ" title="Example video"}
+
+## wcag-checklist
+
+::wcag-checklist{from=wcag}

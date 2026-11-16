@@ -1,0 +1,8 @@
+{
+  "type": "object",
+  "required": ["name"],
+  "properties": {
+    "name": { "type": "string", "description": "The widget's name." },
+    "size": { "enum": ["s", "m", "l"], "default": "m" }
+  }
+}

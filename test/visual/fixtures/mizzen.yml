@@ -1,0 +1,64 @@
+# The visual fixture site. It reuses the pages and data of the accessibility fixture by
+# configuration (build.ts links them into a staging folder; nothing is copied) and adds the
+# component gallery from test/visual/fixtures/site/. The look-affecting settings below match the
+# accessibility fixture on purpose, so the same pages render the same way in both gates.
+title: Lateen visual fixture
+description: Fixed pages and a component gallery for the visual gates.
+lang: en
+url: https://example.com
+base: ""
+languages:
+  - code: fa
+    name: فارسی
+    prefix: /fa
+  - code: ar
+    name: العربية
+    prefix: /ar
+navigation: _data/navigation.yml
+search: false
+theme:
+  options:
+    installTabs:
+      managers:
+        - name: npm
+          command: npm install {package}
+        - name: pnpm
+          command: pnpm add {package}
+        - name: yarn
+          command: yarn add {package}
+    preset: graphite
+    brand:
+      accent: "#2f6f9f"
+      fonts:
+        sans:
+          family: "Example Sans"
+          files:
+            - src: /fonts/example-sans.woff2
+              weight: 400
+        mono:
+          family: "Example Mono"
+          files:
+            - src: /fonts/example-mono.woff2
+              weight: 400
+    status:
+      values:
+        done:
+          tone: positive
+          label:
+            en: Done
+            fa: انجام شد
+            ar: تم
+          description:
+            en: The work is finished.
+            fa: کار تمام شده است.
+            ar: انتهى العمل.
+        late:
+          tone: negative
+          label:
+            en: Late
+            fa: دیر
+            ar: متأخر
+          description:
+            en: The work is behind plan.
+            fa: کار از برنامه عقب است.
+            ar: العمل متأخر عن الخطة.

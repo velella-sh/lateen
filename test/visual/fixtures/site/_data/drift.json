@@ -1,0 +1,11 @@
+{
+  "/gallery/": [
+    { "kind": "cited-code-changed", "severity": "warning", "message": "The cited function changed.", "reference": "src/example.ts:12" }
+  ],
+  "/fa/gallery/": [
+    { "kind": "cited-code-changed", "severity": "warning", "message": "The cited function changed.", "reference": "src/example.ts:12" }
+  ],
+  "/ar/gallery/": [
+    { "kind": "cited-code-changed", "severity": "warning", "message": "The cited function changed.", "reference": "src/example.ts:12" }
+  ]
+}

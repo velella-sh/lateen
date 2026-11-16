@@ -1,0 +1,6 @@
+- name: api_key
+  default: YOUR_KEY
+  type: string
+- name: host
+  default: https://api.example.com
+  type: url
