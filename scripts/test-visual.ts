@@ -14,6 +14,7 @@ import { chromium, type Browser, type BrowserContext, type Page } from "playwrig
 import { buildFixture } from "../test/visual/fixtures/build.ts";
 import { PAGES, type FixturePage } from "../test/visual/fixtures/pages.ts";
 import { startServer } from "./test-a11y.ts";
+import { checkPage, formatFinding, type PageFinding } from "./visual-checks.ts";
 import { formatReview, reviewShots } from "./visual-review.ts";
 
 const ROOT = fileURLToPath(new URL("../", import.meta.url));
@@ -92,6 +93,8 @@ export interface RunOptions {
   readonly out?: string;
   readonly only?: string;
   readonly viewports?: readonly ViewportName[];
+  /** Receives the layout findings of the in-page checks (scripts/visual-checks.ts). */
+  readonly findings?: PageFinding[];
 }
 
 /** Builds the fixture, serves it and shoots every page. Returns the files written. */
@@ -117,6 +120,7 @@ export async function runVisual(options: RunOptions = {}): Promise<string[]> {
           const file = join(out, shotName(fixturePage, viewport));
           await capture(page, `${server.url}${fixturePage.path}`, file);
           written.push(file);
+          options.findings?.push(...(await checkPage(page, fixturePage.name, viewport)));
         }
       } finally {
         await context.close();
@@ -137,9 +141,15 @@ async function main(): Promise<void> {
   };
   const out = value("--out");
   const only = value("--only");
-  const files = await runVisual({ ...(only !== undefined ? { only } : {}), ...(out !== undefined ? { out } : {}) });
+  const findings: PageFinding[] = [];
+  const files = await runVisual({ findings, ...(only !== undefined ? { only } : {}), ...(out !== undefined ? { out } : {}) });
   const shots = resolve(out ?? OUT_DIR);
   console.log(`wrote ${files.length} screenshots to ${shots}`);
+  for (const finding of findings) console.log(formatFinding(finding));
+  if (findings.length > 0) {
+    console.error(`FAIL: ${findings.length} layout finding(s)`);
+    process.exitCode = 1;
+  }
   const update = argv.includes("--update");
   if (update && process.env["CI"] === undefined) console.warn("note: baselines are recorded on CI (docs/design/visual-gates.md); a local baseline should not be committed");
   const { lines, ok } = formatReview(reviewShots({ shots, baselines: BASELINE_DIR, review: join(shots, "review"), update }));
