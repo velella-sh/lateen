@@ -34,3 +34,18 @@ approved palette (`docs/design/decisions.md`) and the approved mockups:
 (4.85:1), as `docs/design/decisions.md` allows. The focus ring keeps the accent: 3.50:1 on the day
 canvas and 5.94:1 on the night canvas, above the 3:1 non-text minimum. `styles/base.css` names the
 ring again as `Highlight` under `forced-colors: active` so it survives forced colors.
+
+## Chart
+
+`tokens/chart.json` holds the colours of build-time charts (`docs/design/charts.md`). They are separate
+from `state` and `color`: no chart token references a status, callout, or state colour.
+
+| Tokens | Meaning |
+| --- | --- |
+| `chart-cat-1` to `chart-cat-8` | Eight categorical colours, one per series, in light and dark. |
+| `chart-seq-1` to `chart-seq-5` | One sequential scale, lightest-looking step to strongest, one hue. |
+| `chart-pattern-1` to `chart-pattern-8` | The pattern fill of each category: `solid`, `diagonal`, `dots`, `crosshatch`, `vertical`, `horizontal`, `diagonal-reverse`, `grid`. A chart draws it in print and in forced colours, where colour alone is lost. The value is a name, the same in both themes. |
+
+`test/tokens.test.ts` checks every colour: 3:1 against `color-canvas` and `color-surface` in both themes,
+and a minimum OKLab distance between every pair (8 for categories, 5 for the sequential steps) in normal vision and under
+simulated protanopia, deuteranopia, and tritanopia (`test/support-chart-colour.ts`).

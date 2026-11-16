@@ -97,6 +97,27 @@
   --code-function: light-dark(#8250df, #d2a8ff);
   --code-tag: light-dark(#116329, #7ee787);
   --code-punctuation: light-dark(#57606a, #8b949e);
+  --chart-cat-1: light-dark(#38289a, #00d3a8);
+  --chart-cat-2: light-dark(#b27323, #a16dec);
+  --chart-cat-3: light-dark(#770c00, #d76100);
+  --chart-cat-4: light-dark(#1487c2, #e9e72c);
+  --chart-cat-5: light-dark(#7a5164, #cc9bff);
+  --chart-cat-6: light-dark(#464fd2, #9ef7dc);
+  --chart-cat-7: light-dark(#532b56, #00a08e);
+  --chart-cat-8: light-dark(#a62e0a, #f79c00);
+  --chart-seq-1: light-dark(#4b7cba, #5788c7);
+  --chart-seq-2: light-dark(#3464a0, #6ea1e2);
+  --chart-seq-3: light-dark(#20508a, #87bafd);
+  --chart-seq-4: light-dark(#083c75, #a0d5ff);
+  --chart-seq-5: light-dark(#002960, #b9efff);
+  --chart-pattern-1: solid;
+  --chart-pattern-2: diagonal;
+  --chart-pattern-3: dots;
+  --chart-pattern-4: crosshatch;
+  --chart-pattern-5: vertical;
+  --chart-pattern-6: horizontal;
+  --chart-pattern-7: diagonal-reverse;
+  --chart-pattern-8: grid;
 }
 
 @media (prefers-reduced-motion: reduce) {

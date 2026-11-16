@@ -4,6 +4,7 @@ import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { test } from "node:test";
 import { buildCss, loadTokens, main, paths } from "../scripts/tokens.ts";
+import { VISION, distance } from "./support-chart-colour.ts";
 
 const names = { color: { canvas: { $value: "#fff", $extensions: { lateen: { dark: "#000" } } }, text: "#222" }, space: { "1": "0.25rem" } };
 
@@ -19,7 +20,7 @@ test("the committed tokens.css is current and every semantic group is frozen in 
   const tokens = loadTokens();
   assert.equal(readFileSync(paths.css, "utf8"), buildCss(tokens));
   const groups = new Set([...tokens.keys()].map((n) => n.split("-")[0]));
-  for (const group of ["color", "type", "space", "radius", "shadow", "motion", "state", "code"]) assert.ok(groups.has(group), group);
+  for (const group of ["color", "type", "space", "radius", "shadow", "motion", "state", "chart", "code"]) assert.ok(groups.has(group), group);
 });
 
 /** WCAG 2.2 relative luminance of a six-digit hex color. */
@@ -137,4 +138,48 @@ test("--check fails when tokens.css is stale or missing and passes after a build
   writeFileSync(css, `${readFileSync(css, "utf8")}/* edited */\n`);
   assert.equal(run("--check"), 1, "stale");
   rmSync(dir, { recursive: true });
+});
+
+test("the chart colours reach 3:1 on the canvas and stay distinguishable under colour-vision types (#432)", () => {
+  const tokens = loadTokens();
+  const surfaces = ["color-canvas", "color-surface"];
+  const pick = (name: string, mode: "light" | "dark"): string => {
+    const token = tokens.get(name);
+    const found = mode === "light" ? token?.light : token?.dark ?? token?.light;
+    assert.ok(found && /^#[0-9a-f]{6}$/i.test(found), `${name} has no ${mode} hex value`);
+    return found;
+  };
+  const categories = Array.from({ length: 8 }, (_, i) => `chart-cat-${i + 1}`);
+  const scale = Array.from({ length: 5 }, (_, i) => `chart-seq-${i + 1}`);
+  const patterns = Array.from({ length: 8 }, (_, i) => tokens.get(`chart-pattern-${i + 1}`)?.light);
+  assert.equal(new Set(patterns).size, 8, "each category has its own pattern fill");
+  for (const p of patterns) assert.ok(p && !p.startsWith("#"), "a pattern token names a pattern");
+  const views = [undefined, ...Object.values(VISION)];
+  for (const mode of ["light", "dark"] as const) {
+    for (const name of [...categories, ...scale]) {
+      for (const surface of surfaces) {
+        const ratio = contrast(pick(name, mode), pick(surface, mode));
+        assert.ok(ratio >= 3, `${name} is ${ratio.toFixed(2)}:1 on ${surface} in ${mode}; it needs 3:1`);
+      }
+    }
+    for (const group of [categories, scale]) {
+      const minimum = group === categories ? 8 : 5;
+      group.forEach((a, i) => {
+        for (const b of group.slice(i + 1)) {
+          // Neighbours on the sequential scale only need to be told apart in lightness; categories in hue too.
+          for (const view of views) {
+            const gap = distance(pick(a, mode), pick(b, mode), view);
+            assert.ok(gap >= minimum, `${a} and ${b} are ${gap.toFixed(1)} apart in ${mode} (${view ? "simulated" : "normal"} vision); they need ${minimum}`);
+          }
+        }
+      });
+    }
+  }
+});
+
+test("the chart tokens do not reference the state, status, or callout colours (#432)", () => {
+  for (const [name, value] of loadTokens()) {
+    if (!name.startsWith("chart-")) continue;
+    assert.ok(!/[{]|var\(/.test(`${value.light}${value.dark ?? ""}`), `${name} must hold its own value, not a reference`);
+  }
 });

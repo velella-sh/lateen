@@ -11,7 +11,7 @@ export const paths = { tokens: join(pkg, "tokens"), css: join(pkg, "styles/token
 
 const NAME = /^[a-z0-9]+(-[a-z0-9]+)*$/;
 // light-dark() takes colors only, so only these groups may carry a dark value.
-const COLOR_GROUPS = new Set(["color", "state", "code"]);
+const COLOR_GROUPS = new Set(["color", "state", "code", "chart"]);
 
 /** One token's value: a light value, an optional dark one (color groups), and an optional reduced-motion one. */
 export type TokenValue = { light: string; dark?: string; reduced?: string };
