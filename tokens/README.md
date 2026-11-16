@@ -34,3 +34,7 @@ approved palette (`docs/design/decisions.md`) and the approved mockups:
 (4.85:1), as `docs/design/decisions.md` allows. The focus ring keeps the accent: 3.50:1 on the day
 canvas and 5.94:1 on the night canvas, above the 3:1 non-text minimum. `styles/base.css` names the
 ring again as `Highlight` under `forced-colors: active` so it survives forced colors.
+
+## Status
+
+`tokens/status.json` holds the colours of a record's status: five tones (`positive`, `caution`, `negative`, `neutral`, `info`), each with `fg`, `bg` and `border`, as `status-<tone>-<part>`, with light and dark values. They are their own values, not references to the callout colours, so a tone can change without touching callouts. `test/tokens.test.ts` requires every `fg` to reach 4.5:1 on its `bg` and every `border` 3:1 on the canvas, in both schemes.
