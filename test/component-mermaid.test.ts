@@ -81,7 +81,7 @@ function renderInFreshProcess(dir: string, source: string): Probe {
     process.stdout.write(JSON.stringify({ renders: mermaid.diagramRenderCount(), result }));
   `;
   const child = spawnSync(process.execPath, ["--input-type=module", "-e", script], {
-    env: { ...process.env, [CACHE_DIR_ENV]: dir },
+    env: { ...process.env, NODE_V8_COVERAGE: "", [CACHE_DIR_ENV]: dir },
     encoding: "utf8",
   });
   assert.equal(child.status, 0, typeof child.stderr === "string" ? child.stderr : String(child.error));
@@ -122,7 +122,7 @@ test("the child renderer strips types for a query-versioned module under node_mo
     const probe = join(packageDir, "query-probe.ts");
     writeFileSync(probe, 'process.stdout.write("loaded\\n");\n');
     const child = spawnSync(process.execPath, ["--input-type=module", "-e", CHILD_BOOT], {
-      env: { ...process.env, LATEEN_MERMAID_MODULE: `${pathToFileURL(probe).href}?v=abc` },
+      env: { ...process.env, NODE_V8_COVERAGE: "", LATEEN_MERMAID_MODULE: `${pathToFileURL(probe).href}?v=abc` },
       encoding: "utf8",
     });
     assert.equal(child.status, 0, typeof child.stderr === "string" ? child.stderr : String(child.error));

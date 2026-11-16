@@ -16,6 +16,14 @@ navigation: _data/navigation.yml
 search: false
 theme:
   options:
+    installTabs:
+      managers:
+        - name: npm
+          command: npm install {package}
+        - name: pnpm
+          command: pnpm add {package}
+        - name: yarn
+          command: yarn add {package}
     preset: graphite
     brand:
       accent: "#2f6f9f"
