@@ -9,6 +9,7 @@ import siteFooter from "../chrome/site-footer/index.ts";
 import shortcuts from "../chrome/shortcuts/index.ts";
 import skipLinks, { MAIN_ID, NAVIGATION_ID } from "../chrome/skip-links/index.ts";
 import { THEME_KEY } from "../chrome/theme-toggle/key.ts";
+import { brandCss, problemComment, resolveBrand } from "../src/brand.ts";
 
 export { MAIN_ID, NAVIGATION_ID };
 
@@ -75,12 +76,28 @@ function jsonLd(data: Readonly<Record<string, unknown>>) {
 }
 
 /**
+ * The brand overrides as one `<style>` after the head's links, or nothing when the site sets no brand.
+ * The selector is `:root:root`, so it wins over the single `:root` in `styles/tokens.css` whichever
+ * stylesheet the engine writes later. A value that was ignored is a CSS comment naming the option.
+ * A replaced default family asks the engine to leave its preload out; the shipped face stays in the
+ * stylesheet as a fallback, so a site with custom fonts neither downloads nor preloads it first.
+ */
+function brandStyle(config: SiteConfig, hints: LayoutProps["hints"]) {
+  const { brand, problems } = resolveBrand(config.theme.options);
+  if (brand?.sans !== undefined) hints?.skipFontPreload("Geist");
+  if (brand?.mono !== undefined) hints?.skipFontPreload("Geist Mono");
+  const comments = problems.map(problemComment).join("\n");
+  const css = [brand === undefined ? "" : brandCss(brand, { base: config.base }), comments].filter((part) => part !== "").join("\n");
+  return css === "" ? null : h("style", { "data-brand": true, dangerouslySetInnerHTML: { __html: css } });
+}
+
+/**
  * Everything inside `<head>`, in a fixed order, with the theme script first so nothing paints before it.
  * The page's canonical and translation alternates come from the language-switcher model. The engine
  * already writes a canonical when the front matter or site `url` gives one, so the layout only adds it
  * when the head has none, and never writes a second one.
  */
-function headNodes(head: Head, site: Site, page: Page) {
+function headNodes(head: Head, site: Site, page: Page, hints: LayoutProps["hints"]) {
   const links = [...head.links];
   if (!links.some((tag) => tag.rel === "canonical")) {
     const canonical = canonicalLink(site, page);
@@ -104,6 +121,7 @@ function headNodes(head: Head, site: Site, page: Page) {
     ...links.map(linkTag),
     ...iconLinks(site.config).map(linkTag),
     ...head.jsonLd.map(jsonLd),
+    brandStyle(site.config, hints),
   ];
 }
 
@@ -121,7 +139,7 @@ export default function base(props: BaseProps) {
   return h(
     "html",
     { lang: page.lang, dir: page.dir, "data-theme": "dark" },
-    h("head", null, ...headNodes(head, props.site, page)),
+    h("head", null, ...headNodes(head, props.site, page, props.hints)),
     h(
       "body",
       null,

@@ -1,0 +1,15 @@
+# A site that replaces only the mono family: the mono preloads go, the sans ones stay.
+title: Font mono
+description: A fixture with a custom mono family.
+lang: en
+base: ""
+search: false
+theme:
+  options:
+    brand:
+      fonts:
+        mono:
+          family: "Example Mono"
+          files:
+            - src: /fonts/example-400.woff2
+              weight: 400

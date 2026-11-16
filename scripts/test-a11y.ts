@@ -85,6 +85,10 @@ export const CASES: readonly AuditCase[] = [
   { name: "fixture not found", site: "fixtures", path: "/404.html", layout: "not-found", lang: "en", ...DESKTOP },
   { name: "fixture persian", site: "fixtures", path: "/fa/", layout: "doc", lang: "fa", ...DESKTOP },
   { name: "fixture arabic", site: "fixtures", path: "/ar/", layout: "doc", lang: "ar", ...DESKTOP },
+  { name: "fixture brand", site: "fixtures", path: "/brand/", layout: "doc", lang: "en", ...DESKTOP },
+  { name: "fixture brand persian", site: "fixtures", path: "/fa/brand/", layout: "doc", lang: "fa", ...DESKTOP },
+  { name: "fixture brand arabic", site: "fixtures", path: "/ar/brand/", layout: "doc", lang: "ar", ...DESKTOP },
+  { name: "fixture brand mobile", site: "fixtures", path: "/brand/", layout: "doc", lang: "en", ...MOBILE },
   { name: "docs drawer open", site: "docs", path: "/lateen/install/", layout: "doc", lang: "en", ...MOBILE, open: "drawer" },
   { name: "docs search open", site: "docs", path: "/lateen/install/", layout: "doc", lang: "en", ...DESKTOP, open: "search" },
   { name: "docs ask agent open", site: "docs", path: "/lateen/install/", layout: "doc", lang: "en", ...DESKTOP, open: "ask" },
@@ -562,6 +566,47 @@ export async function runJourneys(
   return results;
 }
 
+/** The shipped optional-font files, whatever hashed folder the build wrote them to. */
+const THEME_FONT = /\/assets\/theme\/fonts\/(?:geist|geist-mono)\//;
+
+/** The woff2 files a page actually requests, including the ones its preload links start. */
+async function fontRequests(browser: Browser, url: string): Promise<string[]> {
+  const context = await browser.newContext();
+  try {
+    const page = await context.newPage();
+    const fonts = new Set<string>();
+    page.on("request", (request) => {
+      const path = new URL(request.url()).pathname;
+      if (path.endsWith(".woff2")) fonts.add(path);
+    });
+    await page.goto(url, { waitUntil: "networkidle" });
+    return [...fonts].sort();
+  } finally {
+    await context.close();
+  }
+}
+
+/**
+ * Records the font requests of a custom-font page and of a page without custom fonts. The first must
+ * request none of the shipped Geist or Geist Mono files and at least one of its own; the second must
+ * still request a shipped file, which proves the default preloads were not removed for everyone.
+ * Returns a failure sentence, or `undefined` when both hold.
+ */
+export async function checkFontPreloads(
+  browser: Browser,
+  servers: { readonly docs: StaticServer; readonly fixtures: StaticServer },
+): Promise<string | undefined> {
+  const custom = await fontRequests(browser, `${servers.fixtures.url}/brand/`);
+  const shipped = custom.filter((path) => THEME_FONT.test(path));
+  if (shipped.length > 0) return `a custom-font page still requested ${shipped.join(", ")}`;
+  if (!custom.some((path) => path.startsWith("/fonts/example-"))) {
+    return `a custom-font page requested none of its own fonts (${custom.join(", ") || "none"})`;
+  }
+  const defaults = await fontRequests(browser, `${servers.docs.url}/lateen/install/`);
+  if (!defaults.some((path) => THEME_FONT.test(path))) return "a page without custom fonts requested none of the shipped fonts it preloads";
+  return undefined;
+}
+
 async function main(): Promise<void> {
   const argv = process.argv.slice(2);
   const only = onlyFrom(argv);
@@ -620,6 +665,9 @@ async function main(): Promise<void> {
       }
     }
     journeys = await runJourneys(browser, servers);
+    const fontProblem = await checkFontPreloads(browser, servers);
+    if (fontProblem !== undefined) throw new Error(`font preloads: ${fontProblem}`);
+    console.log("font preloads: custom fonts suppress the shipped preloads; default pages keep them");
   } finally {
     await browser?.close();
     await servers.docs.close();

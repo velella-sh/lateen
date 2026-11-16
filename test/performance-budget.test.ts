@@ -453,6 +453,7 @@ test("the committed budget covers every fixture route and asset class", () => {
 });
 
 test("an unknown asset path is not silently counted in a class", () => {
+  assert.equal(classOf("assets/theme/islands/src/color.js"), "js/components", "a shared island module ships with the component bundle");
   assert.throws(() => classOf("assets/theme/other-aaaa.css"), /not a base or page CSS bundle/);
   assert.throws(() => classOf("assets/theme/fonts/geist/geist.woff2"), /measured from the stylesheet/);
 });

@@ -14,3 +14,19 @@ languages:
     prefix: /ar
 navigation: _data/navigation.yml
 search: false
+theme:
+  options:
+    preset: graphite
+    brand:
+      accent: "#2f6f9f"
+      fonts:
+        sans:
+          family: "Example Sans"
+          files:
+            - src: /fonts/example-sans.woff2
+              weight: 400
+        mono:
+          family: "Example Mono"
+          files:
+            - src: /fonts/example-mono.woff2
+              weight: 400

@@ -8,5 +8,9 @@ base: ""
 search: false
 theme:
   options:
+    preset: harbor
+    brand:
+      accent: "#0b6e4f"
+      density: compact
     footer:
       copyright: "Performance fixture"

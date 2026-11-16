@@ -25,6 +25,8 @@ Components are the pieces pages use inside their content: a callout, a code tab,
 
 The engine turns a directive into the component whose folder has the same name under `components/`. A container directive (`:::name` … `:::`) wraps a Markdown body; a leaf directive (`::name`) stands alone on its own line. Directive attributes are the component's options: `:::callout{type=warning}`.
 
+The theme's own look is set with the [Brand options](/brand-options/); the shipped starting points are on [Presets](/presets/).
+
 | Component | Use it for |
 | --- | --- |
 | [Badge](./badge/) | A short status label, such as a version or a beta marker. |
@@ -48,6 +50,7 @@ The engine turns a directive into the component whose folder has the same name u
 | [OS tabs](./os-tabs/) | Install instructions grouped by operating system, defaulting to the reader's system. |
 | [Output block](./output-block/) | The result of a command, apart from the command above it. |
 | [Page status](./page-status/) | An experimental, beta, or deprecated banner from front matter. |
+| [Preset preview](./preset-preview/) | One preset of the theme in its own scoped block, with the options to copy. |
 | [Reading time](./reading-time/) | A chip under the title with the page's reading time and word count. |
 | [Reports](./reports/) | An accessibility report, a performance budget, and the WCAG checklist, from site data. |
 | [Schema table](./schema-table/) | A JSON Schema from `_data` as a table of properties. |

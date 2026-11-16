@@ -181,3 +181,20 @@ test("the report components render their tables before any island and ship no cl
   const scripts = all(reports, "script[src]").map((script) => script.getAttribute("src") ?? "");
   assert.ok(!scripts.some((src) => /a11y-report|budget-report|wcag-checklist/.test(src)), "no report component ships an island");
 });
+
+test("a brand and its preset preview are in the first paint, before any island", () => {
+  const brand = site.document("/brand/");
+  const style = brand.querySelector("head style[data-brand]");
+  assert.ok(style, "the brand's style is in the head");
+  assert.match(style.textContent ?? "", /:root:root \{/);
+  assert.match(style.textContent ?? "", /--color-accent: light-dark\(/);
+  const preview = brand.querySelector("[data-preset-preview='clay']");
+  assert.ok(preview, "the preset sample is server-rendered");
+  assert.ok(preview.querySelector(".preset-preview-action"));
+  const accent = preview.querySelector("[data-preset-accent]");
+  assert.ok(accent, "the accent input is server-rendered");
+  const ratio = preview.querySelector("[data-preset-ratio='accent']")?.textContent ?? "";
+  assert.match(ratio, /^\d\.\d{2}:1 in light, \d\.\d{2}:1 in dark$/);
+  const html = site.html("/brand/");
+  assert.ok(html.indexOf("preset-preview") < html.indexOf("type=\"module\""));
+});

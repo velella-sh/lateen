@@ -7,6 +7,7 @@
 import assert from "node:assert/strict";
 import { readFileSync } from "node:fs";
 import { test } from "node:test";
+import { brandCss } from "../src/brand.ts";
 
 const read = (path: string): string => readFileSync(new URL(path, import.meta.url), "utf8");
 
@@ -303,4 +304,13 @@ test("the report components print at page width, keep rows whole, and drop the d
   const bar = blocks(css).find((block) => block.selector.split(",").map((part) => part.trim()).includes(".budget-report-bar"));
   assert.ok(bar, "the bar is not hidden in print");
   assert.match(bar.body, /display:\s*none/);
+});
+
+test("the brand's colours follow the printed light scheme", () => {
+  const branded = brandCss({ accent: "#2f6f9f", neutral: "#8ea3b5" });
+  for (const [, value] of branded.matchAll(/--(?:color|state|code)-[a-z-]+:\s*([^;]+);/g)) {
+    assert.match(value ?? "", /^light-dark\(#[0-9a-f]{6}, #[0-9a-f]{6}\)$/, "a branded colour keeps its light and dark halves");
+  }
+  assert.doesNotMatch(branded, /color-scheme/, "a brand never overrides the print palette's forced scheme");
+  assert.match(css, /color-scheme:\s*light\s*!important/, "print still forces the light scheme, so the light half is used");
 });

@@ -1,0 +1,20 @@
+# A site that replaces both families: no shipped optional-font preload remains.
+title: Font both
+description: A fixture with custom sans and mono families.
+lang: en
+base: ""
+search: false
+theme:
+  options:
+    brand:
+      fonts:
+        sans:
+          family: "Example Sans"
+          files:
+            - src: /fonts/example-sans-400.woff2
+              weight: 400
+        mono:
+          family: "Example Mono"
+          files:
+            - src: /fonts/example-mono-400.woff2
+              weight: 400

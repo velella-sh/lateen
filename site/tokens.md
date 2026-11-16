@@ -7,20 +7,7 @@ permalink: /tokens/
 
 Every visual decision is a design token, defined once and read from CSS. `tokens/names.json` freezes the names; one file per group (`color.json`, `type.json`, `space.json`, and the rest) sets the values. Run `npm run tokens` after editing a group: it writes `styles/tokens.css`, which `npm test` keeps current. Never edit that CSS by hand, and never put a raw color, length, or duration in a unit's stylesheet; use `var(--color-accent)`, `var(--space-4)`, and the other token variables.
 
-A site changes a token in its config, not in the theme. The site config is `mizzen.yml` ; the engine passes `theme.options` to the theme unread (the config contract), and the token overrides live under `theme.options.tokens`:
-
-```yaml
-theme:
-  options:
-    tokens:
-      accent: "#0b6e4f"
-      canvas: "#ffffff"
-      text: "#222222"
-      font_body: '"Source Serif 4", Georgia, serif'
-      radius: "0.5rem"
-```
-
-The keys are the token names that the config maps into the theme's CSS variables: `accent`, `canvas`, `text`, `font_body`, and `radius`. An unset color keeps the theme's light and dark pair; a set one replaces both, so check the contrast in both modes.
+A site does not edit a token file. It sets an accent colour, a neutral tint, its own fonts, a corner radius, and a density under `theme.options.brand`, or picks a shipped `theme.options.preset`; Lateen derives every dependent token at build time, corrects a colour that cannot reach its contrast, and writes the values into the page. The full list, the contrast rule, and what stays fixed are on [Brand options](/brand-options/), and the shipped starting points are on [Presets](/presets/).
 
 The rest of `theme.options` is the theme's as well. Lateen reads these blocks:
 
