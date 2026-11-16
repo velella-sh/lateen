@@ -43,10 +43,50 @@ html[data-js] .drawer:not([data-enhanced]) {
   color: var(--color-text);
   box-shadow: var(--shadow-lg);
   overflow-y: auto;
+  /* Closed: off the start edge. Open: in place. `display` and `overlay` keep the dialog on screen while it leaves. */
+  translate: -100% 0;
+  transition:
+    translate var(--motion-base) var(--motion-ease-in),
+    overlay var(--motion-base) var(--motion-ease-in) allow-discrete,
+    display var(--motion-base) var(--motion-ease-in) allow-discrete;
+}
+
+.drawer[data-enhanced]:dir(rtl) {
+  translate: 100% 0;
+}
+
+.drawer[data-enhanced][open] {
+  translate: 0 0;
+  transition-timing-function: var(--motion-ease-out);
+}
+
+@starting-style {
+  .drawer[data-enhanced][open] {
+    translate: -100% 0;
+  }
+
+  .drawer[data-enhanced][open]:dir(rtl) {
+    translate: 100% 0;
+  }
 }
 
 .drawer[data-enhanced]::backdrop {
   background: var(--state-overlay);
+  opacity: 0;
+  transition:
+    opacity var(--motion-base) var(--motion-ease-in),
+    overlay var(--motion-base) var(--motion-ease-in) allow-discrete,
+    display var(--motion-base) var(--motion-ease-in) allow-discrete;
+}
+
+.drawer[data-enhanced][open]::backdrop {
+  opacity: 1;
+}
+
+@starting-style {
+  .drawer[data-enhanced][open]::backdrop {
+    opacity: 0;
+  }
 }
 
 .drawer-close {

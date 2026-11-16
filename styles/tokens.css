@@ -5,8 +5,8 @@
   --color-surface: light-dark(#e5e9f0, #2a2a37);
   --color-surface-raised: light-dark(#ffffff, #363646);
   --color-text: light-dark(#2e3440, #dcd7ba);
-  --color-heading: light-dark(#111111, #dcd7ba);
-  --color-muted: light-dark(#5f687c, #96938e);
+  --color-heading: light-dark(#1a2030, #dcd7ba);
+  --color-muted: light-dark(#566074, #96938e);
   --color-border: light-dark(#d7dce7, #3c3c4e);
   --color-border-strong: light-dark(#a3a3a3, #54546d);
   --color-accent: light-dark(#5e81ac, #7e9cd8);
@@ -20,6 +20,8 @@
   --color-warning: light-dark(#a47428, #d4a72c);
   --color-danger: light-dark(#94638a, #ff7b72);
   --color-info: light-dark(#5d80aa, #58a6ff);
+  --color-surface-sunken: light-dark(#e3e7ee, #181820);
+  --color-link-visited: light-dark(#5b3f99, #b8a0dc);
   --type-font-body: Geist, "Geist Fallback", Vazirmatn, system-ui, sans-serif;
   --type-font-heading: Geist, "Geist Fallback", Vazirmatn, system-ui, sans-serif;
   --type-font-ui: Geist, "Geist Fallback", Vazirmatn, system-ui, sans-serif;
@@ -40,6 +42,10 @@
   --type-weight-regular: 400;
   --type-weight-medium: 500;
   --type-weight-bold: 700;
+  --type-tracking-display: -0.025em;
+  --type-tracking-heading: -0.015em;
+  --type-leading-display: 1.1;
+  --type-leading-snug: 1.3;
   --rtl-font-body: Vazirmatn, Geist, "Vazirmatn Fallback", "Geist Fallback", system-ui, sans-serif;
   --rtl-font-heading: Vazirmatn, Geist, "Vazirmatn Fallback", "Geist Fallback", system-ui, sans-serif;
   --rtl-font-ui: Vazirmatn, Geist, "Vazirmatn Fallback", "Geist Fallback", system-ui, sans-serif;
@@ -47,6 +53,8 @@
   --rtl-leading-heading: 1.4;
   --rtl-leading-tight: 1.35;
   --rtl-letter-spacing: normal;
+  --rtl-leading-display: 1.45;
+  --rtl-leading-snug: 1.45;
   --space-1: 0.25rem;
   --space-2: 0.5rem;
   --space-3: 0.75rem;
@@ -55,6 +63,7 @@
   --space-8: 2rem;
   --space-12: 3rem;
   --space-16: 4rem;
+  --space-page: clamp(1rem, 0.5rem + 2.5vw, 2rem);
   --radius-sm: 0.25rem;
   --radius-md: 0.5rem;
   --radius-lg: 1rem;
@@ -79,6 +88,9 @@
   --motion-slow: 400ms;
   --motion-ease: cubic-bezier(0.2, 0, 0, 1);
   --motion-ease-in-out: cubic-bezier(0.4, 0, 0.2, 1);
+  --motion-ease-out: cubic-bezier(0, 0, 0.2, 1);
+  --motion-ease-in: cubic-bezier(0.4, 0, 1, 1);
+  --motion-press: 60ms;
   --state-hover-bg: light-dark(#d8dee98c, #3636468c);
   --state-active-bg: light-dark(#c5cddc, #54546d);
   --state-selected-bg: light-dark(#d8dee9, #363646);
@@ -133,6 +145,18 @@
   --status-info-fg: light-dark(#1e3a8a, #bfdbfe);
   --status-info-bg: light-dark(#dbeafe, #172554);
   --status-info-border: light-dark(#2563eb, #60a5fa);
+  --border-subtle: light-dark(#e1e5ed, #2a2a37);
+  --border-default: light-dark(var(--color-border), var(--color-border));
+  --border-strong: light-dark(#6b7385, #7a7a90);
+  --elevation-low-shadow: 0 1px 2px light-dark(rgb(0 0 0 / 0.06), transparent), 0 1px 3px light-dark(rgb(0 0 0 / 0.1), transparent);
+  --elevation-low-bg: light-dark(#ffffff, #2a2a37);
+  --elevation-low-border: light-dark(#e1e5ed, #34344a);
+  --elevation-mid-shadow: 0 2px 4px light-dark(rgb(0 0 0 / 0.06), transparent), 0 6px 12px light-dark(rgb(0 0 0 / 0.1), transparent);
+  --elevation-mid-bg: light-dark(#ffffff, #302f3f);
+  --elevation-mid-border: light-dark(#d7dce7, #3d3d52);
+  --elevation-high-shadow: 0 8px 16px light-dark(rgb(0 0 0 / 0.08), transparent), 0 20px 40px light-dark(rgb(0 0 0 / 0.14), transparent);
+  --elevation-high-bg: light-dark(#ffffff, #363646);
+  --elevation-high-border: light-dark(#cbd1de, #4a4a60);
 }
 
 @media (prefers-reduced-motion: reduce) {
@@ -142,6 +166,9 @@
     --motion-slow: 0ms;
     --motion-ease: linear;
     --motion-ease-in-out: linear;
+    --motion-ease-out: linear;
+    --motion-ease-in: linear;
+    --motion-press: 0ms;
   }
 }
 

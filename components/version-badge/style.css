@@ -55,6 +55,7 @@
   direction: ltr;
   unicode-bidi: isolate;
   font-family: var(--type-font-mono);
+  font-variant-numeric: tabular-nums;
 }
 
 /* The sentence for screen readers, in the accessibility tree but out of sight. */

@@ -38,5 +38,29 @@
         "reduced": "linear"
       }
     }
+  },
+  "ease-out": {
+    "$value": "cubic-bezier(0, 0, 0.2, 1)",
+    "$extensions": {
+      "lateen": {
+        "reduced": "linear"
+      }
+    }
+  },
+  "ease-in": {
+    "$value": "cubic-bezier(0.4, 0, 1, 1)",
+    "$extensions": {
+      "lateen": {
+        "reduced": "linear"
+      }
+    }
+  },
+  "press": {
+    "$value": "60ms",
+    "$extensions": {
+      "lateen": {
+        "reduced": "0ms"
+      }
+    }
   }
 }
