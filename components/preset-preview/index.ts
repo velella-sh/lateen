@@ -87,8 +87,8 @@ export default function presetPreview({ props, page, site }: ComponentProps<Pres
       brand.showpiece?.motif === undefined
         ? null
         : h("div", { class: "preset-preview-motif" }, (motif as (input: ComponentProps) => unknown)({ props: { seed: brand.showpiece.motif }, page, site, html: "" } as unknown as ComponentProps) as ComponentChildren),
-      h("p", { class: "preset-preview-hero-title" }, t(page.lang, "preset_preview_hero_title")),
-      h("p", { class: "preset-preview-hero-lead" }, t(page.lang, "preset_preview_hero_lead")),
+      h("p", { class: "preset-preview-body" }, t(page.lang, "preset_preview_hero_title")),
+      h("p", { class: "preset-preview-muted" }, t(page.lang, "preset_preview_hero_lead")),
     ),
     h(
       "div",

@@ -31,25 +31,8 @@
   mask-image: radial-gradient(ellipse 70% 80% at 50% 0%, #000, transparent);
 }
 
-/* A soft backdrop is the same shape at a lower tint, for presets with a warmer or busier canvas. */
-.backdrop-soft.backdrop-glow {
-  background-image:
-    radial-gradient(
-      ellipse 60% 70% at 50% 0%,
-      color-mix(in srgb, var(--color-accent) 6%, var(--color-canvas)),
-      transparent 100%
-    ),
-    radial-gradient(
-      ellipse 40% 50% at 100% 0%,
-      color-mix(in srgb, var(--color-accent) 4%, var(--color-canvas)),
-      transparent 100%
-    );
-}
-
-.backdrop-soft.backdrop-grid {
-  background-image:
-    linear-gradient(to right, color-mix(in srgb, var(--color-accent) 5%, var(--color-canvas)) 1px, transparent 1px),
-    linear-gradient(to bottom, color-mix(in srgb, var(--color-accent) 5%, var(--color-canvas)) 1px, transparent 1px);
+.backdrop-soft {
+  opacity: 0.6;
 }
 
 @media print {
