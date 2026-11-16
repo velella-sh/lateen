@@ -176,7 +176,7 @@ test("style.css lays cards out in a responsive grid", () => {
 
 test("style.css shows a focus ring on the whole card and uses logical properties only", () => {
   const css = readFileSync(stylePath, "utf8");
-  assert.match(css, /\.card:focus-visible\s*\{[^}]*outline:\s*2px solid var\(--state-focus-ring\)/s);
+  assert.doesNotMatch(css, /\.card:focus-visible/, "the card takes the shared focus ring from styles/base.css");
   assert.doesNotMatch(css, /\b(margin|padding|border|inset)-(left|right)\b/);
   assert.doesNotMatch(css, /\b(left|right):/);
 });

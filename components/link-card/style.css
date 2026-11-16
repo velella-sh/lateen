@@ -22,18 +22,18 @@
   text-decoration: none;
 }
 
+/* Hover and press change the surface and the border, never the colour alone. */
 .link-card:hover {
-  border-color: var(--color-accent);
+  border-color: var(--border-strong);
+  background-color: var(--elevation-mid-bg);
+}
+
+.link-card:active {
+  background-color: var(--state-active-bg);
 }
 
 .link-card:hover .link-card-title {
   color: var(--color-accent);
-}
-
-/* The whole card is the link, so the ring follows its rounded edge. */
-.link-card:focus-visible {
-  outline: 2px solid var(--state-focus-ring);
-  outline-offset: 2px;
 }
 
 .link-card-icon {

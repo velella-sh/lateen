@@ -122,7 +122,7 @@ test("base.css uses logical properties only", () => {
 });
 
 test("the focus ring uses the shared state token and survives forced colors", () => {
-  assert.match(css, /:focus-visible\s*\{[^}]*outline:\s*thin solid var\(--state-focus-ring\)/);
+  assert.match(css, /:focus-visible\s*\{[^}]*outline:\s*(?:thin|medium) solid var\(--state-focus-ring\)/);
   assert.match(css, /@media \(forced-colors: active\)\s*\{[^}]*:focus-visible[^}]*outline-color:\s*(?:Highlight|CanvasText)\b/);
 });
 

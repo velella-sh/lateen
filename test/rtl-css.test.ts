@@ -435,3 +435,40 @@ test("a site's own family leads the RTL stack and keeps the shipped fallbacks", 
   assert.match(css, /--rtl-font-heading: "Example Sans", Vazirmatn,/);
   assert.deepEqual(physicalLines(css), [], "a brand declares tokens, never a physical edge");
 });
+
+// Refined tables, callouts, cards, badges and code blocks (#473, #474): logical properties only, tokens
+// only, so one stylesheet serves light, dark and right-to-left pages.
+const REFINED = ["components/table", "components/callout", "components/cards", "components/badge"].map((dir) => `../${dir}/style.css`).concat("../styles/parts-code.css");
+
+test("refined component styles use logical properties and known tokens (light, dark and RTL follow)", () => {
+  const known = new Set([...tokensCss.matchAll(/(--[a-z0-9-]+)\s*:/g)].map((m) => m[1]));
+  for (const file of REFINED) {
+    const text = stripComments(read(file));
+    assert.doesNotMatch(text, /\b(?:margin|padding|border)-(?:left|right)\b|(?:^|[\s;{])(?:left|right)\s*:/m, `${file}: physical property`);
+    for (const m of text.matchAll(/var\((--[a-z0-9-]+)/g)) {
+      const name = m[1] ?? "";
+      if (name.startsWith("--shiki-")) continue;
+      assert.ok(known.has(name), `${file}: unknown token ${name}`);
+    }
+  }
+});
+
+test("table header sticks, rows divide with a hairline, numbers align to the end, and hover is a tint only", () => {
+  const table = stripComments(read("../components/table/style.css"));
+  assert.match(table, /\.table-scroll th \{[^}]*position: sticky;[^}]*inset-block-start: 0/);
+  assert.match(table, /border-block-end: thin solid var\(--color-border\)/);
+  assert.match(table, /text-align: end/);
+  assert.match(table, /tbody tr:hover td \{\s*background-color: var\(--state-hover-bg\);\s*\}/);
+});
+
+test("card hover lifts with a shadow, never a move, so there is no layout shift", () => {
+  const cards = stripComments(read("../components/cards/style.css"));
+  assert.match(cards, /\.card:hover \{[^}]*box-shadow: var\(--elevation-mid-shadow\)/);
+  assert.doesNotMatch(cards, /\.card:hover \{[^}]*(?:transform|margin|padding)/);
+});
+
+test("code blocks keep their direction under RTL and draw numbers from data-line", () => {
+  const code = stripComments(read("../styles/parts-code.css"));
+  assert.match(code, /\.code \{[^}]*direction: ltr/);
+  assert.match(code, /\[data-line\]::before \{[^}]*content: attr\(data-line\)[^}]*user-select: none/);
+});

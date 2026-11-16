@@ -214,7 +214,7 @@ test("the focus rule is complemented, not duplicated from base.css", () => {
   // that turns it into `Highlight`. Those are the two the new stylesheet must not repeat.
   const baseFocus = blocks(baseCss).filter((block) => block.selector === ":focus-visible");
   assert.equal(baseFocus.length, 2, "styles/base.css should hold the generic focus rule and its forced-colors rule");
-  assert.match(baseFocus[0]?.body ?? "", /outline:\s*thin solid var\(--state-focus-ring\)/);
+  assert.match(baseFocus[0]?.body ?? "", /outline:\s*medium solid var\(--state-focus-ring\)/);
   assert.match(baseFocus[1]?.body ?? "", /outline-color:\s*Highlight/);
   assert.equal(blocks(css).filter((block) => block.selector === ":focus-visible").length, 0, "forced-colors.css must not repeat the generic focus rule");
   const complement = blocks(css).find((block) => block.selector.includes(":focus-visible"));
@@ -267,5 +267,32 @@ test("a brand and a preset preview never bypass the system palette", () => {
   assert.match(preview, /@media \(forced-colors: active\) \{[\s\S]*border: 1px solid CanvasText;/);
   for (const declaration of declarations(preview)) {
     if (declaration.property === "color") assert.match(declaration.value, /^var\(--/, "a preview color comes from a token");
+  }
+});
+
+test("controls share one hover, pressed and focus recipe, and the ring still draws in forced colors (#471)", () => {
+  const unit = (path: string): string => stripComments(read(path));
+  // Focus: one offset ring in base.css; cards, link cards and the sidebar add no outline of their own.
+  assert.match(baseCss, /:focus-visible\s*\{[^}]*outline:\s*medium solid var\(--state-focus-ring\);[^}]*outline-offset:\s*var\(--space-1\)/);
+  for (const path of ["../components/cards/style.css", "../components/link-card/style.css", "../chrome/sidebar/style.css"]) {
+    assert.doesNotMatch(unit(path), /outline\s*:/, `${path} keeps the shared ring`);
+  }
+  assert.match(unit("../components/tabs/style.css"), /\[role="tab"\]:focus-visible\s*\{[^}]*outline-offset/);
+  // Hover and press: a surface or border change, never colour alone.
+  for (const [path, selector] of [["../components/cards/style.css", ".card"], ["../components/link-card/style.css", ".link-card"]] as const) {
+    const source = unit(path);
+    const hover = blocks(source).find((block) => block.selector === `${selector}:hover`);
+    assert.match(hover?.body ?? "", /border-color:\s*var\(--border-strong\)/, `${selector} hover changes the border`);
+    assert.match(hover?.body ?? "", /background-color:/, `${selector} hover changes the surface`);
+    assert.match(blocks(source).find((block) => block.selector === `${selector}:active`)?.body ?? "", /background-color:\s*var\(--state-active-bg\)/, `${selector} has a pressed state`);
+  }
+  assert.match(unit("../components/tabs/style.css"), /\[role="tab"\]:active\s*\{[^}]*--state-active-bg/);
+  assert.match(unit("../chrome/sidebar/style.css"), /\.sidebar-nav a:active\s*\{[^}]*--state-active-bg/);
+  // Forced colors: the ring is named as Highlight for the base rule and for the controls that outrank it.
+  assert.match(baseCss, /forced-colors: active\)\s*\{[^}]*:focus-visible\s*\{[^}]*outline-color:\s*Highlight/);
+  assert.match(css, /:focus-visible\s*\{[^}]*outline-color:\s*Highlight !important/);
+  // Every action stays reachable without hover: hidden-until-hover controls also show on focus and on touch.
+  for (const path of ["../components/heading-anchor/style.css", "../chrome/block-actions/style.css", "../chrome/edit-page/style.css"]) {
+    assert.match(unit(path), /:focus-within|:focus-visible/, `${path} shows its control on focus`);
   }
 });
