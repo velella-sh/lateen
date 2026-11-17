@@ -35,6 +35,10 @@ guide:
 ::badge{label="Beta" variant=important}
 ::badge{label="Old" variant=caution}
 
+## bar-chart
+
+::bar-chart{from=bar-chart category=quarter value=users title="Users by quarter"}
+
 ## before-after
 
 :::before-after
