@@ -1,0 +1,142 @@
+/* List layout: navigation beside the introduction and the records table. A layout's CSS is bundled
+   only for its own pages, so the two-column grid of `record.css` and the table rules of
+   `components/table/` are repeated here rather than loaded from another layout or component. */
+
+.layout {
+  --doc-side-w: 17rem;
+  --doc-art-w: 46rem;
+  max-inline-size: 90rem;
+  margin-inline: auto;
+  display: grid;
+  grid-template-columns: var(--doc-side-w) minmax(0, 1fr);
+  gap: 0 var(--space-12);
+  padding-inline: var(--space-page);
+}
+
+.layout > main {
+  min-inline-size: 0;
+}
+
+.list {
+  max-inline-size: var(--doc-art-w);
+  min-inline-size: 0;
+  padding-block: var(--space-6) var(--space-12);
+}
+
+.list > h1 {
+  margin-block: var(--space-4) var(--space-6);
+}
+
+@media (max-width: 64rem) {
+  .layout {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}
+
+/* Table: readable cells, horizontal scroll, sticky first column. */
+.table-scroll {
+  max-inline-size: 100%;
+  margin-block: var(--space-6);
+  overflow-x: auto;
+  border: thin solid var(--color-border);
+  border-radius: var(--radius-md);
+  background-color: var(--color-canvas);
+  box-shadow: var(--elevation-low-shadow);
+}
+
+.table-scroll:focus-visible {
+  outline: 2px solid var(--state-focus-ring);
+  outline-offset: var(--space-1);
+}
+
+.table-scroll > .table,
+.table-scroll > table {
+  border-collapse: collapse;
+  inline-size: max-content;
+  min-inline-size: 100%;
+  margin: 0;
+  font-family: var(--type-font-body);
+  font-size: var(--type-size-sm);
+  line-height: var(--type-leading-body);
+  color: var(--color-text);
+}
+
+.table-scroll th,
+.table-scroll td {
+  padding-block: var(--space-2);
+  padding-inline: var(--space-3);
+  border: 0;
+  border-block-end: thin solid var(--color-border);
+  text-align: start;
+  vertical-align: top;
+  font-variant-numeric: tabular-nums;
+}
+
+.table-scroll tbody tr:last-child td {
+  border-block-end: 0;
+}
+
+.table-scroll th {
+  position: sticky;
+  inset-block-start: 0;
+  z-index: 1;
+  background-color: var(--color-surface);
+  color: var(--color-heading);
+  font-weight: var(--type-weight-medium);
+}
+
+.table-scroll td {
+  background-color: var(--color-canvas);
+}
+
+.table-scroll tbody tr:nth-child(even) td {
+  background-color: var(--color-surface);
+}
+
+.table-scroll tbody tr:hover td {
+  background-color: var(--state-hover-bg);
+}
+
+.table-scroll th:first-child,
+.table-scroll td:first-child {
+  position: sticky;
+  inset-inline-start: 0;
+  z-index: 1;
+  box-shadow: var(--shadow-md);
+}
+
+.table-scroll th:first-child {
+  z-index: 3;
+  background-color: var(--color-surface);
+}
+
+.table-scroll td:first-child {
+  background-color: var(--color-canvas);
+}
+
+.table-scroll tbody tr:nth-child(even) td:first-child {
+  background-color: var(--color-surface);
+}
+
+.table-scroll code {
+  font-family: var(--type-font-mono);
+  font-size: var(--type-size-sm);
+  color: var(--code-fg);
+  background-color: var(--code-bg);
+  border: thin solid var(--code-border);
+  border-radius: var(--radius-sm);
+  padding-block: 0;
+  padding-inline: var(--space-1);
+}
+
+/* Numbers line up on the end side, which is the reading end in right-to-left pages too. */
+.record-table-cell[data-kind="number"] {
+  text-align: end;
+  font-variant-numeric: tabular-nums;
+}
+
+.record-table-missing,
+.record-table-error {
+  color: var(--color-muted);
+  font-style: italic;
+}

@@ -89,3 +89,20 @@ test("a Persian page formats numbers, dates and booleans in Persian", () => {
   assert.match(out, /<time datetime="2026-11-09">۱۸ آبان ۱۴۰۵<\/time>/);
   assert.match(out, /data-kind="boolean">خیر<\/td>/);
 });
+
+test("ready records render in the given order without reading a collection", () => {
+  const ready = [
+    { id: "b", fields: { title: "Beta", pages: 80 }, url: "/books/b/" },
+    { id: "a", fields: { title: "Alpha", pages: 120 }, url: "/books/a/" },
+  ];
+  const out = render({
+    records: ready,
+    columns: [
+      { field: "title", label: "Title" },
+      { field: "pages", label: "Pages", kind: "number" },
+    ],
+  });
+  assert.ok(out.indexOf('/books/b/') < out.indexOf('/books/a/'), "the rows keep the layout's order");
+  assert.match(out, /<a href="\/books\/b\/">Beta<\/a>/);
+  assert.match(out, /data-kind="number">80<\/td>/);
+});

@@ -18,6 +18,12 @@
     "reason": "Stacking inside the table's own scroll container: the sticky first column must stay above the sticky header cells (z-index 2) it crosses. It never competes with page layers."
   },
   {
+    "file": "layouts/list.css",
+    "kind": "z-index",
+    "value": "3",
+    "reason": "The list layout bundles the table rules itself, so the same sticky-first-column stacking applies inside its scroll container only."
+  },
+  {
     "file": "layouts/home.css",
     "kind": "font-size",
     "value": "2.75rem",
