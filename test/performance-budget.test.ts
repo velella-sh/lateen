@@ -288,7 +288,7 @@ test("the budget passes at the baseline and within the gzip tolerance", () => {
 });
 
 test("a gzip or module growth names the route and the asset class", () => {
-  const measured = measurement("js/components", { raw: 100, gzip: 1200, count: 3 });
+  const measured = measurement("js/components", { raw: 100, gzip: 1000 + TOLERANCE_BYTES + 1, count: 3 });
   const budget = budgetOf(measurement("js/components", { raw: 100, gzip: 1000, count: 2 }));
   const failures = compare(measured, budget);
   assert.equal(failures.length, 2, failures.join("\n"));
@@ -422,9 +422,17 @@ test("the committed budget covers every fixture route and asset class", () => {
   const budget = JSON.parse(readFileSync(budgetPath, "utf8")) as Budget;
   assert.ok(budget.note?.includes("not a product target"), "the budget should say what its numbers mean");
   assert.ok(budget.note?.includes(FONT_CLASS), "the budget should say what its font numbers mean");
-  assert.deepEqual(Object.keys(budget.routes).sort(), ["/", "/cli-demo/", "/guide/", "/reference/", "/reports/", "/showpiece/"]);
+  assert.deepEqual(Object.keys(budget.routes).sort(), [
+    "/alpha/",
+    "/alpha/cli-demo/",
+    "/alpha/guide/",
+    "/alpha/network/",
+    "/alpha/reference/",
+    "/alpha/reports/",
+    "/alpha/showpiece/",
+  ]);
   // Only the shared `src/source-span.ts` and `src/repository.ts` modules, which source mode imports; no component island.
-  assert.equal(budget.routes["/reports/"]?.["js/components"].count, 2, "the report page ships no component island, only the shared span and repository readers");
+  assert.equal(budget.routes["/alpha/reports/"]?.["js/components"].count, 2, "the report page ships no component island, only the shared span and repository readers");
   for (const [route, classes] of Object.entries(budget.routes)) {
     for (const assetClass of ASSET_CLASSES) assert.ok(classes[assetClass], `${route} has no ${assetClass} baseline`);
     assert.ok(classes["css/base"].gzip > 0, `${route} should load the base stylesheet`);

@@ -314,3 +314,15 @@ test("the showpiece decoration is hidden and its entrance is off in forced color
     assert.match(read(`../components/${unit}/style.css`), /border/, `${unit} keeps a border`);
   }
 });
+
+test("the current project keeps a visible edge when colour is replaced", () => {
+  const rules = css.slice(css.indexOf("@media (forced-colors: active)"));
+  for (const selector of [
+    '.project-switcher-link[aria-current="true"]',
+    '.project-switcher-mobile-link[aria-current="true"]',
+    '.network-footer-link[aria-current="true"]',
+  ]) {
+    assert.ok(rules.includes(selector), selector);
+  }
+  assert.match(rules, /border:\s*solid ButtonText/);
+});

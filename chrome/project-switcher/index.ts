@@ -5,6 +5,18 @@ import { t } from "../../i18n/index.ts";
 /** Class on the navigation landmark. */
 export const NAV_CLASS = "project-switcher";
 
+/** Class on the native disclosure that holds the list. */
+export const DETAILS_CLASS = "project-switcher-details";
+
+/** Class on the disclosure control. */
+export const SUMMARY_CLASS = "project-switcher-summary";
+
+/** Class on the visible label inside the summary. */
+export const LABEL_CLASS = "project-switcher-label";
+
+/** Class on the decorative disclosure marker. */
+export const MARKER_CLASS = "project-switcher-marker";
+
 /** Class on the list of projects. */
 export const LIST_CLASS = "project-switcher-list";
 
@@ -16,6 +28,9 @@ export const LINK_CLASS = "project-switcher-link";
 
 /** Class added to the current project's link, beside {@link LINK_CLASS}. */
 export const CURRENT_CLASS = "project-switcher-current";
+
+/** The i18n key with the label of the control. */
+export const LABEL_KEY = "projects";
 
 /** One project the switcher links to, with only the name and address the network input holds. */
 export interface ProjectLink {
@@ -47,10 +62,10 @@ export function projectLinks(site: Site): readonly ProjectLink[] {
 }
 
 /**
- * The project switcher: one link per project in the site's network, each to that project's home, with the
- * current project marked by `aria-current`. Every name and address comes from `Site.network`; a site
- * without a network, or with one project, renders nothing. The links are plain anchors, so the switcher
- * needs no script.
+ * The project switcher: a native `<details>` whose list links each project's home, with the current project
+ * marked by `aria-current`. Every name and address comes from `Site.network`; a site without a network, or
+ * with one project, renders nothing. The disclosure works with no script; `island.ts` adds Escape, the
+ * arrow keys, and the two closing rules.
  */
 const projectSwitcher: Chrome = ({ site, page }) => {
   const projects = projectLinks(site);
@@ -60,20 +75,30 @@ const projectSwitcher: Chrome = ({ site, page }) => {
     "nav",
     { class: NAV_CLASS, "aria-label": t(page.lang, "site_navigation") },
     h(
-      "ul",
-      { class: LIST_CLASS },
-      ...projects.map((project) =>
-        h(
-          "li",
-          { class: ITEM_CLASS },
+      "details",
+      { class: DETAILS_CLASS, "data-project-switcher": "" },
+      h(
+        "summary",
+        { class: SUMMARY_CLASS },
+        h("span", { class: LABEL_CLASS }, t(page.lang, LABEL_KEY)),
+        h("span", { class: MARKER_CLASS, "aria-hidden": "true" }, "▾"),
+      ),
+      h(
+        "ul",
+        { class: LIST_CLASS },
+        ...projects.map((project) =>
           h(
-            "a",
-            {
-              class: project.current ? `${LINK_CLASS} ${CURRENT_CLASS}` : LINK_CLASS,
-              href: project.url,
-              "aria-current": project.current ? "true" : undefined,
-            },
-            h("bdi", null, project.title),
+            "li",
+            { class: ITEM_CLASS },
+            h(
+              "a",
+              {
+                class: project.current ? `${LINK_CLASS} ${CURRENT_CLASS}` : LINK_CLASS,
+                href: project.url,
+                "aria-current": project.current ? "true" : undefined,
+              },
+              h("bdi", null, project.title),
+            ),
           ),
         ),
       ),

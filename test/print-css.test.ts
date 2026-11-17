@@ -346,3 +346,11 @@ test("the showpiece decoration drops in print and its bands print as plain text 
   }
   assert.match(read("../components/cta-band/style.css").slice(read("../components/cta-band/style.css").indexOf("@media print")), /background:\s*none/);
 });
+
+test("the network chrome stays out of print with the header and footer", () => {
+  const rules = css.slice(css.indexOf("@media print"));
+  assert.match(rules, /body > header/);
+  assert.match(rules, /body > footer/);
+  assert.doesNotMatch(rules, /\.project-switcher-list\s*\{[^}]*position:\s*absolute/);
+  assert.doesNotMatch(rules, /\.network-footer\s*\{[^}]*position:\s*(?:fixed|absolute)/);
+});

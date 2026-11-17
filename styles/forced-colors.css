@@ -328,4 +328,12 @@
   :is(a, button, input, select, summary, textarea, [tabindex], [role="button"]):focus-visible {
     outline-color: Highlight !important;
   }
+
+  /* The project switcher and the network footer mark the current project with colour alone in the
+     default palette; in high contrast they keep a visible edge. */
+  .project-switcher-link[aria-current="true"],
+  .project-switcher-mobile-link[aria-current="true"],
+  .network-footer-link[aria-current="true"] {
+    border: solid ButtonText;
+  }
 }

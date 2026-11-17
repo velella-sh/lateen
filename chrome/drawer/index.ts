@@ -1,6 +1,8 @@
 import { h, type ComponentChildren } from "preact";
 import type { Chrome } from "@velella/mizzen/contracts";
 import { t } from "../../i18n/index.ts";
+import { resolveNetworkOptions } from "../../src/options.ts";
+import { mobileProjects } from "../project-switcher/mobile.ts";
 import sidebar from "../sidebar/index.ts";
 
 /**
@@ -13,6 +15,9 @@ const drawer: Chrome = (props) => {
   const nav = sidebar(props);
   if (nav == null) return null;
   const lang = props.page.lang;
+  const network = resolveNetworkOptions(props.site.config.theme.options);
+  const projects =
+    props.site.network !== undefined && network.switcher ? (mobileProjects(props) as ComponentChildren) : null;
   return h(
     "dialog",
     { class: "drawer", "data-drawer": true, "aria-label": t(lang, "menu") },
@@ -21,6 +26,7 @@ const drawer: Chrome = (props) => {
       { type: "button", class: "drawer-close", "aria-label": t(lang, "close_menu"), hidden: true, "data-drawer-close": true },
       h("span", { "aria-hidden": "true" }, "×"),
     ),
+    projects,
     nav as ComponentChildren,
   );
 };

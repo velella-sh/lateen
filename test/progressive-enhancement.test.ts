@@ -4,6 +4,11 @@ import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { after, before, test } from "node:test";
 import { all, attrs, build, textOf, type BuiltSite } from "./integration-helpers.ts";
+import { renderToString } from "preact-render-to-string";
+import projectSwitcher from "../chrome/project-switcher/index.ts";
+import { mobileProjects } from "../chrome/project-switcher/mobile.ts";
+import networkFooter from "../chrome/network-footer/index.ts";
+import searchScope from "../chrome/search-scope/index.ts";
 
 let site: BuiltSite;
 let document: Document;
@@ -209,4 +214,41 @@ test("the showpiece page is complete before any island: every section, one h1, (
   assert.match(textOf(page.body), /Try it today/);
   const inline = (path: string) => (site.html(path).match(/<script(?![^>]*type="module")[^>]*>/gi) ?? []).length;
   assert.ok(inline("/showpiece/") <= inline("/showpiece-partial/") + 1, "the showpiece adds no inline script of its own");
+});
+
+test("the network chrome reads without a script: a disclosure, plain links, and two radio choices", () => {
+  const props = {
+    site: {
+      config: { title: "Alpha", base: "/alpha", lang: "en", dir: "ltr", languages: [], source: ".", theme: { options: {} }, search: { text: 300 } },
+      pages: [],
+      nav: {},
+      data: {},
+      collections: {},
+      network: {
+        current: "alpha",
+        lock: "0".repeat(64),
+        projects: [
+          { id: "alpha", path: "alpha", title: "Alpha", current: true },
+          { id: "beta", path: "beta", title: "Beta Docs", current: false },
+        ],
+      },
+    },
+    page: { url: "/alpha/", lang: "en", dir: "ltr", title: "Alpha" },
+  } as never;
+
+  const switcher = renderToString(projectSwitcher(props) as never);
+  assert.match(switcher, /<details class="project-switcher-details"[^>]*><summary class="project-switcher-summary">/);
+  assert.equal([...switcher.matchAll(/class="project-switcher-link/g)].length, 2);
+  assert.doesNotMatch(switcher, /\shidden[=>]|tabindex="-1"/);
+
+  const mobile = renderToString(mobileProjects(props) as never);
+  assert.match(mobile, /<details class="project-switcher-mobile"/);
+  assert.equal([...mobile.matchAll(/class="project-switcher-mobile-link/g)].length, 2);
+
+  const footer = renderToString(networkFooter(props) as never);
+  assert.match(footer, /<p class="network-footer-label">Projects<\/p>/);
+  assert.equal([...footer.matchAll(/class="network-footer-link/g)].length, 2);
+
+  const scope = renderToString(searchScope(props) as never);
+  assert.equal([...scope.matchAll(/name="scope"/g)].length, 2);
 });

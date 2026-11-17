@@ -3,6 +3,7 @@ import type { ComponentChildren } from "preact";
 import type { Layout, LayoutProps } from "@velella/mizzen/contracts";
 import base from "./base.ts";
 import { askAgentSection } from "../chrome/ask-agent/index.ts";
+import searchScope from "../chrome/search-scope/index.ts";
 import { patternOf, t } from "../i18n/index.ts";
 
 /** Id of the query field, which its label points to. */
@@ -170,6 +171,7 @@ function content(props: LayoutProps): ComponentChildren {
         "data-search-input": "",
       }),
       h("button", { class: "search-results-submit", type: "submit" }, t(lang, "search")),
+      searchScope(props) as ComponentChildren,
     ),
     h("p", { class: "search-results-status", role: "status", "data-search-status": "" }, ""),
     h("noscript", null, h("p", { class: "search-results-nojs" }, t(lang, "search_results_js"))),

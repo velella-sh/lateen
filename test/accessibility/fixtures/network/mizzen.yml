@@ -1,0 +1,26 @@
+# A network fixture: one project of a three-project network, in three languages.
+# The accessibility gate builds it to audit the project switcher, the network footer, and the
+# cross-project search beside the existing single-project fixture.
+title: Alpha network fixture
+description: A home for the network chrome.
+lang: en
+url: https://example.com
+languages:
+  - code: fa
+    name: فارسی
+    prefix: /fa
+  - code: ar
+    name: العربية
+    prefix: /ar
+search: { text: 300 }
+network:
+  source: network.yml
+  project: alpha
+theme:
+  options:
+    footer:
+      copyright: "© Alpha"
+    network:
+      switcher: true
+      footer: true
+      position: header

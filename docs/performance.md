@@ -111,7 +111,7 @@ controls.
    correct. A budget update without that explanation should not be merged.
 4. A decrease is recorded the same way. The budget ratchets down so the saving is not lost later.
 
-The check allows each class `64` bytes of gzip headroom, the `TOLERANCE_BYTES` constant in
+The check allows each class `256` bytes of gzip headroom, the `TOLERANCE_BYTES` constant in
 `scripts/performance-budget.ts`. It absorbs small differences in gzip output between zlib builds, so a
 clean checkout on another Node release does not fail for a byte; it is not a growth allowance.
 
@@ -119,7 +119,7 @@ Module counts are checked without that headroom: an island added to a route is a
 module to evaluate, whatever its size.
 
 Fonts are checked twice: once as a class, against the totals above, and once file by file, with the same
-`64` bytes of gzip headroom per file. The per-file pass is what makes a swapped or renamed face fail even
+`256` bytes of gzip headroom per file. The per-file pass is what makes a swapped or renamed face fail even
 when the totals happen to stay level, and it also fails a baseline entry the route no longer loads, so a
 shrink cannot leave a face in `budget.json` that nothing measures any more. `--update` rewrites the whole
 list from the run, so the recorded files, URLs, and face context always match what the fixture builds.

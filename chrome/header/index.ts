@@ -2,7 +2,9 @@ import { Fragment, h } from "preact";
 import type { ComponentChildren } from "preact";
 import type { Chrome, SiteConfig } from "@velella/mizzen/contracts";
 import { t } from "../../i18n/index.ts";
+import { resolveNetworkOptions } from "../../src/options.ts";
 import languageSwitcher from "../language-switcher/index.ts";
+import projectSwitcher from "../project-switcher/index.ts";
 import search from "../search/index.ts";
 import sectionTabs from "../section-tabs/index.ts";
 import themeToggle from "../theme-toggle/index.ts";
@@ -72,6 +74,11 @@ function repositoryLink(config: SiteConfig) {
 const header: Chrome = (props) => {
   const { site, page } = props;
   const { config } = site;
+  const network = resolveNetworkOptions(config.theme.options);
+  const switcher =
+    site.network !== undefined && network.switcher && network.position === "header"
+      ? (projectSwitcher(props) as ComponentChildren)
+      : null;
   const bar = h(
     "header",
     { class: "header" },
@@ -80,6 +87,7 @@ const header: Chrome = (props) => {
       { class: "header-inner" },
       home(config),
       h("div", { class: "header-tabs", "data-slot": "section-tabs" }, sectionTabs(props) as ComponentChildren),
+      switcher,
       h(
         "div",
         { class: "header-actions" },

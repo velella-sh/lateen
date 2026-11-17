@@ -50,6 +50,7 @@ The theme's own look is set with the [Brand options](/brand-options/); the shipp
 | [Mermaid](./mermaid/) | A Mermaid diagram rendered to inline SVG at build time, with its source kept. |
 | [OS tabs](./os-tabs/) | Install instructions grouped by operating system, defaulting to the reader's system. |
 | [Output block](./output-block/) | The result of a command, apart from the command above it. |
+| [Network chrome](./network/) | A project switcher, a network footer, and a scope choice for a site in a network. |
 | [Page status](./page-status/) | An experimental, beta, or deprecated banner from front matter. |
 | [Preset preview](./preset-preview/) | One preset of the theme in its own scoped block, with the options to copy. |
 | [Reading time](./reading-time/) | A chip under the title with the page's reading time and word count. |
