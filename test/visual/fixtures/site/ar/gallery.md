@@ -131,6 +131,10 @@ pnpm add mizzen
 
 ::cta-band{title="معرض المكوّنات" lead="كل مكوّن في حالته الافتراضية وأشكاله، بمحتوى ثابت." label="الرئيسية" url="/ar/"}
 
+## dated-list
+
+::dated-list{items='[{"date":"2026-07-01","label":"Kickoff","url":"/gallery/"},{"date":"2026-11-09","label":"Release","status":"done"},{"date":"2026-11-09","label":"Review"},{"date":"2026-02-30","label":"Bad date"}]'}
+
 ## details
 
 :::details{summary="عرض التفاصيل"}

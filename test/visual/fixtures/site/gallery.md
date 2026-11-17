@@ -129,6 +129,10 @@ pnpm add mizzen
 
 ::cta-band{title="Component gallery" lead="Every component in its default state and variants, with fixed content." label="Home" url="/"}
 
+## dated-list
+
+::dated-list{items='[{"date":"2026-07-01","label":"Kickoff","url":"/gallery/"},{"date":"2026-11-09","label":"Release","status":"done"},{"date":"2026-11-09","label":"Review"},{"date":"2026-02-30","label":"Bad date"}]'}
+
 ## details
 
 :::details{summary="Show the details"}

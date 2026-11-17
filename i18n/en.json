@@ -122,6 +122,7 @@
   "copy_failed_select": "Copy failed. Select the text and copy it by hand.",
   "copy_markdown_hint": "Press M to copy",
   "copy_page_md": "Copy page as Markdown",
+  "dated_list_invalid": "Records with no valid date are listed here.",
   "default": "Default",
   "deprecated": "Deprecated",
   "description": "Description",

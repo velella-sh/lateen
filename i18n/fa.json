@@ -122,6 +122,7 @@
   "copy_failed_select": "کپی نشد. متن را انتخاب کنید و دستی کپی کنید.",
   "copy_markdown_hint": "برای کپی M را بزنید",
   "copy_page_md": "کپی صفحه به صورت مارک‌داون",
+  "dated_list_invalid": "رکوردهای بدون تاریخ معتبر اینجا فهرست شده‌اند.",
   "default": "پیش‌فرض",
   "deprecated": "منسوخ",
   "description": "توضیحات",
