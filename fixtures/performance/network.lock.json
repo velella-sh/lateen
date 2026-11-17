@@ -1,0 +1,9 @@
+{
+  "version": 1,
+  "source": "https://example.com/network.yml",
+  "sha256": "0000000000000000000000000000000000000000000000000000000000000000",
+  "projects": [
+    { "id": "perf", "path": "alpha", "title": "Performance project", "public": true },
+    { "id": "beta", "path": "beta", "title": "Beta Docs", "public": true }
+  ]
+}

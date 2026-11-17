@@ -40,7 +40,7 @@ export type LayoutName = (typeof LAYOUTS)[number];
 /** One page state the gate audits. `site` picks which build and server it comes from. */
 export interface AuditCase {
   readonly name: string;
-  readonly site: "docs" | "fixtures";
+  readonly site: "docs" | "fixtures" | "network";
   /** URL path, including the docs site's `/lateen` base and the server's mount. */
   readonly path: string;
   readonly layout: LayoutName;
@@ -101,6 +101,11 @@ export const CASES: readonly AuditCase[] = [
   { name: "fixture refinement arabic", site: "fixtures", path: "/ar/refinement/", layout: "doc", lang: "ar", ...DESKTOP },
   { name: "fixture refinement mobile", site: "fixtures", path: "/refinement/", layout: "doc", lang: "en", ...MOBILE },
   { name: "fixture brand mobile", site: "fixtures", path: "/brand/", layout: "doc", lang: "en", ...MOBILE },
+  { name: "network alpha", site: "network", path: "/alpha/", layout: "doc", lang: "en", ...DESKTOP },
+  { name: "network alpha persian", site: "network", path: "/alpha/fa/", layout: "doc", lang: "fa", ...DESKTOP },
+  { name: "network alpha arabic", site: "network", path: "/alpha/ar/", layout: "doc", lang: "ar", ...DESKTOP },
+  { name: "network search", site: "network", path: "/alpha/search/", layout: "search-results", lang: "en", ...DESKTOP },
+  { name: "network drawer open", site: "network", path: "/alpha/", layout: "doc", lang: "en", ...MOBILE, open: "drawer" },
   { name: "docs drawer open", site: "docs", path: "/lateen/install/", layout: "doc", lang: "en", ...MOBILE, open: "drawer" },
   { name: "docs search open", site: "docs", path: "/lateen/install/", layout: "doc", lang: "en", ...DESKTOP, open: "search" },
   { name: "docs ask agent open", site: "docs", path: "/lateen/install/", layout: "doc", lang: "en", ...DESKTOP, open: "ask" },
@@ -393,7 +398,7 @@ async function focusControl(page: Page, selector: string) {
  */
 async function runJourney(
   browser: Browser,
-  servers: { readonly docs: StaticServer; readonly fixtures: StaticServer },
+  servers: Readonly<Record<"docs" | "fixtures" | "network", StaticServer>>,
   name: JourneyName,
   theme: JourneyTheme,
 ): Promise<JourneyResult> {
@@ -495,7 +500,7 @@ async function runJourney(
 /** Every journey in the themes it actually runs in, in the report's order. */
 export async function runJourneys(
   browser: Browser,
-  servers: { readonly docs: StaticServer; readonly fixtures: StaticServer },
+  servers: Readonly<Record<"docs" | "fixtures" | "network", StaticServer>>,
 ): Promise<JourneyResult[]> {
   const results: JourneyResult[] = [];
   for (const name of JOURNEYS) {
@@ -532,7 +537,7 @@ async function fontRequests(browser: Browser, url: string): Promise<string[]> {
  */
 export async function checkFontPreloads(
   browser: Browser,
-  servers: { readonly docs: StaticServer; readonly fixtures: StaticServer },
+  servers: Readonly<Record<"docs" | "fixtures" | "network", StaticServer>>,
 ): Promise<string | undefined> {
   const custom = await fontRequests(browser, `${servers.fixtures.url}/brand/`);
   const shipped = custom.filter((path) => THEME_FONT.test(path));
@@ -554,10 +559,12 @@ async function main(): Promise<void> {
 
   build("site", ".mizzen/a11y/docs");
   build("test/accessibility/fixtures/site", ".mizzen/a11y/fixtures");
+  build("test/accessibility/fixtures/network", ".mizzen/a11y/network");
 
   const servers = {
     docs: await startServer(join(ROOT, ".mizzen/a11y/docs"), "/lateen"),
     fixtures: await startServer(join(ROOT, ".mizzen/a11y/fixtures"), ""),
+    network: await startServer(join(ROOT, ".mizzen/a11y/network"), "/alpha"),
   };
   let browser: Browser | undefined;
   let chromiumVersion = "unknown";
@@ -610,6 +617,7 @@ async function main(): Promise<void> {
     await browser?.close();
     await servers.docs.close();
     await servers.fixtures.close();
+    await servers.network.close();
   }
 
   const known = readBaseline(BASELINE);

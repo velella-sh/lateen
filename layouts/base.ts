@@ -1,4 +1,4 @@
-import { h } from "preact";
+import { Fragment, h } from "preact";
 import type { ComponentChildren } from "preact";
 import type { Head, LayoutProps, LinkTag, MetaTag, Page, Site, SiteConfig } from "@velella/mizzen/contracts";
 import announcement from "../chrome/announcement/index.ts";
@@ -6,6 +6,9 @@ import codeCopy from "../chrome/code-copy/index.ts";
 import footnotePopover from "../chrome/footnote-popover/index.ts";
 import { alternateLinks, canonicalLink } from "../chrome/language-switcher/index.ts";
 import siteFooter from "../chrome/site-footer/index.ts";
+import networkFooter from "../chrome/network-footer/index.ts";
+import projectSwitcher from "../chrome/project-switcher/index.ts";
+import { resolveNetworkOptions } from "../src/options.ts";
 import shortcuts from "../chrome/shortcuts/index.ts";
 import sourceMode from "../chrome/source-mode/index.ts";
 import skipLinks, { MAIN_ID, NAVIGATION_ID } from "../chrome/skip-links/index.ts";
@@ -136,7 +139,21 @@ function headNodes(head: Head, site: Site, page: Page, hints: LayoutProps["hints
  */
 export default function base(props: BaseProps) {
   const { page, head, islands, header, sidebar, main, aside, footer } = props;
+  const network = resolveNetworkOptions(props.site.config.theme.options);
+  const networkChrome =
+    props.site.network === undefined
+      ? null
+      : h(
+          Fragment,
+          null,
+          network.switcher && network.position === "footer"
+            ? (projectSwitcher(props) as ComponentChildren)
+            : null,
+          network.footer ? (networkFooter(props) as ComponentChildren) : null,
+        );
   const footerNode = footer ?? (siteFooter(props) as ComponentChildren);
+  const footerContent =
+    footerNode == null && networkChrome == null ? null : h(Fragment, null, footerNode, networkChrome);
   return h(
     "html",
     { lang: page.lang, dir: page.dir, "data-theme": "dark" },
@@ -160,7 +177,7 @@ export default function base(props: BaseProps) {
         aside == null ? null : h("div", { class: "aside" }, aside),
       ),
       footnotePopover(props) as ComponentChildren,
-      footerNode == null ? null : h("footer", null, footerNode),
+      footerContent == null ? null : h("footer", null, footerContent),
       shortcuts(props) as ComponentChildren,
       sourceMode(props) as ComponentChildren,
       ...islands.map((island) => h("script", { type: "module", src: island.src })),
