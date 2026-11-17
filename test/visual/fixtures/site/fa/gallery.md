@@ -357,6 +357,10 @@ Built 12 pages.
 
 ::tested-chip{passed=0 failed=1 lastPassed=2026-11-09}
 
+## timeline
+
+::timeline{from=timeline caption="خط زمانی پروژه"}
+
 ## trap
 
 :::trap

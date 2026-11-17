@@ -1,0 +1,14 @@
+/* Dates line up on the end side, which is the reading end in right-to-left pages too. */
+.timeline-cell[data-field="start"],
+.timeline-cell[data-field="end"] {
+  text-align: end;
+  font-variant-numeric: tabular-nums;
+}
+
+/* A field the rows do not have, a bad date, and a timeline that cannot read its rows: visible, not blank. */
+.timeline-missing,
+.timeline-invalid,
+.timeline-error {
+  color: var(--color-muted);
+  font-style: italic;
+}
