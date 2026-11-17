@@ -7,9 +7,10 @@ needs a different number changes this note first.
 ## What is gated
 
 A screenshot of each layout and each component in the gallery, in light and dark, left-to-right and
-right-to-left, at a desktop and a mobile width. The exact matrix is set in #499; this note fixes only
-the rules it follows. Behavior stays with `test:a11y` and `test:performance`; the visual gate answers
-one question: did the pixels of a page that did not mean to change, change?
+right-to-left, at a mobile, a tablet and a desktop width. The exact matrix is in
+`test/visual/matrix.json`; this note fixes only the rules it follows. Behavior stays with `test:a11y`
+and `test:performance`; the visual gate answers one question: did the pixels of a page that did not
+mean to change, change?
 
 ## Runner
 
@@ -23,8 +24,8 @@ Shots are deterministic by construction:
 - One pinned runner image for the visual job, `ubuntu-24.04`, never `ubuntu-latest`, and the
   Playwright version from `package-lock.json`. Raising either is a baseline change (see below).
 - The bundled fonts in `fonts/` only; the page waits for `document.fonts.ready` before the shot.
-- Viewports `1280×900` (desktop) and `390×844` (mobile), `deviceScaleFactor: 1`, fixed locale and
-  time zone (`UTC`), no network.
+- Viewports `375×844` (mobile), `768×900` (tablet) and `1280×900` (desktop), `deviceScaleFactor: 1`,
+  fixed locale and time zone (`UTC`), no network.
 - `prefers-reduced-motion: reduce`, animations and transitions disabled, caret hidden, scrollbars
   hidden, and no hover or focus unless the case is an interaction state (#502).
 - Full-page shots, capped at 4000 px of height; a taller page is cropped and the case says so.

@@ -1,0 +1,37 @@
+{
+  "version": 1,
+  "widths": {
+    "mobile": { "width": 375, "height": 844 },
+    "tablet": { "width": 768, "height": 900 },
+    "desktop": { "width": 1280, "height": 900 }
+  },
+  "themes": ["light", "dark"],
+  "layouts": [
+    { "name": "home", "path": "/", "lang": "en", "dir": "ltr" },
+    { "name": "document", "path": "/doc/", "lang": "en", "dir": "ltr" },
+    { "name": "api", "path": "/api/", "lang": "en", "dir": "ltr" },
+    { "name": "changelog", "path": "/changelog/", "lang": "en", "dir": "ltr" },
+    { "name": "search-results", "path": "/search/", "lang": "en", "dir": "ltr" },
+    { "name": "tutorial", "path": "/tutorial/", "lang": "en", "dir": "ltr" },
+    { "name": "versions", "path": "/versions/", "lang": "en", "dir": "ltr" },
+    { "name": "not-found", "path": "/404.html", "lang": "en", "dir": "ltr" },
+    { "name": "reports-fa", "path": "/fa/reports/", "lang": "fa", "dir": "rtl" },
+    { "name": "reports-ar", "path": "/ar/reports/", "lang": "ar", "dir": "rtl" }
+  ],
+  "gallery": {
+    "widths": ["mobile", "desktop"],
+    "pages": [
+      { "name": "gallery", "path": "/gallery/", "lang": "en", "dir": "ltr" },
+      { "name": "gallery-fa", "path": "/fa/gallery/", "lang": "fa", "dir": "rtl" },
+      { "name": "gallery-ar", "path": "/ar/gallery/", "lang": "ar", "dir": "rtl" }
+    ],
+    "print": {
+      "width": "desktop",
+      "pages": ["gallery", "gallery-fa", "gallery-ar"]
+    },
+    "forcedColors": {
+      "width": "desktop",
+      "pages": ["gallery", "gallery-ar"]
+    }
+  }
+}
