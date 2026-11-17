@@ -1,0 +1,7 @@
+main:
+  - title: Start
+    children:
+      - title: Alpha
+        url: /
+      - title: Search all projects
+        url: /search/

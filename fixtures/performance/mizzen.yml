@@ -22,3 +22,7 @@ theme:
       density: compact
     footer:
       copyright: "Performance fixture"
+
+network:
+  source: network.yml
+  project: perf

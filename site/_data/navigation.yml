@@ -43,6 +43,8 @@ main:
         url: /components/heading-anchor/
       - title: Kbd
         url: /components/kbd/
+      - title: Network chrome
+        url: /components/network/
       - title: Page status
         url: /components/page-status/
       - title: Schema table

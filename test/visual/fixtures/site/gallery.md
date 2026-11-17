@@ -395,3 +395,11 @@ A caution callout.
 ## wcag-checklist
 
 ::wcag-checklist{from=wcag}
+
+## search-result
+
+<ul class="search-result">
+<li class="search-result"><span class="search-result-project"><bdi>Handbook</bdi></span><a class="search-result-link" href="/handbook/guide/"><span class="search-result-title">Install the theme</span><span class="search-result-excerpt">Add Lateen to a Mizzen site.</span></a></li>
+<li class="search-result"><a class="search-result-link" href="/guide/install/"><span class="search-result-title">Install</span><span class="search-result-excerpt">The first page of this site.</span></a></li>
+</ul>
+

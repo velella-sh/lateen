@@ -528,3 +528,14 @@ test("the showpiece units are right-to-left ready and their arrow mirrors (#491)
   const a11y = read("./accessibility/fixtures/site/fa/showpiece.md") + read("./accessibility/fixtures/site/ar/showpiece.md");
   assert.equal((a11y.match(/^dir: rtl$/gm) ?? []).length, 2, "the Persian and Arabic showpiece pages are right to left");
 });
+
+test("the network chrome uses logical properties and isolates project names", () => {
+  for (const path of ["../chrome/project-switcher/style.css", "../chrome/network-footer/style.css"]) {
+    const css = read(path);
+    assert.match(css, /padding-(?:inline|block)|margin-(?:inline|block)|inset-(?:inline|block)/, path);
+    assert.doesNotMatch(css, /(^|[;{\s])(left|right)\s*:/, path);
+    assert.doesNotMatch(css, /(?<![\w-])(min-|max-)?(width|height)\s*:/, path);
+  }
+  assert.match(read("../chrome/project-switcher/index.ts"), /h\("bdi", null, project\.title\)/);
+  assert.match(read("../chrome/network-footer/index.ts"), /h\("bdi", null, project\.title\)/);
+});
