@@ -5,6 +5,10 @@ description: Representative pages for the accessibility gate.
 lang: en
 url: https://example.com
 base: ""
+collections:
+  books:
+    source: _data/record-table.json
+    id: id
 languages:
   - code: fa
     name: فارسی

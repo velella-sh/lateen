@@ -84,3 +84,6 @@ The pnpm command.
 | direction | ltr and rtl |
 
 Press :kbd[Ctrl+K] to search.
+
+:::record-table{from=books columns=title,pages,published stack caption="Books"}
+:::
