@@ -1,0 +1,44 @@
+/* Project switcher: the network's projects in the header, one link per project, current one marked by
+   `aria-current` and not colour alone. Long names wrap instead of being cut off. */
+
+.project-switcher-list {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--space-1);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.project-switcher-item {
+  min-inline-size: 0;
+}
+
+.project-switcher-link {
+  display: inline-block;
+  max-inline-size: 100%;
+  padding-block: var(--space-1);
+  padding-inline: var(--space-2);
+  border-radius: var(--radius-sm);
+  color: var(--color-muted);
+  font-family: var(--type-font-ui);
+  font-size: var(--type-size-sm);
+  text-decoration: none;
+  overflow-wrap: anywhere;
+}
+
+.project-switcher-link:hover {
+  background: var(--state-hover-bg);
+  color: var(--color-text);
+}
+
+.project-switcher-link:focus-visible {
+  outline: 2px solid var(--state-focus-ring);
+  outline-offset: 2px;
+}
+
+.project-switcher-link[aria-current="true"] {
+  color: var(--color-heading);
+  font-weight: var(--type-weight-bold);
+}
