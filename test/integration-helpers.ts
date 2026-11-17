@@ -83,3 +83,11 @@ export function textOf(element: Element | null | undefined): string {
 export function attrs(root: ParentNode, selector: string, name: string): string[] {
   return all(root, selector).map((element) => element.getAttribute(name) ?? "");
 }
+
+let sharedDataSite: BuiltSite | undefined;
+
+/** The shared data site, built once per test run: the data tests read the same output. */
+export function dataSite(): BuiltSite {
+  sharedDataSite ??= build("data-site");
+  return sharedDataSite;
+}
