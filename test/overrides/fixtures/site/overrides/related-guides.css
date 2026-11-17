@@ -1,0 +1,9 @@
+/* The site's own related guides: the entry module's sidecar, loaded instead of the theme's CSS.
+   Token names and logical properties only. */
+
+.related-guides {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-4);
+  margin-block-start: var(--space-8);
+}

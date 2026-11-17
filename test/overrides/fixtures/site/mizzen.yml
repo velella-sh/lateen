@@ -1,0 +1,15 @@
+# The sample site in docs/overrides.md: one navigation component and one layout come from this
+# site, every other unit from the default theme. The engine does not apply overrides yet, so this
+# folder is checked by test/overrides-contract.test.ts and is not built.
+title: Overrides fixture
+description: A site that replaces one component and one layout.
+lang: en
+url: https://example.com
+base: ""
+theme:
+  name: "@velella/lateen"
+  overrides:
+    components:
+      related-guides: overrides/related-guides.ts
+    layouts:
+      doc: overrides/doc.ts
