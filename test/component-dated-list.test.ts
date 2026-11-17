@@ -126,10 +126,10 @@ test("a Persian page groups and numbers dates in Persian", () => {
   assert.match(out, /<time class="dated-list-day" datetime="2026-11-09">۱۸<\/time>/);
 });
 
-test("an Arabic page writes no English month name", () => {
+test("an Arabic page groups by Hijri months, not Gregorian ones", () => {
   const out = render({ from: "events" }, "ar");
-  assert.doesNotMatch(out, /November 2026/);
-  assert.match(out, /<h2>[^<]*نوفمبر[^<]*<\/h2>/);
+  assert.doesNotMatch(out, /November 2026|نوفمبر/);
+  assert.match(out, /<h2>[^<]*جمادى الأولى[^<]*<\/h2>/);
   assert.match(out, /<time class="dated-list-day" datetime="2026-11-09">9<\/time>/);
 });
 

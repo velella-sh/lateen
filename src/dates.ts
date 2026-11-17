@@ -61,19 +61,8 @@ const TIME_ZONE = "UTC";
 /** The ISO calendar date at the start of a value: `YYYY-MM-DD`, optionally followed by a time. */
 const ISO_DATE = /^(\d{4})-(\d{2})-(\d{2})(?:T.*)?$/;
 
-/** A date written for a page: the ISO date for the `datetime` attribute, and the text in the page's calendar. */
-export interface CalendarDate {
-  /** The ISO calendar date, `YYYY-MM-DD`. */
-  datetime: string;
-  /** The same day in the language's calendar and numerals, for display. */
-  text: string;
-}
-
-/**
- * Formats an ISO date (`YYYY-MM-DD`, or a date-time whose date part is used) for a page in `lang`.
- * Returns `undefined` when the value is not a real calendar date, so the caller can show no date.
- */
-export function calendarDate(iso: string, lang: string): CalendarDate | undefined {
+/** An ISO value's date part and its midnight UTC, or undefined when it is not a real calendar date. */
+function utcOf(iso: string): { readonly iso: string; readonly utc: Date } | undefined {
   const match = ISO_DATE.exec(iso);
   if (match === null) return undefined;
 
@@ -82,15 +71,59 @@ export function calendarDate(iso: string, lang: string): CalendarDate | undefine
   // Date.UTC rolls over invalid days (2026-02-30 becomes 2026-03-02), so the parts must come back unchanged.
   if (utc.getUTCFullYear() !== year || utc.getUTCMonth() !== month - 1 || utc.getUTCDate() !== day) return undefined;
 
-  const style = dateStyle(lang);
-  const text = new Intl.DateTimeFormat(style.locale, {
+  return { iso: `${match[1]}-${match[2]}-${match[3]}`, utc };
+}
+
+/** A date written for a page: the ISO date for the `datetime` attribute, and the text in the page's calendar. */
+export interface CalendarDate {
+  /** The ISO calendar date, `YYYY-MM-DD`. */
+  datetime: string;
+  /** The same day in the language's calendar and numerals, for display. */
+  text: string;
+}
+
+/** Formatting in the language's calendar and digits, at midnight UTC. */
+function formatter(style: DateStyle, options: Intl.DateTimeFormatOptions): Intl.DateTimeFormat {
+  return new Intl.DateTimeFormat(style.locale, {
     calendar: style.calendar,
     numberingSystem: style.numberingSystem,
-    year: "numeric",
-    month: "long",
-    day: "numeric",
     timeZone: TIME_ZONE,
-  }).format(utc);
+    ...options,
+  });
+}
 
-  return { datetime: `${match[1]}-${match[2]}-${match[3]}`, text };
+/**
+ * Formats an ISO date (`YYYY-MM-DD`, or a date-time whose date part is used) for a page in `lang`.
+ * Returns `undefined` when the value is not a real calendar date, so the caller can show no date.
+ */
+export function calendarDate(iso: string, lang: string): CalendarDate | undefined {
+  const date = utcOf(iso);
+  if (date === undefined) return undefined;
+
+  const text = formatter(dateStyle(lang), { year: "numeric", month: "long", day: "numeric" }).format(date.utc);
+  return { datetime: date.iso, text };
+}
+
+/** A month of a page's calendar: the grouping key and the heading text. */
+export interface CalendarMonth {
+  /** The month within its calendar year, such as `1404/12`; days share it only in the same month. */
+  key: string;
+  /** The month and year in the language's calendar and numerals, for a group heading. */
+  text: string;
+}
+
+/**
+ * Formats the month an ISO date falls in, in the calendar and digits `calendarDate` uses for `lang`,
+ * so a list can group by the month the page reads. Returns `undefined` when the value is not a real
+ * calendar date.
+ */
+export function calendarMonth(iso: string, lang: string): CalendarMonth | undefined {
+  const date = utcOf(iso);
+  if (date === undefined) return undefined;
+
+  const style = dateStyle(lang);
+  return {
+    key: formatter(style, { year: "numeric", month: "numeric" }).format(date.utc),
+    text: formatter(style, { year: "numeric", month: "long" }).format(date.utc),
+  };
 }

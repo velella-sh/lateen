@@ -2,7 +2,7 @@ import { h } from "preact";
 import type { ComponentChildren } from "preact";
 import type { ComponentProps } from "@velella/mizzen/contracts";
 import { t } from "../../i18n/index.ts";
-import { calendarDate } from "../../src/dates.ts";
+import { calendarDate, calendarMonth, type CalendarMonth } from "../../src/dates.ts";
 import { formatField, isEmpty } from "../../src/fields.ts";
 import { selectRecords } from "../../src/records.ts";
 
@@ -39,6 +39,13 @@ interface Row {
   readonly label?: unknown;
   readonly url?: unknown;
   readonly status?: unknown;
+}
+
+/** A row with its date's ISO form and month, ready to group. */
+interface Entry {
+  readonly iso: string;
+  readonly month: CalendarMonth;
+  readonly row: Row;
 }
 
 const isRecord = (value: unknown): value is Record<string, unknown> =>
@@ -101,29 +108,28 @@ export default function datedList({ props, page, site }: ComponentProps<Readonly
 
   if (rows === undefined) return null;
 
-  const dated: { readonly iso: string; readonly row: Row }[] = [];
+  const dated: Entry[] = [];
   const invalid: Row[] = [];
   for (const row of rows) {
     const date = typeof row.date === "string" ? calendarDate(row.date, lang) : undefined;
-    if (date === undefined) invalid.push(row);
-    else dated.push({ iso: date.datetime, row });
+    const month = date === undefined ? undefined : calendarMonth(date.datetime, lang);
+    if (date === undefined || month === undefined) invalid.push(row);
+    else dated.push({ iso: date.datetime, month, row });
   }
   // ISO dates sort as text; the sort is stable, so rows of one day keep the source order.
   dated.sort((a, b) => (a.iso < b.iso ? -1 : a.iso > b.iso ? 1 : 0));
 
-  const monthFormat = new Intl.DateTimeFormat(lang, { month: "long", year: "numeric", timeZone: "UTC" });
   const dayFormat = new Intl.DateTimeFormat(lang, { day: "numeric", timeZone: "UTC" });
-  // Grouping by the formatted month keeps the heading right in every calendar the language uses.
-  const groups = new Map<string, { readonly iso: string; readonly row: Row }[]>();
+  // The key is the date's month in the page's calendar, so the heading and the boundaries match it.
+  const groups = new Map<string, { readonly month: string; readonly entries: Entry[] }>();
   for (const entry of dated) {
-    const month = monthFormat.format(utcOf(entry.iso));
-    const group = groups.get(month);
-    if (group === undefined) groups.set(month, [entry]);
-    else group.push(entry);
+    const group = groups.get(entry.month.key);
+    if (group === undefined) groups.set(entry.month.key, { month: entry.month.text, entries: [entry] });
+    else group.entries.push(entry);
   }
 
   const config = site?.config;
-  const sections = [...groups].map(([month, entries]) =>
+  const sections = [...groups.values()].map(({ month, entries }) =>
     h(
       "section",
       { class: GROUP_CLASS },
