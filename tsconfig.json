@@ -24,6 +24,7 @@
   },
   "include": [
     "src/**/*.ts",
+    "visual/**/*.ts",
     "layouts/**/*.ts",
     "chrome/**/*.ts",
     "components/**/*.ts",
