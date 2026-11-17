@@ -1,0 +1,1 @@
+- Showpiece docs: a live showpiece page at `/showpiece/` documents every front-matter key and the adoption checklist, and the layouts index links it (#492).
