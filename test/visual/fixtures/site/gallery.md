@@ -280,6 +280,10 @@ Written 12 pages to dist
 
 ::reading-time{minutes=3 words=600 showWords}
 
+## record-table
+
+::record-table{from=books caption="Books" columns='[{"field": "title", "label": "Title"}, {"field": "pages", "label": "Pages", "kind": "number"}, {"field": "published", "label": "Published", "kind": "date"}]'}
+
 ## schema-table
 
 ::schema-table{data="schema-table" label="Widget options"}
@@ -350,6 +354,10 @@ Built 12 pages.
 ::tested-chip{passed=2 failed=0 lastPassed=2026-11-09}
 
 ::tested-chip{passed=0 failed=1 lastPassed=2026-11-09}
+
+## timeline
+
+::timeline{from=timeline caption="Project timeline"}
 
 ## trap
 

@@ -1,0 +1,23 @@
+[
+  {
+    "id": "a",
+    "title": "Alpha",
+    "pages": 120,
+    "published": "2026-11-09",
+    "draft": false
+  },
+  {
+    "id": "b",
+    "title": "Beta",
+    "pages": 80,
+    "published": "2026-02-30",
+    "draft": true
+  },
+  {
+    "id": "c",
+    "title": "Gamma",
+    "pages": 200,
+    "published": "2025-06-01",
+    "draft": false
+  }
+]
