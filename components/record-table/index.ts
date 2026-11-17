@@ -26,6 +26,15 @@ export const STATUS_CLASS = "record-table-status";
 /** Marks the wrapper the island finds with `data-record-table-sort`. */
 export const SORT_ATTRIBUTE = "data-record-table-sort";
 
+/** Class on the filter form; it starts `hidden`, and `client.ts` reveals it. */
+export const FILTERS_CLASS = "record-table-filters";
+
+/** Class on the note a table shows when no row matches, with the button that clears the filters. */
+export const EMPTY_FILTERS_CLASS = "record-table-empty";
+
+/** Class on the button that clears every filter. */
+export const CLEAR_FILTERS_CLASS = "record-table-clear";
+
 /** The kinds whose columns sort in the browser. */
 export const SORTABLE_KINDS: readonly FieldKind[] = ["text", "number", "date"];
 
@@ -34,6 +43,8 @@ export interface RecordColumn {
   readonly field: string;
   readonly label?: string;
   readonly kind?: FieldKind;
+  /** True to offer a select of the values this column holds; the island hides rows that do not match. */
+  readonly filter?: boolean;
 }
 
 /** Props from the directive or the page's front matter. */
@@ -64,6 +75,7 @@ export function columnsOf(value: unknown): RecordColumn[] {
         field: entry.field.trim(),
         ...(typeof entry.label === "string" && entry.label.trim() !== "" ? { label: entry.label.trim() } : {}),
         kind: kindOf(entry.kind),
+        ...(entry.filter === true ? { filter: true } : {}),
       },
     ];
   });
@@ -111,6 +123,72 @@ export default function recordTable({ props, page, site }: ComponentProps<Readon
   // `client.ts` reveals it, so a visitor without a script gets no control that would do nothing.
   const sortable = (column: RecordColumn): boolean =>
     !paginated && SORTABLE_KINDS.includes(column.kind ?? "text");
+
+  // Filters read the rows already in the page, so a paginated list has none: they would hide rows the
+  // reader cannot bring back. The form stays `hidden` until `client.ts` reveals it.
+  const filterable = !paginated && selection.records.length > 0;
+
+  /** The distinct raw values of one column, in the order the rows show them; booleans read as words. */
+  const filterValues = (field: string, kind: FieldKind): { value: string; label: string }[] => {
+    const seen = new Set<string>();
+    const values: { value: string; label: string }[] = [];
+    for (const record of selection.records) {
+      const value = field === "id" ? record.id : record.fields[field];
+      if (!known(field, [record]) || isEmpty(value)) continue;
+      const raw = String(value);
+      if (seen.has(raw)) continue;
+      seen.add(raw);
+      values.push({
+        value: raw,
+        label: kind === "boolean" ? t(lang, raw === "true" ? "field_true" : "field_false") : raw,
+      });
+    }
+    return values;
+  };
+
+  const controls = filterable
+    ? h(
+        "form",
+        { class: FILTERS_CLASS, role: "search", hidden: true },
+        h(
+          "label",
+          { class: "record-table-filter" },
+          h("span", { class: "record-table-filter-label" }, t(lang, "record_table_filter")),
+          h("input", { class: "record-table-filter-text", type: "search" }),
+        ),
+        columns.flatMap((column, index) =>
+          column.filter !== true
+            ? []
+            : [
+                h(
+                  "label",
+                  { class: "record-table-filter" },
+                  h(
+                    "span",
+                    { class: "record-table-filter-label" },
+                    t(lang, "record_table_filter_column", { column: column.label ?? column.field }),
+                  ),
+                  h("select", { class: "record-table-filter-select", "data-column": String(index) }, [
+                    h("option", { value: "" }, t(lang, "record_table_filter_all")),
+                    ...filterValues(column.field, column.kind ?? "text").map((entry) =>
+                      h("option", { value: entry.value }, entry.label),
+                    ),
+                  ]),
+                ),
+              ],
+        ),
+      )
+    : null;
+
+  const empty = filterable
+    ? h(
+        "p",
+        { class: EMPTY_FILTERS_CLASS, hidden: true },
+        t(lang, "record_table_filter_empty"),
+        " ",
+        h("button", { class: CLEAR_FILTERS_CLASS, type: "button" }, t(lang, "record_table_filter_clear")),
+      )
+    : null;
 
   const head = h(
     "thead",
@@ -184,7 +262,8 @@ export default function recordTable({ props, page, site }: ComponentProps<Readon
     (caption === "" ? {} : { label: caption }) as never,
     [caption === "" ? null : h("caption", null, caption), head, body] as never,
   );
-  if (!columns.some(sortable)) return rendered;
+  const wrapped = filterable || columns.some(sortable);
+  if (!wrapped) return rendered;
 
   // The island reads every word it announces from here, as the search dialog does.
   return h(
@@ -194,8 +273,11 @@ export default function recordTable({ props, page, site }: ComponentProps<Readon
       [SORT_ATTRIBUTE]: true,
       "data-sort-ascending": patternOf(lang, "record_table_sorted_ascending"),
       "data-sort-descending": patternOf(lang, "record_table_sorted_descending"),
+      "data-filter-count": patternOf(lang, "record_table_filter_count"),
     },
     h("p", { class: STATUS_CLASS, role: "status" }),
+    controls,
     rendered,
+    empty,
   );
 }

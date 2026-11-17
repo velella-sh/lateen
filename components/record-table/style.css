@@ -23,7 +23,53 @@
   cursor: pointer;
 }
 
+/* The filter controls: one text box and a select per marked column, on one line that wraps. The form
+   starts `hidden`, so a page without the island shows no control that would do nothing. */
+.record-table-filters {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-2);
+  align-items: end;
+  margin-block-end: var(--space-2);
+}
+
+.record-table-filters[hidden] {
+  display: none;
+}
+
+.record-table-filter {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-1);
+  font-size: var(--type-size-sm);
+}
+
+.record-table-filter select,
+.record-table-filter input {
+  padding-block: var(--space-1);
+  padding-inline: var(--space-2);
+  border: thin solid var(--color-border);
+  border-radius: var(--radius-sm);
+  background-color: var(--color-canvas);
+  color: var(--color-text);
+  font: inherit;
+}
+
 /* The live region is in the markup for the island to fill, and takes no space until it has words. */
 .record-table-status:empty {
   display: none;
+}
+
+.record-table-empty {
+  color: var(--color-muted);
+}
+
+.record-table-clear {
+  padding: 0;
+  border: 0;
+  background: none;
+  color: var(--color-accent);
+  font: inherit;
+  text-decoration: underline;
+  cursor: pointer;
 }

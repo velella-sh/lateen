@@ -292,3 +292,48 @@
 .record-table-status:empty {
   display: none;
 }
+
+/* Filters: the record-table island reveals the form, so a page without a script shows no control. */
+.record-table-filters {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-2);
+  align-items: end;
+  margin-block-end: var(--space-2);
+}
+
+.record-table-filters[hidden] {
+  display: none;
+}
+
+.record-table-filter {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-1);
+  font-size: var(--type-size-sm);
+}
+
+.record-table-filter select,
+.record-table-filter input {
+  padding-block: var(--space-1);
+  padding-inline: var(--space-2);
+  border: thin solid var(--color-border);
+  border-radius: var(--radius-sm);
+  background-color: var(--color-canvas);
+  color: var(--color-text);
+  font: inherit;
+}
+
+.record-table-empty {
+  color: var(--color-muted);
+}
+
+.record-table-clear {
+  padding: 0;
+  border: 0;
+  background: none;
+  color: var(--color-accent);
+  font: inherit;
+  text-decoration: underline;
+  cursor: pointer;
+}
