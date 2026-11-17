@@ -66,3 +66,10 @@ export function resolveNetworkOptions(options: unknown): NetworkOptions {
     position: (position ?? DEFAULT_NETWORK_OPTIONS.position) as SwitcherPosition,
   };
 }
+
+/** Every option path the page documents, so the documentation test and the reader see one list. */
+export const NETWORK_OPTION_PATHS = [
+  "theme.options.network.switcher",
+  "theme.options.network.footer",
+  "theme.options.network.position",
+] as const;
