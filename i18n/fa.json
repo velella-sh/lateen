@@ -266,6 +266,7 @@
   "record_table_unknown_collection": "سایت مجموعه‌ای به نام «{name}» ندارد.",
   "record_table_unknown_field": "فیلدی به نام «{name}» نیست.",
   "rejected": "ردشده",
+  "related_guides": "راهنماهای مرتبط",
   "related_posts": "نوشته‌های مرتبط",
   "releases": "انتشارها",
   "report_issue": "گزارش مشکل این صفحه",

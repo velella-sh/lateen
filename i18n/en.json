@@ -266,6 +266,7 @@
   "record_table_unknown_collection": "The site has no collection named \"{name}\".",
   "record_table_unknown_field": "No field named \"{name}\".",
   "rejected": "Rejected",
+  "related_guides": "Related guides",
   "related_posts": "Related posts",
   "releases": "Releases",
   "report_issue": "Report a problem with this page",
