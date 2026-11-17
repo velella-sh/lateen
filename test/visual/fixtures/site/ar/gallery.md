@@ -204,6 +204,10 @@ Layout component: a layout passes it the `features` list, which Markdown cannot 
 المحتوى المخفي.
 :::
 
+## gallery-card
+
+مكوّن تخطيط: يبنيه تخطيط المعرض من السجلات، فراجع صفحة معرض مبنية من البيانات.
+
 ## guide-summary
 
 ::guide-summary
