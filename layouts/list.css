@@ -5,12 +5,18 @@
 .layout {
   --doc-side-w: 17rem;
   --doc-art-w: 46rem;
+  --doc-toc-w: 14rem;
   max-inline-size: 90rem;
   margin-inline: auto;
   display: grid;
   grid-template-columns: var(--doc-side-w) minmax(0, 1fr);
   gap: 0 var(--space-12);
   padding-inline: var(--space-page);
+}
+
+/* The on-this-page column exists only for grouped lists, which always pass an aside. */
+.layout:has(> .aside) {
+  grid-template-columns: var(--doc-side-w) minmax(0, 1fr) var(--doc-toc-w);
 }
 
 .layout > main {
@@ -27,9 +33,52 @@
   margin-block: var(--space-4) var(--space-6);
 }
 
+.list-group {
+  margin-block-start: var(--space-8);
+}
+
+.list-group > h2 {
+  margin-block: 0 var(--space-4);
+}
+
+.list-group-count {
+  font-size: var(--type-size-sm);
+  font-weight: var(--type-weight-medium);
+  color: var(--color-muted);
+}
+
+/* Below 64rem the TOC column leaves (chrome/toc/style.css swaps it for the fold above the article). */
 @media (max-width: 64rem) {
-  .layout {
+  .layout,
+  .layout:has(> .aside) {
+    grid-template-columns: var(--doc-side-w) minmax(0, 1fr);
+  }
+
+  .layout > .aside {
+    grid-column: 2;
+    grid-row: 1;
+  }
+
+  .layout > main {
+    grid-column: 2;
+    grid-row: 2;
+  }
+}
+
+/* Below 768px the drawer carries the navigation (the breakpoint chrome/drawer/style.css uses). */
+@media (max-width: 767.98px) {
+  .layout,
+  .layout:has(> .aside) {
     grid-template-columns: minmax(0, 1fr);
+  }
+
+  .layout > .sidebar {
+    display: none;
+  }
+
+  .layout > .aside,
+  .layout > main {
+    grid-column: 1;
   }
 }
 
