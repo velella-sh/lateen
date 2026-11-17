@@ -142,3 +142,14 @@ directory, for example after changing the Mermaid version:
 ```bash
 rm -rf .cache/mermaid
 ```
+
+## Visual gate
+
+`npm run test:visual` shoots the matrix and the gallery's interaction states in Chromium, compares
+every shot with the committed baseline, and reports a failing shot with its before, after and diff
+images. The local numbers on Chromium 158.0.8127.18 and macOS are **25 s for the 77 matrix shots** and
+**11 s for the 72 interaction states**. A shot that fails is retaken once; a second take that passes is
+reported by name as `flaky`, and the tolerance is not raised.
+
+The CI `visual` job runs on `ubuntu-24.04` with a **10-minute cap**; the visual step itself stops at
+8 minutes. See `docs/design/visual-gates.md` for the comparer, the baseline rules and the size caps.

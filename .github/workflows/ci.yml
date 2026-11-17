@@ -72,7 +72,7 @@ jobs:
   visual:
     name: visual
     runs-on: ubuntu-24.04
-    timeout-minutes: 15
+    timeout-minutes: 10
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
@@ -111,6 +111,7 @@ jobs:
       - name: Visual gate
         run: npm run test:visual
         working-directory: lateen
+        timeout-minutes: 8
       - name: Design check
         run: npm run check:design
         working-directory: lateen
@@ -130,7 +131,8 @@ jobs:
           const lines = ["| Page | Matrix entry | Changed share | Result |", "| --- | --- | ---: | --- |"];
           for (const row of rows) {
             const share = row.share === null ? "—" : `${(row.share * 100).toFixed(3)}%`;
-            lines.push(`| ${row.page} | ${row.entry} | ${share} | ${row.status} |`);
+            const result = row.flaky ? "flaky" : row.status;
+            lines.push(`| ${row.page} | ${row.entry} | ${share} | ${result} |`);
           }
           appendFileSync(summary, `${lines.join("\n")}\n`);
           EOF

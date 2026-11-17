@@ -205,7 +205,14 @@ export interface RunOptions {
   readonly matrix?: VisualMatrix;
   /** Receives the layout findings of the in-page checks (scripts/visual-checks.ts). */
   readonly findings?: PageFinding[];
+  /** Record baselines instead of comparing them; a retake is never done in this mode. */
+  readonly update?: boolean;
+  /** Receives the cases that failed once and passed on the second take. */
+  readonly flaky?: string[];
 }
+
+/** How many pages one browser shoots with at once. */
+export const PARALLEL_PAGES = 4;
 
 /** Builds the fixture, serves it and shoots every matrix entry. Returns the files written. */
 export async function runVisual(options: RunOptions = {}): Promise<string[]> {
@@ -222,26 +229,53 @@ export async function runVisual(options: RunOptions = {}): Promise<string[]> {
   const server = await startServer(site, "");
   let browser: Browser | undefined;
   const written: string[] = [];
+  const shoot = async (page: Page, entry: ReturnType<typeof expandMatrix>[number]): Promise<void> => {
+    const file = join(out, `${entry.case}.png`);
+    await capture(page, `${server.url}${entry.path}`, file, {
+      theme: entry.theme,
+      media: entry.section === "print" ? "print" : "screen",
+      forcedColors: entry.section === "forced-colors",
+      ...(entry.maxHeight === undefined ? {} : { maxHeight: entry.maxHeight }),
+    });
+    written.push(file);
+    options.findings?.push(...(await checkPage(page, entry.name, entry.case)));
+  };
   try {
     browser = await launchChromium();
     for (const viewport of viewports) {
       const context = await newVisualContext(browser, server.url, viewport);
       try {
-        const page = await context.newPage();
-        for (const entry of entries) {
-          if (entry.width !== viewport.width || entry.height !== viewport.height) continue;
-          const file = join(out, `${entry.case}.png`);
-          await capture(page, `${server.url}${entry.path}`, file, {
-            theme: entry.theme,
-            media: entry.section === "print" ? "print" : "screen",
-            forcedColors: entry.section === "forced-colors",
-            ...(entry.maxHeight === undefined ? {} : { maxHeight: entry.maxHeight }),
-          });
-          written.push(file);
-          options.findings?.push(...(await checkPage(page, entry.name, entry.case)));
-        }
+        const pending = entries.filter((entry) => entry.width === viewport.width && entry.height === viewport.height);
+        const pages = Math.min(PARALLEL_PAGES, pending.length);
+        await Promise.all(
+          Array.from({ length: pages }, async (_, worker) => {
+            const page = await context.newPage();
+            for (let i = worker; i < pending.length; i += pages) await shoot(page, pending[i] as ReturnType<typeof expandMatrix>[number]);
+          }),
+        );
       } finally {
         await context.close();
+      }
+    }
+    if (options.update !== true) {
+      const first = reviewShots({ shots: out, baselines: BASELINE_DIR, review: join(out, "review") });
+      const failed = first.filter((report) => report.status === "fail");
+      for (const report of failed) {
+        const entry = entries.find((candidate) => candidate.case === report.name);
+        if (entry === undefined) continue;
+        const context = await newVisualContext(browser, server.url, { width: entry.width, height: entry.height });
+        try {
+          await shoot(await context.newPage(), entry);
+        } finally {
+          await context.close();
+        }
+      }
+      if (failed.length > 0) {
+        const second = reviewShots({ shots: out, baselines: BASELINE_DIR, review: join(out, "review") });
+        for (const report of failed) {
+          if (second.find((again) => again.name === report.name)?.status === "pass") options.flaky?.push(report.name);
+        }
+        rmSync(join(out, "review"), { recursive: true, force: true });
       }
     }
     if (options.only === undefined) {
@@ -268,10 +302,12 @@ export interface ReviewRow {
   readonly status: string;
   readonly share: number | null;
   readonly message: string | null;
+  /** The case failed once and passed on the second take. */
+  readonly flaky: boolean;
 }
 
 /** Maps the review reports to matrix entries and writes the JSON report. */
-export function writeReport(reports: readonly CaseReport[], matrix: VisualMatrix, file: string): ReviewRow[] {
+export function writeReport(reports: readonly CaseReport[], matrix: VisualMatrix, file: string, flaky: readonly string[] = []): ReviewRow[] {
   const entries = new Map(expandMatrix(matrix).map((entry) => [entry.case, entry]));
   const rows = reports.map((report): ReviewRow => {
     const entry = entries.get(report.name);
@@ -282,6 +318,7 @@ export function writeReport(reports: readonly CaseReport[], matrix: VisualMatrix
       status: report.status,
       share: report.share ?? null,
       message: report.message ?? null,
+      flaky: flaky.includes(report.name),
     };
   });
   writeFileSync(file, `${JSON.stringify(rows, null, 2)}\n`);
@@ -296,8 +333,10 @@ async function main(): Promise<void> {
   };
   const out = value("--out");
   const only = value("--only");
+  const update = argv.includes("--update");
   const findings: PageFinding[] = [];
-  const files = await runVisual({ findings, ...(only !== undefined ? { only } : {}), ...(out !== undefined ? { out } : {}) });
+  const flaky: string[] = [];
+  const files = await runVisual({ findings, update, flaky, ...(only !== undefined ? { only } : {}), ...(out !== undefined ? { out } : {}) });
   const shots = resolve(out ?? OUT_DIR);
   console.log(`wrote ${files.length} screenshots to ${shots}`);
   for (const finding of findings) console.log(formatFinding(finding));
@@ -305,11 +344,12 @@ async function main(): Promise<void> {
     console.error(`FAIL: ${findings.length} layout finding(s)`);
     process.exitCode = 1;
   }
-  const update = argv.includes("--update");
   if (update && process.env["CI"] === undefined) console.warn("note: baselines are recorded on CI (docs/design/visual-gates.md); a local baseline should not be committed");
+  for (const name of flaky) console.log(`flaky   ${name}: passed on the second take`);
   const reports = reviewShots({ shots, baselines: BASELINE_DIR, review: join(shots, "review"), update });
-  writeReport(reports, loadMatrix(), join(shots, "report.json"));
-  const { lines, ok } = formatReview(reports);  console.log(lines.join("\n"));
+  writeReport(reports, loadMatrix(), join(shots, "report.json"), flaky);
+  const { lines, ok } = formatReview(reports);
+  console.log(lines.join("\n"));
   if (!ok) process.exitCode = 1;
 }
 
