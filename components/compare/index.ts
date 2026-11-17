@@ -1,6 +1,6 @@
 import { h } from "preact";
 import type { ComponentProps } from "@velella/mizzen/contracts";
-import { t } from "../../i18n/index.ts";
+import { patternOf, t } from "../../i18n/index.ts";
 import { formatField, isEmpty, kindOf } from "../../src/fields.ts";
 import { selectRecords, type SelectedRecord } from "../../src/records.ts";
 import { columnsOf } from "../record-table/index.ts";
@@ -26,6 +26,18 @@ export const DIFF_CLASS = "compare-diff";
 
 /** Class on the screen-reader text naming a row that differs. */
 export const DIFF_MARKER_CLASS = "compare-diff-marker";
+
+/** Marks the wrapper the island finds with `data-compare`. */
+export const ROOT_ATTRIBUTE = "data-compare";
+
+/** Class on the row of controls; it starts `hidden`, and `client.ts` reveals it. */
+export const CONTROLS_CLASS = "compare-controls";
+
+/** Class on the checkbox that hides the rows without a difference. */
+export const TOGGLE_CLASS = "compare-only-diff";
+
+/** Class on the live region announcing how many rows show. */
+export const STATUS_CLASS = "compare-status";
 
 /**
  * A raw value as text for comparison: a number by value, so `1.0` and `1.00` are equal; a list
@@ -150,7 +162,10 @@ export default function compare({ props, page, site }: ComponentProps<Readonly<R
       const differs = rowDiffers(values, field.kind);
       return h(
         "tr",
-        differs ? { class: DIFF_CLASS } : null,
+        {
+          "data-compare-row": "",
+          ...(differs ? { class: DIFF_CLASS, "data-diff": "" } : {}),
+        },
         h(
           "th",
           { scope: "row" },
@@ -168,5 +183,36 @@ export default function compare({ props, page, site }: ComponentProps<Readonly<R
     }),
   );
 
-  return h("div", { class: WRAPPER_CLASS }, notes, h(table, null, head, body));
+  return h(
+    "div",
+    { class: WRAPPER_CLASS, [ROOT_ATTRIBUTE]: "" },
+    notes,
+    h(
+      "div",
+      {
+        class: CONTROLS_CLASS,
+        hidden: true,
+        "data-compare-controls": "",
+      },
+      h(
+        "label",
+        { class: "compare-toggle" },
+        h("input", { type: "checkbox", class: TOGGLE_CLASS, "data-compare-only-diff": "" }),
+        " ",
+        t(lang, "compare_show_only_diff"),
+      ),
+      h(
+        "p",
+        {
+          class: STATUS_CLASS,
+          role: "status",
+          "aria-live": "polite",
+          "aria-atomic": "true",
+          "data-template": patternOf(lang, "compare_rows_shown"),
+        },
+        t(lang, "compare_rows_shown", { count: fields.length, total: fields.length }),
+      ),
+    ),
+    h(table, null, head, body),
+  );
 }
