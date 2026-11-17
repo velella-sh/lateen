@@ -222,6 +222,8 @@
   "output_stale": "Output recorded for different values. Run the command again to update it.",
   "page_agent_open_in": "Open in",
   "page_agent_summary": "Use with an agent",
+  "pagination": "Pagination",
+  "pagination_page": "Page {n}",
   "pager": "Previous and next",
   "parameters": "Parameters",
   "partial": "Partial",

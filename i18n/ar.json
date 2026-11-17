@@ -222,6 +222,8 @@
   "output_stale": "سُجِّل هذا المخرج بقيم مختلفة. أعد تشغيل الأمر لتحديثه.",
   "page_agent_open_in": "افتح في",
   "page_agent_summary": "الاستخدام مع وكيل",
+  "pagination": "ترقيم الصفحات",
+  "pagination_page": "الصفحة {n}",
   "pager": "الصفحة السابقة والتالية",
   "parameters": "المعاملات",
   "partial": "جزئي",
