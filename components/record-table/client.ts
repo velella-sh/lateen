@@ -3,7 +3,9 @@
  * Sorting reads the raw value the cell carries in `data-value`, never the formatted text, so a number
  * and a date compare as numbers and dates in every language. Empty values stay last in both
  * directions, and equal values keep the order the server sent. Filtering reads the rows already in
- * the page: the text matches any visible cell, and each select matches the raw value of its column. */
+ * the page: the text matches any visible cell, and each select matches the raw value of its column.
+ * The chosen sort and filters live in the query string, so a shared link opens the same view; the
+ * address is replaced, never pushed, and a page with several tables prefixes each table's keys. */
 
 /** The wrapper around a table the island may sort. */
 export const WRAPPER_SELECTOR = "[data-record-table-sort]";
@@ -57,6 +59,25 @@ export interface SortElement {
 export interface SortDocument {
   querySelectorAll(selector: string): Iterable<SortElement>;
   documentElement?: { getAttribute(name: string): string | null } | null;
+  defaultView?: SortWindow | null;
+}
+
+/** The page address, read without reloading it. */
+export interface SortLocation {
+  href: string;
+  search: string;
+}
+
+/** The page history, written without adding an entry. */
+export interface SortHistory {
+  replaceState(data: unknown, unused: string, url?: string | null): void;
+}
+
+/** The part of the window the island uses to keep the address in step. */
+export interface SortWindow {
+  location: SortLocation;
+  history: SortHistory;
+  addEventListener(type: "popstate", listener: () => void): void;
 }
 
 /** A comparable cell value: a number for number and date columns, text otherwise, absent when empty. */
@@ -130,15 +151,41 @@ function matches(row: SortElement, words: string, choices: readonly Choice[], la
   );
 }
 
+/** The filter controls, and the function that puts saved values back into them. */
+interface FilterView {
+  readonly text: SortElement | null;
+  readonly selects: readonly SortElement[];
+  restore(params: URLSearchParams): void;
+}
+
+/** The direction `asc` or `desc` names; anything else was not written by a table. */
+function directionOf(raw: string): SortDirection | undefined {
+  return raw === "asc" ? "ascending" : raw === "desc" ? "descending" : undefined;
+}
+
+/** Replaces this table's keys in the address, keeping every other parameter and the fragment. */
+function writeSearch(view: SortWindow, prefix: string, values: readonly (readonly [string, string])[]): void {
+  const url = new URL(view.location.href);
+  for (const key of [...url.searchParams.keys()]) {
+    if (key === `${prefix}sort` || key === `${prefix}q` || key.startsWith(`${prefix}filter.`)) {
+      url.searchParams.delete(key);
+    }
+  }
+  for (const [name, value] of values) url.searchParams.set(prefix + name, value);
+  view.history.replaceState(null, "", url.toString());
+}
+
 /** Reveals the filter form, hides the rows that do not match, and announces how many remain. */
 function attachFilters(
   wrapper: SortElement,
   body: SortElement,
   lang: string,
   status: SortElement | null,
-): void {
+  prefix: string,
+  onChange: () => void,
+): FilterView | null {
   const form = wrapper.querySelector(FILTERS_SELECTOR);
-  if (form === null) return;
+  if (form === null) return null;
   const text = form.querySelector(TEXT_FILTER_SELECTOR);
   const selects = [...form.querySelectorAll(SELECT_FILTER_SELECTOR)];
   const empty = wrapper.querySelector(EMPTY_FILTERS_SELECTOR);
@@ -169,23 +216,72 @@ function attachFilters(
   };
 
   form.hidden = false;
-  text?.addEventListener("input", apply);
-  for (const select of selects) select.addEventListener("change", apply);
+  text?.addEventListener("input", () => {
+    apply();
+    onChange();
+  });
+  for (const select of selects) {
+    select.addEventListener("change", () => {
+      apply();
+      onChange();
+    });
+  }
   clear?.addEventListener("click", () => {
     if (text !== null) text.value = "";
     for (const select of selects) select.value = "";
     apply();
+    onChange();
   });
+  return {
+    text,
+    selects,
+    restore: (params) => {
+      if (text !== null) text.value = params.get(`${prefix}q`) ?? "";
+      for (const select of selects) {
+        select.value = params.get(`${prefix}filter.${select.getAttribute("data-column")}`) ?? "";
+      }
+      apply();
+    },
+  };
 }
 
-/** Reveals and wires every sort button and filter control under `wrapper`. */
-function attach(wrapper: SortElement, lang: string): void {
+/** Reveals and wires every sort button and filter control under `wrapper`; returns the restore. */
+function attach(wrapper: SortElement, lang: string, view: SortWindow | null, prefix: string): () => void {
   const table = wrapper.querySelector("table");
   const body = table?.querySelector("tbody") ?? null;
-  if (table === null || body === null) return;
+  if (table === null || body === null) return () => {};
   const headers = [...(table.querySelector("thead tr")?.querySelectorAll("th") ?? [])];
+  const sent = [...body.querySelectorAll(ROW_SELECTOR)];
+  const sortable = new Map<string, { th: SortElement; index: number; kind: string }>();
   const status = wrapper.querySelector(STATUS_SELECTOR);
-  attachFilters(wrapper, body, lang, status);
+
+  const sortBy = (th: SortElement, index: number, kind: string, direction: SortDirection): void => {
+    for (const header of headers) header.removeAttribute("aria-sort");
+    th.setAttribute("aria-sort", direction);
+    for (const row of orderRows([...body.querySelectorAll(ROW_SELECTOR)], index, kind, direction, lang)) {
+      body.append(row);
+    }
+  };
+
+  let filters: FilterView | null = null;
+  const write = (): void => {
+    if (view === null) return;
+    const values: [string, string][] = [];
+    const sorted = headers.find((header) => header.getAttribute("aria-sort") !== null);
+    const field = sorted?.getAttribute("data-field") ?? null;
+    if (sorted !== undefined && field !== null) {
+      values.push(["sort", `${field}:${sorted.getAttribute("aria-sort") === "descending" ? "desc" : "asc"}`]);
+    }
+    const words = filters?.text?.value?.trim() ?? "";
+    if (words !== "") values.push(["q", words]);
+    for (const select of filters?.selects ?? []) {
+      const value = select.value ?? "";
+      if (value !== "") values.push([`filter.${select.getAttribute("data-column")}`, value]);
+    }
+    writeSearch(view, prefix, values);
+  };
+
+  filters = attachFilters(wrapper, body, lang, status, prefix, write);
   for (const button of wrapper.querySelectorAll(BUTTON_SELECTOR)) {
     const th = button.closest("th");
     if (th === null) continue;
@@ -194,27 +290,48 @@ function attach(wrapper: SortElement, lang: string): void {
     const kind = th.getAttribute("data-kind") ?? "text";
     const label = labelOf(th);
     if (index === -1 || field === null || label === "") continue;
+    sortable.set(field, { th, index, kind });
     button.hidden = false;
     button.addEventListener("click", () => {
       const direction: SortDirection =
         th.getAttribute("aria-sort") === "ascending" ? "descending" : "ascending";
-      for (const header of headers) header.removeAttribute("aria-sort");
-      th.setAttribute("aria-sort", direction);
-      const rows = [...body.querySelectorAll(ROW_SELECTOR)];
-      for (const row of orderRows(rows, index, kind, direction, lang)) body.append(row);
+      sortBy(th, index, kind, direction);
       const pattern =
         direction === "ascending"
           ? wrapper.getAttribute("data-sort-ascending") ?? ""
           : wrapper.getAttribute("data-sort-descending") ?? "";
       if (status !== null) status.textContent = pattern.replace("{column}", label);
+      write();
     });
   }
+
+  return () => {
+    const params = new URLSearchParams(view?.location.search ?? "");
+    const raw = params.get(`${prefix}sort`) ?? "";
+    const colon = raw.lastIndexOf(":");
+    const target = colon === -1 ? undefined : sortable.get(raw.slice(0, colon));
+    const direction = directionOf(raw.slice(colon + 1));
+    if (target !== undefined && direction !== undefined) {
+      sortBy(target.th, target.index, target.kind, direction);
+    } else {
+      for (const row of sent) body.append(row);
+    }
+    filters?.restore(params);
+  };
 }
 
 /** Wires every sortable table in the document; a page without one does nothing. */
 export function activate(doc: SortDocument): void {
   const lang = doc.documentElement?.getAttribute("lang") ?? "en";
-  for (const wrapper of doc.querySelectorAll(WRAPPER_SELECTOR)) attach(wrapper, lang);
+  const view = doc.defaultView ?? null;
+  const wrappers = [...doc.querySelectorAll(WRAPPER_SELECTOR)];
+  const restores = wrappers.map((wrapper, at) =>
+    attach(wrapper, lang, view, wrappers.length > 1 ? `t${at + 1}.` : ""),
+  );
+  for (const restore of restores) restore();
+  view?.addEventListener("popstate", () => {
+    for (const restore of restores) restore();
+  });
 }
 
 /** The browser environment: the page's document. */
