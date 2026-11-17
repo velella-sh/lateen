@@ -1,5 +1,6 @@
 import { h } from "preact";
 import { formatNumber } from "../../src/report.ts";
+import chartDownloads from "./download.ts";
 
 /** Class on the closed disclosure that holds the table. */
 export const DETAILS_CLASS = "chart-data";
@@ -48,6 +49,8 @@ export type ChartDataProps = {
   readonly rows: readonly ChartDataRow[];
   /** The page language, used for number formatting. */
   readonly lang: string;
+  /** Id of the chart; gives the downloaded files their name. Omit to offer no downloads. */
+  readonly id?: string;
   /** Text of the disclosure control. */
   readonly summary?: string;
 };
@@ -101,6 +104,15 @@ export default function chartData(props: ChartDataProps) {
           ),
         ),
       ),
+      props.id?.trim()
+        ? chartDownloads({
+            id: props.id,
+            title: props.title,
+            labelHeading: props.labelHeading,
+            columns: props.columns,
+            rows: props.rows,
+          })
+        : null,
     ),
   );
 }
