@@ -1,0 +1,113 @@
+import assert from "node:assert/strict";
+import { test } from "node:test";
+import { renderToString } from "preact-render-to-string";
+import type { LayoutProps, Page, Site, SiteConfig, SourcePos } from "@velella/mizzen/contracts";
+import record from "../layouts/record.ts";
+
+const pos: SourcePos = { file: "components/button.md", line: 1, column: 1, endLine: 1, endColumn: 1 };
+
+const config = {
+  title: "Example",
+  base: "",
+  lang: "en",
+  dir: "ltr",
+  languages: [],
+  source: ".",
+  include: [],
+  exclude: [],
+  navigation: "_data/navigation.yml",
+  defaults: [],
+  theme: { options: {} },
+  search: { text: 300 },
+  redirects: {},
+  outputs: {},
+  collections: {},
+  feeds: {},
+} as unknown as SiteConfig;
+
+const fields = { name: "Button", pages: 3, published: "2026-11-09", draft: false };
+
+const facts = JSON.stringify([
+  { field: "name", label: "Name" },
+  { field: "pages", label: "Pages", kind: "number" },
+  { field: "published", label: "Published", kind: "date" },
+  { field: "draft", label: "Draft", kind: "boolean" },
+]);
+
+function pageWith(factList: unknown = JSON.parse(facts)): Page {
+  return {
+    url: "/components/button/",
+    source: pos,
+    frontMatter: { record: { facts: factList } },
+    title: "Button",
+    lang: "en",
+    dir: "ltr",
+    headings: [],
+    html: "<p>A control that starts an action.</p>",
+    markdown: "A control that starts an action.",
+    kind: "doc",
+  } as unknown as Page;
+}
+
+function props(page: Page): LayoutProps {
+  const site: Site = {
+    config,
+    pages: [page],
+    nav: { main: [{ title: "Components", url: "/components/" }] },
+    data: {},
+    collections: {},
+  };
+  return {
+    site,
+    page,
+    trail: [{ title: "Components", url: "/components/" }, { title: page.title, url: page.url }],
+    pager: { prev: { title: "Badge", url: "/components/badge/" }, next: { title: "Callout", url: "/components/callout/" } },
+    head: { title: `${page.title} · Example`, meta: [], links: [], jsonLd: [] },
+    islands: [],
+    record: { collection: "components", id: "button", url: page.url, fields, links: {} },
+  } as unknown as LayoutProps;
+}
+
+const render = (page: Page = pageWith()) => renderToString(record(props(page)) as never);
+
+test("the facts render in the author's order, after the title and before the body", () => {
+  const out = render();
+  const name = out.indexOf(">Name</dt>");
+  const pages = out.indexOf(">Pages</dt>");
+  const published = out.indexOf(">Published</dt>");
+  const draft = out.indexOf(">Draft</dt>");
+  assert.ok(name > out.indexOf("<h1>Button</h1>"), "the panel follows the title");
+  assert.ok(name < pages && pages < published && published < draft, "the author's order is kept");
+  assert.ok(draft < out.indexOf('class="record-body"'), "the panel comes before the body");
+  assert.match(out, /<dl class="key-value">/);
+});
+
+test("every kind goes through the field formatter", () => {
+  const out = render();
+  assert.match(out, /<dt class="key-value-key">Name<\/dt><dd class="key-value-value">Button<\/dd>/);
+  assert.match(out, /<dt class="key-value-key">Pages<\/dt><dd class="key-value-value">3<\/dd>/);
+  assert.match(out, /<dd class="key-value-value"><time datetime="2026-11-09">[^<]+<\/time><\/dd>/);
+  assert.match(out, /<dt class="key-value-key">Draft<\/dt><dd class="key-value-value">No<\/dd>/);
+});
+
+test("a fact the record lacks is left out, not rendered empty", () => {
+  const page = pageWith([
+    { field: "name", label: "Name" },
+    { field: "editor", label: "Editor" },
+  ]);
+  const out = render(page);
+  assert.match(out, />Name<\/dt>/);
+  assert.ok(!out.includes(">Editor</dt>"), "no row for a missing field");
+});
+
+test("the id is a fact a page may ask for", () => {
+  const out = render(pageWith([{ field: "id", label: "Identifier" }]));
+  assert.match(out, /<dt class="key-value-key">Identifier<\/dt><dd class="key-value-value">button<\/dd>/);
+});
+
+test("a page without facts renders no panel", () => {
+  const none = pageWith([]);
+  assert.ok(!render(none).includes('class="key-value"'));
+  const missing = pageWith([{ field: "editor", label: "Editor" }]);
+  assert.ok(!render(missing).includes('class="key-value"'), "no panel when every fact is missing");
+});
