@@ -76,6 +76,8 @@ export default function dataExplorer({ props, page, site }: ComponentProps<Reado
       "data-explorer-empty": patternOf(lang, "search_results_empty"),
       "data-explorer-retry": t(lang, "search_retry"),
       "data-explorer-more": t(lang, "data_explorer_more"),
+      "data-explorer-no-value": t(lang, "field_empty"),
+      "data-columns": JSON.stringify(columns.map(({ field, label, kind }) => ({ field, label, kind }))),
       "data-explorer-count-zero": patternOf(lang, "search_count_zero"),
       "data-explorer-count-one": patternOf(lang, "search_count_one"),
       "data-explorer-count-two": patternOf(lang, "search_count_two"),
@@ -91,6 +93,9 @@ export default function dataExplorer({ props, page, site }: ComponentProps<Reado
       h("input", { type: "hidden", name: COLLECTION_FILTER, value: from }),
       h("button", { class: "data-explorer-submit", type: "submit" }, t(lang, "search")),
     ),
+    h("p", { class: "data-explorer-status", role: "status" }),
     table(selection.records),
+    h("p", { class: "data-explorer-empty", hidden: true }),
+    h("button", { class: "data-explorer-more", type: "button", hidden: true }, t(lang, "data_explorer_more")),
   );
 }
