@@ -15,6 +15,8 @@
   z-index: var(--layer-popover);
   padding-block: var(--space-1);
   padding-inline: var(--space-2);
+  /* The 24 by 24 target the layout check asks for, whatever the tight line height gives. */
+  min-block-size: 1.5rem;
   border: 1px solid var(--color-border);
   border-radius: var(--radius-sm);
   background: var(--color-surface-raised);

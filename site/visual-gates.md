@@ -26,6 +26,11 @@ npm run check:design
 compares each image. `check:design` checks the tokens and layout independently of the pixels. The
 CI `visual` job runs both on `ubuntu-24.04`.
 
+The same run checks every page for horizontal overflow, clipped text and controls smaller than 24 by
+24 CSS pixels, and prints each finding with its page, selector and matrix entry. Until the theme's
+existing small targets are fixed (#601), the findings are reported but do not fail the job; set
+`VISUAL_CHECKS=strict` to make them gate again.
+
 ## Read a diff
 
 A pass prints one `ok` line per case. A failure prints the case and the changed share, and writes
