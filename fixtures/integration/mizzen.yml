@@ -17,6 +17,10 @@ navigation: _data/navigation.yml
 search: { text: 300 }
 theme:
   options:
+    status:
+      values:
+        done: { tone: positive, label: Done, description: Shipped and released. }
+        late: { tone: negative, label: Late, description: Past its date. }
     preset: harbor
     brand:
       accent: "#0b6e4f"

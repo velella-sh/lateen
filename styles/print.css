@@ -172,6 +172,7 @@
   .trust-panel,
   .drift-banner,
   .tested-chip,
+  .status-legend-item,
   .version-badge,
   .version-diff {
     break-inside: avoid;
@@ -218,6 +219,7 @@
   .card,
   .link-card,
   .badge,
+  .status,
   .pager-link,
   .code,
   .code-title,

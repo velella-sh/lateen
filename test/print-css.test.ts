@@ -328,11 +328,13 @@ test("install tabs print every panel under its manager name, and cli demo and in
 });
 
 test("refined components print flat: no shadow, sticky header, blur, motion, tint or line numbers (#477)", () => {
-  const flat = rule(css, ".table-scroll,\n  .table-scroll th,\n  .table-scroll td,\n  .card,\n  .link-card,\n  .badge,\n  .pager-link,\n  .code,\n  .code-title,\n  .callout");
+  const flat = rule(css, ".table-scroll,\n  .table-scroll th,\n  .table-scroll td,\n  .card,\n  .link-card,\n  .badge,\n  .status,\n  .pager-link,\n  .code,\n  .code-title,\n  .callout");
   assert.ok(flat, "no flat rule for the refined components");
   for (const re of [/position:\s*static/, /box-shadow:\s*none/, /backdrop-filter:\s*none/, /animation:\s*none/, /transition:\s*none/]) assert.match(flat.body, re);
   assert.match(css, /\.code \[data-line\]::before\s*\{\s*content:\s*none/);
   assert.match(css, /\.code \.highlighted\s*\{\s*background:\s*none/);
+  // A legend entry is one badge and its description; a page break never separates the pair.
+  assert.match(css, /\.status-legend-item[\s\S]*?break-inside:\s*avoid/);
 });
 
 test("the showpiece decoration drops in print and its bands print as plain text with borders (#491)", () => {
