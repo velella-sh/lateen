@@ -375,6 +375,7 @@
   "timeline_label": "برچسب",
   "timeline_legend": "مرحله‌ها",
   "timeline_missing_setup": "timeline به مجموعه‌ای در `from` یا ردیف‌هایی در `items` نیاز دارد.",
+  "timeline_ongoing": "در جریان",
   "timeline_overlap": "مرحله‌ها در این ردیف هم‌پوشانی دارند: {names}.",
   "timeline_phase": "مرحله",
   "timeline_start": "شروع",

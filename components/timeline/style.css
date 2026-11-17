@@ -84,6 +84,21 @@
   border-radius: 0;
 }
 
+/* An unknown end has no closing date, so the bar ends in a dashed edge; the logical side keeps the
+   dashes on the open end in a right-to-left page too. */
+.timeline-bar-open-end {
+  border-inline-end-style: dashed;
+}
+
+.timeline-bar-open-start {
+  border-inline-start-style: dashed;
+}
+
+/* A date the rows leave open reads as "ongoing": real data, not an error, so it keeps its weight. */
+.timeline-ongoing {
+  color: var(--color-muted);
+}
+
 /* The legend repeats each phase's tone with the same pattern its segment uses. */
 .timeline-legend {
   margin-block-start: var(--space-2);
