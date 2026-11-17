@@ -235,6 +235,10 @@ Press :kbd[Ctrl]+:kbd[K] to search.
 پروانه: MIT
 :::
 
+## line-chart
+
+::line-chart{from=line-chart category=month value="north,south" title="Users by month"}
+
 ## link-card
 
 ::link-card{href="/fa/" title="خانه" description="کارتی که با اشاره بالا می‌آید."}
