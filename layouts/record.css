@@ -1,0 +1,38 @@
+/* Record layout: navigation beside the record. The on-this-page column of `doc` has no meaning on a
+   record page, so the article takes the rest of the row; each layout bundles its own CSS, which is
+   why the grid is repeated here rather than imported from `doc.css`. */
+
+.layout {
+  --doc-side-w: 17rem;
+  --doc-art-w: 46rem;
+  max-inline-size: 90rem;
+  margin-inline: auto;
+  display: grid;
+  grid-template-columns: var(--doc-side-w) minmax(0, 1fr);
+  gap: 0 var(--space-12);
+  padding-inline: var(--space-page);
+}
+
+.layout > main {
+  min-inline-size: 0;
+}
+
+.record {
+  max-inline-size: var(--doc-art-w);
+  min-inline-size: 0;
+  padding-block: var(--space-6) var(--space-12);
+}
+
+.record > h1 {
+  margin-block: var(--space-4) var(--space-6);
+}
+
+@media (max-width: 64rem) {
+  .layout {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .layout > .aside {
+    display: none;
+  }
+}
