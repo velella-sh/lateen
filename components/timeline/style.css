@@ -12,3 +12,69 @@
   color: var(--color-muted);
   font-style: italic;
 }
+
+/* The chart column: decoration over the dates the row cells already state. Bars are positioned with
+   logical insets, so the axis runs right to left on an RTL page without a second stylesheet. */
+.timeline-chart {
+  inline-size: 38%;
+  min-inline-size: 9rem;
+}
+
+.timeline-axis {
+  position: relative;
+  block-size: var(--space-4);
+  font-size: var(--type-size-xs);
+  font-weight: var(--type-weight-regular);
+  color: var(--color-muted);
+}
+
+.timeline-tick {
+  position: absolute;
+  inset-block-start: 0;
+  white-space: nowrap;
+}
+
+.timeline-track {
+  position: relative;
+  block-size: var(--space-4);
+}
+
+.timeline-bar {
+  position: absolute;
+  inset-block-start: 50%;
+  block-size: var(--space-2);
+  translate: 0 -50%;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-sm);
+}
+
+/* Every tone keeps a border and a pattern of its own, so status never rests on colour alone. */
+.timeline-bar-positive {
+  border-color: var(--status-positive-border);
+  background-color: var(--status-positive-bg);
+  background-image: repeating-linear-gradient(90deg, transparent 0 3px, var(--status-positive-fg) 3px 4px);
+}
+
+.timeline-bar-caution {
+  border-color: var(--status-caution-border);
+  background-color: var(--status-caution-bg);
+  background-image: repeating-linear-gradient(135deg, transparent 0 3px, var(--status-caution-fg) 3px 4px);
+}
+
+.timeline-bar-negative {
+  border-color: var(--status-negative-border);
+  background-color: var(--status-negative-bg);
+  background-image: repeating-linear-gradient(45deg, transparent 0 2px, var(--status-negative-fg) 2px 3px);
+}
+
+.timeline-bar-info {
+  border-color: var(--status-info-border);
+  background-color: var(--status-info-bg);
+  background-image: repeating-linear-gradient(0deg, transparent 0 4px, var(--status-info-fg) 4px 5px);
+}
+
+.timeline-bar-neutral {
+  border-color: var(--status-neutral-border);
+  background-color: var(--status-neutral-bg);
+  background-image: repeating-linear-gradient(90deg, transparent 0 5px, var(--status-neutral-fg) 5px 6px);
+}
