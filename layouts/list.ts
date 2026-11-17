@@ -28,7 +28,7 @@ interface ListGroupView {
 }
 
 /** True when the body already supplies the page's `h1`, by the same rule as `doc` and `record`. */
-function titleFromBody(props: LayoutProps): boolean {
+export function titleFromBody(props: LayoutProps): boolean {
   return props.page.headings.some((heading) => heading.depth === 1);
 }
 
@@ -42,7 +42,7 @@ function groupId(key: string, used: Set<string>): string {
 }
 
 /** The engine's groups in its order, each with the id its section and its TOC entry share. */
-function groupsOf(props: LayoutProps): ListGroupView[] {
+export function groupsOf(props: LayoutProps): ListGroupView[] {
   const used = new Set<string>();
   return (props.list?.groups ?? []).map((group) => ({
     key: group.key,
@@ -84,7 +84,7 @@ function viewOf(props: LayoutProps): "table" | "cards" {
 }
 
 /** One record as a card: its title, summary, status, and its first few other fields as facts. */
-function cardOf(props: LayoutProps, record: RecordProps): ComponentChildren {
+export function cardOf(props: LayoutProps, record: RecordProps): ComponentChildren {
   const fields = record.fields;
   const title = isEmpty(fields[TITLE_FIELD]) ? record.id : String(fields[TITLE_FIELD]);
   const summary = isEmpty(fields[SUMMARY_FIELD]) ? null : String(fields[SUMMARY_FIELD]);
@@ -124,10 +124,16 @@ function cardOf(props: LayoutProps, record: RecordProps): ComponentChildren {
     : h("a", { class: CARD_CLASS, href }, ...parts);
 }
 
+/** The records as a card grid, the view a gallery always shows and a list asks for with `list.view: cards`. */
+export function cardsView(props: LayoutProps, records: readonly RecordProps[]): ComponentChildren {
+  if (records.length === 0) return null;
+  return cards({ children: records.map((record) => cardOf(props, record)) }) as ComponentChildren;
+}
+
 /** The records in the view the page asks for: a table by default, a card grid when `list.view` names it. */
 function recordsView(props: LayoutProps, records: readonly RecordProps[]): ComponentChildren {
   if (records.length === 0) return null;
-  if (viewOf(props) === "cards") return cards({ children: records.map((record) => cardOf(props, record)) }) as ComponentChildren;
+  if (viewOf(props) === "cards") return cardsView(props, records);
   return table(props, records);
 }
 
