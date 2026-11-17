@@ -1,0 +1,19 @@
+/* Compare: a record per column and a field per row. Tokens and logical properties only. */
+
+/* The field names frame their row; they read from the start side in either writing direction. */
+.compare th[scope="row"] {
+  text-align: start;
+}
+
+/* Numbers line up on the end side, which is the reading end in right-to-left pages too. */
+.compare-cell[data-kind="number"] {
+  text-align: end;
+  font-variant-numeric: tabular-nums;
+}
+
+/* A record the collection lacks, and a comparison that cannot read its setup: visible, not blank. */
+.compare-missing,
+.compare-error {
+  color: var(--color-muted);
+  font-style: italic;
+}
