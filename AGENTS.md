@@ -8,11 +8,13 @@ Read `README.md` and `CONTRIBUTING.md` first. Each unit folder has its own rules
 
 Node 24 or later. There is no build step; Node runs the TypeScript source directly.
 
-Mizzen must be checked out beside this repository as `../mizzen`, because the tests and the docs site build with it.
-
 ```bash
 npm ci
 ```
+
+`npm ci` installs the published `@velella/mizzen`, which is what the tests and the docs check run against. No sibling checkout is required.
+
+To test against a local Mizzen instead, clone `velella-sh/mizzen` beside this repository as `../mizzen`, run `npm ci` there, and use `node ../mizzen/bin/mizzen.ts check site`.
 
 ## Commands
 
@@ -38,6 +40,6 @@ Before a pull request: `npm run typecheck && npm test`.
 
 - Use only erasable TypeScript syntax (no `enum`, `namespace`, or parameter properties). Import local files with their `.ts` extension.
 - A behavior change needs a test beside the others in `test/`.
-- A docs site change must pass `node ../mizzen/bin/mizzen.ts check site` with 0 errors.
+- A docs site change must pass `npx mizzen check site` with 0 errors (or `node ../mizzen/bin/mizzen.ts check site` when testing a local engine).
 - Accessibility and RTL are gates. Run `npm run test:a11y` when you touch layouts, chrome, components, or styles.
 - One pull request = one change. Say what it fixes and how you checked it.
