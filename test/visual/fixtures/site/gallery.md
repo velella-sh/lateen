@@ -415,3 +415,23 @@ A caution callout.
 <li class="search-result"><a class="search-result-link" href="/guide/install/"><span class="search-result-title">Install</span><span class="search-result-excerpt">The first page of this site.</span></a></li>
 </ul>
 
+
+## chart-data
+
+The closed data table under every chart; the chart components render it.
+
+## compare
+
+::compare{from=books ids="a,b" fields='[{"field": "pages", "label": "Pages", "kind": "number"}, {"field": "published", "label": "Published", "kind": "date"}]'}
+
+## glossary
+
+::glossary
+
+## related-guides
+
+The previous, next and related guides at the foot of a guide page; the guide layout renders it.
+
+## stacked-bar
+
+::stacked-bar{from=stacked-bar category=category series=series value=value title="Revenue by region"}

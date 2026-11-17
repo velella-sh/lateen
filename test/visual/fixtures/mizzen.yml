@@ -23,8 +23,13 @@ collections:
   timeline:
     source: _data/timeline.json
     id: id
+  glossary:
+    source: _data/glossary.json
+    id: id
 theme:
   options:
+    glossary:
+      collection: glossary
     installTabs:
       managers:
         - name: npm

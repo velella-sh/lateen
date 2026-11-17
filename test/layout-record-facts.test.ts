@@ -79,7 +79,7 @@ test("the facts render in the author's order, after the title and before the bod
   assert.ok(name > out.indexOf("<h1>Button</h1>"), "the panel follows the title");
   assert.ok(name < pages && pages < published && published < draft, "the author's order is kept");
   assert.ok(draft < out.indexOf('class="record-body"'), "the panel comes before the body");
-  assert.match(out, /<dl class="key-value">/);
+  assert.match(out, /<dl class="key-value"/);
 });
 
 test("every kind goes through the field formatter", () => {
