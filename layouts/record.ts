@@ -43,6 +43,50 @@ function titleFromBody(props: LayoutProps): boolean {
   return props.page.headings.some((heading) => heading.depth === 1);
 }
 
+/** The record field a front matter key names: `record.summary` and `record.status` hold field names. */
+function fieldName(props: LayoutProps, key: "summary" | "status"): string {
+  const front = props.page.frontMatter.record;
+  if (!isRecord(front) || typeof front[key] !== "string") return "";
+  return (front[key] as string).trim();
+}
+
+/** A record field's value, the id included, or undefined when the record lacks the field. */
+function fieldValue(props: LayoutProps, field: string): unknown {
+  const record = props.record;
+  if (record === undefined || field === "") return undefined;
+  return field === "id" ? record.id : record.fields[field];
+}
+
+/** Empty values render nothing: the summary paragraph and the status chip are never blank. */
+function given(value: unknown): boolean {
+  return value !== undefined && value !== null && String(value).trim() !== "";
+}
+
+/**
+ * The title and the status beside it. When the template carries the title in its body, only the
+ * status is drawn here, so the page keeps one `h1` and one heading order.
+ */
+function recordHeader(props: LayoutProps): ComponentChildren {
+  const status = fieldValue(props, fieldName(props, "status"));
+  const title = titleFromBody(props) ? null : h("h1", null, props.page.title);
+  if (title === null && !given(status)) return null;
+  return h(
+    "div",
+    { class: "record-header" },
+    title,
+    given(status)
+      ? h("span", { class: "record-status" }, formatField(status, "status", props.page.lang, props.site.config) as ComponentChildren)
+      : null,
+  );
+}
+
+/** The lead paragraph under the title, which is the value of the field the page names. */
+function summaryOf(props: LayoutProps): ComponentChildren {
+  const summary = fieldValue(props, fieldName(props, "summary"));
+  if (!given(summary)) return null;
+  return h("p", { class: "record-summary" }, formatField(summary, "text", props.page.lang, props.site.config) as ComponentChildren);
+}
+
 /** The key facts panel: labels and values from the page, with no empty row and no panel without facts. */
 function factsPanel(props: LayoutProps): ComponentChildren {
   const record = props.record;
@@ -81,7 +125,8 @@ function article(props: LayoutProps): ComponentChildren {
     "article",
     { class: "record", "data-pagefind-body": true },
     breadcrumb(props) as ComponentChildren,
-    titleFromBody(props) ? null : h("h1", null, props.page.title),
+    recordHeader(props),
+    summaryOf(props),
     factsPanel(props),
     h("div", { class: "record-body", dangerouslySetInnerHTML: { __html: props.page.html } }),
   );
