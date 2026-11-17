@@ -1,0 +1,6 @@
+[
+  { "id": "q1", "quarter": "Q1", "users": 1200 },
+  { "id": "q2", "quarter": "Q2", "users": null },
+  { "id": "q3", "quarter": "Q3", "users": 2400 },
+  { "id": "q4", "quarter": "Q4", "users": 3100 }
+]
