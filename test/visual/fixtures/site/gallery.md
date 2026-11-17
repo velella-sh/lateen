@@ -133,6 +133,10 @@ pnpm add mizzen
 
 ::data-explorer{from=books columns=title,pages}
 
+## dated-list
+
+::dated-list{items='[{"date":"2026-03-04","label":"Alpha release"},{"date":"2026-02-11","label":"Beta release"},{"date":"2026-01-09","label":"First preview"}]'}
+
 ## details
 
 :::details{summary="Show the details"}

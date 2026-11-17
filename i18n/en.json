@@ -123,6 +123,7 @@
   "copy_markdown_hint": "Press M to copy",
   "copy_page_md": "Copy page as Markdown",
   "data_explorer_more": "Show more",
+  "dated_list_invalid": "Records with no valid date are listed here.",
   "default": "Default",
   "deprecated": "Deprecated",
   "description": "Description",
