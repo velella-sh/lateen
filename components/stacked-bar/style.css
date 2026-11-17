@@ -1,0 +1,177 @@
+/* Stacked bar charts: fixed SVG bars with a segment per series, a legend, and the same data as a
+   table. Colours come from the chart tokens of `tokens/chart.json`, so light and dark follow the theme. */
+
+.stacked-bar {
+  margin-block: var(--space-6);
+  break-inside: avoid;
+}
+
+.stacked-bar-title {
+  margin-block: 0 var(--space-2);
+  color: var(--color-heading);
+  font-family: var(--type-font-heading);
+  font-size: var(--type-size-lg);
+  font-weight: var(--type-weight-medium);
+}
+
+.stacked-bar-svg {
+  display: block;
+  inline-size: 100%;
+  block-size: auto;
+  max-inline-size: 100%;
+}
+
+.stacked-bar-svg text {
+  font-family: var(--type-font-body);
+  font-size: var(--type-size-xs);
+}
+
+.stacked-bar-segment {
+  stroke: var(--color-canvas);
+  stroke-width: 1;
+}
+
+.stacked-bar-series-1 {
+  fill: var(--chart-cat-1);
+  background-color: var(--chart-cat-1);
+}
+
+.stacked-bar-series-2 {
+  fill: var(--chart-cat-2);
+  background-color: var(--chart-cat-2);
+}
+
+.stacked-bar-series-3 {
+  fill: var(--chart-cat-3);
+  background-color: var(--chart-cat-3);
+}
+
+.stacked-bar-series-4 {
+  fill: var(--chart-cat-4);
+  background-color: var(--chart-cat-4);
+}
+
+.stacked-bar-series-5 {
+  fill: var(--chart-cat-5);
+  background-color: var(--chart-cat-5);
+}
+
+.stacked-bar-series-6 {
+  fill: var(--chart-cat-6);
+  background-color: var(--chart-cat-6);
+}
+
+.stacked-bar-series-7 {
+  fill: var(--chart-cat-7);
+  background-color: var(--chart-cat-7);
+}
+
+.stacked-bar-series-8 {
+  fill: var(--chart-cat-8);
+  background-color: var(--chart-cat-8);
+}
+
+.stacked-bar-segment-value {
+  fill: var(--color-canvas);
+  font-weight: var(--type-weight-medium);
+}
+
+.stacked-bar-axis {
+  stroke: var(--color-border);
+  stroke-width: 1;
+}
+
+.stacked-bar-grid {
+  stroke: var(--border-subtle);
+  stroke-width: 1;
+}
+
+.stacked-bar-label {
+  fill: var(--color-text);
+}
+
+.stacked-bar-tick {
+  fill: var(--color-muted);
+}
+
+.stacked-bar-no-value {
+  fill: var(--color-muted);
+  color: var(--color-muted);
+  font-style: italic;
+}
+
+.stacked-bar-legend {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-2) var(--space-4);
+  margin-block: var(--space-3) 0;
+  padding-inline-start: 0;
+  list-style: none;
+  font-size: var(--type-size-sm);
+}
+
+.stacked-bar-legend li {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+}
+
+.stacked-bar-swatch {
+  inline-size: var(--space-3);
+  block-size: var(--space-3);
+  border-radius: var(--radius-sm);
+}
+
+.stacked-bar-table {
+  inline-size: 100%;
+  margin-block-start: var(--space-4);
+  border-collapse: collapse;
+  font-size: var(--type-size-sm);
+  line-height: var(--type-leading-body);
+}
+
+.stacked-bar-table caption {
+  padding-block: var(--space-2);
+  color: var(--color-muted);
+  font-weight: var(--type-weight-medium);
+  text-align: start;
+}
+
+.stacked-bar-table th,
+.stacked-bar-table td {
+  padding-block: var(--space-2);
+  padding-inline: var(--space-3);
+  border-block-end: 1px solid var(--color-border);
+  text-align: start;
+  vertical-align: top;
+}
+
+.stacked-bar-table thead th {
+  color: var(--color-heading);
+  font-weight: var(--type-weight-medium);
+}
+
+.stacked-bar-table tbody th {
+  color: var(--color-text);
+  font-weight: var(--type-weight-regular);
+}
+
+@media (forced-colors: active) {
+  .stacked-bar-segment {
+    fill: CanvasText;
+    stroke: Canvas;
+  }
+
+  .stacked-bar-segment-value {
+    fill: Canvas;
+  }
+
+  .stacked-bar-axis,
+  .stacked-bar-grid {
+    stroke: CanvasText;
+  }
+
+  .stacked-bar-swatch {
+    border: 1px solid CanvasText;
+  }
+}
