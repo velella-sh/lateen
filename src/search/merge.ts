@@ -1,3 +1,5 @@
+import type { SiteNetwork } from "@velella/mizzen/contracts";
+
 /** One search result after a project's index returned it, with the score and project the merge needs. */
 export interface SearchResult {
   /** The project's id in the network file. */
@@ -76,4 +78,36 @@ export function mergeResults(groups: readonly (readonly SearchResult[])[]): read
         a.order - b.order,
     )
     .map(({ result }) => result);
+}
+
+/** One other project whose index did not answer, as the island reports it. */
+export interface FailedIndex {
+  /** The project's id in the network file. */
+  readonly id: string;
+  /** The label the failure notice shows. */
+  readonly title: string;
+}
+
+/** The network project a result came from, when the network still lists it. */
+function projectOf(network: SiteNetwork | undefined, id: string): SiteNetwork["projects"][number] | undefined {
+  return network?.projects.find((project) => project.id === id);
+}
+
+/**
+ * The address of one result under its project's base path. The index gives a project-relative URL;
+ * the network's `path` supplies the base, and a URL that already carries it is left alone. A project
+ * the network no longer lists keeps the URL the index returned.
+ */
+export function resultHref(result: SearchResult, network: SiteNetwork | undefined): string {
+  const project = projectOf(network, result.project);
+  if (project === undefined) return result.url;
+  const base = `/${project.path.replace(/^\/+|\/+$/g, "")}`;
+  if (result.url === base || result.url.startsWith(`${base}/`)) return result.url;
+  return `${base}${result.url.startsWith("/") ? result.url : `/${result.url}`}`;
+}
+
+/** The project label a result shows: only another project's results are labelled, never this one's. */
+export function resultLabel(result: SearchResult, network: SiteNetwork | undefined): string | undefined {
+  if (result.current) return undefined;
+  return projectOf(network, result.project)?.title;
 }
