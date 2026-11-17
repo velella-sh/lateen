@@ -37,12 +37,23 @@ export const TRACK_CLASS = "timeline-track";
 /** Class on one row's bar; the tone is appended: `timeline-bar-positive`. */
 export const BAR_CLASS = "timeline-bar";
 
+/** Class on one phase's segment in a row's track. */
+export const PHASE_CLASS = "timeline-phase";
+
+/** Class on the legend that names every phase and its tone. */
+export const LEGEND_CLASS = "timeline-legend";
+
+/** Class on the message that reports overlapping phases in one row. */
+export const OVERLAP_CLASS = "timeline-overlap";
+
 /** Props from the directive or the page's front matter. */
 export type TimelineProps = {
   /** The collection to read; required unless `items` is given. */
   from?: string;
   /** JSON array of rows, each with the label, start, end and status fields. */
   items?: string;
+  /** The field holding a row's phases: a list of label, start, end and status objects; defaults to `phases`. */
+  phases?: string;
   /** The field holding a row's label; defaults to `label`. */
   label?: string;
   /** The field holding a row's start date; defaults to `start`. */
@@ -103,16 +114,126 @@ function toneOfRow(row: Row, field: string, lang: string, config: SiteConfig | u
   return resolveStatus(String(value), lang, config).tone;
 }
 
-/** A row's bar, decoration over the dates the row already states in its own cells. */
-function bar(segment: ScaleSegment | undefined, tone: StatusTone): ComponentChildren {
-  if (segment === undefined) return null;
-  return h(
-    "span",
-    {
-      class: `${BAR_CLASS} ${BAR_CLASS}-${tone}`,
-      style: `inset-inline-start:${pct(segment.start)};inline-size:${pct(segment.length)}`,
-    },
+/** The field names the rows use, from the directive or their defaults. */
+type Fields = {
+  readonly label: string;
+  readonly start: string;
+  readonly end: string;
+  readonly status: string;
+  readonly phases: string;
+};
+
+const DAY = 86_400_000;
+
+/** A value as epoch milliseconds at UTC midnight, or undefined when it is not an ISO 8601 date. */
+function dayOf(value: unknown): number | undefined {
+  const iso = typeof value === "string" ? calendarDate(value.trim(), "en")?.datetime : undefined;
+  return iso === undefined ? undefined : Date.parse(iso);
+}
+
+/** The ISO date for a day. */
+function iso(day: number): string {
+  return new Date(day).toISOString().slice(0, 10);
+}
+
+/** A row's or a phase's dates as epoch days; a missing end runs to its start, and a bad date is ignored. */
+function spanOf(row: Row, fields: Fields): { readonly from: number; readonly to: number } | undefined {
+  const start = dayOf(row.fields[fields.start]);
+  const end = dayOf(row.fields[fields.end]);
+  const from = start ?? end;
+  const to = end ?? start;
+  return from === undefined || to === undefined ? undefined : { from, to };
+}
+
+/** The phases a row lists in its phases field; anything that is not a list of objects is ignored. */
+function phasesOf(row: Row, field: string): Row[] {
+  const value = row.fields[field];
+  return Array.isArray(value) ? value.filter(isRecord).map((fields) => ({ fields })) : [];
+}
+
+/** One row's dates widened to its phases, so a phase never draws past the axis. */
+function rangeOf(row: Row, phases: readonly Row[], fields: Fields): { start: string; end: string } | undefined {
+  const spans = [spanOf(row, fields), ...phases.map((phase) => spanOf(phase, fields))].filter(
+    (span): span is { readonly from: number; readonly to: number } => span !== undefined,
   );
+  if (spans.length === 0) return undefined;
+  return {
+    start: iso(Math.min(...spans.map((span) => span.from))),
+    end: iso(Math.max(...spans.map((span) => span.to))),
+  };
+}
+
+/** Each phase's segment on the axis; a phase without a real date has none. */
+function segmentsOf(
+  phases: readonly Row[],
+  fields: Fields,
+  axis: { readonly from: number; readonly span: number },
+): (ScaleSegment | undefined)[] {
+  return phases.map((phase) => {
+    const span = spanOf(phase, fields);
+    if (span === undefined) return undefined;
+    return {
+      start: ((span.from - axis.from) / axis.span) * 100,
+      length: ((span.to + DAY - span.from) / axis.span) * 100,
+    };
+  });
+}
+
+/** A phase's name in the legend and the overlap message. */
+function nameOf(phase: Row, fields: Fields, lang: string): string {
+  const label = phase.fields[fields.label];
+  return isEmpty(label) ? t(lang, "timeline_phase") : String(label);
+}
+
+/** The phases of one row that share a day with another phase in the same row. */
+function overlaps(phases: readonly Row[], fields: Fields): Row[] {
+  const spans = phases
+    .map((phase) => ({ phase, span: spanOf(phase, fields) }))
+    .filter(
+      (item): item is { phase: Row; span: { readonly from: number; readonly to: number } } => item.span !== undefined,
+    );
+  const hit = new Set<Row>();
+  for (const [index, a] of spans.entries()) {
+    for (const b of spans.slice(index + 1)) {
+      if (a.span.from <= b.span.to && b.span.from <= a.span.to) {
+        hit.add(a.phase);
+        hit.add(b.phase);
+      }
+    }
+  }
+  return phases.filter((phase) => hit.has(phase));
+}
+
+/** One legend entry: a phase's name and the tone its status resolves to. */
+type LegendEntry = { readonly label: string; readonly tone: StatusTone };
+
+/** Every phase once, in the order the rows list them. */
+function legendOf(
+  rows: readonly (readonly Row[])[],
+  fields: Fields,
+  lang: string,
+  config: SiteConfig | undefined,
+): LegendEntry[] {
+  const entries: LegendEntry[] = [];
+  const seen = new Set<string>();
+  for (const phases of rows) {
+    for (const phase of phases) {
+      const label = nameOf(phase, fields, lang);
+      if (seen.has(label)) continue;
+      seen.add(label);
+      entries.push({ label, tone: toneOfRow(phase, fields.status, lang, config) });
+    }
+  }
+  return entries;
+}
+
+/** One bar in a row's track, phase segment or whole row; the tone is in the class. */
+function bar(segment: ScaleSegment | undefined, tone: StatusTone, extra = ""): ComponentChildren {
+  if (segment === undefined) return null;
+  return h("span", {
+    class: [BAR_CLASS, `${BAR_CLASS}-${tone}`, extra].filter((name) => name !== "").join(" "),
+    style: `inset-inline-start:${pct(segment.start)};inline-size:${pct(segment.length)}`,
+  });
 }
 
 /** A visible message for a field the row does not have. */
@@ -156,11 +277,12 @@ export default function timeline({ props, page, site }: ComponentProps<Readonly<
   const input = props as TimelineProps;
   const lang = page?.lang ?? "en";
   const caption = typeof input.caption === "string" ? input.caption.trim() : "";
-  const fields = {
+  const fields: Fields = {
     label: fieldName(input.label, "label"),
     start: fieldName(input.start, "start"),
     end: fieldName(input.end, "end"),
     status: fieldName(input.status, "status"),
+    phases: fieldName(input.phases, "phases"),
   };
 
   const from = typeof input.from === "string" ? input.from.trim() : "";
@@ -187,7 +309,13 @@ export default function timeline({ props, page, site }: ComponentProps<Readonly<
   }
 
   const config = site?.config;
-  const scaled = scale(rows.map((row) => ({ start: row.fields[fields.start], end: row.fields[fields.end] })));
+  const phaseRows = rows.map((row) => phasesOf(row, fields.phases));
+  const scaled = scale(rows.map((row, index) => rangeOf(row, phaseRows[index] ?? [], fields) ?? {}));
+  const axis =
+    scaled === undefined
+      ? undefined
+      : { from: Date.parse(scaled.from), span: Date.parse(scaled.to) - Date.parse(scaled.from) };
+  const legend = legendOf(phaseRows, fields, lang, config);
   const head = h(
     "thead",
     null,
@@ -225,35 +353,85 @@ export default function timeline({ props, page, site }: ComponentProps<Readonly<
     null,
     rows.map((row, index) => {
       const label = cell(row, fields.label, "text", lang, config);
-      return h(
-        "tr",
-        null,
+      const phases = phaseRows[index] ?? [];
+      const segments = scaled === undefined || axis === undefined ? [] : segmentsOf(phases, fields, axis);
+      const shared = overlaps(phases, fields);
+      return [
         h(
-          "td",
-          { class: "timeline-cell", "data-field": "label" },
-          row.url === undefined ? label : h("a", { href: row.url }, label as never),
+          "tr",
+          null,
+          h(
+            "td",
+            { class: "timeline-cell", "data-field": "label" },
+            row.url === undefined ? label : h("a", { href: row.url }, label as never),
+          ),
+          h("td", { class: "timeline-cell", "data-field": "start" }, cell(row, fields.start, "date", lang, config)),
+          h("td", { class: "timeline-cell", "data-field": "end" }, cell(row, fields.end, "date", lang, config)),
+          h("td", { class: "timeline-cell", "data-field": "status" }, cell(row, fields.status, "status", lang, config)),
+          scaled === undefined
+            ? null
+            : h(
+                "td",
+                { class: CHART_CLASS },
+                h(
+                  "div",
+                  { class: TRACK_CLASS, "aria-hidden": "true" },
+                  phases.length === 0
+                    ? bar(scaled.segments[index], toneOfRow(row, fields.status, lang, config))
+                    : segments.map((segment, phaseIndex) => {
+                        const phase = phases[phaseIndex];
+                        return phase === undefined
+                          ? null
+                          : bar(segment, toneOfRow(phase, fields.status, lang, config), PHASE_CLASS);
+                      }),
+                ),
+              ),
         ),
-        h("td", { class: "timeline-cell", "data-field": "start" }, cell(row, fields.start, "date", lang, config)),
-        h("td", { class: "timeline-cell", "data-field": "end" }, cell(row, fields.end, "date", lang, config)),
-        h("td", { class: "timeline-cell", "data-field": "status" }, cell(row, fields.status, "status", lang, config)),
-        scaled === undefined
+        shared.length === 0
           ? null
           : h(
-              "td",
-              { class: CHART_CLASS },
+              "tr",
+              null,
               h(
-                "div",
-                { class: TRACK_CLASS, "aria-hidden": "true" },
-                bar(scaled.segments[index], toneOfRow(row, fields.status, lang, config)),
+                "td",
+                { colspan: scaled === undefined ? 4 : 5 },
+                h(
+                  "span",
+                  { class: OVERLAP_CLASS, role: "note" },
+                  t(lang, "timeline_overlap", { names: shared.map((phase) => nameOf(phase, fields, lang)).join(", ") }),
+                ),
               ),
             ),
-      );
+      ];
     }),
   );
 
-  return h(
+  const chart = h(
     table,
     (caption === "" ? {} : { label: caption }) as never,
     [caption === "" ? null : h("caption", null, caption), head, body] as never,
   );
+
+  if (legend.length === 0) return chart;
+
+  return [
+    chart,
+    h(
+      "div",
+      { class: LEGEND_CLASS },
+      h("p", { class: "timeline-legend-title" }, t(lang, "timeline_legend")),
+      h(
+        "ul",
+        null,
+        legend.map((entry) =>
+          h(
+            "li",
+            null,
+            h("span", { class: `${BAR_CLASS} ${BAR_CLASS}-${entry.tone}`, "aria-hidden": "true" }),
+            entry.label,
+          ),
+        ),
+      ),
+    ),
+  ];
 }
