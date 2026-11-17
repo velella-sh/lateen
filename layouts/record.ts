@@ -2,8 +2,12 @@ import { Fragment, h } from "preact";
 import type { ComponentChildren } from "preact";
 import type { Heading, Layout, LayoutProps } from "@velella/mizzen/contracts";
 import base from "./base.ts";
+import blockActions from "../chrome/block-actions/index.ts";
 import breadcrumb from "../chrome/breadcrumb/index.ts";
+import copyMarkdown from "../chrome/copy-markdown/index.ts";
 import drawer from "../chrome/drawer/index.ts";
+import lastUpdated from "../chrome/last-updated/index.ts";
+import pageAgentMenu from "../chrome/page-agent-menu/index.ts";
 import header from "../chrome/header/index.ts";
 import sidebar from "../chrome/sidebar/index.ts";
 import toc from "../chrome/toc/index.ts";
@@ -129,7 +133,8 @@ function tocFor(props: LayoutProps): LayoutProps {
 
 /**
  * One record: breadcrumb, the title when the template does not carry it, the key facts the page asks
- * for, and the template's rendered body. The layout names no collection and no field: everything
+ * for, the template's rendered body, and the same page actions a doc page keeps: last updated,
+ * copy Markdown, the page agent menu, and block actions. The layout names no collection and no field: everything
  * comes from the page and its data.
  */
 function article(props: LayoutProps): ComponentChildren {
@@ -140,7 +145,14 @@ function article(props: LayoutProps): ComponentChildren {
     recordHeader(props),
     summaryOf(props),
     factsPanel(props),
+    lastUpdated(props) as ComponentChildren,
     h("div", { class: "record-body", dangerouslySetInnerHTML: { __html: props.page.html } }),
+    h(
+      "div",
+      { class: "doc-actions" },
+      copyMarkdown(props) as ComponentChildren,
+      pageAgentMenu(props) as ComponentChildren,
+    ),
   );
 }
 
@@ -156,7 +168,7 @@ const record: Layout = (props) =>
         ...props,
         header: h(Fragment, null, header(props) as ComponentChildren, drawer(props) as ComponentChildren),
         sidebar: sidebar(props) as ComponentChildren,
-        main: article(props),
+        main: h(Fragment, null, article(props), blockActions(props) as ComponentChildren),
         aside: toc(tocFor(props)) as ComponentChildren,
       });
 

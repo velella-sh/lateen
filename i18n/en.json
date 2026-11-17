@@ -451,6 +451,7 @@
   "video_missing_title": "Video is missing a title. Add title=\"…\" to the ::video directive so the player has an accessible name.",
   "video_play": "Play video",
   "video_watch": "Watch on {provider}",
+  "view_json": "View as JSON",
   "view_markdown": "View Markdown",
   "wcag_checked": "Checked",
   "wcag_criterion": "Criterion",

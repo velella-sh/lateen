@@ -55,6 +55,18 @@ export function providersOf(config: SiteConfig): readonly Provider[] {
   return providers;
 }
 
+/**
+ * The URL path a page's JSON is served at, by the engine's own rule in `outputs/page-json.ts`: a
+ * pretty URL gives `<url>/index.json`, `/404.html` gives `/404.json`, and a URL that names another
+ * file has none. Mirrored here because the theme imports no engine output module.
+ */
+export function jsonUrl(url: string): string | undefined {
+  const last = url.slice(url.lastIndexOf("/") + 1);
+  if (/\.html?$/i.test(last)) return `${url.slice(0, url.length - last.length)}${last.replace(/\.html?$/i, ".json")}`;
+  if (last.includes(".")) return undefined;
+  return `${url.endsWith("/") ? url : `${url}/`}index.json`;
+}
+
 /** The site's base path without a trailing slash; `""` at a domain root. */
 function baseOf(config: SiteConfig): string {
   return config.base.replace(/\/+$/, "");
@@ -94,17 +106,19 @@ function absolute(config: SiteConfig, url: string): string | undefined {
 }
 
 /**
- * Fills a provider template's placeholders in one pass, encoding every value once. `{url}` and
- * `{markdown}` are absolute page addresses, `{lang}` the page language, `{source}` its source file,
- * `{title}` its title, and `{version}` the version its front matter declares. A template that uses a
+ * Fills a provider template's placeholders in one pass, encoding every value once. `{url}`,
+ * `{markdown}` and `{json}` are absolute page addresses, `{lang}` the page language, `{source}` its
+ * source file, `{title}` its title, and `{version}` the version its front matter declares. A template that uses a
  * value the caller cannot supply returns nothing, so the provider is omitted rather than shown as a
  * half-filled link: `{version}` on a page that declares none, `{prompt}` in the page menu, or an
  * absolute address when the config names no published site. One pass means a value that contains
  * braces is copied as text and never read as another placeholder.
  */
 export function expand(config: SiteConfig, page: Page, template: string, markdown: string): string | undefined {
+  const json = jsonUrl(page.url);
   const values: Readonly<Record<string, string | undefined>> = {
     markdown: absolute(config, markdown),
+    json: json === undefined ? undefined : absolute(config, json),
     url: absolute(config, page.url),
     title: page.title,
     lang: text(page.lang),

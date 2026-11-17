@@ -451,6 +451,7 @@
   "video_missing_title": "الفيديو بلا عنوان. أضف title=\"…\" إلى توجيه ::video ليحصل المشغّل على اسم يقرأه قارئ الشاشة.",
   "video_play": "تشغيل الفيديو",
   "video_watch": "المشاهدة على {provider}",
+  "view_json": "عرض بصيغة JSON",
   "view_markdown": "عرض ماركداون",
   "wcag_checked": "مفحوص",
   "wcag_criterion": "المعيار",
