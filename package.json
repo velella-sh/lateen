@@ -29,6 +29,7 @@
   },
   "exports": {
     ".": "./src/index.ts",
+    "./visual": "./visual/index.ts",
     "./package.json": "./package.json"
   },
   "scripts": {
@@ -51,7 +52,13 @@
     "shiki": "^4.6.0"
   },
   "peerDependencies": {
+    "playwright": "^1.65.0",
     "preact": "^11.2.0"
+  },
+  "peerDependenciesMeta": {
+    "playwright": {
+      "optional": true
+    }
   },
   "devDependencies": {
     "@axe-core/playwright": "4.14.0",
@@ -64,6 +71,9 @@
   },
   "files": [
     "src",
+    "visual",
+    "scripts/visual-compare.ts",
+    "scripts/visual-review.ts",
     "layouts",
     "chrome",
     "components",

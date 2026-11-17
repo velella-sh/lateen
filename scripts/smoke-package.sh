@@ -26,4 +26,28 @@ node -e '
 npx mizzen build site --out out
 test -s out/index.html
 grep -q 'class="mermaid-diagram"' out/components/mermaid/index.html
-echo "packages build the Lateen site from node_modules"
+
+# The site tool (#505) is in the tarball and asks for its optional peer when Playwright is absent.
+# Node does not strip types under node_modules; Mizzen registers the same hook for the theme's sources.
+node --input-type=module -e '
+  import { registerHooks, stripTypeScriptTypes } from "node:module";
+  import { readFileSync } from "node:fs";
+  import { fileURLToPath } from "node:url";
+  registerHooks({
+    load(url, context, nextLoad) {
+      if (!url.endsWith(".ts")) return nextLoad(url, context);
+      return { format: "module", shortCircuit: true, source: stripTypeScriptTypes(readFileSync(fileURLToPath(url), "utf8"), { mode: "strip" }) };
+    },
+  });
+  const { visualCheck } = await import("@velella/lateen/visual");
+  if (typeof visualCheck !== "function") throw new Error("the visual export is missing");
+  try {
+    await visualCheck({ site: "out", pages: [{ name: "home", path: "/" }], baselines: "baselines" });
+  } catch (error) {
+    if (!/playwright/i.test(error.message) || !/npm i -D playwright/.test(error.message)) throw error;
+    console.log("the visual export asks for Playwright, its optional peer");
+    process.exit(0);
+  }
+  throw new Error("the visual export ran without Playwright");
+'
+echo "packages build the Lateen site and ship the visual export from node_modules"

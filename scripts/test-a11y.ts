@@ -6,16 +6,15 @@
 // Setup: npm ci && npx playwright install chromium   (add --with-deps on Linux CI)
 // Usage: node scripts/test-a11y.ts [--only <case name substring>] [--report <file>]
 import { spawnSync } from "node:child_process";
-import { readFile } from "node:fs/promises";
 import { readFileSync } from "node:fs";
-import { createServer, type ServerResponse } from "node:http";
 import { createRequire } from "node:module";
-import { dirname, extname, join, resolve, sep } from "node:path";
+import { dirname, join } from "node:path";
 import { fileURLToPath } from "node:url";
 import { AxeBuilder } from "@axe-core/playwright";
 import { chromium, type Browser, type Page } from "playwright";
 import { SEARCH_INPUT_ID } from "../chrome/search/index.ts";
 import { THEME_KEY } from "../chrome/theme-toggle/key.ts";
+import { fileForRequest, startServer, type StaticServer } from "../visual/index.ts";
 import { commitOf, reportPath, schemaAt, versionOf, writeReport } from "./report.ts";
 
 const ROOT = fileURLToPath(new URL("../", import.meta.url));
@@ -321,82 +320,8 @@ export function buildA11yReport(input: A11yReportInput): Readonly<Record<string,
   };
 }
 
-/** The file a request maps to under `root`, or undefined when it would leave the root or miss the mount. */
-export function fileForRequest(root: string, mount: string, pathname: string): string | undefined {
-  if (mount !== "" && pathname !== mount && !pathname.startsWith(`${mount}/`)) return undefined;
-  let path: string;
-  try {
-    path = decodeURIComponent(pathname.slice(mount.length));
-  } catch {
-    return undefined;
-  }
-  if (path.includes("\0")) return undefined;
-  if (path === "" || path === "/") path = "/index.html";
-  else if (path.endsWith("/")) path += "index.html";
-  const file = resolve(root, `.${path}`);
-  return file === root || file.startsWith(root + sep) ? file : undefined;
-}
-
-const CONTENT_TYPES: Readonly<Record<string, string>> = {
-  ".css": "text/css; charset=utf-8",
-  ".html": "text/html; charset=utf-8",
-  ".ico": "image/x-icon",
-  ".js": "text/javascript; charset=utf-8",
-  ".json": "application/json; charset=utf-8",
-  ".png": "image/png",
-  ".svg": "image/svg+xml",
-  ".txt": "text/plain; charset=utf-8",
-  ".woff2": "font/woff2",
-  ".xml": "application/xml; charset=utf-8",
-};
-
-export interface StaticServer {
-  readonly url: string;
-  close(): Promise<void>;
-}
-
-/** Serves one built folder at `mount` (empty for the site root) on a free loopback port. */
-export function startServer(root: string, mount: string): Promise<StaticServer> {
-  const respond = (response: ServerResponse, status: number, body: string): void => {
-    response.writeHead(status, { "content-type": "text/plain; charset=utf-8", "cache-control": "no-store" });
-    response.end(body);
-  };
-  const server = createServer((request, response) => {
-    const pathname = new URL(request.url ?? "/", "http://127.0.0.1").pathname;
-    const file = fileForRequest(root, mount, pathname);
-    if (file === undefined) {
-      respond(response, 404, "not found");
-      return;
-    }
-    readFile(file).then(
-      (body) => {
-        response.writeHead(200, {
-          "content-type": CONTENT_TYPES[extname(file)] ?? "application/octet-stream",
-          "cache-control": "no-store",
-        });
-        response.end(body);
-      },
-      () => respond(response, 404, "not found"),
-    );
-  });
-  return new Promise((resolvePromise, reject) => {
-    server.once("error", reject);
-    server.listen(0, "127.0.0.1", () => {
-      const address = server.address();
-      if (address === null || typeof address === "string") {
-        reject(new Error("the static server did not get a port"));
-        return;
-      }
-      resolvePromise({
-        url: `http://127.0.0.1:${address.port}`,
-        close: () =>
-          new Promise((resolveClose, rejectClose) => {
-            server.close((error) => (error === undefined ? resolveClose() : rejectClose(error)));
-          }),
-      });
-    });
-  });
-}
+/** The static server of the a11y gate is the visual runner's, so a page is served the same way in both gates. */
+export { fileForRequest, startServer, type StaticServer };
 
 function build(site: string, out: string): void {
   const bin = join(dirname(createRequire(import.meta.url).resolve("@velella/mizzen/package.json")), "bin/mizzen.js");
