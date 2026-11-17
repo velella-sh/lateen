@@ -385,6 +385,7 @@
   "timeline_phase": "مرحله",
   "timeline_start": "شروع",
   "timeline_status": "وضعیت",
+  "timeline_today": "امروز",
   "timeline_unknown_collection": "سایت مجموعه‌ای به نام «{name}» ندارد.",
   "timeline_unknown_field": "فیلدی به نام «{name}» نیست.",
   "translation_key": "کلید ترجمه",

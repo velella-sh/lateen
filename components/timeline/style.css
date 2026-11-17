@@ -139,3 +139,38 @@
   color: var(--status-caution-fg);
   font-size: var(--type-size-xs);
 }
+
+/* Today's line, drawn by the island only: dashed so it never reads as a bar, and out of the way of
+   the pointer so a bar under it stays reachable. */
+.timeline-today {
+  position: absolute;
+  inset-block: 0;
+  inline-size: 0;
+  border-inline-start: thin dashed var(--color-accent);
+  pointer-events: none;
+}
+
+.timeline-today-label {
+  position: absolute;
+  inset-block-start: 100%;
+  inset-inline-start: 0;
+  transform: translate(-50%, 0);
+  padding-block-start: var(--space-1);
+  font-size: var(--type-size-xs);
+  color: var(--color-accent);
+  white-space: nowrap;
+}
+
+/* Right-to-left text starts from the other side, so the label centres under its own line. */
+[dir="rtl"] .timeline-today-label {
+  transform: translate(50%, 0);
+}
+
+.timeline-legend .timeline-today-sample {
+  display: inline-block;
+  inline-size: 0;
+  block-size: var(--space-3);
+  margin-inline-end: var(--space-2);
+  border-inline-start: thin dashed var(--color-accent);
+  vertical-align: middle;
+}
