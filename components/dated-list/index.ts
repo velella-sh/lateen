@@ -2,7 +2,7 @@ import { h } from "preact";
 import type { ComponentChildren } from "preact";
 import type { ComponentProps } from "@velella/mizzen/contracts";
 import { t } from "../../i18n/index.ts";
-import { calendarDate, calendarMonth, type CalendarMonth } from "../../src/dates.ts";
+import { calendarDate, calendarMonth, calendarYear, type CalendarMonth } from "../../src/dates.ts";
 import { formatField, isEmpty } from "../../src/fields.ts";
 import { selectRecords } from "../../src/records.ts";
 
@@ -18,6 +18,12 @@ export const INVALID_CLASS = "dated-list-invalid";
 /** Class on one month's section. */
 export const GROUP_CLASS = "dated-list-group";
 
+/** Class on one year's section, when `group=year`. */
+export const YEAR_CLASS = "dated-list-year";
+
+/** Class on the list of the groups, when the page asks for a table of contents. */
+export const TOC_CLASS = "dated-list-toc";
+
 /** Class on a month's list and on the invalid section's list. */
 export const ITEMS_CLASS = "dated-list-items";
 
@@ -31,6 +37,14 @@ export type DatedListProps = {
   date?: string;
   /** The field holding a record's status; omitted means records show no status. */
   status?: string;
+  /** `asc` (default) lists the oldest group first; `desc` lists the newest first. */
+  order?: string;
+  /** Heading level for the groups; defaults to 2, and a level that would skip one falls back to 2. */
+  level?: string | number;
+  /** `year` adds a year heading above each year's months. */
+  group?: string;
+  /** `true` puts the groups in a table of contents above the list. */
+  toc?: string | boolean;
 };
 
 /** One row as the directive or a record writes it. */
@@ -47,6 +61,24 @@ interface Entry {
   readonly month: CalendarMonth;
   readonly row: Row;
 }
+
+/** One month's section: the anchor id, the heading text in the page's calendar, and its rows. */
+interface MonthGroup {
+  readonly key: string;
+  readonly id: string;
+  readonly year: string;
+  readonly text: string;
+  readonly entries: Entry[];
+}
+
+/** One year's section, with the months that fall in it. */
+interface YearGroup {
+  readonly id: string;
+  readonly text: string;
+  readonly months: MonthGroup[];
+}
+
+type HeadingLevel = 2 | 3 | 4 | 5 | 6;
 
 const isRecord = (value: unknown): value is Record<string, unknown> =>
   value !== null && typeof value === "object" && !Array.isArray(value);
@@ -73,12 +105,72 @@ function labelNode(row: Row, lang: string): ComponentChildren {
 /** Midnight UTC of an ISO date, so formatting never reads the clock. */
 const utcOf = (iso: string): Date => new Date(`${iso}T00:00:00Z`);
 
+/** A prop as written: a trimmed, lower-cased string, or `""` when absent. */
+const textOf = (value: unknown): string => (typeof value === "string" ? value.trim().toLowerCase() : "");
+
+/**
+ * The heading level the groups use. A level below 2 would repeat the page's title, and a level
+ * whose months would land past 6 would skip one, so both fall back to 2.
+ */
+function headingLevel(value: unknown, withYear: boolean): HeadingLevel {
+  const level = typeof value === "number" ? value : Number(textOf(value));
+  const highest = withYear ? 5 : 6;
+  return Number.isInteger(level) && level >= 2 && level <= highest ? (level as HeadingLevel) : 2;
+}
+
+/** A calendar month's anchor id: its key with the characters an id cannot hold replaced. */
+const monthId = (month: CalendarMonth): string => `dated-list-${month.key.replace(/[^\p{L}\p{N}]+/gu, "-")}`;
+
+/** The anchor id of a calendar year. */
+const yearId = (year: string): string => `dated-list-${year}`;
+
+/** A year's digits in the page's calendar, for grouping; its key. */
+const yearKeyOf = (iso: string, lang: string): string =>
+  (/[\p{Nd}]+/u.exec(calendarYear(iso, lang) ?? "")?.[0]) ?? iso.slice(0, 4);
+
+/** One month's rows: a day, its label, and an optional status. */
+function items(
+  entries: readonly Entry[],
+  dayFormat: Intl.DateTimeFormat,
+  lang: string,
+  config: Parameters<typeof formatField>[3],
+): ComponentChildren {
+  return h(
+    "ol",
+    { class: ITEMS_CLASS },
+    entries.map((entry) =>
+      h(
+        "li",
+        { class: "dated-list-item" },
+        h("time", { class: "dated-list-day", datetime: entry.iso }, dayFormat.format(utcOf(entry.iso))),
+        labelNode(entry.row, lang),
+        isEmpty(entry.row.status) ? null : (formatField(entry.row.status, "status", lang, config) as never),
+      ),
+    ),
+  );
+}
+
+/** The table of contents: one link per group, year links wrapping their months. */
+function contents(months: readonly MonthGroup[], years: readonly YearGroup[]): ComponentChildren {
+  const link = (group: { readonly id: string; readonly text: string }) =>
+    h("li", null, h("a", { href: `#${group.id}` }, group.text));
+  return h(
+    "ul",
+    null,
+    years.length === 0
+      ? months.map(link)
+      : years.map((year) => h("li", null, h("a", { href: `#${year.id}` }, year.text), h("ul", null, year.months.map(link)))),
+  );
+}
+
 /**
  * Records of one collection, or the given rows, as a list grouped by month: each month a section
- * with a heading and an ordered list, each row a day, its label and an optional status. A row whose
- * date is missing or not a real calendar date goes to a trailing section with a visible note, so a
- * broken date is never dropped silently. Nothing is read from the clock, and an empty list renders
- * nothing.
+ * with a heading and an ordered list, each row a day, its label and an optional status. The newest
+ * group comes first with `order=desc`; `group=year` adds a year heading above each year's months;
+ * `toc` puts the groups in a table of contents above the list, and `level` sets the outline without
+ * skipping a level. A row whose date is missing or not a real calendar date goes to a trailing
+ * section with a visible note, so a broken date is never dropped silently. Nothing is read from the
+ * clock, and an empty list renders nothing.
  */
 export default function datedList({ props, page, site }: ComponentProps<Readonly<Record<string, unknown>>>) {
   const input = props as DatedListProps;
@@ -119,39 +211,73 @@ export default function datedList({ props, page, site }: ComponentProps<Readonly
   // ISO dates sort as text; the sort is stable, so rows of one day keep the source order.
   dated.sort((a, b) => (a.iso < b.iso ? -1 : a.iso > b.iso ? 1 : 0));
 
-  const dayFormat = new Intl.DateTimeFormat(lang, { day: "numeric", timeZone: "UTC" });
+  const newestFirst = textOf(input.order) === "desc";
+  if (newestFirst) dated.reverse();
+
+  const wantToc = dated.length > 0 && (input.toc === true || input.toc === "" || textOf(input.toc) === "true");
+
   // The key is the date's month in the page's calendar, so the heading and the boundaries match it.
-  const groups = new Map<string, { readonly month: string; readonly entries: Entry[] }>();
+  const months: MonthGroup[] = [];
   for (const entry of dated) {
-    const group = groups.get(entry.month.key);
-    if (group === undefined) groups.set(entry.month.key, { month: entry.month.text, entries: [entry] });
-    else group.entries.push(entry);
+    const last = months.at(-1);
+    if (last?.key === entry.month.key) last.entries.push(entry);
+    else
+      months.push({
+        key: entry.month.key,
+        id: monthId(entry.month),
+        year: yearKeyOf(entry.iso, lang),
+        text: entry.month.text,
+        entries: [entry],
+      });
   }
 
+  const withYear = textOf(input.group) === "year";
+  const level = headingLevel(input.level, withYear);
+  const monthLevel = (withYear ? level + 1 : level) as HeadingLevel;
+  const dayFormat = new Intl.DateTimeFormat(lang, { day: "numeric", timeZone: "UTC" });
   const config = site?.config;
-  const sections = [...groups.values()].map(({ month, entries }) =>
-    h(
-      "section",
-      { class: GROUP_CLASS },
-      h("h2", null, month),
+
+  const monthsOf = (groups: readonly MonthGroup[]): ComponentChildren =>
+    groups.map((month) =>
       h(
-        "ol",
-        { class: ITEMS_CLASS },
-        entries.map((entry) =>
-          h(
-            "li",
-            { class: "dated-list-item" },
-            h("time", { class: "dated-list-day", datetime: entry.iso }, dayFormat.format(utcOf(entry.iso))),
-            labelNode(entry.row, lang),
-            isEmpty(entry.row.status) ? null : (formatField(entry.row.status, "status", lang, config) as never),
-          ),
-        ),
+        "section",
+        { class: GROUP_CLASS },
+        h(`h${monthLevel}`, wantToc ? { id: month.id } : null, month.text),
+        items(month.entries, dayFormat, lang, config),
       ),
-    ),
-  );
+    );
+
+  const years: YearGroup[] = [];
+  if (withYear) {
+    for (const month of months) {
+      const last = years.at(-1);
+      if (last?.id === yearId(month.year)) last.months.push(month);
+      else {
+        const first = month.entries[0]!;
+        years.push({ id: yearId(month.year), text: calendarYear(first.iso, lang) ?? month.year, months: [month] });
+      }
+    }
+  }
+
+  const sections = withYear
+    ? years.map((year) =>
+        h(
+          "section",
+          { class: YEAR_CLASS },
+          h(`h${level}`, wantToc ? { id: year.id } : null, year.text),
+          monthsOf(year.months),
+        ),
+      )
+    : monthsOf(months);
+
+  const output: ComponentChildren[] = [];
+  if (wantToc) {
+    output.push(h("nav", { class: TOC_CLASS, "aria-label": t(lang, "on_this_page") }, contents(months, years)));
+  }
+  output.push(...(sections as ComponentChildren[]));
 
   if (invalid.length > 0) {
-    sections.push(
+    output.push(
       h(
         "section",
         { class: INVALID_CLASS },
@@ -174,5 +300,5 @@ export default function datedList({ props, page, site }: ComponentProps<Readonly
     );
   }
 
-  return sections.length === 0 ? null : sections;
+  return output.length === 0 ? null : output;
 }
