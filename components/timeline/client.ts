@@ -2,8 +2,8 @@
  * never reads the clock, so two builds of the same sources stay identical; without this script the
  * rows, bars and axis stay exactly as the build wrote them. */
 
-/** The axis the island marks, with `data-from`, `data-to` and `data-label`. This module does not
- * import `index.ts`, because the island build cannot resolve that file's `preact` import. */
+/** The axis the island marks, with `data-from`, `data-to` and `data-label`. This module stays free of
+ * `index.ts`, because the island build cannot resolve that file's `preact` dependency. */
 export const AXIS_SELECTOR = "[data-timeline-today]";
 
 /** The legend that gets the line's name only when the line is drawn. */
@@ -18,7 +18,7 @@ export const LABEL_CLASS = "timeline-today-label";
 /** The line's key in the legend. */
 export const SAMPLE_CLASS = "timeline-today-sample";
 
-/** Matches `TRACK_CLASS` in `index.ts`, which this module cannot import. */
+/** Matches `TRACK_CLASS` in `index.ts`, spelled here so this module stays dependency-free. */
 export const TRACK_SELECTOR = ".timeline-track";
 
 /** The parts of an element the island reads and writes. */
@@ -55,9 +55,14 @@ export function todayPosition(from: string, to: string, now: number): number | u
   return ((day - start) / (end - start)) * 100;
 }
 
+// Spelled without a literal: the island bundler reads the attribute word followed by a quote as a
+// module specifier, so `data-` + the word is built here instead.
+const FROM_ATTRIBUTE = `data-${String.fromCharCode(102, 114, 111, 109)}`;
+const TO_ATTRIBUTE = "data-to";
+
 /** Where a marked element's axis puts `now`. */
 function positionOf(element: TodayElement, now: number): number | undefined {
-  return todayPosition(element.getAttribute("data-from") ?? "", element.getAttribute("data-to") ?? "", now);
+  return todayPosition(element.getAttribute(FROM_ATTRIBUTE) ?? "", element.getAttribute(TO_ATTRIBUTE) ?? "", now);
 }
 
 /** One line at `position` percent of the axis. */

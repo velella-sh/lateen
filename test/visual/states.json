@@ -196,6 +196,13 @@
       ]
     },
     {
+      "name": "timeline",
+      "selector": ".timeline-axis",
+      "states": [
+        "hover"
+      ]
+    },
+    {
       "name": "variables-form",
       "selector": ".variables-form-input",
       "states": [
