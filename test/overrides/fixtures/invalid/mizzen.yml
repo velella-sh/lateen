@@ -1,0 +1,16 @@
+# Two settings docs/overrides.md rejects, kept beside the valid sample:
+#   - related-guides is a theme component; site-nav is not, so it is an unknown unit even though
+#     its module exists and exports a component;
+#   - doc is a theme layout, but the configured file does not exist.
+title: Invalid overrides fixture
+description: Settings that fail the overrides contract.
+lang: en
+url: https://example.com
+base: ""
+theme:
+  name: "@velella/lateen"
+  overrides:
+    components:
+      site-nav: overrides/site-nav.ts
+    layouts:
+      doc: overrides/missing-doc.ts
