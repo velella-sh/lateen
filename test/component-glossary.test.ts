@@ -60,7 +60,7 @@ test("terms group by first letter, sorted with English collation", () => {
   assert.match(
     out,
     new RegExp(
-      `<section class="${GROUP_CLASS}"><h2 class="${LETTER_CLASS}">A</h2><dl class="${LIST_CLASS}"><dt class="${TERM_CLASS}" id="apple">apple</dt>`,
+      `<section class="${GROUP_CLASS}" id="glossary-a"><h2 class="${LETTER_CLASS}">A</h2><dl class="${LIST_CLASS}"><dt class="${TERM_CLASS}" id="apple">apple</dt>`,
     ),
   );
   assert.ok(out.indexOf(">apple<") < out.indexOf(">Banana<"));

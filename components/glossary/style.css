@@ -1,4 +1,13 @@
-/* Glossary: a section per letter with a definition list. Tokens and logical properties only. */
+/* Glossary: a letter index and a section per letter with a definition list. Tokens and logical properties only. */
+
+.glossary-index {
+  display: flex;
+  gap: var(--space-4);
+  margin-block-end: var(--space-8);
+  overflow-x: auto;
+  font-size: var(--type-size-sm);
+  white-space: nowrap;
+}
 
 .glossary-group {
   margin-block: 0 var(--space-8);
