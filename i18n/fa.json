@@ -457,6 +457,7 @@
   "video_missing_title": "ویدیو عنوان ندارد. برای دسترس‌پذیری، title=\"…\" را به دستور ::video اضافه کنید.",
   "video_play": "پخش ویدیو",
   "video_watch": "تماشا در {provider}",
+  "view_json": "مشاهده به صورت JSON",
   "view_markdown": "مشاهده مارک‌داون",
   "wcag_checked": "بررسی‌شده",
   "wcag_criterion": "معیار",

@@ -1,7 +1,7 @@
 import { h } from "preact";
 import type { Chrome } from "@velella/mizzen/contracts";
 import { t } from "../../i18n/index.ts";
-import { expand, providersOf, SAFE_SCHEME } from "./providers.ts";
+import { expand, jsonUrl, providersOf, SAFE_SCHEME } from "./providers.ts";
 import { twinUrl } from "../copy-markdown/twin.ts";
 
 // The Markdown twin rule is the copy-Markdown unit's, so both page actions name the same file.
@@ -18,7 +18,8 @@ function chevron() {
 
 /**
  * The page agent menu: a disclosure with a copy button for the page's Markdown, a plain link to the
- * same Markdown (so it works without JavaScript), and links that open the page in an agent. The copy
+ * same Markdown (so it works without JavaScript), a link to the page's JSON on a record page, and
+ * links that open the page in an agent. The copy
  * button starts `hidden` and `client.ts` reveals it, so a visitor without JavaScript never sees a
  * control that would do nothing. It runs the same island as `chrome/copy-markdown`, so both page
  * actions copy the same twin and announce the same loading, success, and failure; the page keeps a
@@ -31,6 +32,7 @@ const pageAgentMenu: Chrome = ({ site, page }) => {
   if (markdown === undefined) return null;
 
   const lang = page.lang;
+  const json = page.record === undefined ? undefined : jsonUrl(page.url);
   const providers: Array<{ title: string; href: string }> = [];
   for (const provider of providersOf(site.config)) {
     const href = expand(site.config, page, provider.url, markdown);
@@ -58,6 +60,13 @@ const pageAgentMenu: Chrome = ({ site, page }) => {
         t(lang, "copy_page_md"),
       ),
       h("a", { class: "page-agent-menu-view", href: markdown }, t(lang, "view_markdown")),
+      json === undefined
+        ? null
+        : h(
+            "a",
+            { class: "page-agent-menu-view", href: json, "data-page-agent-json": true },
+            t(lang, "view_json"),
+          ),
       providers.length === 0 ? null : h("p", { class: "page-agent-menu-heading" }, t(lang, "page_agent_open_in")),
       providers.length === 0
         ? null
