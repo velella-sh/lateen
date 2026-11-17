@@ -9,7 +9,9 @@ import pagination, { paginationLinks } from "../chrome/pagination/index.ts";
 import sidebar from "../chrome/sidebar/index.ts";
 import toc from "../chrome/toc/index.ts";
 import cards, { CARD_CLASS, hrefOf } from "../components/cards/index.ts";
+import { formatCount, pluralCategory } from "../components/reading-time/index.ts";
 import recordTable, { type RecordColumn } from "../components/record-table/index.ts";
+import { t } from "../i18n/index.ts";
 import { formatField, isEmpty } from "../src/fields.ts";
 import { baseOf } from "../src/url.ts";
 
@@ -130,6 +132,24 @@ export function cardsView(props: LayoutProps, records: readonly RecordProps[]): 
   return cards({ children: records.map((record) => cardOf(props, record)) }) as ComponentChildren;
 }
 
+/** How many records the page shows, in the page's digits and plural form. */
+function countOf(props: LayoutProps, count: number): string {
+  const lang = props.page.lang;
+  return t(lang, `list_count_${pluralCategory(lang, count)}`, { n: formatCount(lang, count) });
+}
+
+/** The country line above the records: the count, and the page when the engine split the list. */
+function summaryOf(props: LayoutProps, count: number): ComponentChildren {
+  const pagination = props.list?.pagination;
+  const page = pagination === undefined || pagination.total <= 1
+    ? null
+    : h("span", { class: "list-page" }, t(props.page.lang, "list_page_of", {
+        page: formatCount(props.page.lang, pagination.page),
+        total: formatCount(props.page.lang, pagination.total),
+      }));
+  return h("p", { class: "list-summary" }, h("span", { class: "list-count" }, countOf(props, count)), page);
+}
+
 /** The records in the view the page asks for: a table by default, a card grid when `list.view` names it. */
 function recordsView(props: LayoutProps, records: readonly RecordProps[]): ComponentChildren {
   if (records.length === 0) return null;
@@ -164,12 +184,15 @@ function article(props: LayoutProps): ComponentChildren {
       : list === undefined
         ? null
         : recordsView(props, list.records);
+  const count = list?.records.length ?? 0;
   return h(
     "article",
     { class: "list", "data-pagefind-body": true },
     breadcrumb(props) as ComponentChildren,
     titleFromBody(props) ? null : h("h1", null, props.page.title),
     h("div", { class: "list-intro", dangerouslySetInnerHTML: { __html: props.page.html } }),
+    list === undefined ? null : summaryOf(props, count),
+    list !== undefined && count === 0 ? h("p", { class: "list-empty" }, t(props.page.lang, "list_empty")) : null,
     records,
     list === undefined
       ? null
