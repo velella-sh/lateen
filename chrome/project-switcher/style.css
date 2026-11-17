@@ -1,13 +1,73 @@
-/* Project switcher: the network's projects in the header, one link per project, current one marked by
+/* Project switcher: a native disclosure in the header, one link per project, current one marked by
    `aria-current` and not colour alone. Long names wrap instead of being cut off. */
 
-.project-switcher-list {
-  display: flex;
-  flex-wrap: wrap;
+.project-switcher {
+  position: relative;
+  font-family: var(--type-font-ui);
+  font-size: var(--type-size-sm);
+}
+
+.project-switcher-details {
+  position: relative;
+  display: inline-block;
+}
+
+.project-switcher-summary {
+  display: inline-flex;
   align-items: center;
   gap: var(--space-1);
+  min-block-size: var(--space-8);
+  padding-inline: var(--space-2);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-ctl);
+  background: transparent;
+  color: var(--color-muted);
+  cursor: pointer;
+  list-style: none;
+  transition:
+    background var(--motion-fast) var(--motion-ease),
+    color var(--motion-fast) var(--motion-ease);
+}
+
+.project-switcher-summary::-webkit-details-marker {
+  display: none;
+}
+
+.project-switcher-summary:hover {
+  background: var(--state-hover-bg);
+  color: var(--color-heading);
+}
+
+.project-switcher-summary:focus-visible {
+  outline: 2px solid var(--state-focus-ring);
+  outline-offset: 2px;
+}
+
+.project-switcher-marker {
+  font-size: var(--type-size-xs);
+  transition: transform var(--motion-fast) var(--motion-ease);
+}
+
+.project-switcher-details[open] > .project-switcher-summary .project-switcher-marker {
+  transform: rotate(180deg);
+}
+
+.project-switcher-list {
+  position: absolute;
+  inset-block-start: calc(100% + var(--space-1));
+  inset-inline-end: 0;
+  z-index: var(--layer-popover);
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-1);
+  min-inline-size: calc(var(--space-16) * 2);
+  max-inline-size: calc(100vw - var(--space-8));
   margin: 0;
-  padding: 0;
+  padding: var(--space-2);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  background: var(--color-surface-raised);
+  box-shadow: var(--shadow-popover);
   list-style: none;
 }
 
@@ -16,7 +76,7 @@
 }
 
 .project-switcher-link {
-  display: inline-block;
+  display: block;
   max-inline-size: 100%;
   padding-block: var(--space-1);
   padding-inline: var(--space-2);
@@ -41,4 +101,12 @@
 .project-switcher-link[aria-current="true"] {
   color: var(--color-heading);
   font-weight: var(--type-weight-bold);
+}
+
+/* Narrow screens: anchor the list at the inline start so it never leaves the viewport. */
+@media (width < 40rem) {
+  .project-switcher-list {
+    inset-inline-start: 0;
+    inset-inline-end: auto;
+  }
 }

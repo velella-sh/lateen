@@ -70,7 +70,7 @@ test("renders three projects in network order, with the current one marked", () 
   const value = network([project("alpha", "Alpha", true), project("beta", "Beta Docs"), project("gamma", "Gamma")]);
   const out = render(value);
 
-  assert.match(out, /^<nav class="project-switcher" aria-label="Site navigation"><ul class="project-switcher-list">/);
+  assert.match(out, /^<nav class="project-switcher" aria-label="Site navigation"><details class="project-switcher-details"[^>]*><summary class="project-switcher-summary">.*<ul class="project-switcher-list">/);
   assert.equal(count(out, /<li class="project-switcher-item">/g), 3);
 
   assert.match(out, /<a class="project-switcher-link project-switcher-current" href="\/alpha\/" aria-current="true"><bdi>Alpha<\/bdi><\/a>/);
