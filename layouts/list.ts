@@ -8,7 +8,9 @@ import header from "../chrome/header/index.ts";
 import pagination, { paginationLinks } from "../chrome/pagination/index.ts";
 import sidebar from "../chrome/sidebar/index.ts";
 import toc from "../chrome/toc/index.ts";
+import cards, { CARD_CLASS, hrefOf } from "../components/cards/index.ts";
 import recordTable, { type RecordColumn } from "../components/record-table/index.ts";
+import { formatField, isEmpty } from "../src/fields.ts";
 import { baseOf } from "../src/url.ts";
 
 /* The engine ships a component's island only when the page's Markdown names its directive, and a list
@@ -68,6 +70,67 @@ function table(props: LayoutProps, records: readonly RecordProps[]): ComponentCh
   } as never) as ComponentChildren;
 }
 
+/** The fields a card reads by name; every other field is a fact, up to {@link FACT_LIMIT}. */
+const TITLE_FIELD = "title";
+const SUMMARY_FIELD = "summary";
+const STATUS_FIELD = "status";
+const FACT_LIMIT = 3;
+
+/** The view the page asks for: `cards` opts in; a missing or malformed `list` keeps the table. */
+function viewOf(props: LayoutProps): "table" | "cards" {
+  const front = props.page.frontMatter.list;
+  if (front === null || typeof front !== "object" || Array.isArray(front)) return "table";
+  return (front as Record<string, unknown>).view === "cards" ? "cards" : "table";
+}
+
+/** One record as a card: its title, summary, status, and its first few other fields as facts. */
+function cardOf(props: LayoutProps, record: RecordProps): ComponentChildren {
+  const fields = record.fields;
+  const title = isEmpty(fields[TITLE_FIELD]) ? record.id : String(fields[TITLE_FIELD]);
+  const summary = isEmpty(fields[SUMMARY_FIELD]) ? null : String(fields[SUMMARY_FIELD]);
+  const status = isEmpty(fields[STATUS_FIELD]) ? null : fields[STATUS_FIELD];
+  const facts = Object.keys(fields)
+    .filter(
+      (field) =>
+        field !== TITLE_FIELD && field !== SUMMARY_FIELD && field !== STATUS_FIELD && !isEmpty(fields[field]),
+    )
+    .slice(0, FACT_LIMIT);
+  const parts: ComponentChildren[] = [
+    h("span", { class: "card-title" }, title),
+    summary === null ? null : h("span", { class: "card-description" }, summary),
+    status === null ? null : h("span", { class: "list-card-status" }, String(status)),
+    facts.length === 0
+      ? null
+      : h(
+          "dl",
+          { class: "list-card-facts" },
+          facts.map((field) =>
+            h(
+              "div",
+              { class: "list-card-fact" },
+              h("dt", null, field),
+              h(
+                "dd",
+                null,
+                formatField(fields[field], "text", props.page.lang, props.site.config) as ComponentChildren,
+              ),
+            ),
+          ),
+        ),
+  ];
+  const href = hrefOf(record.url);
+  return href === undefined
+    ? h("div", { class: CARD_CLASS }, ...parts)
+    : h("a", { class: CARD_CLASS, href }, ...parts);
+}
+
+/** The records in the view the page asks for: a table by default, a card grid when `list.view` names it. */
+function recordsView(props: LayoutProps, records: readonly RecordProps[]): ComponentChildren {
+  if (records.length === 0) return null;
+  if (viewOf(props) === "cards") return cards({ children: records.map((record) => cardOf(props, record)) }) as ComponentChildren;
+  return table(props, records);
+}
+
 /**
  * A list page: the page title and body as the introduction, then the records the engine selected,
  * in the engine's order, one section per group when it grouped them. A page that names this layout
@@ -89,12 +152,12 @@ function article(props: LayoutProps): ComponentChildren {
               " ",
               h("span", { class: "list-group-count" }, String(group.count)),
             ),
-            table(props, group.records),
+            recordsView(props, group.records),
           ),
         )
       : list === undefined
         ? null
-        : table(props, list.records);
+        : recordsView(props, list.records);
   return h(
     "article",
     { class: "list", "data-pagefind-body": true },
