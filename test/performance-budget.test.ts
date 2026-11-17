@@ -288,7 +288,7 @@ test("the budget passes at the baseline and within the gzip tolerance", () => {
 });
 
 test("a gzip or module growth names the route and the asset class", () => {
-  const measured = measurement("js/components", { raw: 100, gzip: 1200, count: 3 });
+  const measured = measurement("js/components", { raw: 100, gzip: 1000 + TOLERANCE_BYTES + 1, count: 3 });
   const budget = budgetOf(measurement("js/components", { raw: 100, gzip: 1000, count: 2 }));
   const failures = compare(measured, budget);
   assert.equal(failures.length, 2, failures.join("\n"));

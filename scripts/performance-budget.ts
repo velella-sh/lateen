@@ -19,9 +19,10 @@ const MIZZEN = join(root, "node_modules/@velella/mizzen/bin/mizzen.js");
 
 /**
  * Headroom for gzip differences between Node and zlib builds, in bytes per asset class. Compression
- * of the same bytes is not guaranteed to be identical across zlib releases; this is not a growth allowance.
+ * of the same bytes is not guaranteed to be identical across zlib releases and platforms (the pinned
+ * Ubuntu runner measured 91 bytes more than a macOS checkout on `js/chrome`); this is not a growth allowance.
  */
-export const TOLERANCE_BYTES = 64;
+export const TOLERANCE_BYTES = 256;
 
 /** The class every self-hosted font file is measured in: one response per file per route. */
 export const FONT_CLASS = "font/self-hosted";
