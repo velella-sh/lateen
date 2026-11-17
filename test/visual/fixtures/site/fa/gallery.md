@@ -131,6 +131,10 @@ pnpm add mizzen
 
 ::cta-band{title="گالری مؤلفه‌ها" lead="هر مؤلفه در حالت پیش‌فرض و گونه‌هایش، با محتوای ثابت." label="خانه" url="/fa/"}
 
+## data-explorer
+
+::data-explorer{from=books columns=title,pages}
+
 ## details
 
 :::details{summary="نمایش جزئیات"}
