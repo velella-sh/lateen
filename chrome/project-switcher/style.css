@@ -110,3 +110,83 @@
     inset-inline-end: auto;
   }
 }
+
+/* Mobile navigation: a collapsed "Projects" group at the top of the drawer, in the header menu's order. */
+
+.project-switcher-mobile {
+  margin-block-end: var(--space-2);
+  padding-block-end: var(--space-2);
+  border-block-end: thin solid var(--border-subtle);
+  font-family: var(--type-font-ui);
+  font-size: var(--type-size-sm);
+}
+
+.project-switcher-mobile-summary {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-2);
+  padding-block: var(--space-2);
+  padding-inline: var(--space-2);
+  color: var(--color-heading);
+  font-weight: var(--type-weight-bold);
+  cursor: pointer;
+  list-style: none;
+}
+
+.project-switcher-mobile-summary::-webkit-details-marker {
+  display: none;
+}
+
+.project-switcher-mobile-summary:focus-visible {
+  outline: 2px solid var(--state-focus-ring);
+  outline-offset: 2px;
+}
+
+.project-switcher-mobile-marker {
+  font-size: var(--type-size-xs);
+  transition: transform var(--motion-fast) var(--motion-ease);
+}
+
+.project-switcher-mobile[open] > .project-switcher-mobile-summary .project-switcher-mobile-marker {
+  transform: rotate(180deg);
+}
+
+.project-switcher-mobile-list {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-1);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.project-switcher-mobile-item {
+  min-inline-size: 0;
+}
+
+.project-switcher-mobile-link {
+  display: block;
+  max-inline-size: 100%;
+  padding-block: var(--space-1);
+  padding-inline: var(--space-4);
+  border-radius: var(--radius-sm);
+  color: var(--color-muted);
+  text-decoration: none;
+  overflow-wrap: anywhere;
+}
+
+.project-switcher-mobile-link:hover {
+  background: var(--state-hover-bg);
+  color: var(--color-text);
+}
+
+.project-switcher-mobile-link:focus-visible {
+  outline: 2px solid var(--state-focus-ring);
+  outline-offset: -2px;
+}
+
+.project-switcher-mobile-link[aria-current="true"] {
+  color: var(--color-heading);
+  font-weight: var(--type-weight-bold);
+}
