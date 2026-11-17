@@ -1,7 +1,7 @@
 import { spawnSync } from "node:child_process";
-import { cpSync, existsSync, mkdtempSync, readFileSync, rmSync } from "node:fs";
+import { cpSync, existsSync, mkdirSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
-import { join } from "node:path";
+import { dirname, join } from "node:path";
 import { fileURLToPath } from "node:url";
 import { JSDOM } from "jsdom";
 
@@ -33,7 +33,11 @@ export function outputFile(path: string): string {
  * Builds a fixture with the engine and this theme, then hands back its output. The build is
  * synchronous and isolated in a temporary folder, so a test never reads a stale public build.
  */
-export function build(name: string, env: NodeJS.ProcessEnv = process.env): BuiltSite {
+export function build(
+  name: string,
+  env: NodeJS.ProcessEnv = process.env,
+  files: Readonly<Record<string, string>> = {},
+): BuiltSite {
   if (!existsSync(MIZZEN)) throw new Error(`${MIZZEN} is missing; run \`npm ci\` before the integration tests`);
   const out = mkdtempSync(join(tmpdir(), `lateen-${name}-`));
   // Build from a copy so the engine's own `.mizzen` cache in the fixture never makes a run stale.
@@ -42,6 +46,12 @@ export function build(name: string, env: NodeJS.ProcessEnv = process.env): Built
     recursive: true,
     filter: (path) => !path.includes(`${join("fixtures", name, ".mizzen")}`),
   });
+  // Extra pages a test needs, written into the copy so the fixture itself stays as it was copied.
+  for (const [path, text] of Object.entries(files)) {
+    const target = join(source, path);
+    mkdirSync(dirname(target), { recursive: true });
+    writeFileSync(target, text);
+  }
   // Node injects its coverage directory into every child, even one given a clean environment; an empty
   // value disables it. Without this the build's workers add a second, partly unexecuted record for every
   // theme module they load and halve the reported percentage.
