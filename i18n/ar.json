@@ -380,6 +380,7 @@
   "timeline_label": "التسمية",
   "timeline_legend": "المراحل",
   "timeline_missing_setup": "يحتاج timeline إلى مجموعة في `from` أو إلى صفوف في `items`.",
+  "timeline_ongoing": "جارٍ",
   "timeline_overlap": "تتداخل المراحل في هذا الصف: {names}.",
   "timeline_phase": "مرحلة",
   "timeline_start": "البداية",

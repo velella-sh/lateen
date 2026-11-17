@@ -8,7 +8,7 @@ import { selectRecords } from "../../src/records.ts";
 import { DEFAULT_TONE, type StatusTone } from "../status/index.ts";
 import { resolveStatus } from "../status/values.ts";
 import table from "../table/index.ts";
-import { scale, type ScaleSegment } from "./scale.ts";
+import { scale } from "./scale.ts";
 
 /** The Markdown directive this component handles: `::timeline{from="events"}`. */
 export const directive = "timeline";
@@ -42,6 +42,15 @@ export const PHASE_CLASS = "timeline-phase";
 
 /** Class on the legend that names every phase and its tone. */
 export const LEGEND_CLASS = "timeline-legend";
+
+/** Class on a bar whose end date is not known yet. */
+export const OPEN_END_CLASS = "timeline-bar-open-end";
+
+/** Class on a bar whose start date is not known. */
+export const OPEN_START_CLASS = "timeline-bar-open-start";
+
+/** Class on the text that says a date has no known value. */
+export const ONGOING_CLASS = "timeline-ongoing";
 
 /** Class on the message that reports overlapping phases in one row. */
 export const OVERLAP_CLASS = "timeline-overlap";
@@ -163,20 +172,45 @@ function rangeOf(row: Row, phases: readonly Row[], fields: Fields): { start: str
   };
 }
 
-/** Each phase's segment on the axis; a phase without a real date has none. */
+/** A bar on the axis, with the ends that no date closes left open. */
+type Segment = {
+  readonly start: number;
+  readonly length: number;
+  readonly openStart: boolean;
+  readonly openEnd: boolean;
+};
+
+/**
+ * A row's or a phase's dates as a bar on the axis. An empty date leaves its end open and runs it to
+ * the edge of the axis; no end date is ever made up. A field the row does not have stays a visible
+ * message, so a mistyped field name is never read as ongoing.
+ */
+function segmentOf(
+  row: Row,
+  fields: Fields,
+  axis: { readonly from: number; readonly span: number },
+): Segment | undefined {
+  const span = spanOf(row, fields);
+  if (span === undefined) return undefined;
+  const openStart = Object.hasOwn(row.fields, fields.start) && isEmpty(row.fields[fields.start]);
+  const openEnd = Object.hasOwn(row.fields, fields.end) && isEmpty(row.fields[fields.end]);
+  const from = openStart ? axis.from : span.from;
+  const to = openEnd ? axis.from + axis.span : span.to + DAY;
+  return {
+    start: ((from - axis.from) / axis.span) * 100,
+    length: ((to - from) / axis.span) * 100,
+    openStart,
+    openEnd,
+  };
+}
+
+/** Each phase's bar on the axis; a phase without a real date has none. */
 function segmentsOf(
   phases: readonly Row[],
   fields: Fields,
   axis: { readonly from: number; readonly span: number },
-): (ScaleSegment | undefined)[] {
-  return phases.map((phase) => {
-    const span = spanOf(phase, fields);
-    if (span === undefined) return undefined;
-    return {
-      start: ((span.from - axis.from) / axis.span) * 100,
-      length: ((span.to + DAY - span.from) / axis.span) * 100,
-    };
-  });
+): (Segment | undefined)[] {
+  return phases.map((phase) => segmentOf(phase, fields, axis));
 }
 
 /** A phase's name in the legend and the overlap message. */
@@ -228,10 +262,11 @@ function legendOf(
 }
 
 /** One bar in a row's track, phase segment or whole row; the tone is in the class. */
-function bar(segment: ScaleSegment | undefined, tone: StatusTone, extra = ""): ComponentChildren {
+function bar(segment: Segment | undefined, tone: StatusTone, extra = ""): ComponentChildren {
   if (segment === undefined) return null;
+  const open = [segment.openStart ? OPEN_START_CLASS : "", segment.openEnd ? OPEN_END_CLASS : ""];
   return h("span", {
-    class: [BAR_CLASS, `${BAR_CLASS}-${tone}`, extra].filter((name) => name !== "").join(" "),
+    class: [BAR_CLASS, `${BAR_CLASS}-${tone}`, extra, ...open].filter((name) => name !== "").join(" "),
     style: `inset-inline-start:${pct(segment.start)};inline-size:${pct(segment.length)}`,
   });
 }
@@ -242,8 +277,9 @@ function missing(field: string, lang: string): ComponentChildren {
 }
 
 /**
- * One cell. A date must be ISO 8601: a valid one renders as `<time>`, anything else shows a
- * message instead of silently reading as text. A field the row does not have is visible too.
+ * One cell. A date must be ISO 8601: a valid one renders as `<time>`, and an empty one as "ongoing"
+ * rather than a blank cell, because a date with no value is an open end and not a mistake. A field
+ * the row does not have is visible too.
  */
 function cell(
   row: Row,
@@ -254,7 +290,10 @@ function cell(
 ): ComponentChildren {
   if (!Object.hasOwn(row.fields, field)) return missing(field, lang);
   const value = row.fields[field];
-  if (kind === "date" && !isEmpty(value)) {
+  if (kind === "date" && isEmpty(value)) {
+    return h("span", { class: ONGOING_CLASS }, t(lang, "timeline_ongoing"));
+  }
+  if (kind === "date") {
     const date = typeof value === "string" ? calendarDate(value, lang) : undefined;
     if (date === undefined) {
       return h(
@@ -368,7 +407,7 @@ export default function timeline({ props, page, site }: ComponentProps<Readonly<
           h("td", { class: "timeline-cell", "data-field": "start" }, cell(row, fields.start, "date", lang, config)),
           h("td", { class: "timeline-cell", "data-field": "end" }, cell(row, fields.end, "date", lang, config)),
           h("td", { class: "timeline-cell", "data-field": "status" }, cell(row, fields.status, "status", lang, config)),
-          scaled === undefined
+          scaled === undefined || axis === undefined
             ? null
             : h(
                 "td",
@@ -377,7 +416,7 @@ export default function timeline({ props, page, site }: ComponentProps<Readonly<
                   "div",
                   { class: TRACK_CLASS, "aria-hidden": "true" },
                   phases.length === 0
-                    ? bar(scaled.segments[index], toneOfRow(row, fields.status, lang, config))
+                    ? bar(segmentOf(row, fields, axis), toneOfRow(row, fields.status, lang, config))
                     : segments.map((segment, phaseIndex) => {
                         const phase = phases[phaseIndex];
                         return phase === undefined

@@ -380,6 +380,7 @@
   "timeline_label": "Label",
   "timeline_legend": "Phases",
   "timeline_missing_setup": "timeline needs a collection in `from` or rows in `items`.",
+  "timeline_ongoing": "Ongoing",
   "timeline_overlap": "Phases overlap in this row: {names}.",
   "timeline_phase": "Phase",
   "timeline_start": "Start",
