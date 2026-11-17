@@ -18,6 +18,27 @@
   font-style: italic;
 }
 
+/* The controls stay hidden until the island runs, so no control appears that would do nothing. */
+.compare-controls {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: var(--space-2, 0.5rem);
+  margin-block: var(--space-2, 0.5rem);
+}
+
+.compare-toggle {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-1, 0.25rem);
+}
+
+.compare-status {
+  margin: 0;
+  color: var(--color-muted);
+  font-size: var(--font-size-sm, 0.875rem);
+}
+
 /* A row whose raw values are not all equal: a tint, and a text marker in the row header for
    assistive technology and for paper, so the color is never the only signal. */
 .compare-diff {

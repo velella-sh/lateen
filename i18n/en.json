@@ -117,6 +117,8 @@
   "comments": "Comments",
   "compare_differs": "Differs",
   "compare_missing_setup": "compare needs a collection in `from`, record ids in `ids`, and at least one field in `fields`.",
+  "compare_rows_shown": "{count} of {total} rows shown",
+  "compare_show_only_diff": "Show only differences",
   "compare_unknown_collection": "The site has no collection named \"{name}\".",
   "compare_unknown_record": "No record with id \"{name}\".",
   "contributors_label": "Contributors:",
