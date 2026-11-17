@@ -43,18 +43,18 @@ test("the directive is record-table", () => {
 
 test("columns keep their order and labels, and every cell uses its kind", () => {
   const out = render({ from: "books", columns });
-  assert.match(out, /<th scope="col">Title<\/th><th scope="col">Pages<\/th><th scope="col">Published<\/th><th scope="col">Draft<\/th>/);
-  assert.match(out, /<td class="record-table-cell" data-kind="number">120<\/td>/);
-  assert.match(out, /<td class="record-table-cell" data-kind="date"><time datetime="2026-11-09">November 9, 2026<\/time><\/td>/);
-  assert.match(out, /<td class="record-table-cell" data-kind="boolean">No<\/td>/);
-  assert.match(out, /data-kind="boolean">Yes<\/td>/);
-  assert.match(out, /<td class="record-table-cell" data-kind="date">2026-02-30<\/td>/);
+  assert.match(out, /<th scope="col"[^>]*>Title<button[^>]*>[^<]*<\/button><\/th><th scope="col"[^>]*>Pages<button[^>]*>[^<]*<\/button><\/th><th scope="col"[^>]*>Published<button[^>]*>[^<]*<\/button><\/th><th scope="col">Draft<\/th>/);
+  assert.match(out, /<td class="record-table-cell" data-kind="number"[^>]*>120<\/td>/);
+  assert.match(out, /<td class="record-table-cell" data-kind="date"[^>]*><time datetime="2026-11-09">November 9, 2026<\/time><\/td>/);
+  assert.match(out, /<td class="record-table-cell" data-kind="boolean"[^>]*>No<\/td>/);
+  assert.match(out, /data-kind="boolean"[^>]*>Yes<\/td>/);
+  assert.match(out, /<td class="record-table-cell" data-kind="date"[^>]*>2026-02-30<\/td>/);
 });
 
 test("the first column links to the record's page", () => {
   const out = render({ from: "books", columns });
-  assert.match(out, /<td class="record-table-cell" data-kind="text"><a href="\/books\/a\/">Alpha<\/a><\/td>/);
-  assert.match(out, /<td class="record-table-cell" data-kind="text"><a href="\/books\/b\/">Beta<\/a><\/td>/);
+  assert.match(out, /<td class="record-table-cell" data-kind="text"[^>]*><a href="\/books\/a\/">Alpha<\/a><\/td>/);
+  assert.match(out, /<td class="record-table-cell" data-kind="text"[^>]*><a href="\/books\/b\/">Beta<\/a><\/td>/);
 });
 
 test("the caption is rendered and names the scroll region", () => {
@@ -65,7 +65,7 @@ test("the caption is rendered and names the scroll region", () => {
 
 test("an unknown field is a visible message in its cells, not an empty cell", () => {
   const out = render({ from: "books", columns: JSON.stringify([{ field: "title" }, { field: "editor", label: "Editor" }]) });
-  assert.match(out, /<th scope="col">Editor<\/th>/);
+  assert.match(out, /<th scope="col"[^>]*>Editor<button/);
   assert.equal((out.match(new RegExp(MISSING_CLASS, "g")) ?? []).length, 2);
   assert.match(out, /No field named &quot;editor&quot;\./);
 });
@@ -85,9 +85,9 @@ test("a missing collection or columns shows a setup message", () => {
 
 test("a Persian page formats numbers, dates and booleans in Persian", () => {
   const out = render({ from: "books", columns }, "fa");
-  assert.match(out, /data-kind="number">۱۲۰<\/td>/);
+  assert.match(out, /data-kind="number"[^>]*>۱۲۰<\/td>/);
   assert.match(out, /<time datetime="2026-11-09">۱۸ آبان ۱۴۰۵<\/time>/);
-  assert.match(out, /data-kind="boolean">خیر<\/td>/);
+  assert.match(out, /data-kind="boolean"[^>]*>خیر<\/td>/);
 });
 
 test("ready records render in the given order without reading a collection", () => {
@@ -104,5 +104,5 @@ test("ready records render in the given order without reading a collection", () 
   });
   assert.ok(out.indexOf('/books/b/') < out.indexOf('/books/a/'), "the rows keep the layout's order");
   assert.match(out, /<a href="\/books\/b\/">Beta<\/a>/);
-  assert.match(out, /data-kind="number">80<\/td>/);
+  assert.match(out, /data-kind="number"[^>]*>80<\/td>/);
 });

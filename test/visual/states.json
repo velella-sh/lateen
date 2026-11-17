@@ -1,26 +1,213 @@
 {
   "version": 1,
   "components": [
-    { "name": "before-after", "selector": "[data-before-after-copy]", "states": ["hover", "focus", "pressed", "disabled"] },
-    { "name": "check-list", "selector": "[data-check-list-copy]", "states": ["hover", "focus", "pressed", "disabled"] },
-    { "name": "cli-demo", "selector": ".cli-demo-copy-commands", "states": ["hover", "focus", "pressed", "disabled"] },
-    { "name": "code-tabs", "selector": ".code-tabs-tab", "states": ["hover", "focus", "pressed", "disabled"] },
-    { "name": "cta-band", "selector": ".cta-band-action", "states": ["hover", "focus", "pressed"] },
-    { "name": "diff-block", "selector": "[data-diff-copy]", "states": ["hover", "focus", "pressed", "disabled"] },
-    { "name": "embed", "selector": "[data-embed-load]", "states": ["hover", "focus", "pressed", "disabled"] },
-    { "name": "embed-code", "selector": "[data-embed-preview-load]", "states": ["hover", "focus", "pressed", "disabled"] },
-    { "name": "file-tree", "selector": "[role=treeitem]", "states": ["hover", "focus", "pressed"] },
-    { "name": "install-tabs", "selector": ".install-tabs-tab", "focusSelector": ".install-tabs-radio", "disabledSelector": ".install-tabs-radio", "states": ["hover", "focus", "pressed", "disabled"] },
-    { "name": "os-tabs", "selector": ".os-tabs-tab", "states": ["hover", "focus", "pressed", "disabled"] },
-    { "name": "output-block", "selector": ".output-block-copy", "states": ["hover", "focus", "pressed", "disabled"] },
-    { "name": "preset-preview", "selector": "[data-preset-preview]", "states": ["hover"] },
-    { "name": "steps", "selector": "[data-steps]", "states": ["hover"] },
-    { "name": "symbol-popover", "selector": ".symbol-popover-chip", "states": ["hover", "focus", "pressed"] },
-    { "name": "table", "selector": "table", "states": ["hover"] },
-    { "name": "tabs", "selector": "[role=tab]", "states": ["hover", "focus", "pressed", "disabled"] },
-    { "name": "terminal", "selector": "[data-terminal-copy]", "states": ["hover", "focus", "pressed", "disabled"] },
-    { "name": "variables-form", "selector": ".variables-form-input", "states": ["hover", "focus", "pressed", "disabled"] },
-    { "name": "version-diff", "selector": "[data-version-diff-next]", "states": ["hover", "focus", "pressed", "disabled"] },
-    { "name": "video", "selector": "[data-video-play]", "states": ["hover", "focus", "pressed", "disabled"] }
+    {
+      "name": "before-after",
+      "selector": "[data-before-after-copy]",
+      "states": [
+        "hover",
+        "focus",
+        "pressed",
+        "disabled"
+      ]
+    },
+    {
+      "name": "check-list",
+      "selector": "[data-check-list-copy]",
+      "states": [
+        "hover",
+        "focus",
+        "pressed",
+        "disabled"
+      ]
+    },
+    {
+      "name": "cli-demo",
+      "selector": ".cli-demo-copy-commands",
+      "states": [
+        "hover",
+        "focus",
+        "pressed",
+        "disabled"
+      ]
+    },
+    {
+      "name": "code-tabs",
+      "selector": ".code-tabs-tab",
+      "states": [
+        "hover",
+        "focus",
+        "pressed",
+        "disabled"
+      ]
+    },
+    {
+      "name": "cta-band",
+      "selector": ".cta-band-action",
+      "states": [
+        "hover",
+        "focus",
+        "pressed"
+      ]
+    },
+    {
+      "name": "diff-block",
+      "selector": "[data-diff-copy]",
+      "states": [
+        "hover",
+        "focus",
+        "pressed",
+        "disabled"
+      ]
+    },
+    {
+      "name": "embed",
+      "selector": "[data-embed-load]",
+      "states": [
+        "hover",
+        "focus",
+        "pressed",
+        "disabled"
+      ]
+    },
+    {
+      "name": "embed-code",
+      "selector": "[data-embed-preview-load]",
+      "states": [
+        "hover",
+        "focus",
+        "pressed",
+        "disabled"
+      ]
+    },
+    {
+      "name": "file-tree",
+      "selector": "[role=treeitem]",
+      "states": [
+        "hover",
+        "focus",
+        "pressed"
+      ]
+    },
+    {
+      "name": "install-tabs",
+      "selector": ".install-tabs-tab",
+      "focusSelector": ".install-tabs-radio",
+      "disabledSelector": ".install-tabs-radio",
+      "states": [
+        "hover",
+        "focus",
+        "pressed",
+        "disabled"
+      ]
+    },
+    {
+      "name": "os-tabs",
+      "selector": ".os-tabs-tab",
+      "states": [
+        "hover",
+        "focus",
+        "pressed",
+        "disabled"
+      ]
+    },
+    {
+      "name": "output-block",
+      "selector": ".output-block-copy",
+      "states": [
+        "hover",
+        "focus",
+        "pressed",
+        "disabled"
+      ]
+    },
+    {
+      "name": "preset-preview",
+      "selector": "[data-preset-preview]",
+      "states": [
+        "hover"
+      ]
+    },
+    {
+      "name": "record-table",
+      "selector": ".record-table-sort",
+      "states": [
+        "hover",
+        "focus"
+      ]
+    },
+    {
+      "name": "steps",
+      "selector": "[data-steps]",
+      "states": [
+        "hover"
+      ]
+    },
+    {
+      "name": "symbol-popover",
+      "selector": ".symbol-popover-chip",
+      "states": [
+        "hover",
+        "focus",
+        "pressed"
+      ]
+    },
+    {
+      "name": "table",
+      "selector": "table",
+      "states": [
+        "hover"
+      ]
+    },
+    {
+      "name": "tabs",
+      "selector": "[role=tab]",
+      "states": [
+        "hover",
+        "focus",
+        "pressed",
+        "disabled"
+      ]
+    },
+    {
+      "name": "terminal",
+      "selector": "[data-terminal-copy]",
+      "states": [
+        "hover",
+        "focus",
+        "pressed",
+        "disabled"
+      ]
+    },
+    {
+      "name": "variables-form",
+      "selector": ".variables-form-input",
+      "states": [
+        "hover",
+        "focus",
+        "pressed",
+        "disabled"
+      ]
+    },
+    {
+      "name": "version-diff",
+      "selector": "[data-version-diff-next]",
+      "states": [
+        "hover",
+        "focus",
+        "pressed",
+        "disabled"
+      ]
+    },
+    {
+      "name": "video",
+      "selector": "[data-video-play]",
+      "states": [
+        "hover",
+        "focus",
+        "pressed",
+        "disabled"
+      ]
+    }
   ]
 }

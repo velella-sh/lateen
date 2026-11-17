@@ -1,0 +1,96 @@
+import { h } from "preact";
+import type { ComponentProps } from "@velella/mizzen/contracts";
+import { patternOf, t } from "../../i18n/index.ts";
+import { selectRecords, type SelectedRecord } from "../../src/records.ts";
+import { baseOf, withBase } from "../../src/url.ts";
+import recordTable, { columnsOf as parseColumns, type RecordColumn } from "../record-table/index.ts";
+
+/** The Markdown directive this component handles: `::data-explorer{from=books columns=title,year}`. */
+export const directive = "data-explorer";
+
+/** Rows the static table shows: the island's first page holds the same number. */
+export const PAGE_SIZE = 50;
+
+/** The GET parameter that narrows the site search to one collection's record pages. */
+export const COLLECTION_FILTER = "filter.collection";
+
+/** Id of the query field; the form's label points at it. */
+export const QUERY_ID = "data-explorer-query";
+
+/** The site's search results page, which answers a submit without any script. */
+export const SEARCH_PATH = "/search/";
+
+/** Props from the directive. */
+export type DataExplorerProps = {
+  /** The collection to explore, lowercase as the site config writes it. */
+  from?: string;
+  /** The fields the table shows in display order: `title,author,year`, or a JSON column array. */
+  columns?: string | readonly RecordColumn[];
+};
+
+/** A JSON column array passes through; a bare comma list becomes fields with the field as the label. */
+function columnsOf(value: unknown): RecordColumn[] {
+  if (typeof value !== "string") return parseColumns(value);
+  const text = value.trim();
+  if (text.startsWith("[")) return parseColumns(text);
+  return text
+    .split(",")
+    .map((field) => field.trim())
+    .filter((field) => field !== "")
+    .map((field) => ({ field }));
+}
+
+/**
+ * The explorer without JavaScript: a labelled `GET` form that submits to the site's search results
+ * page with the collection as a filter, and the first records of the collection as the same table the
+ * island draws. Every message the island needs travels as a `data-` attribute in the page language, as
+ * the search dialog does, so the island carries no catalog. No filter, sort, or Show more control is
+ * rendered, because none would work without a script.
+ */
+export default function dataExplorer({ props, page, site }: ComponentProps<Readonly<Record<string, unknown>>>) {
+  const input = props as DataExplorerProps;
+  const lang = page?.lang ?? "en";
+  const from = typeof input.from === "string" ? input.from.trim() : "";
+  const columns = columnsOf(input.columns);
+
+  // record-table owns both notes: a page that names no setup, and a collection the site lacks.
+  const table = (records?: readonly SelectedRecord[]) =>
+    recordTable({ props: { from, columns, records }, page, site, html: "" } as never);
+
+  if (from === "" || columns.length === 0) return table();
+
+  const selection = selectRecords(site, page, { collection: from, limit: PAGE_SIZE });
+  if (!selection.ok) return table();
+
+  const base = baseOf(site);
+  return h(
+    "div",
+    {
+      class: "data-explorer",
+      "data-explorer": "",
+      "data-base": base,
+      "data-collection": from,
+      "data-lang": lang,
+      "data-explorer-loading": t(lang, "search_loading"),
+      "data-explorer-failed": t(lang, "search_results_failed"),
+      "data-explorer-empty": patternOf(lang, "search_results_empty"),
+      "data-explorer-retry": t(lang, "search_retry"),
+      "data-explorer-more": t(lang, "data_explorer_more"),
+      "data-explorer-count-zero": patternOf(lang, "search_count_zero"),
+      "data-explorer-count-one": patternOf(lang, "search_count_one"),
+      "data-explorer-count-two": patternOf(lang, "search_count_two"),
+      "data-explorer-count-few": patternOf(lang, "search_count_few"),
+      "data-explorer-count-many": patternOf(lang, "search_count_many"),
+      "data-explorer-count-other": patternOf(lang, "search_count_other"),
+    },
+    h(
+      "form",
+      { class: "data-explorer-form", role: "search", method: "get", action: withBase(base, SEARCH_PATH) },
+      h("label", { class: "data-explorer-label", for: QUERY_ID }, t(lang, "search")),
+      h("input", { class: "data-explorer-input", id: QUERY_ID, name: "q", type: "search", autocomplete: "off" }),
+      h("input", { type: "hidden", name: COLLECTION_FILTER, value: from }),
+      h("button", { class: "data-explorer-submit", type: "submit" }, t(lang, "search")),
+    ),
+    table(selection.records),
+  );
+}

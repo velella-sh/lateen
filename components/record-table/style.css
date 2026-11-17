@@ -10,3 +10,20 @@
   color: var(--color-muted);
   font-style: italic;
 }
+
+/* The sort control beside a header's label; it appears only once the island runs, so the table
+   reads the same without a script. */
+.record-table-sort {
+  margin-inline-start: var(--space-1);
+  padding: 0;
+  border: 0;
+  background: none;
+  color: inherit;
+  font: inherit;
+  cursor: pointer;
+}
+
+/* The live region is in the markup for the island to fill, and takes no space until it has words. */
+.record-table-status:empty {
+  display: none;
+}
