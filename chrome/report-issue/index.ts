@@ -76,10 +76,14 @@ function sourceOf(page: Page): string {
   return page.source.file;
 }
 
-/** The issue title: the optional prefix and the page title, one line, cut to the host's limit. */
-export function titleOf(page: Page, prefix?: string): string {
+/**
+ * The issue title: the optional prefix and the page title, one line, cut to the host's limit.
+ * A fact's label follows the page title, so one record's values make distinct issues.
+ */
+export function titleOf(page: Page, prefix?: string, field?: string): string {
   const title = oneLine(page.title) || page.url;
-  return clipTitle(prefix === undefined ? title : `${prefix} ${title}`);
+  const named = field === undefined ? title : `${title}: ${oneLine(field)}`;
+  return clipTitle(prefix === undefined ? named : `${prefix} ${named}`);
 }
 
 /**
@@ -98,14 +102,18 @@ function recordLines(record: PageRecord, repository: RepositoryConfig | undefine
   ];
 }
 
-/** The issue body: the page address, then the record or the source file, language and version, each on its own line. */
-export function bodyOf(page: Page, repository?: RepositoryConfig): string {
+/**
+ * The issue body: the page address, the field a fact report names, then the record or the source
+ * file, language and version, each on its own line.
+ */
+export function bodyOf(page: Page, repository?: RepositoryConfig, field?: string): string {
   const version = versionOf(page);
   const record = page.record;
   return [
     record === undefined ? "I found a problem with this page." : "I found a problem with this data.",
     "",
     `Page: ${page.url}`,
+    ...(field === undefined ? [] : [`Field: ${field}`]),
     ...(record === undefined ? [`Source: ${sourceOf(page)}`] : recordLines(record, repository)),
     `Language: ${page.lang}`,
     ...(version === "" ? [] : [`Version: ${version}`]),
@@ -158,12 +166,13 @@ function extraOf(host: "github" | "gitlab", options: ReportIssueOptions): string
 /**
  * The report link's address, or `undefined` when the unit is off, or the site names no usable tracker: no
  * repository, or an unsupported host and no custom `url`. A custom `url` wins over the repository.
+ * A `field` names one fact of a record in the title and the body.
  */
-export function reportHref(site: Site, page: Page): string | undefined {
+export function reportHref(site: Site, page: Page, field?: string): string | undefined {
   const options = optionsOf(site.config);
   if (!options.enabled) return undefined;
-  const title = titleOf(page, options.titlePrefix);
-  const body = bodyOf(page, site.config.repository);
+  const title = titleOf(page, options.titlePrefix, field);
+  const body = bodyOf(page, site.config.repository, field);
   if (options.url !== undefined) return fillTemplate(options.url, page, title, body);
   const repository = site.config.repository;
   if (repository === undefined) return undefined;

@@ -8,6 +8,7 @@ import copyMarkdown from "../chrome/copy-markdown/index.ts";
 import drawer from "../chrome/drawer/index.ts";
 import lastUpdated from "../chrome/last-updated/index.ts";
 import pageAgentMenu from "../chrome/page-agent-menu/index.ts";
+import { LINK_CLASS, reportHref } from "../chrome/report-issue/index.ts";
 import header from "../chrome/header/index.ts";
 import sidebar from "../chrome/sidebar/index.ts";
 import toc from "../chrome/toc/index.ts";
@@ -18,6 +19,9 @@ import doc from "./doc.ts";
 
 /** Id of the facts panel; the table of contents links to it. */
 const FACTS_ID = "record-facts";
+
+/** Class on a fact's report link; `record.css` styles it. */
+const FACT_REPORT_CLASS = "record-fact-report";
 
 const isRecord = (value: unknown): value is Record<string, unknown> =>
   value !== null && typeof value === "object" && !Array.isArray(value);
@@ -96,6 +100,25 @@ function summaryOf(props: LayoutProps): ComponentChildren {
   return h("p", { class: "record-summary" }, formatField(summary, "text", props.page.lang, props.site.config) as ComponentChildren);
 }
 
+/** True when the page asks for a report link on every fact: absent or false by default. */
+function reportsFacts(props: LayoutProps): boolean {
+  const front = props.page.frontMatter.record;
+  return isRecord(front) && front.report === true;
+}
+
+/** A fact's report link, the field named in the issue and in the link's own name. */
+function factReport(props: LayoutProps, fact: Fact): ComponentChildren {
+  if (!reportsFacts(props)) return null;
+  const href = reportHref(props.site, props.page, fact.label);
+  if (href === undefined) return null;
+  const label = t(props.page.lang, "report_value");
+  return h(
+    "a",
+    { class: `${LINK_CLASS} ${FACT_REPORT_CLASS}`, href, rel: "noopener", "aria-label": `${label}: ${fact.label}` },
+    label,
+  );
+}
+
 /** The key facts panel: labels and values from the page, with no empty row and no panel without facts. */
 function factsPanel(props: LayoutProps): ComponentChildren {
   const record = props.record;
@@ -118,6 +141,7 @@ function factsPanel(props: LayoutProps): ComponentChildren {
             props.page.lang,
             props.site.config,
           ) as ComponentChildren,
+          factReport(props, fact),
         ),
       ),
     ),

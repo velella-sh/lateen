@@ -288,6 +288,7 @@
   "report_data": "Report a problem with this data",
   "report_issue": "Report a problem with this page",
   "report_missing": "This build has no {name} report, so this section cannot show one.",
+  "report_value": "Report this value",
   "required": "Required",
   "reviewed": "Reviewed",
   "scheduled": "Scheduled",
