@@ -1,0 +1,14 @@
+[
+  {
+    "id": "api",
+    "term": "API",
+    "definition": "A contract through which one program asks another for data or actions.",
+    "aliases": ["application programming interface"]
+  },
+  {
+    "id": "build",
+    "term": "Build",
+    "definition": "The step that turns source files into the files a site serves.",
+    "aliases": []
+  }
+]

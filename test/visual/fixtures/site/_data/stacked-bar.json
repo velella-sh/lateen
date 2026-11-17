@@ -1,0 +1,8 @@
+[
+  { "id": "q1-north", "category": "Q1", "series": "North", "value": 1200 },
+  { "id": "q1-south", "category": "Q1", "series": "South", "value": 800 },
+  { "id": "q2-north", "category": "Q2", "series": "North", "value": 1600 },
+  { "id": "q2-south", "category": "Q2", "series": "South", "value": 900 },
+  { "id": "q3-north", "category": "Q3", "series": "North", "value": 1400 },
+  { "id": "q3-south", "category": "Q3", "series": "South", "value": null }
+]

@@ -417,3 +417,23 @@ Built 12 pages.
 <li class="search-result"><a class="search-result-link" href="/guide/install/"><span class="search-result-title">Install</span><span class="search-result-excerpt">The first page of this site.</span></a></li>
 </ul>
 
+
+## chart-data
+
+جدول البيانات المغلقة أسفل كل رسم؛ مكوّنات الرسم تنشئه.
+
+## compare
+
+::compare{from=books ids="a,b" fields='[{"field": "pages", "label": "Pages", "kind": "number"}, {"field": "published", "label": "Published", "kind": "date"}]'}
+
+## glossary
+
+::glossary
+
+## related-guides
+
+الأدلة السابقة والتالية والمرتبطة أسفل صفحة الدليل.
+
+## stacked-bar
+
+::stacked-bar{from=stacked-bar category=category series=series value=value title="الإيراد حسب المنطقة"}
