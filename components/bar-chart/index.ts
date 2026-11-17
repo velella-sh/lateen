@@ -412,6 +412,7 @@ export default function barChart({ props, site, page }: ComponentProps<BarChartP
       columns: [VALUE_HEADING],
       rows: rows.map((row) => ({ id: row.id, label: row.label, values: [row.value] })),
       lang,
+      id: base,
     }),
   );
 }

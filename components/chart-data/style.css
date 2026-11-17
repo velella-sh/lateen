@@ -74,3 +74,13 @@
   color: var(--color-muted);
   font-style: italic;
 }
+
+.chart-data-downloads {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-3);
+  margin-block-start: var(--space-3);
+  font-size: var(--type-size-sm);
+  line-height: var(--type-leading-body);
+}
+
