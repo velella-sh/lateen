@@ -93,8 +93,8 @@ test("the records render below the introduction, in the engine's order", () => {
   const alpha = out.indexOf('/books/a/');
   assert.ok(beta > out.indexOf('class="list-intro"'), "the table follows the introduction");
   assert.ok(beta < alpha, "the layout keeps the engine's order instead of sorting");
-  assert.match(out, /<th scope="col">title<\/th>/);
-  assert.match(out, /<th scope="col">pages<\/th>/);
+  assert.match(out, /<th scope="col"[^>]*>title<button/);
+  assert.match(out, /<th scope="col"[^>]*>pages<button/);
 });
 
 test("the title comes from the page, and the body's own h1 is not repeated", () => {

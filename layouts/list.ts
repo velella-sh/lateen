@@ -1,6 +1,6 @@
 import { Fragment, h } from "preact";
 import type { ComponentChildren } from "preact";
-import type { Heading, Layout, LayoutProps, RecordProps } from "@velella/mizzen/contracts";
+import type { Heading, Island, Layout, LayoutProps, RecordProps } from "@velella/mizzen/contracts";
 import base from "./base.ts";
 import breadcrumb from "../chrome/breadcrumb/index.ts";
 import drawer from "../chrome/drawer/index.ts";
@@ -8,6 +8,13 @@ import header from "../chrome/header/index.ts";
 import sidebar from "../chrome/sidebar/index.ts";
 import toc from "../chrome/toc/index.ts";
 import recordTable, { type RecordColumn } from "../components/record-table/index.ts";
+import { baseOf } from "../src/url.ts";
+
+/* The engine ships a component's island only when the page's Markdown names its directive, and a list
+   page names no directive: this layout draws the table itself. The island is the record-table client,
+   so the same control the gallery shows also runs on a list.
+   shortcut: the island path is the engine's convention; revisit when a layout can declare its client. */
+const SORT_ISLAND = "assets/theme/islands/components/record-table/client.js";
 
 /** A group as the page shows it: the engine's key, its heading anchor, and its records. */
 interface ListGroupView {
@@ -109,13 +116,16 @@ function tocFor(props: LayoutProps): LayoutProps {
 }
 
 /** The list page: the base shell and the article, with the navigation sidebar and the group headings on this page. */
-const list: Layout = (props) =>
-  base({
+const list: Layout = (props) => {
+  const sortIsland: Island = { name: "record-table", src: `${baseOf(props.site)}/${SORT_ISLAND}` };
+  return base({
     ...props,
+    islands: [...props.islands.filter((island) => island.src !== sortIsland.src), sortIsland],
     header: h(Fragment, null, header(props) as ComponentChildren, drawer(props) as ComponentChildren),
     sidebar: sidebar(props) as ComponentChildren,
     main: article(props),
     aside: toc(tocFor(props)) as ComponentChildren,
   });
+};
 
 export default list;
