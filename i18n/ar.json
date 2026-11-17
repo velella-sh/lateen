@@ -263,6 +263,7 @@
   "record_table_unknown_collection": "لا يحتوي الموقع على مجموعة باسم \"{name}\".",
   "record_table_unknown_field": "لا يوجد حقل باسم \"{name}\".",
   "rejected": "مرفوض",
+  "related_guides": "أدلة ذات صلة",
   "related_posts": "تدوينات ذات صلة",
   "releases": "الإصدارات",
   "report_issue": "الإبلاغ عن مشكلة في هذه الصفحة",

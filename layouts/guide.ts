@@ -11,13 +11,13 @@ import feedback from "../chrome/feedback/index.ts";
 import header from "../chrome/header/index.ts";
 import lastUpdated from "../chrome/last-updated/index.ts";
 import pageFooter from "../chrome/page-footer/index.ts";
-import pager from "../chrome/pager/index.ts";
 import sidebar from "../chrome/sidebar/index.ts";
 import toc from "../chrome/toc/index.ts";
 import { highlightFences } from "../components/code/index.ts";
 import guideSummary from "../components/guide-summary/index.ts";
 import pageStatus, { type PageStatusProps } from "../components/page-status/index.ts";
 import readingTime from "../components/reading-time/index.ts";
+import relatedGuides from "../components/related-guides/index.ts";
 import { codeBackgrounds } from "../src/brand.ts";
 
 /** True when the body already supplies the page's `h1`, so the layout never renders a second one. */
@@ -38,7 +38,7 @@ function statusProps(page: LayoutProps["page"]): PageStatusProps {
 /**
  * The guide page: breadcrumb, status banner, title, the summary bar built from the `guide` front
  * matter (from, to, time, risk), the body, edit link, page footer, copy-Markdown control, feedback, and
- * pager, marked for Pagefind. The body holds the guide's `steps`, `before-after`, `trap`, and
+ * related guides, marked for Pagefind. The body holds the guide's `steps`, `before-after`, `trap`, and
  * `check-list` components. No product name appears here: the text comes from the page.
  */
 function article(props: LayoutProps): ComponentChildren {
@@ -57,7 +57,7 @@ function article(props: LayoutProps): ComponentChildren {
     editPage(props) as ComponentChildren,
     h("div", { class: "doc-actions" }, pageFooter(props) as ComponentChildren, copyMarkdown(props) as ComponentChildren),
     feedback(props) as ComponentChildren,
-    pager(props) as ComponentChildren,
+    relatedGuides({ props: {}, page, site: props.site, html: "" }) as ComponentChildren,
   );
 }
 
