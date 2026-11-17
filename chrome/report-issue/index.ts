@@ -1,13 +1,14 @@
 import { h } from "preact";
-import type { Chrome, Page, Site, SiteConfig } from "@velella/mizzen/contracts";
+import type { Chrome, Page, PageRecord, RepositoryConfig, Site, SiteConfig } from "@velella/mizzen/contracts";
 import { t } from "../../i18n/index.ts";
-import { clipTitle, fitUrl, hostOf, oneLine, webRoot } from "../../src/repository.ts";
+import { clipTitle, fitUrl, hostOf, lineUrlOf, oneLine, webRoot } from "../../src/repository.ts";
 
 /*
  * "Report a problem with this page": a plain link that opens a new issue on the site's repository with the
- * page title, address, source file, language and version filled in. Nothing is sent from the page; the reader
- * submits the issue themselves. Host detection and the issue URL come from `src/repository.ts`, shared with
- * `edit-page`.
+ * page title, address, source file, language and version filled in. A record page names its collection, id and
+ * linked data file line instead of the page source, and asks about "this data". Nothing is sent from the page;
+ * the reader submits the issue themselves. Host detection and the issue URL come from `src/repository.ts`,
+ * shared with `edit-page`.
  *
  * `theme.options.reportIssue` shapes the link: `template` (an issue template name), `labels`, `titlePrefix`,
  * and `url` (a template for trackers other than GitHub and GitLab). `false` turns the unit off.
@@ -81,14 +82,31 @@ export function titleOf(page: Page, prefix?: string): string {
   return clipTitle(prefix === undefined ? title : `${prefix} ${title}`);
 }
 
-/** The issue body: the page address, source file, language and version, each on its own line. */
-export function bodyOf(page: Page): string {
-  const version = versionOf(page);
+/**
+ * The lines that name a record: its collection, its id, and its data file at the record's first line, linked
+ * to the repository when the host gives a URL. Field values stay out; they can be long and the id is enough.
+ */
+function recordLines(record: PageRecord, repository: RepositoryConfig | undefined): string[] {
+  const file = record.position.file;
+  const line = record.position.startLine;
+  const data = `${file}:${line}`;
+  const href = repository === undefined ? undefined : lineUrlOf(repository, file, line);
   return [
-    "I found a problem with this page.",
+    `Collection: ${record.collection}`,
+    `Record: ${record.id}`,
+    `Data: ${href === undefined ? data : `[${data}](${href})`}`,
+  ];
+}
+
+/** The issue body: the page address, then the record or the source file, language and version, each on its own line. */
+export function bodyOf(page: Page, repository?: RepositoryConfig): string {
+  const version = versionOf(page);
+  const record = page.record;
+  return [
+    record === undefined ? "I found a problem with this page." : "I found a problem with this data.",
     "",
     `Page: ${page.url}`,
-    `Source: ${sourceOf(page)}`,
+    ...(record === undefined ? [`Source: ${sourceOf(page)}`] : recordLines(record, repository)),
     `Language: ${page.lang}`,
     ...(version === "" ? [] : [`Version: ${version}`]),
     "",
@@ -145,7 +163,7 @@ export function reportHref(site: Site, page: Page): string | undefined {
   const options = optionsOf(site.config);
   if (!options.enabled) return undefined;
   const title = titleOf(page, options.titlePrefix);
-  const body = bodyOf(page);
+  const body = bodyOf(page, site.config.repository);
   if (options.url !== undefined) return fillTemplate(options.url, page, title, body);
   const repository = site.config.repository;
   if (repository === undefined) return undefined;
@@ -161,7 +179,7 @@ const reportIssue: Chrome = ({ site, page }) => {
   return h(
     "div",
     { class: CLASS, "data-report-issue": true },
-    h("a", { class: LINK_CLASS, href, rel: "noopener" }, t(page.lang, "report_issue")),
+    h("a", { class: LINK_CLASS, href, rel: "noopener" }, t(page.lang, page.record === undefined ? "report_issue" : "report_data")),
   );
 };
 
