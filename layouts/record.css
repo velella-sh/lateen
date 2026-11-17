@@ -122,6 +122,25 @@
   overflow-wrap: anywhere;
 }
 
+/* A fact's report link: small and quiet beside the value, never on its own line. */
+.record-fact-report {
+  margin-inline-start: var(--space-2);
+  color: var(--color-accent);
+  font-family: var(--type-font-ui);
+  white-space: nowrap;
+  text-decoration: none;
+}
+
+.record-fact-report:hover {
+  color: var(--color-accent-hover);
+  text-decoration: underline;
+}
+
+.record-fact-report:focus-visible {
+  outline: 2px solid var(--state-focus-ring);
+  outline-offset: 2px;
+}
+
 @media (max-width: 40rem) {
   .key-value {
     grid-template-columns: minmax(0, 1fr);
