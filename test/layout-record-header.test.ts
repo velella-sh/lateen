@@ -53,7 +53,7 @@ function pageWith(options: { front?: unknown; headings?: { depth: number; text: 
   } as unknown as Page;
 }
 
-function props(page: Page, recordFields = fields): LayoutProps {
+function props(page: Page, recordFields: Record<string, unknown> = fields): LayoutProps {
   const site: Site = {
     config,
     pages: [page],
@@ -72,7 +72,7 @@ function props(page: Page, recordFields = fields): LayoutProps {
   } as unknown as LayoutProps;
 }
 
-const render = (page: Page = pageWith(), recordFields = fields) => renderToString(record(props(page, recordFields)) as never);
+const render = (page: Page = pageWith(), recordFields: Record<string, unknown> = fields) => renderToString(record(props(page, recordFields)) as never);
 
 test("the summary is the lead paragraph and the status sits beside the title", () => {
   const out = render();
