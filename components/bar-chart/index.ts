@@ -1,6 +1,6 @@
 import { h } from "preact";
 import type { ComponentProps } from "@velella/mizzen/contracts";
-import { formatNumber } from "../../src/report.ts";
+import { formatCount as formatNumber } from "../reading-time/index.ts";
 import chartData from "../chart-data/index.ts";
 
 /** The Markdown directive this component handles: `::bar-chart{from="sales"}`. */
@@ -166,6 +166,17 @@ export function shortenLabel(label: string, max = MAX_LABEL_LENGTH): string {
   return characters.length <= max ? label : `${characters.slice(0, max - 1).join("")}…`;
 }
 
+/**
+ * `dir="ltr"` for a Latin label on a right-to-left page: it states its own direction, so the words
+ * keep their order inside the page's right-to-left text. A label in an Arabic or Hebrew script, or one
+ * with no letters, keeps the page's direction.
+ */
+export function labelDir(label: string, rtl: boolean): "ltr" | undefined {
+  return rtl && /\p{Script=Latin}/u.test(label) && !/[\p{Script=Arabic}\p{Script=Hebrew}]/u.test(label)
+    ? "ltr"
+    : undefined;
+}
+
 /** A round step near `span / count`: 1, 2, 5, or 10 times a power of ten. */
 function niceStep(span: number, count: number): number {
   const rough = span / Math.max(1, count);
@@ -219,20 +230,25 @@ export function idBase(raw: unknown, from: string): string {
 }
 
 /** The marks and size of a horizontal chart: labels at the inline start, bars along the inline axis. */
-function horizontalChart(rows: readonly BarRow[], ticks: readonly number[], lang: string) {
+function horizontalChart(rows: readonly BarRow[], ticks: readonly number[], lang: string, rtl: boolean) {
   const width = 720;
   const rowHeight = 28;
   const barHeight = 16;
   const labelWidth = 168;
   const valueGutter = 72;
-  const plotX = 12 + labelWidth + 8;
-  const plotWidth = width - plotX - valueGutter;
+  const labelGutter = 12 + labelWidth + 8;
+  const plotX = rtl ? valueGutter : labelGutter;
+  const plotWidth = width - labelGutter - valueGutter;
   const plotTop = 12;
   const plotBottom = plotTop + rows.length * rowHeight;
   const height = plotBottom + 30;
   const low = ticks[0] ?? 0;
   const high = ticks[ticks.length - 1] ?? 1;
-  const x = (value: number): number => plotX + ((value - low) / (high - low || 1)) * plotWidth;
+  // On a right-to-left page the axis starts at the right edge, so values grow toward the left.
+  const x = (value: number): number => {
+    const ratio = (value - low) / (high - low || 1);
+    return rtl ? plotX + plotWidth * (1 - ratio) : plotX + plotWidth * ratio;
+  };
   const marks = [];
 
   for (const tick of ticks) {
@@ -253,13 +269,30 @@ function horizontalChart(rows: readonly BarRow[], ticks: readonly number[], lang
     marks.push(
       h(
         "text",
-        { class: LABEL_CLASS, x: plotX - 8, y: center + 4, "text-anchor": "end" },
+        {
+          class: LABEL_CLASS,
+          x: rtl ? width - 12 : plotX - 8,
+          y: center + 4,
+          "text-anchor": rtl ? "start" : "end",
+          dir: labelDir(row.label, rtl),
+        },
         short === row.label ? null : h("title", null, row.label),
         short,
       ),
     );
     if (row.value === undefined) {
-      marks.push(h("text", { class: NO_VALUE_CLASS, x: plotX + 4, y: center + 4 }, NO_VALUE_TEXT));
+      marks.push(
+        h(
+          "text",
+          {
+            class: NO_VALUE_CLASS,
+            x: rtl ? plotX + plotWidth - 4 : plotX + 4,
+            y: center + 4,
+            "text-anchor": rtl ? "end" : "start",
+          },
+          NO_VALUE_TEXT,
+        ),
+      );
       return;
     }
     const zero = x(0);
@@ -274,14 +307,16 @@ function horizontalChart(rows: readonly BarRow[], ticks: readonly number[], lang
       }),
     );
     const positive = row.value >= 0;
+    // The value label sits beyond the bar's end, on whichever side the axis grows.
+    const side = (positive ? 1 : -1) * (rtl ? -1 : 1);
     marks.push(
       h(
         "text",
         {
           class: VALUE_CLASS,
-          x: positive ? end + 6 : end - 6,
+          x: end + side * 6,
           y: center + 4,
-          "text-anchor": positive ? "start" : "end",
+          "text-anchor": side > 0 ? "start" : "end",
         },
         formatNumber(lang, row.value),
       ),
@@ -292,10 +327,10 @@ function horizontalChart(rows: readonly BarRow[], ticks: readonly number[], lang
 }
 
 /** The marks and size of a vertical chart: categories along the axis, bars rising from zero. */
-function verticalChart(rows: readonly BarRow[], ticks: readonly number[], lang: string) {
+function verticalChart(rows: readonly BarRow[], ticks: readonly number[], lang: string, rtl: boolean) {
   const width = 720;
-  const left = 48;
-  const right = 16;
+  const left = rtl ? 16 : 48;
+  const right = rtl ? 48 : 16;
   const plotTop = 16;
   const plotHeight = 200;
   const baseline = plotTop + plotHeight;
@@ -310,18 +345,33 @@ function verticalChart(rows: readonly BarRow[], ticks: readonly number[], lang: 
   for (const tick of ticks) {
     marks.push(h("line", { class: GRID_CLASS, x1: left, x2: width - right, y1: y(tick), y2: y(tick) }));
     marks.push(
-      h("text", { class: TICK_CLASS, x: left - 8, y: y(tick) + 4, "text-anchor": "end" }, formatNumber(lang, tick)),
+      h(
+        "text",
+        {
+          class: TICK_CLASS,
+          x: rtl ? width - right + 8 : left - 8,
+          y: y(tick) + 4,
+          "text-anchor": rtl ? "start" : "end",
+        },
+        formatNumber(lang, tick),
+      ),
     );
   }
   marks.push(h("line", { class: AXIS_CLASS, x1: left, x2: width - right, y1: baseline, y2: baseline }));
 
   rows.forEach((row, index) => {
-    const center = left + index * slot + slot / 2;
+    const center = left + (rtl ? rows.length - 1 - index : index) * slot + slot / 2;
     const short = shortenLabel(row.label, MAX_VERTICAL_LABEL_LENGTH);
     marks.push(
       h(
         "text",
-        { class: LABEL_CLASS, x: center, y: baseline + 18, "text-anchor": "middle" },
+        {
+          class: LABEL_CLASS,
+          x: center,
+          y: baseline + 18,
+          "text-anchor": "middle",
+          dir: labelDir(row.label, rtl),
+        },
         short === row.label ? null : h("title", null, row.label),
         short,
       ),
@@ -384,9 +434,11 @@ export default function barChart({ props, site, page }: ComponentProps<BarChartP
   const base = idBase(props.id, from);
   const titleId = `${base}-title`;
   const lang = page.lang;
+  const rtl = page.dir === "rtl";
   const values = rows.flatMap((row) => (row.value === undefined ? [] : [row.value]));
   const ticks = ticksOf(Math.min(...values), Math.max(...values));
-  const chart = direction === "vertical" ? verticalChart(rows, ticks, lang) : horizontalChart(rows, ticks, lang);
+  const chart =
+    direction === "vertical" ? verticalChart(rows, ticks, lang, rtl) : horizontalChart(rows, ticks, lang, rtl);
   const description = `Values of ${valueField} by ${category}, ${rows.length} ${rows.length === 1 ? "row" : "rows"}.`;
 
   return h(

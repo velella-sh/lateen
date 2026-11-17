@@ -1,9 +1,8 @@
 import { h } from "preact";
 import type { ComponentProps } from "@velella/mizzen/contracts";
-import { calendarDate } from "../../src/dates.ts";
-import { formatNumber } from "../../src/report.ts";
-import { lookup, numericValue, shortenLabel } from "../bar-chart/index.ts";
-import { tickLabel } from "../timeline/index.ts";
+import { calendarDate, calendarYear } from "../../src/dates.ts";
+import { formatCount as formatNumber } from "../reading-time/index.ts";
+import { labelDir, lookup, numericValue, shortenLabel } from "../bar-chart/index.ts";
 import { scale } from "../timeline/scale.ts";
 
 /** The Markdown directive this component handles: `::line-chart{from="growth"}`. */
@@ -150,6 +149,14 @@ function round(value: number): number {
   return Math.round(value * 100) / 100;
 }
 
+/** A date tick in the page's calendar and digits: the year, or the quarter within it. */
+function dateTick(date: string, unit: "year" | "quarter", lang: string): string {
+  const year = calendarYear(date, lang) ?? date.split("-")[0] ?? date;
+  if (unit === "year") return year;
+  const month = Number(date.split("-")[1] ?? "01");
+  return `${year} Q${formatNumber(lang, Math.floor((month - 1) / 3) + 1)}`;
+}
+
 /**
  * `::line-chart{from="growth" category="date" value="north,south" title="Growth"}` draws one or more
  * series as fixed SVG written at build time: no script, no fetch, and no computation on the reader's
@@ -169,6 +176,7 @@ export default function lineChart({ props, site, page }: ComponentProps<LineChar
   const category = text(props.category) || "id";
   const fields = seriesOf(text(props.value));
   const lang = page.lang;
+  const rtl = page.dir === "rtl";
   const xOf = (row: Json): unknown => lookup(row, category);
 
   const known = rows
@@ -243,18 +251,21 @@ export default function lineChart({ props, site, page }: ComponentProps<LineChar
         })()
       : axis.ticks.map((tick) => ({
           position: tick.position,
-          label: tickLabel(tick.date, axis.unit),
+          label: dateTick(tick.date, axis.unit, lang),
         }));
 
   const width = 720;
   const height = 260;
-  const left = 52;
-  const right = width - 104;
+  // A time axis is never mirrored: time runs the way the page's calendar runs. Other charts start
+  // on the reading side of a right-to-left page.
+  const mirror = rtl && axis === undefined;
+  const left = mirror ? 104 : 52;
+  const right = width - (mirror ? 52 : 104);
   const top = 16;
   const bottom = height - 32;
   const plotWidth = right - left;
   const plotHeight = bottom - top;
-  const xPx = (position: number): number => left + (position / 100) * plotWidth;
+  const xPx = (position: number): number => (mirror ? right - (position / 100) * plotWidth : left + (position / 100) * plotWidth);
 
   let low = Math.min(...values);
   let high = Math.max(...values);
@@ -273,7 +284,12 @@ export default function lineChart({ props, site, page }: ComponentProps<LineChar
     marks.push(
       h(
         "text",
-        { class: TICK_CLASS, x: left - 8, y: round(yPx(tick)) + 4, "text-anchor": "end" },
+        {
+          class: TICK_CLASS,
+          x: mirror ? right + 8 : left - 8,
+          y: round(yPx(tick)) + 4,
+          "text-anchor": mirror ? "start" : "end",
+        },
         formatNumber(lang, tick),
       ),
     );
@@ -283,7 +299,13 @@ export default function lineChart({ props, site, page }: ComponentProps<LineChar
     marks.push(
       h(
         "text",
-        { class: TICK_CLASS, x: round(xPx(tick.position)), y: bottom + 16, "text-anchor": "middle" },
+        {
+          class: TICK_CLASS,
+          x: round(xPx(tick.position)),
+          y: bottom + 16,
+          "text-anchor": "middle",
+          dir: labelDir(tick.label, rtl),
+        },
         tick.label,
       ),
     );
@@ -330,7 +352,13 @@ export default function lineChart({ props, site, page }: ComponentProps<LineChar
     marks.push(
       h(
         "text",
-        { class: `${END_LABEL_CLASS} ${seriesClass}`, x: round(end.x + 6), y: round(end.y + 4) },
+        {
+          class: `${END_LABEL_CLASS} ${seriesClass}`,
+          x: round(mirror ? end.x - 6 : end.x + 6),
+          y: round(end.y + 4),
+          "text-anchor": mirror ? "end" : undefined,
+          dir: labelDir(label, rtl),
+        },
         label === end.label ? null : h("title", null, end.label),
         label,
       ),
