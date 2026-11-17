@@ -5,7 +5,10 @@ import { t } from "../../i18n/index.ts";
 import { calendarDate } from "../../src/dates.ts";
 import { formatField, isEmpty } from "../../src/fields.ts";
 import { selectRecords } from "../../src/records.ts";
+import { DEFAULT_TONE, type StatusTone } from "../status/index.ts";
+import { resolveStatus } from "../status/values.ts";
 import table from "../table/index.ts";
+import { scale, type ScaleSegment } from "./scale.ts";
 
 /** The Markdown directive this component handles: `::timeline{from="events"}`. */
 export const directive = "timeline";
@@ -18,6 +21,21 @@ export const MISSING_CLASS = "timeline-missing";
 
 /** Class on a cell whose date is not ISO 8601. */
 export const INVALID_CLASS = "timeline-invalid";
+
+/** Class on the decorative column that holds the axis and the bars. */
+export const CHART_CLASS = "timeline-chart";
+
+/** Class on the axis above the rows. */
+export const AXIS_CLASS = "timeline-axis";
+
+/** Class on one tick and its label. */
+export const TICK_CLASS = "timeline-tick";
+
+/** Class on a row's bar track. */
+export const TRACK_CLASS = "timeline-track";
+
+/** Class on one row's bar; the tone is appended: `timeline-bar-positive`. */
+export const BAR_CLASS = "timeline-bar";
 
 /** Props from the directive or the page's front matter. */
 export type TimelineProps = {
@@ -65,6 +83,36 @@ function rowsOf(items: string): Row[] | undefined {
   const parsed = parse(items);
   if (!Array.isArray(parsed)) return undefined;
   return parsed.filter(isRecord).map((fields) => ({ fields }));
+}
+
+/** A percentage as a CSS length, rounded so two runs render the same bytes. */
+function pct(value: number): string {
+  return `${Math.round(value * 100) / 100}%`;
+}
+
+/** A tick's label: the year, or the year and quarter when the axis counts quarters. */
+function tickLabel(date: string, unit: "year" | "quarter"): string {
+  const [year = date, month = "01"] = date.split("-");
+  return unit === "year" ? year : `${year} Q${Math.floor((Number(month) - 1) / 3) + 1}`;
+}
+
+/** The tone of a row's status value, neutral when the row has none or the site maps none. */
+function toneOfRow(row: Row, field: string, lang: string, config: SiteConfig | undefined): StatusTone {
+  const value = row.fields[field];
+  if (isEmpty(value)) return DEFAULT_TONE;
+  return resolveStatus(String(value), lang, config).tone;
+}
+
+/** A row's bar, decoration over the dates the row already states in its own cells. */
+function bar(segment: ScaleSegment | undefined, tone: StatusTone): ComponentChildren {
+  if (segment === undefined) return null;
+  return h(
+    "span",
+    {
+      class: `${BAR_CLASS} ${BAR_CLASS}-${tone}`,
+      style: `inset-inline-start:${pct(segment.start)};inline-size:${pct(segment.length)}`,
+    },
+  );
 }
 
 /** A visible message for a field the row does not have. */
@@ -139,22 +187,43 @@ export default function timeline({ props, page, site }: ComponentProps<Readonly<
   }
 
   const config = site?.config;
+  const scaled = scale(rows.map((row) => ({ start: row.fields[fields.start], end: row.fields[fields.end] })));
   const head = h(
     "thead",
     null,
     h(
       "tr",
       null,
-      [t(lang, "timeline_label"), t(lang, "timeline_start"), t(lang, "timeline_end"), t(lang, "timeline_status")].map(
-        (label) => h("th", { scope: "col" }, label),
-      ),
+      [
+        ...[t(lang, "timeline_label"), t(lang, "timeline_start"), t(lang, "timeline_end"), t(lang, "timeline_status")].map(
+          (label) => h("th", { scope: "col" }, label),
+        ),
+        // The axis is decoration over the dates the row cells state, so it names no column.
+        scaled === undefined
+          ? null
+          : h(
+              "th",
+              { scope: "col", class: CHART_CLASS, "aria-hidden": "true" },
+              h(
+                "div",
+                { class: AXIS_CLASS },
+                scaled.ticks.map((tick) =>
+                  h(
+                    "span",
+                    { class: TICK_CLASS, style: `inset-inline-start:${pct(tick.position)}` },
+                    tickLabel(tick.date, scaled.unit),
+                  ),
+                ),
+              ),
+            ),
+      ],
     ),
   );
 
   const body = h(
     "tbody",
     null,
-    rows.map((row) => {
+    rows.map((row, index) => {
       const label = cell(row, fields.label, "text", lang, config);
       return h(
         "tr",
@@ -167,6 +236,17 @@ export default function timeline({ props, page, site }: ComponentProps<Readonly<
         h("td", { class: "timeline-cell", "data-field": "start" }, cell(row, fields.start, "date", lang, config)),
         h("td", { class: "timeline-cell", "data-field": "end" }, cell(row, fields.end, "date", lang, config)),
         h("td", { class: "timeline-cell", "data-field": "status" }, cell(row, fields.status, "status", lang, config)),
+        scaled === undefined
+          ? null
+          : h(
+              "td",
+              { class: CHART_CLASS },
+              h(
+                "div",
+                { class: TRACK_CLASS, "aria-hidden": "true" },
+                bar(scaled.segments[index], toneOfRow(row, fields.status, lang, config)),
+              ),
+            ),
       );
     }),
   );
