@@ -128,6 +128,8 @@
   "copy_page_md": "کپی صفحه به صورت مارک‌داون",
   "data_explorer_more": "نمایش بیشتر",
   "dated_list_invalid": "رکوردهای بدون تاریخ معتبر اینجا فهرست شده‌اند.",
+  "dated_list_nothing": "این ماه رکوردی ندارد.",
+  "dated_list_outside": "رکوردهای خارج از این بازه: {n}.",
   "default": "پیش‌فرض",
   "deprecated": "منسوخ",
   "description": "توضیحات",
