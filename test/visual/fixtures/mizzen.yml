@@ -20,6 +20,9 @@ collections:
   books:
     source: _data/record-table.json
     id: id
+  timeline:
+    source: _data/timeline.json
+    id: id
 theme:
   options:
     installTabs:
