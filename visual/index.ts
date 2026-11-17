@@ -58,6 +58,8 @@ export interface MatrixTarget {
   readonly path: string;
   readonly lang: FixtureLang;
   readonly dir: "ltr" | "rtl";
+  /** Tallest shot of this page, in CSS pixels; MAX_HEIGHT when absent. */
+  readonly maxHeight?: number;
 }
 
 export interface MatrixSize {
@@ -180,6 +182,8 @@ export interface CaptureOptions {
   readonly media?: "screen" | "print";
   /** Force the operating system's colours; off when absent. */
   readonly forcedColors?: boolean;
+  /** Tallest shot, in CSS pixels; MAX_HEIGHT when absent. */
+  readonly maxHeight?: number;
 }
 
 /** Opens `url`, waits until the page is settled, and writes the full-page screenshot to `file`. */
@@ -202,13 +206,14 @@ export async function capture(page: Page, url: string, file: string, options: Ca
   await page.evaluate(() => (globalThis as unknown as { document: { fonts: { ready: Promise<unknown> } } }).document.fonts.ready);
   const height = await page.evaluate(() => (globalThis as unknown as { document: { documentElement: { scrollHeight: number } } }).document.documentElement.scrollHeight);
   const width = page.viewportSize()?.width ?? DEFAULT_VIEWPORT.width;
+  const maxHeight = options.maxHeight ?? MAX_HEIGHT;
   await page.screenshot({
     path: file,
     fullPage: true,
     animations: "disabled",
     caret: "hide",
     scale: "css",
-    ...(height > MAX_HEIGHT ? { clip: { x: 0, y: 0, width, height: MAX_HEIGHT } } : {}),
+    ...(height > maxHeight ? { clip: { x: 0, y: 0, width, height: maxHeight } } : {}),
   });
 }
 

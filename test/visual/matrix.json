@@ -15,13 +15,13 @@
     { "name": "tutorial", "path": "/tutorial/", "lang": "en", "dir": "ltr" },
     { "name": "versions", "path": "/versions/", "lang": "en", "dir": "ltr" },
     { "name": "not-found", "path": "/404.html", "lang": "en", "dir": "ltr" },
-    { "name": "reports-fa", "path": "/fa/reports/", "lang": "fa", "dir": "rtl" },
-    { "name": "reports-ar", "path": "/ar/reports/", "lang": "ar", "dir": "rtl" }
+    { "name": "reports-fa", "path": "/fa/reports/", "lang": "fa", "dir": "rtl", "maxHeight": 3200 },
+    { "name": "reports-ar", "path": "/ar/reports/", "lang": "ar", "dir": "rtl", "maxHeight": 3200 }
   ],
   "gallery": {
     "widths": ["mobile", "desktop"],
     "pages": [
-      { "name": "gallery", "path": "/gallery/", "lang": "en", "dir": "ltr" },
+      { "name": "gallery", "path": "/gallery/", "lang": "en", "dir": "ltr", "maxHeight": 3600 },
       { "name": "gallery-fa", "path": "/fa/gallery/", "lang": "fa", "dir": "rtl" },
       { "name": "gallery-ar", "path": "/ar/gallery/", "lang": "ar", "dir": "rtl" }
     ],

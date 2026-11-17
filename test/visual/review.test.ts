@@ -5,6 +5,7 @@ import { join } from "node:path";
 import { test } from "node:test";
 import { decodePng, encodePng, type Raster } from "../../scripts/visual-compare.ts";
 import { formatReview, reviewShots } from "../../scripts/visual-review.ts";
+import { loadMatrix, writeReport } from "../../scripts/test-visual.ts";
 
 const solid = (w: number, h: number, rgb: readonly [number, number, number]): Raster => {
   const data = new Uint8Array(w * h * 4);
@@ -96,5 +97,24 @@ test("--update writes the baselines, replaces a stale one, and passes", () => {
     assert.equal(existsSync(t.review), false);
   } finally {
     rmSync(t.dir, { recursive: true, force: true });
+  }
+});
+
+test("a case that passed on the second take is written as flaky by name", () => {
+  const dir = mkdtempSync(join(tmpdir(), "visual-report-"));
+  try {
+    const file = join(dir, "report.json");
+    const rows = writeReport(
+      [{ name: "gallery-light-desktop", status: "pass", share: 0.0001, files: [] }],
+      loadMatrix(),
+      file,
+      ["gallery-light-desktop"],
+    );
+    assert.equal(rows[0]?.flaky, true);
+    assert.equal(rows[0]?.status, "pass");
+    const written = JSON.parse(readFileSync(file, "utf8")) as { flaky: boolean }[];
+    assert.equal(written[0]?.flaky, true);
+  } finally {
+    rmSync(dir, { recursive: true, force: true });
   }
 });

@@ -76,5 +76,7 @@ main:
         url: /accessibility/
       - title: Performance
         url: /performance/
+      - title: Visual gates
+        url: /visual-gates/
       - title: Reports
         url: /reports/
