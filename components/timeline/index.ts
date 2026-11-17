@@ -43,6 +43,12 @@ export const PHASE_CLASS = "timeline-phase";
 /** Class on the legend that names every phase and its tone. */
 export const LEGEND_CLASS = "timeline-legend";
 
+/** Marks the axis for the island that draws the current day, with `data-from`, `data-to` and `data-label`. */
+export const TODAY_ATTRIBUTE = "data-timeline-today";
+
+/** Marks the legend for the island, which adds the line's name there only when it draws the line. */
+export const LEGEND_ATTRIBUTE = "data-timeline-legend";
+
 /** Class on a bar whose end date is not known yet. */
 export const OPEN_END_CLASS = "timeline-bar-open-end";
 
@@ -354,6 +360,15 @@ export default function timeline({ props, page, site }: ComponentProps<Readonly<
     scaled === undefined
       ? undefined
       : { from: Date.parse(scaled.from), span: Date.parse(scaled.to) - Date.parse(scaled.from) };
+  // What the island reads to draw the reader's day; the build itself never reads the clock.
+  const today =
+    scaled === undefined
+      ? {}
+      : {
+          "data-from": scaled.from,
+          "data-to": scaled.to,
+          "data-label": t(lang, "timeline_today"),
+        };
   const legend = legendOf(phaseRows, fields, lang, config);
   const head = h(
     "thead",
@@ -373,7 +388,7 @@ export default function timeline({ props, page, site }: ComponentProps<Readonly<
               { scope: "col", class: CHART_CLASS, "aria-hidden": "true" },
               h(
                 "div",
-                { class: AXIS_CLASS },
+                { class: AXIS_CLASS, [TODAY_ATTRIBUTE]: "", ...today },
                 scaled.ticks.map((tick) =>
                   h(
                     "span",
@@ -457,7 +472,7 @@ export default function timeline({ props, page, site }: ComponentProps<Readonly<
     chart,
     h(
       "div",
-      { class: LEGEND_CLASS },
+      { class: LEGEND_CLASS, [LEGEND_ATTRIBUTE]: "", ...today },
       h("p", { class: "timeline-legend-title" }, t(lang, "timeline_legend")),
       h(
         "ul",

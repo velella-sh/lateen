@@ -394,6 +394,7 @@
   "timeline_phase": "مرحلة",
   "timeline_start": "البداية",
   "timeline_status": "الحالة",
+  "timeline_today": "اليوم",
   "timeline_unknown_collection": "لا يحتوي الموقع على مجموعة باسم \"{name}\".",
   "timeline_unknown_field": "لا يوجد حقل باسم \"{name}\".",
   "translation_key": "مفتاح الترجمة",

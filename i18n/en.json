@@ -394,6 +394,7 @@
   "timeline_phase": "Phase",
   "timeline_start": "Start",
   "timeline_status": "Status",
+  "timeline_today": "Today",
   "timeline_unknown_collection": "The site has no collection named \"{name}\".",
   "timeline_unknown_field": "No field named \"{name}\".",
   "translation_key": "Translation key",
