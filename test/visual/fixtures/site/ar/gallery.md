@@ -131,6 +131,10 @@ pnpm add mizzen
 
 ::cta-band{title="معرض المكوّنات" lead="كل مكوّن في حالته الافتراضية وأشكاله، بمحتوى ثابت." label="الرئيسية" url="/ar/"}
 
+## data-explorer
+
+::data-explorer{from=books columns=title,pages}
+
 ## details
 
 :::details{summary="عرض التفاصيل"}

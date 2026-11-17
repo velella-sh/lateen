@@ -129,6 +129,10 @@ pnpm add mizzen
 
 ::cta-band{title="Component gallery" lead="Every component in its default state and variants, with fixed content." label="Home" url="/"}
 
+## data-explorer
+
+::data-explorer{from=books columns=title,pages}
+
 ## details
 
 :::details{summary="Show the details"}
