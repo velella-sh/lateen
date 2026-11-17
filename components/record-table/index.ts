@@ -23,10 +23,12 @@ export interface RecordColumn {
 
 /** Props from the directive or the page's front matter. */
 export type RecordTableProps = {
-  /** The collection to read; required. */
+  /** The collection to read; required unless `records` already holds the rows. */
   from?: string;
-  /** JSON array of `{ field, label, kind }`. */
-  columns?: string;
+  /** Ready rows from `LayoutProps.list.records`; the layout passes them so the table never re-selects. */
+  records?: readonly SelectedRecord[];
+  /** JSON array of `{ field, label, kind }`, or the array a page's front matter already holds. */
+  columns?: string | readonly RecordColumn[];
   /** The table's caption, also its accessible name. */
   caption?: string;
 };
@@ -77,11 +79,12 @@ export default function recordTable({ props, page, site }: ComponentProps<Readon
   const columns = columnsOf(input.columns);
   const caption = typeof input.caption === "string" ? input.caption.trim() : "";
 
-  if (from === "" || columns.length === 0) {
+  const ready = input.records;
+  if ((from === "" && ready === undefined) || columns.length === 0) {
     return h("p", { class: ERROR_CLASS, role: "note" }, t(lang, "record_table_missing_setup"));
   }
 
-  const selection = selectRecords(site, page, { collection: from });
+  const selection = ready === undefined ? selectRecords(site, page, { collection: from }) : { ok: true as const, records: ready };
   if (!selection.ok) {
     return h("p", { class: ERROR_CLASS, role: "note" }, t(lang, "record_table_unknown_collection", { name: selection.error.name }));
   }
