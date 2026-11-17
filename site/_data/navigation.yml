@@ -49,6 +49,8 @@ main:
         url: /components/page-status/
       - title: Schema table
         url: /components/schema-table/
+      - title: Status
+        url: /components/status/
       - title: Steps
         url: /components/steps/
       - title: Table
