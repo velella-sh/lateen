@@ -7,7 +7,7 @@ export function config(overrides: Partial<SiteConfig> = {}): SiteConfig {
   return {
     title: "Example", base: "", lang: "en", dir: "ltr", languages: [], source: ".", include: [], exclude: [],
     navigation: "_data/navigation.yml", defaults: [], theme: { options: {} }, search: { text: 300 },
-    redirects: {}, outputs: {}, collections: {}, ...overrides,
+    redirects: {}, outputs: {}, collections: {}, feeds: {}, ...overrides,
   };
 }
 

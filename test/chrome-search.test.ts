@@ -62,6 +62,7 @@ const config: SiteConfig = {
   redirects: {},
   outputs: {},
   collections: {},
+  feeds: {},
 };
 
 function pageWith(overrides: Partial<Page> = {}): Page {

@@ -47,6 +47,7 @@ function configWith(
     redirects: {},
     outputs: {},
     collections: {},
+    feeds: {},
   };
 }
 

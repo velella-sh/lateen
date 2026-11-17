@@ -34,6 +34,7 @@ const config: SiteConfig = {
   redirects: {},
   outputs: {},
   collections: {},
+  feeds: {},
 };
 
 /** Markup in the shape remark-gfm writes: a reference in the text, its note at the end, a back-link in the note. */

@@ -35,6 +35,7 @@ const config: SiteConfig = {
   redirects: {},
   outputs: {},
   collections: {},
+  feeds: {},
 };
 
 /** The base path the test navigation is published under. */

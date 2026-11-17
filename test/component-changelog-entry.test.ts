@@ -39,6 +39,7 @@ const config: SiteConfig = {
   redirects: {},
   outputs: {},
   collections: {},
+  feeds: {},
 };
 
 function pageFor(lang = "en"): Page {

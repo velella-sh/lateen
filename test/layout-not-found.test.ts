@@ -30,6 +30,7 @@ function configWith(overrides: Partial<SiteConfig> = {}): SiteConfig {
     redirects: {},
     outputs: {},
     collections: {},
+    feeds: {},
     ...overrides,
   };
 }

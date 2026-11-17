@@ -36,6 +36,7 @@ const config: SiteConfig = {
   redirects: {},
   outputs: {},
   collections: {},
+  feeds: {},
 };
 
 function pageAt(url: string): Page {

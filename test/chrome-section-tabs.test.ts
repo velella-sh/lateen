@@ -27,6 +27,7 @@ const config: SiteConfig = {
   redirects: {},
   outputs: {},
   collections: {},
+  feeds: {},
 };
 
 /** True for the right-to-left page languages the theme ships catalogs for, including regional codes. */
