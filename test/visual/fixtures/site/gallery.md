@@ -202,6 +202,10 @@ Layout component: a layout passes it the `features` list, which Markdown cannot 
 The hidden content.
 :::
 
+## gallery-card
+
+Layout component: the gallery layout draws it from records, so see a gallery page built from data.
+
 ## guide-summary
 
 ::guide-summary

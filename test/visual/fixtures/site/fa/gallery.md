@@ -204,6 +204,10 @@ Layout component: a layout passes it the `features` list, which Markdown cannot 
 محتوای پنهان.
 :::
 
+## gallery-card
+
+مؤلفهٔ چیدمان: چیدمان گالری آن را از رکوردها می‌سازد، پس صفحهٔ گالری ساخته‌شده از داده را ببینید.
+
 ## guide-summary
 
 ::guide-summary
