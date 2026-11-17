@@ -17,3 +17,31 @@
   color: var(--color-muted);
   font-style: italic;
 }
+
+/* A row whose raw values are not all equal: a tint, and a text marker in the row header for
+   assistive technology and for paper, so the color is never the only signal. */
+.compare-diff {
+  background-color: var(--color-surface-sunken);
+}
+
+.compare-diff-marker {
+  position: absolute;
+  inline-size: 1px;
+  block-size: 1px;
+  margin: -1px;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+}
+
+@media print {
+  .compare-diff-marker {
+    position: static;
+    inline-size: auto;
+    block-size: auto;
+    margin: 0;
+    overflow: visible;
+    clip-path: none;
+    white-space: normal;
+  }
+}

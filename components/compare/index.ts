@@ -1,7 +1,7 @@
 import { h } from "preact";
 import type { ComponentProps } from "@velella/mizzen/contracts";
 import { t } from "../../i18n/index.ts";
-import { formatField } from "../../src/fields.ts";
+import { formatField, isEmpty, kindOf } from "../../src/fields.ts";
 import { selectRecords, type SelectedRecord } from "../../src/records.ts";
 import { columnsOf } from "../record-table/index.ts";
 import table from "../table/index.ts";
@@ -20,6 +20,38 @@ export const MISSING_CLASS = "compare-missing";
 
 /** Class on one value cell. */
 export const CELL_CLASS = "compare-cell";
+
+/** Class on a row whose raw values are not all equal. */
+export const DIFF_CLASS = "compare-diff";
+
+/** Class on the screen-reader text naming a row that differs. */
+export const DIFF_MARKER_CLASS = "compare-diff-marker";
+
+/**
+ * A raw value as text for comparison: a number by value, so `1.0` and `1.00` are equal; a list
+ * without its order; anything else as JSON.
+ */
+function comparable(value: unknown, kind: unknown): string {
+  const one = (item: unknown): string => {
+    if (kindOf(kind) === "number" && (typeof item === "number" || typeof item === "string")) {
+      const number = Number(item);
+      if (Number.isFinite(number)) return `n:${number}`;
+    }
+    return `${typeof item}:${typeof item === "object" ? JSON.stringify(item) : String(item)}`;
+  };
+  return kindOf(kind) === "list" && Array.isArray(value)
+    ? `l:${value.map(one).sort().join("\u0000")}`
+    : one(value);
+}
+
+/** True when a row's values are not all equal; a missing value differs from every present value. */
+function rowDiffers(values: readonly unknown[], kind: unknown): boolean {
+  const present = values.filter((value) => !isEmpty(value));
+  if (present.length === 0) return false;
+  if (present.length !== values.length) return true;
+  const first = comparable(present[0], kind);
+  return present.some((value) => comparable(value, kind) !== first);
+}
 
 /** Props from the directive or the page's front matter. */
 export type CompareProps = {
@@ -111,21 +143,29 @@ export default function compare({ props, page, site }: ComponentProps<Readonly<R
   const body = h(
     "tbody",
     null,
-    fields.map((field) =>
-      h(
+    fields.map((field) => {
+      const values = records.map((record) =>
+        field.field === "id" ? record.id : record.fields[field.field],
+      );
+      const differs = rowDiffers(values, field.kind);
+      return h(
         "tr",
-        null,
-        h("th", { scope: "row" }, field.label ?? field.field),
-        records.map((record) => {
-          const value = field.field === "id" ? record.id : record.fields[field.field];
-          return h(
+        differs ? { class: DIFF_CLASS } : null,
+        h(
+          "th",
+          { scope: "row" },
+          field.label ?? field.field,
+          differs ? h("span", { class: DIFF_MARKER_CLASS }, ` ${t(lang, "compare_differs")}`) : null,
+        ),
+        records.map((record, index) =>
+          h(
             "td",
             { class: CELL_CLASS, "data-kind": field.kind ?? "text" },
-            formatField(value, field.kind, lang, site?.config) as never,
-          );
-        }),
-      ),
-    ),
+            formatField(values[index], field.kind, lang, site?.config) as never,
+          ),
+        ),
+      );
+    }),
   );
 
   return h("div", { class: WRAPPER_CLASS }, notes, h(table, null, head, body));
