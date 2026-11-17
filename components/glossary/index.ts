@@ -1,9 +1,13 @@
 import { h } from "preact";
 import type { ComponentProps } from "@velella/mizzen/contracts";
+import { t } from "../../i18n/index.ts";
 import { selectTerms, type Term } from "../../src/terms.ts";
 
 /** The Markdown directive this component handles: `::glossary`. */
 export const directive = "glossary";
+
+/** Class on the letter index above the groups. */
+export const NAV_CLASS = "glossary-index";
 
 /** Class on one letter's section. */
 export const GROUP_CLASS = "glossary-group";
@@ -28,6 +32,11 @@ function firstLetter(text: string): string {
   return Array.from(text.trim())[0] ?? "";
 }
 
+/** The anchor id of one letter's group. */
+function letterId(letter: string, lang: string): string {
+  return `glossary-${letter.toLocaleLowerCase(lang)}`;
+}
+
 /**
  * The site's terms as a glossary: one section per first letter, each a definition list with the term
  * as its linkable `<dt>`, the definition, and the other names. Terms and letters sort with the page
@@ -48,23 +57,32 @@ export default function glossary({ page, site }: ComponentProps) {
     else group.push(term);
   }
 
-  return [...groups.keys()].sort((a, b) => collator.compare(a, b)).map((letter) =>
+  const letters = [...groups.keys()].sort((a, b) => collator.compare(a, b));
+
+  return [
     h(
-      "section",
-      { class: GROUP_CLASS, key: letter },
-      h("h2", { class: LETTER_CLASS }, letter),
+      "nav",
+      { class: NAV_CLASS, "aria-label": t(lang, "glossary_index") },
+      letters.map((letter) => h("a", { href: `#${letterId(letter, lang)}`, key: letter }, letter)),
+    ),
+    ...letters.map((letter) =>
       h(
-        "dl",
-        { class: LIST_CLASS },
-        (groups.get(letter) ?? []).flatMap((term) => [
-          h("dt", { class: TERM_CLASS, id: term.id }, term.term),
-          // shortcut: the definition is escaped text because the engine hands components no rendered Markdown; upgrade when a render contract lands.
-          h("dd", { class: DEFINITION_CLASS }, term.definition),
-          ...(term.aliases.length === 0
-            ? []
-            : [h("dd", { class: ALIASES_CLASS }, term.aliases.join(", "))]),
-        ]),
+        "section",
+        { class: GROUP_CLASS, id: letterId(letter, lang), key: letter },
+        h("h2", { class: LETTER_CLASS }, letter),
+        h(
+          "dl",
+          { class: LIST_CLASS },
+          (groups.get(letter) ?? []).flatMap((term) => [
+            h("dt", { class: TERM_CLASS, id: term.id }, term.term),
+            // shortcut: the definition is escaped text because the engine hands components no rendered Markdown; upgrade when a render contract lands.
+            h("dd", { class: DEFINITION_CLASS }, term.definition),
+            ...(term.aliases.length === 0
+              ? []
+              : [h("dd", { class: ALIASES_CLASS }, term.aliases.join(", "))]),
+          ]),
+        ),
       ),
     ),
-  );
+  ];
 }
