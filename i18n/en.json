@@ -147,6 +147,7 @@
   "edit_label": "Edit with your agent",
   "edit_page": "Edit this page",
   "edit_prompt": "Edit {source}. Current text: \"{text}\". Change:",
+  "edit_record": "Edit this record",
   "edited_on": "edited on",
   "embed_code_choose": "Variant",
   "embed_code_formats": "Embed formats",

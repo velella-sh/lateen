@@ -105,13 +105,35 @@ export function editLinkFromData(data: unknown, url: string, file?: string): str
   return storedHref(entryHref(value));
 }
 
-/** The page's edit link: `site.data` first, then the repository, or `undefined` when neither gives one. */
+/** The record's data file and the inclusive lines it covers, or `undefined` for a page not built from a record. */
+function recordSource(page: Page): { file: string; start: number; end: number } | undefined {
+  const position = page.record?.position;
+  if (position === undefined) return undefined;
+  const file = text(position.file);
+  const start = position.startLine;
+  if (file === undefined || !Number.isInteger(start) || start < 1) return undefined;
+  const end = Number.isInteger(position.endLine) && position.endLine >= start ? position.endLine : start;
+  return { file, start, end };
+}
+
+/** The record's line range as a forge anchor: `#L5-L9`, or `#L5` for a record on one line. */
+function lineAnchor(start: number, end: number): string {
+  return end === start ? `#L${start}` : `#L${start}-L${end}`;
+}
+
+/**
+ * The page's edit link: `site.data` first, then the repository, or `undefined` when neither gives one. A record
+ * page points at the record's data file and line range, not at its template, so the reader lands on the data.
+ */
 export function editHref(site: Site, page: Page): string | undefined {
   const data = site.data["edit-links"] ?? site.data.editLinks;
   const fromData = editLinkFromData(data, page.url, page.source.file);
   if (fromData !== undefined) return fromData;
   const repository = site.config.repository;
-  return repository === undefined ? undefined : editUrlOf(repository, page.source.file);
+  if (repository === undefined) return undefined;
+  const record = recordSource(page);
+  const url = editUrlOf(repository, record?.file ?? page.source.file);
+  return url === undefined || record === undefined ? url : `${url}${lineAnchor(record.start, record.end)}`;
 }
 
 /** The heading's source line, or `undefined` when the heading is generated and has no real source span. */
@@ -224,7 +246,9 @@ const editPage: Chrome = ({ site, page }) => {
   return h(
     "div",
     { class: CLASS, "data-edit-page": true },
-    href === undefined ? null : h("a", { class: LINK_CLASS, href, rel: "noopener" }, t(page.lang, "edit_page")),
+    href === undefined
+      ? null
+      : h("a", { class: LINK_CLASS, href, rel: "noopener" }, t(page.lang, page.record === undefined ? "edit_page" : "edit_record")),
     headings.length === 0
       ? null
       : h(
