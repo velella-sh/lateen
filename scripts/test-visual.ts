@@ -7,7 +7,7 @@
 // Usage: node scripts/test-visual.ts [--only <case name substring>] [--out <folder>] [--update]
 // Each shot is compared with test/visual/baselines/<case>.png; a failure writes before, after and diff
 // images into <out>/review/. --update writes the baselines and is the only thing that does.
-import { existsSync, mkdirSync, readFileSync, readdirSync, rmSync } from "node:fs";
+import { existsSync, mkdirSync, readFileSync, readdirSync, rmSync, writeFileSync } from "node:fs";
 import { join, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 import type { Browser, Page } from "playwright";
@@ -24,8 +24,7 @@ import {
   type VisualMatrix,
 } from "../visual/index.ts";
 import { checkPage, formatFinding, type PageFinding } from "./visual-checks.ts";
-import { formatReview, reviewShots } from "./visual-review.ts";
-
+import { formatReview, reviewShots, type CaseReport } from "./visual-review.ts";
 // The runner and the matrix live in the export a site uses (visual/index.ts); re-exported for the tests.
 export {
   CONTEXT_OPTIONS,
@@ -236,6 +235,7 @@ export async function runVisual(options: RunOptions = {}): Promise<string[]> {
             theme: entry.theme,
             media: entry.section === "print" ? "print" : "screen",
             forcedColors: entry.section === "forced-colors",
+            ...(entry.maxHeight === undefined ? {} : { maxHeight: entry.maxHeight }),
           });
           written.push(file);
           options.findings?.push(...(await checkPage(page, entry.name, entry.case)));
@@ -260,6 +260,34 @@ export async function runVisual(options: RunOptions = {}): Promise<string[]> {
   return written;
 }
 
+/** One row of the report CI turns into the pull request's step summary. */
+export interface ReviewRow {
+  readonly page: string;
+  readonly entry: string;
+  readonly case: string;
+  readonly status: string;
+  readonly share: number | null;
+  readonly message: string | null;
+}
+
+/** Maps the review reports to matrix entries and writes the JSON report. */
+export function writeReport(reports: readonly CaseReport[], matrix: VisualMatrix, file: string): ReviewRow[] {
+  const entries = new Map(expandMatrix(matrix).map((entry) => [entry.case, entry]));
+  const rows = reports.map((report): ReviewRow => {
+    const entry = entries.get(report.name);
+    return {
+      page: entry?.name ?? report.name,
+      entry: entry === undefined ? "" : `${entry.section}/${entry.theme}/${entry.widthName}`,
+      case: report.name,
+      status: report.status,
+      share: report.share ?? null,
+      message: report.message ?? null,
+    };
+  });
+  writeFileSync(file, `${JSON.stringify(rows, null, 2)}\n`);
+  return rows;
+}
+
 async function main(): Promise<void> {
   const argv = process.argv.slice(2);
   const value = (flag: string): string | undefined => {
@@ -279,8 +307,9 @@ async function main(): Promise<void> {
   }
   const update = argv.includes("--update");
   if (update && process.env["CI"] === undefined) console.warn("note: baselines are recorded on CI (docs/design/visual-gates.md); a local baseline should not be committed");
-  const { lines, ok } = formatReview(reviewShots({ shots, baselines: BASELINE_DIR, review: join(shots, "review"), update }));
-  console.log(lines.join("\n"));
+  const reports = reviewShots({ shots, baselines: BASELINE_DIR, review: join(shots, "review"), update });
+  writeReport(reports, loadMatrix(), join(shots, "report.json"));
+  const { lines, ok } = formatReview(reports);  console.log(lines.join("\n"));
   if (!ok) process.exitCode = 1;
 }
 
