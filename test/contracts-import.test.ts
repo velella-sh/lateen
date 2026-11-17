@@ -3,6 +3,27 @@ import { readdirSync, readFileSync } from "node:fs";
 import { join, extname } from "node:path";
 import { test } from "node:test";
 import { fileURLToPath } from "node:url";
+import type {
+  Collection,
+  LayoutProps,
+  ListProps,
+  Page,
+  PageRecord,
+  RecordProps,
+  Site,
+} from "@velella/mizzen/contracts";
+
+type Same<A, B> = [A] extends [B] ? ([B] extends [A] ? true : false) : false;
+type Assert<T extends true> = T;
+
+// Compile-time only: `npm run typecheck` fails if the engine drops one of these members or changes
+// its type, which is the point at which the theme's record layouts must be revisited.
+type DataContract = [
+  Assert<Same<Site["collections"], Readonly<Record<string, Collection>>>>,
+  Assert<Same<Page["record"], PageRecord | undefined>>,
+  Assert<Same<LayoutProps["record"], RecordProps | undefined>>,
+  Assert<Same<LayoutProps["list"], ListProps | undefined>>,
+];
 
 const root = fileURLToPath(new URL("../", import.meta.url));
 const SOURCE = new Set([".ts", ".tsx", ".mts", ".js", ".mjs"]);
