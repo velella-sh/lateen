@@ -54,6 +54,38 @@
   cursor: pointer;
 }
 
+/* The live region is silent until the island writes a count into it. */
+.data-explorer-status {
+  margin-block: var(--space-2);
+  color: var(--color-muted);
+  font-family: var(--type-font-ui);
+  font-size: var(--type-size-sm);
+}
+
+.data-explorer-status:empty {
+  display: none;
+}
+
+.data-explorer-empty {
+  margin-block: var(--space-4);
+  color: var(--color-muted);
+}
+
+.data-explorer-more {
+  min-block-size: 2.5rem;
+  margin-block-start: var(--space-4);
+  padding-block: var(--space-2);
+  padding-inline: var(--space-4);
+  border: thin solid var(--color-border);
+  border-radius: var(--radius-sm);
+  background-color: var(--color-surface-raised);
+  color: var(--color-text);
+  font-family: var(--type-font-ui);
+  font-size: var(--type-size-sm);
+  font-weight: var(--type-weight-medium);
+  cursor: pointer;
+}
+
 /* Numbers line up on the end side, which is the reading end in right-to-left pages too. */
 .record-table-cell[data-kind="number"] {
   text-align: end;
