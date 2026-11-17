@@ -7,7 +7,7 @@ url: https://example.com
 base: ""
 collections:
   books:
-    source: _data/record-table.json
+    source: _data/books.json
     id: id
 languages:
   - code: fa

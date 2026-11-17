@@ -42,12 +42,28 @@
       ]
     },
     {
+      "name": "compare",
+      "selector": ".compare-only-diff",
+      "states": [
+        "hover",
+        "focus"
+      ]
+    },
+    {
       "name": "cta-band",
       "selector": ".cta-band-action",
       "states": [
         "hover",
         "focus",
         "pressed"
+      ]
+    },
+    {
+      "name": "data-explorer",
+      "selector": ".data-explorer-input",
+      "states": [
+        "hover",
+        "focus"
       ]
     },
     {
