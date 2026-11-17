@@ -24,6 +24,25 @@ theme:
           command: pnpm add {package}
         - name: yarn
           command: yarn add {package}
+    status:
+      values:
+        done:
+          tone: positive
+          label: { en: Done, fa: انجام شد, ar: مكتمل }
+          description:
+            en: Shipped and released.
+            fa: منتشر و ارائه شده است.
+            ar: تم شحنه وإصداره.
+        late:
+          tone: negative
+          label: { en: Late, fa: دیرکرده, ar: متأخر }
+          description:
+            en: Past its date.
+            fa: از تاریخ خود گذشته است.
+            ar: تجاوز موعده.
+        draft:
+          tone: neutral
+          label: { en: Draft, fa: پیش‌نویس, ar: مسودة }
     preset: graphite
     brand:
       accent: "#2f6f9f"

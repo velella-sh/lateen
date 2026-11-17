@@ -188,6 +188,7 @@ test("forced-colors.css covers every unit whose meaning relies on color", () => 
     .join("\n");
   for (const selector of [
     ".badge",
+    ".status",
     ".callout",
     ".page-status",
     ".diff-block",
@@ -300,7 +301,7 @@ test("controls share one hover, pressed and focus recipe, and the ring still dra
 test("the refined frames keep a border in forced colors (#477)", () => {
   const text = readFileSync(new URL("../styles/forced-colors.css", import.meta.url), "utf8");
   const borders = /:where\(\s*([^)]*?)\)\s*\{\s*border-color:\s*ButtonBorder\s*!important/s.exec(text)?.[1] ?? "";
-  for (const name of [".card", ".code", ".code-title", ".table-scroll", ".badge", ".callout", ".pager-link"]) assert.ok(borders.includes(name), `${name} keeps its border`);
+  for (const name of [".card", ".code", ".code-title", ".table-scroll", ".badge", ".status", ".callout", ".pager-link"]) assert.ok(borders.includes(name), `${name} keeps its border`);
 });
 
 test("the showpiece decoration is hidden and its entrance is off in forced colors (#491)", () => {

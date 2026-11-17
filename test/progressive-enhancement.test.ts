@@ -20,6 +20,19 @@ before(() => {
 
 after(() => rmSync(site.out, { recursive: true, force: true }));
 
+test("the status badge and legend read before any island runs", () => {
+  const page = site.document("/status/");
+  const article = page.querySelector("article.doc");
+  assert.ok(article);
+  const text = textOf(article);
+  for (const expected of ["Done", "Blocked", "Late", "Past its date."]) {
+    assert.ok(text.includes(expected), `the server-rendered article contains ${JSON.stringify(expected)}`);
+  }
+  assert.equal(all(page, ".status.status-positive").length, 2);
+  assert.equal(all(page, ".status-legend > .status-legend-item").length, 2);
+  assert.equal(all(page, ".status-legend .status-negative").length, 1);
+});
+
 test("the whole page reads before its islands run: prose, tabs, disclosures, output, and form defaults", () => {
   const article = document.querySelector("article.doc");
   assert.ok(article);
