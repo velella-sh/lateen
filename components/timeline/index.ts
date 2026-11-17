@@ -91,7 +91,7 @@ function pct(value: number): string {
 }
 
 /** A tick's label: the year, or the year and quarter when the axis counts quarters. */
-function tickLabel(date: string, unit: "year" | "quarter"): string {
+export function tickLabel(date: string, unit: "year" | "quarter"): string {
   const [year = date, month = "01"] = date.split("-");
   return unit === "year" ? year : `${year} Q${Math.floor((Number(month) - 1) / 3) + 1}`;
 }

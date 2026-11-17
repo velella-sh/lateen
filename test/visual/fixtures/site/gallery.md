@@ -233,6 +233,10 @@ Version: 1.0
 License: MIT
 :::
 
+## line-chart
+
+::line-chart{from=line-chart category=month value="north,south" title="Users by month"}
+
 ## link-card
 
 ::link-card{href="/" title="Home" description="A card that lifts on hover."}
