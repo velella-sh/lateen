@@ -1,5 +1,21 @@
 /* Dated list: a section per month, one line per date. Tokens and logical properties only. */
 
+/* The table of contents the page can ask for: one quiet line per group. */
+.dated-list-toc {
+  margin-block-end: var(--space-8);
+  font-size: var(--type-size-sm);
+}
+
+.dated-list-toc ul {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.dated-list-toc ul ul {
+  padding-inline-start: var(--space-4);
+}
+
 .dated-list-group {
   margin-block: var(--space-8);
 }

@@ -127,3 +127,10 @@ export function calendarMonth(iso: string, lang: string): CalendarMonth | undefi
     text: formatter(style, { year: "numeric", month: "long" }).format(date.utc),
   };
 }
+
+/** The year an ISO date falls in, in the calendar and digits `calendarMonth` groups by. */
+export function calendarYear(iso: string, lang: string): string | undefined {
+  const date = utcOf(iso);
+  if (date === undefined) return undefined;
+  return formatter(dateStyle(lang), { year: "numeric" }).format(date.utc);
+}
