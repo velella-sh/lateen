@@ -129,9 +129,13 @@ pnpm add mizzen
 
 ::cta-band{title="Component gallery" lead="Every component in its default state and variants, with fixed content." label="Home" url="/"}
 
+## data-explorer
+
+::data-explorer{from=books columns=title,pages}
+
 ## dated-list
 
-::dated-list{items='[{"date":"2026-07-01","label":"Kickoff","url":"/gallery/"},{"date":"2026-11-09","label":"Release","status":"done"},{"date":"2026-11-09","label":"Review"},{"date":"2026-02-30","label":"Bad date"}]'}
+::dated-list{items='[{"date":"2026-03-04","label":"Alpha release"},{"date":"2026-02-11","label":"Beta release"},{"date":"2026-01-09","label":"First preview"}]'}
 
 ## details
 
