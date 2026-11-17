@@ -1,6 +1,7 @@
 import { h } from "preact";
 import type { ComponentProps } from "@velella/mizzen/contracts";
 import { formatNumber } from "../../src/report.ts";
+import chartData from "../chart-data/index.ts";
 
 /** The Markdown directive this component handles: `::bar-chart{from="sales"}`. */
 export const directive = "bar-chart";
@@ -34,9 +35,6 @@ export const VALUE_CLASS = "bar-chart-value";
 
 /** Class on the gap and the table cell that stand for a row with no value. */
 export const NO_VALUE_CLASS = "bar-chart-no-value";
-
-/** Class on the table under the chart, the chart's text alternative. */
-export const TABLE_CLASS = "bar-chart-table";
 
 /** Class on the visible note shown when the source is absent or empty. */
 export const MISSING_CLASS = "bar-chart-missing";
@@ -389,7 +387,7 @@ export default function barChart({ props, site, page }: ComponentProps<BarChartP
   const values = rows.flatMap((row) => (row.value === undefined ? [] : [row.value]));
   const ticks = ticksOf(Math.min(...values), Math.max(...values));
   const chart = direction === "vertical" ? verticalChart(rows, ticks, lang) : horizontalChart(rows, ticks, lang);
-  const format = (value: number) => formatNumber(lang, value);
+  const description = `Values of ${valueField} by ${category}, ${rows.length} ${rows.length === 1 ? "row" : "rows"}.`;
 
   return h(
     "figure",
@@ -407,34 +405,13 @@ export default function barChart({ props, site, page }: ComponentProps<BarChartP
       h("title", { id: titleId }, name),
       ...chart.marks,
     ),
-    h(
-      "table",
-      { class: TABLE_CLASS },
-      h("caption", null, name),
-      h(
-        "thead",
-        null,
-        h(
-          "tr",
-          null,
-          h("th", { scope: "col" }, CATEGORY_HEADING),
-          h("th", { scope: "col" }, VALUE_HEADING),
-        ),
-      ),
-      h(
-        "tbody",
-        null,
-        ...rows.map((row) =>
-          h(
-            "tr",
-            { key: row.id },
-            h("th", { scope: "row" }, row.label),
-            row.value === undefined
-              ? h("td", { class: NO_VALUE_CLASS }, NO_VALUE_TEXT)
-              : h("td", { class: VALUE_CLASS }, format(row.value)),
-          ),
-        ),
-      ),
-    ),
+    chartData({
+      title: name,
+      description,
+      labelHeading: CATEGORY_HEADING,
+      columns: [VALUE_HEADING],
+      rows: rows.map((row) => ({ id: row.id, label: row.label, values: [row.value] })),
+      lang,
+    }),
   );
 }
