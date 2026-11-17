@@ -1,14 +1,19 @@
 import { Fragment, h } from "preact";
 import type { ComponentChildren } from "preact";
-import type { Layout, LayoutProps } from "@velella/mizzen/contracts";
+import type { Heading, Layout, LayoutProps } from "@velella/mizzen/contracts";
 import base from "./base.ts";
 import breadcrumb from "../chrome/breadcrumb/index.ts";
 import drawer from "../chrome/drawer/index.ts";
 import header from "../chrome/header/index.ts";
 import sidebar from "../chrome/sidebar/index.ts";
+import toc from "../chrome/toc/index.ts";
 import { KEY_CLASS, LIST_CLASS, VALUE_CLASS } from "../components/key-value/index.ts";
+import { t } from "../i18n/index.ts";
 import { formatField, kindOf } from "../src/fields.ts";
 import doc from "./doc.ts";
+
+/** Id of the facts panel; the table of contents links to it. */
+const FACTS_ID = "record-facts";
 
 const isRecord = (value: unknown): value is Record<string, unknown> =>
   value !== null && typeof value === "object" && !Array.isArray(value);
@@ -94,7 +99,7 @@ function factsPanel(props: LayoutProps): ComponentChildren {
   if (record === undefined || facts.length === 0) return null;
   return h(
     "dl",
-    { class: LIST_CLASS },
+    { class: LIST_CLASS, id: FACTS_ID },
     facts.map((fact) =>
       h(
         Fragment,
@@ -113,6 +118,13 @@ function factsPanel(props: LayoutProps): ComponentChildren {
       ),
     ),
   );
+}
+
+/** The page's own headings plus the facts panel first, on a copy so the page itself stays untouched. */
+function tocFor(props: LayoutProps): LayoutProps {
+  if (factsOf(props).length === 0) return props;
+  const heading: Heading = { depth: 2, id: FACTS_ID, text: t(props.page.lang, "record_facts"), pos: props.page.source };
+  return { ...props, page: { ...props.page, headings: [heading, ...props.page.headings] } };
 }
 
 /**
@@ -145,6 +157,7 @@ const record: Layout = (props) =>
         header: h(Fragment, null, header(props) as ComponentChildren, drawer(props) as ComponentChildren),
         sidebar: sidebar(props) as ComponentChildren,
         main: article(props),
+        aside: toc(tocFor(props)) as ComponentChildren,
       });
 
 export default record;

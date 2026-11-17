@@ -256,6 +256,7 @@
   "reading_words_other": "{words} كلمة",
   "reading_words_two": "{words} كلمتين",
   "reading_words_zero": "{words} كلمة",
+  "record_facts": "حقائق أساسية",
   "record_table_missing_setup": "يحتاج record-table إلى مجموعة في `from` وإلى عمود واحد على الأقل في `columns`.",
   "record_table_sort": "الترتيب حسب {column}",
   "record_table_sorted_ascending": "مرتب حسب {column} تصاعديًا.",

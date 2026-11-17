@@ -256,6 +256,7 @@
   "reading_words_other": "{words} words",
   "reading_words_two": "{words} words",
   "reading_words_zero": "{words} words",
+  "record_facts": "Key facts",
   "record_table_missing_setup": "record-table needs a collection in `from` and at least one column in `columns`.",
   "record_table_sort": "Sort by {column}",
   "record_table_sorted_ascending": "Sorted by {column}, ascending.",

@@ -256,6 +256,7 @@
   "reading_words_other": "{words} واژه",
   "reading_words_two": "{words} واژه",
   "reading_words_zero": "{words} واژه",
+  "record_facts": "مشخصات کلیدی",
   "record_table_missing_setup": "record-table به مجموعه‌ای در `from` و دست‌کم یک ستون در `columns` نیاز دارد.",
   "record_table_sort": "مرتب‌سازی بر اساس {column}",
   "record_table_sorted_ascending": "به ترتیب صعودی بر اساس {column}.",
