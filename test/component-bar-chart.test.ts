@@ -10,7 +10,6 @@ import barChart, {
   MISSING_CLASS,
   NO_VALUE_CLASS,
   NO_VALUE_TEXT,
-  TABLE_CLASS,
   directive,
   directionOf,
   idBase,
@@ -21,6 +20,13 @@ import barChart, {
   ticksOf,
   type BarChartProps,
 } from "../components/bar-chart/index.ts";
+import {
+  DESCRIPTION_CLASS as DATA_DESCRIPTION_CLASS,
+  DETAILS_CLASS as DATA_DETAILS_CLASS,
+  NO_VALUE_CLASS as DATA_NO_VALUE_CLASS,
+  NO_VALUE_TEXT as DATA_NO_VALUE_TEXT,
+  TABLE_CLASS as DATA_TABLE_CLASS,
+} from "../components/chart-data/index.ts";
 
 type Site = ComponentProps<BarChartProps>["site"];
 
@@ -138,7 +144,7 @@ test("a horizontal chart draws bars, writes values at their ends, and leaves a g
   assert.match(html, /class="bar-chart-value"[^>]*>0</);
   assert.match(html, /class="bar-chart-tick"[^>]*>10</);
   assert.match(html, /class="bar-chart-no-value"[^>]*>No value</);
-  assert.match(html, new RegExp(`<td class="${NO_VALUE_CLASS}">${NO_VALUE_TEXT}</td>`));
+  assert.match(html, new RegExp(`<td class="${DATA_NO_VALUE_CLASS}">${DATA_NO_VALUE_TEXT}</td>`));
   assert.doesNotMatch(html, /<script/);
 });
 
@@ -162,7 +168,7 @@ test("a vertical chart leaves a gap and says so in the table for a missing value
   );
   assert.equal(bars(html), 1);
   assert.match(html, /class="bar-chart-no-value"[^>]*>No value</);
-  assert.match(html, new RegExp(`<td class="${NO_VALUE_CLASS}">${NO_VALUE_TEXT}</td>`));
+  assert.match(html, new RegExp(`<td class="${DATA_NO_VALUE_CLASS}">${DATA_NO_VALUE_TEXT}</td>`));
 });
 
 test("a very long category label is cut in the SVG, kept whole in the table and in a title", () => {
@@ -204,7 +210,9 @@ test("the direction and the id are read from the directive, with a safe fallback
 
 test("the table under the chart is the text alternative and keeps every row", () => {
   const html = render({ from: "sales", category: "name", value: "total", title: "Sales" }, SALES);
-  assert.match(html, new RegExp(`<table class="${TABLE_CLASS}">`));
+  assert.match(html, new RegExp(`<details class="${DATA_DETAILS_CLASS}">`));
+  assert.match(html, new RegExp(`<p class="${DATA_DESCRIPTION_CLASS}">Values of total by name, 3 rows\\.</p>`));
+  assert.match(html, new RegExp(`<table class="${DATA_TABLE_CLASS}">`));
   assert.match(html, /<th scope="col">Category<\/th>/);
   assert.match(html, /<th scope="col">Value<\/th>/);
   for (const label of ["Alpha", "Beta", "Gamma"]) {
