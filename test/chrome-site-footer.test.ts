@@ -29,6 +29,7 @@ function configWith(options: Readonly<Record<string, unknown>>, lang = "en"): Si
     redirects: {},
     outputs: {},
     collections: {},
+    feeds: {},
   };
 }
 

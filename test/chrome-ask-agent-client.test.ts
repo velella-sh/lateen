@@ -32,6 +32,7 @@ function siteConfig(options: Readonly<Record<string, unknown>> = {}): SiteConfig
     redirects: {},
     outputs: {},
     collections: {},
+    feeds: {},
   };
 }
 

@@ -23,6 +23,7 @@ const config = {
   redirects: {},
   outputs: {},
   collections: {},
+  feeds: {},
 } as SiteConfig;
 
 function layoutProps(frontMatter: Record<string, unknown>, body = ""): LayoutProps {

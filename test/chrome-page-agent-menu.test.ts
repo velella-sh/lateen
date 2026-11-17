@@ -34,6 +34,7 @@ function siteConfig(options: Readonly<Record<string, unknown>> = {}, url?: strin
     redirects: {},
     outputs: {},
     collections: {},
+    feeds: {},
   };
 }
 

@@ -28,6 +28,7 @@ function siteConfig(repo?: RepositoryConfig): SiteConfig {
     redirects: {},
     outputs: {},
     collections: {},
+    feeds: {},
   };
 }
 

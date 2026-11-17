@@ -23,6 +23,7 @@ const config: SiteConfig = {
   redirects: {},
   outputs: {},
   collections: {},
+  feeds: {},
 };
 
 function layoutProps(overrides: Partial<Page> = {}): LayoutProps {

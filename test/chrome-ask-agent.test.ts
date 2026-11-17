@@ -27,6 +27,7 @@ function siteConfig(options: Readonly<Record<string, unknown>> = {}, overrides: 
     redirects: {},
     outputs: {},
     collections: {},
+    feeds: {},
     ...overrides,
   };
 }

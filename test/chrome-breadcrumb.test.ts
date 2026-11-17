@@ -23,6 +23,7 @@ const config: SiteConfig = {
   redirects: {},
   outputs: {},
   collections: {},
+  feeds: {},
 };
 
 const page: Page = {

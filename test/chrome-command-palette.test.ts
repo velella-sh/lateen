@@ -63,6 +63,7 @@ const config: SiteConfig = {
   redirects: {},
   outputs: {},
   collections: {},
+  feeds: {},
 };
 
 function heading(depth: Heading["depth"], id: string, text: string): Heading {

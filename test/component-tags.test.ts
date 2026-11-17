@@ -32,6 +32,7 @@ const config: SiteConfig = {
   redirects: {},
   outputs: {},
   collections: {},
+  feeds: {},
 };
 
 /** A page whose front matter holds the given tags. */

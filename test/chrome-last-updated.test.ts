@@ -43,6 +43,7 @@ function configFor(lang: string): SiteConfig {
     redirects: {},
     outputs: {},
     collections: {},
+    feeds: {},
   };
 }
 

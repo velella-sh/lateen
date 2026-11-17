@@ -43,6 +43,7 @@ function siteConfig(): SiteConfig {
     redirects: {},
     outputs: {},
     collections: {},
+    feeds: {},
   };
 }
 
