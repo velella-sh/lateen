@@ -35,6 +35,12 @@ export const EMPTY_FILTERS_CLASS = "record-table-empty";
 /** Class on the button that clears every filter. */
 export const CLEAR_FILTERS_CLASS = "record-table-clear";
 
+/** Class on the wrapper a `stack` table uses as its container query; absent otherwise. */
+export const STACK_CLASS = "record-table-stack";
+
+/** Class on the column label in each cell of a stacked table; CSS hides it while the row is a row. */
+export const LABEL_CLASS = "record-table-label";
+
 /** The kinds whose columns sort in the browser. */
 export const SORTABLE_KINDS: readonly FieldKind[] = ["text", "number", "date"];
 
@@ -59,6 +65,8 @@ export type RecordTableProps = {
   caption?: string;
   /** True when the document holds only this page's rows, so sorting them would mislead. */
   paginated?: boolean;
+  /** Present (any value, as in `:::record-table{stack}`) to stack rows in a narrow column. */
+  stack?: string;
 };
 
 const isRecord = (value: unknown): value is Record<string, unknown> =>
@@ -108,6 +116,7 @@ export default function recordTable({ props, page, site }: ComponentProps<Readon
   const columns = columnsOf(input.columns);
   const caption = typeof input.caption === "string" ? input.caption.trim() : "";
   const paginated = input.paginated === true;
+  const stack = "stack" in input;
 
   const ready = input.records;
   if ((from === "" && ready === undefined) || columns.length === 0) {
@@ -250,6 +259,7 @@ export default function recordTable({ props, page, site }: ComponentProps<Readon
               "data-kind": column.kind ?? "text",
               ...(known(column.field, [record]) && !isEmpty(value) ? { "data-value": String(value) } : {}),
             },
+            stack ? h("span", { class: LABEL_CLASS }, column.label ?? column.field) : null,
             content as never,
           );
         }),
@@ -262,8 +272,11 @@ export default function recordTable({ props, page, site }: ComponentProps<Readon
     (caption === "" ? {} : { label: caption }) as never,
     [caption === "" ? null : h("caption", null, caption), head, body] as never,
   );
+  // The wrapper is the container the stacked form queries, so a table narrows inside a page column
+  // without a viewport media query. A table that does not opt in keeps its scroll region as is.
+  const stacked = stack ? h("div", { class: STACK_CLASS }, rendered) : rendered;
   const wrapped = filterable || columns.some(sortable);
-  if (!wrapped) return rendered;
+  if (!wrapped) return stacked;
 
   // The island reads every word it announces from here, as the search dialog does.
   return h(
@@ -277,7 +290,7 @@ export default function recordTable({ props, page, site }: ComponentProps<Readon
     },
     h("p", { class: STATUS_CLASS, role: "status" }),
     controls,
-    rendered,
+    stacked,
     empty,
   );
 }

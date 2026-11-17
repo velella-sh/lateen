@@ -73,3 +73,49 @@
   text-decoration: underline;
   cursor: pointer;
 }
+
+/* A table that opts into `stack` adapts to its own column, not the viewport, so it also works
+   inside a narrow panel on a wide screen. The labels sit in the markup for the stacked form only;
+   while the row is still a row they take no space. */
+.record-table-stack {
+  container-type: inline-size;
+}
+
+.record-table-label {
+  display: none;
+}
+
+@container (max-inline-size: 40rem) {
+  .record-table-stack .table-scroll {
+    overflow: visible;
+  }
+
+  .record-table-stack thead {
+    display: none;
+  }
+
+  .record-table-stack table,
+  .record-table-stack tbody,
+  .record-table-stack tr,
+  .record-table-stack td {
+    display: block;
+  }
+
+  .record-table-stack tr {
+    padding-block: var(--space-2);
+    border-block-end: thin solid var(--color-border);
+  }
+
+  .record-table-stack td {
+    display: flex;
+    justify-content: space-between;
+    gap: var(--space-2);
+    text-align: start;
+  }
+
+  .record-table-stack .record-table-label {
+    display: inline;
+    color: var(--color-muted);
+    font-size: var(--type-size-sm);
+  }
+}
