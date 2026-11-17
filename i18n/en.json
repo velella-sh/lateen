@@ -128,6 +128,8 @@
   "copy_page_md": "Copy page as Markdown",
   "data_explorer_more": "Show more",
   "dated_list_invalid": "Records with no valid date are listed here.",
+  "dated_list_nothing": "Nothing this month.",
+  "dated_list_outside": "Records outside this range: {n}.",
   "default": "Default",
   "deprecated": "Deprecated",
   "description": "Description",
