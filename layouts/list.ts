@@ -5,6 +5,7 @@ import base from "./base.ts";
 import breadcrumb from "../chrome/breadcrumb/index.ts";
 import drawer from "../chrome/drawer/index.ts";
 import header from "../chrome/header/index.ts";
+import pagination, { paginationLinks } from "../chrome/pagination/index.ts";
 import sidebar from "../chrome/sidebar/index.ts";
 import toc from "../chrome/toc/index.ts";
 import recordTable, { type RecordColumn } from "../components/record-table/index.ts";
@@ -101,6 +102,9 @@ function article(props: LayoutProps): ComponentChildren {
     titleFromBody(props) ? null : h("h1", null, props.page.title),
     h("div", { class: "list-intro", dangerouslySetInnerHTML: { __html: props.page.html } }),
     records,
+    list === undefined
+      ? null
+      : (pagination({ url: props.page.url, lang: props.page.lang, pagination: list.pagination }) as ComponentChildren),
   );
 }
 
@@ -118,8 +122,13 @@ function tocFor(props: LayoutProps): LayoutProps {
 /** The list page: the base shell and the article, with the navigation sidebar and the group headings on this page. */
 const list: Layout = (props) => {
   const sortIsland: Island = { name: "record-table", src: `${baseOf(props.site)}/${SORT_ISLAND}` };
+  const head =
+    props.list === undefined
+      ? props.head
+      : { ...props.head, links: [...props.head.links, ...paginationLinks(props.list.pagination)] };
   return base({
     ...props,
+    head,
     islands: [...props.islands.filter((island) => island.src !== sortIsland.src), sortIsland],
     header: h(Fragment, null, header(props) as ComponentChildren, drawer(props) as ComponentChildren),
     sidebar: sidebar(props) as ComponentChildren,
