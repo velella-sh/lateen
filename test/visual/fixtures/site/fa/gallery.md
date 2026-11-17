@@ -282,6 +282,10 @@ Written 12 pages to dist
 
 ::reading-time{minutes=3 words=600 showWords}
 
+## record-table
+
+::record-table{from=books caption="کتاب‌ها" columns='[{"field": "title", "label": "عنوان"}, {"field": "pages", "label": "صفحه", "kind": "number"}, {"field": "published", "label": "انتشار", "kind": "date"}]'}
+
 ## schema-table
 
 ::schema-table{data="schema-table" label="Widget options"}

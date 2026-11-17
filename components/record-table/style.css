@@ -1,0 +1,12 @@
+/* Numbers line up on the end side, which is the reading end in right-to-left pages too. */
+.record-table-cell[data-kind="number"] {
+  text-align: end;
+  font-variant-numeric: tabular-nums;
+}
+
+/* A field the records do not have, and a table that cannot read its collection: visible, not blank. */
+.record-table-missing,
+.record-table-error {
+  color: var(--color-muted);
+  font-style: italic;
+}

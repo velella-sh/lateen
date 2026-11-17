@@ -16,6 +16,10 @@ languages:
     prefix: /ar
 navigation: _data/navigation.yml
 search: false
+collections:
+  books:
+    source: _data/record-table.json
+    id: id
 theme:
   options:
     installTabs:
