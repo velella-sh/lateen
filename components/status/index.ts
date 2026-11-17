@@ -6,6 +6,9 @@ import { resolveStatus } from "./values.ts";
 /** The Markdown directive this component handles: `:status[Done]{tone=positive}`. */
 export const directive = "status";
 
+/** The options the directive reads, documented on `site/components/status.md`. */
+export const OPTIONS = ["tone", "label", "value"] as const;
+
 /** The five tones of a status; each has colour tokens `--status-<tone>-fg|bg|border`. */
 export const TONES = ["positive", "caution", "negative", "neutral", "info"] as const;
 

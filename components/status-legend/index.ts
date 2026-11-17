@@ -6,6 +6,9 @@ import { labelOf, valuesOf } from "../status/values.ts";
 /** The Markdown directive this component handles: `::status-legend` or `::status-legend{values="done,late"}`. */
 export const directive = "status-legend";
 
+/** The options the directive reads, documented on `site/components/status.md`. */
+export const OPTIONS = ["values"] as const;
+
 /** Props from the directive. The map itself is never repeated here: it comes from `theme.options.status.values`. */
 export type StatusLegendProps = {
   /** A comma-separated subset of the mapped values, listed in this order. */

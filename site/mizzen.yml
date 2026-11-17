@@ -37,3 +37,24 @@ theme:
           url: /install/
         - title: Accessibility
           url: /accessibility/
+    status:
+      values:
+        shipped:
+          tone: positive
+          label:
+            en: Shipped
+            fa: ارسال شد
+          description: The work is done and released.
+        pending:
+          tone: caution
+          label: Pending
+          description: Waiting on a review.
+        blocked:
+          tone: negative
+          label:
+            en: Blocked
+            fa: مسدود
+          description: Something must change first.
+        draft:
+          tone: info
+          label: Draft
