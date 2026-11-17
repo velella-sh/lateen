@@ -7,18 +7,16 @@ import { chromium, type Browser } from "playwright";
 import { startServer } from "../../scripts/test-a11y.ts";
 import {
   CONTEXT_OPTIONS,
+  DEFAULT_VIEWPORT,
   MAX_HEIGHT,
   STABILIZE_CSS,
-  VIEWPORTS,
   capture,
   isLocalRequest,
   newVisualContext,
-  shotName,
 } from "../../scripts/test-visual.ts";
-import { PAGES } from "./fixtures/pages.ts";
 
 test("the fixed settings are the ones of the design note", () => {
-  assert.deepEqual(VIEWPORTS, { desktop: { width: 1280, height: 900 }, mobile: { width: 390, height: 844 } });
+  assert.deepEqual(DEFAULT_VIEWPORT, { width: 1280, height: 900 });
   assert.equal(CONTEXT_OPTIONS.deviceScaleFactor, 1);
   assert.equal(CONTEXT_OPTIONS.timezoneId, "UTC");
   assert.equal(CONTEXT_OPTIONS.locale, "en-US");
@@ -33,12 +31,6 @@ test("only the local server and inline data are reachable", () => {
   assert.ok(isLocalRequest("data:font/woff2;base64,AA", origin));
   assert.ok(!isLocalRequest("https://fonts.googleapis.com/css", origin));
   assert.ok(!isLocalRequest("http://127.0.0.1:4001/", origin));
-});
-
-test("every page and viewport has its own file name", () => {
-  const names = PAGES.flatMap((p) => (["desktop", "mobile"] as const).map((v) => shotName(p, v)));
-  assert.equal(new Set(names).size, names.length);
-  assert.ok(names.every((n) => /^[a-z0-9-]+\.png$/.test(n)));
 });
 
 let browser: Browser | undefined;
@@ -94,8 +86,38 @@ test("a shot waits for fonts, fixes the settings, blocks the network and is byte
     assert.equal(state.animation, "none");
     assert.equal(state.caret, "rgba(0, 0, 0, 0)");
     const png = readFileSync(join(dir, "a.png"));
-    assert.equal(png.readUInt32BE(16), VIEWPORTS.desktop.width);
+    assert.equal(png.readUInt32BE(16), DEFAULT_VIEWPORT.width);
     assert.equal(png.readUInt32BE(20), MAX_HEIGHT, "a taller page is cropped to the cap");
+    await context.close();
+  } finally {
+    await server.close();
+    rmSync(dir, { recursive: true, force: true });
+  }
+});
+
+test("a shot takes the theme, print and forced-colors emulation of its matrix entry", { skip }, async () => {
+  const dir = mkdtempSync(join(tmpdir(), "visual-runner-"));
+  writeFileSync(join(dir, "index.html"), PAGE);
+  writeFileSync(join(dir, "slow.woff2"), "not a font");
+  const server = await startServer(dir, "");
+  try {
+    const context = await newVisualContext(browser as Browser, server.url, { width: 375, height: 844 });
+    const page = await context.newPage();
+    await capture(page, `${server.url}/`, join(dir, "dark-print-forced.png"), { theme: "dark", media: "print", forcedColors: true });
+    const state = await page.evaluate(() => {
+      const g = globalThis as unknown as {
+        document: { documentElement: { getAttribute(name: string): string | null } };
+        matchMedia(query: string): { matches: boolean };
+      };
+      return {
+        theme: g.document.documentElement.getAttribute("data-theme"),
+        print: g.matchMedia("print").matches,
+        forced: g.matchMedia("(forced-colors: active)").matches,
+      };
+    });
+    assert.deepEqual(state, { theme: "dark", print: true, forced: true });
+    const png = readFileSync(join(dir, "dark-print-forced.png"));
+    assert.equal(png.readUInt32BE(16), 375);
     await context.close();
   } finally {
     await server.close();
