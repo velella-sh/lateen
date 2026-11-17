@@ -40,7 +40,7 @@
         "additionalProperties": false,
         "properties": {
           "case": { "type": "string" },
-          "site": { "type": "string", "enum": ["docs", "fixtures"] },
+          "site": { "type": "string", "enum": ["docs", "fixtures", "network"] },
           "path": { "type": "string" },
           "layout": { "type": "string" },
           "lang": { "type": "string", "enum": ["en", "fa", "ar"] },
