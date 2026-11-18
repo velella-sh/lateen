@@ -14,6 +14,7 @@ import {
   type IndexRow,
 } from "./index-loader.ts";
 import { withBase } from "../../src/url.ts";
+import { sortKey, sortRows, type SortDirection } from "../../src/sort.ts";
 
 /** The explorer root the island finds. */
 export const ROOT_SELECTOR = "[data-explorer]";
@@ -29,6 +30,10 @@ export const EMPTY_SELECTOR = ".data-explorer-empty";
 
 /** The button that reveals the next page of matches. */
 export const MORE_SELECTOR = ".data-explorer-more";
+
+/** The sort control's wrapper and its select. */
+export const SORT_SELECTOR = "[data-explorer-sort]";
+export const SORT_FIELD_SELECTOR = ".data-explorer-sort-field";
 
 /** The filter fields the island fills after the index loads. */
 export const FILTERS_SELECTOR = "[data-explorer-filters]";
@@ -137,6 +142,32 @@ function columnsOf(text: string | null, index?: CollectionIndex): Column[] {
     }
   }
   return (index?.columns ?? []).filter((field) => field !== URL_COLUMN).map((field) => ({ field, kind: "text" }));
+}
+
+/** One field the page offers as a sort choice, from the root's `data-sort`. */
+interface Sortable {
+  readonly field: string;
+  readonly kind: string;
+  readonly label: string;
+}
+
+/** The sortable fields from the root's `data-sort`, a JSON array. */
+function sortablesOf(text: string | null): Sortable[] {
+  if (text === null) return [];
+  try {
+    const parsed: unknown = JSON.parse(text);
+    if (!Array.isArray(parsed)) return [];
+    return parsed.flatMap((entry): Sortable[] => {
+      if (!isRecord(entry) || typeof entry.field !== "string" || entry.field === "") return [];
+      return [{
+        field: entry.field,
+        kind: typeof entry.kind === "string" ? entry.kind : "text",
+        label: typeof entry.label === "string" && entry.label !== "" ? entry.label : entry.field,
+      }];
+    });
+  } catch {
+    return [];
+  }
 }
 
 /** True when a cell carries nothing, as the static table reads it. */
@@ -321,6 +352,8 @@ function attach(root: ExplorerElement, doc: ExplorerDocument, env: ExplorerEnv):
   const more = root.querySelector(MORE_SELECTOR);
   const filtersBox = root.querySelector(FILTERS_SELECTOR);
   const chips = root.querySelector(CHIPS_SELECTOR);
+  const sortBox = root.querySelector(SORT_SELECTOR);
+  const sortSelect = root.querySelector(SORT_FIELD_SELECTOR);
 
   const base = root.getAttribute("data-base") ?? "";
   const collection = root.getAttribute("data-collection") ?? "";
@@ -332,6 +365,7 @@ function attach(root: ExplorerElement, doc: ExplorerDocument, env: ExplorerEnv):
   const filterEmpty = root.getAttribute("data-explorer-filter-empty") ?? "";
   const removePattern = root.getAttribute("data-explorer-remove") ?? "{filter}";
   const filterFields = fieldsOf(root.getAttribute("data-filters"));
+  const sortables = sortablesOf(root.getAttribute("data-sort"));
 
   // The rows the page was rendered with, so clearing puts them back as they were.
   const original = body.innerHTML;
@@ -342,6 +376,7 @@ function attach(root: ExplorerElement, doc: ExplorerDocument, env: ExplorerEnv):
   let facets: Facet[] = [];
   let matches: readonly IndexRow[] = [];
   let query = "";
+  let sorting: { readonly field: string; readonly kind: string; readonly direction: SortDirection } | undefined;
   let limit = ROW_LIMIT;
   let timer: unknown;
   let failed = false;
@@ -350,6 +385,8 @@ function attach(root: ExplorerElement, doc: ExplorerDocument, env: ExplorerEnv):
     body.innerHTML = original;
     matches = [];
     limit = ROW_LIMIT;
+    sorting = undefined;
+    if (sortSelect !== null) sortSelect.value = "";
     if (table !== null) table.hidden = false;
     if (empty !== null) {
       empty.hidden = true;
@@ -430,7 +467,15 @@ function attach(root: ExplorerElement, doc: ExplorerDocument, env: ExplorerEnv):
 
   const render = (text: string): void => {
     if (prepared === undefined) return;
-    matches = matchRows(prepared, text).filter((row) => facets.every((facet) => passes(row, facet)));
+    let selected = matchRows(prepared, text).filter((row) => facets.every((facet) => passes(row, facet)));
+    const active = sorting;
+    if (active !== undefined) {
+      const at = index?.columns.indexOf(active.field) ?? -1;
+      if (at >= 0) {
+        selected = sortRows(selected, (row) => sortKey(row[at], active.kind), active.kind, active.direction, lang);
+      }
+    }
+    matches = selected;
     limit = ROW_LIMIT;
     drawRows();
     if (status !== null) status.textContent = countText(root, lang, matches.length);
@@ -441,6 +486,41 @@ function attach(root: ExplorerElement, doc: ExplorerDocument, env: ExplorerEnv):
     }
     updateCounts(text);
     drawChips();
+  };
+
+  /** Offers relevance and both directions of every field named in `sort`, once the index is known. */
+  const drawSort = (): void => {
+    if (sortBox === null || sortSelect === null || sortables.length === 0) return;
+    if (sortSelect.querySelector("option") !== null) return;
+
+    const relevance = doc.createElement("option");
+    relevance.setAttribute("value", "");
+    relevance.textContent = root.getAttribute("data-explorer-relevance") ?? "";
+    sortSelect.append(relevance);
+
+    for (const sortable of sortables) {
+      for (const direction of ["ascending", "descending"] as const) {
+        const option = doc.createElement("option");
+        option.setAttribute("value", `${sortable.field}:${direction}`);
+        option.textContent = `${sortable.label} — ${root.getAttribute(`data-explorer-${direction}`) ?? direction}`;
+        sortSelect.append(option);
+      }
+    }
+    sortSelect.value = "";
+    sortSelect.addEventListener("change", () => {
+      const [field, direction] = (sortSelect.value ?? "").split(":");
+      const sortable = sortables.find((entry) => entry.field === field);
+      sorting =
+        sortable === undefined
+          ? undefined
+          : {
+              field: sortable.field,
+              kind: sortable.kind,
+              direction: direction === "descending" ? "descending" : "ascending",
+            };
+      if (prepared !== undefined) render(query.trim());
+    });
+    sortBox.hidden = false;
   };
 
   const loader = createIndexLoader(
@@ -454,6 +534,7 @@ function attach(root: ExplorerElement, doc: ExplorerDocument, env: ExplorerEnv):
         facets =
           filtersBox === null ? [] : buildFacets(root, doc, filtersBox, loaded, columns, filterFields, lang);
         if (filtersBox !== null) filtersBox.hidden = facets.length === 0;
+        drawSort();
         const text = query.trim();
         if (text !== "" || filtering()) render(text);
       },
@@ -484,6 +565,8 @@ function attach(root: ExplorerElement, doc: ExplorerDocument, env: ExplorerEnv):
 
   field.addEventListener("input", () => {
     query = field.value ?? "";
+    sorting = undefined;
+    if (sortSelect !== null) sortSelect.value = "";
     if (timer !== undefined) env.cancel(timer);
     timer = undefined;
     if (query.trim() === "") {

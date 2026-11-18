@@ -7,6 +7,10 @@
  * The chosen sort and filters live in the query string, so a shared link opens the same view; the
  * address is replaced, never pushed, and a page with several tables prefixes each table's keys. */
 
+import { compareKeys, sortKey, sortRows, type SortDirection, type SortKey } from "../../src/sort.ts";
+
+export { compareKeys, type SortDirection, type SortKey };
+
 /** The wrapper around a table the island may sort. */
 export const WRAPPER_SELECTOR = "[data-record-table-sort]";
 
@@ -36,9 +40,6 @@ export const EMPTY_FILTERS_SELECTOR = ".record-table-empty";
 
 /** The button that clears every filter. */
 export const CLEAR_FILTERS_SELECTOR = ".record-table-clear";
-
-/** A sort direction, as `aria-sort` spells it. */
-export type SortDirection = "ascending" | "descending";
 
 /** The part of an element the island uses. */
 export interface SortElement {
@@ -80,32 +81,10 @@ export interface SortWindow {
   addEventListener(type: "popstate", listener: () => void): void;
 }
 
-/** A comparable cell value: a number for number and date columns, text otherwise, absent when empty. */
-export type SortKey = number | string | undefined;
-
 /** The raw value of one cell, or undefined when the cell is empty or does not parse as its kind. */
 export function keyOf(row: SortElement, index: number, kind: string): SortKey {
   const cell = [...row.querySelectorAll(CELL_SELECTOR)][index];
-  const raw = cell?.getAttribute("data-value") ?? "";
-  if (raw === "") return undefined;
-  if (kind === "number") {
-    const value = Number(raw);
-    return Number.isFinite(value) ? value : undefined;
-  }
-  if (kind === "date") {
-    const value = Date.parse(raw);
-    return Number.isNaN(value) ? undefined : value;
-  }
-  return raw;
-}
-
-/** Two values in ascending order. Empty values come last, and text uses the page language's collation. */
-export function compareKeys(a: SortKey, b: SortKey, kind: string, lang: string): number {
-  if (a === undefined && b === undefined) return 0;
-  if (a === undefined) return 1;
-  if (b === undefined) return -1;
-  if (kind === "number" || kind === "date") return (a as number) - (b as number);
-  return new Intl.Collator(lang, { sensitivity: "variant" }).compare(String(a), String(b));
+  return sortKey(cell?.getAttribute("data-value") ?? "", kind);
 }
 
 /**
@@ -119,14 +98,7 @@ export function orderRows(
   direction: SortDirection,
   lang: string,
 ): SortElement[] {
-  return rows
-    .map((row, at) => ({ row, at, key: keyOf(row, index, kind) }))
-    .sort((x, y) => {
-      const order = compareKeys(x.key, y.key, kind, lang);
-      if (order === 0 || x.key === undefined || y.key === undefined) return order === 0 ? x.at - y.at : order;
-      return direction === "descending" ? -order : order;
-    })
-    .map((entry) => entry.row);
+  return sortRows(rows, (row) => keyOf(row, index, kind), kind, direction, lang);
 }
 
 /** The column a header names, so the announcement says which column the reader sorted by. */

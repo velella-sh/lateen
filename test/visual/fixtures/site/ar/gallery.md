@@ -133,7 +133,7 @@ pnpm add mizzen
 
 ## data-explorer
 
-::data-explorer{from=books columns=title,pages}
+::data-explorer{from=books columns=title,pages sort=title}
 
 ## dated-list
 
