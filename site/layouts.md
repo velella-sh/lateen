@@ -9,6 +9,8 @@ A page picks a layout with `layout` in its front matter, or gets one from `defau
 
 | Layout | What it renders |
 | --- | --- |
+| `api-reference` | One operation of a pinned OpenAPI document: method, path, parameters, request body, responses, schemas, and examples. [API reference layout](/layouts/api-reference/) explains the generated front matter. |
+| `api-reference-index` | The generated reference index: the document title, version, description, and grouped operation links. |
 | `base` | The document shell: `<head>`, skip link, theme script, and slots for the header, sidebar, main column, aside, and footer. The other layouts build on it; a page does not name it. |
 | `doc` | The docs page: header, sidebar, breadcrumb, article, table of contents, pager, and page footer. Front matter `status`, `since`, and `replaced_by` add the page-status banner. |
 | `gallery` | The collection page: one responsive card per record, with facet filters, a sort choice, a count, and an empty note. [Gallery layout](/components/gallery/) is a live example. |
