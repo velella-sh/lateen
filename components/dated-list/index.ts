@@ -9,6 +9,18 @@ import { selectRecords } from "../../src/records.ts";
 /** The Markdown directive this component handles: `::dated-list{from="posts"}`. */
 export const directive = "dated-list";
 
+/** Class on the wrapper the island finds. */
+export const LIST_CLASS = "dated-list";
+
+/** Marks the wrapper with the island attribute and the page language. */
+export const LIST_ATTRIBUTE = "data-dated-list";
+
+/** Class on the hidden paragraph the island turns into a jump link. */
+export const JUMP_CLASS = "dated-list-jump";
+
+/** Marks the jump paragraph for the island. */
+export const JUMP_ATTRIBUTE = "data-dated-list-jump";
+
 /** Class on the note shown when the collection cannot be read. */
 export const ERROR_CLASS = "dated-list-error";
 
@@ -370,5 +382,11 @@ export default function datedList({ props, page, site }: ComponentProps<Readonly
     );
   }
 
-  return output.length === 0 ? null : output;
+  if (output.length === 0) return null;
+  return h(
+    "div",
+    { class: LIST_CLASS, [LIST_ATTRIBUTE]: "", "data-lang": lang },
+    h("p", { class: JUMP_CLASS, [JUMP_ATTRIBUTE]: "", "data-label": t(lang, "dated_list_jump"), hidden: true }),
+    ...output,
+  );
 }

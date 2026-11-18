@@ -81,3 +81,26 @@
   color: var(--color-muted);
   font-style: italic;
 }
+
+/* The island writes a relative hint after each date; the built HTML never holds one. */
+.dated-list-relative {
+  color: var(--color-muted);
+  font-size: var(--type-size-sm);
+}
+
+/* A past day keeps its place and turns its dot hollow: the mark never rests on colour alone. */
+.dated-list-item.dated-list-past::before {
+  background-color: transparent;
+  border: thin solid var(--color-border-strong);
+  box-sizing: border-box;
+}
+
+/* The jump link is the island's addition; without a script the paragraph stays hidden. */
+.dated-list-jump {
+  margin-block: 0 var(--space-4);
+  font-size: var(--type-size-sm);
+}
+
+.dated-list-jump[hidden] {
+  display: none;
+}

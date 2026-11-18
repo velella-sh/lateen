@@ -132,6 +132,7 @@
   "data_explorer_filter_remove": "إزالة {filter}",
   "data_explorer_more": "عرض المزيد",
   "dated_list_invalid": "السجلات التي لا تحمل تاريخًا صالحًا مدرجة هنا.",
+  "dated_list_jump": "الانتقال إلى العنصر التالي",
   "dated_list_nothing": "لا سجلات هذا الشهر.",
   "dated_list_outside": "سجلات خارج هذا النطاق: {n}.",
   "default": "الافتراضي",
