@@ -1,0 +1,20 @@
+"/guide/install/":
+  - version: v1
+    url: /guide/legacy/
+  - version: v2
+    url: /guide/install/
+"/guide/legacy/":
+  - version: v1
+    url: /guide/legacy/
+  - version: v2
+    url: /guide/install/
+"/fa/guide/install/":
+  - version: v1
+    url: /fa/guide/legacy/
+  - version: v2
+    url: /fa/guide/install/
+"/fa/guide/legacy/":
+  - version: v1
+    url: /fa/guide/legacy/
+  - version: v2
+    url: /fa/guide/install/

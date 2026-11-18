@@ -77,7 +77,7 @@ interface DataPage {
   readonly entries: readonly Entry[];
 }
 
-/** `site.data.versions`, normalized: its pages and the URL-to-page lookup the N17 output writes. */
+/** `site.data.docsVersions`, normalized: its pages and the URL-to-page lookup the N17 output writes. */
 interface VersionsData {
   /** Every page the file lists. */
   readonly pages: readonly DataPage[];
@@ -165,7 +165,7 @@ function entriesOf(value: unknown): Entry[] {
 }
 
 /**
- * `site.data.versions`, read as either the N17 `versions.json` shape
+ * `site.data.docsVersions`, read as either the N17 `versions.json` shape
  *
  * ```json
  * { "pages": [{ "path": "guide/install.md", "versions": [{ "version": "v1", "url": "/v1/guide/install/" }] }] }
@@ -255,10 +255,20 @@ function homesOf(data: VersionsData, base: string): ReadonlyMap<string, string> 
   return homes;
 }
 
-/** The versions a page can switch between, from `site.data.versions` first and its front matter second. */
+/** True for the engine's routing file (`_data/versions.yml`), whose keys are not switcher versions. */
+function isRouting(value: unknown): boolean {
+  return (
+    typeof value === "object" &&
+    value !== null &&
+    !Array.isArray(value) &&
+    ("default" in value || "old" in value)
+  );
+}
+
+/** The versions a page can switch between, from `site.data.docsVersions` first and its front matter second. */
 export function versionsOf(site: Site, page: Page): readonly VersionLink[] | undefined {
   const base = baseOf(site);
-  const data = dataOf(site.data.versions);
+  const data = dataOf(site.data.docsVersions) ?? (isRouting(site.data.versions) ? undefined : dataOf(site.data.versions));
 
   if (data !== undefined) {
     const current = pageOf(data, base, page.url);
@@ -296,7 +306,7 @@ export function versionsOf(site: Site, page: Page): readonly VersionLink[] | und
  * The version switcher: a native `<details>` whose list links the same page in every version the site keeps, with the
  * current one marked. A page that is missing from another version links that version's home instead, and that entry
  * says so in the page language and carries `data-version-target="home"` (a page link carries `"page"`). It reads
- * `_data/versions.*` (the N17 `versions.json` shape or a page-to-versions map) and falls back to the page's `versions`
+ * `_data/docsVersions.*` (the N17 `versions.json` shape or a page-to-versions map) and falls back to the page's `versions`
  * front matter. Fewer than two versions, or a page the data does not list, renders nothing. `<details>`/`<summary>`
  * are keyboard operable with no script; the header places it, and it hides behind the summary until opened.
  */

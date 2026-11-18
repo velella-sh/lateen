@@ -282,6 +282,11 @@ test("versionsOf returns the links without rendering, and ignores unusable entri
   assert.equal(versionsOf(props({ versions: mixed }).site, pageWith())?.length, 1);
 });
 
+test("the engine's routing file is not read as switcher data", () => {
+  const routing = { versions: { default: "v2", old: ["v1"] } };
+  assert.equal(versionsOf(props(routing).site, pageWith()), undefined);
+});
+
 test("style.css uses only token names from tokens/names.json for var(--*) references", () => {
   const names = JSON.parse(readFileSync(new URL("../tokens/names.json", import.meta.url), "utf8")) as Record<
     string,

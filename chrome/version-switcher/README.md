@@ -15,8 +15,9 @@ list.
 
 ## Where the data comes from
 
-It reads `site.data.versions` first (`_data/versions.json`, `_data/versions.yml`, or `_data/versions.yaml`), in
-either of two shapes.
+It reads `site.data.docsVersions` first (`_data/docsVersions.json`, `_data/docsVersions.yml`, or
+`_data/docsVersions.yaml`), in either of two shapes. `_data/versions.yml` is the engine's routing file
+(`default` and `old`), so keep the switcher data in its own file.
 
 The N17 `versions.json` shape, with an optional `byUrl` lookup that is used when present:
 
@@ -49,7 +50,7 @@ entries or a terse `version: url` map:
 
 A bare array is one page's list. URLs may omit `base`; the switcher adds it once, and never twice.
 
-Without `site.data.versions`, it falls back to the page's `versions` front matter:
+Without `site.data.docsVersions`, it falls back to the page's `versions` front matter:
 
 ```yaml
 versions:
@@ -59,11 +60,9 @@ versions:
     url: /v2/guide/install/
 ```
 
-## Known gap
-
-The engine's `versions.json` output is written to the build root but is not exposed to rendering yet, so a site
-cannot read it through `site.data` on its own. Until that wiring lands, copy the output into `_data/versions.json`
-before the build or write the front matter above; with neither, the switcher stays hidden.
+The engine writes `versions.json` at the build root, after rendering, so a site copies it into
+`_data/docsVersions.json` before the build that renders the switcher, or writes the front matter above. With
+neither, the switcher stays hidden.
 
 ## Placement
 
