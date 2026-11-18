@@ -41,3 +41,10 @@ test("the glossary component renders the same collection on its own page", () =>
   assert.ok(page.querySelector('.glossary-term[id="network"]'));
   assert.equal(textOf(page.querySelector('.glossary-term[id="network"]')), "Network");
 });
+
+test("the definition and the link are in the built HTML with no island", () => {
+  const html = site.html("/terms/");
+  assert.match(html, /<details class="term"/);
+  assert.match(html, /<p class="term-definition">Two or more computers that talk\.<\/p>/);
+  assert.doesNotMatch(html, /islands\/components\/term/);
+});

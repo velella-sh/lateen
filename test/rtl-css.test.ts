@@ -438,7 +438,7 @@ test("a site's own family leads the RTL stack and keeps the shipped fallbacks", 
 
 // Refined tables, callouts, cards, badges and code blocks (#473, #474): logical properties only, tokens
 // only, so one stylesheet serves light, dark and right-to-left pages.
-const REFINED = ["components/table", "components/callout", "components/cards", "components/badge", "components/status", "components/status-legend", "components/record-table", "components/timeline", "components/bar-chart", "components/line-chart", "components/chart-data", "components/compare", "components/data-explorer"]
+const REFINED = ["components/table", "components/callout", "components/cards", "components/badge", "components/status", "components/status-legend", "components/record-table", "components/timeline", "components/bar-chart", "components/line-chart", "components/chart-data", "components/compare", "components/data-explorer", "components/term"]
   .map((dir) => `../${dir}/style.css`)
   .concat(
     "../styles/parts-code.css",
@@ -590,4 +590,14 @@ test("the network chrome uses logical properties and isolates project names", ()
   }
   assert.match(read("../chrome/project-switcher/index.ts"), /h\("bdi", null, project\.title\)/);
   assert.match(read("../chrome/network-footer/index.ts"), /h\("bdi", null, project\.title\)/);
+});
+
+test("the glossary pages are right to left and the term panel stays logical", () => {
+  const pages =
+    read("./accessibility/fixtures/site/fa/glossary.md") + read("./accessibility/fixtures/site/ar/glossary.md");
+  assert.equal((pages.match(/^dir: rtl$/gm) ?? []).length, 2, "both glossary pages are right to left");
+  const term = stripComments(read("../components/term/style.css"));
+  assert.match(term, /padding-inline:/);
+  assert.match(term, /margin-block-start:/);
+  assert.doesNotMatch(term, /(^|[;{\s])(left|right)\s*:/);
 });

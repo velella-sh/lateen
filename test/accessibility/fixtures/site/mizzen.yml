@@ -30,6 +30,9 @@ collections:
     search:
       filters: [author, published]
       sort: [title, published]
+  glossary:
+    source: _data/a11y-glossary.json
+    id: id
 languages:
   - code: en
     name: English
@@ -44,6 +47,12 @@ navigation: _data/navigation.yml
 search: false
 theme:
   options:
+    glossary:
+      collection: glossary
+      page:
+        en: /glossary/
+        fa: /fa/glossary/
+        ar: /ar/glossary/
     sourceMode:
       editor: "vscode://file/{path}:{line}:{column}"
     installTabs:

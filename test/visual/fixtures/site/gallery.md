@@ -363,6 +363,10 @@ The first tab.
 The second tab.
 :::
 
+## term
+
+An inline :term[Build]{id=build} term, and an :term[unknown term] without an entry.
+
 ## tags
 
 ::tags{items='["guide",{"label":"reference","url":"/gallery/"}]'}
