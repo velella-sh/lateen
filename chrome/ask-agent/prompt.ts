@@ -16,12 +16,14 @@ export const TEXT_LIMIT = 12000;
 /** Most characters of a provider URL; longer links are copied instead of opened. */
 export const PROMPT_URL_LIMIT = 8000;
 
-/** One page the prompt may mention: its title, address, Markdown twin, and fetched text. */
+/** One page the prompt may mention: its title, address, published files, and fetched text. */
 export interface PromptPage {
   readonly title: string;
   readonly url: string;
   /** The page's Markdown twin, when the site publishes one. */
   readonly markdown?: string | undefined;
+  /** The page's JSON, when the site publishes one and the page is a record page. */
+  readonly json?: string | undefined;
   /** The page's Markdown text, when the reader asked to include it. */
   readonly text?: string | undefined;
 }
@@ -36,6 +38,8 @@ export interface PromptStrings {
   readonly pages: string;
   /** "Markdown" */
   readonly markdown: string;
+  /** "JSON" */
+  readonly json: string;
   /** "Site index: {llms}" */
   readonly siteIndex: string;
   /** "Page text:" */
@@ -52,6 +56,7 @@ export const DEFAULT_STRINGS: PromptStrings = {
   question: "Question: {question}",
   pages: "Related pages:",
   markdown: "Markdown",
+  json: "JSON",
   siteIndex: "Site index: {llms}",
   text: "Page text:",
   cutPages: "Only the first {n} related pages are included.",
@@ -97,6 +102,14 @@ function titleOf(page: PromptPage): string {
   return title === "" ? page.url : title;
 }
 
+/** The published files a page carries, in parentheses; empty when it has none. */
+function filesOf(page: PromptPage, strings: PromptStrings): string {
+  const files: string[] = [];
+  if (page.markdown !== undefined && page.markdown !== "") files.push(`${strings.markdown}: ${page.markdown}`);
+  if (page.json !== undefined && page.json !== "") files.push(`${strings.json}: ${page.json}`);
+  return files.length === 0 ? "" : ` (${files.join(", ")})`;
+}
+
 /**
  * Builds the prompt: the question, the pages with their addresses and Markdown twins, and — when the
  * reader asked — the pages' text up to the text limit. Every limit that cut something is stated in
@@ -115,11 +128,7 @@ export function buildPrompt(input: PromptInput): BuiltPrompt {
   if (pages.length > 0) {
     lines.push(strings.pages);
     for (const page of pages) {
-      const twin =
-        page.markdown === undefined || page.markdown === ""
-          ? ""
-          : ` (${strings.markdown}: ${page.markdown})`;
-      lines.push(`- ${titleOf(page)} — ${page.url}${twin}`);
+      lines.push(`- ${titleOf(page)} — ${page.url}${filesOf(page, strings)}`);
     }
     if (cutPages > 0) lines.push("", fill(strings.cutPages, { n: pages.length }));
     lines.push("");

@@ -10,13 +10,16 @@
 
 import type { AskConfig } from "./index.ts";
 import { buildPrompt, PROMPT_URL_LIMIT, type PromptPage } from "./prompt.ts";
+import { jsonUrl } from "../page-agent-menu/providers.ts";
 import { twinUrl } from "../copy-markdown/twin.ts";
 import type { Clipboard } from "../copy-markdown/island.ts";
 
-/** One search result as the panel needs it: where it is and what the index calls it. */
+/** One search result as the panel needs it: where it is, what the index calls it, and its facets. */
 export interface AskResult {
   readonly url: string;
   readonly title?: string | undefined;
+  /** The search index's filters; a `collection` names a record page. */
+  readonly filters?: Readonly<Record<string, readonly string[]>> | undefined;
 }
 
 /** The parts of an element the panel builds and reads. */
@@ -100,6 +103,7 @@ export function parseAskConfig(text: string | null): AskConfig | undefined {
     const value = JSON.parse(text) as Partial<AskConfig>;
     const messages = value.messages;
     if (typeof value.site !== "string" || typeof value.markdown !== "boolean") return undefined;
+    if (typeof value.pageJson !== "boolean") return undefined;
     if (!Array.isArray(value.providers)) return undefined;
     if (typeof value.limits !== "object" || value.limits === null) return undefined;
     if (typeof value.limits.pages !== "number" || typeof value.limits.text !== "number") return undefined;
@@ -124,7 +128,7 @@ export function parseAskConfig(text: string | null): AskConfig | undefined {
     const prompt = strings.prompt;
     if (typeof prompt !== "object" || prompt === null) return undefined;
     const promptStrings: Readonly<Record<string, unknown>> = prompt as Readonly<Record<string, unknown>>;
-    for (const key of ["intro", "question", "pages", "markdown", "text", "cutPages", "cutText"]) {
+    for (const key of ["intro", "question", "pages", "markdown", "json", "text", "cutPages", "cutText"]) {
       if (typeof promptStrings[key] !== "string") return undefined;
     }
     if (value.llms !== undefined && typeof value.llms !== "string") return undefined;
@@ -203,16 +207,18 @@ function createPanel(env: AskEnv, config: AskConfig, container: AskElement): Pan
   const addressOf = (result: AskResult): string =>
     /^https?:\/\//i.test(result.url) || config.origin === undefined ? result.url : `${config.origin}${result.url}`;
 
-  /** The prompt's pages: title, address, Markdown twin, and any text the reader asked for. */
+  /** The prompt's pages: title, address, published files, and any text the reader asked for. */
   const pagesOf = (): PromptPage[] =>
     results.map((result) => {
       const url = addressOf(result);
       const markdown = config.markdown ? twinUrl(url) : undefined;
+      const json = config.pageJson && result.filters?.collection?.[0] !== undefined ? jsonUrl(url) : undefined;
       const text = includeText ? texts.get(result.url) : undefined;
       return {
         title: result.title?.trim() === "" || result.title === undefined ? result.url : result.title,
         url,
         ...(markdown === undefined ? {} : { markdown }),
+        ...(json === undefined ? {} : { json }),
         ...(text === undefined ? {} : { text }),
       };
     });

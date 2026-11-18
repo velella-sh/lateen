@@ -40,6 +40,8 @@ export interface AskConfig {
   readonly site: string;
   /** Whether the site publishes Markdown twins, so the prompt may name them and fetch their text. */
   readonly markdown: boolean;
+  /** Whether the site publishes page JSON, so the prompt may name it for record pages. */
+  readonly pageJson: boolean;
   /** The site's origin and path, so page addresses in the prompt are absolute. */
   readonly origin?: string | undefined;
   /** The published `llms.txt`, when the site writes it. */
@@ -91,6 +93,7 @@ function messagesOf(lang: string): AskMessages {
       question: patternOf(lang, "ask_agent_prompt_question"),
       pages: t(lang, "ask_agent_prompt_pages"),
       markdown: t(lang, "ask_agent_prompt_markdown"),
+      json: t(lang, "ask_agent_prompt_json"),
       siteIndex: patternOf(lang, "ask_agent_prompt_site"),
       text: t(lang, "ask_agent_prompt_text"),
       cutPages: patternOf(lang, "ask_agent_prompt_cut_pages"),
@@ -103,11 +106,13 @@ function messagesOf(lang: string): AskMessages {
 export function askConfig(props: ChromeProps): AskConfig {
   const { site, page } = props;
   const markdown = publishes(site.config, "twins");
+  const pageJson = publishes(site.config, "page-json");
   const llms = publishes(site.config, "llms") ? `${baseOf(site.config)}/llms.txt` : undefined;
   const origin = originOf(site.config);
   return {
     site: site.config.title,
     markdown,
+    pageJson,
     ...(origin === undefined ? {} : { origin }),
     ...(llms === undefined ? {} : { llms }),
     providers: promptProviders(site.config),
