@@ -46,7 +46,9 @@ function html(props: Record<string, unknown>, lang = "en"): string {
 }
 
 function docOf(props: Record<string, unknown>, lang = "en"): Document {
-  const document = new JSDOM(`<!doctype html><html lang="${lang}"><body>${html(props, lang)}</body></html>`).window
+  const document = new JSDOM(`<!doctype html><html lang="${lang}"><body>${html(props, lang)}</body></html>`, {
+    url: "https://example.com/books/",
+  }).window
     .document;
   activate(document as unknown as SortDocument);
   return document;

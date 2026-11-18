@@ -39,7 +39,9 @@ function html(props: Record<string, unknown>): string {
 }
 
 function docOf(props: Record<string, unknown>, lang = "en") {
-  const document = new JSDOM(`<!doctype html><html lang="${lang}"><body>${html(props)}</body></html>`).window.document;
+  const document = new JSDOM(`<!doctype html><html lang="${lang}"><body>${html(props)}</body></html>`, {
+    url: "https://example.com/books/",
+  }).window.document;
   return document;
 }
 
