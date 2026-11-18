@@ -119,3 +119,11 @@
     font-size: var(--type-size-sm);
   }
 }
+
+/* In forced colors the system supplies the control colors; the edge still shows the field. */
+@media (forced-colors: active) {
+  .record-table-filter select,
+  .record-table-filter input {
+    border-color: CanvasText;
+  }
+}

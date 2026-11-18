@@ -424,6 +424,7 @@ test("the committed budget covers every fixture route and asset class", () => {
   assert.ok(budget.note?.includes(FONT_CLASS), "the budget should say what its font numbers mean");
   assert.deepEqual(Object.keys(budget.routes).sort(), [
     "/alpha/",
+    "/alpha/books/",
     "/alpha/cli-demo/",
     "/alpha/guide/",
     "/alpha/guide/upgrade/",
