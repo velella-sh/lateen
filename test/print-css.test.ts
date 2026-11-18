@@ -357,6 +357,11 @@ test("the showpiece decoration drops in print and its bands print as plain text 
   assert.match(read("../components/cta-band/style.css").slice(read("../components/cta-band/style.css").indexOf("@media print")), /background:\s*none/);
 });
 
+test("a timeline row keeps its dates and its bar on one printed page", () => {
+  const print = read("../components/timeline/style.css").slice(read("../components/timeline/style.css").indexOf("@media print"));
+  assert.match(print, /\.timeline \.table tr\s*\{[^}]*break-inside:\s*avoid/);
+});
+
 test("the guide layout's components print whole and drop their copy controls", () => {
   for (const unit of ["guide-summary", "related-guides", "steps", "trap", "check-list", "before-after"]) {
     const text = read(`../components/${unit}/style.css`);

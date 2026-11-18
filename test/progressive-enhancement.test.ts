@@ -64,6 +64,19 @@ test("the record layout states the record before its islands run", () => {
   assert.equal(all(page, "article.record h1").length, 1, "the title stays one heading");
 });
 
+test("the timeline draws its rows and bars before its island runs", () => {
+  const page = site.document("/timeline/");
+  const article = page.querySelector("article");
+  assert.ok(article, "the doc layout renders its article");
+  const text = textOf(article);
+  for (const expected of ["Kickoff", "Design review", "Release", "January 12, 2026", "March 6, 2026"]) {
+    assert.ok(text.includes(expected), `the server-rendered timeline contains ${JSON.stringify(expected)}`);
+  }
+  assert.equal(all(page, ".timeline tbody tr").length, 3, "every row renders");
+  assert.equal(all(page, ".timeline-bar").length, 3, "every row carries its bar");
+  assert.ok(page.querySelector(".timeline-axis .timeline-tick"), "the axis is in the markup");
+});
+
 test("the guide layout and its components read before their islands run", () => {
   const page = site.document("/guide/start/");
   const article = page.querySelector("article.guide");

@@ -344,6 +344,13 @@ test("the record layout names a fact's report link without colour", () => {
   assert.match(rules, /\.record-fact-report\s*\{[^}]*text-decoration:\s*underline/);
 });
 
+test("a timeline keeps its bars and axis when colour is replaced", () => {
+  const text = read("../components/timeline/style.css");
+  const rules = text.slice(text.indexOf("@media (forced-colors: active)"));
+  assert.match(rules, /\.timeline-bar\s*\{[^}]*border-color:\s*CanvasText/);
+  assert.match(rules, /\.timeline-axis,[\s\S]*?color:\s*CanvasText/);
+});
+
 test("the current project keeps a visible edge when colour is replaced", () => {
   const rules = css.slice(css.indexOf("@media (forced-colors: active)"));
   for (const selector of [

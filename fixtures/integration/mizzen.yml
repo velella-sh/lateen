@@ -16,6 +16,9 @@ languages:
 navigation: _data/navigation.yml
 search: { text: 300 }
 collections:
+  timeline:
+    source: _data/timeline.json
+    id: id
   books:
     source: _data/books.json
     id: id

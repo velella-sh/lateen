@@ -437,6 +437,7 @@ test("the committed budget covers every fixture route and asset class", () => {
     "/alpha/reports/",
     "/alpha/showpiece/",
     "/alpha/status/",
+    "/alpha/timeline/",
   ]);
   // Only the shared `src/source-span.ts` and `src/repository.ts` modules, which source mode imports; no component island.
   assert.equal(budget.routes["/alpha/reports/"]?.["js/components"].count, 2, "the report page ships no component island, only the shared span and repository readers");

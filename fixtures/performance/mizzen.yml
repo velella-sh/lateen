@@ -28,6 +28,9 @@ theme:
       copyright: "Performance fixture"
 
 collections:
+  timeline:
+    source: _data/timeline.json
+    id: id
   books:
     source: _data/books.json
     id: id
