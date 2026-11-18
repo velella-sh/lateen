@@ -54,6 +54,8 @@ export interface SourceActions {
   readonly repository?: RepositoryConfig | undefined;
   /** The validated editor URL template, when the site names one. */
   readonly editor?: string | undefined;
+  /** The visible kind word for a source file (data or template), when the page knows it. */
+  readonly kindOf?: (file: string) => string | undefined;
   /** Where the reader keeps the folder of their checkout. */
   readonly storage: SourceModeStorage | undefined;
   /** Asks the reader for text (`window.prompt`); null when cancelled. */
@@ -158,6 +160,13 @@ function stampActions(label: SourceLabel, span: Span, actions: SourceActions): P
     label.appendChild?.(element);
     return element;
   };
+
+  const kind = actions.kindOf?.(span.file);
+  if (kind !== undefined && kind !== "") {
+    const word = add("span");
+    word.setAttribute("class", "source-label-kind");
+    word.textContent = kind;
+  }
 
   const copy = add("button");
   copy.setAttribute("type", "button");
@@ -350,11 +359,15 @@ function actionsOf(root: SwitchRoot, announce: (message: string) => void): Sourc
   } catch {
     repository = undefined;
   }
+  const messages = (name: string): string => root.getAttribute(`data-msg-${name}`) ?? "";
+  const template = root.getAttribute("data-record-template");
+  const data = root.getAttribute("data-record-data");
   return {
     repository,
     editor: root.getAttribute("data-editor") ?? undefined,
     storage: shortcutStorage(),
-    messages: (name) => root.getAttribute(`data-msg-${name}`) ?? "",
+    messages,
+    kindOf: (file) => (file === template ? messages("kind-template") : file === data ? messages("kind-data") : undefined),
     createElement: (tag) => document.createElement(tag),
     copy: async (text) => {
       try {

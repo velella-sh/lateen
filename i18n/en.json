@@ -373,6 +373,8 @@
   "source_jump_nearest": "Line {line} is between blocks. Showing the nearest block before it.",
   "source_jump_none": "No block of this page starts at or before line {line} of {file}.",
   "source_jump_other": "{file} is not this page's source, so no block was selected.",
+  "source_kind_data": "Data",
+  "source_kind_template": "Template",
   "source_mode_label": "Source mode",
   "source_mode_off": "Source mode off.",
   "source_mode_on": "Source mode on. File and line shown beside each block.",

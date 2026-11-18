@@ -56,7 +56,9 @@
   display: none;
 }
 
-.source-mode .doc-body [data-src] {
+.source-mode .doc-body [data-src],
+.source-mode .record-body [data-src],
+.source-mode .record-fact {
   position: relative;
 }
 
@@ -76,6 +78,13 @@
   font-size: var(--type-size-xs);
   line-height: var(--type-leading-tight);
   pointer-events: none;
+}
+
+/* The kind is a word, so data and template positions differ without relying on colour. */
+.source-label-kind {
+  margin-inline-end: var(--space-2);
+  font-family: var(--type-font-ui);
+  font-weight: var(--type-weight-medium);
 }
 
 /* The label's actions take pointer input; the label box itself still lets clicks through to the block. */

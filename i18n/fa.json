@@ -373,6 +373,8 @@
   "source_jump_nearest": "خط {line} میان دو بلوک است. نزدیک‌ترین بلوک پیش از آن نمایش داده شد.",
   "source_jump_none": "هیچ بلوکی از این صفحه در خط {line} از {file} یا پیش از آن آغاز نمی‌شود.",
   "source_jump_other": "{file} منبع این صفحه نیست، پس بلوکی انتخاب نشد.",
+  "source_kind_data": "داده",
+  "source_kind_template": "قالب",
   "source_mode_label": "حالت منبع",
   "source_mode_off": "حالت منبع خاموش شد.",
   "source_mode_on": "حالت منبع روشن شد. پرونده و خط کنار هر بلوک نمایش داده می‌شود.",

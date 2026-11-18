@@ -373,6 +373,8 @@
   "source_jump_nearest": "السطر {line} بين كتلتين. يظهر أقرب كتلة قبله.",
   "source_jump_none": "لا توجد كتلة في هذه الصفحة تبدأ عند السطر {line} من {file} أو قبله.",
   "source_jump_other": "{file} ليس مصدر هذه الصفحة، فلم تُحدَّد أي كتلة.",
+  "source_kind_data": "بيانات",
+  "source_kind_template": "قالب",
   "source_mode_label": "وضع المصدر",
   "source_mode_off": "تم إيقاف وضع المصدر.",
   "source_mode_on": "تم تشغيل وضع المصدر. يظهر الملف والسطر بجانب كل كتلة.",

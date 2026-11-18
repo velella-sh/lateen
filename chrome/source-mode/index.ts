@@ -26,6 +26,8 @@ const MESSAGES = [
   "source_jump_other",
   "source_jump_none",
   "source_jump_nearest",
+  "source_kind_data",
+  "source_kind_template",
 ] as const;
 
 /**
@@ -54,6 +56,10 @@ const sourceMode: Chrome = ({ site, page }) => {
         ? { "data-repository": JSON.stringify({ url: repository.url, branch: repository.branch }) }
         : {}),
       ...(editor === undefined ? {} : { "data-editor": editor }),
+      // On a record page the labels say whether a position is the data file or the template.
+      ...(page.record === undefined
+        ? {}
+        : { "data-record-template": page.record.template, "data-record-data": page.record.position.file }),
     },
     h(
       "button",

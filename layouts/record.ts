@@ -1,6 +1,6 @@
 import { Fragment, h } from "preact";
 import type { ComponentChildren } from "preact";
-import type { Heading, Layout, LayoutProps } from "@velella/mizzen/contracts";
+import type { DataRecord, Heading, Layout, LayoutProps, RecordPos } from "@velella/mizzen/contracts";
 import base from "./base.ts";
 import blockActions from "../chrome/block-actions/index.ts";
 import breadcrumb from "../chrome/breadcrumb/index.ts";
