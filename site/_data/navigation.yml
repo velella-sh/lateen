@@ -39,6 +39,8 @@ main:
         url: /components/figure/
       - title: File tree
         url: /components/file-tree/
+      - title: Guide layout
+        url: /components/guide/
       - title: Heading anchor
         url: /components/heading-anchor/
       - title: Kbd

@@ -44,6 +44,7 @@ The theme's own look is set with the [Brand options](/brand-options/); the shipp
 | [Endpoint](./endpoint/) | An HTTP method, path, parameters, and body for API reference pages. |
 | [Figure](./figure/) | An image with alt text, a caption, and a credit, in light and dark. |
 | [File tree](./file-tree/) | A folder structure with a note per entry. |
+| [Guide layout](./guide/) | A layout for step-by-step guides, with a summary bar and related guides. |
 | [Heading anchor](./heading-anchor/) | A link icon on every h2 to h4, added automatically. |
 | [Kbd](./kbd/) | A keyboard key or key combination. |
 | [Key-value list](./key-value/) | Properties, options, or metadata as a two-column list of keys and values. |
