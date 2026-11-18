@@ -36,7 +36,7 @@ test("a card is one link with a cover, a title, a summary, and a status", () => 
   assert.equal(
     out,
     `<a class="${GALLERY_CARD_CLASS}" href="/books/alpha/">` +
-      `<img class="${COVER_CLASS}" src="/covers/alpha.jpg" alt/>` +
+      `<img class="${COVER_CLASS}" src="/covers/alpha.jpg" alt loading="eager"/>` +
       `<span class="${BODY_CLASS}">` +
       `<span class="${TITLE_CLASS}">Alpha</span>` +
       `<span class="${SUMMARY_CLASS}">The first book.</span>` +
@@ -50,13 +50,13 @@ test("a card without a summary keeps its other parts", () => {
   const out = render({ href: "/books/beta/", title: "Beta", cover: "/covers/beta.jpg", status: "Draft" });
   assert.doesNotMatch(out, new RegExp(SUMMARY_CLASS));
   assert.match(out, new RegExp(`<span class="${TITLE_CLASS}">Beta</span>`));
-  assert.match(out, new RegExp(`<img class="${COVER_CLASS}" src="/covers/beta.jpg" alt/?>`));
+  assert.match(out, new RegExp(`<img class="${COVER_CLASS}" src="/covers/beta.jpg" alt loading="eager"/>`));
   assert.match(out, new RegExp(`<span class="${STATUS_CLASS}">Draft</span>`));
 });
 
 test("the cover is decorative: empty alt, no duplicate name for screen readers", () => {
   const out = render({ href: "/x/", title: "Named by the title", cover: "/cover.png" });
-  assert.match(out, new RegExp(`<img class="${COVER_CLASS}" src="/cover.png" alt/?>`));
+  assert.match(out, new RegExp(`<img class="${COVER_CLASS}" src="/cover.png" alt loading="eager"/>`));
   assert.doesNotMatch(out, /alt="[^"]+"/);
 });
 

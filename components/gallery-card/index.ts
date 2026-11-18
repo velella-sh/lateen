@@ -21,11 +21,22 @@ export const SUMMARY_CLASS = "gallery-card-summary";
 /** Class on the status. */
 export const STATUS_CLASS = "gallery-card-status";
 
+/** The cards in the desktop grid's first row; four fills one row, so they load eagerly. */
+export const FIRST_ROW = 4;
+
 /** Text trimmed, or undefined when it is missing, blank, or not a string. */
 function textOf(value: unknown): string | undefined {
   if (typeof value !== "string") return undefined;
   const text = value.trim();
   return text === "" ? undefined : text;
+}
+
+/** A positive whole pixel size, or undefined so the theme's 16:9 cover ratio reserves the space. */
+function pixels(value: unknown): number | undefined {
+  const text = typeof value === "number" ? String(value) : typeof value === "string" ? value.trim() : "";
+  if (!/^\d+$/.test(text)) return undefined;
+  const number = Number(text);
+  return number > 0 ? number : undefined;
 }
 
 export type GalleryCardProps = {
@@ -37,6 +48,16 @@ export type GalleryCardProps = {
   title: string;
   /** The cover image or logo. Decorative, because the title already names the item. */
   cover?: string;
+  /** Intrinsic cover width in pixels, when the record carries one. */
+  width?: number | string;
+  /** Intrinsic cover height in pixels, when the record carries one. */
+  height?: number | string;
+  /** The engine's responsive candidates for `cover`, passed to `srcset`. */
+  srcset?: string;
+  /** Layout hint for `srcset`, passed to `sizes`. */
+  sizes?: string;
+  /** Zero-based place in the grid: the first row loads eagerly, the rest lazily. */
+  index?: number;
   /** One short line about the item. */
   summary?: string;
   /** The item's state, as plain text. */
@@ -45,22 +66,46 @@ export type GalleryCardProps = {
 
 /**
  * One gallery card: a single link holding a decorative cover, the title, an optional summary, and an
- * optional status. Without a safe href or a title it renders as static content instead, so a
- * malformed card never becomes an unlabeled or `javascript:` link.
+ * optional status. The cover reserves its space with the record's dimensions or the theme's ratio,
+ * loads eagerly in the first row and lazily after it, and uses the engine's responsive candidates
+ * when the record has them. Without a safe href or a title it renders as static content instead, so
+ * a malformed card never becomes an unlabeled or `javascript:` link.
  */
-export default function galleryCard({ href, id, title, cover, summary, status }: GalleryCardProps) {
+export default function galleryCard({
+  href,
+  id,
+  title,
+  cover,
+  width,
+  height,
+  srcset,
+  sizes,
+  index,
+  summary,
+  status,
+}: GalleryCardProps) {
   const safeHref = hrefOf(href);
   const heading = textOf(title);
   const image = textOf(cover);
   const body = textOf(summary);
   const state = textOf(status);
+  const lazy = typeof index === "number" && index >= FIRST_ROW;
 
   const parts: ComponentChildren[] = [
     image === undefined
       ? heading === undefined
         ? null
         : tile({ title: heading, id: textOf(id) ?? href })
-      : h("img", { class: COVER_CLASS, src: image, alt: "" }),
+      : h("img", {
+          class: COVER_CLASS,
+          src: image,
+          alt: "",
+          width: pixels(width),
+          height: pixels(height),
+          srcset: textOf(srcset),
+          sizes: textOf(sizes),
+          loading: lazy ? "lazy" : "eager",
+        }),
     h(
       "span",
       { class: BODY_CLASS },
