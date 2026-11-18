@@ -1,0 +1,39 @@
+/* API reference index: the document title, version, description, and grouped operation links.
+   The doc column comes from .doc; this file only groups the links. Logical properties only. */
+
+.api-reference-index-version {
+  margin-block: var(--space-2) var(--space-4);
+  color: var(--color-muted);
+  font-family: var(--type-font-ui);
+  font-size: var(--type-size-sm);
+}
+
+.api-reference-index-version code {
+  color: var(--color-heading);
+}
+
+.api-reference-index-nav {
+  margin-block-start: var(--space-8);
+}
+
+.api-reference-index-group {
+  margin-block-start: var(--space-6);
+}
+
+.api-reference-index-group-title {
+  margin-block: var(--space-2);
+  color: var(--color-heading);
+  font-size: var(--type-size-lg);
+}
+
+.api-reference-index-list {
+  display: grid;
+  gap: var(--space-2);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.api-reference-index-link {
+  font-weight: var(--type-weight-medium);
+}
