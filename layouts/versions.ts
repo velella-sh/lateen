@@ -224,9 +224,15 @@ function mapEntries(value: Readonly<Record<string, unknown>>): readonly PageVers
   return entries;
 }
 
+/** True for the engine's routing file (`_data/versions.yml`), whose keys are not switcher versions. */
+function isRouting(value: unknown): boolean {
+  return isRecord(value) && ("default" in value || "old" in value);
+}
+
 /** The versions a page shows, from `site.data.docsVersions` when it has any, else from front matter. */
 export function versionsOf(site: Site, page: Page): readonly VersionEntry[] {
-  const value = site.data.docsVersions ?? site.data.versions;
+  const legacy = isRouting(site.data.versions) ? undefined : site.data.versions;
+  const value = site.data.docsVersions ?? legacy;
   if (Array.isArray(value)) {
     const versions = entriesOf(value);
     if (versions.length > 0) return versions;

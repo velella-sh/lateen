@@ -308,6 +308,17 @@ test("versionsOf prefers the data file and falls back to front matter", () => {
   );
 });
 
+test("the engine's routing file is not read as a version list", () => {
+  const routing = layoutProps({
+    data: { versions: { default: "v2", old: ["v1"] } },
+    frontMatter: { versions: [{ version: "v1" }] },
+  });
+  assert.deepEqual(
+    versionsOf(routing.site, routing.page).map((entry) => entry.version),
+    ["v1"],
+  );
+});
+
 /** Comments become spaces (newlines kept) so line numbers and offsets stay useful. */
 const stripComments = (text: string): string => text.replace(/\/\*[\s\S]*?\*\//g, (comment) => comment.replace(/[^\n]/g, " "));
 

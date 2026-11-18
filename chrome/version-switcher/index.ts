@@ -255,10 +255,20 @@ function homesOf(data: VersionsData, base: string): ReadonlyMap<string, string> 
   return homes;
 }
 
+/** True for the engine's routing file (`_data/versions.yml`), whose keys are not switcher versions. */
+function isRouting(value: unknown): boolean {
+  return (
+    typeof value === "object" &&
+    value !== null &&
+    !Array.isArray(value) &&
+    ("default" in value || "old" in value)
+  );
+}
+
 /** The versions a page can switch between, from `site.data.docsVersions` first and its front matter second. */
 export function versionsOf(site: Site, page: Page): readonly VersionLink[] | undefined {
   const base = baseOf(site);
-  const data = dataOf(site.data.docsVersions) ?? dataOf(site.data.versions);
+  const data = dataOf(site.data.docsVersions) ?? (isRouting(site.data.versions) ? undefined : dataOf(site.data.versions));
 
   if (data !== undefined) {
     const current = pageOf(data, base, page.url);
