@@ -19,17 +19,14 @@ collections:
         template: _templates/books-embed.md
         permalink: /books/{id}/embed/
         layout: embedded
-<<<<<<< HEAD
     index:
       fields:
         - title
         - pages
         - published
-=======
     search:
       filters: [author, published]
       sort: [title, published]
->>>>>>> 163877f (gallery-layout: gate and document the gallery (#406, #407))
 languages:
   - code: en
     name: English
