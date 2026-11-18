@@ -8,6 +8,11 @@ last_modified_at: 2026-02-30
 status: deprecated
 since: 0.1.0
 replaced_by: /guide/install/
+versions:
+  - version: v2
+    url: /guide/install/
+  - version: v1
+    url: /guide/legacy/
 ---
 
 ## Legacy

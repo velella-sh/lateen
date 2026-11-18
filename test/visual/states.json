@@ -203,6 +203,15 @@
       ]
     },
     {
+      "name": "term",
+      "selector": "[data-term] summary",
+      "states": [
+        "hover",
+        "focus",
+        "pressed"
+      ]
+    },
+    {
       "name": "terminal",
       "selector": "[data-terminal-copy]",
       "states": [

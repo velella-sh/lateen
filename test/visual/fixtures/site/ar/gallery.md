@@ -379,6 +379,10 @@ $ npm run build
 Built 12 pages.
 :::
 
+## term
+
+جملة تذكر :term[API] تبقي تعريفه على بعد نقرة واحدة.
+
 ## tested-chip
 
 ::tested-chip{passed=2 failed=0 lastPassed=2026-11-09}

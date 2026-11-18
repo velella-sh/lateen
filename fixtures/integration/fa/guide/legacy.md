@@ -6,6 +6,11 @@ permalink: /fa/guide/legacy/
 lang: fa
 dir: rtl
 version: v1
+versions:
+  - version: v2
+    url: /fa/guide/install/
+  - version: v1
+    url: /fa/guide/legacy/
 ---
 
 ## قدیمی

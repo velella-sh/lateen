@@ -7,6 +7,11 @@ version: v2
 last_modified_at: 2026-03-04
 status: beta
 since: 0.2.0
+versions:
+  - version: v1
+    url: /guide/legacy/
+  - version: v2
+    url: /guide/install/
 ---
 
 ## Install

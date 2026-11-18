@@ -91,7 +91,7 @@ test("an agent action keeps source, language, and version context", () => {
   assert.equal(template?.getAttribute("data-version"), "v2");
   assert.match(template?.getAttribute("data-prompt") ?? "", /\{source\}.*\{text\}/);
 
-  assert.match(document.querySelector("[data-page-footer-copy]")?.getAttribute("data-prompt") ?? "", /guide\/install\.md:11 \(en, v2\)/);
+  assert.match(document.querySelector("[data-page-footer-copy]")?.getAttribute("data-prompt") ?? "", /guide\/install\.md:16 \(en, v2\)/);
   assert.match(
     document.querySelector(".page-agent-menu-provider")?.getAttribute("href") ?? "",
     /page=https%3A%2F%2Fexample\.com%2Fguide%2Finstall%2F&lang=en&version=v2&source=guide%2Finstall\.md/,

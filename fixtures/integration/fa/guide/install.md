@@ -7,6 +7,11 @@ lang: fa
 dir: rtl
 version: v2
 last_modified_at: 2026-03-05
+versions:
+  - version: v1
+    url: /fa/guide/legacy/
+  - version: v2
+    url: /fa/guide/install/
 ---
 
 ## نصب

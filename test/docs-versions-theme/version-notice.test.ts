@@ -251,7 +251,8 @@ test("the built fixture shows both releases, keeps old URLs, and falls back to a
   const oldNotice = old.querySelector(".version-notice");
   assert.equal(oldNotice?.getAttribute("data-version-status"), "old");
   assert.equal(oldNotice?.querySelector(".version-notice-label")?.textContent, "Old version");
-  assert.equal(oldNotice?.querySelector(".version-notice-link")?.getAttribute("href"), "/docs/v2/guide/install/");
+  // The default release now owns the canonical URL; the versioned URL of the same page stays reachable.
+  assert.equal(oldNotice?.querySelector(".version-notice-link")?.getAttribute("href"), "/docs/guide/install/");
   assert.equal(oldNotice?.querySelector(".version-notice-link")?.getAttribute("data-version-target"), "page");
 
   const current = site.document("/v2/guide/install/");
@@ -262,7 +263,8 @@ test("the built fixture shows both releases, keeps old URLs, and falls back to a
 
   const legacy = site.document("/v1/guide/legacy/");
   const legacyNotice = legacy.querySelector(".version-notice");
-  assert.equal(legacyNotice?.querySelector(".version-notice-link")?.getAttribute("href"), "/docs/v2/");
+  // `v2/index.md` is the default release's home, so the engine writes it at the canonical `/docs/`.
+  assert.equal(legacyNotice?.querySelector(".version-notice-link")?.getAttribute("href"), "/docs/");
   assert.equal(legacyNotice?.querySelector(".version-notice-link")?.getAttribute("data-version-target"), "home");
   assert.equal(textOf(legacyNotice?.querySelector(".version-notice-link")), "Go to the v2 home page");
 

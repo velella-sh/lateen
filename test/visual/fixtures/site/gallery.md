@@ -377,6 +377,10 @@ $ npm run build
 Built 12 pages.
 :::
 
+## term
+
+A sentence that names the :term[API] keeps its definition one tap away.
+
 ## tested-chip
 
 ::tested-chip{passed=2 failed=0 lastPassed=2026-11-09}
