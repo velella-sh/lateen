@@ -417,3 +417,10 @@ test("source mode keeps its controls and label actions readable in forced colors
   assert.match(rules, /\.source-mode-button\[aria-pressed="true"\][\s\S]*?border-color:\s*Highlight/);
   assert.match(rules, /\.source-label-copy,[\s\S]*?color:\s*LinkText/);
 });
+
+test("the comparison keeps its difference and controls visible in forced colors", () => {
+  const text = read("../components/compare/style.css");
+  const rules = text.slice(text.indexOf("@media (forced-colors: active)"));
+  assert.match(rules, /\.compare-diff > \*[\s\S]*?border-block-start:\s*1px solid CanvasText/);
+  assert.match(rules, /\.compare-copy,[\s\S]*?border-color:\s*ButtonText/);
+});

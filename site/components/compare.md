@@ -17,16 +17,24 @@ The row headers stick to the start edge and the column headers stick to the top 
 
 ## Options
 
-- `from` (string, required): the collection to read.
-- `ids` (string, required): a JSON array of record ids, or a comma list.
-- `fields` (string, required): a JSON array of `{ field, label, kind }`; a bare comma list works too.
+| Option | Type | Default | What it does |
+| --- | --- | --- | --- |
+| `from` | string | none | The collection. A missing or unknown collection shows a note. |
+| `ids` | JSON array | none | The record ids, in column order. A missing id shows a note. |
+| `fields` | JSON array | none | The rows: `field`, `label`, and `kind`. |
+
+`ids` is a JSON array of strings; a comma list also works. `kind` is one of `text`, `number`, `boolean`, `date`, `url`, `list`, or `status` (`text` when omitted or unknown). `label` is the row header and falls back to the field name.
+
+Every option is a directive attribute. The directive takes no body, so put it alone on its own line with a blank line before and after. A value the comparison cannot read shows a note; it never falls back to a table with missing columns.
 
 ## Example
 
 ::compare{from=books ids="alpha,beta,gamma" fields='[{"field": "pages", "label": "Pages", "kind": "number"}, {"field": "published", "label": "Published", "kind": "date"}, {"field": "format", "label": "Format"}]'}
 
-## Notes
+## What the reader sees
 
-- An id the collection lacks shows a visible note, so a typo never drops a column silently.
-- The island adds a "Show only differences" toggle, and a saved `?compare=diff` link opens the same view.
-- A long value wraps inside its column; it does not stretch the table without bound.
+The column header is the record's title, linked to the record's page. The row header names the field, and a row whose values differ gets a tint plus the word "differs" for a screen reader, so color is never the only signal. The comparison scrolls inside its own region once it is taller than the viewport, and a long value wraps inside its column instead of widening the table without bound.
+
+## Without JavaScript
+
+The built page is the comparison itself: every record, every field, and every difference is in the HTML, and the table scrolls and stays readable. The "Show only differences" toggle, the copy button, the record tabs on a narrow screen, and the record pickers are added by the island, so no control appears that would do nothing without it. A saved `?compare=diff` link works once the island runs.

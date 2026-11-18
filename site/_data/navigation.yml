@@ -37,6 +37,8 @@ main:
         url: /components/code/
       - title: Code tabs
         url: /components/code-tabs/
+      - title: Compare
+        url: /components/compare/
       - title: Data explorer
         url: /components/data-explorer/
       - title: Details

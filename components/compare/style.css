@@ -42,7 +42,7 @@
 .compare-status {
   margin: 0;
   color: var(--color-muted);
-  font-size: var(--font-size-sm, 0.875rem);
+  font-size: var(--type-size-sm, 0.875rem);
 }
 
 /* The island's record picker: a button under the record's title, and the panel it opens. Only the
@@ -195,7 +195,7 @@
   background-color: var(--color-surface);
   color: var(--color-heading);
   font: inherit;
-  font-size: var(--font-size-sm, 0.875rem);
+  font-size: var(--type-size-sm, 0.875rem);
   cursor: pointer;
 }
 
@@ -211,5 +211,19 @@
 .compare-copy-status {
   margin: 0;
   color: var(--color-muted);
-  font-size: var(--font-size-sm, 0.875rem);
+  font-size: var(--type-size-sm, 0.875rem);
+}
+
+/* Forced colors: the differing row keeps an edge without its tint, and the controls keep their border. */
+@media (forced-colors: active) {
+  .compare-diff > * {
+    border-block-start: 1px solid CanvasText;
+  }
+
+  .compare-copy,
+  .compare-pick,
+  .compare-picker-select,
+  .compare-tab {
+    border-color: ButtonText;
+  }
 }

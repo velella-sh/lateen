@@ -406,3 +406,12 @@ test("source mode ships hidden and adds no labels without its island", () => {
   assert.equal(root.hasAttribute("hidden"), true, "the switch stays hidden until the island runs");
   assert.equal(all(page, ".source-label").length, 0, "no label is written without the island");
 });
+
+test("the comparison ships every record and no script-only control", () => {
+  const page = site.document("/compare/");
+  const table = page.querySelector(".compare table");
+  assert.ok(table, "the comparison table is server-rendered");
+  assert.equal(all(page, ".compare tbody th[scope=row]").length, 2);
+  assert.equal(all(page, ".compare-controls[hidden]").length, 1, "the controls container stays hidden");
+  assert.equal(all(page, ".compare-tabs[hidden]").length, 1, "the tabs stay hidden until the island runs");
+});

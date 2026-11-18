@@ -28,6 +28,7 @@ export type Theme = (typeof THEMES)[number];
 export const LAYOUTS = [
   "api",
   "changelog",
+  "compare",
   "data-explorer",
   "doc",
   "embedded",
@@ -117,6 +118,10 @@ export const CASES: readonly AuditCase[] = [
   { name: "fixture search results", site: "fixtures", path: "/search/", layout: "search-results", lang: "en", ...DESKTOP },
   { name: "fixture tutorial", site: "fixtures", path: "/tutorial/", layout: "tutorial", lang: "en", ...DESKTOP },
   { name: "fixture versions", site: "fixtures", path: "/versions/", layout: "versions", lang: "en", ...DESKTOP },
+  { name: "fixture compare", site: "fixtures", path: "/compare/", layout: "compare", lang: "en", ...DESKTOP },
+  { name: "fixture compare persian", site: "fixtures", path: "/fa/compare/", layout: "compare", lang: "fa", ...DESKTOP },
+  { name: "fixture compare arabic", site: "fixtures", path: "/ar/compare/", layout: "compare", lang: "ar", ...DESKTOP },
+  { name: "fixture compare mobile", site: "fixtures", path: "/compare/", layout: "compare", lang: "en", ...MOBILE },
   { name: "fixture reports", site: "fixtures", path: "/reports/", layout: "doc", lang: "en", ...DESKTOP },
   { name: "fixture reports persian", site: "fixtures", path: "/fa/reports/", layout: "doc", lang: "fa", ...DESKTOP },
   { name: "fixture reports arabic", site: "fixtures", path: "/ar/reports/", layout: "doc", lang: "ar", ...DESKTOP },
