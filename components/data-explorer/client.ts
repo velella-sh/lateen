@@ -67,6 +67,12 @@ export const DEBOUNCE_MS = 150;
 /** Rows one page shows; the same number `index.ts` renders as the static table. */
 export const ROW_LIMIT = 50;
 
+/** The search results contract's parameter names, so an explorer address and the no-script form agree. */
+export const QUERY_PARAM = "q";
+export const FILTER_PARAM = "filter.";
+export const SORT_PARAM = "sort";
+export const ORDER_PARAM = "order";
+
 /** A key press as the island reads it. */
 export interface ExplorerKeyEvent {
   readonly key?: string | undefined;
@@ -95,12 +101,31 @@ export interface ExplorerElement {
   ownerDocument?: ExplorerDocument | null;
 }
 
+/** The page address, read without reloading it. */
+export interface ExplorerLocation {
+  href: string;
+  search: string;
+}
+
+/** The page history, written without adding an entry. */
+export interface ExplorerHistory {
+  replaceState(data: unknown, unused: string, url?: string | null): void;
+}
+
+/** The part of the window the island uses to keep the address in step. */
+export interface ExplorerWindow {
+  location: ExplorerLocation;
+  history: ExplorerHistory;
+  addEventListener(type: "popstate", listener: () => void): void;
+}
+
 /** The part of the document the island uses. */
 export interface ExplorerDocument {
   querySelector(selector: string): ExplorerElement | null;
   querySelectorAll(selector: string): Iterable<ExplorerElement>;
   createElement(tag: string): ExplorerElement;
   documentElement?: { getAttribute(name: string): string | null } | null;
+  defaultView?: ExplorerWindow | null;
 }
 
 /** What the island reads from the world; tests pass a fake fetch and clock. */
@@ -393,6 +418,7 @@ function attach(root: ExplorerElement, doc: ExplorerDocument, env: ExplorerEnv):
   const removePattern = root.getAttribute("data-explorer-remove") ?? "{filter}";
   const filterFields = fieldsOf(root.getAttribute("data-filters"));
   const sortables = sortablesOf(root.getAttribute("data-sort"));
+  const view = doc.defaultView ?? null;
 
   // The rows the page was rendered with, so clearing puts them back as they were.
   const original = body.innerHTML;
@@ -404,6 +430,8 @@ function attach(root: ExplorerElement, doc: ExplorerDocument, env: ExplorerEnv):
   let matches: readonly IndexRow[] = [];
   let query = "";
   let sorting: { readonly field: string; readonly kind: string; readonly direction: SortDirection } | undefined;
+  // Filters the address names before the index arrives and the facets exist.
+  let pendingFilters = new Map<string, string[]>();
   let limit = ROW_LIMIT;
   let timer: unknown;
   let failed = false;
@@ -487,6 +515,53 @@ function attach(root: ExplorerElement, doc: ExplorerDocument, env: ExplorerEnv):
     if (values.length === 0) return true;
     const at = index?.columns.indexOf(facet.field) ?? -1;
     return at < 0 || values.includes(cellText(row, at, facet.kind, lang));
+  };
+
+  /** The chosen sort, when the page offers the field and the direction names one. */
+  const chooseSort = (field: string, direction: SortDirection | undefined): void => {
+    const sortable = sortables.find((entry) => entry.field === field);
+    if (sortable === undefined || direction === undefined) {
+      sorting = undefined;
+      if (sortSelect !== null) sortSelect.value = "";
+      return;
+    }
+    sorting = { field: sortable.field, kind: sortable.kind, direction };
+    if (sortSelect !== null) sortSelect.value = `${sortable.field}:${direction}`;
+  };
+
+  /** True while the table shows a result the address should keep. */
+  const hasState = (): boolean => query.trim() !== "" || filtering() || sorting !== undefined;
+
+  /**
+   * Replaces this explorer's keys in the address, keeping every other parameter and the fragment.
+   * The names are the search results contract's, so the no-script form and a shared link agree.
+   */
+  const write = (): void => {
+    if (view === null) return;
+    const url = new URL(view.location.href);
+    for (const key of [...url.searchParams.keys()]) {
+      if (key === QUERY_PARAM || key === SORT_PARAM || key === ORDER_PARAM || key.startsWith(FILTER_PARAM)) {
+        url.searchParams.delete(key);
+      }
+    }
+    const text = query.trim();
+    if (text !== "") url.searchParams.set(QUERY_PARAM, text);
+    for (const facet of facets) {
+      for (const value of chosen(facet)) url.searchParams.append(`${FILTER_PARAM}${facet.field}`, value);
+    }
+    if (sorting !== undefined) {
+      url.searchParams.set(SORT_PARAM, sorting.field);
+      url.searchParams.set(ORDER_PARAM, sorting.direction === "descending" ? "desc" : "asc");
+    }
+    view.history.replaceState(null, "", url.toString());
+  };
+
+  /** Checks the boxes the address names, and no others. */
+  const checkFilters = (saved: ReadonlyMap<string, readonly string[]>): void => {
+    for (const facet of facets) {
+      const values = saved.get(facet.field) ?? [];
+      for (const value of facet.values) value.input.checked = values.includes(value.raw);
+    }
   };
 
   const drawChips = (): void => {
@@ -573,19 +648,18 @@ function attach(root: ExplorerElement, doc: ExplorerDocument, env: ExplorerEnv):
         sortSelect.append(option);
       }
     }
-    sortSelect.value = "";
+    sortSelect.value = sorting === undefined ? "" : `${sorting.field}:${sorting.direction}`;
     sortSelect.addEventListener("change", () => {
-      const [field, direction] = (sortSelect.value ?? "").split(":");
-      const sortable = sortables.find((entry) => entry.field === field);
-      sorting =
-        sortable === undefined
-          ? undefined
-          : {
-              field: sortable.field,
-              kind: sortable.kind,
-              direction: direction === "descending" ? "descending" : "ascending",
-            };
-      if (prepared !== undefined) render(query.trim());
+      const [field = "", direction] = (sortSelect.value ?? "").split(":");
+      chooseSort(
+        field,
+        direction === "descending" ? "descending" : direction === "ascending" ? "ascending" : undefined,
+      );
+      if (prepared !== undefined) {
+        if (hasState()) render(query.trim());
+        else restore();
+      }
+      write();
     });
     sortBox.hidden = false;
   };
@@ -601,9 +675,10 @@ function attach(root: ExplorerElement, doc: ExplorerDocument, env: ExplorerEnv):
         facets =
           filtersBox === null ? [] : buildFacets(root, doc, filtersBox, loaded, columns, filterFields, lang);
         if (filtersBox !== null) filtersBox.hidden = facets.length === 0;
+        checkFilters(pendingFilters);
+        pendingFilters = new Map();
         drawSort();
-        const text = query.trim();
-        if (text !== "" || filtering()) render(text);
+        if (hasState()) render(query.trim());
       },
       failed() {
         failed = true;
@@ -612,22 +687,47 @@ function attach(root: ExplorerElement, doc: ExplorerDocument, env: ExplorerEnv):
     },
   );
 
+  /** Puts the address's query, filters and sort into the controls and the table. */
+  const applyAddress = (): void => {
+    const params = new URLSearchParams(view?.location.search ?? "");
+    query = params.get(QUERY_PARAM) ?? "";
+    field.value = query;
+
+    const saved = new Map<string, string[]>();
+    for (const [key, value] of params) {
+      if (!key.startsWith(FILTER_PARAM)) continue;
+      const name = key.slice(FILTER_PARAM.length);
+      if (name === "" || name === "collection") continue;
+      saved.set(name, [...(saved.get(name) ?? []), value]);
+    }
+    pendingFilters = saved;
+    if (facets.length > 0) checkFilters(saved);
+    const order = params.get(ORDER_PARAM);
+    chooseSort(params.get(SORT_PARAM) ?? "", order === "asc" ? "ascending" : order === "desc" ? "descending" : undefined);
+
+    if (prepared === undefined) {
+      if (hasState()) void loader.load();
+      return;
+    }
+    if (hasState()) render(query.trim());
+    else restore();
+  };
+
   function run(): void {
     timer = undefined;
     const text = query.trim();
-    if (text === "" && !filtering()) {
+    if (!hasState()) {
       restore();
-      return;
-    }
-    if (prepared !== undefined) {
+    } else if (prepared !== undefined) {
       render(text);
-      return;
+    } else {
+      if (status !== null) status.textContent = loadingText;
+      if (failed) {
+        failed = false;
+        void loader.load();
+      }
     }
-    if (status !== null) status.textContent = loadingText;
-    if (failed) {
-      failed = false;
-      void loader.load();
-    }
+    write();
   }
 
   /** Reads the field, resets the sort, and runs the query once typing rests. */
@@ -689,6 +789,10 @@ function attach(root: ExplorerElement, doc: ExplorerDocument, env: ExplorerEnv):
     limit += ROW_LIMIT;
     drawRows();
   });
+
+  // Back and forward restore the controls without writing the address again.
+  view?.addEventListener("popstate", applyAddress);
+  applyAddress();
 }
 
 /** Wires every explorer in the document; a page without one does nothing. */
