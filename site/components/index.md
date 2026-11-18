@@ -33,6 +33,7 @@ The theme's own look is set with the [Brand options](/brand-options/); the shipp
 | [Callout](./callout/) | A note, tip, important point, warning, or caution. |
 | [Cards](./cards/) | A responsive grid of linked cards, used by the home layout. |
 | [Changelog entry](./changelog-entry/) | One release with a version, a date, and categories. |
+| [Charts](./charts/) | Bar, stacked bar, and line charts drawn at build time, with their values in a table. |
 | [CLI demo](./cli-demo/) | A terminal session and an install command as fixed, copyable text. |
 | [Code](./code/) | Code highlighted at build time, with a copy button when JavaScript runs. |
 | [Code tabs](./code-tabs/) | The same example in several languages or package managers, as tabs. |

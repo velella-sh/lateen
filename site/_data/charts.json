@@ -1,0 +1,26 @@
+{
+  "signups": [
+    { "id": "q1", "quarter": "Q1", "signups": 1200 },
+    { "id": "q2", "quarter": "Q2", "signups": 1450 },
+    { "id": "q3", "quarter": "Q3", "signups": 2380 },
+    { "id": "q4", "quarter": "Q4", "signups": 3100 }
+  ],
+  "revenue": [
+    { "id": "q1-north", "quarter": "Q1", "region": "North", "revenue": 3200 },
+    { "id": "q1-south", "quarter": "Q1", "region": "South", "revenue": 2100 },
+    { "id": "q2-north", "quarter": "Q2", "region": "North", "revenue": 3800 },
+    { "id": "q2-south", "quarter": "Q2", "region": "South", "revenue": 2500 },
+    { "id": "q3-north", "quarter": "Q3", "region": "North", "revenue": 4100 },
+    { "id": "q3-south", "quarter": "Q3", "region": "South", "revenue": 2900 },
+    { "id": "q4-north", "quarter": "Q4", "region": "North", "revenue": 4600 },
+    { "id": "q4-south", "quarter": "Q4", "region": "South", "revenue": 3400 }
+  ],
+  "growth": [
+    { "id": "jan", "date": "2026-01-01", "free": 420, "paid": 180 },
+    { "id": "feb", "date": "2026-02-01", "free": 460, "paid": 210 },
+    { "id": "mar", "date": "2026-03-01", "free": 510, "paid": 240 },
+    { "id": "apr", "date": "2026-04-01", "free": 495, "paid": 260 },
+    { "id": "may", "date": "2026-05-01", "free": 560, "paid": 300 },
+    { "id": "jun", "date": "2026-06-01", "free": 610, "paid": 340 }
+  ]
+}

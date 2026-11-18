@@ -8,6 +8,9 @@ import { scale } from "../timeline/scale.ts";
 /** The Markdown directive this component handles: `::line-chart{from="growth"}`. */
 export const directive = "line-chart";
 
+/** The directive's options; the docs page and its test read this list. */
+export const OPTIONS = ["from", "category", "value", "title", "id"] as const;
+
 /** Class on the `<figure>`. `style.css` styles it. */
 export const CLASS = "line-chart";
 
