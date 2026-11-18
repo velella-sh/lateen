@@ -50,21 +50,43 @@ export const BODY_SELECTOR = "tbody";
 /** The body row the island reads and writes. */
 export const ROW_SELECTOR = "tbody tr";
 
+/** The id prefix of a drawn result row. */
+export const OPTION_ID_PREFIX = "explorer-option-";
+
+/** The class the active result row carries. */
+export const ACTIVE_ROW_CLASS = "data-explorer-active";
+
+/** The id of the drawn row at `index`: positional, so the field's reference follows its place. */
+export function optionId(index: number): string {
+  return `${OPTION_ID_PREFIX}${index + 1}`;
+}
+
 /** How long typing rests before the query runs. */
 export const DEBOUNCE_MS = 150;
 
 /** Rows one page shows; the same number `index.ts` renders as the static table. */
 export const ROW_LIMIT = 50;
 
+/** A key press as the island reads it. */
+export interface ExplorerKeyEvent {
+  readonly key?: string | undefined;
+  preventDefault(): void;
+}
+
 /** The part of an element the island uses. */
 export interface ExplorerElement {
   getAttribute(name: string): string | null;
   setAttribute(name: string, value: string): void;
-  addEventListener(type: string, listener: () => void): void;
+  removeAttribute(name: string): void;
+  addEventListener(type: string, listener: (event: ExplorerKeyEvent) => void): void;
   querySelector(selector: string): ExplorerElement | null;
   querySelectorAll(selector: string): Iterable<ExplorerElement>;
   append(...children: ExplorerElement[]): void;
   replaceChildren(...children: ExplorerElement[]): void;
+  /** Follows a result link, as a pointer would. */
+  click?(): void;
+  /** Brings the active row into view, where the browser can scroll. */
+  scrollIntoView?(options: { readonly block: "nearest" }): void;
   textContent: string | null;
   innerHTML: string;
   hidden: boolean;
@@ -355,6 +377,11 @@ function attach(root: ExplorerElement, doc: ExplorerDocument, env: ExplorerEnv):
   const sortBox = root.querySelector(SORT_SELECTOR);
   const sortSelect = root.querySelector(SORT_FIELD_SELECTOR);
 
+  // The field is the combobox: the result rows are its list, and the keys never leave the field. The
+  // static markup stays a plain search field until the island runs.
+  field.setAttribute("role", "combobox");
+  field.setAttribute("aria-expanded", "false");
+
   const base = root.getAttribute("data-base") ?? "";
   const collection = root.getAttribute("data-collection") ?? "";
   const lang = root.getAttribute("data-lang") ?? "en";
@@ -380,12 +407,44 @@ function attach(root: ExplorerElement, doc: ExplorerDocument, env: ExplorerEnv):
   let limit = ROW_LIMIT;
   let timer: unknown;
   let failed = false;
+  // The rows on screen, and which of them the field names. `-1` is no active row.
+  let drawn: ExplorerElement[] = [];
+  let active = -1;
+
+  /**
+   * Makes the row at `index` the active one, or clears the mark when `index` has no row. The class is
+   * what a reader sees, `aria-selected` what assistive tech reads, and `aria-activedescendant` the row
+   * the field names; all three move together.
+   */
+  const markActive = (index: number): void => {
+    const current = drawn[active];
+    const next = drawn[index];
+    if (current !== undefined && current !== next) {
+      current.removeAttribute("class");
+      current.removeAttribute("aria-selected");
+    }
+    if (next === undefined) {
+      active = -1;
+      // A reference to a row that is not there would dangle, so the attribute goes entirely.
+      field.removeAttribute("aria-activedescendant");
+      return;
+    }
+    active = index;
+    next.setAttribute("class", ACTIVE_ROW_CLASS);
+    next.setAttribute("aria-selected", "true");
+    field.setAttribute("aria-activedescendant", optionId(index));
+    next.scrollIntoView?.({ block: "nearest" });
+  };
 
   const restore = (): void => {
+    // The static rows are not options, so nothing stays active across the swap.
+    markActive(-1);
+    drawn = [];
     body.innerHTML = original;
     matches = [];
     limit = ROW_LIMIT;
     sorting = undefined;
+    field.setAttribute("aria-expanded", "false");
     if (sortSelect !== null) sortSelect.value = "";
     if (table !== null) table.hidden = false;
     if (empty !== null) {
@@ -401,11 +460,19 @@ function attach(root: ExplorerElement, doc: ExplorerDocument, env: ExplorerEnv):
   };
 
   const drawRows = (): void => {
-    body.replaceChildren(
-      ...matches
-        .slice(0, limit)
-        .map((row) => rowOf(doc, row, columns, index as CollectionIndex, base, lang, noValue)),
-    );
+    // The rows are replaced, so the mark goes with them and the field names nothing until a key
+    // moves it again.
+    markActive(-1);
+    drawn = matches
+      .slice(0, limit)
+      .map((row, at) => {
+        const tr = rowOf(doc, row, columns, index as CollectionIndex, base, lang, noValue);
+        tr.setAttribute("id", optionId(at));
+        return tr;
+      });
+    body.replaceChildren(...drawn);
+    // Expanded only while there is a list to move through: with no matches the table is hidden.
+    field.setAttribute("aria-expanded", matches.length > 0 ? "true" : "false");
     if (table !== null) table.hidden = matches.length === 0;
     if (more !== null) more.hidden = matches.length <= limit;
   };
@@ -563,7 +630,8 @@ function attach(root: ExplorerElement, doc: ExplorerDocument, env: ExplorerEnv):
     }
   }
 
-  field.addEventListener("input", () => {
+  /** Reads the field, resets the sort, and runs the query once typing rests. */
+  const typed = (): void => {
     query = field.value ?? "";
     sorting = undefined;
     if (sortSelect !== null) sortSelect.value = "";
@@ -574,6 +642,45 @@ function attach(root: ExplorerElement, doc: ExplorerDocument, env: ExplorerEnv):
       return;
     }
     timer = env.schedule(run, DEBOUNCE_MS);
+  };
+
+  field.addEventListener("input", typed);
+
+  // The field owns the keys and the rows never take focus, so Tab keeps the page's own order. Only
+  // ArrowDown, ArrowUp, Enter, and Escape are handled; anything else, Tab included, is the browser's.
+  field.addEventListener("keydown", (event) => {
+    if (event.key === "ArrowDown" || event.key === "ArrowUp") {
+      if (drawn.length === 0) return;
+      event.preventDefault();
+      markActive(
+        event.key === "ArrowDown"
+          ? active + 1 >= drawn.length
+            ? 0
+            : active + 1
+          : active <= 0
+            ? drawn.length - 1
+            : active - 1,
+      );
+      return;
+    }
+
+    if (event.key === "Enter") {
+      // No drawn row keeps the form's own Enter, which submits to the search results page.
+      const row = drawn[active >= 0 ? active : 0];
+      const link = row?.querySelector("a");
+      if (link === undefined || link === null) return;
+      event.preventDefault();
+      link.click?.();
+      return;
+    }
+
+    if (event.key === "Escape") {
+      // An empty field has nothing to clear, so the key is left to the browser.
+      if ((field.value ?? "") === "") return;
+      event.preventDefault();
+      field.value = "";
+      typed();
+    }
   });
 
   filtersBox?.addEventListener("change", run);
