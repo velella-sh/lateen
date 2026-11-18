@@ -85,5 +85,5 @@ The pnpm command.
 
 Press :kbd[Ctrl+K] to search.
 
-:::record-table{from=books columns=title,pages,published stack caption="Books"}
+:::record-table{from=books columns='[{"field":"title"},{"field":"pages","kind":"number"},{"field":"published","kind":"date"}]' stack caption="Books"}
 :::
