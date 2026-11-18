@@ -1,0 +1,1 @@
+- Glossary (#307, #309, #310, #311): `:term[text]` renders a native disclosure whose panel holds the definition and a link to the term's own record page or `theme.options.glossary.page`; unknown terms stay plain text with a visible marker, and the list, inline term, RTL, print, forced-colors, accessibility and performance gates cover the component and its docs page.
