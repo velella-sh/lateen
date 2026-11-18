@@ -14,6 +14,8 @@ export type LinesOptions = {
    * block gets only the code.
    */
   numbers?: boolean;
+  /** The id a line's span gets, or `undefined` for none. An annotation uses it as its link target. */
+  lineId?: (line: number) => string | undefined;
 };
 
 /** Class on each line's `span`. */
@@ -46,8 +48,10 @@ export function decorateLines(innerHtml: string, options: LinesOptions = {}): st
     .map((line, index) => {
       const number = index + 1;
       const classes = isHighlighted(number, ranges) ? `${LINE_CLASS} ${HIGHLIGHT_CLASS}` : LINE_CLASS;
+      const id = options.lineId?.(number);
+      const idAttr = id === undefined ? "" : ` id="${id}"`;
       const numberAttr = options.numbers ? ` data-line="${number}"` : "";
-      return `<span class="${classes}"${numberAttr}>${unwrapLine(line)}</span>`;
+      return `<span class="${classes}"${idAttr}${numberAttr}>${unwrapLine(line)}</span>`;
     })
     .join("\n");
 }

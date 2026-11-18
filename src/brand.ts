@@ -132,7 +132,7 @@ export const DEFAULT_CODE = {
     bg: "#1a1a1a",
     fg: "#e5e5e5",
     border: "#333333",
-    "line-highlight": "#3a3320",
+    "line-highlight": "#2e2a1c",
     comment: "#8b949e",
     keyword: "#ff7b72",
     string: "#a5d6ff",

@@ -4,6 +4,11 @@ import type { ComponentProps } from "@velella/mizzen/contracts";
 import mermaid from "../mermaid/index.ts";
 import { codeBackgrounds } from "../../src/brand.ts";
 import { ensureContrast, parseHex } from "../../src/color.ts";
+import { annotationLineId, parseFenceMeta, renderAnnotations } from "./annotations.ts";
+import { isDiffLang, markDiffLines, stripDiffMarkers } from "./diff.ts";
+import { decodeEntities } from "./escape.ts";
+import { decorateLines, type LineRange } from "./lines.ts";
+import { codeTitleHtml } from "./title.ts";
 import { createHighlighterCoreSync } from "shiki/core";
 import { createJavaScriptRegexEngine } from "shiki/engine/javascript";
 import { bundledLanguages } from "shiki/langs";
@@ -169,8 +174,6 @@ const ALIASES: Record<string, string> = { sh: "shellscript", shell: "shellscript
 
 await loadGrammars(DEFAULT_LANGUAGES);
 
-const ENTITIES: Record<string, string> = { amp: "&", lt: "<", gt: ">", quot: '"', apos: "'" };
-
 const TAG = /<[^>]*>/g;
 
 /** `html` with every tag dropped. It repeats until nothing is left to drop, so removing one tag cannot join the pieces of another. */
@@ -189,13 +192,7 @@ function stripTags(html: string): string {
  * highlighter, which escapes it. A number that is no code point is left as written.
  */
 export function sourceText(html: string): string {
-  return stripTags(html)
-    .replace(/&(?:(amp|lt|gt|quot|apos)|#x([0-9a-f]+)|#(\d+));/gi, (m, name?: string, hex?: string, dec?: string) => {
-      if (name) return ENTITIES[name.toLowerCase()] ?? m;
-      const point = hex ? parseInt(hex, 16) : Number(dec);
-      return point <= 0x10ffff ? String.fromCodePoint(point) : m;
-    })
-    .replace(/\n$/, "");
+  return decodeEntities(stripTags(html)).replace(/\n$/, "");
 }
 
 /** The language named by a `language-x` class in the body, when the props give none. */
@@ -254,26 +251,49 @@ export default function code({ props, html, page, site }: ComponentProps<CodePro
   );
 }
 
-/** A plain Markdown fence as the engine writes it: `<pre data-src><code class="language-x">…</code></pre>`. */
-const FENCE = /<pre((?:\s+data-src="[^"]*")?)><code(?:\s+class="language-([\w+#-]+)")?>([\s\S]*?)<\/code><\/pre>/g;
+/**
+ * A plain Markdown fence as the engine writes it: `<pre data-src [data-code]><code class="language-x">…</code></pre>`.
+ * Only quoted values are matched, so a `>` inside `data-code`'s JSON (an annotation may hold one) is not
+ * mistaken for the end of the tag.
+ */
+const FENCE = /<pre((?:\s[^\s=>]+="[^"]*")*)><code(?:\s+class="language-([\w+#-]+)")?>([\s\S]*?)<\/code><\/pre>/g;
 
 /** A stable id on any highlighted `<pre class="code">` that has a source span but no id yet. */
-const IDENTIFY = /<pre class="code"((?:\s+[^>]*)?)>/g;
+const IDENTIFY = /<pre class="code"((?:\s[^\s=>]+="[^"]*")*)>/g;
+
+/** The value of one quoted attribute in a tag's attribute text. */
+function attribute(attrs: string, name: string): string | undefined {
+  return new RegExp(`\\s${name}="([^"]*)"`).exec(attrs)?.[1];
+}
+
+/**
+ * The attributes the replacement `<pre>` keeps: class merges with the theme's own, and the names the
+ * replacement writes are dropped so the tag never carries a duplicate attribute. A component's `<pre>`
+ * (such as an output block) keeps its class and the behaviour its island looks for.
+ */
+function keptAttributes(attrs: string): { readonly extraClass: string; readonly rest: string; readonly originalId?: string } {
+  const originalId = attribute(attrs, "id");
+  const extraClass = attribute(attrs, "class") ?? "";
+  const rest = attrs.replace(/\s(?:class|id|tabindex|data-lang)="[^"]*"/g, "");
+  return originalId === undefined ? { extraClass, rest } : { extraClass, rest, originalId };
+}
 
 /**
  * Highlights the plain fences in a rendered body, so a fence and the `:::code` directive look the same.
  * Each fence becomes the markup {@link code} writes, with its language as `data-lang` and its `data-src` kept.
+ * The engine's `data-code` adds the fence's title bar, highlighted and numbered lines, diff marks, and notes.
  * Every highlighted block that has a span but no id gets {@link blockId}, including a directive block whose
  * span the engine stamped after the component ran. A `mermaid` fence is left alone: the engine sends it to
  * the diagram component.
  */
-export function highlightFences(html: string, backdrops?: CodeBackdrops): string {
+export function highlightFences(html: string, backdrops?: CodeBackdrops, lang = "en"): string {
   if (!html.includes("<pre")) return html;
   const hl = get();
   return html
-    .replace(FENCE, (match, srcAttr: string, lang: string | undefined, body: string) => {
-      if (lang === "mermaid") return match;
-      const name = lang ?? "text";
+    .replace(FENCE, (match, attrs: string, fenceLang: string | undefined, body: string) => {
+      if (fenceLang === "mermaid" || /\sclass="code"/.test(attrs)) return match;
+      const name = fenceLang ?? "text";
+      const meta = parseFenceMeta(attribute(attrs, "data-code"));
       const grammar = ALIASES[name] ?? name;
       const known = hl.getLoadedLanguages().includes(grammar);
       const out = adjustShiki(
@@ -281,13 +301,30 @@ export function highlightFences(html: string, backdrops?: CodeBackdrops): string
         backdrops,
       );
       const inner = /<code[^>]*>([\s\S]*)<\/code>/.exec(out)?.[1] ?? "";
-      const src = /data-src="([^"]*)"/.exec(srcAttr)?.[1];
-      const idAttr = src === undefined ? "" : ` id="${blockId(src)}"`;
-      return `<pre class="${CODE_CLASS}" tabindex="0"${idAttr} data-lang="${name}"${srcAttr}><code>${inner}</code></pre>`;
+      const src = attribute(attrs, "data-src");
+      const block = blockId(src ?? "");
+      let decorated = inner;
+      if (meta !== undefined) {
+        const annotations = meta.annotations;
+        decorated = decorateLines(inner, {
+          highlight: meta.highlight,
+          numbers: meta.showLineNumbers,
+          ...(annotations.length === 0 ? {} : { lineId: annotationLineId(block, annotations) }),
+        });
+        if (isDiffLang(name) || meta.diff) decorated = stripDiffMarkers(decorated);
+        decorated = markDiffLines(decorated, { ins: meta.ins, del: meta.del });
+      }
+      const kept = keptAttributes(attrs);
+      const id = kept.originalId ?? (src === undefined ? undefined : block);
+      const idAttr = id === undefined ? "" : ` id="${id}"`;
+      const className = kept.extraClass === "" ? CODE_CLASS : `${CODE_CLASS} ${kept.extraClass}`;
+      const title = meta === undefined ? "" : codeTitleHtml(meta.title);
+      const notes = meta === undefined ? "" : renderAnnotations(meta.annotations, block, lang);
+      return `${title}<pre class="${className}" tabindex="0"${idAttr} data-lang="${name}"${kept.rest}><code>${decorated}</code></pre>${notes}`;
     })
     .replace(IDENTIFY, (match, attrs: string) => {
       if (/\sid=/.test(attrs)) return match;
-      const src = /data-src="([^"]*)"/.exec(attrs)?.[1];
+      const src = attribute(attrs, "data-src");
       if (src === undefined) return match;
       return `<pre class="${CODE_CLASS}" id="${blockId(src)}"${attrs}>`;
     });

@@ -57,7 +57,7 @@ function article(props: LayoutProps): ComponentChildren {
     guideSummary({ props: {}, page, site: props.site, html: "" }) as ComponentChildren,
     lastUpdated(props) as ComponentChildren,
     readingTime({ props: {}, page, site: props.site, html: "" }) as ComponentChildren,
-    h("div", { class: "doc-body guide-body", dangerouslySetInnerHTML: { __html: highlightFences(page.html, backdrops) } }),
+    h("div", { class: "doc-body guide-body", dangerouslySetInnerHTML: { __html: highlightFences(page.html, backdrops, page.lang) } }),
     editPage(props) as ComponentChildren,
     h("div", { class: "doc-actions" }, pageFooter(props) as ComponentChildren, copyMarkdown(props) as ComponentChildren),
     feedback(props) as ComponentChildren,
