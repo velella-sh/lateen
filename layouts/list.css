@@ -346,3 +346,10 @@
   color: var(--color-muted);
   font-size: var(--type-size-sm);
 }
+
+/* A paginated dated list says the dates go on, so a page ending mid-month never looks complete. */
+.list-dated-continues {
+  margin-block: var(--space-4) 0;
+  color: var(--color-muted);
+  font-size: var(--type-size-sm);
+}

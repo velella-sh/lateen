@@ -218,6 +218,7 @@
   "list_count_other": "{n} سجل",
   "list_count_two": "{n} سجلان",
   "list_count_zero": "{n} سجل",
+  "list_dated_continues": "تتواصل التواريخ في الصفحة {page}.",
   "list_empty": "لا توجد سجلات في هذه القائمة بعد.",
   "list_page_of": "الصفحة {page} من {total}",
   "main_nav": "القائمة الرئيسية",

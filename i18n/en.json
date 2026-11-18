@@ -218,6 +218,7 @@
   "list_count_other": "{n} records",
   "list_count_two": "{n} records",
   "list_count_zero": "{n} records",
+  "list_dated_continues": "Dates continue on page {page}.",
   "list_empty": "This list has no records yet.",
   "list_page_of": "Page {page} of {total}",
   "main_nav": "Main",

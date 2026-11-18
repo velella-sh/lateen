@@ -218,6 +218,7 @@
   "list_count_other": "{n} رکورد",
   "list_count_two": "{n} رکورد",
   "list_count_zero": "{n} رکورد",
+  "list_dated_continues": "تاریخ‌ها در صفحهٔ {page} ادامه دارند.",
   "list_empty": "این فهرست هنوز رکوردی ندارد.",
   "list_page_of": "صفحهٔ {page} از {total}",
   "main_nav": "منوی اصلی",

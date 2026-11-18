@@ -9,6 +9,7 @@ import pagination, { paginationLinks } from "../chrome/pagination/index.ts";
 import sidebar from "../chrome/sidebar/index.ts";
 import toc from "../chrome/toc/index.ts";
 import cards, { CARD_CLASS, hrefOf } from "../components/cards/index.ts";
+import datedList from "../components/dated-list/index.ts";
 import { formatCount, pluralCategory } from "../components/reading-time/index.ts";
 import recordTable, { type RecordColumn } from "../components/record-table/index.ts";
 import { t } from "../i18n/index.ts";
@@ -78,11 +79,20 @@ const SUMMARY_FIELD = "summary";
 const STATUS_FIELD = "status";
 const FACT_LIMIT = 3;
 
-/** The view the page asks for: `cards` opts in; a missing or malformed `list` keeps the table. */
-function viewOf(props: LayoutProps): "table" | "cards" {
+/** The view the page asks for: `cards` and `dated` opt in; a missing or malformed `list` keeps the table. */
+function viewOf(props: LayoutProps): "table" | "cards" | "dated" {
   const front = props.page.frontMatter.list;
   if (front === null || typeof front !== "object" || Array.isArray(front)) return "table";
-  return (front as Record<string, unknown>).view === "cards" ? "cards" : "table";
+  const view = (front as Record<string, unknown>).view;
+  return view === "cards" || view === "dated" ? view : "table";
+}
+
+/** The field a dated view reads for its dates: `list.date`, or `date`. */
+function dateFieldOf(props: LayoutProps): string {
+  const front = props.page.frontMatter.list;
+  if (front === null || typeof front !== "object" || Array.isArray(front)) return "date";
+  const date = (front as Record<string, unknown>).date;
+  return typeof date === "string" && date.trim() !== "" ? date.trim() : "date";
 }
 
 /** One record as a card: its title, summary, status, and its first few other fields as facts. */
@@ -132,6 +142,31 @@ export function cardsView(props: LayoutProps, records: readonly RecordProps[]): 
   return cards({ children: records.map((record) => cardOf(props, record)) }) as ComponentChildren;
 }
 
+/**
+ * The records as a dated list, the view a list asks for with `list.view: dated`: the same records, with
+ * `list.date` naming the field the months come from, rendered by the dated-list component.
+ */
+export function datedView(props: LayoutProps, records: readonly RecordProps[]): ComponentChildren {
+  if (records.length === 0) return null;
+  const dateField = dateFieldOf(props);
+  const items = records.map((record) => {
+    const fields = record.fields;
+    const label = isEmpty(fields[TITLE_FIELD]) ? record.id : fields[TITLE_FIELD];
+    return {
+      date: fields[dateField],
+      label,
+      url: record.url,
+      ...(isEmpty(fields[STATUS_FIELD]) ? {} : { status: fields[STATUS_FIELD] }),
+    };
+  });
+  return datedList({
+    props: { items, status: "status" },
+    page: props.page,
+    site: props.site,
+    html: "",
+  } as never) as ComponentChildren;
+}
+
 /** How many records the page shows, in the page's digits and plural form. */
 function countOf(props: LayoutProps, count: number): string {
   const lang = props.page.lang;
@@ -150,10 +185,12 @@ function summaryOf(props: LayoutProps, count: number): ComponentChildren {
   return h("p", { class: "list-summary" }, h("span", { class: "list-count" }, countOf(props, count)), page);
 }
 
-/** The records in the view the page asks for: a table by default, a card grid when `list.view` names it. */
+/** The records in the view the page asks for: a table by default, cards or a dated list when `list.view` names it. */
 function recordsView(props: LayoutProps, records: readonly RecordProps[]): ComponentChildren {
   if (records.length === 0) return null;
-  if (viewOf(props) === "cards") return cardsView(props, records);
+  const view = viewOf(props);
+  if (view === "cards") return cardsView(props, records);
+  if (view === "dated") return datedView(props, records);
   return table(props, records);
 }
 
@@ -192,6 +229,15 @@ function article(props: LayoutProps): ComponentChildren {
     titleFromBody(props) ? null : h("h1", null, props.page.title),
     h("div", { class: "list-intro", dangerouslySetInnerHTML: { __html: props.page.html } }),
     list === undefined ? null : summaryOf(props, count),
+    list !== undefined && list.pagination.next !== undefined && viewOf(props) === "dated"
+      ? h(
+          "p",
+          { class: "list-dated-continues" },
+          t(props.page.lang, "list_dated_continues", {
+            page: formatCount(props.page.lang, list.pagination.page + 1),
+          }),
+        )
+      : null,
     list !== undefined && count === 0 ? h("p", { class: "list-empty" }, t(props.page.lang, "list_empty")) : null,
     records,
     list === undefined
