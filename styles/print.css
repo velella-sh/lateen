@@ -167,6 +167,7 @@
   /* A disclosure whose panel floats over the page on screen prints inside the text flow, under its
      chip, so the panel neither overlaps nor escapes the printed column. */
   .symbol-popover-panel,
+  .term-panel,
   .trust-panel-body {
     position: static;
     inline-size: auto;

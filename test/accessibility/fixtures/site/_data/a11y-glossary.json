@@ -1,0 +1,22 @@
+[
+  {
+    "id": "network",
+    "term": { "en": "Network", "fa": "شبکه", "ar": "شبكة" },
+    "definition": {
+      "en": "Two or more computers that talk.",
+      "fa": "دو یا چند رایانه که با هم گفت‌وگو می‌کنند.",
+      "ar": "جهازان أو أكثر تتواصل بينها."
+    },
+    "aliases": { "en": ["Net"], "fa": ["شبكه"], "ar": ["شبكه"] }
+  },
+  {
+    "id": "latency",
+    "term": { "en": "Latency", "fa": "تأخیر", "ar": "زمن الوصول" },
+    "definition": {
+      "en": "The time a packet takes to arrive.",
+      "fa": "مدتی که یک بسته طول می‌کشد تا برسد.",
+      "ar": "الوقت الذي تستغرقه الحزمة للوصول."
+    },
+    "aliases": { "en": ["Lag"], "fa": ["درنگ"], "ar": ["تأخر"] }
+  }
+]

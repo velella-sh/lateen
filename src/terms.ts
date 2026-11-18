@@ -82,12 +82,29 @@ function aliasesOf(value: unknown): string[] {
 }
 
 /** The collection `theme.options.glossary.collection` names, or `undefined` when no option does. */
-function glossaryCollection(site: Site): string | undefined {
+export function glossaryCollectionName(site: Site): string | undefined {
   const options = site.config.theme?.options;
   const glossary = options?.glossary;
   if (!isMapping(glossary)) return undefined;
   const name = glossary.collection;
   return typeof name === "string" && name.trim() !== "" ? name.trim() : undefined;
+}
+
+/**
+ * The page address from `theme.options.glossary.page` in `pageLang`: a string shared by every
+ * language, or a mapping such as `{ en: "/glossary/", fa: "/fa/glossary/" }`. The value is returned
+ * as the site wrote it, without the site base; a caller adding a link applies the base.
+ */
+export function glossaryPage(site: Site, pageLang: string): string | undefined {
+  const options = site.config.theme?.options;
+  const glossary = options?.glossary;
+  if (!isMapping(glossary)) return undefined;
+
+  const defaultLang = site.config.lang;
+  const lang = pageLang.trim() === "" ? defaultLang : pageLang.trim();
+  const value = localized(glossary.page, lang, defaultLang);
+  const page = typeof value === "string" ? value.trim() : "";
+  return page === "" ? undefined : page;
 }
 
 /**
@@ -97,7 +114,7 @@ function glossaryCollection(site: Site): string | undefined {
  * failing the build.
  */
 export function selectTerms(site: Site, pageLang: string): readonly Term[] {
-  const name = glossaryCollection(site);
+  const name = glossaryCollectionName(site);
   if (name === undefined) return [];
   const collection = site.collections[name];
   if (collection === undefined) return [];

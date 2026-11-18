@@ -1,0 +1,20 @@
+[
+  {
+    "id": "cache",
+    "term": "Cache",
+    "definition": "A small, fast store that keeps a copy of data closer to the reader.",
+    "aliases": ["buffer"]
+  },
+  {
+    "id": "latency",
+    "term": "Latency",
+    "definition": "The time a signal takes to travel from one point to another.",
+    "aliases": ["delay"]
+  },
+  {
+    "id": "throughput",
+    "term": "Throughput",
+    "definition": "The amount of work a system completes in a period of time.",
+    "aliases": []
+  }
+]

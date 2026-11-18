@@ -1,0 +1,16 @@
+# The inline term fixture: one page that writes :term in prose and ::glossary after it, so a test
+# can prove the engine reaches the theme's `term` component instead of a plain div.
+title: Term fixture
+description: Inline glossary terms and the glossary list.
+lang: en
+base: /fixture
+search: false
+collections:
+  glossary:
+    source: _data/glossary.json
+    id: id
+theme:
+  options:
+    glossary:
+      collection: glossary
+      page: /glossary/

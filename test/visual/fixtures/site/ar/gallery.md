@@ -365,6 +365,10 @@ A page outside the default version states its version and links to the equivalen
 التبويب الثاني.
 :::
 
+## term
+
+مصطلح داخل النص :term[Build]{id=build} و :term[مصطلح مجهول] بلا مدخل.
+
 ## tags
 
 ::tags{items='["دليل",{"label":"مرجع","url":"/ar/gallery/"}]'}

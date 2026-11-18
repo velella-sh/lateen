@@ -365,6 +365,10 @@ A page outside the default version states its version and links to the equivalen
 برگهٔ دوم.
 :::
 
+## term
+
+اصطلاح درون‌متنی :term[Build]{id=build} و :term[واژهٔ ناشناخته] بدون مدخل.
+
 ## tags
 
 ::tags{items='["راهنما",{"label":"مرجع","url":"/fa/gallery/"}]'}

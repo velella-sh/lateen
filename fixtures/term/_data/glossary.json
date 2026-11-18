@@ -1,0 +1,14 @@
+[
+  {
+    "id": "network",
+    "term": "Network",
+    "definition": "Two or more computers that talk.",
+    "aliases": ["Net"]
+  },
+  {
+    "id": "latency",
+    "term": "Latency",
+    "definition": "The time a packet takes to arrive.",
+    "aliases": []
+  }
+]

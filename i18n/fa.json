@@ -439,6 +439,8 @@
   "superseded": "جایگزین‌شده",
   "symbol_reference": "مرجع",
   "tags": "برچسب‌ها",
+  "term_link": "واژه‌نامه",
+  "term_unknown": "مدخلی در واژه‌نامه نیست",
   "tested": "آزموده",
   "tested_failed": "{n} ناموفق",
   "tested_last_passed": "آخرین اجرای موفق {date}",

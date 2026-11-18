@@ -241,7 +241,7 @@ test("no screen-only copy control prints", () => {
 });
 
 test("a disclosure whose panel floats on screen prints inside the text flow", () => {
-  for (const selector of [".symbol-popover-panel", ".trust-panel-body"]) {
+  for (const selector of [".symbol-popover-panel", ".term-panel", ".trust-panel-body"]) {
     const panel = rule(printBody(css), selector);
     assert.ok(panel, `no print rule for ${selector}`);
     assert.match(panel.body, /position:\s*static/);
