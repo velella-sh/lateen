@@ -112,9 +112,9 @@ test("labels come from the page language and every value that must stay left to 
   const page = render(operationPage(fullOperation, { lang: "fa", dir: "rtl" }));
   const persian = stringsOf("fa");
   assert.ok(page.includes(`<h2>${persian.parameters}</h2>`));
-  assert.ok(page.includes(persian.api_request_body));
-  assert.ok(page.includes(persian.api_responses));
-  assert.ok(page.includes(persian.api_server));
+  assert.ok(page.includes(persian.api_request_body ?? ""));
+  assert.ok(page.includes(persian.api_responses ?? ""));
+  assert.ok(page.includes(persian.api_server ?? ""));
   assert.match(page, /<code class="api-reference-path" dir="ltr">\/widgets<\/code>/);
 });
 
