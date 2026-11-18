@@ -114,6 +114,32 @@ test("charts and their data tables read before any island runs", () => {
   assert.equal(all(page, ".line-chart-table tbody tr").length, 5);
 });
 
+test("the data explorer draws its table and fallback form before the island runs", () => {
+  const page = site.document("/explorer/");
+  const article = page.querySelector("article");
+  assert.ok(article, "the doc layout renders its article");
+  const text = textOf(article);
+  for (const expected of ["Data explorer", "Alpha", "Ada", "January 12, 2026"]) {
+    assert.ok(text.includes(expected), `the server-rendered explorer contains ${JSON.stringify(expected)}`);
+  }
+
+  assert.equal(all(page, ".data-explorer tbody tr").length, 4, "every book renders in the static table");
+  const form = page.querySelector(".data-explorer-form");
+  assert.ok(form, "the search form is in the markup");
+  assert.equal(form.getAttribute("action"), "/search/");
+  assert.equal(form.getAttribute("method"), "get");
+  assert.ok(page.querySelector('.data-explorer-form input[name="q"]'), "the query field is named for the results page");
+  assert.equal(
+    page.querySelector('.data-explorer-form input[name="filter.collection"]')?.getAttribute("value"),
+    "books",
+    "the fallback carries the collection",
+  );
+  const sort = page.querySelector("[data-explorer-sort]") as HTMLElement;
+  const filters = page.querySelector("[data-explorer-filters]") as HTMLElement;
+  assert.equal(sort.hidden, true, "the sort control waits for the island");
+  assert.equal(filters.hidden, true, "the filter box waits for the island");
+});
+
 test("the guide layout and its components read before their islands run", () => {
   const page = site.document("/guide/start/");
   const article = page.querySelector("article.guide");

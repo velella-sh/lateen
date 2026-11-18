@@ -43,7 +43,7 @@ const tick = (): Promise<void> => new Promise((resolve) => setTimeout(resolve, 0
 function setup() {
   const input = { props: { from: "books", columns: "title,pages" }, page, site, html: "" } as unknown as ComponentProps;
   const html = renderToString(dataExplorer(input) as never);
-  const dom = new JSDOM(`<!doctype html><html lang="en"><body>${html}</body></html>`);
+  const dom = new JSDOM(`<!doctype html><html lang="en"><body>${html}</body></html>`, { url: "https://example.com/books/" });
   const document = dom.window.document;
 
   const calls: string[] = [];

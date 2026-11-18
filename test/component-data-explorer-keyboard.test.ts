@@ -179,7 +179,8 @@ test("Enter opens the active result, or the first when nothing is active", async
   press(fixture, "ArrowDown");
   press(fixture, "Enter");
   assert.deepEqual(opened, ["/books/b5/", "/books/b50/"], "the active row is the one Enter opens");
-  assert.equal(dom.window.location.href, "https://example.com/books/", "the key follows the row, not the page");
+  // Enter opens the row's link; the address keeps the query so a shared link restores the view.
+  assert.equal(dom.window.location.href, "https://example.com/books/?q=book+5");
 });
 
 test("Escape clears the field, the active row, and puts the static rows back", async () => {

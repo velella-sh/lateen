@@ -53,7 +53,7 @@ function setup() {
     html: "",
   } as unknown as ComponentProps;
   const html = renderToString(dataExplorer(input) as never);
-  const dom = new JSDOM(`<!doctype html><html lang="en"><body>${html}</body></html>`);
+  const dom = new JSDOM(`<!doctype html><html lang="en"><body>${html}</body></html>`, { url: "https://example.com/books/" });
   const document = dom.window.document;
 
   const calls: string[] = [];
@@ -129,7 +129,7 @@ test("without a script the filters stay hidden and hold no controls", () => {
   assert.match(html, /data-explorer-filters/);
   assert.match(html, /data-explorer-chips/);
   assert.doesNotMatch(html, /data-explorer-filter-option/);
-  const dom = new JSDOM(`<!doctype html><html lang="en"><body>${html}</body></html>`);
+  const dom = new JSDOM(`<!doctype html><html lang="en"><body>${html}</body></html>`, { url: "https://example.com/books/" });
   const box = dom.window.document.querySelector("[data-explorer-filters]") as unknown as HTMLElement;
   const chipBox = dom.window.document.querySelector("[data-explorer-chips]") as unknown as HTMLElement;
   assert.equal(box.hidden, true);

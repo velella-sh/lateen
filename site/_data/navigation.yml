@@ -35,6 +35,8 @@ main:
         url: /components/code/
       - title: Code tabs
         url: /components/code-tabs/
+      - title: Data explorer
+        url: /components/data-explorer/
       - title: Details
         url: /components/details/
       - title: Embed

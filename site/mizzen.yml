@@ -65,3 +65,9 @@ collections:
     id: slug
     template: _templates/books.md
     permalink: /books/{id}/
+    index:
+      fields:
+        - title
+        - pages
+        - published
+        - format

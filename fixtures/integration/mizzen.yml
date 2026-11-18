@@ -29,6 +29,11 @@ collections:
         template: _templates/books-embed.md
         permalink: /books/{id}/embed/
         layout: embedded
+    index:
+      fields:
+        - title
+        - author
+        - published
 theme:
   options:
     status:
