@@ -15,6 +15,10 @@ languages:
     prefix: /fa
 navigation: _data/navigation.yml
 search: { text: 300 }
+collections:
+  books:
+    source: _data/books.json
+    id: id
 theme:
   options:
     status:

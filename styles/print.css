@@ -54,6 +54,7 @@
   [data-theme-toggle],
   .terminal-copy,
   .cli-demo-bar,
+  .record-table-filters,
   .install-tabs-list,
   .install-tabs-radio,
   .code-copy,
@@ -78,7 +79,8 @@
   }
 
   .layout > main,
-  .doc {
+  .doc,
+  .list {
     display: block;
     max-inline-size: none;
     padding-block: 0;

@@ -27,6 +27,11 @@ theme:
     footer:
       copyright: "Performance fixture"
 
+collections:
+  books:
+    source: _data/books.json
+    id: id
+
 network:
   source: network.yml
   project: perf

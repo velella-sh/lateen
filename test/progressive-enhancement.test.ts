@@ -33,6 +33,24 @@ test("the status badge and legend read before any island runs", () => {
   assert.equal(all(page, ".status-legend .status-negative").length, 1);
 });
 
+test("the list layout draws the whole record table before its island runs", () => {
+  const page = site.document("/books/");
+  const article = page.querySelector("article.list");
+  assert.ok(article, "the list layout renders its article");
+  const text = textOf(article);
+  for (const expected of ["Books", "4 records", "Alpha", "Bashir", "Ada"]) {
+    assert.ok(text.includes(expected), `the server-rendered list contains ${JSON.stringify(expected)}`);
+  }
+  assert.equal(all(page, "tbody tr").length, 4);
+  assert.equal(all(page, "thead th").length, 4);
+  const filters = page.querySelector(".record-table-filters") as HTMLElement;
+  assert.ok(filters, "the filter form is in the markup");
+  assert.equal(filters.hidden, true, "the filter form waits for the island");
+  const sorts = all(page, ".record-table-sort") as HTMLElement[];
+  assert.ok(sorts.length > 0, "the sort buttons are in the markup");
+  assert.ok(sorts.every((button) => button.hidden), "the sort buttons wait for the island");
+});
+
 test("the guide layout and its components read before their islands run", () => {
   const page = site.document("/guide/start/");
   const article = page.querySelector("article.guide");

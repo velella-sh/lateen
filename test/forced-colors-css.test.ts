@@ -316,6 +316,12 @@ test("the showpiece decoration is hidden and its entrance is off in forced color
   }
 });
 
+test("the record table keeps a visible edge on its filter fields in forced colors", () => {
+  const text = read("../components/record-table/style.css");
+  const rules = text.slice(text.indexOf("@media (forced-colors: active)"));
+  assert.match(rules, /\.record-table-filter select,[\s\S]*?border-color:\s*CanvasText/);
+});
+
 test("the guide layout's components keep a visible edge in forced colors", () => {
   for (const [unit, selector] of [
     ["steps", ".steps > ol > li"],

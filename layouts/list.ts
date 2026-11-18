@@ -260,6 +260,11 @@ function tocFor(props: LayoutProps): LayoutProps {
 /** The list page: the base shell and the article, with the navigation sidebar and the group headings on this page. */
 const list: Layout = (props) => {
   const sortIsland: Island = { name: "record-table", src: `${baseOf(props.site)}/${SORT_ISLAND}` };
+  // The engine writes only the islands its own props name, and reads that list back after the layout
+  // runs; appending here is how the layout asks for its client.
+  // shortcut: mutating `islands`; upgrade when a layout can declare a client island.
+  const islands = props.islands as Island[];
+  if (!islands.some((island) => island.src === sortIsland.src)) islands.push(sortIsland);
   const head =
     props.list === undefined
       ? props.head
@@ -267,7 +272,7 @@ const list: Layout = (props) => {
   return base({
     ...props,
     head,
-    islands: [...props.islands.filter((island) => island.src !== sortIsland.src), sortIsland],
+    islands,
     header: h(Fragment, null, header(props) as ComponentChildren, drawer(props) as ComponentChildren),
     sidebar: sidebar(props) as ComponentChildren,
     main: article(props),

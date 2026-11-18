@@ -166,6 +166,7 @@ test("print.css hides every piece of chrome and every screen-only control", () =
     "[data-theme-toggle]",
     ".heading-anchor",
     ".terminal-copy",
+    ".record-table-filters",
     ".page-footer-copy",
     ".code-tabs-list",
     ".cli-demo-bar",
@@ -174,6 +175,13 @@ test("print.css hides every piece of chrome and every screen-only control", () =
   ]) {
     assert.ok(hidden.has(selector), `print.css does not hide ${selector}`);
   }
+});
+
+test("the layout grid flattens and a list article fills the page", () => {
+  const flat = rule(css, ".layout");
+  assert.ok(flat, "no layout rule");
+  assert.match(flat.body, /display:\s*block/);
+  assert.match(css, /\.layout > main,\s*\.doc,\s*\.list\s*\{[^}]*max-inline-size:\s*none/, "the list article keeps its screen width");
 });
 
 test("a closed details prints its body, and its summary stays with it", () => {
