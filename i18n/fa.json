@@ -48,6 +48,7 @@
   "ask_agent_prompt_cut_pages": "فقط {n} صفحه‌ی مرتبط اول آمده است.",
   "ask_agent_prompt_cut_text": "متن صفحه‌ها در {n} نویسه بریده شد؛ جاافتاده: {pages}.",
   "ask_agent_prompt_intro": "شما در پاسخ به پرسشی درباره‌ی مستندات {site} کمک می‌کنید.",
+  "ask_agent_prompt_json": "JSON",
   "ask_agent_prompt_markdown": "مارک‌داون",
   "ask_agent_prompt_pages": "صفحه‌های مرتبط:",
   "ask_agent_prompt_question": "پرسش: {question}",

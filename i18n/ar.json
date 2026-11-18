@@ -48,6 +48,7 @@
   "ask_agent_prompt_cut_pages": "أول {n} صفحات ذات صلة فقط مضمنة.",
   "ask_agent_prompt_cut_text": "قُطع نص الصفحات عند {n} حرفًا؛ واستُبعد: {pages}.",
   "ask_agent_prompt_intro": "أنت تساعدني في سؤال عن توثيق {site}.",
+  "ask_agent_prompt_json": "JSON",
   "ask_agent_prompt_markdown": "Markdown",
   "ask_agent_prompt_pages": "صفحات ذات صلة:",
   "ask_agent_prompt_question": "السؤال: {question}",

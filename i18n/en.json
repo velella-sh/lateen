@@ -48,6 +48,7 @@
   "ask_agent_prompt_cut_pages": "Only the first {n} related pages are included.",
   "ask_agent_prompt_cut_text": "The page text was cut at {n} characters; left out: {pages}.",
   "ask_agent_prompt_intro": "You are helping me with a question about the {site} documentation.",
+  "ask_agent_prompt_json": "JSON",
   "ask_agent_prompt_markdown": "Markdown",
   "ask_agent_prompt_pages": "Related pages:",
   "ask_agent_prompt_question": "Question: {question}",
