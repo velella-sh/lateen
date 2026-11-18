@@ -5,7 +5,8 @@ import { test } from "node:test";
 import { fileURLToPath } from "node:url";
 
 const BASELINES = fileURLToPath(new URL("./baselines/", import.meta.url));
-const MAX_ONE = 300 * 1024;
+// The densest gallery page is about 323 KB after the 24px targets; the cap still catches real bloat.
+const MAX_ONE = 350 * 1024;
 const MAX_ALL = 10 * 1024 * 1024;
 
 test("every baseline is under the per-image and total caps, and the browser is recorded", () => {
