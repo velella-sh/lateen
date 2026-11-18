@@ -60,4 +60,4 @@ Sandbar stops at the first failing task and exits with that task's exit code. Pa
 
 ## Next
 
-Read the [command reference](/reference/commands/) and the [configuration reference](/reference/configuration/).
+Read the [command reference](../../reference/commands/) and the [configuration reference](../../reference/configuration/).

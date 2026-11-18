@@ -26,7 +26,7 @@ record:
 ---
 :field[summary]
 
-Every value on this page is a field of the record in `_data/kits.yml`. The [catalogue](/catalogue/)
+Every value on this page is a field of the record in `_data/kits.yml`. The [catalogue](../../catalogue/)
 lists the whole collection.
 
 Change the record and rebuild; the page and its row in the list, timeline, and explorer follow.

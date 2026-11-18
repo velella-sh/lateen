@@ -50,12 +50,14 @@ The theme may `import type` from `@velella/mizzen/contracts`, by package name an
 | `components/` | `<name>/` | [components/README.md](components/README.md) |
 | `tokens/` | `<group>.json` | [tokens/README.md](tokens/README.md) |
 | `styles/` | `<name>.css` | [styles/README.md](styles/README.md) |
+| `starters/` | `<name>/` | [starters/README.md](starters/README.md) |
 
 ## Commands
 
 - `npm test`
 - `npm run typecheck`
 - `npm run tokens` writes `styles/tokens.css` from `tokens/*.json`; `tokens:check` fails when it is stale.
+- `npx mizzen init my-site --theme node_modules/@velella/lateen --starter docs` starts a site from one of the three starters in `starters/`; `--list` names them.
 
 ## Layouts
 

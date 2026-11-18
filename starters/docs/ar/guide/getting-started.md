@@ -62,4 +62,4 @@ npx sandbar run test
 
 ## بعد ذلك
 
-اقرأ [مرجع الأوامر](/ar/reference/commands/) و[مرجع الإعدادات](/ar/reference/configuration/).
+اقرأ [مرجع الأوامر](../../reference/commands/) و[مرجع الإعدادات](../../reference/configuration/).

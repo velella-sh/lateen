@@ -122,6 +122,9 @@ function headNodes(head: Head, site: Site, page: Page, hints: LayoutProps["hints
     h("script", { dangerouslySetInnerHTML: { __html: THEME_SCRIPT } }),
     h("title", null, head.title),
     ...head.meta.map(metaTag),
+    ...(page.frontMatter.noindex === true && !head.meta.some((tag) => tag.name === "robots")
+      ? [metaTag({ name: "robots", content: "noindex" })]
+      : []),
     ...links.map(linkTag),
     ...iconLinks(site.config).map(linkTag),
     ...head.jsonLd.map(jsonLd),

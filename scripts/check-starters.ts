@@ -1,5 +1,5 @@
 // Builds every starter in `starters/` with the installed engine and this theme, runs the engine's check on it,
-// and fails on any diagnostic, any broken internal link, any file over the size limit, or a build over the time
+// and fails on any error or warning diagnostic, any broken internal link, any file over the size limit, or a build over the time
 // limit. A starter that declares optional languages is also built without them, so the installer can leave
 // them out. A failing starter is never skipped. See starters/README.md for what a starter is.
 // Usage: node scripts/check-starters.ts [starters-folder]

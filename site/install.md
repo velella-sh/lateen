@@ -36,6 +36,22 @@ theme:
 
 Every option is in [Tokens and options](/tokens/). The pieces pages use in their content are in [Components](/components/), and the page shapes are in [Layouts](/layouts/).
 
+## Start from a starter
+
+Three complete sites ship with the theme, and each one installs with the same command:
+
+```sh
+npx mizzen init my-site --theme node_modules/@velella/lateen --starter docs
+```
+
+| Starter | What it is |
+| --- | --- |
+| `docs` | A documentation site for one tool: home page, getting started, two reference pages, a changelog and a not-found page. |
+| `changelog` | A release notes site for one product: a home page that points at the latest release, a changelog, a versions page, a feed page and a guide to adding a release. |
+| `data` | A data site for one invented catalogue: record pages, a list page, a timeline, a data explorer and a guide to changing the data. |
+
+`mizzen init --list --theme node_modules/@velella/lateen` names the starters the installed theme ships. The command copies the starter's files into the folder and leaves `starter.json` behind, so the new site is ordinary Markdown and configuration.
+
 ## What the theme does not do
 
 Lateen draws pages; it does not read files, parse Markdown, or write outputs. The engine does all of that and gives the theme a finished site model. The theme may only import types from `@velella/mizzen/contracts`.
