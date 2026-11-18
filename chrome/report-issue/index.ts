@@ -2,6 +2,7 @@ import { h } from "preact";
 import type { Chrome, Page, PageRecord, RepositoryConfig, Site, SiteConfig } from "@velella/mizzen/contracts";
 import { t } from "../../i18n/index.ts";
 import { clipTitle, fitUrl, hostOf, lineUrlOf, oneLine, webRoot } from "../../src/repository.ts";
+import { optionOf } from "../../src/options.ts";
 
 /*
  * "Report a problem with this page": a plain link that opens a new issue on the site's repository with the
@@ -58,7 +59,7 @@ export interface ReportIssueOptions {
 
 /** Reads the options block; every unusable value is absent. */
 export function optionsOf(config: SiteConfig): ReportIssueOptions {
-  const raw: unknown = config.theme.options?.reportIssue;
+  const raw: unknown = optionOf(config.theme.options, "reportIssue");
   if (raw === false) return { enabled: false, labels: [] };
   if (!isRecord(raw)) return { enabled: true, labels: [] };
   const labels = Array.isArray(raw.labels)

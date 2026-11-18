@@ -1,1 +1,0 @@
-- Visual screenshot runner: `npm run test:visual` builds the visual fixture, serves it locally and writes a full-page Chromium screenshot of every fixture page to `test/visual/out/`, with a fixed viewport, the bundled fonts, no network, reduced motion, no animation or caret, UTC and a fixed locale (#496).

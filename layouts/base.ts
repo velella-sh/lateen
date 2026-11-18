@@ -8,7 +8,7 @@ import { alternateLinks, canonicalLink } from "../chrome/language-switcher/index
 import siteFooter from "../chrome/site-footer/index.ts";
 import networkFooter from "../chrome/network-footer/index.ts";
 import projectSwitcher from "../chrome/project-switcher/index.ts";
-import { resolveNetworkOptions } from "../src/options.ts";
+import { resolveNetworkOptions, optionOf } from "../src/options.ts";
 import shortcuts from "../chrome/shortcuts/index.ts";
 import sourceMode from "../chrome/source-mode/index.ts";
 import skipLinks, { MAIN_ID, NAVIGATION_ID } from "../chrome/skip-links/index.ts";
@@ -57,7 +57,7 @@ function linkTag(tag: LinkTag) {
 
 /** The icon links from the theme option `favicon` (`svg`, `ico`, `apple`), each a path from the site root; none when unset. */
 function iconLinks(config: SiteConfig): LinkTag[] {
-  const value = config.theme.options?.favicon;
+  const value = optionOf(config.theme.options, "favicon");
   if (typeof value !== "object" || value === null) return [];
   const icons = value as Record<string, unknown>;
   const href = (path: unknown) => (typeof path === "string" ? (path.startsWith("/") ? `${config.base}${path}` : path) : undefined);

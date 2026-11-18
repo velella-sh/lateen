@@ -1,1 +1,0 @@
-- Source mode: a switch (button, `y` key, or command palette action) shows `file:line` beside every top-level block, remembers the choice for the site, and announces the change. The source span reader moved to `src/source-span.ts`, shared with block actions.

@@ -33,7 +33,7 @@ The layout fills these from the record; a template does not write them.
 ## Collection setup
 
 The engine writes the files; the theme only links them. The collection names its date fields, and a
-calendar lists the records of that collection. Both keys need Mizzen 0.2.3 or later.
+calendar lists the records of that collection. Both keys need Mizzen 0.2.4 or later.
 
 ```yaml
 collections:

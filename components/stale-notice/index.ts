@@ -4,6 +4,7 @@ import type { Component, PageStale, PageStaleFile } from "@velella/mizzen/contra
 import { warning } from "../../icons/index.ts";
 import { t } from "../../i18n/index.ts";
 import { calendarDate } from "../../src/dates.ts";
+import { optionOf } from "../../src/options.ts";
 
 /**
  * The stale notice: a plain caution note above the article when a page's covered files changed since
@@ -62,7 +63,7 @@ const CHANGE_KEYS: Readonly<Record<PageStaleFile["change"], string>> = {
 type SiteOptions = { config?: { theme?: { options?: Readonly<Record<string, unknown>> } } } | undefined;
 
 function staleOptions(site: SiteOptions): { show: boolean; maxFiles: number } {
-  const options = site?.config?.theme?.options?.stale;
+  const options = optionOf(site?.config?.theme?.options, "stale");
   if (typeof options !== "object" || options === null) return { show: true, maxFiles: DEFAULT_MAX_FILES };
   const { show, maxFiles } = options as { show?: unknown; maxFiles?: unknown };
   return {

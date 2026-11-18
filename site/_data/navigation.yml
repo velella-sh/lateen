@@ -8,6 +8,8 @@ main:
         url: /install/
       - title: Starters
         url: /starters/
+      - title: Upgrade from 0.2.2
+        url: /upgrade/
       - title: Layouts
         url: /layouts/
       - title: List layout

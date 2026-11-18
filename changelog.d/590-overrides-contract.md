@@ -1,1 +1,0 @@
-- Overrides contract: `docs/overrides.md` and `test/overrides/fixtures/` fix how a site replaces one component and one layout by name, with precedence, fail-closed fallback, diagnostics and the engine loader support required (#590).

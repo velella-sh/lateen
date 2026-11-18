@@ -1,4 +1,5 @@
 import type { SiteConfig } from "@velella/mizzen/contracts";
+import { optionOf } from "../../src/options.ts";
 import { toneOf, type StatusTone } from "./index.ts";
 
 /**
@@ -15,7 +16,7 @@ const isRecord = (value: unknown): value is Record<string, unknown> =>
 
 /** The `theme.options.status.values` map as the config wrote it, or undefined when the site has none. */
 export function valuesOf(config: Pick<SiteConfig, "theme"> | undefined): Record<string, unknown> | undefined {
-  const options = (config?.theme as { options?: Record<string, unknown> } | undefined)?.options?.status;
+  const options = optionOf(config?.theme?.options, "status");
   if (!isRecord(options) || !isRecord(options.values)) return undefined;
   return options.values;
 }

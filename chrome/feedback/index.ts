@@ -1,6 +1,7 @@
 import { h } from "preact";
 import type { Chrome, Page, SiteConfig } from "@velella/mizzen/contracts";
 import { t } from "../../i18n/index.ts";
+import { optionOf } from "../../src/options.ts";
 
 /** The `theme.options.feedback` block as the config wrote it. */
 interface FeedbackOptions {
@@ -16,7 +17,7 @@ function text(value: unknown): string | undefined {
 
 /** The configured feedback endpoint, or `undefined` when the site sets none. */
 export function endpointOf(config: SiteConfig): string | undefined {
-  const options = config.theme.options?.feedback;
+  const options = optionOf(config.theme.options, "feedback");
   if (typeof options !== "object" || options === null) return undefined;
   return text((options as FeedbackOptions).endpoint);
 }

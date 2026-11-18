@@ -1,4 +1,5 @@
 import type { Site } from "@velella/mizzen/contracts";
+import { optionOf } from "./options.ts";
 
 /**
  * One glossary term in the page's language. The term, definition and other names are read from the
@@ -83,8 +84,7 @@ function aliasesOf(value: unknown): string[] {
 
 /** The collection `theme.options.glossary.collection` names, or `undefined` when no option does. */
 export function glossaryCollectionName(site: Site): string | undefined {
-  const options = site.config.theme?.options;
-  const glossary = options?.glossary;
+  const glossary = optionOf(site.config.theme?.options, "glossary");
   if (!isMapping(glossary)) return undefined;
   const name = glossary.collection;
   return typeof name === "string" && name.trim() !== "" ? name.trim() : undefined;
@@ -96,8 +96,7 @@ export function glossaryCollectionName(site: Site): string | undefined {
  * as the site wrote it, without the site base; a caller adding a link applies the base.
  */
 export function glossaryPage(site: Site, pageLang: string): string | undefined {
-  const options = site.config.theme?.options;
-  const glossary = options?.glossary;
+  const glossary = optionOf(site.config.theme?.options, "glossary");
   if (!isMapping(glossary)) return undefined;
 
   const defaultLang = site.config.lang;

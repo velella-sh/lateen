@@ -1,1 +1,0 @@
-- Visual fixture site and component gallery: `test/visual/fixtures/` builds the accessibility fixture's pages by configuration (linked, not copied) plus a gallery page in English, Persian and Arabic that shows every component with fixed content and dates. The page set is one list, `pages.ts`, for the screenshot matrix, and the fixture builds twice to identical files (#495).

@@ -6,6 +6,7 @@
  */
 
 import type { Page, SiteConfig } from "@velella/mizzen/contracts";
+import { optionOf } from "../../src/options.ts";
 
 /** A provider the reader can open in: a title and a URL template. */
 export interface Provider {
@@ -40,7 +41,7 @@ function text(value: unknown): string | undefined {
 
 /** The configured providers, or the three defaults when the site sets none. */
 export function providersOf(config: SiteConfig): readonly Provider[] {
-  const options = config.theme.options?.pageAgent;
+  const options = optionOf(config.theme.options, "pageAgent");
   const value = typeof options === "object" && options !== null ? (options as PageAgentOptions).providers : undefined;
   if (value === undefined) return DEFAULT_PROVIDERS;
   if (!Array.isArray(value)) return DEFAULT_PROVIDERS;

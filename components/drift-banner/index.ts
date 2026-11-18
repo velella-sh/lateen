@@ -1,6 +1,7 @@
 import { h } from "preact";
 import type { Component, Site, SiteConfig } from "@velella/mizzen/contracts";
 import { t } from "../../i18n/index.ts";
+import { optionOf } from "../../src/options.ts";
 
 /** Class on the banner. `style.css` styles it. */
 export const CLASS = "drift-banner";
@@ -190,7 +191,7 @@ export function evidenceOf(site: Site, url: string): DriftEvidence | undefined {
 
 /** The details link from `theme.options.drift.detailsUrl`, safe and with `base` in front of a site path. */
 export function detailsHrefOf(config: SiteConfig): string | undefined {
-  const options = config.theme.options?.drift;
+  const options = optionOf(config.theme.options, "drift");
   if (!isRecord(options)) return undefined;
   const value = (options as DriftOptions).detailsUrl;
   if (typeof value !== "string") return undefined;

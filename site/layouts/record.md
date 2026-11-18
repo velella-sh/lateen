@@ -97,7 +97,7 @@ A field is shown by its kind. The default is `text`; `status` reads the site's s
 The layout adds two parts from the record data, with no key under `record`:
 [Add to calendar](/components/add-to-calendar/) when the collection names its dates and a calendar
 covers it, and [Record history](/components/record-history/) when the template shows `:::changes`.
-Both need Mizzen 0.2.3 or later, and both render nothing when the record has no calendar or no event.
+Both need Mizzen 0.2.4 or later, and both render nothing when the record has no calendar or no event.
 
 A fact whose field is `derived.<name>` shows a value the collection's `derived` rules computed, and
 the `days` kind writes a day count as "N days left", "today", or "N days ago".

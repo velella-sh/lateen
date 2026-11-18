@@ -1,1 +1,0 @@
-- Backdrop (#482): the `backdrop` component draws a `glow` or `grid` behind a hero from the accent token with CSS gradients and colour mixing, in light and dark; `none` draws nothing. It uses no image file and no animation, draws nothing in print or under forced colours, and keeps text at 4.5:1 at its strongest tint.

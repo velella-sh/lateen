@@ -2,7 +2,7 @@ import { Fragment, h } from "preact";
 import type { ComponentChildren } from "preact";
 import type { Chrome, SiteConfig } from "@velella/mizzen/contracts";
 import { t } from "../../i18n/index.ts";
-import { resolveNetworkOptions } from "../../src/options.ts";
+import { resolveNetworkOptions, optionOf } from "../../src/options.ts";
 import languageSwitcher from "../language-switcher/index.ts";
 import projectSwitcher from "../project-switcher/index.ts";
 import search from "../search/index.ts";
@@ -14,7 +14,7 @@ type Logo = { readonly light?: string; readonly dark?: string };
 
 /** The logo paths from the theme options (`logo.light`, `logo.dark`), or none. */
 function logoOf(config: SiteConfig): Logo | undefined {
-  const value = config.theme.options?.logo;
+  const value = optionOf(config.theme.options, "logo");
   return typeof value === "object" && value !== null ? (value as Logo) : undefined;
 }
 

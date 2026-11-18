@@ -57,11 +57,33 @@ archive.
 
 ## 4. Tag and let the workflow publish
 
-Push the tag for the release commit. The workflow packs that commit and runs the acceptance gate in
-a clean project with the installed CLI, then publishes the tested tarball with npm provenance and
-installs the exact published version from npm to rerun the same cases. A failed, missing or skipped
-case, a different engine version, a different tarball digest, or a tag that does not name the
-version in `package.json` stops the release before npm sees it.
+Push the tag for the release commit. The workflow checks that the tag names the version in
+`package.json` and that the commit is on `main`, packs that commit, and runs the acceptance gate in
+a clean project with the installed CLI. Publishing needs that passing report and publishes the same
+tarball with npm provenance; a failed, missing or skipped case, a different engine version, a
+different tarball digest, or a tag that does not name the version stops the release before npm sees
+it. The workflow then installs the exact published version from npm and reruns the same cases, and
+writes the GitHub Release for the tag.
+
+A prerelease version such as `0.3.0-rc.1` goes to the `next` dist-tag and its GitHub Release is
+marked as a prerelease. Running the workflow by hand with an existing tag is the retry path: a
+version npm already serves is skipped, and an existing GitHub Release is left alone.
+
+## 5. Trusted publishing (one-time setup)
+
+There is no npm token in the repository. npm trusted publishing exchanges the `npm` environment's
+OIDC identity for a short-lived credential, so the package must name this repository and workflow as
+its trusted publisher:
+
+1. On npmjs.com, open **@velella/lateen → Settings → Trusted publishing**.
+2. Add a GitHub Actions publisher with organization `velella-sh`, repository `lateen`, workflow
+   `release.yml`, and environment `npm`.
+3. In the GitHub repository settings, create the `npm` environment. Required reviewers there make
+   every publish wait for a manual approval.
+
+Publishing fails with an authentication error when either side is missing or names a different
+workflow or environment. The `id-token: write` permission in the workflow is what lets the job ask
+for that identity.
 
 The site deploy on `main` reruns the visual gates and writes the current commit's reports into
 `site/_data/` before building, so `/accessibility/` and `/performance/` always show the deployed

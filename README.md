@@ -67,37 +67,35 @@ A page picks a layout with `layout` in its front matter, or gets one from `defau
 | --- | --- |
 | `base` | The document shell: `<head>`, skip link, theme script, and slots for the header, sidebar, main column, aside, and footer. The other layouts build on it; a page does not name it. |
 | `doc` | The docs page: header, sidebar, breadcrumb, article, table of contents, pager, and page footer. Front matter `status`, `since`, and `replaced_by` add the page-status banner. |
-| `home` | The docs home: a hero, action buttons, and section cards from `hero`, `actions`, and `sections` in front matter. |
+| `home` | The docs home: a hero, action buttons, and section cards from `hero`, `actions`, and `sections` in front matter. `home: { style: showpiece }` composes it from the showpiece sections instead. |
 | `not-found` | The 404 page, with a search form and links to the home page and the top-level sections. |
 | `versions` | The versions index: a page's versions from `site.data.docsVersions` or the `versions` front matter key, each row linked to the same page when it exists and marked with Latest, Deprecated, or Dev in text. |
+| `record` | One data record: title, summary, facts, status, body sections, history, calendar, and its source position. |
+| `list` | A collection index as a table, cards, or a dated list, with groups, counts, pagination, and an empty note. |
+| `post` | A blog post in the docs shell; the engine also writes the archive, one page per author, and a feed. |
+| `api-reference`, `api-reference-index` | One OpenAPI operation, and the reference index, from a pinned document. |
+| `gallery` | A collection as a card grid with facet filters, a sort choice, and an optional "add yours" card. |
+| `guide` | A task page with a summary bar, status, reading time, and related guides. |
+| `embedded` | A chrome-free view of one record for an iframe, with a full-page link, no script, and `noindex`. |
 
 Each layout is `layouts/<name>.ts`; the rules for adding one are in [layouts/README.md](layouts/README.md).
 
 ## Components
 
-Components are the pieces pages use inside their content. Each name is its folder under `components/` and, where the table shows a directive, the syntax the Markdown writes.
+Components are the pieces pages use inside their content. Each unit is its folder under `components/`; the table groups them by what a page uses them for.
 
 | Component | What it does | Reference |
 | --- | --- | --- |
-| `badge` | A small inline label for a version or status (`:badge[New]{variant=tip}`). | [Badge](https://velella.sh/lateen/components/badge/) |
-| `callout` | A note, tip, important, warning, or caution (`:::callout{type=warning}`, and GitHub alert syntax). | [Callout](https://velella.sh/lateen/components/callout/) |
-| `cards` | A responsive grid of linked cards. | [Cards](https://velella.sh/lateen/components/cards/) |
-| `code` | Fenced code highlighted at build time with Shiki in light and dark, with a copy button. | [Code](https://velella.sh/lateen/components/code/) |
-| `code-tabs` | The same example in several languages or package managers, as tabs that stack without JavaScript (`:::code-tabs`). | [Code tabs](https://velella.sh/lateen/components/code-tabs/) |
-| `details` | A native disclosure that starts closed unless given `open` (`:::details{summary="…"}`). | [Details](https://velella.sh/lateen/components/details/) |
-| `embed` | A lazy iframe that requests nothing from the provider until it loads (`::embed{src="…" title="…"}`). | [Embed](https://velella.sh/lateen/components/embed/) |
-| `endpoint` | An API endpoint: method, path with parameters, parameter list, and body (`:::endpoint`). | [Endpoint](https://velella.sh/lateen/components/endpoint/) |
-| `figure` | A responsive image with alt text, an optional caption, and an optional credit (`:::figure{src="…"}`). | [Figure](https://velella.sh/lateen/components/figure/) |
-| `file-tree` | A nested Markdown list drawn as a folder tree (`:::file-tree`). | [File tree](https://velella.sh/lateen/components/file-tree/) |
-| `heading-anchor` | Adds a link icon to every h2 to h4; automatic on rendered pages. | [Heading anchor](https://velella.sh/lateen/components/heading-anchor/) |
-| `kbd` | A keyboard key or combination (`:kbd[Ctrl+K]`). | [Kbd](https://velella.sh/lateen/components/kbd/) |
-| `page-status` | An experimental, beta, or deprecated banner from `status`, `since`, and `replaced_by` in front matter. | [Page status](https://velella.sh/lateen/components/page-status/) |
-| `schema-table` | A JSON Schema from `_data` as a table of properties, types, defaults, and descriptions (`::schema-table{data="widget"}`). | [Schema table](https://velella.sh/lateen/components/schema-table/) |
-| `steps` | A numbered sequence, wrapped around an ordered list (`:::steps`). | [Steps](https://velella.sh/lateen/components/steps/) |
-| `table` | Wraps every Markdown table in a labelled scroll region; automatic on rendered pages. | [Table](https://velella.sh/lateen/components/table/) |
-| `terminal` | A shell session where a line starting with `$` is a command and the rest is output (`:::terminal`). | [Terminal](https://velella.sh/lateen/components/terminal/) |
+| Data views | `timeline`, `compare`, `data-explorer`, `dated-list`, `charts`, `gallery`, `record-history`, `stale-notice`, `add-to-calendar`, and related guides. | [Timeline](https://velella.sh/lateen/components/timeline/), [Compare](https://velella.sh/lateen/components/compare/), [Data explorer](https://velella.sh/lateen/components/data-explorer/), [Dated list](https://velella.sh/lateen/components/dated-list/), [Charts](https://velella.sh/lateen/components/charts/), [Gallery](https://velella.sh/lateen/components/gallery/), [Record history](https://velella.sh/lateen/components/record-history/), [Stale notice](https://velella.sh/lateen/components/stale-notice/), [Add to calendar](https://velella.sh/lateen/components/add-to-calendar/) |
+| Status and evidence | `status` and `status-legend`, `trust-panel`, `drift-banner`, `tested-chip`, `status-banner`, and the accessibility, performance, and WCAG reports. | [Status](https://velella.sh/lateen/components/status/), [Trust panel](https://velella.sh/lateen/components/trust-panel/), [Drift banner](https://velella.sh/lateen/components/drift-banner/), [Tested chip](https://velella.sh/lateen/components/tested-chip/), [Reports](https://velella.sh/lateen/components/reports/) |
+| Commands and install | `install-tabs`, `os-tabs`, `cli-demo`, `terminal`, and `output-block`, all plain text that copies without JavaScript. | [CLI demo](https://velella.sh/lateen/components/cli-demo/), [Terminal](https://velella.sh/lateen/components/terminal/), [OS tabs](https://velella.sh/lateen/components/os-tabs/), [Output block](https://velella.sh/lateen/components/output-block/) |
+| Code and diffs | `code` and code annotations, `code-tabs`, `mermaid`, `diff-block`, and version badges and diffs. | [Code](https://velella.sh/lateen/components/code/), [Code tabs](https://velella.sh/lateen/components/code-tabs/), [Mermaid](https://velella.sh/lateen/components/mermaid/), [Diff block](https://velella.sh/lateen/components/diff-block/) |
+| Embeds and media | `embed`, `embed-code`, `figure`, and `video`. | [Embed](https://velella.sh/lateen/components/embed/), [Embed code](https://velella.sh/lateen/components/embed-code/), [Figure](https://velella.sh/lateen/components/figure/), [Video](https://velella.sh/lateen/components/video/) |
+| Glossary and terms | `glossary` lists every term, and an inline term opens its definition in place. | [Glossary](https://velella.sh/lateen/components/glossary/) |
+| Page tools and prose | `callout`, `cards`, `link-card`, `details`, `steps`, `tabs`, `table`, `key-value`, `file-tree`, `tags`, `kbd`, `badge`, `reading-time`, `changelog-entry`, and `variables-form`. | [Callout](https://velella.sh/lateen/components/callout/), [Cards](https://velella.sh/lateen/components/cards/), [Steps](https://velella.sh/lateen/components/steps/), [Key-value list](https://velella.sh/lateen/components/key-value/), [Tabs](https://velella.sh/lateen/components/tabs/), [Variables form](https://velella.sh/lateen/components/variables-form/) |
+| Showpiece home | `hero`, `backdrop`, `motif`, `stat-strip`, `feature-grid`, `frame`, `cta-band`, and `preset-preview`. | [Showpiece](https://velella.sh/lateen/showpiece/) |
 
-Each reference page has the syntax, every option, and a live example, and is built with the docs site.
+The component reference lists every unit with its syntax, every option, and a live example.
 
 ## Tokens
 
@@ -149,6 +147,13 @@ theme:
 | `gallery.addCard` | The site's own card at the end of a gallery: a `label` and a `link`. The card keeps the record cards' shape and gets the site's `base`; a blank label or an unsafe link renders nothing, and the option itself is optional. |
 | `pageAgent.providers[]` | The "Use with an agent" menu. Each provider has a `title` and a `url`; `{markdown}`, `{url}`, and `{title}` are filled per page. Without the block the menu offers Claude, ChatGPT, and Cursor. |
 | `feedback.endpoint` | The address the "Was this page helpful?" buttons POST `{url, helpful}` to. Without the block the feedback widget renders nothing. |
+| `favicon.ico`, `favicon.svg`, `favicon.apple` | The icon links, each a path from the site root. |
+| `installTabs.managers[]` | The package managers the install tabs offer, each with a `name` and a `command`; `{package}` becomes the package name. |
+| `network.switcher`, `network.footer`, `network.position` | Show or hide the project switcher and network footer, and place the switcher in the header or above the footer. |
+| `reportIssue` | The report-an-issue link for this site's tracker: `false` turns it off; an `url` template, `labels`, `template`, and `titlePrefix` customise the new issue. The link falls back to `repository.url`. |
+| `sourceMode.editor` | A URL template that opens a block in a local editor; it needs `{path}` and may use `{line}` and `{column}`. |
+| `status.values` | The site's map from a data value to a `tone`, a `label` (one string or one per language), and the legend's `description`. An unmapped value shows as written in the neutral tone. |
+| `glossary.collection`, `glossary.page` | The data collection with `term`, `definition`, and `aliases`, and the page that carries `::glossary` (one address per language allowed). |
 
 ## Add a component
 

@@ -1,1 +1,0 @@
-- Theme overrides: a site replaces a component or a layout by name under `theme.overrides`, with paths resolved inside the site root, CSS sidecars, and fail-closed diagnostics; `test/overrides/fixtures/` builds it and `test/overrides/acceptance.test.ts` checks the markup, CSS and base path (#591, #592, #593, #589).

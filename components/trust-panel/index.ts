@@ -2,6 +2,7 @@ import { h } from "preact";
 import type { Component, Page, Site, SiteConfig } from "@velella/mizzen/contracts";
 import { t } from "../../i18n/index.ts";
 import { calendarDate } from "../../src/dates.ts";
+import { optionOf } from "../../src/options.ts";
 import { examplesAttrs, examplesClassName, examplesFor, examplesText } from "./examples.ts";
 
 export {
@@ -365,7 +366,7 @@ export function explanationOf(lang: string, state: TrustLevel, reasons: readonly
 
 /** The `theme.options.trust` block, or undefined when the site has none. */
 function trustOptions(config: SiteConfig | undefined): TrustOptions | undefined {
-  const options = config?.theme.options?.trust;
+  const options = optionOf(config?.theme?.options, "trust");
   return isRecord(options) ? (options as TrustOptions) : undefined;
 }
 

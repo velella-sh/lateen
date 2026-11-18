@@ -17,15 +17,41 @@ npm install --silent --no-audit --no-fund "$work"/tar/velella-lateen-*.tgz preac
 
 cp -R "$lateen/site" site
 rm -rf site/.mizzen
-node -e '
-  const fs = require("node:fs");
-  const text = fs.readFileSync("site/mizzen.yml", "utf8");
-  fs.writeFileSync("site/mizzen.yml", text.replace(/^theme:$/m, "theme:\n  name: \"@velella/lateen\""));
-'
+
+# One site per shape: the docs site, the data fixture, and a starter the package ships. Each is
+# content only: the theme comes from node_modules.
+teamed=("site" "data-site")
+cp -R "$lateen/fixtures/data-site" data-site
+rm -rf data-site/.mizzen
+for dir in "${teamed[@]}"; do
+  node -e '
+    const fs = require("node:fs");
+    const file = process.argv[1] + "/mizzen.yml";
+    const text = fs.readFileSync(file, "utf8");
+    const theme = "theme:\n  name: \"@velella/lateen\"";
+    fs.writeFileSync(file, /^theme:$/m.test(text) ? text.replace(/^theme:$/m, theme) : `${theme}\n${text}`);
+  ' "$dir"
+done
 
 npx mizzen build site --out out
 test -s out/index.html
 grep -q 'class="mermaid-diagram"' out/components/mermaid/index.html
+
+npx mizzen build data-site --out out-data
+test -s out-data/index.html
+test -s out-data/components/button/index.html
+
+npx mizzen init starter --theme node_modules/@velella/lateen --starter docs
+npx mizzen build starter --out out-starter
+test -s out-starter/index.html
+
+# A unit's file that the tarball leaves out fails here, not in a reader's build.
+for path in layouts/doc.ts components/code/index.ts styles/base.css i18n/en.json tokens/presets/harbor.json skills/lateen/SKILL.md starters/docs/starter.json visual/index.ts schema/options.schema.json; do
+  test -s "node_modules/@velella/lateen/$path" || {
+    echo "the package omits $path" >&2
+    exit 1
+  }
+done
 
 # The site tool (#505) is in the tarball and asks for its optional peer when Playwright is absent.
 # Node does not strip types under node_modules; Mizzen registers the same hook for the theme's sources.

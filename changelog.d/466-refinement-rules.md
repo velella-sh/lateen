@@ -1,1 +1,0 @@
-- Refinement rules and audit: `docs/design/refinement.md` fixes the radius, border, shadow, motion and type rules and lists the rough spots the `refinement` epic (#465) fixes (#466).

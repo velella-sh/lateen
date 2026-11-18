@@ -1,1 +1,0 @@
-- Visual gates: `npm run test:visual` runs in-page layout checks after each screenshot (horizontal overflow, clipped text, controls under 24 by 24 CSS pixels, prose lines outside `measure-min`/`measure-max`) and prints each finding with page, selector and viewport; exceptions need a reason in `scripts/visual-checks.ts` (#501).
