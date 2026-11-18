@@ -40,6 +40,8 @@ export type CardProps = {
   description?: string;
   /** Decorative (for example an inline SVG); hidden from assistive technology. */
   icon?: ComponentChildren;
+  /** An extra class on the card, for a caller that must mark this one apart. */
+  class?: string;
 };
 
 /**
@@ -48,10 +50,11 @@ export type CardProps = {
  * non-interactive content instead: a malformed card never becomes an executable `javascript:`
  * navigation or an unnamed anchor, and any retained text stays readable without JavaScript.
  */
-export function card({ href, title, description, icon }: CardProps) {
+export function card({ href, title, description, icon, class: extra }: CardProps) {
   const safeHref = hrefOf(href);
   const heading = textOf(title);
   const body = textOf(description);
+  const className = extra === undefined || extra.trim() === "" ? CARD_CLASS : `${CARD_CLASS} ${extra.trim()}`;
 
   const parts: ComponentChildren[] = [
     icon == null ? null : h("span", { class: "card-icon", "aria-hidden": "true" }, icon),
@@ -60,7 +63,7 @@ export function card({ href, title, description, icon }: CardProps) {
   ];
 
   if (safeHref === undefined || heading === undefined) {
-    return h("div", { class: CARD_CLASS }, ...parts);
+    return h("div", { class: className }, ...parts);
   }
-  return h("a", { class: CARD_CLASS, href: safeHref }, ...parts);
+  return h("a", { class: className, href: safeHref }, ...parts);
 }

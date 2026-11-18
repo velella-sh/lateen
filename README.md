@@ -125,6 +125,10 @@ theme:
       links:
         - title: Source
           url: https://github.com/example/site
+    gallery:
+      addCard:
+        label: Add your project
+        link: /gallery/new/
     pageAgent:
       providers:
         - title: Claude
@@ -140,6 +144,7 @@ theme:
 | `logo.light`, `logo.dark` | The header mark. A root-relative path gets the site's `base`; an absolute URL is used as written. With both, the header swaps them with the theme; with one, it shows that one in both modes. |
 | `footer.copyright`, `footer.license` | The two lines of the site footer. |
 | `footer.links[]` | Footer links with `title` and `url`; only `http`, `https`, `mailto`, and root-relative paths are shown. |
+| `gallery.addCard` | The site's own card at the end of a gallery: a `label` and a `link`. The card keeps the record cards' shape and gets the site's `base`; a blank label or an unsafe link renders nothing, and the option itself is optional. |
 | `pageAgent.providers[]` | The "Use with an agent" menu. Each provider has a `title` and a `url`; `{markdown}`, `{url}`, and `{title}` are filled per page. Without the block the menu offers Claude, ChatGPT, and Cursor. |
 | `feedback.endpoint` | The address the "Was this page helpful?" buttons POST `{url, helpful}` to. Without the block the feedback widget renders nothing. |
 
