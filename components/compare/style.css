@@ -177,3 +177,33 @@
     white-space: normal;
   }
 }
+
+/* Copy: the island reveals the button; the copied table is the visible rows, so a differences-only
+   view copies only the differences. */
+.compare-copy {
+  min-block-size: 2.5rem;
+  padding-block: var(--space-1, 0.25rem);
+  padding-inline: var(--space-2, 0.5rem);
+  border: thin solid var(--color-border);
+  border-radius: var(--radius-sm, 0.25rem);
+  background-color: var(--color-surface);
+  color: var(--color-heading);
+  font: inherit;
+  font-size: var(--font-size-sm, 0.875rem);
+  cursor: pointer;
+}
+
+.compare-copy:hover {
+  background-color: var(--state-hover-bg);
+}
+
+.compare-copy:focus-visible {
+  outline: 2px solid var(--state-focus-ring);
+  outline-offset: 2px;
+}
+
+.compare-copy-status {
+  margin: 0;
+  color: var(--color-muted);
+  font-size: var(--font-size-sm, 0.875rem);
+}

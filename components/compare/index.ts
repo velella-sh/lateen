@@ -40,6 +40,12 @@ export const TOGGLE_CLASS = "compare-only-diff";
 /** Class on the live region announcing how many rows show. */
 export const STATUS_CLASS = "compare-status";
 
+/** Class on the button that copies the comparison as a Markdown table; it starts `hidden`. */
+export const COPY_CLASS = "compare-copy";
+
+/** Class on the live region announcing the copy's result. */
+export const COPY_STATUS_CLASS = "compare-copy-status";
+
 /** Class on the row of record tabs the island draws in a narrow container. */
 export const TABS_CLASS = "compare-tabs";
 
@@ -242,6 +248,17 @@ export default function compare({ props, page, site }: ComponentProps<Readonly<R
         },
         t(lang, "compare_rows_shown", { count: fields.length, total: fields.length }),
       ),
+      h(
+        "button",
+        { type: "button", class: COPY_CLASS, "data-compare-copy": "", hidden: true },
+        t(lang, "compare_copy"),
+      ),
+      h("span", {
+        class: COPY_STATUS_CLASS,
+        role: "status",
+        "aria-live": "polite",
+        "aria-atomic": "true",
+      }),
     ),
     h(
       "div",
