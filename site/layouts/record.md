@@ -75,7 +75,7 @@ Each item under `facts` is one row of the panel.
 | `label` | string | The term in the panel; it is also the name in the fact's report link. |
 | `kind` | string | How the value is shown. Absent or unknown values read as text. |
 
-An entry with no field, no label, or a field the record does not have is skipped, so a stale template loses one row rather than breaking the page.
+An entry with no field, no label, or a field the record does not have is skipped, so a stale template loses one row rather than breaking the page. A field named `derived.<name>` reads the value the collection's derived rules computed.
 
 ## Fact kinds
 
@@ -90,6 +90,7 @@ A field is shown by its kind. The default is `text`; `status` reads the site's s
 | `url` | A site path or an `https` link; anything else reads as text. |
 | `list` | A list of values. |
 | `status` | A badge from the site's `theme.options.status.values` map. |
+| `days` | A signed day count from `derived`, as "N days left", "today", or "N days ago". |
 
 ## The facts panel
 

@@ -14,6 +14,7 @@ const LAYOUT_COMPONENTS: Readonly<Record<string, string>> = {
   "drift-banner": ".drift-banner",
   "page-status": ".page-status",
   "record-history": ".record-history",
+  "stale-notice": ".stale-notice",
   "reading-time": ".reading-time",
   "trust-panel": ".trust-panel",
 };
