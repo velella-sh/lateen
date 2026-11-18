@@ -23,6 +23,17 @@ export const LINK_CLASS = "report-issue-link";
 /** The placeholders a custom `url` template may use. */
 export const PLACEHOLDERS = ["title", "body", "url", "source", "lang", "version"] as const;
 
+/** Every config value the report link reads, in the order the docs page lists them. */
+export const REPORT_ISSUE_OPTIONS = [
+  "repository.url",
+  "repository.branch",
+  "theme.options.reportIssue",
+  "theme.options.reportIssue.template",
+  "theme.options.reportIssue.labels",
+  "theme.options.reportIssue.titlePrefix",
+  "theme.options.reportIssue.url",
+] as const;
+
 /** True for a plain object, never an array or `null`. */
 function isRecord(value: unknown): value is Record<string, unknown> {
   return typeof value === "object" && value !== null && !Array.isArray(value);

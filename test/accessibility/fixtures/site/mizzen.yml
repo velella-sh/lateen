@@ -5,6 +5,9 @@ description: Representative pages for the accessibility gate.
 lang: en
 url: https://example.com
 base: ""
+repository:
+  url: https://github.com/example/example-site
+  branch: main
 collections:
   timeline:
     source: _data/a11y-timeline.json

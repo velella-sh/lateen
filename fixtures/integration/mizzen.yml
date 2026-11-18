@@ -39,6 +39,8 @@ collections:
       sort: [title, published]
 theme:
   options:
+    reportIssue:
+      url: "https://tracker.example/new?title={title}&body={body}"
     status:
       values:
         done: { tone: positive, label: Done, description: Shipped and released. }

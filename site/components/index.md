@@ -62,6 +62,7 @@ The theme's own look is set with the [Brand options](/brand-options/); the shipp
 | [Page status](./page-status/) | An experimental, beta, or deprecated banner from front matter. |
 | [Preset preview](./preset-preview/) | One preset of the theme in its own scoped block, with the options to copy. |
 | [Reading time](./reading-time/) | A chip under the title with the page's reading time and word count. |
+| [Report issue](./report-issue/) | A prefilled link that opens an issue for the current page. |
 | [Reports](./reports/) | An accessibility report, a performance budget, and the WCAG checklist, from site data. |
 | [Schema table](./schema-table/) | A JSON Schema from `_data` as a table of properties. |
 | [Status](./status/) | A short status label with a tone and icon, and a legend of the site's status values. |

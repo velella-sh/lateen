@@ -417,12 +417,19 @@ test("the current project keeps a visible edge when colour is replaced", () => {
   assert.match(rules, /border:\s*solid ButtonText/);
 });
 
+<<<<<<< HEAD
 test("source mode keeps its controls and label actions readable in forced colors", () => {
   const text = read("../chrome/source-mode/style.css");
   const rules = text.slice(text.indexOf("@media (forced-colors: active)"));
   assert.match(rules, /\.source-mode-button,[\s\S]*?border-color:\s*ButtonText/);
   assert.match(rules, /\.source-mode-button\[aria-pressed="true"\][\s\S]*?border-color:\s*Highlight/);
   assert.match(rules, /\.source-label-copy,[\s\S]*?color:\s*LinkText/);
+=======
+test("the shared high-contrast link rule covers the report link", () => {
+  assert.match(css, /:where\(a\)\s*\{[^}]*color:\s*LinkText\s*!important/);
+  const report = read("../chrome/report-issue/style.css");
+  assert.doesNotMatch(report, /@media\s*\(forced-colors/);
+>>>>>>> 560a54a (report-issue: gate and document the report link (#318, #319))
 });
 
 test("the comparison keeps its difference and controls visible in forced colors", () => {

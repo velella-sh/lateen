@@ -306,6 +306,7 @@ test("only the @page rule uses a physical length", () => {
   assert.deepEqual(raw, []);
 });
 
+<<<<<<< HEAD
 test("the comparison prints every record and shows the difference without its tabs", () => {
   const text = read("../components/compare/style.css");
   const print = text.slice(text.indexOf("@media print"));
@@ -313,6 +314,12 @@ test("the comparison prints every record and shows the difference without its ta
   assert.match(print, /\[data-compare-column\]\[hidden\][^{]*\{[^}]*display:\s*table-cell/);
   assert.match(print, /\.compare \.table-scroll\s*\{[^}]*max-block-size:\s*none/);
   assert.match(print, /\.compare-diff-marker\s*\{[^}]*position:\s*static/);
+=======
+test("the report link prints nowhere", () => {
+  const report = read("../chrome/report-issue/style.css");
+  assert.match(report.slice(report.indexOf("@media print")), /\.report-issue\s*\{[^}]*display:\s*none/);
+  assert.ok(hiddenSelectors(printBody(css)).has(".page-footer"), "the page footer with the link still prints");
+>>>>>>> addb3b3 (report-issue: gate and document the report link (#318, #319))
 });
 
 test("the report components print at page width, keep rows whole, and drop the decorative bar", () => {
