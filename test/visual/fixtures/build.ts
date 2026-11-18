@@ -37,6 +37,8 @@ export function stageFixture(dir: string): string {
   for (const page of PAGES) {
     link(join(page.from === "gallery" ? GALLERY_SITE : A11Y_SITE, page.file), join(dir, page.file));
   }
+  // The gallery layout has no directive of its own, so its state shots need a page that uses it.
+  link(join(GALLERY_SITE, "gallery-layout.md"), join(dir, "gallery-layout.md"));
   for (const entry of readdirSync(GALLERY_SITE, { withFileTypes: true })) {
     if (entry.isDirectory() && GALLERY_FOLDERS.includes(entry.name)) link(join(GALLERY_SITE, entry.name), join(dir, entry.name));
   }

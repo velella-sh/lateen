@@ -119,7 +119,8 @@
         "hover",
         "focus",
         "pressed"
-      ]
+      ],
+      "page": "/gallery-layout/"
     },
     {
       "name": "install-tabs",

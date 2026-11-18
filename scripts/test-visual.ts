@@ -57,6 +57,8 @@ export interface StateEntry {
   readonly selector: string;
   /** The states this control really has; a summary or a link cannot be disabled. */
   readonly states: readonly InteractionState[];
+  /** The page of the fixture that shows this component, when the gallery page cannot. */
+  readonly page?: string;
   /** The keyboard target when it is not the control the shot is framed on, such as a hidden radio. */
   readonly focusSelector?: string;
   /** The element whose own `disabled` state is set, when it is not the framed control. */
@@ -181,8 +183,9 @@ export async function captureStates(
   mkdirSync(dir, { recursive: true });
   const written: string[] = [];
   for (const entry of states.components) {
+    const at = entry.page === undefined ? url : new URL(entry.page, url).toString();
     for (const state of entry.states) {
-      await prepare(page, url);
+      await prepare(page, at);
       const action = state === "focus" ? entry.focusSelector ?? entry.selector : state === "disabled" ? entry.disabledSelector ?? entry.selector : entry.selector;
       await applyState(page, action, state);
       const file = join(dir, `${entry.name}-${state}.png`);
