@@ -18,8 +18,8 @@ function render(value: unknown, kind: unknown = "text", lang = "en"): string {
   return renderToString(formatField(value, kind, lang, config) as never);
 }
 
-test("there are seven kinds and an unknown kind is text", () => {
-  assert.deepEqual([...FIELD_KINDS], ["text", "number", "boolean", "date", "url", "list", "status"]);
+test("there are eight kinds and an unknown kind is text", () => {
+  assert.deepEqual([...FIELD_KINDS], ["text", "number", "boolean", "date", "url", "list", "status", "days"]);
   assert.equal(kindOf("date"), "date");
   assert.equal(kindOf("nope"), "text");
   assert.equal(kindOf(3), "text");
