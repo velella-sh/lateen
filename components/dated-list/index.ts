@@ -5,6 +5,7 @@ import { t } from "../../i18n/index.ts";
 import { calendarDate, calendarMonth, calendarYear, type CalendarMonth } from "../../src/dates.ts";
 import { formatField, isEmpty } from "../../src/fields.ts";
 import { selectRecords } from "../../src/records.ts";
+import { feed } from "../../icons/index.ts";
 
 /** The Markdown directive this component handles: `::dated-list{from="posts"}`. */
 export const directive = "dated-list";
@@ -45,6 +46,9 @@ export const EMPTY_CLASS = "dated-list-empty";
 /** Class on the note counting the records the range leaves out. */
 export const OUTSIDE_CLASS = "dated-list-outside";
 
+/** Class on the line holding the feed and calendar links. */
+export const ACTIONS_CLASS = "dated-list-actions";
+
 /** Props from the directive or the page's front matter. */
 export type DatedListProps = {
   /** The collection to read; required unless `items` is given. */
@@ -67,6 +71,10 @@ export type DatedListProps = {
   start?: string;
   /** How many months the range covers, counting the month of `start`; ignored without `start`. */
   months?: string | number;
+  /** Address of a feed of the same records, such as `/posts/feed.xml`; shown as a Subscribe link. */
+  feed?: string;
+  /** Address of an iCalendar file for the same records; shown as an Add to calendar link. */
+  calendar?: string;
 };
 
 /** One row as the directive or a record writes it. */
@@ -226,6 +234,9 @@ export default function datedList({ props, page, site }: ComponentProps<Readonly
   const dateField = typeof input.date === "string" && input.date.trim() !== "" ? input.date.trim() : "date";
   const statusField = typeof input.status === "string" ? input.status.trim() : "";
   const from = typeof input.from === "string" ? input.from.trim() : "";
+  const feedUrl = typeof input.feed === "string" && SAFE_URL.test(input.feed.trim()) ? input.feed.trim() : "";
+  const calendarUrl =
+    typeof input.calendar === "string" && SAFE_URL.test(input.calendar.trim()) ? input.calendar.trim() : "";
 
   let rows: Row[] | undefined;
   if (from !== "") {
@@ -382,11 +393,27 @@ export default function datedList({ props, page, site }: ComponentProps<Readonly
     );
   }
 
+  const actions: ComponentChildren[] = [];
+  if (feedUrl !== "") {
+    actions.push(
+      h(
+        "a",
+        { class: "dated-list-action", href: feedUrl },
+        h("span", { class: "dated-list-icon", "aria-hidden": "true", dangerouslySetInnerHTML: { __html: feed } }),
+        t(lang, "dated_list_feed"),
+      ),
+    );
+  }
+  if (calendarUrl !== "") {
+    actions.push(h("a", { class: "dated-list-action", href: calendarUrl }, t(lang, "dated_list_calendar")));
+  }
+
   if (output.length === 0) return null;
   return h(
     "div",
     { class: LIST_CLASS, [LIST_ATTRIBUTE]: "", "data-lang": lang },
     h("p", { class: JUMP_CLASS, [JUMP_ATTRIBUTE]: "", "data-label": t(lang, "dated_list_jump"), hidden: true }),
+    actions.length === 0 ? null : h("p", { class: ACTIONS_CLASS }, ...actions),
     ...output,
   );
 }
