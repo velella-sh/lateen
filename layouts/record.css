@@ -146,3 +146,24 @@
     grid-template-columns: minmax(0, 1fr);
   }
 }
+
+/* A fact row is one key and its value: printing never splits the pair, and the report link is a
+   screen control, so it leaves the page. */
+@media print {
+  .key-value > dt,
+  .key-value > dd {
+    break-inside: avoid;
+  }
+
+  .record-fact-report {
+    display: none;
+  }
+}
+
+/* Forced colours replace the accent the link relies on: the underline names it without colour. */
+@media (forced-colors: active) {
+  .record-fact-report {
+    color: LinkText;
+    text-decoration: underline;
+  }
+}

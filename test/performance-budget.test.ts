@@ -425,6 +425,10 @@ test("the committed budget covers every fixture route and asset class", () => {
   assert.deepEqual(Object.keys(budget.routes).sort(), [
     "/alpha/",
     "/alpha/books/",
+    "/alpha/books/alpha/",
+    "/alpha/books/beta/",
+    "/alpha/books/delta/",
+    "/alpha/books/gamma/",
     "/alpha/cli-demo/",
     "/alpha/guide/",
     "/alpha/guide/upgrade/",

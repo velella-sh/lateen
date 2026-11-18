@@ -461,6 +461,18 @@ test("refined component styles use logical properties and known tokens (light, d
   }
 });
 
+test("the record layout places its columns with logical properties and known tokens (RTL safe)", () => {
+  const known = new Set([...tokensCss.matchAll(/(--[a-z0-9-]+)\s*:/g)].map((m) => m[1]));
+  const text = stripComments(read("../layouts/record.css"));
+  const local = new Set([...text.matchAll(/(--[a-z0-9-]+)\s*:/g)].map((m) => m[1]));
+
+  assert.doesNotMatch(text, /\b(?:margin|padding|border)-(?:left|right)\b|(?:^|[\s;{])(?:left|right)\s*:/m);
+  for (const m of text.matchAll(/var\((--[a-z0-9-]+)/g)) {
+    const name = m[1] ?? "";
+    assert.ok(known.has(name) || local.has(name), `unknown token ${name}`);
+  }
+});
+
 test("table header sticks, rows divide with a hairline, numbers align to the end, and hover is a tint only", () => {
   const table = stripComments(read("../components/table/style.css"));
   assert.match(table, /\.table-scroll th \{[^}]*position: sticky;[^}]*inset-block-start: 0/);

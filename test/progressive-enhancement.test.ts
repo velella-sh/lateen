@@ -51,6 +51,19 @@ test("the list layout draws the whole record table before its island runs", () =
   assert.ok(sorts.every((button) => button.hidden), "the sort buttons wait for the island");
 });
 
+test("the record layout states the record before its islands run", () => {
+  const page = site.document("/books/alpha/");
+  const article = page.querySelector("article.record");
+  assert.ok(article, "the record layout renders its article");
+  const text = textOf(article);
+  for (const expected of ["Alpha", "Id", "alpha", "Author", "Ada", "Published", "January 12, 2026"]) {
+    assert.ok(text.includes(expected), `the server-rendered record contains ${JSON.stringify(expected)}`);
+  }
+  assert.equal(all(page, ".key-value dt").length, 3, "every front-matter fact renders");
+  assert.equal(all(page, ".key-value dd").length, 3);
+  assert.equal(all(page, "article.record h1").length, 1, "the title stays one heading");
+});
+
 test("the guide layout and its components read before their islands run", () => {
   const page = site.document("/guide/start/");
   const article = page.querySelector("article.guide");
