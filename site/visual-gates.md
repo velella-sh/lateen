@@ -27,9 +27,7 @@ compares each image. `check:design` checks the tokens and layout independently o
 CI `visual` job runs both on `ubuntu-24.04`.
 
 The same run checks every page for horizontal overflow, clipped text and controls smaller than 24 by
-24 CSS pixels, and prints each finding with its page, selector and matrix entry. Until the theme's
-existing small targets are fixed (#601), the findings are reported but do not fail the job; set
-`VISUAL_CHECKS=strict` to make them gate again.
+24 CSS pixels, and fails with each finding's page, selector and matrix entry.
 
 ## Read a diff
 

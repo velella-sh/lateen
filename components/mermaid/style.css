@@ -102,6 +102,7 @@
 
 .mermaid-source summary {
   cursor: pointer;
+  padding-block: var(--space-1);
   color: var(--color-muted);
   font-family: var(--type-font-ui);
   font-size: var(--type-size-sm);

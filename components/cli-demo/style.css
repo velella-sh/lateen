@@ -30,6 +30,7 @@
 }
 
 .cli-demo-button {
+  min-block-size: 1.5rem;
   padding-block: 0;
   padding-inline: var(--space-2);
   font: inherit;

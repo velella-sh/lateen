@@ -64,7 +64,8 @@
 .status-banner-replacement {
   display: inline-flex;
   gap: var(--space-1);
-  align-items: baseline;
+  align-items: center;
+  min-block-size: 1.5rem;
 }
 
 .status-banner-version-label {

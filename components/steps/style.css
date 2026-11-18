@@ -58,8 +58,8 @@
 }
 
 .step-tick input {
-  inline-size: var(--space-4);
-  block-size: var(--space-4);
+  inline-size: 1.5rem;
+  block-size: 1.5rem;
   accent-color: var(--color-accent);
 }
 
