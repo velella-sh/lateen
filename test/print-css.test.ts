@@ -362,6 +362,15 @@ test("a timeline row keeps its dates and its bar on one printed page", () => {
   assert.match(print, /\.timeline \.table tr\s*\{[^}]*break-inside:\s*avoid/);
 });
 
+test("charts print whole, with their data tables opened by the print stylesheet", () => {
+  for (const unit of ["bar-chart", "line-chart"]) {
+    const text = read(`../components/${unit}/style.css`);
+    assert.match(text, new RegExp(`\\.${unit} \\{[^}]*break-inside:\\s*avoid`), unit);
+  }
+  assert.match(read("../components/chart-data/style.css"), /\.chart-data-table/);
+  assert.match(read("../styles/print.css"), /details:not\(\[open\]\) > :not\(summary\)\s*\{[^}]*display:\s*block !important/);
+});
+
 test("the guide layout's components print whole and drop their copy controls", () => {
   for (const unit of ["guide-summary", "related-guides", "steps", "trap", "check-list", "before-after"]) {
     const text = read(`../components/${unit}/style.css`);

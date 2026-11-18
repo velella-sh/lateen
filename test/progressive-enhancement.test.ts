@@ -77,6 +77,24 @@ test("the timeline draws its rows and bars before its island runs", () => {
   assert.ok(page.querySelector(".timeline-axis .timeline-tick"), "the axis is in the markup");
 });
 
+test("charts and their data tables read before any island runs", () => {
+  const page = site.document("/charts/");
+  const article = page.querySelector("article");
+  assert.ok(article, "the doc layout renders its article");
+  const text = textOf(article);
+  for (const expected of ["Users by quarter", "Q1", "Users by month", "north"]) {
+    assert.ok(text.includes(expected), `the server-rendered charts contain ${JSON.stringify(expected)}`);
+  }
+
+  assert.equal(all(page, ".bar-chart svg[role=\"img\"]").length, 1);
+  assert.equal(all(page, ".line-chart svg[role=\"img\"]").length, 1);
+  const data = page.querySelector(".chart-data") as HTMLDetailsElement;
+  assert.ok(data, "the bar chart carries its data table");
+  assert.equal(data.open, false, "the table waits for a click, not a script");
+  assert.equal(all(page, ".chart-data-table tbody tr").length, 4);
+  assert.equal(all(page, ".line-chart-table tbody tr").length, 5);
+});
+
 test("the guide layout and its components read before their islands run", () => {
   const page = site.document("/guide/start/");
   const article = page.querySelector("article.guide");

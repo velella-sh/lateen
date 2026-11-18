@@ -351,6 +351,22 @@ test("a timeline keeps its bars and axis when colour is replaced", () => {
   assert.match(rules, /\.timeline-axis,[\s\S]*?color:\s*CanvasText/);
 });
 
+test("charts keep their marks and the data table's edge when colour is replaced", () => {
+  const bar = read("../components/bar-chart/style.css");
+  const barRules = bar.slice(bar.indexOf("@media (forced-colors: active)"));
+  assert.match(barRules, /\.bar-chart-bar\s*\{[^}]*fill:\s*CanvasText/);
+  assert.match(barRules, /\.bar-chart-axis,[\s\S]*?stroke:\s*CanvasText/);
+
+  const line = read("../components/line-chart/style.css");
+  const lineRules = line.slice(line.indexOf("@media (forced-colors: active)"));
+  assert.match(lineRules, /\.line-chart-line,[\s\S]*?stroke:\s*CanvasText/);
+  assert.match(lineRules, /\.line-chart-point,[\s\S]*?fill:\s*CanvasText/);
+
+  const data = read("../components/chart-data/style.css");
+  const dataRules = data.slice(data.indexOf("@media (forced-colors: active)"));
+  assert.match(dataRules, /\.chart-data\s*\{[^}]*border-color:\s*CanvasText/);
+});
+
 test("the current project keeps a visible edge when colour is replaced", () => {
   const rules = css.slice(css.indexOf("@media (forced-colors: active)"));
   for (const selector of [
