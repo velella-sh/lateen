@@ -293,6 +293,8 @@
   "pagination_page": "الصفحة {n}",
   "parameters": "المعاملات",
   "partial": "جزئي",
+  "post_archive": "العودة إلى الأرشيف",
+  "post_by": "بقلم",
   "post_pager": "التدوينة السابقة والتالية",
   "posts": "التدوينات",
   "preset_preview_accent": "لون التمييز",

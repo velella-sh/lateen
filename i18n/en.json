@@ -293,6 +293,8 @@
   "pagination_page": "Page {n}",
   "parameters": "Parameters",
   "partial": "Partial",
+  "post_archive": "Back to the archive",
+  "post_by": "By",
   "post_pager": "Previous and next post",
   "posts": "Posts",
   "preset_preview_accent": "Accent colour",

@@ -293,6 +293,8 @@
   "pagination_page": "صفحهٔ {n}",
   "parameters": "پارامترها",
   "partial": "نسبی",
+  "post_archive": "بازگشت به بایگانی",
+  "post_by": "نوشتهٔ",
   "post_pager": "نوشتهٔ قبل و بعد",
   "posts": "نوشته‌ها",
   "preset_preview_accent": "رنگ تأکید",
