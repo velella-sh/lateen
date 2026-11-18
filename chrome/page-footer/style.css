@@ -43,12 +43,12 @@
 }
 
 .page-footer-feedback a {
-  color: var(--color-accent);
+  color: var(--color-link);
   text-decoration: none;
 }
 
 .page-footer-feedback a:hover {
-  color: var(--color-accent-hover);
+  color: var(--color-link-hover);
   text-decoration: underline;
 }
 

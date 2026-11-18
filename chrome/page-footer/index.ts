@@ -1,6 +1,7 @@
 import { h } from "preact";
 import type { Chrome, Page, RepositoryConfig } from "@velella/mizzen/contracts";
 import { t } from "../../i18n/index.ts";
+import { reportHref } from "../report-issue/index.ts";
 
 /*
  * Labels without a key in the string table (i18n/*.json) are English, the same as the other chrome
@@ -29,15 +30,30 @@ function feedbackUrl(root: string, page: Page): string {
 }
 
 /**
- * The actions under the article: the copy button for the agent prompt and a feedback link. The button
- * starts `hidden` and `client.ts` reveals it, so a visitor without JavaScript sees no control that
- * would do nothing. The feedback link is left out without a configured repository. The edit link and
- * the last-updated line are separate chrome units, so the doc and tutorial layouts place them once.
+ * The actions under the article: the copy button for the agent prompt, the feedback link, and the
+ * report link. The button starts `hidden` and `client.ts` reveals it, so a visitor without JavaScript
+ * sees no control that would do nothing. A link is left out when the site gives it no address. The
+ * edit link and the last-updated line are separate chrome units, so the doc and tutorial layouts
+ * place them once.
  */
 const pageFooter: Chrome = ({ site, page }) => {
   const lang = page.lang;
   const repository = site.config.repository;
   const root = webRoot(repository);
+  const report = reportHref(site, page);
+  const feedback =
+    root === undefined ? [] : [HELPFUL, " ", h("a", { href: feedbackUrl(root, page) }, FEEDBACK)];
+  const reportLink =
+    report === undefined
+      ? []
+      : [
+          h(
+            "a",
+            { href: report, rel: "noopener" },
+            t(lang, page.record === undefined ? "report_issue" : "report_data"),
+          ),
+        ];
+  const links = feedback.length > 0 && reportLink.length > 0 ? [...feedback, " · ", ...reportLink] : [...feedback, ...reportLink];
   return h(
     "div",
     { class: "page-footer" },
@@ -54,9 +70,7 @@ const pageFooter: Chrome = ({ site, page }) => {
       },
       t(lang, "edit_label"),
     ),
-    root === undefined
-      ? null
-      : h("p", { class: "page-footer-feedback" }, HELPFUL, " ", h("a", { href: feedbackUrl(root, page) }, FEEDBACK)),
+    links.length === 0 ? null : h("p", { class: "page-footer-feedback" }, ...links),
   );
 };
 

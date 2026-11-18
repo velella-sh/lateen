@@ -1,8 +1,6 @@
 {
   "note": "Critical and serious violations that already existed when the gate was added, so the gate can fail on new ones. case \"*\" means the element is used site-wide. Fix the cause, then delete the entry; never add one for a new regression.",
   "known": [
-    { "case": "*", "theme": "light", "rule": "color-contrast", "target": ".edit-page-link" },
-    { "case": "*", "theme": "light", "rule": "color-contrast", "target": ".page-footer-feedback > a" },
     { "case": "*", "theme": "light", "rule": "color-contrast", "target": ".home-btn-primary" },
     { "case": "*", "theme": "light", "rule": "color-contrast", "target": ".home-eyebrow" },
     { "case": "fixture versions", "theme": "light", "rule": "color-contrast", "target": ".versions-status-deprecated > .versions-status-label" },

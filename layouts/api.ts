@@ -5,6 +5,7 @@ import base from "./base.ts";
 import breadcrumb from "../chrome/breadcrumb/index.ts";
 import drawer from "../chrome/drawer/index.ts";
 import header from "../chrome/header/index.ts";
+import pageFooter from "../chrome/page-footer/index.ts";
 import sidebar from "../chrome/sidebar/index.ts";
 import toc from "../chrome/toc/index.ts";
 import { t } from "../i18n/index.ts";
@@ -118,6 +119,7 @@ function article(props: LayoutProps): ComponentChildren {
     breadcrumb(props) as ComponentChildren,
     titleFromBody(props) ? null : h("h1", null, page.title),
     h("div", { class: "doc-body", dangerouslySetInnerHTML: { __html: page.html } }),
+    h("div", { class: "doc-actions" }, pageFooter(props) as ComponentChildren),
   );
 }
 

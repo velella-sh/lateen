@@ -15,13 +15,13 @@
 
 .edit-page-link,
 .edit-page-heading-link {
-  color: var(--color-accent);
+  color: var(--color-link);
   text-decoration: none;
 }
 
 .edit-page-link:hover,
 .edit-page-heading-link:hover {
-  color: var(--color-accent-hover);
+  color: var(--color-link-hover);
   text-decoration: underline;
 }
 
