@@ -9,6 +9,8 @@ import projectSwitcher from "../chrome/project-switcher/index.ts";
 import { mobileProjects } from "../chrome/project-switcher/mobile.ts";
 import networkFooter from "../chrome/network-footer/index.ts";
 import searchScope from "../chrome/search-scope/index.ts";
+import term, { type TermProps } from "../components/term/index.ts";
+import type { ComponentProps, Page, Site } from "@velella/mizzen/contracts";
 
 let site: BuiltSite;
 let document: Document;
@@ -31,6 +33,28 @@ test("the status badge and legend read before any island runs", () => {
   assert.equal(all(page, ".status.status-positive").length, 2);
   assert.equal(all(page, ".status-legend > .status-legend-item").length, 2);
   assert.equal(all(page, ".status-legend .status-negative").length, 1);
+});
+
+test("a term is a native disclosure whose definition reads before any island runs", () => {
+  const widget = {
+    id: "widget",
+    fields: { term: "Widget", definition: "A small reusable control.", aliases: ["control"] },
+  };
+  const site = {
+    config: { lang: "en", base: "", theme: { options: { glossary: { collection: "glossary", page: "/glossary/" } } } },
+    nav: {},
+    data: {},
+    pages: [],
+    collections: { glossary: { name: "glossary", source: "glossary.yml", records: [widget] } },
+  } as unknown as Site;
+  const page = { lang: "en", url: "/guide/", frontMatter: {} } as unknown as Page;
+  const props = { site, page, html: "Widget", props: {} } as unknown as ComponentProps<TermProps>;
+  const html = renderToString(term(props) as never);
+
+  assert.match(html, /<details class="term-popover" data-term="Widget">/, "the term is a native disclosure");
+  assert.match(html, /<summary class="term-popover-chip">Widget<\/summary>/, "the chip is the summary");
+  assert.match(html, /<p class="term-popover-definition">A small reusable control\.<\/p>/, "the definition is markup, not an island");
+  assert.match(html, /href="\/glossary\/#widget"/, "the entry link needs no script");
 });
 
 test("the gallery draws every card, filter link and sort choice before its island runs", () => {

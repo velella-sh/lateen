@@ -1,0 +1,31 @@
+- id: widget
+  term:
+    en: Widget
+    fa: ویجت
+    ar: ودجت
+  definition:
+    en: A small reusable control that a page composes instead of repeating its markup.
+    fa: کنترل کوچک و قابل استفادهٔ مجددی که صفحه به‌جای تکرار نشانه‌گذاری خود آن را به کار می‌برد.
+    ar: عنصر تحكم صغير يعاد استخدامه بدل تكرار الترميز في الصفحة.
+  aliases:
+    en: [control]
+    fa: [کنترل]
+    ar: [عنصر تحكم]
+- id: pipeline
+  term:
+    en: Pipeline
+    fa: خط لوله
+    ar: خط المعالجة
+  definition:
+    en: The ordered stages a build runs from source to output.
+    fa: مرحله‌های مرتبی که ساخت از منبع تا خروجی اجرا می‌کند.
+    ar: المراحل المرتبة التي ينفذها البناء من المصدر إلى الخرج.
+- id: collation
+  term:
+    en: Collation
+    fa: ترتیب‌گذاری
+    ar: ترتيب
+  definition:
+    en: The language's own order for sorting letters.
+    fa: ترتیب ویژهٔ هر زبان برای مرتب‌کردن حروف.
+    ar: ترتيب الحروف الخاص بلغة الصفحة.

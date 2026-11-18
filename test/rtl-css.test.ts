@@ -445,6 +445,8 @@ const REFINED = ["components/table", "components/callout", "components/cards", "
     ...["guide-summary", "related-guides", "steps", "before-after", "trap", "check-list"].map(
       (dir) => `../components/${dir}/style.css`,
     ),
+    "../components/term/style.css",
+    "../components/glossary/style.css",
     "../layouts/guide.css",
     "../chrome/source-mode/style.css",
     "../chrome/page-footer/style.css",

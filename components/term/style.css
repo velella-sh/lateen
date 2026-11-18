@@ -102,3 +102,28 @@
     margin-block-start: var(--space-2);
   }
 }
+
+/* In forced colors the dotted underline is the only affordance left, so it stays a solid line and
+   the panel keeps a system edge. */
+@media (forced-colors: active) {
+  .term-popover-chip,
+  .term-unknown-marker {
+    color: CanvasText;
+  }
+
+  .term-popover-chip {
+    text-decoration: underline;
+  }
+
+  .term-popover-panel {
+    border-color: CanvasText;
+  }
+}
+
+/* A printed term keeps its sentence: the panel is static in styles/print.css, and the pair never
+   splits across pages. */
+@media print {
+  .term-popover {
+    break-inside: avoid;
+  }
+}

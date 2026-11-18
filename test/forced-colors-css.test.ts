@@ -343,6 +343,15 @@ test("the guide layout's components keep a visible edge in forced colors", () =>
   }
 });
 
+test("a term keeps its disclosure underline and its panel edge in forced colours", () => {
+  const text = read("../components/term/style.css");
+  const rules = text.slice(text.indexOf("@media (forced-colors: active)"));
+
+  assert.match(rules, /\.term-popover-chip[^}]*text-decoration:\s*underline/);
+  assert.match(rules, /\.term-unknown-marker[^}]*color:\s*CanvasText/);
+  assert.match(rules, /\.term-popover-panel[^}]*border-color:\s*CanvasText/);
+});
+
 test("the record layout names a fact's report link without colour", () => {
   const text = read("../styles/parts-record.css");
   const rules = text.slice(text.indexOf("@media (forced-colors: active)"));

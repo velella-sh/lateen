@@ -437,6 +437,14 @@ test("the guide layout's components print whole and drop their copy controls", (
   }
 });
 
+test("a term prints its definition under the sentence and stays on one page", () => {
+  const print = read("../components/term/style.css").slice(
+    read("../components/term/style.css").indexOf("@media print"),
+  );
+  assert.match(print, /\.term-popover\s*\{[^}]*break-inside:\s*avoid/);
+  assert.match(read("../styles/print.css"), /\.term-popover-panel,[\s\S]*?position:\s*static/);
+});
+
 test("the record layout prints each fact pair whole and drops its report links", () => {
   const print = read("../styles/parts-record.css").slice(read("../styles/parts-record.css").indexOf("@media print"));
 

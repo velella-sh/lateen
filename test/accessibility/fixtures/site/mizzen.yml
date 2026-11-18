@@ -9,6 +9,8 @@ repository:
   url: https://github.com/example/example-site
   branch: main
 collections:
+  glossary:
+    source: _data/glossary.yml
   timeline:
     source: _data/a11y-timeline.json
     id: id
@@ -44,6 +46,12 @@ navigation: _data/navigation.yml
 search: false
 theme:
   options:
+    glossary:
+      collection: glossary
+      page:
+        en: /glossary/
+        fa: /fa/glossary/
+        ar: /ar/glossary/
     sourceMode:
       editor: "vscode://file/{path}:{line}:{column}"
     installTabs:
