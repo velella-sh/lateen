@@ -17,6 +17,7 @@ import sidebar from "../chrome/sidebar/index.ts";
 import toc from "../chrome/toc/index.ts";
 import { highlightFences } from "../components/code/index.ts";
 import driftBanner from "../components/drift-banner/index.ts";
+import pageTool, { toolHref } from "../components/page-tool/index.ts";
 import pageStatus, { type PageStatusProps } from "../components/page-status/index.ts";
 import readingTime from "../components/reading-time/index.ts";
 import trustPanel from "../components/trust-panel/index.ts";
@@ -51,6 +52,8 @@ function statusProps(page: LayoutProps["page"]): PageStatusProps {
 function article(props: LayoutProps): ComponentChildren {
   const { page } = props;
   const backdrops = codeBackgrounds(props.site.config.theme.options);
+  const tool = typeof page.frontMatter.tool === "string" ? page.frontMatter.tool : undefined;
+  const toolUrl = toolHref(props.site.config.base, tool);
   return h(
     "article",
     { class: "doc", "data-pagefind-body": true },
@@ -62,6 +65,14 @@ function article(props: LayoutProps): ComponentChildren {
     lastUpdated(props) as ComponentChildren,
     readingTime({ props: {}, page, site: props.site, html: "" }) as ComponentChildren,
     h("div", { class: "doc-body", dangerouslySetInnerHTML: { __html: highlightFences(page.html, backdrops) } }),
+    toolUrl === undefined
+      ? null
+      : (pageTool({
+          props: tool === undefined ? { base: props.site.config.base } : { base: props.site.config.base, tool },
+          page,
+          site: props.site,
+          html: "",
+        }) as ComponentChildren),
     editPage(props) as ComponentChildren,
     h(
       "div",

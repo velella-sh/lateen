@@ -290,6 +290,10 @@ Written 12 pages to dist
 
 ::page-status{status=deprecated since="0.2" replaced_by="/fa/gallery/"}
 
+## page-tool
+
+A page with `tool: tool.js` loads that browser tool in a named slot and keeps a plain link without JavaScript.
+
 ## preset-preview
 
 ::preset-preview{preset=graphite}
