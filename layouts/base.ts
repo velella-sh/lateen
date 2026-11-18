@@ -97,9 +97,9 @@ function brandStyle(config: SiteConfig, hints: LayoutProps["hints"]) {
 
 /**
  * Everything inside `<head>`, in a fixed order, with the theme script first so nothing paints before it.
- * The page's canonical and translation alternates come from the language-switcher model. The engine
- * already writes a canonical when the front matter or site `url` gives one, so the layout only adds it
- * when the head has none, and never writes a second one.
+ * The page's canonical and translation alternates come from the language-switcher model, which honors
+ * a front-matter `canonical_url` (a versioned copy names its default release). The layout only adds
+ * one when the head has none, and never writes a second one.
  */
 function headNodes(head: Head, site: Site, page: Page, hints: LayoutProps["hints"]) {
   const links = [...head.links];

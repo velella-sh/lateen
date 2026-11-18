@@ -312,13 +312,21 @@ function absoluteUrl(config: SiteConfig, value: string): string | undefined {
   return `${origin}${value}`;
 }
 
+/** The front matter's `canonical_url` when it is a site path or an https link; anything else is ignored. */
+function namedCanonical(page: Pick<Page, "frontMatter">): string | undefined {
+  const value = page.frontMatter.canonical_url;
+  if (typeof value !== "string") return undefined;
+  const named = value.trim();
+  return /^(?:https:\/\/|\/(?![/\\]))/.test(named) ? named : undefined;
+}
+
 /**
- * The page's canonical link: its own absolute URL under the configured site `url`, or `undefined`
- * when the site has no `url`. A front-matter `canonical_url` is the engine's, so the layout only uses
- * this when the head has no canonical link of its own.
+ * The page's canonical link: a front-matter `canonical_url` (a versioned copy names its default release),
+ * else its own URL, made absolute under the configured site `url`. `undefined` when there is no site
+ * `url` for a path. An empty or unsafe `canonical_url` is ignored.
  */
-export function canonicalLink(site: Site, page: Pick<Page, "url">): LinkTag | undefined {
-  const href = absoluteUrl(site.config, page.url);
+export function canonicalLink(site: Site, page: Pick<Page, "url" | "frontMatter">): LinkTag | undefined {
+  const href = absoluteUrl(site.config, namedCanonical(page) ?? page.url);
   return href === undefined ? undefined : { rel: "canonical", href };
 }
 

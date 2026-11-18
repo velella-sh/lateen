@@ -425,6 +425,34 @@ test("canonicalLink makes the page URL absolute under the site url, and is absen
   assert.equal(canonicalLink(props(configWith()).site, pageWith()), undefined);
 });
 
+test("canonicalLink honors a front-matter canonical_url, so a versioned copy names the default release", () => {
+  const site = props(configWith({ url: "https://example.com" })).site;
+  const versioned = pageWith({
+    url: "/docs/v2/guide/install/",
+    frontMatter: { canonical_url: "/docs/guide/install/" },
+  });
+  assert.deepEqual(canonicalLink(site, versioned), {
+    rel: "canonical",
+    href: "https://example.com/docs/guide/install/",
+  });
+  assert.deepEqual(
+    canonicalLink(site, pageWith({ frontMatter: { canonical_url: " https://example.com/guide/install/ " } })),
+    { rel: "canonical", href: "https://example.com/guide/install/" },
+  );
+});
+
+test("canonicalLink ignores an empty or unsafe canonical_url and falls back to the page URL", () => {
+  const site = props(configWith({ url: "https://example.com" })).site;
+  for (const canonical_url of ["", "   ", "//host/guide/", "javascript:alert(1)", "guide/install/"]) {
+    assert.deepEqual(
+      canonicalLink(site, pageWith({ frontMatter: { canonical_url } })),
+      { rel: "canonical", href: "https://example.com/docs/fa/guide/install/" },
+      `canonical_url ${JSON.stringify(canonical_url)}`,
+    );
+  }
+  assert.equal(canonicalLink(props(configWith()).site, pageWith({ frontMatter: { canonical_url: "" } })), undefined);
+});
+
 test("emits reciprocal absolute alternates with full regional tags and x-default for the default language", () => {
   const jaJp: LanguageConfig = { code: "ja-JP", name: "日本語", prefix: "/ja-jp" };
   const config = configWith({ url: "https://example.com", languages: [EN, JA, jaJp] });
