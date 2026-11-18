@@ -267,6 +267,18 @@ function attribute(attrs: string, name: string): string | undefined {
 }
 
 /**
+ * The attributes the replacement `<pre>` keeps: class merges with the theme's own, and the names the
+ * replacement writes are dropped so the tag never carries a duplicate attribute. A component's `<pre>`
+ * (such as an output block) keeps its class and the behaviour its island looks for.
+ */
+function keptAttributes(attrs: string): { readonly extraClass: string; readonly rest: string; readonly originalId?: string } {
+  const originalId = attribute(attrs, "id");
+  const extraClass = attribute(attrs, "class") ?? "";
+  const rest = attrs.replace(/\s(?:class|id|tabindex|data-lang)="[^"]*"/g, "");
+  return originalId === undefined ? { extraClass, rest } : { extraClass, rest, originalId };
+}
+
+/**
  * Highlights the plain fences in a rendered body, so a fence and the `:::code` directive look the same.
  * Each fence becomes the markup {@link code} writes, with its language as `data-lang` and its `data-src` kept.
  * The engine's `data-code` adds the fence's title bar, highlighted and numbered lines, diff marks, and notes.
@@ -302,10 +314,13 @@ export function highlightFences(html: string, backdrops?: CodeBackdrops, lang = 
         if (isDiffLang(name) || meta.diff) decorated = stripDiffMarkers(decorated);
         decorated = markDiffLines(decorated, { ins: meta.ins, del: meta.del });
       }
-      const idAttr = src === undefined ? "" : ` id="${block}"`;
+      const kept = keptAttributes(attrs);
+      const id = kept.originalId ?? (src === undefined ? undefined : block);
+      const idAttr = id === undefined ? "" : ` id="${id}"`;
+      const className = kept.extraClass === "" ? CODE_CLASS : `${CODE_CLASS} ${kept.extraClass}`;
       const title = meta === undefined ? "" : codeTitleHtml(meta.title);
       const notes = meta === undefined ? "" : renderAnnotations(meta.annotations, block, lang);
-      return `${title}<pre class="${CODE_CLASS}" tabindex="0"${idAttr} data-lang="${name}"${attrs}><code>${decorated}</code></pre>${notes}`;
+      return `${title}<pre class="${className}" tabindex="0"${idAttr} data-lang="${name}"${kept.rest}><code>${decorated}</code></pre>${notes}`;
     })
     .replace(IDENTIFY, (match, attrs: string) => {
       if (/\sid=/.test(attrs)) return match;

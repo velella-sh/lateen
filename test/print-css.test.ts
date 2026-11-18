@@ -371,7 +371,7 @@ test("refined components print flat: no shadow, sticky header, blur, motion, tin
   assert.ok(flat, "no flat rule for the refined components");
   for (const re of [/position:\s*static/, /box-shadow:\s*none/, /backdrop-filter:\s*none/, /animation:\s*none/, /transition:\s*none/]) assert.match(flat.body, re);
   assert.match(css, /\.code \[data-line\]::before\s*\{\s*content:\s*none/);
-  assert.match(css, /\.code \.highlighted\s*\{\s*background:\s*none/);
+  assert.match(css, /\.code \.highlighted,[\s\S]{0,80}\{\s*background:\s*none/);
   // A legend entry is one badge and its description; a page break never separates the pair.
   assert.match(css, /\.status-legend-item[\s\S]*?break-inside:\s*avoid/);
 });
