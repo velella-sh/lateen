@@ -6,8 +6,13 @@ description: A fixed site for measuring the theme's shipped JavaScript and CSS.
 lang: en
 base: ""
 search: false
+repository:
+  url: https://github.com/example/fixture
+  branch: main
 theme:
   options:
+    sourceMode:
+      editor: "vscode://file/{path}:{line}:{column}"
     installTabs:
       managers:
         - name: npm

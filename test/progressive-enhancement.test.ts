@@ -398,3 +398,11 @@ test("the network chrome reads without a script: a disclosure, plain links, and 
   const scope = renderToString(searchScope(props) as never);
   assert.equal([...scope.matchAll(/name="scope"/g)].length, 2);
 });
+
+test("source mode ships hidden and adds no labels without its island", () => {
+  const page = site.document("/books/alpha/");
+  const root = page.querySelector("[data-source-mode]");
+  assert.ok(root, "the switch is server-rendered");
+  assert.equal(root.hasAttribute("hidden"), true, "the switch stays hidden until the island runs");
+  assert.equal(all(page, ".source-label").length, 0, "no label is written without the island");
+});

@@ -168,6 +168,8 @@ test("print.css hides every piece of chrome and every screen-only control", () =
     ".terminal-copy",
     ".record-table-filters",
     ".page-footer-copy",
+    ".source-mode-switch",
+    ".source-label",
     ".code-tabs-list",
     ".cli-demo-bar",
     ".install-tabs-list",

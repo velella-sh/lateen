@@ -90,6 +90,8 @@ main:
         url: /add-component/
       - title: Ask your agent
         url: /ask-agent/
+      - title: Source mode
+        url: /source-mode/
       - title: Accessibility
         url: /accessibility/
       - title: Performance

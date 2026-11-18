@@ -84,10 +84,10 @@ test("the facts render in the author's order, after the title and before the bod
 
 test("every kind goes through the field formatter", () => {
   const out = render();
-  assert.match(out, /<dt class="key-value-key">Name<\/dt><dd class="key-value-value">Button<\/dd>/);
-  assert.match(out, /<dt class="key-value-key">Pages<\/dt><dd class="key-value-value">3<\/dd>/);
-  assert.match(out, /<dd class="key-value-value"><time datetime="2026-11-09">[^<]+<\/time><\/dd>/);
-  assert.match(out, /<dt class="key-value-key">Draft<\/dt><dd class="key-value-value">No<\/dd>/);
+  assert.match(out, /<dt class="key-value-key">Name<\/dt><dd class="key-value-value record-fact">Button<\/dd>/);
+  assert.match(out, /<dt class="key-value-key">Pages<\/dt><dd class="key-value-value record-fact">3<\/dd>/);
+  assert.match(out, /<dd class="key-value-value record-fact"><time datetime="2026-11-09">[^<]+<\/time><\/dd>/);
+  assert.match(out, /<dt class="key-value-key">Draft<\/dt><dd class="key-value-value record-fact">No<\/dd>/);
 });
 
 test("a fact the record lacks is left out, not rendered empty", () => {
@@ -102,7 +102,7 @@ test("a fact the record lacks is left out, not rendered empty", () => {
 
 test("the id is a fact a page may ask for", () => {
   const out = render(pageWith([{ field: "id", label: "Identifier" }]));
-  assert.match(out, /<dt class="key-value-key">Identifier<\/dt><dd class="key-value-value">button<\/dd>/);
+  assert.match(out, /<dt class="key-value-key">Identifier<\/dt><dd class="key-value-value record-fact">button<\/dd>/);
 });
 
 test("a page without facts renders no panel", () => {

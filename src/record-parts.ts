@@ -1,6 +1,6 @@
 import { Fragment, h } from "preact";
 import type { ComponentChildren } from "preact";
-import type { LayoutProps } from "@velella/mizzen/contracts";
+import type { DataRecord, LayoutProps, RecordPos } from "@velella/mizzen/contracts";
 import { LINK_CLASS, reportHref } from "../chrome/report-issue/index.ts";
 import { KEY_CLASS, LIST_CLASS, VALUE_CLASS } from "../components/key-value/index.ts";
 import { t } from "../i18n/index.ts";
@@ -11,6 +11,9 @@ export const FACTS_ID = "record-facts";
 
 /** Class on a fact's report link; `record.css` styles it. */
 const FACT_REPORT_CLASS = "record-fact-report";
+
+/** Class on a fact's value, the block source mode labels with the field's data position. */
+export const FACT_CLASS = "record-fact";
 
 const isRecord = (value: unknown): value is Record<string, unknown> =>
   value !== null && typeof value === "object" && !Array.isArray(value);
@@ -89,6 +92,24 @@ export function summaryOf(props: LayoutProps): ComponentChildren {
   return h("p", { class: "record-summary" }, formatField(summary, "text", props.page.lang, props.site.config) as ComponentChildren);
 }
 
+/** The engine's record behind the page, where field positions come from; absent when the model lacks it. */
+function dataRecordOf(props: LayoutProps): DataRecord | undefined {
+  const pageRecord = props.page.record;
+  if (pageRecord === undefined) return undefined;
+  return props.site.collections[pageRecord.collection]?.records.find((record) => record.id === pageRecord.id);
+}
+
+/** The engine's position for one fact, or undefined when it gave none: no position is guessed. */
+function factPosition(props: LayoutProps, fact: Fact): RecordPos | undefined {
+  return dataRecordOf(props)?.fieldPositions[fact.field];
+}
+
+/** A position as the `data-src` value the source span reader parses. */
+function dataSrcOf(position: RecordPos | undefined): string | undefined {
+  if (position === undefined) return undefined;
+  return `${position.file}:${position.startLine}:${position.startColumn}-${position.endLine}:${position.endColumn}`;
+}
+
 /** True when the page asks for a report link on every fact: absent or false by default. */
 function reportsFacts(props: LayoutProps): boolean {
   const front = props.page.frontMatter.record;
@@ -123,7 +144,12 @@ export function factsPanel(props: LayoutProps): ComponentChildren {
         h("dt", { class: KEY_CLASS }, fact.label),
         h(
           "dd",
-          { class: VALUE_CLASS },
+          {
+            class: `${VALUE_CLASS} ${FACT_CLASS}`,
+            ...(dataSrcOf(factPosition(props, fact)) === undefined
+              ? {}
+              : { "data-src": dataSrcOf(factPosition(props, fact)) }),
+          },
           formatField(
             fact.field === "id" ? record.id : record.fields[fact.field],
             fact.kind,
