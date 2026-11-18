@@ -149,6 +149,50 @@ test("highlightFences highlights a plain fence, keeps data-src, and gives it a s
   assert.equal(highlightFences(diagram), diagram);
 });
 
+/** `data-code` as rehype writes it: the JSON's quotes and ampersands escaped for the attribute, `>` left alone. */
+function dataCode(meta: Record<string, unknown>): string {
+  return JSON.stringify(meta).replace(/&/g, "&amp;").replace(/"/g, "&#x22;");
+}
+
+test("highlightFences reads data-code after data-src: title, highlight, numbers, and diff marks", () => {
+  const meta = dataCode({
+    raw: "",
+    title: "src/a > b.ts",
+    highlight: [{ from: 2, to: 2 }],
+    ins: [{ from: 1, to: 1 }],
+    del: [{ from: 3, to: 3 }],
+    diff: false,
+    showLineNumbers: true,
+    annotations: [],
+  });
+  const fence = `<pre data-src="a.md:3" data-code="${meta}"><code class="language-ts">const a = 1;\nconst b = 2;\nconst c = 3;\n</code></pre>`;
+  const out = highlightFences(fence);
+  assert.match(out, /^<div class="code-title">.*<span class="code-title-name">src\/a > b\.ts<\/span><\/div><pre /);
+  assert.match(out, /<pre class="code" tabindex="0" id="code-a-md-3" data-lang="ts" data-src="a.md:3" data-code="/);
+  assert.match(out, /<span class="line ins" data-line="1">/);
+  assert.match(out, /<span class="line highlighted" data-line="2">/);
+  assert.match(out, /<span class="line del" data-line="3">/);
+  assert.doesNotMatch(out, /<pre[^>]*><code[^>]*>[^<]*const/);
+});
+
+test("a diff fence in data-code strips its marker characters and still marks its ranges", () => {
+  const meta = dataCode({ raw: "", title: null, highlight: [], ins: [], del: [], diff: true, showLineNumbers: false, annotations: [] });
+  const fence = `<pre data-src="a.md:3" data-code="${meta}"><code class="language-diff">-old\n+new\n same\n</code></pre>`;
+  const out = highlightFences(fence);
+  assert.match(out, /<span class="line del">[\s\S]*?>old<\/span>/);
+  assert.match(out, /<span class="line ins">[\s\S]*?>new<\/span>/);
+  assert.match(out, /<span class="line">[\s\S]*?>same<\/span>/);
+  assert.doesNotMatch(out, />[-+]old</);
+});
+
+test("malformed data-code is ignored and the fence is highlighted as before", () => {
+  const fence = '<pre data-src="a.md:3" data-code="not json"><code class="language-ts">const a = 1;\n</code></pre>';
+  const out = highlightFences(fence);
+  assert.match(out, /<pre class="code" tabindex="0" id="code-a-md-3" data-lang="ts" data-src="a.md:3" data-code="not json"><code>/);
+  assert.doesNotMatch(out, /code-title/);
+  assert.doesNotMatch(out, /data-line|highlighted|class="line (ins|del)"/);
+});
+
 test("highlightFences gives an already-highlighted block its stable id once", () => {
   const block = '<pre class="code" tabindex="0" data-lang="ts" data-src="a.md:3:1-5:3"><code>x</code></pre>';
   const out = highlightFences(block);
