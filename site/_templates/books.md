@@ -18,3 +18,6 @@ record:
 # :field[title]
 
 A book in the example collection the data explorer reads.
+
+:::changes
+:::

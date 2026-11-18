@@ -21,6 +21,8 @@ main:
     children:
       - title: Component reference
         url: /components/
+      - title: Add to calendar
+        url: /components/add-to-calendar/
       - title: Badge
         url: /components/badge/
       - title: Callout
@@ -67,8 +69,12 @@ main:
         url: /components/network/
       - title: Page status
         url: /components/page-status/
+      - title: Record history
+        url: /components/record-history/
       - title: Schema table
         url: /components/schema-table/
+      - title: Stale notice
+        url: /components/stale-notice/
       - title: Status
         url: /components/status/
       - title: Steps

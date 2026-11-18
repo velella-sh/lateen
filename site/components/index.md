@@ -31,6 +31,7 @@ The theme's own look is set with the [Brand options](/brand-options/); the shipp
 
 | Component | Use it for |
 | --- | --- |
+| [Add to calendar](./add-to-calendar/) | A download link for a record's `.ics` file and a subscribe link for its calendar. |
 | [Badge](./badge/) | A short status label, such as a version or a beta marker. |
 | [Callout](./callout/) | A note, tip, important point, warning, or caution. |
 | [Cards](./cards/) | A responsive grid of linked cards, used by the home layout. |
@@ -63,9 +64,11 @@ The theme's own look is set with the [Brand options](/brand-options/); the shipp
 | [Page status](./page-status/) | An experimental, beta, or deprecated banner from front matter. |
 | [Preset preview](./preset-preview/) | One preset of the theme in its own scoped block, with the options to copy. |
 | [Reading time](./reading-time/) | A chip under the title with the page's reading time and word count. |
+| [Record history](./record-history/) | A record's own change events, newest first, with old and new values. |
 | [Report issue](./report-issue/) | A prefilled link that opens an issue for the current page. |
 | [Reports](./reports/) | An accessibility report, a performance budget, and the WCAG checklist, from site data. |
 | [Schema table](./schema-table/) | A JSON Schema from `_data` as a table of properties. |
+| [Stale notice](./stale-notice/) | A caution note under the title when a page's covered files changed since its review. |
 | [Status](./status/) | A short status label with a tone and icon, and a legend of the site's status values. |
 | [Status banner](./status-banner/) | A page-level deprecated, experimental, or old-version banner, with a replacement link. |
 | [Steps](./steps/) | A numbered sequence or tutorial. |
