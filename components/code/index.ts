@@ -4,7 +4,7 @@ import type { ComponentProps } from "@velella/mizzen/contracts";
 import mermaid from "../mermaid/index.ts";
 import { codeBackgrounds } from "../../src/brand.ts";
 import { ensureContrast, parseHex } from "../../src/color.ts";
-import { parseFenceMeta } from "./annotations.ts";
+import { annotationLineId, parseFenceMeta, renderAnnotations } from "./annotations.ts";
 import { isDiffLang, markDiffLines, stripDiffMarkers } from "./diff.ts";
 import { decodeEntities } from "./escape.ts";
 import { decorateLines, type LineRange } from "./lines.ts";
@@ -274,13 +274,13 @@ function attribute(attrs: string, name: string): string | undefined {
  * span the engine stamped after the component ran. A `mermaid` fence is left alone: the engine sends it to
  * the diagram component.
  */
-export function highlightFences(html: string, backdrops?: CodeBackdrops): string {
+export function highlightFences(html: string, backdrops?: CodeBackdrops, lang = "en"): string {
   if (!html.includes("<pre")) return html;
   const hl = get();
   return html
-    .replace(FENCE, (match, attrs: string, lang: string | undefined, body: string) => {
-      if (lang === "mermaid" || /\sclass="code"/.test(attrs)) return match;
-      const name = lang ?? "text";
+    .replace(FENCE, (match, attrs: string, fenceLang: string | undefined, body: string) => {
+      if (fenceLang === "mermaid" || /\sclass="code"/.test(attrs)) return match;
+      const name = fenceLang ?? "text";
       const meta = parseFenceMeta(attribute(attrs, "data-code"));
       const grammar = ALIASES[name] ?? name;
       const known = hl.getLoadedLanguages().includes(grammar);
@@ -289,16 +289,23 @@ export function highlightFences(html: string, backdrops?: CodeBackdrops): string
         backdrops,
       );
       const inner = /<code[^>]*>([\s\S]*)<\/code>/.exec(out)?.[1] ?? "";
+      const src = attribute(attrs, "data-src");
+      const block = blockId(src ?? "");
       let decorated = inner;
       if (meta !== undefined) {
-        decorated = decorateLines(inner, { highlight: meta.highlight, numbers: meta.showLineNumbers });
+        const annotations = meta.annotations;
+        decorated = decorateLines(inner, {
+          highlight: meta.highlight,
+          numbers: meta.showLineNumbers,
+          ...(annotations.length === 0 ? {} : { lineId: annotationLineId(block, annotations) }),
+        });
         if (isDiffLang(name) || meta.diff) decorated = stripDiffMarkers(decorated);
         decorated = markDiffLines(decorated, { ins: meta.ins, del: meta.del });
       }
-      const src = attribute(attrs, "data-src");
-      const idAttr = src === undefined ? "" : ` id="${blockId(src)}"`;
+      const idAttr = src === undefined ? "" : ` id="${block}"`;
       const title = meta === undefined ? "" : codeTitleHtml(meta.title);
-      return `${title}<pre class="${CODE_CLASS}" tabindex="0"${idAttr} data-lang="${name}"${attrs}><code>${decorated}</code></pre>`;
+      const notes = meta === undefined ? "" : renderAnnotations(meta.annotations, block, lang);
+      return `${title}<pre class="${CODE_CLASS}" tabindex="0"${idAttr} data-lang="${name}"${attrs}><code>${decorated}</code></pre>${notes}`;
     })
     .replace(IDENTIFY, (match, attrs: string) => {
       if (/\sid=/.test(attrs)) return match;

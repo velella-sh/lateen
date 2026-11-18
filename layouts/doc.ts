@@ -68,7 +68,7 @@ function article(props: LayoutProps): ComponentChildren {
     trustPanel({ props: {}, page, site: props.site, html: "" }) as ComponentChildren,
     lastUpdated(props) as ComponentChildren,
     readingTime({ props: {}, page, site: props.site, html: "" }) as ComponentChildren,
-    h("div", { class: "doc-body", dangerouslySetInnerHTML: { __html: highlightFences(page.html, backdrops) } }),
+    h("div", { class: "doc-body", dangerouslySetInnerHTML: { __html: highlightFences(page.html, backdrops, page.lang) } }),
     toolUrl === undefined
       ? null
       : (pageTool({

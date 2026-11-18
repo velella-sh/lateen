@@ -3,8 +3,58 @@
  * with meta, already escaped for an HTML attribute, so the theme reads it there instead of parsing Markdown.
  */
 
+import { t } from "../../i18n/index.ts";
 import type { LineRange } from "./lines.ts";
-import { decodeEntities } from "./escape.ts";
+import { decodeEntities, escapeHtml } from "./escape.ts";
+
+/** Class on the notes' native disclosure, shown after the block. */
+export const ANNOTATIONS_CLASS = "code-annotations";
+
+/** Class on the disclosure's summary. */
+export const SUMMARY_CLASS = "code-annotations-summary";
+
+/** Class on the ordered list of notes. */
+export const LIST_CLASS = "code-annotations-list";
+
+/** Class on one note. */
+export const ITEM_CLASS = "code-annotations-item";
+
+/** Class on the note's line link. */
+export const LINK_CLASS = "code-annotations-link";
+
+/** Class on the note's text. */
+export const TEXT_CLASS = "code-annotations-text";
+
+/** The id of an annotated line's span: the block id plus the 1-based line number. */
+export function lineId(block: string, line: number): string {
+  return `${block}-line-${line}`;
+}
+
+/** A line-id callback that names only lines an annotation covers, so the code gets no text and no extra ids. */
+export function annotationLineId(block: string, annotations: readonly CodeAnnotation[]): (line: number) => string | undefined {
+  return (line) => (annotations.some((note) => line >= note.from && line <= note.to) ? lineId(block, line) : undefined);
+}
+
+/**
+ * The notes as a native disclosure after the block: one summary, then an ordered list. Each note names its
+ * line or range in a link to that line's span, followed by its text. Every value is escaped; nothing here
+ * enters the `<pre>`, so copied code stays clean. Returns an empty string when there are no notes.
+ */
+export function renderAnnotations(annotations: readonly CodeAnnotation[], block: string, lang: string): string {
+  if (annotations.length === 0) return "";
+  const items = annotations
+    .map((note) => {
+      const label =
+        note.from === note.to
+          ? t(lang, "code_annotation_line", { line: note.from })
+          : t(lang, "code_annotation_lines", { from: note.from, to: note.to });
+      const link = `<a class="${LINK_CLASS}" href="#${lineId(block, note.from)}">${escapeHtml(label)}</a>`;
+      return `<li class="${ITEM_CLASS}">${link} <span class="${TEXT_CLASS}">${escapeHtml(note.text)}</span></li>`;
+    })
+    .join("");
+  const summary = escapeHtml(t(lang, "code_annotations", { count: annotations.length }));
+  return `<details class="${ANNOTATIONS_CLASS}"><summary class="${SUMMARY_CLASS}">${summary}</summary><ol class="${LIST_CLASS}">${items}</ol></details>`;
+}
 
 /** One note on an inclusive run of 1-based lines. */
 export type CodeAnnotation = {
