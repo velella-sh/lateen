@@ -198,3 +198,22 @@
     display: none;
   }
 }
+
+/* A row's dates and its bar print on one page. */
+@media print {
+  .timeline .table tr {
+    break-inside: avoid;
+  }
+}
+
+/* Forced colours drop the tone borders: the bar, axis and ticks keep a system edge and text colour. */
+@media (forced-colors: active) {
+  .timeline-bar {
+    border-color: CanvasText;
+  }
+
+  .timeline-axis,
+  .timeline-tick {
+    color: CanvasText;
+  }
+}
