@@ -292,6 +292,10 @@ Written 12 pages to dist
 
 A page with `tool: tool.js` loads that browser tool in a named slot and keeps a plain link without JavaScript.
 
+## version-notice
+
+A page outside the default version states its version and links to the equivalent page in the default version.
+
 ## preset-preview
 
 ::preset-preview{preset=graphite}

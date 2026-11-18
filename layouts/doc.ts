@@ -20,6 +20,7 @@ import driftBanner from "../components/drift-banner/index.ts";
 import pageTool, { toolHref } from "../components/page-tool/index.ts";
 import pageStatus, { type PageStatusProps } from "../components/page-status/index.ts";
 import readingTime from "../components/reading-time/index.ts";
+import versionNotice from "../components/version-notice/index.ts";
 import trustPanel from "../components/trust-panel/index.ts";
 import { codeBackgrounds } from "../src/brand.ts";
 
@@ -60,6 +61,7 @@ function article(props: LayoutProps): ComponentChildren {
     breadcrumb(props) as ComponentChildren,
     driftBanner({ props: {}, page, site: props.site, html: "" }) as ComponentChildren,
     pageStatus({ props: statusProps(page), page, site: props.site, html: "" }) as ComponentChildren,
+    versionNotice({ props: {}, page, site: props.site, html: "" }) as ComponentChildren,
     titleFromBody(props) ? null : h("h1", null, page.title),
     trustPanel({ props: {}, page, site: props.site, html: "" }) as ComponentChildren,
     lastUpdated(props) as ComponentChildren,

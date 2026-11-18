@@ -146,8 +146,25 @@
 
   /* Trust, freshness, and version evidence keep their wording and their edges; the palette cannot
      be the only signal, and none of these surfaces relies on a token color to say what it means. */
-  :where(.trust-panel-chip, .trust-panel-body, .drift-banner, .tested-chip, .version-badge, .version-diff) {
+  :where(.trust-panel-chip, .trust-panel-body, .drift-banner, .tested-chip, .version-badge, .version-diff, .version-notice) {
     border-color: ButtonBorder !important;
+  }
+
+  .version-notice {
+    border-inline-start-color: CanvasText !important;
+  }
+
+  .version-notice-label,
+  .version-notice-version {
+    color: CanvasText !important;
+  }
+
+  .version-notice-hint {
+    color: GrayText !important;
+  }
+
+  .version-notice-link {
+    color: LinkText !important;
   }
 
   :where(.drift-banner, .drift-banner[data-drift-severity]) {

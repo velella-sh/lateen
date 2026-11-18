@@ -17,6 +17,7 @@ import sidebar from "../chrome/sidebar/index.ts";
 import toc from "../chrome/toc/index.ts";
 import pageStatus, { type PageStatusProps } from "../components/page-status/index.ts";
 import readingTime from "../components/reading-time/index.ts";
+import versionNotice from "../components/version-notice/index.ts";
 
 /**
  * A tutorial step: a title and the heading id it links to. Steps come from the page's depth-2
@@ -234,6 +235,7 @@ function article(props: LayoutProps): ComponentChildren {
     { class: "doc tutorial", "data-pagefind-body": true },
     breadcrumb(props) as ComponentChildren,
     pageStatus({ props: statusProps(page), page, site: props.site, html: "" }) as ComponentChildren,
+    versionNotice({ props: {}, page, site: props.site, html: "" }) as ComponentChildren,
     titleFromBody(props) ? null : h("h1", null, page.title),
     lastUpdated(props) as ComponentChildren,
     readingTime({ props: {}, page, site: props.site, html: "" }) as ComponentChildren,
