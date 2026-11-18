@@ -17,6 +17,9 @@ import { t } from "../i18n/index.ts";
 import { formatField, isEmpty } from "../src/fields.ts";
 import { baseOf } from "../src/url.ts";
 
+/** The keys under `list` front matter this layout reads. The engine reads the rest. */
+export const OPTIONS = ["view", "date"] as const;
+
 /* The engine ships a component's island only when the page's Markdown names its directive, and a list
    page names no directive: this layout draws the table itself. The island is the record-table client,
    so the same control the gallery shows also runs on a list.
