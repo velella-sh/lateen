@@ -1,0 +1,77 @@
+/* Stale notice: a caution note that names the review date and the changed files. Logical properties
+   keep it readable in either direction; the icon and the wording carry the tone, so forced colors
+   and print keep the meaning without the background. */
+
+.stale-notice {
+  padding: var(--space-3) var(--space-4);
+  border: 1px solid var(--status-caution-border);
+  border-inline-start-width: 4px;
+  margin-block: var(--space-4) var(--space-6);
+  background: var(--status-caution-bg);
+  color: var(--status-caution-fg);
+  font-size: var(--type-size-sm);
+}
+
+.stale-notice h2 {
+  display: flex;
+  gap: var(--space-2);
+  align-items: center;
+  margin: 0 0 var(--space-2);
+  font-size: var(--type-size-base);
+}
+
+.stale-notice-icon {
+  display: inline-flex;
+}
+
+.stale-notice-icon svg {
+  inline-size: 1.25em;
+  block-size: 1.25em;
+}
+
+.stale-notice p {
+  margin-block: var(--space-1);
+}
+
+.stale-notice-files {
+  display: grid;
+  gap: var(--space-1);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.stale-notice-file {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-1) var(--space-3);
+  align-items: baseline;
+}
+
+.stale-notice-file code {
+  font-family: var(--type-font-mono);
+  font-size: var(--type-size-xs);
+  overflow-wrap: anywhere;
+}
+
+.stale-notice-change {
+  font-style: italic;
+}
+
+.stale-notice-more summary {
+  margin-block-start: var(--space-2);
+  cursor: pointer;
+  font-weight: 500;
+}
+
+.stale-notice-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-2) var(--space-4);
+  align-items: center;
+  margin-block-start: var(--space-2);
+}
+
+.stale-notice-action {
+  font-weight: 500;
+}
