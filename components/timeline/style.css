@@ -13,6 +13,21 @@
   font-style: italic;
 }
 
+/* The timeline is its own container, so the narrow form follows the space it is given rather than
+   the viewport: a timeline in a narrow panel drops the chart on a wide screen too. */
+.timeline {
+  container-type: inline-size;
+}
+
+/* The label column stays put while the axis scrolls beside it inside the table's labelled,
+   focusable scroll region. */
+.timeline .table-scroll th:first-child,
+.timeline .table-scroll td:first-child {
+  position: sticky;
+  inset-inline-start: 0;
+  z-index: 1;
+}
+
 /* The chart column: decoration over the dates the row cells already state. Bars are positioned with
    logical insets, so the axis runs right to left on an RTL page without a second stylesheet. */
 .timeline-chart {
@@ -173,4 +188,13 @@
   margin-inline-end: var(--space-2);
   border-inline-start: thin dashed var(--color-accent);
   vertical-align: middle;
+}
+
+/* A narrow container shows the table alone: the axis and the legend are decoration over the dates
+   the cells already state, and every row keeps its link. */
+@container (max-inline-size: 40rem) {
+  .timeline-chart,
+  .timeline-legend {
+    display: none;
+  }
 }
