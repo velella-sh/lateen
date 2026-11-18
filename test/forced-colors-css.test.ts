@@ -425,6 +425,12 @@ test("source mode keeps its controls and label actions readable in forced colors
   assert.match(rules, /\.source-label-copy,[\s\S]*?color:\s*LinkText/);
 });
 
+test("the dated list keeps its date dot in forced colors", () => {
+  const text = read("../components/dated-list/style.css");
+  const rules = text.slice(text.indexOf("@media (forced-colors: active)"));
+  assert.match(rules, /\.dated-list-item::before[\s\S]*?background-color:\s*CanvasText/);
+});
+
 test("the shared high-contrast link rule covers the report link", () => {
   assert.match(css, /:where\(a\)\s*\{[^}]*color:\s*LinkText\s*!important/);
   const report = read("../chrome/report-issue/style.css");

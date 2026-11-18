@@ -49,6 +49,22 @@ export const OUTSIDE_CLASS = "dated-list-outside";
 /** Class on the line holding the feed and calendar links. */
 export const ACTIONS_CLASS = "dated-list-actions";
 
+/** Every directive attribute the dated list reads, in the order the docs page lists them. */
+export const DATED_LIST_OPTIONS = [
+  "from",
+  "items",
+  "date",
+  "status",
+  "order",
+  "level",
+  "group",
+  "toc",
+  "start",
+  "months",
+  "feed",
+  "calendar",
+] as const;
+
 /** Props from the directive or the page's front matter. */
 export type DatedListProps = {
   /** The collection to read; required unless `items` is given. */

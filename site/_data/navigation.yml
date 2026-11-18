@@ -41,6 +41,8 @@ main:
         url: /components/compare/
       - title: Data explorer
         url: /components/data-explorer/
+      - title: Dated list
+        url: /components/dated-list/
       - title: Details
         url: /components/details/
       - title: Embed

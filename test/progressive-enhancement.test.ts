@@ -451,6 +451,13 @@ test("source mode ships hidden and adds no labels without its island", () => {
   assert.equal(all(page, ".source-label").length, 0, "no label is written without the island");
 });
 
+test("the dated list renders its groups and keeps the island-only controls hidden", () => {
+  const page = site.document("/dated-list/");
+  assert.equal(all(page, ".dated-list-group").length, 2);
+  assert.ok(all(page, ".dated-list-item").length >= 3);
+  assert.equal(all(page, ".dated-list-jump[hidden]").length, 1, "the jump link stays hidden without the island");
+});
+
 test("the report link is server-rendered and needs no island", () => {
   const page = site.document("/guide/install/");
   const link = page.querySelector('a[href^="https://tracker.example/"]');
