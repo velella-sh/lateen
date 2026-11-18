@@ -622,7 +622,8 @@ async function main(): Promise<void> {
           if ((await html.getAttribute("lang")) !== item.lang) {
             throw new Error(`${item.name}: expected lang ${item.lang}, got ${await html.getAttribute("lang")}`);
           }
-          if ((await html.getAttribute("data-theme")) !== theme) {
+          // The embedded view ships no script, so the system scheme decides its colors and no data-theme is set.
+          if (item.layout !== "embedded" && (await html.getAttribute("data-theme")) !== theme) {
             throw new Error(`${item.name}: expected the ${theme} theme, got ${await html.getAttribute("data-theme")}`);
           }
           if (item.open !== undefined) await openOverlay(page, item.open);
