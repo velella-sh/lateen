@@ -139,6 +139,8 @@
   "data_explorer_sort": "Sort by",
   "data_explorer_sort_ascending": "ascending",
   "data_explorer_sort_descending": "descending",
+  "dated_list_calendar": "Add to calendar",
+  "dated_list_feed": "Subscribe",
   "dated_list_invalid": "Records with no valid date are listed here.",
   "dated_list_jump": "Jump to the next dated item",
   "dated_list_nothing": "Nothing this month.",

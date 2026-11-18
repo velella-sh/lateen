@@ -104,3 +104,28 @@
 .dated-list-jump[hidden] {
   display: none;
 }
+
+/* The feed and calendar links above the list. */
+.dated-list-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-3);
+  margin-block: 0 var(--space-6);
+  font-size: var(--type-size-sm);
+}
+
+.dated-list-action {
+  display: inline-flex;
+  gap: var(--space-1);
+  align-items: center;
+  min-block-size: 2.5rem;
+}
+
+.dated-list-icon {
+  display: inline-flex;
+}
+
+.dated-list-icon svg {
+  inline-size: 1em;
+  block-size: 1em;
+}

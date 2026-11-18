@@ -139,6 +139,8 @@
   "data_explorer_sort": "مرتب‌سازی بر اساس",
   "data_explorer_sort_ascending": "صعودی",
   "data_explorer_sort_descending": "نزولی",
+  "dated_list_calendar": "افزودن به تقویم",
+  "dated_list_feed": "اشتراک",
   "dated_list_invalid": "رکوردهای بدون تاریخ معتبر اینجا فهرست شده‌اند.",
   "dated_list_jump": "پرش به مورد بعدی",
   "dated_list_nothing": "این ماه رکوردی ندارد.",

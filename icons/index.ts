@@ -68,6 +68,9 @@ export const folder = '<svg xmlns="http://www.w3.org/2000/svg" width="24" height
 /** A prompt, for terminal blocks and CLI references. */
 export const terminal = '<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M12 19h8"/><path d="m4 17 6-6-6-6"/></svg>';
 
+/** A broadcast dot and arcs, for a feed's subscribe link. */
+export const feed = '<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M4 11a9 9 0 0 1 9 9"/><path d="M4 4a16 16 0 0 1 16 16"/><circle cx="5" cy="19" r="1"/></svg>';
+
 /** A right-pointing arrow, for pagers and forward actions. */
 export const arrow = '<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></svg>';
 
@@ -96,7 +99,8 @@ export type IconName =
   | "folder"
   | "terminal"
   | "arrow"
-  | "minus";
+  | "minus"
+  | "feed";
 
 /**
  * The icons that point along the reading direction. In a right-to-left page a component that
@@ -109,7 +113,7 @@ export const rtl: ReadonlySet<IconName> = new Set<IconName>(["arrow", "chevron",
 export function iconByName(name: unknown): string | undefined {
   if (typeof name !== "string") return undefined;
   const icons: Readonly<Record<IconName, string>> = {
-    search, menu, close, chevron, copy, check, external, edit, sun, moon, github, info, warning, danger, tip, link, file, folder, terminal, arrow, minus,
+    search, menu, close, chevron, copy, check, external, edit, sun, moon, github, info, warning, danger, tip, link, file, folder, terminal, arrow, minus, feed,
   };
   return Object.hasOwn(icons, name) ? icons[name as IconName] : undefined;
 }

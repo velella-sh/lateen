@@ -139,6 +139,8 @@
   "data_explorer_sort": "الترتيب حسب",
   "data_explorer_sort_ascending": "تصاعدي",
   "data_explorer_sort_descending": "تنازلي",
+  "dated_list_calendar": "أضف إلى التقويم",
+  "dated_list_feed": "اشترك",
   "dated_list_invalid": "السجلات التي لا تحمل تاريخًا صالحًا مدرجة هنا.",
   "dated_list_jump": "الانتقال إلى العنصر التالي",
   "dated_list_nothing": "لا سجلات هذا الشهر.",
