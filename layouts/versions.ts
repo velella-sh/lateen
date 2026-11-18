@@ -10,8 +10,8 @@ import base from "./base.ts";
  *
  * ## Where the versions come from
  *
- * `site.data.versions` wins; front matter `versions` is the fallback. The data file
- * (`_data/versions.yml` or `_data/versions.json`) has three accepted shapes:
+ * `site.data.docsVersions` wins; front matter `versions` is the fallback. The data file
+ * (`_data/docs-versions.yml` or `_data/docs-versions.json`) has three accepted shapes:
  *
  * 1. A version list, used as written:
  *
@@ -68,7 +68,7 @@ export const STATUSES = ["latest", "deprecated", "dev"] as const;
 
 export type VersionStatus = (typeof STATUSES)[number];
 
-/** One version row, from `site.data.versions` or the `versions` front matter key. */
+/** One version row, from `site.data.docsVersions` or the `versions` front matter key. */
 export interface VersionEntry {
   /** The version folder name, such as `v2`; blank or non-string rows are dropped. */
   readonly version: string;
@@ -224,9 +224,9 @@ function mapEntries(value: Readonly<Record<string, unknown>>): readonly PageVers
   return entries;
 }
 
-/** The versions a page shows, from `site.data.versions` when it has any, else from front matter. */
+/** The versions a page shows, from `site.data.docsVersions` when it has any, else from front matter. */
 export function versionsOf(site: Site, page: Page): readonly VersionEntry[] {
-  const value = site.data.versions;
+  const value = site.data.docsVersions ?? site.data.versions;
   if (Array.isArray(value)) {
     const versions = entriesOf(value);
     if (versions.length > 0) return versions;
