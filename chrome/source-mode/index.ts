@@ -5,6 +5,13 @@ import { hostOf } from "../../src/repository.ts";
 import { acceptEditorTemplate } from "./editor.ts";
 import { SOURCE_MODE_KEY_CHAR } from "./state.ts";
 
+/** Every config value source mode reads, in the order the docs page lists them. */
+export const SOURCE_MODE_OPTIONS = [
+  "theme.options.sourceMode.editor",
+  "repository.url",
+  "repository.branch",
+] as const;
+
 /** The `theme.options.sourceMode.editor` template, when it passes the scheme allowlist; else `undefined`. */
 export function editorOf(options: Readonly<Record<string, unknown>> | undefined): string | undefined {
   const block = options?.sourceMode;

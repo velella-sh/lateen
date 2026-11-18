@@ -25,6 +25,8 @@ Components are the pieces pages use inside their content: a callout, a code tab,
 
 The engine turns a directive into the component whose folder has the same name under `components/`. A container directive (`:::name` … `:::`) wraps a Markdown body; a leaf directive (`::name`) stands alone on its own line. Directive attributes are the component's options: `:::callout{type=warning}`.
 
+Source mode, the `file:line` view of every block, is described on [Source mode](/source-mode/); its switch is part of every page, not a directive.
+
 The theme's own look is set with the [Brand options](/brand-options/); the shipped starting points are on [Presets](/presets/).
 
 | Component | Use it for |

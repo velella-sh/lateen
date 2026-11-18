@@ -150,3 +150,21 @@
     text-align: end;
   }
 }
+
+/* Forced colors: the controls keep an edge and the label actions keep the system link colour. */
+@media (forced-colors: active) {
+  .source-mode-button,
+  .source-folder-button {
+    border-color: ButtonText;
+  }
+
+  .source-mode-button[aria-pressed="true"] {
+    border-color: Highlight;
+  }
+
+  .source-label-copy,
+  .source-label-link,
+  .source-label-editor {
+    color: LinkText;
+  }
+}

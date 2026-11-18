@@ -66,6 +66,8 @@
   [data-copy-markdown],
   .page-footer-copy,
   .page-agent-menu-copy,
+  .source-mode-switch,
+  .source-label,
   .heading-anchor {
     display: none !important;
   }

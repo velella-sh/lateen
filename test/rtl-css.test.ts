@@ -446,6 +446,7 @@ const REFINED = ["components/table", "components/callout", "components/cards", "
       (dir) => `../components/${dir}/style.css`,
     ),
     "../layouts/guide.css",
+    "../chrome/source-mode/style.css",
   );
 
 test("refined component styles use logical properties and known tokens (light, dark and RTL follow)", () => {

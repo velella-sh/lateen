@@ -37,6 +37,7 @@ export const LAYOUTS = [
   "not-found",
   "record",
   "search-results",
+  "source-mode",
   "tutorial",
   "versions",
 ] as const;
@@ -98,6 +99,10 @@ export const CASES: readonly AuditCase[] = [
   { name: "fixture embedded record persian", site: "fixtures", path: "/fa/books/a/embed/", layout: "embedded", lang: "fa", ...DESKTOP },
   { name: "fixture embedded record arabic", site: "fixtures", path: "/ar/books/a/embed/", layout: "embedded", lang: "ar", ...DESKTOP },
   { name: "fixture embedded record mobile", site: "fixtures", path: "/books/a/embed/", layout: "embedded", lang: "en", ...MOBILE },
+  { name: "fixture source mode", site: "fixtures", path: "/books/a/?source=_data/books.json:4:5", layout: "source-mode", lang: "en", ...DESKTOP },
+  { name: "fixture source mode persian", site: "fixtures", path: "/fa/books/a/?source=_data/books.json:4:5", layout: "source-mode", lang: "fa", ...DESKTOP },
+  { name: "fixture source mode arabic", site: "fixtures", path: "/ar/books/a/?source=_data/books.json:4:5", layout: "source-mode", lang: "ar", ...DESKTOP },
+  { name: "fixture source mode mobile", site: "fixtures", path: "/books/a/?source=_data/books.json:4:5", layout: "source-mode", lang: "en", ...MOBILE },
   { name: "fixture timeline", site: "fixtures", path: "/timeline/", layout: "doc", lang: "en", ...DESKTOP },
   { name: "fixture timeline persian", site: "fixtures", path: "/fa/timeline/", layout: "doc", lang: "fa", ...DESKTOP },
   { name: "fixture timeline arabic", site: "fixtures", path: "/ar/timeline/", layout: "doc", lang: "ar", ...DESKTOP },
