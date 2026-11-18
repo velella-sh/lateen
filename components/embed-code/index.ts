@@ -6,6 +6,9 @@ import { absoluteUrl, embeddedOf, isEmbedded } from "../../layouts/embedded.ts";
 import { t } from "../../i18n/index.ts";
 import { frameSnippet, htmlSnippet, markdownSnippet, SANDBOX, type FrameInfo, type SnippetInfo } from "./snippet.ts";
 
+/** The options the directive reads, documented on `site/components/embed-code.md`. */
+export const OPTIONS = ["src", "title"] as const;
+
 /** Class on the root: the choices, the three formats and the preview. */
 export const EMBED_CODE_CLASS = "embed-code";
 

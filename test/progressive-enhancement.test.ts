@@ -64,6 +64,25 @@ test("the record layout states the record before its islands run", () => {
   assert.equal(all(page, "article.record h1").length, 1, "the title stays one heading");
 });
 
+test("the record layout offers its embed code before islands, and the embedded view reads without any script", () => {
+  const page = site.document("/books/alpha/");
+  const code = page.querySelector("article.record .embed-code");
+  assert.ok(code, "the record page carries its embed code");
+  assert.match(textOf(code), /src="https:\/\/example\.com\/books\/alpha\/embed\/"/);
+  assert.match(textOf(code), /sandbox="allow-popups allow-top-navigation-by-user-activation"/);
+  const load = code.querySelector(".embed-code-preview-load") as HTMLElement | null;
+  assert.ok(load, "the preview control is in the markup");
+  assert.equal(load.hidden, true, "the preview waits for the island");
+  assert.equal(all(code, "pre.code").length, 3, "every format is visible without the tabs");
+
+  const embedded = site.document("/books/alpha/embed/");
+  assert.equal(all(embedded, "script").length, 0, "the embedded view ships no script");
+  assert.match(textOf(embedded.querySelector("h1")), /Alpha/);
+  assert.equal(all(embedded, ".key-value dt").length, 2, "the record's facts render");
+  assert.match(textOf(embedded.querySelector(".embedded-attribution")), /Open the full page/);
+  assert.match(embedded.querySelector("link[rel='canonical']")?.getAttribute("href") ?? "", /\/books\/alpha\/$/);
+});
+
 test("the timeline draws its rows and bars before its island runs", () => {
   const page = site.document("/timeline/");
   const article = page.querySelector("article");

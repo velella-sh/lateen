@@ -39,6 +39,8 @@ main:
         url: /components/details/
       - title: Embed
         url: /components/embed/
+      - title: Embed code
+        url: /components/embed-code/
       - title: Endpoint
         url: /components/endpoint/
       - title: Figure

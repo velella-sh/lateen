@@ -36,6 +36,11 @@ collections:
     id: id
     template: _templates/books.md
     permalink: /books/{id}/
+    views:
+      embed:
+        template: _templates/books-embed.md
+        permalink: /books/{id}/embed/
+        layout: embedded
 
 network:
   source: network.yml

@@ -1,0 +1,95 @@
+/* Record parts a layout renders directly: the title row, the summary, and the key facts. The
+   engine bundles a component's stylesheet only when page content uses that component, so these
+   rules live here for both the record layout and an embedded record view. Logical properties only. */
+
+.record-header {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-2) var(--space-3);
+  align-items: baseline;
+  margin-block: var(--space-4) var(--space-2);
+}
+
+.record-header > h1 {
+  margin-block: 0;
+}
+
+.record-summary {
+  margin-block: 0 var(--space-6);
+  color: var(--color-muted);
+  font-size: var(--type-size-lg);
+  line-height: var(--type-leading-body);
+}
+
+.key-value {
+  display: grid;
+  grid-template-columns: minmax(0, auto) minmax(0, 1fr);
+  gap: var(--space-2) var(--space-4);
+  min-inline-size: 0;
+  margin-block: var(--space-6);
+}
+
+.key-value-key {
+  min-inline-size: 0;
+  color: var(--color-heading);
+  font-family: var(--type-font-ui);
+  font-size: var(--type-size-sm);
+  font-weight: var(--type-weight-medium);
+  line-height: var(--type-leading-body);
+  overflow-wrap: anywhere;
+}
+
+.key-value-value {
+  min-inline-size: 0;
+  margin: 0;
+  color: var(--color-text);
+  font-family: var(--type-font-body);
+  font-size: var(--type-size-sm);
+  line-height: var(--type-leading-body);
+  overflow-wrap: anywhere;
+}
+
+.record-fact-report {
+  margin-inline-start: var(--space-2);
+  color: var(--color-accent);
+  font-family: var(--type-font-ui);
+  white-space: nowrap;
+  text-decoration: none;
+}
+
+.record-fact-report:hover {
+  color: var(--color-accent-hover);
+  text-decoration: underline;
+}
+
+.record-fact-report:focus-visible {
+  outline: 2px solid var(--state-focus-ring);
+  outline-offset: 2px;
+}
+
+@media (max-width: 40rem) {
+  .key-value {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}
+
+/* A fact row is one key and its value: printing never splits the pair, and the report link is a
+   screen control, so it leaves the page. */
+@media print {
+  .key-value > dt,
+  .key-value > dd {
+    break-inside: avoid;
+  }
+
+  .record-fact-report {
+    display: none;
+  }
+}
+
+/* Forced colours replace the accent the link relies on: the underline names it without colour. */
+@media (forced-colors: active) {
+  .record-fact-report {
+    color: LinkText;
+    text-decoration: underline;
+  }
+}

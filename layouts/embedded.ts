@@ -1,6 +1,7 @@
-import { h } from "preact";
+import { Fragment, h } from "preact";
 import type { Layout, LayoutProps, LinkTag, MetaTag, Page, SiteConfig } from "@velella/mizzen/contracts";
 import { t } from "../i18n/index.ts";
+import { factsPanel, recordHeader } from "../src/record-parts.ts";
 
 /** Class on the page body wrapper; `embedded.css` sizes it. */
 export const EMBEDDED_CLASS = "embedded";
@@ -41,7 +42,9 @@ function isRecord(value: unknown): value is Readonly<Record<string, unknown>> {
 export function embeddedOf(page: Pick<Page, "frontMatter">): Embedded {
   const raw = page.frontMatter.embedded;
   const value = isRecord(raw) ? raw : {};
-  const of = typeof value.of === "string" && value.of.trim() !== "" ? value.of.trim() : undefined;
+  const canonical = typeof page.frontMatter.canonical_url === "string" ? page.frontMatter.canonical_url.trim() : "";
+  const of =
+    typeof value.of === "string" && value.of.trim() !== "" ? value.of.trim() : canonical !== "" ? canonical : undefined;
   const scheme = SCHEMES.find((name) => name === value.scheme) ?? "auto";
   const number = typeof value.height === "number" ? value.height : typeof value.height === "string" ? Number(value.height) : NaN;
   const height = Number.isFinite(number) ? Math.min(MAX_HEIGHT, Math.max(MIN_HEIGHT, Math.round(number))) : DEFAULT_HEIGHT;
@@ -82,12 +85,15 @@ function linkTag(tag: LinkTag) {
 
 /**
  * The embedded view: the page body alone, with no header, sidebar, footer, search or islands, and no
- * `<script>` of any kind, not even the theme script. A one-line attribution links to the full page in the
- * top window. The view is `noindex` and its canonical link is the full page named in `embedded.of`. The
- * colour scheme, height and transparent canvas come from `embedded` front matter and reach the
- * stylesheet as data attributes and one custom property, so no script or query parameter is needed.
+ * `<script>` of any kind, not even the theme script. A record view adds the record's title, status and
+ * key facts from the same formatters the record page uses. A one-line attribution links to the full page in the
+ * top window. The view is `noindex` and its canonical link is the full page named in `embedded.of`, or the
+ * canonical address the engine gave a record view. The colour scheme, height and transparent canvas come
+ * from `embedded` front matter and reach the stylesheet as data attributes and one custom property, so no
+ * script or query parameter is needed.
  */
-const embedded: Layout = ({ site, page, head }: LayoutProps) => {
+const embedded: Layout = (props: LayoutProps) => {
+  const { site, page, head } = props;
   const settings = embeddedOf(page);
   const href = fullHref(site.config, settings.of);
   const canonical = settings.of === undefined ? undefined : (absoluteUrl(site.config, settings.of) ?? href);
@@ -96,6 +102,7 @@ const embedded: Layout = ({ site, page, head }: LayoutProps) => {
   const meta = head.meta.filter((tag) => tag.name.toLowerCase() !== "robots");
   const lang = page.lang;
   const label = t(lang, "embedded_open_full");
+  const record = props.record === undefined ? null : h(Fragment, null, recordHeader(props), factsPanel(props));
 
   return h(
     "html",
@@ -121,7 +128,14 @@ const embedded: Layout = ({ site, page, head }: LayoutProps) => {
       h(
         "div",
         { class: EMBEDDED_CLASS, "data-embedded-height": String(settings.height), style: `--embedded-height:${settings.height}px` },
-        h("main", { class: CONTENT_CLASS, dangerouslySetInnerHTML: { __html: page.html } }),
+        record === null
+          ? h("main", { class: CONTENT_CLASS, dangerouslySetInnerHTML: { __html: page.html } })
+          : h(
+              "main",
+              { class: CONTENT_CLASS },
+              record,
+              h("div", { dangerouslySetInnerHTML: { __html: page.html } }),
+            ),
         h(
           "p",
           { class: ATTRIBUTION_CLASS },

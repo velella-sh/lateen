@@ -391,10 +391,22 @@ test("the guide layout's components print whole and drop their copy controls", (
 });
 
 test("the record layout prints each fact pair whole and drops its report links", () => {
-  const print = read("../layouts/record.css").slice(read("../layouts/record.css").indexOf("@media print"));
+  const print = read("../styles/parts-record.css").slice(read("../styles/parts-record.css").indexOf("@media print"));
 
   assert.match(print, /\.key-value > dt,\s*\.key-value > dd\s*\{[^}]*break-inside:\s*avoid/);
   assert.match(print, /\.record-fact-report\s*\{[^}]*display:\s*none/);
+});
+
+test("the embedded view unclips for print and the embed code drops its screen-only controls", () => {
+  const embedded = read("../layouts/embedded.css").slice(read("../layouts/embedded.css").indexOf("@media print"));
+  assert.match(embedded, /\.embedded\s*\{[^}]*block-size:\s*auto/);
+  assert.match(embedded, /\.embedded\s*\{[^}]*max-block-size:\s*none/);
+  assert.match(embedded, /\.embedded-content\s*\{[^}]*overflow:\s*visible/);
+
+  const code = read("../components/embed-code/style.css").slice(read("../components/embed-code/style.css").indexOf("@media print"));
+  for (const selector of [".embed-code-preview-load", ".embed-code-tablist", ".embed-code-frame"]) {
+    assert.match(code, new RegExp(`${selector.replace(".", "\\.")}[^{]*\\{[^}]*display:\\s*none`), `${selector} still prints`);
+  }
 });
 
 test("the network chrome stays out of print with the header and footer", () => {

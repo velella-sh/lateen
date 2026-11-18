@@ -473,6 +473,21 @@ test("the record layout places its columns with logical properties and known tok
   }
 });
 
+test("the embedded view and the embed code stay logical and read known tokens (RTL safe)", () => {
+  const known = new Set([...tokensCss.matchAll(/(--[a-z0-9-]+)\s*:/g)].map((m) => m[1]));
+  for (const file of ["../layouts/embedded.css", "../components/embed-code/style.css", "../styles/parts-record.css"]) {
+    const text = stripComments(read(file));
+    // The embed page writes this one on the element it sizes, so it is a local contract, not a design token.
+    const local = new Set([...text.matchAll(/(--[a-z0-9-]+)\s*:/g)].map((m) => m[1]));
+    if (file.endsWith("embedded.css")) local.add("--embedded-height");
+    assert.doesNotMatch(text, /\b(?:margin|padding|border)-(?:left|right)\b|(?:^|[\s;{])(?:left|right)\s*:/m, `${file}: physical property`);
+    for (const m of text.matchAll(/var\((--[a-z0-9-]+)/g)) {
+      const name = m[1] ?? "";
+      assert.ok(known.has(name) || local.has(name), `${file}: unknown token ${name}`);
+    }
+  }
+});
+
 test("table header sticks, rows divide with a hairline, numbers align to the end, and hover is a tint only", () => {
   const table = stripComments(read("../components/table/style.css"));
   assert.match(table, /\.table-scroll th \{[^}]*position: sticky;[^}]*inset-block-start: 0/);

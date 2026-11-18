@@ -72,6 +72,19 @@ html[data-transparent="true"] .embedded-attribution {
   background-color: transparent;
 }
 
+/* A printed embedded view shows the whole page: the frame's height and clipping are screen rules. */
+@media print {
+  .embedded {
+    block-size: auto;
+    max-block-size: none;
+    overflow: visible;
+  }
+
+  .embedded-content {
+    overflow: visible;
+  }
+}
+
 .embedded-attribution a {
   color: var(--color-link);
   font-weight: 600;

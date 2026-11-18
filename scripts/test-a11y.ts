@@ -29,6 +29,7 @@ export const LAYOUTS = [
   "api",
   "changelog",
   "doc",
+  "embedded",
   "guide",
   "home",
   "list",
@@ -92,6 +93,10 @@ export const CASES: readonly AuditCase[] = [
   { name: "fixture record", site: "fixtures", path: "/books/a/", layout: "record", lang: "en", ...DESKTOP },
   { name: "fixture record persian", site: "fixtures", path: "/fa/books/a/", layout: "record", lang: "fa", ...DESKTOP },
   { name: "fixture record arabic", site: "fixtures", path: "/ar/books/a/", layout: "record", lang: "ar", ...DESKTOP },
+  { name: "fixture embedded record", site: "fixtures", path: "/books/a/embed/", layout: "embedded", lang: "en", ...DESKTOP },
+  { name: "fixture embedded record persian", site: "fixtures", path: "/fa/books/a/embed/", layout: "embedded", lang: "fa", ...DESKTOP },
+  { name: "fixture embedded record arabic", site: "fixtures", path: "/ar/books/a/embed/", layout: "embedded", lang: "ar", ...DESKTOP },
+  { name: "fixture embedded record mobile", site: "fixtures", path: "/books/a/embed/", layout: "embedded", lang: "en", ...MOBILE },
   { name: "fixture timeline", site: "fixtures", path: "/timeline/", layout: "doc", lang: "en", ...DESKTOP },
   { name: "fixture timeline persian", site: "fixtures", path: "/fa/timeline/", layout: "doc", lang: "fa", ...DESKTOP },
   { name: "fixture timeline arabic", site: "fixtures", path: "/ar/timeline/", layout: "doc", lang: "ar", ...DESKTOP },
@@ -617,7 +622,8 @@ async function main(): Promise<void> {
           if ((await html.getAttribute("lang")) !== item.lang) {
             throw new Error(`${item.name}: expected lang ${item.lang}, got ${await html.getAttribute("lang")}`);
           }
-          if ((await html.getAttribute("data-theme")) !== theme) {
+          // The embedded view ships no script, so the system scheme decides its colors and no data-theme is set.
+          if (item.layout !== "embedded" && (await html.getAttribute("data-theme")) !== theme) {
             throw new Error(`${item.name}: expected the ${theme} theme, got ${await html.getAttribute("data-theme")}`);
           }
           if (item.open !== undefined) await openOverlay(page, item.open);
