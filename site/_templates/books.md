@@ -15,5 +15,6 @@ record:
     - field: format
       label: Format
 ---
+# :field[title]
 
-A short invented record for the [record layout](/layouts/record/). Its fields come from the books collection, and nothing in the body repeats what the facts panel already shows.
+A book in the example collection the data explorer reads.

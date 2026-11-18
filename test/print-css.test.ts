@@ -362,6 +362,22 @@ test("a timeline row keeps its dates and its bar on one printed page", () => {
   assert.match(print, /\.timeline \.table tr\s*\{[^}]*break-inside:\s*avoid/);
 });
 
+test("the data explorer prints its table and drops the controls that need a script", () => {
+  const text = read("../components/data-explorer/style.css");
+  const print = text.slice(text.indexOf("@media print"));
+  for (const selector of [
+    ".data-explorer-form",
+    ".data-explorer-filters",
+    ".data-explorer-chips",
+    ".data-explorer-status",
+    ".data-explorer-more",
+  ]) {
+    assert.ok(print.includes(selector), `${selector} still prints`);
+  }
+  assert.match(print, /\.table-scroll\s*\{[^}]*overflow:\s*visible/);
+  assert.match(print, /\.table-scroll\s*\{[^}]*box-shadow:\s*none/);
+});
+
 test("charts print whole, with their data tables opened by the print stylesheet", () => {
   for (const unit of ["bar-chart", "line-chart"]) {
     const text = read(`../components/${unit}/style.css`);

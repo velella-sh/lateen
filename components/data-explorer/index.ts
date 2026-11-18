@@ -26,6 +26,9 @@ export const SORT_DIRECTION_ID = "data-explorer-sort-direction";
 /** The site's search results page, which answers a submit without any script. */
 export const SEARCH_PATH = "/search/";
 
+/** The directive's options, in the order the docs page lists them. */
+export const OPTIONS = ["from", "columns", "filters", "sort"] as const;
+
 /** Props from the directive. */
 export type DataExplorerProps = {
   /** The collection to explore, lowercase as the site config writes it. */

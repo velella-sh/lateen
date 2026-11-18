@@ -366,6 +366,22 @@ test("a timeline keeps its bars and axis when colour is replaced", () => {
   assert.match(rules, /\.timeline-axis,[\s\S]*?color:\s*CanvasText/);
 });
 
+test("the data explorer's controls keep a visible edge when colour is replaced", () => {
+  const text = read("../components/data-explorer/style.css");
+  const rules = text.slice(text.indexOf("@media (forced-colors: active)"));
+  for (const selector of [
+    ".data-explorer-input",
+    ".data-explorer-sort-field",
+    ".data-explorer-submit",
+    ".data-explorer-more",
+    ".data-explorer-filter",
+    ".data-explorer-chip",
+  ]) {
+    assert.ok(rules.includes(selector), `${selector} has no forced-colors rule`);
+  }
+  assert.match(rules, /border-color:\s*CanvasText/);
+});
+
 test("charts keep their marks and the data table's edge when colour is replaced", () => {
   const bar = read("../components/bar-chart/style.css");
   const barRules = bar.slice(bar.indexOf("@media (forced-colors: active)"));

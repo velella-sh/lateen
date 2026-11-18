@@ -295,3 +295,31 @@
   font-size: var(--type-size-sm);
   cursor: pointer;
 }
+
+/* A printed explorer keeps the table and drops the controls that need the island. */
+@media print {
+  .data-explorer-form,
+  .data-explorer-filters,
+  .data-explorer-chips,
+  .data-explorer-status,
+  .data-explorer-more {
+    display: none;
+  }
+
+  .table-scroll {
+    overflow: visible;
+    box-shadow: none;
+  }
+}
+
+/* The system palette replaces the tokens, so every control keeps a visible edge. */
+@media (forced-colors: active) {
+  .data-explorer-input,
+  .data-explorer-sort-field,
+  .data-explorer-submit,
+  .data-explorer-more,
+  .data-explorer-filter,
+  .data-explorer-chip {
+    border-color: CanvasText;
+  }
+}
