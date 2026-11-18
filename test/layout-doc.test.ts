@@ -249,3 +249,24 @@ test("a status with no banner, and a non-string `since`, leave the page as they 
   assert.doesNotMatch(page, /page-status/);
   assert.match(page, /<article class="doc"[^>]*><h1>Install<\/h1>/);
 });
+
+test("a page with tool: renders the tool, its module, and its fallback", () => {
+  const page = out(pageWith({ frontMatter: { tool: "tool/sample.js" } }));
+  assert.match(page, /<section class="page-tool" aria-labelledby="page-tool-title">/);
+  assert.match(page, /<p class="page-tool-fallback">/);
+  assert.match(page, /<script type="module" src="\/tool\/sample\.js"><\/script>/);
+});
+
+test("a page without tool: renders exactly as before", () => {
+  const page = out(pageWith());
+  assert.doesNotMatch(page, /page-tool/);
+  assert.doesNotMatch(page, /<script type="module"/);
+});
+
+test("the tool URL keeps a nested base path", () => {
+  const props = layoutProps(pageWith({ frontMatter: { tool: "tool/sample.js" } }));
+  const nested = { ...props, site: { ...props.site, config: configWith({ base: "/lateen" }) } };
+  const page = html(doc(nested));
+  assert.match(page, /href="\/lateen\/tool\/sample\.js"/);
+  assert.match(page, /src="\/lateen\/tool\/sample\.js"/);
+});
