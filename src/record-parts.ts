@@ -4,7 +4,7 @@ import type { DataRecord, LayoutProps, RecordPos } from "@velella/mizzen/contrac
 import { LINK_CLASS, reportHref } from "../chrome/report-issue/index.ts";
 import { KEY_CLASS, LIST_CLASS, VALUE_CLASS } from "../components/key-value/index.ts";
 import { t } from "../i18n/index.ts";
-import { formatField, kindOf } from "./fields.ts";
+import { DERIVED_PREFIX, fieldValueOf, formatField, kindOf } from "./fields.ts";
 
 /** Id of the facts panel; the record page's table of contents links to it. */
 export const FACTS_ID = "record-facts";
@@ -25,6 +25,17 @@ interface Fact {
   readonly kind: ReturnType<typeof kindOf>;
 }
 
+/** True when the record can answer `field`: its own field, its id, or a value the engine derived. */
+function knowsField(props: LayoutProps, field: string): boolean {
+  const record = props.record;
+  if (record === undefined) return false;
+  if (field === "id") return true;
+  if (field.startsWith(DERIVED_PREFIX)) {
+    return record.derived !== undefined && Object.hasOwn(record.derived, field.slice(DERIVED_PREFIX.length));
+  }
+  return Object.hasOwn(record.fields, field);
+}
+
 /** The facts the page asks for and the record can answer, in the author's order. */
 export function factsOf(props: LayoutProps): Fact[] {
   const record = props.record;
@@ -34,8 +45,7 @@ export function factsOf(props: LayoutProps): Fact[] {
     if (!isRecord(entry)) return [];
     const field = typeof entry.field === "string" ? entry.field.trim() : "";
     const label = typeof entry.label === "string" ? entry.label.trim() : "";
-    if (field === "" || label === "") return [];
-    if (field !== "id" && !Object.hasOwn(record.fields, field)) return [];
+    if (field === "" || label === "" || !knowsField(props, field)) return [];
     return [{ field, label, kind: kindOf(entry.kind) }];
   });
 }
@@ -59,7 +69,7 @@ function fieldName(props: LayoutProps, key: "summary" | "status"): string {
 function fieldValue(props: LayoutProps, field: string): unknown {
   const record = props.record;
   if (record === undefined || field === "") return undefined;
-  return field === "id" ? record.id : record.fields[field];
+  return field === "id" ? record.id : fieldValueOf(record, field);
 }
 
 /** Empty values render nothing: the summary paragraph and the status chip are never blank. */
@@ -151,7 +161,7 @@ export function factsPanel(props: LayoutProps): ComponentChildren {
               : { "data-src": dataSrcOf(factPosition(props, fact)) }),
           },
           formatField(
-            fact.field === "id" ? record.id : record.fields[fact.field],
+            fact.field === "id" ? record.id : fieldValueOf(record, fact.field),
             fact.kind,
             props.page.lang,
             props.site.config,

@@ -1,0 +1,2 @@
+{"id":"aaaaaaaaaaaaaaaa","type":"added","record":"dated","fields":{"title":"Dated item","status":"beta"},"date":"2026-05-01"}
+{"id":"bbbbbbbbbbbbbbbb","type":"changed","record":"dated","field":"status","old":"beta","new":"stable","date":"2026-05-15"}

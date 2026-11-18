@@ -66,10 +66,13 @@ export const PAGES: readonly FixturePage[] = [
 export const GALLERY_PAGES: readonly FixturePage[] = PAGES.filter((p) => p.from === "gallery");
 
 /** The component folders of the theme, sorted: the names the gallery must show. */
+/** Components the article layouts mount themselves; the gallery has no directive to show them. */
+export const LAYOUT_ONLY: ReadonlySet<string> = new Set(["add-to-calendar", "record-history", "stale-notice"]);
+
 export function componentNames(): string[] {
   const dir = fileURLToPath(new URL("../../../components/", import.meta.url));
   return readdirSync(dir, { withFileTypes: true })
-    .filter((entry) => entry.isDirectory())
+    .filter((entry) => entry.isDirectory() && !LAYOUT_ONLY.has(entry.name))
     .map((entry) => entry.name)
     .sort();
 }

@@ -1,6 +1,7 @@
 import { h } from "preact";
 import type { ComponentChildren } from "preact";
-import type { Page, SiteConfig } from "@velella/mizzen/contracts";
+import type { Page, RecordProps, SiteConfig } from "@velella/mizzen/contracts";
+import { formatCount, pluralCategory } from "../components/reading-time/index.ts";
 import status from "../components/status/index.ts";
 import { resolveStatus } from "../components/status/values.ts";
 import { t } from "../i18n/index.ts";
@@ -8,8 +9,11 @@ import { calendarDate } from "./dates.ts";
 import { formatNumber } from "./report.ts";
 import { withBase } from "./url.ts";
 
-/** How a record field is shown. `status` reads the site's map; every other kind reads the value as written. */
-export const FIELD_KINDS = ["text", "number", "boolean", "date", "url", "list", "status"] as const;
+/**
+ * How a record field is shown. `status` reads the site's map, `days` reads the engine's signed day
+ * count, and every other kind reads the value as written.
+ */
+export const FIELD_KINDS = ["text", "number", "boolean", "date", "url", "list", "status", "days"] as const;
 
 export type FieldKind = (typeof FIELD_KINDS)[number];
 
@@ -30,6 +34,19 @@ export function isEmpty(value: unknown): boolean {
   if (value === null || value === undefined) return true;
   if (typeof value === "string") return value.trim() === "";
   return Array.isArray(value) && value.length === 0;
+}
+
+/** The prefix a page writes to read a value the engine derived instead of a field in the record. */
+export const DERIVED_PREFIX = "derived.";
+
+/**
+ * The value a page names: a record field, or `derived.<name>` for the engine's computed value. A
+ * record without `derived` and a name it does not carry read as `undefined`, so the caller renders
+ * the empty placeholder; nothing here computes or compares a date.
+ */
+export function fieldValueOf(record: Pick<RecordProps, "fields" | "derived">, field: string): unknown {
+  if (field.startsWith(DERIVED_PREFIX)) return record.derived?.[field.slice(DERIVED_PREFIX.length)];
+  return record.fields[field];
 }
 
 /** The kind to render: one of {@link FIELD_KINDS}; anything else is text. */
@@ -62,6 +79,22 @@ function booleanNode(value: unknown, lang: string): ComponentChildren {
 function dateNode(value: unknown, lang: string): ComponentChildren {
   const date = typeof value === "string" ? calendarDate(value, lang) : undefined;
   return date === undefined ? textOf(value) : h("time", { datetime: date.datetime }, date.text);
+}
+
+/**
+ * A signed day count as the engine derived it: a positive count is time left, a negative count is
+ * time past, and zero is today. The number is only printed, never compared with a date; the plural
+ * category and the digits come from the page language.
+ */
+function daysNode(value: unknown, lang: string): ComponentChildren {
+  const days = typeof value === "number" ? value : typeof value === "string" && value.trim() !== "" ? Number(value) : NaN;
+  if (!Number.isFinite(days)) return textOf(value);
+
+  const count = Math.trunc(days);
+  if (count === 0) return t(lang, "field_today");
+  const magnitude = Math.abs(count);
+  const direction = count > 0 ? "field_days_left" : "field_days_ago";
+  return t(lang, `${direction}_${pluralCategory(lang, magnitude)}`, { n: formatCount(lang, magnitude) });
 }
 
 /** A link for a safe URL, with the site's base path; anything else reads as text so a field cannot add a scheme. */
@@ -126,6 +159,8 @@ export function formatField(
       return listNode(value, lang, config);
     case "status":
       return statusNode(value, lang, config);
+    case "days":
+      return daysNode(value, lang);
     default:
       return textOf(value);
   }

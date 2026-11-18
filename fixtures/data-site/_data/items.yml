@@ -1,0 +1,7 @@
+- id: dated
+  title: Dated item
+  released: "2026-06-11"
+  status: stable
+- id: plain
+  title: Plain item
+  status: stable

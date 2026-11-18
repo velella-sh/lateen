@@ -12,10 +12,13 @@ import pageFooter from "../chrome/page-footer/index.ts";
 import header from "../chrome/header/index.ts";
 import sidebar from "../chrome/sidebar/index.ts";
 import toc from "../chrome/toc/index.ts";
+import addToCalendar from "../components/add-to-calendar/index.ts";
 import embedCode from "../components/embed-code/index.ts";
+import recordHistory from "../components/record-history/index.ts";
 import { t } from "../i18n/index.ts";
 import { FACTS_ID, factsOf, factsPanel, recordHeader, summaryOf } from "../src/record-parts.ts";
 import doc from "./doc.ts";
+import { staleSlot } from "../src/stale.ts";
 
 /** Class on the embed code the record offers; `record.css` places it. */
 const EMBED_CLASS = "record-embed";
@@ -56,10 +59,26 @@ function article(props: LayoutProps): ComponentChildren {
     { class: "record", "data-pagefind-body": true },
     breadcrumb(props) as ComponentChildren,
     recordHeader(props),
+    staleSlot(props),
     summaryOf(props),
+    addToCalendar({
+      props: {
+        ...(props.record?.calendar === undefined ? {} : { calendar: props.record.calendar }),
+        ...(props.record?.calendars === undefined ? {} : { calendars: props.record.calendars }),
+      },
+      page: props.page,
+      site: props.site,
+      html: "",
+    }) as ComponentChildren,
     factsPanel(props),
     lastUpdated(props) as ComponentChildren,
     h("div", { class: "record-body", dangerouslySetInnerHTML: { __html: props.page.html } }),
+    recordHistory({
+      props: props.record?.changes === undefined ? {} : { changes: props.record.changes },
+      page: props.page,
+      site: props.site,
+      html: "",
+    }) as ComponentChildren,
     embedPanel(props),
     h(
       "div",

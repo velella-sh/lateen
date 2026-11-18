@@ -25,10 +25,12 @@ export interface RecordQuery {
   readonly limit?: number;
 }
 
-/** A selected record: its id, its fields as the source holds them, and the URL of its page when it has one. */
+/** A selected record: its id, its fields as the source holds them, its derived values, and the URL of its page when it has one. */
 export interface SelectedRecord {
   readonly id: string;
   readonly fields: Readonly<Record<string, unknown>>;
+  /** The engine's derived values, when the collection declares rules and the record has a date to derive from. */
+  readonly derived?: Readonly<Record<string, unknown>>;
   readonly url?: string;
 }
 
@@ -161,7 +163,12 @@ export function selectRecords(site: Site, page: Page, query: RecordQuery): Recor
     ok: true,
     records: selected.map((record) => {
       const url = urls.get(`${query.collection}\u0000${record.id}`);
-      return { id: record.id, fields: record.fields, ...(url === undefined ? {} : { url }) };
+      return {
+        id: record.id,
+        fields: record.fields,
+        ...(record.derived === undefined ? {} : { derived: record.derived }),
+        ...(url === undefined ? {} : { url }),
+      };
     }),
   };
 }

@@ -2,6 +2,7 @@ import { Fragment, h } from "preact";
 import type { ComponentChildren } from "preact";
 import type { Layout, LayoutProps } from "@velella/mizzen/contracts";
 import base from "./base.ts";
+import { staleSlot } from "../src/stale.ts";
 import blockActions from "../chrome/block-actions/index.ts";
 import breadcrumb from "../chrome/breadcrumb/index.ts";
 import copyMarkdown from "../chrome/copy-markdown/index.ts";
@@ -63,6 +64,7 @@ function article(props: LayoutProps): ComponentChildren {
     pageStatus({ props: statusProps(page), page, site: props.site, html: "" }) as ComponentChildren,
     versionNotice({ props: {}, page, site: props.site, html: "" }) as ComponentChildren,
     titleFromBody(props) ? null : h("h1", null, page.title),
+    staleSlot(props),
     trustPanel({ props: {}, page, site: props.site, html: "" }) as ComponentChildren,
     lastUpdated(props) as ComponentChildren,
     readingTime({ props: {}, page, site: props.site, html: "" }) as ComponentChildren,

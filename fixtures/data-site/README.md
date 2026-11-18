@@ -56,6 +56,23 @@ A JSON object keyed by version. The key is the record's id; the value is its fie
 RFC 4180 CSV with a header row: `id`, `name`, `code`, `note`. One `note` is quoted because it holds a
 comma; the cell row spans one line, so the fixture stays simple to read. `id` is the record's id.
 
+## Local additions for dated data
+
+The seven files above stay byte for byte as the engine's copy; `test/data-site-build.test.ts` keeps
+hashing them. These additions are new files only, so the pages the default config builds do not move:
+
+| File | Why |
+| --- | --- |
+| `_data/items.yml` | Two records: one with a date and one without. |
+| `_templates/items.md` | A record template that asks for the record's history. |
+| `data-changes/items.jsonl` | Two events for the dated record. |
+| `guide.md` | A page that names the file it describes with `covers`. |
+| `assets/example.txt` | The file `guide.md` covers. |
+
+`mizzen.yml` does not declare the `items` collection. `test/data-time-contracts.test.ts` adds the
+collection, its `dates` and `derived` rules, the `calendars` key, and a review lock through the
+builder's overlay, so this fixture stays the shared baseline for every other test.
+
 ## Rules
 
 This folder is read-only once other work depends on it. A test that needs a different shape adds a
