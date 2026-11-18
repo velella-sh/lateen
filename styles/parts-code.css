@@ -70,6 +70,39 @@
   background-color: var(--code-line-highlight);
 }
 
+/* Added and removed lines: the + or − is generated here, never in the text, so a copy stays clean. */
+.code .ins,
+.code .del {
+  position: relative;
+  padding-inline-start: var(--space-4);
+}
+
+.code .ins {
+  background-color: color-mix(in srgb, var(--color-success) 12%, transparent);
+}
+
+.code .del {
+  background-color: color-mix(in srgb, var(--color-danger) 12%, transparent);
+}
+
+.code .ins::after,
+.code .del::after {
+  position: absolute;
+  inset-block-start: 0;
+  inset-inline-start: var(--space-1);
+  font-weight: var(--type-weight-bold);
+}
+
+.code .ins::after {
+  content: "+";
+  color: var(--color-success);
+}
+
+.code .del::after {
+  content: "−";
+  color: var(--color-danger);
+}
+
 .code [data-line]::before {
   content: attr(data-line);
   display: inline-block;
@@ -155,4 +188,38 @@
   overflow: hidden;
   clip-path: inset(50%);
   white-space: nowrap;
+}
+
+/* Notes under a block: a native disclosure, so it opens, closes, and prints without JavaScript. */
+.code-annotations {
+  margin-block: var(--space-2) var(--space-4);
+  padding-block: var(--space-2);
+  padding-inline: var(--space-4);
+  border: thin solid var(--code-border);
+  border-radius: var(--radius-md);
+  background-color: var(--code-bg);
+  font-size: var(--type-size-sm);
+}
+
+.code-annotations-summary {
+  color: var(--color-text);
+  font-weight: var(--type-weight-medium);
+  cursor: pointer;
+}
+
+.code-annotations-list {
+  margin-block: var(--space-2) 0;
+  padding-inline-start: var(--space-6);
+}
+
+.code-annotations-item {
+  margin-block: var(--space-1);
+}
+
+.code-annotations-link {
+  font-weight: var(--type-weight-medium);
+}
+
+.code-annotations-text {
+  color: var(--color-text);
 }

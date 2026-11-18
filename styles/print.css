@@ -244,7 +244,9 @@
     content: none;
   }
 
-  .code .highlighted {
+  .code .highlighted,
+  .code .ins,
+  .code .del {
     background: none;
   }
 
