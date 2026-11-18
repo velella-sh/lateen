@@ -99,4 +99,13 @@ export const CASES: readonly AcceptanceCase[] = [
       { selector: ".overrides-probe", text: "Site guides" },
     ],
   },
+  {
+    name: "api-reference",
+    path: "/reference/ping/",
+    expect: [
+      { selector: ".api-reference-method", text: "GET" },
+      { selector: ".api-reference-path", text: "/ping" },
+      { selector: ".api-reference-status", text: "200" },
+    ],
+  },
 ];

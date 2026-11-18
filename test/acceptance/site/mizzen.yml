@@ -8,6 +8,9 @@ base: ""
 search: false
 blog:
   posts: posts
+apiReference:
+  source: openapi.json
+  path: /reference/
 repository:
   url: https://github.com/example/lateen-acceptance
   branch: main

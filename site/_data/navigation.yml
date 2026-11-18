@@ -16,6 +16,8 @@ main:
         url: /layouts/record/
       - title: Blog layout
         url: /layouts/post/
+      - title: API reference
+        url: /layouts/api-reference/
       - title: Showpiece home
         url: /showpiece/
   - title: Components

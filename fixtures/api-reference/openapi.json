@@ -1,0 +1,123 @@
+{
+  "openapi": "3.1.0",
+  "info": {
+    "title": "Widget API",
+    "version": "1.4.0",
+    "description": "A small API used to exercise the API reference layouts."
+  },
+  "servers": [{ "url": "https://api.example.com/v1" }],
+  "paths": {
+    "/widgets": {
+      "post": {
+        "operationId": "createWidget",
+        "summary": "Create a widget",
+        "description": "Creates one widget and returns it.",
+        "tags": ["Widgets"],
+        "parameters": [
+          {
+            "name": "expand",
+            "in": "query",
+            "required": false,
+            "description": "Related records to include in the response.",
+            "schema": { "type": "string", "enum": ["owner", "history"] }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "description": "The widget to create.",
+          "content": {
+            "application/json": {
+              "schema": { "$ref": "#/components/schemas/WidgetInput" },
+              "examples": {
+                "minimal": {
+                  "summary": "A widget with only a name.",
+                  "value": { "name": "Gizmo" }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "The widget was created.",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/Widget" },
+                "examples": {
+                  "created": {
+                    "summary": "A created widget.",
+                    "value": { "id": "w_123", "name": "Gizmo", "size": "medium" }
+                  }
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "The request body is not a valid widget.",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/Error" }
+              }
+            }
+          },
+          "500": { "description": "The service failed." }
+        }
+      }
+    },
+    "/ping": {
+      "get": {
+        "operationId": "ping",
+        "responses": {
+          "200": { "description": "The service is up." }
+        }
+      }
+    }
+  },
+  "components": {
+    "schemas": {
+      "WidgetInput": {
+        "type": "object",
+        "required": ["name"],
+        "properties": {
+          "name": { "type": "string", "description": "The widget name." },
+          "size": {
+            "type": "string",
+            "enum": ["small", "medium", "large"],
+            "default": "medium"
+          },
+          "owner": {
+            "type": "object",
+            "properties": {
+              "id": { "type": "string", "format": "uuid" },
+              "email": { "type": "string", "format": "email" }
+            }
+          },
+          "tags": {
+            "type": "array",
+            "items": { "type": "string" }
+          },
+          "metadata": {
+            "type": "object",
+            "additionalProperties": { "type": "string" }
+          }
+        }
+      },
+      "Widget": {
+        "type": "object",
+        "required": ["id", "name"],
+        "properties": {
+          "id": { "type": "string" },
+          "name": { "type": "string" },
+          "size": { "type": "string" }
+        }
+      },
+      "Error": {
+        "type": "object",
+        "required": ["message"],
+        "properties": {
+          "message": { "type": "string" }
+        }
+      }
+    }
+  }
+}
