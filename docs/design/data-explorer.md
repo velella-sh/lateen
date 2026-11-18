@@ -324,4 +324,15 @@ misses it.
   saved state.
 - Numeric or date ranges as filters, multi-field sort, and grouping. `record-table` and the list
   layout keep those jobs.
-- A worker for matching, until #291's measurement asks for one.
+- A worker for matching: the 10,000-row measurement stayed inside the per-keystroke budget, so the
+  match runs on the main thread (see "Scale").
+
+## Scale
+
+`prepareRows` normalizes every row's searched text once when the index loads; each keystroke only
+splits the query into words and compares them against the prepared words. Measured on a local
+machine over 10,000 generated rows with four columns: preparing the index about 20 ms, and one query
+(`book`, `bo`, `book 12`, `shelf 3`, `author 4`, or a miss) 0.7–1.7 ms. `test/component-data-explorer-scale.test.ts`
+holds this with a 25 ms per-keystroke budget and a 500 ms load budget, generous enough for a shared
+CI runner. A worker is not warranted at that size; a collection large enough to approach the budget
+is a reason to revisit the chunked index, not to move matching off the main thread.
