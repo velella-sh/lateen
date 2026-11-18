@@ -4,10 +4,11 @@ A site can replace one component and one layout of the theme it builds with and 
 Lateen unit. The replacement is site code, named in `mizzen.yml`; the theme package is never edited,
 forked, or copied.
 
-This page is the contract. The engine loader support it needs is listed at the end, and the sample
-under `test/overrides/fixtures/` is held to it by `test/overrides-contract.test.ts`. The sample site
-replaces one navigation component (`related-guides`) and one layout (`doc`); everything else comes
-from the default theme.
+Mizzen 0.2.4 implements this key in the config schema and the theme registry. This page is the
+contract. The sample under `test/overrides/fixtures/` is held to it by two tests:
+`test/overrides-contract.test.ts` checks its shape, and `test/overrides/acceptance.test.ts` builds it
+and inspects the output. The sample site replaces one navigation component (`related-guides`) and
+one layout (`doc`); everything else comes from the default theme.
 
 ## What can be replaced
 
@@ -44,9 +45,8 @@ theme:
 - Paths are relative to the site root, the folder that holds `mizzen.yml`, and point at the unit's
   entry module. The module's default export must be a function with the theme unit's signature: a
   layout receives `LayoutProps`, a component receives `ComponentProps`.
-- Sidecar files sit beside the entry module and use its file name: `<file>.css` for CSS and, for a
-  component, `<file>.client.ts` for its island. They are loaded instead of the theme unit's own
-  sidecars, never as well as them.
+- Sidecar files sit beside the entry module and use its file name: `<file>.css` for CSS. A
+  replacement brings no client island.
 - A resolved path must stay inside the site root. An absolute path, a `..` segment, or a symlink
   that leaves the root is an error, not a fallback.
 - The engine reads this key. `mizzen.config.ts` code, a theme fork, a generated folder, and a build
@@ -54,6 +54,26 @@ theme:
 
 The map is applied to the theme named by `theme.name`, after that theme is resolved. Changing the
 theme changes which names exist; an override for a name the new theme lacks is an error.
+
+## How Mizzen 0.2.4 applies the map
+
+1. The config schema accepts two optional maps of non-empty strings under `theme.overrides`. An
+   engine without this support rejects the key, so an old engine fails loudly instead of ignoring
+   the setting.
+2. Each path is resolved against the site root. An absolute path, a `..` escape, and a symlink that
+   leaves the root are rejected before the module is imported.
+3. After the theme registry is discovered, each listed name is checked against it. A listed name
+   loads the site module like a theme unit: the engine imports it, requires a function default
+   export, and registers it under the listed name in place of the theme's unit. The theme's
+   same-name module is not imported.
+4. CSS sidecars resolve relative to the override file, using the `<file>.css` name above.
+5. The diagnostics below are errors, and each names the config key and the site-relative path.
+6. Override files and sidecars are build inputs: the build cache is keyed on them, and every worker
+   receives the same resolved map.
+
+No other engine support is required. In particular, the loader does not need a theme manifest
+change, a new CLI flag, a generated theme folder, per-page overrides, or override support for
+chrome, tokens, or styles.
 
 ## Precedence and fallback
 
@@ -65,10 +85,8 @@ theme changes which names exist; an override for a name the new theme lacks is a
 Precedence is by name and all-or-nothing. When a name is listed, the theme's file is not loaded and
 not kept as a fallback: a broken override fails the build instead of quietly rendering the theme
 unit. There is no merge of props, markup, or CSS between a site unit and the theme's unit. A layout
-replacement takes over the whole page shell, including the chrome it places; a component replacement
-takes over that component's markup and CSS only.
-
-Fallback and error behavior, once the loader below exists:
+replacement takes over the whole page shell, including the chrome it places; a component
+replacement takes over that component's markup and CSS only.
 
 | Situation | Result |
 | --- | --- |
@@ -87,35 +105,23 @@ theme.overrides.components.site-nav: "site-nav" is not a component in theme "lat
 theme.overrides.layouts.doc: "overrides/doc.ts" does not exist in the site root.
 ```
 
-## Engine loader support required
-
-The contract needs one addition to the engine, in the config and registry stages:
-
-1. Accept `theme.overrides` in the config schema: two optional maps of non-empty strings, with no
-   other keys. An engine without this support rejects the key, so an old engine fails loudly instead
-   of ignoring the setting.
-2. Resolve each path against the site root and reject absolute paths, `..` escapes, and symlinks
-   that leave the root.
-3. After the theme registry is discovered, check each listed name against the registry, then load
-   the entry module like a theme unit: import it, require a function default export, and register it
-   under the listed name in place of the theme's unit. Do not import the theme's same-name module.
-4. Resolve CSS and client sidecars relative to the override file, using the `<file>.css` and
-   `<file>.client.ts` names above.
-5. Emit the five diagnostics above as errors, with the config key and the site-relative path.
-6. Treat override files and sidecars as build inputs: the build cache is keyed on them, and every
-   worker receives the same resolved map.
-
-No other engine support is required. In particular, the loader does not need a theme manifest change,
-a new CLI flag, a generated theme folder, per-page overrides, or override support for chrome, tokens,
-or styles.
-
-Until that loader exists, this page and the fixture are the contract only: the fixture is checked
-for shape and is not built.
-
 ## Fixture
 
 `test/overrides/fixtures/site/` is the sample site described above: a valid config that replaces
-`related-guides` and `doc`, each with a CSS sidecar. `test/overrides/fixtures/invalid/` holds two
-settings the rules above reject: an existing module under a name the theme does not have, and a
-layout override whose file is missing. `test/overrides-contract.test.ts` checks the names against the
-theme, the paths against the disk, the default exports, and that this page keeps the diagnostic IDs.
+`related-guides` and `doc`, each with a CSS sidecar. Its pages exercise both overrides and one unit
+that stays with the theme:
+
+- `index.md` picks `layout: doc`, so it renders the site's `site-shell` and `site-header`, and its
+  callout is the theme's own component.
+- `related.md` also picks the overridden layout, and its `::related-guides` directive renders the
+  site's navigation in place of the theme's.
+
+`test/overrides/fixtures/invalid/` holds three settings the rules above reject: a valid module under
+a name the theme does not have (`overrides.unknown-unit`), a path that leaves the site root
+(`overrides.outside-site`), and a layout override whose file is missing (`overrides.missing-file`).
+
+`test/overrides-contract.test.ts` checks the names against the theme, the paths against the disk, the
+default exports, and that this page keeps the diagnostic IDs. `test/overrides/acceptance.test.ts`
+builds the sample site with `--theme`, checks the rendered markup and stylesheets, builds a copy with
+`base: /docs` to check the prefix on links and assets, and builds the invalid fixture to check that
+it exits 1 with the three diagnostics.

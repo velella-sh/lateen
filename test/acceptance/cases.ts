@@ -82,4 +82,12 @@ export const CASES: readonly AcceptanceCase[] = [
       { selector: 'a[href="/v1/"]', count: 1 },
     ],
   },
+  {
+    name: "overrides",
+    path: "/overrides/",
+    expect: [
+      { selector: ".overrides-probe", count: 1 },
+      { selector: ".overrides-probe", text: "Site guides" },
+    ],
+  },
 ];

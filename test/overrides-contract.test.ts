@@ -73,7 +73,7 @@ test("the note fixes the contract and its diagnostics", () => {
   ]) {
     assert.ok(note.includes(id), `docs/overrides.md names ${id}`);
   }
-  for (const required of ["theme.overrides", "Engine loader support required", "test/overrides/fixtures/"]) {
+  for (const required of ["theme.overrides", "Mizzen 0.2.4", "test/overrides/fixtures/"]) {
     assert.ok(note.includes(required), `docs/overrides.md states ${required}`);
   }
 });

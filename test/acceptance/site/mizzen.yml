@@ -27,6 +27,9 @@ collections:
       sort: [title, author]
 theme:
   name: "@velella/lateen"
+  overrides:
+    components:
+      related-guides: overrides/related-guides.ts
   options:
     installTabs:
       managers:

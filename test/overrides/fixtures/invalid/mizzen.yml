@@ -1,6 +1,7 @@
-# Two settings docs/overrides.md rejects, kept beside the valid sample:
+# Three settings docs/overrides.md rejects, kept beside the valid sample:
 #   - related-guides is a theme component; site-nav is not, so it is an unknown unit even though
 #     its module exists and exports a component;
+#   - callout is a theme component, but the configured path leaves the site root;
 #   - doc is a theme layout, but the configured file does not exist.
 title: Invalid overrides fixture
 description: Settings that fail the overrides contract.
@@ -11,6 +12,7 @@ theme:
   name: "@velella/lateen"
   overrides:
     components:
+      callout: ../outside/callout.ts
       site-nav: overrides/site-nav.ts
     layouts:
       doc: overrides/missing-doc.ts
