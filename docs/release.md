@@ -1,11 +1,13 @@
 # Release
 
-Lateen releases are tagged `v<version>` and published manually from a maintainer's checkout; there
-is no release workflow in this repository. The release tool moves `changelog.d/` fragments into
-`CHANGELOG.md` and bumps `package.json`.
+Lateen releases are tagged `v<version>` and published by the release workflow in
+`.github/workflows/release.yml`. A tag starts the workflow; the acceptance job packs that commit,
+installs the tarball with the exact Mizzen version into an empty project, builds the public
+acceptance site with the installed CLI and runs the Playwright cases. Publishing needs that passing
+report and publishes the same tarball. `docs/acceptance.md` describes the gate.
 
-The two reports of a release are archived **after the release checks pass and before the tag is
-created**, so the archived report names the commit that ships and cannot be rewritten later.
+The two visual reports of a release are archived **after the release checks pass and before the tag
+is created**, so the archived report names the commit that ships and cannot be rewritten later.
 
 ## 1. Prepare and check the release commit
 
@@ -15,11 +17,13 @@ npm run typecheck
 npm test
 npm run test:performance
 npm run test:a11y
+npm run test:acceptance
 node node_modules/@velella/mizzen/bin/mizzen.js check site --theme .
 ```
 
-Move the changelog fragments and bump the version, then rerun `npm test` and
-`node node_modules/@velella/mizzen/bin/mizzen.js check site --theme .` on the final commit.
+Move the changelog fragments and bump the version, then rerun `npm test`,
+`npm run test:acceptance` and `node node_modules/@velella/mizzen/bin/mizzen.js check site --theme .`
+on the final commit.
 
 ## 2. Write the two reports for that commit
 
@@ -51,8 +55,14 @@ The script refuses a version that is already stored: an archived report is evide
 rewritten. If a release report is wrong, fix the gate and cut the next version; do not edit the
 archive.
 
-## 4. Tag and publish
+## 4. Tag and let the workflow publish
 
-Tag the release commit and publish the package. The site deploy on `main` reruns both gates and writes
-the current commit's reports into `site/_data/` before building, so `/accessibility/` and
-`/performance/` always show the deployed commit; `/reports/` lists the archived releases.
+Push the tag for the release commit. The workflow packs that commit and runs the acceptance gate in
+a clean project with the installed CLI, then publishes the tested tarball with npm provenance and
+installs the exact published version from npm to rerun the same cases. A failed, missing or skipped
+case, a different engine version, a different tarball digest, or a tag that does not name the
+version in `package.json` stops the release before npm sees it.
+
+The site deploy on `main` reruns the visual gates and writes the current commit's reports into
+`site/_data/` before building, so `/accessibility/` and `/performance/` always show the deployed
+commit; `/reports/` lists the archived releases.

@@ -1,0 +1,18 @@
+{
+  "shipped": [
+    { "feature": "page tools", "issues": [576], "case": "page-tools" },
+    { "feature": "math", "issues": [594], "case": "math" },
+    { "feature": "gallery layout", "issues": [397], "case": "gallery" },
+    { "feature": "report a page issue", "issues": [387], "case": "report-issue" },
+    { "feature": "documentation versions", "issues": [597], "case": "versions" }
+  ],
+  "deferred": [
+    { "feature": "blog", "issues": [580], "reason": "Mizzen 0.2.3 ships the blog modules without config, build, contracts or a LayoutProps field; see velella-sh/mizzen#861." },
+    { "feature": "API reference", "issues": [583], "reason": "Mizzen 0.2.3 ships the OpenAPI reader and page builder without config, contracts or a CLI command; see velella-sh/mizzen#861." },
+    { "feature": "code annotations", "issues": [586], "reason": "Mizzen 0.2.3 discovers the annotation plugin but it is a no-op and CodeMeta has no annotations; see velella-sh/mizzen#861." },
+    { "feature": "theme overrides", "issues": [589], "reason": "Mizzen 0.2.3 rejects theme.overrides in the config schema and the registry reads fixed folders; see velella-sh/mizzen#861." },
+    { "feature": "version switching and old-version routing", "issues": [597, 599], "reason": "Mizzen 0.2.3 does not call resolveVersionRouting; the default version does not shape canonical or current URLs." },
+    { "feature": "inline glossary term", "issues": [307], "reason": "Mizzen 0.2.3 renders container and leaf directives as components but a textDirective becomes a plain div; see velella-sh/mizzen#861." },
+    { "feature": "derived dates, calendars, history and stale pages", "issues": [529], "reason": "The data-time epic is still in progress; it is not part of this acceptance run." }
+  ]
+}

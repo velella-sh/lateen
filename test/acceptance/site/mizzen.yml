@@ -1,0 +1,43 @@
+# The site the public acceptance gate builds with the installed theme and the installed CLI.
+# It names the theme as a consumer would, so nothing here reaches into the repository checkout.
+title: Lateen acceptance site
+description: The public site the release acceptance gate builds and serves.
+lang: en
+url: https://example.com
+base: ""
+search: false
+repository:
+  url: https://github.com/example/lateen-acceptance
+  branch: main
+collections:
+  books:
+    source: _data/books.json
+    id: id
+    template: _templates/books.md
+    permalink: /books/{id}/
+    views:
+      embed:
+        template: _templates/books-embed.md
+        permalink: /books/{id}/embed/
+        layout: embedded
+    index:
+      fields: [title, author, published]
+    search:
+      filters: [author]
+      sort: [title, author]
+theme:
+  name: "@velella/lateen"
+  options:
+    installTabs:
+      managers:
+        - name: npm
+          command: npm install {package}
+    sourceMode:
+      editor: "vscode://file/{path}:{line}:{column}"
+    status:
+      values:
+        done: { tone: positive, label: Done, description: Finished. }
+        late: { tone: negative, label: Late, description: Past its date. }
+    footer:
+      copyright: "© Acceptance"
+      license: "MIT license"
