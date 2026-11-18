@@ -443,21 +443,20 @@ test("the network chrome reads without a script: a disclosure, plain links, and 
   assert.equal([...scope.matchAll(/name="scope"/g)].length, 2);
 });
 
-<<<<<<< HEAD
 test("source mode ships hidden and adds no labels without its island", () => {
   const page = site.document("/books/alpha/");
   const root = page.querySelector("[data-source-mode]");
   assert.ok(root, "the switch is server-rendered");
   assert.equal(root.hasAttribute("hidden"), true, "the switch stays hidden until the island runs");
   assert.equal(all(page, ".source-label").length, 0, "no label is written without the island");
-=======
+});
+
 test("the report link is server-rendered and needs no island", () => {
   const page = site.document("/guide/install/");
   const link = page.querySelector('a[href^="https://tracker.example/"]');
   assert.ok(link, "the report link is in the HTML");
   assert.match(link.getAttribute("href") ?? "", /title=/);
   assert.equal(link.getAttribute("rel"), "noopener");
->>>>>>> 560a54a (report-issue: gate and document the report link (#318, #319))
 });
 
 test("the comparison ships every record and no script-only control", () => {

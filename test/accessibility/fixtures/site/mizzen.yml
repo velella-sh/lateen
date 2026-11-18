@@ -42,9 +42,6 @@ languages:
     prefix: /ar
 navigation: _data/navigation.yml
 search: false
-repository:
-  url: https://github.com/example/fixture
-  branch: main
 theme:
   options:
     sourceMode:
