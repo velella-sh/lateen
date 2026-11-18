@@ -208,3 +208,62 @@
   padding-block: 0;
   padding-inline: var(--space-1);
 }
+
+/* The filter box and the chips are empty in the HTML; the island fills or reveals them. */
+.data-explorer-filters {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-4);
+  margin-block-end: var(--space-4);
+}
+
+.data-explorer-filter {
+  flex: 1 1 12rem;
+  min-inline-size: 0;
+  margin: 0;
+  padding: var(--space-3);
+  border: thin solid var(--color-border);
+  border-radius: var(--radius-sm);
+}
+
+.data-explorer-filter-label {
+  padding-inline: var(--space-1);
+  color: var(--color-heading);
+  font-family: var(--type-font-ui);
+  font-size: var(--type-size-sm);
+  font-weight: var(--type-weight-medium);
+}
+
+.data-explorer-filter-option {
+  display: flex;
+  gap: var(--space-2);
+  align-items: center;
+  min-block-size: 2.5rem;
+  font-family: var(--type-font-ui);
+  font-size: var(--type-size-sm);
+}
+
+.data-explorer-filter-count {
+  margin-inline-start: auto;
+  color: var(--color-muted);
+}
+
+.data-explorer-chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-2);
+  margin-block-end: var(--space-4);
+}
+
+.data-explorer-chip {
+  min-block-size: 2.5rem;
+  padding-block: var(--space-1);
+  padding-inline: var(--space-3);
+  border: thin solid var(--color-border);
+  border-radius: var(--radius-full);
+  background-color: var(--color-surface-raised);
+  color: var(--color-text);
+  font-family: var(--type-font-ui);
+  font-size: var(--type-size-sm);
+  cursor: pointer;
+}

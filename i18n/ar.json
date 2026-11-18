@@ -128,6 +128,7 @@
   "copy_failed_select": "تعذّر النسخ. حدّد النص وانسخه يدويًا.",
   "copy_markdown_hint": "اضغط M للنسخ",
   "copy_page_md": "نسخ الصفحة كماركداون",
+  "data_explorer_filter_remove": "إزالة {filter}",
   "data_explorer_more": "عرض المزيد",
   "dated_list_invalid": "السجلات التي لا تحمل تاريخًا صالحًا مدرجة هنا.",
   "dated_list_nothing": "لا سجلات هذا الشهر.",
