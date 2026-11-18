@@ -1,7 +1,7 @@
 import { h } from "preact";
 import type { ComponentProps } from "@velella/mizzen/contracts";
 import { patternOf, t } from "../../i18n/index.ts";
-import { formatField, isEmpty, kindOf, type FieldKind } from "../../src/fields.ts";
+import { DERIVED_PREFIX, fieldValueOf, formatField, isEmpty, kindOf, type FieldKind } from "../../src/fields.ts";
 import { selectRecords, type SelectedRecord } from "../../src/records.ts";
 import table from "../table/index.ts";
 
@@ -42,7 +42,7 @@ export const STACK_CLASS = "record-table-stack";
 export const LABEL_CLASS = "record-table-label";
 
 /** The kinds whose columns sort in the browser. */
-export const SORTABLE_KINDS: readonly FieldKind[] = ["text", "number", "date"];
+export const SORTABLE_KINDS: readonly FieldKind[] = ["text", "number", "date", "days"];
 
 /** One column of the table, as the page or the directive writes it. */
 export interface RecordColumn {
@@ -98,10 +98,23 @@ function parse(value: string): unknown {
   }
 }
 
-/** True when any record, or the id every record has, carries `field`. */
-function known(field: string, records: readonly SelectedRecord[]): boolean {
+/** True when `record` carries `field`: the id, its own field, or a value the engine derived. */
+function knows(record: SelectedRecord, field: string): boolean {
   if (field === "id") return true;
-  return records.some((record) => Object.hasOwn(record.fields, field));
+  if (field.startsWith(DERIVED_PREFIX)) {
+    return record.derived !== undefined && Object.hasOwn(record.derived, field.slice(DERIVED_PREFIX.length));
+  }
+  return Object.hasOwn(record.fields, field);
+}
+
+/** True when any of the records carries `field`, so a column is missing only when the page cannot answer it. */
+function known(field: string, records: readonly SelectedRecord[]): boolean {
+  return records.some((record) => knows(record, field));
+}
+
+/** The value a column names on one record, the id included; absent when the record has no value. */
+function valueOf(record: SelectedRecord, field: string): unknown {
+  return field === "id" ? record.id : fieldValueOf(record, field);
 }
 
 /**
@@ -142,8 +155,8 @@ export default function recordTable({ props, page, site }: ComponentProps<Readon
     const seen = new Set<string>();
     const values: { value: string; label: string }[] = [];
     for (const record of selection.records) {
-      const value = field === "id" ? record.id : record.fields[field];
-      if (!known(field, [record]) || isEmpty(value)) continue;
+      const value = valueOf(record, field);
+      if (!knows(record, field) || isEmpty(value)) continue;
       const raw = String(value);
       if (seen.has(raw)) continue;
       seen.add(raw);
@@ -241,15 +254,11 @@ export default function recordTable({ props, page, site }: ComponentProps<Readon
         "tr",
         null,
         columns.map((column, index) => {
-          const cell = known(column.field, [record])
-            ? formatField(
-                column.field === "id" ? record.id : record.fields[column.field],
-                column.kind,
-                lang,
-                site?.config,
-              )
+          const has = known(column.field, selection.records);
+          const value = valueOf(record, column.field);
+          const cell = has
+            ? formatField(value, column.kind, lang, site?.config)
             : h("span", { class: MISSING_CLASS }, t(lang, "record_table_unknown_field", { name: column.field }));
-          const value = column.field === "id" ? record.id : record.fields[column.field];
           const content =
             index === 0 && record.url !== undefined ? h("a", { href: record.url }, cell as never) : cell;
           return h(
@@ -257,7 +266,7 @@ export default function recordTable({ props, page, site }: ComponentProps<Readon
             {
               class: "record-table-cell",
               "data-kind": column.kind ?? "text",
-              ...(known(column.field, [record]) && !isEmpty(value) ? { "data-value": String(value) } : {}),
+              ...(has && !isEmpty(value) ? { "data-value": String(value) } : {}),
             },
             stack ? h("span", { class: LABEL_CLASS }, column.label ?? column.field) : null,
             content as never,

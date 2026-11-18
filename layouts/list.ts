@@ -12,13 +12,13 @@ import toc from "../chrome/toc/index.ts";
 import cards, { CARD_CLASS, hrefOf } from "../components/cards/index.ts";
 import datedList from "../components/dated-list/index.ts";
 import { formatCount, pluralCategory } from "../components/reading-time/index.ts";
-import recordTable, { type RecordColumn } from "../components/record-table/index.ts";
+import recordTable, { columnsOf as tableColumnsOf, type RecordColumn } from "../components/record-table/index.ts";
 import { t } from "../i18n/index.ts";
 import { formatField, isEmpty } from "../src/fields.ts";
 import { baseOf } from "../src/url.ts";
 
 /** The keys under `list` front matter this layout reads. The engine reads the rest. */
-export const OPTIONS = ["view", "date"] as const;
+export const OPTIONS = ["view", "date", "columns"] as const;
 
 /* The engine ships a component's island only when the page's Markdown names its directive, and a list
    page names no directive: this layout draws the table itself. The island is the record-table client,
@@ -59,15 +59,20 @@ export function groupsOf(props: LayoutProps): ListGroupView[] {
   }));
 }
 
-/** The columns the records name: their field order, with no field named in this file. */
-function columnsOf(records: readonly RecordProps[]): RecordColumn[] {
-  const first = records[0];
-  return Object.keys(first?.fields ?? {}).map((field) => ({ field }));
+/** The columns the page names with `list.columns`, else the first record's field order. */
+function columnsOf(props: LayoutProps, records: readonly RecordProps[]): RecordColumn[] {
+  const front = props.page.frontMatter.list;
+  const named =
+    front !== null && typeof front === "object" && !Array.isArray(front)
+      ? tableColumnsOf((front as Record<string, unknown>).columns)
+      : [];
+  if (named.length > 0) return named;
+  return Object.keys(records[0]?.fields ?? {}).map((field) => ({ field }));
 }
 
 /** One record table, in the shape the record-table component reads. */
 function table(props: LayoutProps, records: readonly RecordProps[]): ComponentChildren {
-  const columns = columnsOf(records);
+  const columns = columnsOf(props, records);
   if (records.length === 0 || columns.length === 0) return null;
   return recordTable({
     props: { records, columns },

@@ -18,7 +18,7 @@ function isEmpty(value: unknown): boolean {
 /** The raw value of one cell as its comparison key, or undefined when it is empty or does not parse. */
 export function sortKey(value: unknown, kind: string): SortKey {
   if (isEmpty(value)) return undefined;
-  if (kind === "number") {
+  if (kind === "number" || kind === "days") {
     const number = typeof value === "number" ? value : Number(value);
     return Number.isFinite(number) ? number : undefined;
   }
@@ -34,7 +34,7 @@ export function compareKeys(a: SortKey, b: SortKey, kind: string, lang: string):
   if (a === undefined && b === undefined) return 0;
   if (a === undefined) return 1;
   if (b === undefined) return -1;
-  if (kind === "number" || kind === "date") return (a as number) - (b as number);
+  if (kind === "number" || kind === "date" || kind === "days") return (a as number) - (b as number);
   return new Intl.Collator(lang, { sensitivity: "variant" }).compare(String(a), String(b));
 }
 

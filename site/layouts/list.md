@@ -21,6 +21,7 @@ A list page must name the collection it shows with `list.collection`; the engine
 | --- | --- | --- |
 | `list.view` | `table`, `cards`, or `dated` | The view that draws the records. Unset or unknown, the page uses the table. |
 | `list.date` | string | The field the `dated` view reads for its dates. Unset, it reads `date`. |
+| `list.columns` | list | The table's columns, in order: each names a `field`, an optional `label`, `kind`, and `filter`. Unset, the first record's fields name them. |
 
 ```yaml
 title: Books
@@ -37,7 +38,7 @@ The engine also reads `where`, `sort`, `group`, `perPage`, `splitGroups`, `field
 
 ### Table
 
-The default view draws one table row per record. The columns are the fields the records name, in the order the first record lists them, so the same page changes shape when the collection's fields change. The first cell links to the record's page when the record has one. With no records the page says the list is empty instead of drawing an empty table.
+The default view draws one table row per record. The columns are the fields the records name, in the order the first record lists them, so the same page changes shape when the collection's fields change. `list.columns` names them instead; an entry may read a derived value as `derived.<name>`, and `kind: days` shows the engine's signed day count. The first cell links to the record's page when the record has one. With no records the page says the list is empty instead of drawing an empty table.
 
 ### Cards
 
