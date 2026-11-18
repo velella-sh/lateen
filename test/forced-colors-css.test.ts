@@ -316,6 +316,20 @@ test("the showpiece decoration is hidden and its entrance is off in forced color
   }
 });
 
+test("the guide layout's components keep a visible edge in forced colors", () => {
+  for (const [unit, selector] of [
+    ["steps", ".steps > ol > li"],
+    ["trap", ".trap"],
+    ["check-list", ".check-item"],
+    ["before-after", ".ba-pane"],
+  ] as const) {
+    const text = read(`../components/${unit}/style.css`);
+    const rules = text.slice(text.indexOf("@media (forced-colors: active)"));
+    assert.ok(rules.includes(selector), `${unit}: ${selector} has no forced-colors rule`);
+    assert.match(rules, /border[^;]*CanvasText/, `${unit}: the edge is not a system colour`);
+  }
+});
+
 test("the current project keeps a visible edge when colour is replaced", () => {
   const rules = css.slice(css.indexOf("@media (forced-colors: active)"));
   for (const selector of [

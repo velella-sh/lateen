@@ -438,7 +438,15 @@ test("a site's own family leads the RTL stack and keeps the shipped fallbacks", 
 
 // Refined tables, callouts, cards, badges and code blocks (#473, #474): logical properties only, tokens
 // only, so one stylesheet serves light, dark and right-to-left pages.
-const REFINED = ["components/table", "components/callout", "components/cards", "components/badge", "components/status", "components/status-legend"].map((dir) => `../${dir}/style.css`).concat("../styles/parts-code.css");
+const REFINED = ["components/table", "components/callout", "components/cards", "components/badge", "components/status", "components/status-legend"]
+  .map((dir) => `../${dir}/style.css`)
+  .concat(
+    "../styles/parts-code.css",
+    ...["guide-summary", "related-guides", "steps", "before-after", "trap", "check-list"].map(
+      (dir) => `../components/${dir}/style.css`,
+    ),
+    "../layouts/guide.css",
+  );
 
 test("refined component styles use logical properties and known tokens (light, dark and RTL follow)", () => {
   const known = new Set([...tokensCss.matchAll(/(--[a-z0-9-]+)\s*:/g)].map((m) => m[1]));
