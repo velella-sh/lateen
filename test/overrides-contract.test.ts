@@ -69,11 +69,10 @@ test("the note fixes the contract and its diagnostics", () => {
     "overrides.invalid-export",
     "overrides.unknown-unit",
     "overrides.outside-site",
-    "overrides.invalid-config",
   ]) {
     assert.ok(note.includes(id), `docs/overrides.md names ${id}`);
   }
-  for (const required of ["theme.overrides", "Engine loader support required", "test/overrides/fixtures/"]) {
+  for (const required of ["theme.overrides", "Build behavior", "test/overrides/fixtures/"]) {
     assert.ok(note.includes(required), `docs/overrides.md states ${required}`);
   }
 });

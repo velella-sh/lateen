@@ -4,10 +4,10 @@ A site can replace one component and one layout of the theme it builds with and 
 Lateen unit. The replacement is site code, named in `mizzen.yml`; the theme package is never edited,
 forked, or copied.
 
-This page is the contract. The engine loader support it needs is listed at the end, and the sample
-under `test/overrides/fixtures/` is held to it by `test/overrides-contract.test.ts`. The sample site
-replaces one navigation component (`related-guides`) and one layout (`doc`); everything else comes
-from the default theme.
+This page is the contract. Mizzen 0.2.4 applies it during the build, and the sample under
+`test/overrides/fixtures/` is built by `test/overrides/acceptance.test.ts`. The sample site replaces
+one navigation component (`related-guides`) and one layout (`doc`); everything else comes from the
+default theme.
 
 ## What can be replaced
 
@@ -44,16 +44,13 @@ theme:
 - Paths are relative to the site root, the folder that holds `mizzen.yml`, and point at the unit's
   entry module. The module's default export must be a function with the theme unit's signature: a
   layout receives `LayoutProps`, a component receives `ComponentProps`.
-- Sidecar files sit beside the entry module and use its file name: `<file>.css` for CSS and, for a
-  component, `<file>.client.ts` for its island. They are loaded instead of the theme unit's own
-  sidecars, never as well as them.
+- A CSS sidecar may sit beside the module as `<file>.css`; it is bundled instead of the theme unit's
+  own stylesheet. A replacement brings no client island: the site owns any script it needs, and the
+  theme's island for that unit is not loaded.
 - A resolved path must stay inside the site root. An absolute path, a `..` segment, or a symlink
   that leaves the root is an error, not a fallback.
 - The engine reads this key. `mizzen.config.ts` code, a theme fork, a generated folder, and a build
   step are not involved.
-
-The map is applied to the theme named by `theme.name`, after that theme is resolved. Changing the
-theme changes which names exist; an override for a name the new theme lacks is an error.
 
 ## Precedence and fallback
 
@@ -68,49 +65,33 @@ unit. There is no merge of props, markup, or CSS between a site unit and the the
 replacement takes over the whole page shell, including the chrome it places; a component replacement
 takes over that component's markup and CSS only.
 
-Fallback and error behavior, once the loader below exists:
+Fallback and error behavior:
 
 | Situation | Result |
 | --- | --- |
 | Name is not listed | The theme unit is used, with no diagnostic. |
 | Name is listed, the file loads, and its default export is a function | The site unit is used; the theme unit is not loaded; no duplicate-name diagnostic. |
+| The file imports cleanly but its default export is not a function | Error `overrides.invalid-export`; the build fails. |
 | Name is listed, but the file is missing or unreadable | Error `overrides.missing-file`; the build fails. |
-| Name is listed, but the default export is not a function | Error `overrides.invalid-export`; the build fails. |
 | Name is not a component or layout in the theme | Error `overrides.unknown-unit`; the build fails; no unit is created. |
-| The path is absolute or leaves the site root | Error `overrides.outside-site`; the build fails. |
-| `theme.overrides` is not a map of `components`/`layouts` maps of non-empty strings | Error `overrides.invalid-config`; the build fails. |
+| The path is absolute, leaves the site root, or reaches outside it through a symbolic link | Error `overrides.outside-site`; the build fails. |
 
 Every diagnostic names the config key and the site-relative path, for example:
 
 ```text
-theme.overrides.components.site-nav: "site-nav" is not a component in theme "lateen"; overrides replace an existing unit, they do not add one.
-theme.overrides.layouts.doc: "overrides/doc.ts" does not exist in the site root.
+"theme.overrides.components.site-nav" names no component "site-nav" in theme "@velella/lateen".
+"theme.overrides.layouts.doc" names "overrides/missing-doc.ts", which does not exist.
 ```
 
-## Engine loader support required
+## Build behavior
 
-The contract needs one addition to the engine, in the config and registry stages:
+The engine resolves the map against the site root after the theme registry is discovered. It checks
+each listed name, loads the site module in place of the theme unit, imports the CSS sidecar when one
+exists, and adds the module and sidecar to the build and render cache keys. Every render worker
+receives the same resolved map, so a page renders the same unit whichever worker writes it.
 
-1. Accept `theme.overrides` in the config schema: two optional maps of non-empty strings, with no
-   other keys. An engine without this support rejects the key, so an old engine fails loudly instead
-   of ignoring the setting.
-2. Resolve each path against the site root and reject absolute paths, `..` escapes, and symlinks
-   that leave the root.
-3. After the theme registry is discovered, check each listed name against the registry, then load
-   the entry module like a theme unit: import it, require a function default export, and register it
-   under the listed name in place of the theme's unit. Do not import the theme's same-name module.
-4. Resolve CSS and client sidecars relative to the override file, using the `<file>.css` and
-   `<file>.client.ts` names above.
-5. Emit the five diagnostics above as errors, with the config key and the site-relative path.
-6. Treat override files and sidecars as build inputs: the build cache is keyed on them, and every
-   worker receives the same resolved map.
-
-No other engine support is required. In particular, the loader does not need a theme manifest change,
-a new CLI flag, a generated theme folder, per-page overrides, or override support for chrome, tokens,
-or styles.
-
-Until that loader exists, this page and the fixture are the contract only: the fixture is checked
-for shape and is not built.
+The override applies to the theme named by `theme.name`. Changing the theme changes which names
+exist; an override for a name the new theme lacks is an error.
 
 ## Fixture
 

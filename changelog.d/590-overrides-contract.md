@@ -1,1 +1,1 @@
-- Overrides contract: `docs/overrides.md` and `test/overrides/fixtures/` fix how a site replaces one component and one layout by name, with precedence, fail-closed fallback, diagnostics and the engine loader support required (#590).
+- Theme overrides: a site names one component and one layout under `theme.overrides`, keeps the theme for every other unit, and brings its own CSS sidecar; the sample builds with and without the overrides at the root and under a base path, and a bad setting fails by name (#590, #591, #592, #593).
