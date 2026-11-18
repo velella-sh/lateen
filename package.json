@@ -46,7 +46,7 @@
     "typecheck": "tsc --noEmit -p tsconfig.json"
   },
   "dependencies": {
-    "@velella/mizzen": "^0.2.2",
+    "@velella/mizzen": "^0.2.3",
     "jsdom": "^31.0.0",
     "mermaid": "^12.3.0",
     "shiki": "^4.6.0"
