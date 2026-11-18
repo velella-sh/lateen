@@ -439,6 +439,8 @@
   "superseded": "Superseded",
   "symbol_reference": "Reference",
   "tags": "Tags",
+  "term_link": "Glossary",
+  "term_unknown": "No glossary entry",
   "tested": "Tested",
   "tested_failed": "{n} failed",
   "tested_last_passed": "Last passed {date}",
