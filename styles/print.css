@@ -180,13 +180,15 @@
     break-inside: avoid;
   }
 
-  /* Screen code scrolls sideways. Paper cannot, so wrap long lines instead of clipping them. */
+  /* Screen code and formulas scroll sideways. Paper cannot, so wrap long code and print the whole
+     formula instead of clipping it. */
   .code,
   .terminal,
   .terminal-body,
   .file-tree,
   .table-scroll,
-  .schema-table-scroll {
+  .schema-table-scroll,
+  math[display="block"] {
     overflow: visible;
     max-inline-size: none;
   }
@@ -288,7 +290,7 @@
     page-break-after: avoid;
   }
 
-  :where(pre, code, figure, .figure, .embed, img, svg, blockquote, table, tr, .terminal, .code-tabs-panel) {
+  :where(pre, code, figure, .figure, .embed, img, svg, blockquote, table, tr, .terminal, .code-tabs-panel, math[display="block"]) {
     break-inside: avoid;
     page-break-inside: avoid;
   }
