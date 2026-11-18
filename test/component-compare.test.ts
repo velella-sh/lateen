@@ -49,14 +49,17 @@ test("ids read a JSON array or a comma list", () => {
 
 test("two records are two linked columns in the ids order", () => {
   const out = render({ from: "books", ids: "b,a", fields });
-  assert.match(out, /<th scope="col"><a href="\/books\/b\/">Beta<\/a><\/th><th scope="col"><a href="\/books\/a\/">Alpha<\/a><\/th>/);
+  assert.match(
+    out,
+    /<th scope="col" data-compare-column="0"><a href="\/books\/b\/">Beta<\/a><\/th><th scope="col" data-compare-column="1"><a href="\/books\/a\/">Alpha<\/a><\/th>/,
+  );
   assert.ok(out.indexOf('/books/b/') < out.indexOf('/books/a/'), "the columns keep the ids order");
 });
 
 test("four records are four columns, and no record outside ids is rendered", () => {
   const out = render({ from: "books", ids: '["a","b","c","d"]', fields });
-  assert.equal((out.match(/<th scope="col">/g) ?? []).length, 4);
-  assert.match(out, /<th scope="col"><a href="\/books\/d\/">Delta<\/a><\/th>/);
+  assert.equal((out.match(/<th scope="col" /g) ?? []).length, 4);
+  assert.match(out, /<th scope="col" data-compare-column="3"><a href="\/books\/d\/">Delta<\/a><\/th>/);
   assert.ok(!out.includes("Echo"), "the record not named in ids stays out");
   assert.ok(!out.includes("/books/e/"), "and so does its page");
 });
@@ -70,11 +73,11 @@ test("each field is a row header, in the fields order", () => {
 
 test("every cell is formatted with its field kind", () => {
   const out = render({ from: "books", ids: "a,b", fields });
-  assert.match(out, new RegExp(`<td class="${CELL_CLASS}" data-kind="number">120</td>`));
-  assert.match(out, new RegExp(`<td class="${CELL_CLASS}" data-kind="date"><time datetime="2026-11-09">November 9, 2026</time></td>`));
-  assert.match(out, new RegExp(`<td class="${CELL_CLASS}" data-kind="boolean">No</td>`));
-  assert.match(out, new RegExp(`<td class="${CELL_CLASS}" data-kind="boolean">Yes</td>`));
-  assert.match(out, new RegExp(`<td class="${CELL_CLASS}" data-kind="date">2026-02-30</td>`));
+  assert.match(out, new RegExp(`<td class="${CELL_CLASS}" data-kind="number" data-compare-column="0">120</td>`));
+  assert.match(out, new RegExp(`<td class="${CELL_CLASS}" data-kind="date" data-compare-column="0"><time datetime="2026-11-09">November 9, 2026</time></td>`));
+  assert.match(out, new RegExp(`<td class="${CELL_CLASS}" data-kind="boolean" data-compare-column="0">No</td>`));
+  assert.match(out, new RegExp(`<td class="${CELL_CLASS}" data-kind="boolean" data-compare-column="1">Yes</td>`));
+  assert.match(out, new RegExp(`<td class="${CELL_CLASS}" data-kind="date" data-compare-column="1">2026-02-30</td>`));
 });
 
 test("an unknown id is a visible message and the other columns still render", () => {

@@ -58,3 +58,8 @@ theme:
         draft:
           tone: info
           label: Draft
+
+collections:
+  books:
+    source: _data/books.yml
+    id: slug

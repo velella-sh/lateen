@@ -117,6 +117,7 @@
   "comments": "دیدگاه‌ها",
   "compare_differs": "متفاوت است",
   "compare_missing_setup": "compare به مجموعه‌ای در `from`، شناسه‌های رکورد در `ids` و دست‌کم یک فیلد در `fields` نیاز دارد.",
+  "compare_records": "رکوردها",
   "compare_rows_shown": "{count} از {total} سطر نمایش داده می‌شود",
   "compare_show_only_diff": "فقط تفاوت‌ها را نشان بده",
   "compare_unknown_collection": "سایت مجموعه‌ای به نام «{name}» ندارد.",

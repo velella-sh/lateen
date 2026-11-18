@@ -117,6 +117,7 @@
   "comments": "التعليقات",
   "compare_differs": "مختلف",
   "compare_missing_setup": "يحتاج compare إلى مجموعة في `from` وإلى معرّفات سجلات في `ids` وحقل واحد على الأقل في `fields`.",
+  "compare_records": "السجلات",
   "compare_rows_shown": "يُعرض {count} من {total} صفوف",
   "compare_show_only_diff": "اعرض الاختلافات فقط",
   "compare_unknown_collection": "لا يحتوي الموقع على مجموعة باسم \"{name}\".",

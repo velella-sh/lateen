@@ -39,6 +39,18 @@ export const TOGGLE_CLASS = "compare-only-diff";
 /** Class on the live region announcing how many rows show. */
 export const STATUS_CLASS = "compare-status";
 
+/** Class on the row of record tabs the island draws in a narrow container. */
+export const TABS_CLASS = "compare-tabs";
+
+/** Class on one record tab. */
+export const TAB_CLASS = "compare-tab";
+
+/** Attribute on a record's header and cells, holding the record's column number. */
+export const COLUMN_ATTRIBUTE = "data-compare-column";
+
+/** Marks the tab row the island fills with `ROOT_ATTRIBUTE` on the wrapper. */
+export const TABS_ATTRIBUTE = "data-compare-tabs";
+
 /**
  * A raw value as text for comparison: a number by value, so `1.0` and `1.00` are equal; a list
  * without its order; anything else as JSON.
@@ -141,11 +153,11 @@ export default function compare({ props, page, site }: ComponentProps<Readonly<R
       "tr",
       null,
       h("td", null),
-      records.map((record) => {
+      records.map((record, at) => {
         const title = formatField(record.fields.title ?? record.id, "text", lang);
         return h(
           "th",
-          { scope: "col" },
+          { scope: "col", [COLUMN_ATTRIBUTE]: String(at) },
           record.url === undefined ? title : h("a", { href: record.url }, title as never),
         );
       }),
@@ -175,7 +187,7 @@ export default function compare({ props, page, site }: ComponentProps<Readonly<R
         records.map((record, index) =>
           h(
             "td",
-            { class: CELL_CLASS, "data-kind": field.kind ?? "text" },
+            { class: CELL_CLASS, "data-kind": field.kind ?? "text", [COLUMN_ATTRIBUTE]: String(index) },
             formatField(values[index], field.kind, lang, site?.config) as never,
           ),
         ),
@@ -212,6 +224,16 @@ export default function compare({ props, page, site }: ComponentProps<Readonly<R
         },
         t(lang, "compare_rows_shown", { count: fields.length, total: fields.length }),
       ),
+    ),
+    h(
+      "div",
+      {
+        class: TABS_CLASS,
+        role: "tablist",
+        "aria-label": t(lang, "compare_records"),
+        [TABS_ATTRIBUTE]: "",
+        hidden: true,
+      },
     ),
     h(table, null, head, body),
   );
