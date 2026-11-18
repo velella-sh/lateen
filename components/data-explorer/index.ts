@@ -26,7 +26,18 @@ export type DataExplorerProps = {
   from?: string;
   /** The fields the table shows in display order: `title,author,year`, or a JSON column array. */
   columns?: string | readonly RecordColumn[];
+  /** The fields the island offers as filters, such as `author,status`; a field with one value is skipped. */
+  filters?: string;
 };
+
+/** A comma list of field names, such as the `filters` prop. */
+function fieldsOf(value: unknown): string[] {
+  if (typeof value !== "string") return [];
+  return value
+    .split(",")
+    .map((field) => field.trim())
+    .filter((field) => field !== "");
+}
 
 /** A JSON column array passes through; a bare comma list becomes fields with the field as the label. */
 function columnsOf(value: unknown): RecordColumn[] {
@@ -52,6 +63,7 @@ export default function dataExplorer({ props, page, site }: ComponentProps<Reado
   const lang = page?.lang ?? "en";
   const from = typeof input.from === "string" ? input.from.trim() : "";
   const columns = columnsOf(input.columns);
+  const filters = fieldsOf(input.filters);
 
   // record-table owns both notes: a page that names no setup, and a collection the site lacks.
   const table = (records?: readonly SelectedRecord[]) =>
@@ -77,6 +89,10 @@ export default function dataExplorer({ props, page, site }: ComponentProps<Reado
       "data-explorer-retry": t(lang, "search_retry"),
       "data-explorer-more": t(lang, "data_explorer_more"),
       "data-explorer-no-value": t(lang, "field_empty"),
+      "data-explorer-filter-column": patternOf(lang, "record_table_filter_column"),
+      "data-explorer-filter-empty": t(lang, "record_table_filter_empty"),
+      "data-explorer-remove": patternOf(lang, "data_explorer_filter_remove"),
+      "data-filters": JSON.stringify(filters),
       "data-columns": JSON.stringify(columns.map(({ field, label, kind }) => ({ field, label, kind }))),
       "data-explorer-count-zero": patternOf(lang, "search_count_zero"),
       "data-explorer-count-one": patternOf(lang, "search_count_one"),
@@ -93,6 +109,10 @@ export default function dataExplorer({ props, page, site }: ComponentProps<Reado
       h("input", { type: "hidden", name: COLLECTION_FILTER, value: from }),
       h("button", { class: "data-explorer-submit", type: "submit" }, t(lang, "search")),
     ),
+    filters.length === 0
+      ? null
+      : h("div", { class: "data-explorer-filters", "data-explorer-filters": "", hidden: true }),
+    filters.length === 0 ? null : h("div", { class: "data-explorer-chips", "data-explorer-chips": "", hidden: true }),
     h("p", { class: "data-explorer-status", role: "status" }),
     table(selection.records),
     h("p", { class: "data-explorer-empty", hidden: true }),

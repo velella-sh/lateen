@@ -30,6 +30,12 @@ export const EMPTY_SELECTOR = ".data-explorer-empty";
 /** The button that reveals the next page of matches. */
 export const MORE_SELECTOR = ".data-explorer-more";
 
+/** The filter fields the island fills after the index loads. */
+export const FILTERS_SELECTOR = "[data-explorer-filters]";
+
+/** The removable chips naming the active filters. */
+export const CHIPS_SELECTOR = "[data-explorer-chips]";
+
 /** The box that scrolls the table; hidden while an empty note shows. */
 export const TABLE_SELECTOR = ".table-scroll";
 
@@ -52,11 +58,12 @@ export interface ExplorerElement {
   addEventListener(type: string, listener: () => void): void;
   querySelector(selector: string): ExplorerElement | null;
   querySelectorAll(selector: string): Iterable<ExplorerElement>;
-  append(child: ExplorerElement): void;
+  append(...children: ExplorerElement[]): void;
   replaceChildren(...children: ExplorerElement[]): void;
   textContent: string | null;
   innerHTML: string;
   hidden: boolean;
+  checked?: boolean;
   value?: string;
   ownerDocument?: ExplorerDocument | null;
 }
@@ -91,6 +98,19 @@ export const browserEnv: ExplorerEnv = {
 interface Column {
   readonly field: string;
   readonly kind: string;
+  readonly label?: string;
+}
+
+/** The filter fields from the root's `data-filters`, a JSON array. */
+function fieldsOf(text: string | null): string[] {
+  if (text === null) return [];
+  try {
+    const parsed: unknown = JSON.parse(text);
+    if (!Array.isArray(parsed)) return [];
+    return parsed.filter((field): field is string => typeof field === "string" && field !== "");
+  } catch {
+    return [];
+  }
 }
 
 const isRecord = (value: unknown): value is Record<string, unknown> =>
@@ -104,7 +124,11 @@ function columnsOf(text: string | null, index?: CollectionIndex): Column[] {
       if (Array.isArray(parsed)) {
         const columns = parsed.flatMap((entry): Column[] => {
           if (!isRecord(entry) || typeof entry.field !== "string" || entry.field === "") return [];
-          return [{ field: entry.field, kind: typeof entry.kind === "string" ? entry.kind : "text" }];
+          return [{
+            field: entry.field,
+            kind: typeof entry.kind === "string" ? entry.kind : "text",
+            ...(typeof entry.label === "string" ? { label: entry.label } : {}),
+          }];
         });
         if (columns.length > 0) return columns;
       }
@@ -151,7 +175,99 @@ function countText(root: ExplorerElement, lang: string, count: number): string {
   return pattern.replace("{n}", String(count));
 }
 
-/** One row of the table, shaped like `record-table`'s: the first cell links to the record's page. */
+/** A count in the page's digits. */
+function formatNumber(lang: string, value: number): string {
+  try {
+    return new Intl.NumberFormat(lang).format(value);
+  } catch {
+    return String(value);
+  }
+}
+
+/** A cell as the text the filters compare it by; an empty cell matches no value. */
+function cellText(row: IndexRow, at: number, kind: string, lang: string): string {
+  const value = row[at];
+  if (value === null || value === undefined) return "";
+  return textOf(value, kind, lang);
+}
+
+/** One value of a filter field, with the checkbox and the count it shows. */
+interface FacetValue {
+  readonly raw: string;
+  readonly input: ExplorerElement;
+  readonly count: ExplorerElement;
+}
+
+/** One filter field: its values in the index's order, and its fieldset in the page. */
+interface Facet {
+  readonly field: string;
+  readonly label: string;
+  readonly kind: string;
+  readonly values: readonly FacetValue[];
+}
+
+/**
+ * Fills the filter box with one checkbox per value of every named field that holds two or more
+ * values, and returns the fields it drew. The counts start as the index's own counts; `render`
+ * keeps them in step with the query and the other fields.
+ */
+function buildFacets(
+  root: ExplorerElement,
+  doc: ExplorerDocument,
+  box: ExplorerElement,
+  index: CollectionIndex,
+  columns: readonly Column[],
+  fields: readonly string[],
+  lang: string,
+): Facet[] {
+  const pattern = root.getAttribute("data-explorer-filter-column") ?? "{column}";
+  const facets: Facet[] = [];
+
+  for (const field of fields) {
+    const at = index.columns.indexOf(field);
+    if (at < 0) continue;
+    const column = columns.find((entry) => entry.field === field);
+    const kind = column?.kind ?? "text";
+    const seen = new Map<string, number>();
+    for (const row of index.rows) {
+      const text = cellText(row, at, kind, lang);
+      if (text !== "") seen.set(text, (seen.get(text) ?? 0) + 1);
+    }
+    if (seen.size < 2) continue;
+
+    const fieldset = doc.createElement("fieldset");
+    fieldset.setAttribute("class", "data-explorer-filter");
+    const legend = doc.createElement("legend");
+    legend.setAttribute("class", "data-explorer-filter-label");
+    legend.textContent = pattern.replace("{column}", column?.label ?? field);
+    fieldset.append(legend);
+
+    const values: FacetValue[] = [];
+    for (const [text, count] of seen) {
+      const option = doc.createElement("label");
+      option.setAttribute("class", "data-explorer-filter-option");
+      const input = doc.createElement("input");
+      input.setAttribute("type", "checkbox");
+      input.setAttribute("value", text);
+      input.checked = false;
+      const name = doc.createElement("span");
+      name.setAttribute("class", "data-explorer-filter-value");
+      name.textContent = text;
+      const tally = doc.createElement("span");
+      tally.setAttribute("class", "data-explorer-filter-count");
+      tally.textContent = `(${formatNumber(lang, count)})`;
+      option.append(input, name, tally);
+      fieldset.append(option);
+      values.push({ raw: text, input, count: tally });
+    }
+    box.append(fieldset);
+    facets.push({ field, label: column?.label ?? field, kind, values });
+  }
+
+  return facets;
+}
+
+
 function rowOf(
   doc: ExplorerDocument,
   row: IndexRow,
@@ -203,6 +319,8 @@ function attach(root: ExplorerElement, doc: ExplorerDocument, env: ExplorerEnv):
   const status = root.querySelector(STATUS_SELECTOR);
   const empty = root.querySelector(EMPTY_SELECTOR);
   const more = root.querySelector(MORE_SELECTOR);
+  const filtersBox = root.querySelector(FILTERS_SELECTOR);
+  const chips = root.querySelector(CHIPS_SELECTOR);
 
   const base = root.getAttribute("data-base") ?? "";
   const collection = root.getAttribute("data-collection") ?? "";
@@ -211,6 +329,9 @@ function attach(root: ExplorerElement, doc: ExplorerDocument, env: ExplorerEnv):
   const loadingText = root.getAttribute("data-explorer-loading") ?? "";
   const failedText = root.getAttribute("data-explorer-failed") ?? "";
   const emptyPattern = root.getAttribute("data-explorer-empty") ?? "";
+  const filterEmpty = root.getAttribute("data-explorer-filter-empty") ?? "";
+  const removePattern = root.getAttribute("data-explorer-remove") ?? "{filter}";
+  const filterFields = fieldsOf(root.getAttribute("data-filters"));
 
   // The rows the page was rendered with, so clearing puts them back as they were.
   const original = body.innerHTML;
@@ -218,6 +339,7 @@ function attach(root: ExplorerElement, doc: ExplorerDocument, env: ExplorerEnv):
   let columns = columnsOf(root.getAttribute("data-columns"));
   let index: CollectionIndex | undefined;
   let prepared: PreparedRow[] | undefined;
+  let facets: Facet[] = [];
   let matches: readonly IndexRow[] = [];
   let query = "";
   let limit = ROW_LIMIT;
@@ -234,6 +356,10 @@ function attach(root: ExplorerElement, doc: ExplorerDocument, env: ExplorerEnv):
       empty.textContent = "";
     }
     if (more !== null) more.hidden = true;
+    if (chips !== null) {
+      chips.replaceChildren();
+      chips.hidden = true;
+    }
     if (status !== null) status.textContent = "";
   };
 
@@ -247,16 +373,74 @@ function attach(root: ExplorerElement, doc: ExplorerDocument, env: ExplorerEnv):
     if (more !== null) more.hidden = matches.length <= limit;
   };
 
+  const chosen = (facet: Facet): string[] =>
+    facet.values.filter((value) => value.input.checked === true).map((value) => value.raw);
+
+  const filtering = (): boolean => facets.some((facet) => chosen(facet).length > 0);
+
+  const passes = (row: IndexRow, facet: Facet): boolean => {
+    const values = chosen(facet);
+    if (values.length === 0) return true;
+    const at = index?.columns.indexOf(facet.field) ?? -1;
+    return at < 0 || values.includes(cellText(row, at, facet.kind, lang));
+  };
+
+  const drawChips = (): void => {
+    if (chips === null) return;
+    const buttons: ExplorerElement[] = [];
+    for (const facet of facets) {
+      for (const value of facet.values) {
+        if (value.input.checked !== true) continue;
+        const text = `${facet.label}: ${value.raw}`;
+        const button = doc.createElement("button");
+        button.setAttribute("class", "data-explorer-chip");
+        button.setAttribute("type", "button");
+        button.setAttribute("aria-label", removePattern.replace("{filter}", text));
+        button.textContent = `${text} ×`;
+        button.addEventListener("click", () => {
+          value.input.checked = false;
+          run();
+        });
+        buttons.push(button);
+      }
+    }
+    chips.replaceChildren(...buttons);
+    chips.hidden = buttons.length === 0;
+  };
+
+  // Every value says how many rows the query and the other fields leave; its own field is ignored,
+  // so an unchosen value stays reachable.
+  const updateCounts = (text: string): void => {
+    if (prepared === undefined) return;
+    const textRows = new Set(matchRows(prepared, text));
+    for (const facet of facets) {
+      const at = index?.columns.indexOf(facet.field) ?? -1;
+      if (at < 0) continue;
+      for (const value of facet.values) {
+        let count = 0;
+        for (const entry of prepared) {
+          if (!textRows.has(entry.row)) continue;
+          if (facets.some((other) => other !== facet && !passes(entry.row, other))) continue;
+          if (cellText(entry.row, at, facet.kind, lang) === value.raw) count += 1;
+        }
+        value.count.textContent = `(${formatNumber(lang, count)})`;
+      }
+    }
+  };
+
   const render = (text: string): void => {
     if (prepared === undefined) return;
-    matches = matchRows(prepared, text);
+    matches = matchRows(prepared, text).filter((row) => facets.every((facet) => passes(row, facet)));
     limit = ROW_LIMIT;
     drawRows();
     if (status !== null) status.textContent = countText(root, lang, matches.length);
     if (empty !== null) {
-      empty.hidden = matches.length > 0;
-      empty.textContent = matches.length === 0 ? emptyPattern.replace("{query}", text) : "";
+      const none = matches.length === 0;
+      empty.hidden = !none;
+      empty.textContent = none ? (text === "" ? filterEmpty : emptyPattern.replace("{query}", text)) : "";
     }
+    updateCounts(text);
+    drawChips();
   };
 
   const loader = createIndexLoader(
@@ -267,8 +451,11 @@ function attach(root: ExplorerElement, doc: ExplorerDocument, env: ExplorerEnv):
         index = loaded;
         if (columns.length === 0) columns = columnsOf(null, loaded);
         prepared = prepareRows(loaded, columns.map((column) => column.field));
+        facets =
+          filtersBox === null ? [] : buildFacets(root, doc, filtersBox, loaded, columns, filterFields, lang);
+        if (filtersBox !== null) filtersBox.hidden = facets.length === 0;
         const text = query.trim();
-        if (text !== "") render(text);
+        if (text !== "" || filtering()) render(text);
       },
       failed() {
         failed = true;
@@ -280,7 +467,7 @@ function attach(root: ExplorerElement, doc: ExplorerDocument, env: ExplorerEnv):
   function run(): void {
     timer = undefined;
     const text = query.trim();
-    if (text === "") {
+    if (text === "" && !filtering()) {
       restore();
       return;
     }
@@ -300,11 +487,13 @@ function attach(root: ExplorerElement, doc: ExplorerDocument, env: ExplorerEnv):
     if (timer !== undefined) env.cancel(timer);
     timer = undefined;
     if (query.trim() === "") {
-      restore();
+      run();
       return;
     }
     timer = env.schedule(run, DEBOUNCE_MS);
   });
+
+  filtersBox?.addEventListener("change", run);
 
   more?.addEventListener("click", () => {
     limit += ROW_LIMIT;
