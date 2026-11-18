@@ -6,6 +6,8 @@ lang: en
 url: https://example.com
 base: ""
 search: false
+blog:
+  posts: posts
 repository:
   url: https://github.com/example/lateen-acceptance
   branch: main

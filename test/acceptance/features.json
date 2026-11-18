@@ -5,10 +5,10 @@
     { "feature": "gallery layout", "issues": [397], "case": "gallery" },
     { "feature": "report a page issue", "issues": [387], "case": "report-issue" },
     { "feature": "documentation versions", "issues": [597], "case": "versions" },
-    { "feature": "theme overrides", "issues": [589], "case": "overrides" }
+    { "feature": "theme overrides", "issues": [589], "case": "overrides" },
+    { "feature": "blog", "issues": [580], "case": "blog" }
   ],
   "deferred": [
-    { "feature": "blog", "issues": [580], "reason": "Mizzen 0.2.3 ships the blog modules without config, build, contracts or a LayoutProps field; see velella-sh/mizzen#861." },
     { "feature": "API reference", "issues": [583], "reason": "Mizzen 0.2.3 ships the OpenAPI reader and page builder without config, contracts or a CLI command; see velella-sh/mizzen#861." },
     { "feature": "code annotations", "issues": [586], "reason": "Mizzen 0.2.3 discovers the annotation plugin but it is a no-op and CodeMeta has no annotations; see velella-sh/mizzen#861." },
     { "feature": "version switching and old-version routing", "issues": [597, 599], "reason": "Mizzen 0.2.3 does not call resolveVersionRouting; the default version does not shape canonical or current URLs." },

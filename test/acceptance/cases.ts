@@ -75,6 +75,15 @@ export const CASES: readonly AcceptanceCase[] = [
     expect: [{ selector: 'a[href*="/issues/new"]', hrefIncludes: "/issues/new?title=" }],
   },
   {
+    name: "blog",
+    path: "/blog/archive/",
+    expect: [
+      { selector: ".blog-item", count: 2 },
+      { selector: ".blog-item-title a", text: "A newer post" },
+      { selector: "time[datetime]", text: "March 10, 2026" },
+    ],
+  },
+  {
     name: "versions",
     path: "/versions/",
     expect: [
