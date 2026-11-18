@@ -8,6 +8,8 @@ main:
         url: /install/
       - title: Layouts
         url: /layouts/
+      - title: Record layout
+        url: /layouts/record/
       - title: Showpiece home
         url: /showpiece/
   - title: Components

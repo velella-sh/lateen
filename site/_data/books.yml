@@ -1,15 +1,21 @@
 - slug: alpha
   title: Alpha
+  summary: A short invented handbook about a made-up expedition.
+  status: shipped
   pages: 320
   published: 2026-01-12
   format: hardcover
 - slug: beta
   title: Beta
+  summary: A second invented record, kept short for the example.
+  status: pending
   pages: 184
   published: 2026-02-03
   format: paperback
 - slug: gamma
   title: Gamma
+  summary: A third invented record with the longest shelf life.
+  status: draft
   pages: 512
   published: 2026-03-04
   format: hardcover
