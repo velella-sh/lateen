@@ -1,0 +1,5 @@
+# The broken-formula fixture: an empty pair, an unclosed block, and an unsupported command. The
+# acceptance test pins the literal fallback and its source span, and the Markdown twin.
+title: Broken equations
+lang: en
+search: false

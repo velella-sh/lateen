@@ -1,0 +1,13 @@
+# The formula fixture the theme tests read: inline and block math, an escaped dollar, a code span,
+# and a right-to-left page. It is an input, not a snapshot.
+title: Math fixture
+description: Equations in prose.
+lang: en
+search: false
+languages:
+  - code: en
+    name: English
+    prefix: ""
+  - code: fa
+    name: فارسی
+    prefix: /fa
