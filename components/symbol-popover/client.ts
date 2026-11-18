@@ -6,6 +6,17 @@
  * chip without this script; the island never traps focus or changes the tab order.
  */
 
+import {
+  clickPopover,
+  closePopover,
+  escapePopover,
+  forgetPopover,
+  openPopover,
+  type OpenPopover,
+  type PopoverBox,
+  type PopoverEntry,
+} from "../../src/popover.ts";
+
 /** Selector of every symbol disclosure; the island finds them by it. Static chips have no panel. */
 export const PANEL_SELECTOR = "details[data-symbol]";
 
@@ -31,6 +42,8 @@ export interface SymbolNode {
   contains(target: unknown): boolean;
   addEventListener(type: string, listener: (event: SymbolEvent) => void): void;
   removeEventListener(type: string, listener: (event: SymbolEvent) => void): void;
+  /** The disclosure's panel; unset on a fake node and on a static chip. */
+  readonly lastElementChild?: unknown;
 }
 
 /** What `activate` wires to one disclosure, so it can be unwired again. */
@@ -40,6 +53,8 @@ interface Wiring {
   readonly toggle: (event: SymbolEvent) => void;
   /** Whether the keydown listener is attached; it is only needed while the panel is open. */
   keys: boolean;
+  /** The shared entry while the panel is open, so another unit can close it. */
+  entry: PopoverEntry | undefined;
 }
 
 /** The disclosures that are open right now. Every document event walks only this set. */
@@ -53,14 +68,38 @@ export function openPanels(): SymbolNode[] {
   return [...open];
 }
 
+/** The disclosure's panel, when this node is a real element with one; fake nodes and static chips have none. */
+function panelBox(node: SymbolNode): PopoverBox | undefined {
+  const child = node.lastElementChild;
+  if (child === null || typeof child !== "object") return undefined;
+  const box = child as Partial<PopoverBox>;
+  return typeof box.getBoundingClientRect === "function" && box.style !== undefined ? (box as PopoverBox) : undefined;
+}
+
+/** What the shared popover module needs to close and measure this disclosure. */
+function openEntry(panel: SymbolNode): OpenPopover {
+  return {
+    close: (focus) => closePanel(panel, focus),
+    contains: (target) => panel.contains(target),
+    panel: panelBox(panel),
+  };
+}
+
 /**
  * Brings a panel's open set entry and its Escape listener in line with its `open` flag. The keydown
  * listener is attached only while the panel is open, so a page of closed disclosures carries none.
+ * The shared module also learns about the open panel, so a footnote note closes it.
  */
 function sync(wiring: Wiring): void {
   const opened = wiring.panel.open;
-  if (opened) open.add(wiring.panel);
-  else open.delete(wiring.panel);
+  if (opened) {
+    open.add(wiring.panel);
+    if (wiring.entry === undefined) wiring.entry = openPopover("symbol", openEntry(wiring.panel));
+  } else {
+    open.delete(wiring.panel);
+    forgetPopover(wiring.entry);
+    wiring.entry = undefined;
+  }
   if (wiring.keys === opened) return;
   wiring.keys = opened;
   if (opened) wiring.panel.addEventListener("keydown", wiring.keydown);
@@ -87,7 +126,9 @@ export function closePanel(panel: SymbolNode, focusChip: boolean): void {
 export function closeOnEscape(panel: SymbolNode, event: SymbolEvent): void {
   if (event.key !== "Escape" || !panel.open) return;
   event.preventDefault();
-  closePanel(panel, true);
+  const entry = wired.get(panel)?.entry;
+  if (entry === undefined) closePanel(panel, true);
+  else escapePopover(event, entry);
 }
 
 /**
@@ -96,7 +137,9 @@ export function closeOnEscape(panel: SymbolNode, event: SymbolEvent): void {
  */
 export function closeOutside(panel: SymbolNode, target: unknown): void {
   if (!panel.open || panel.contains(target)) return;
-  closePanel(panel, false);
+  const entry = wired.get(panel)?.entry;
+  if (entry === undefined) closePanel(panel, false);
+  else closePopover(entry, false);
 }
 
 /**
@@ -105,7 +148,7 @@ export function closeOutside(panel: SymbolNode, target: unknown): void {
  * browser.
  */
 export function handleClick(target: unknown): void {
-  for (const panel of open) closeOutside(panel, target);
+  clickPopover(target);
 }
 
 /**
@@ -116,6 +159,7 @@ export function activate(panel: SymbolNode): () => void {
   const wiring: Wiring = {
     panel,
     keys: false,
+    entry: undefined,
     keydown: (event) => closeOnEscape(panel, event),
     toggle: () => sync(wiring),
   };
@@ -125,6 +169,8 @@ export function activate(panel: SymbolNode): () => void {
 
   return () => {
     open.delete(panel);
+    forgetPopover(wiring.entry);
+    wiring.entry = undefined;
     panel.removeEventListener("toggle", wiring.toggle);
     if (wiring.keys) panel.removeEventListener("keydown", wiring.keydown);
     wiring.keys = false;

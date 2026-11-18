@@ -19,6 +19,13 @@
   text-decoration: none;
 }
 
+/* The edit link is a touch target of its own; the heading links keep the heading's line height. */
+.edit-page-link {
+  display: inline-flex;
+  align-items: center;
+  min-block-size: 1.5rem;
+}
+
 .edit-page-link:hover,
 .edit-page-heading-link:hover {
   color: var(--color-link-hover);

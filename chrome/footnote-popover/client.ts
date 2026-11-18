@@ -5,6 +5,15 @@
  * reaches the note, and the definition's back-link is never touched.
  */
 
+import {
+  clickPopover,
+  escapePopover,
+  forgetPopover,
+  openPopover,
+  type PopoverBox,
+  type PopoverEntry,
+} from "../../src/popover.ts";
+
 /** A footnote definition element, as the island reads it. */
 export interface FootnoteTarget {
   cloneNode(deep: boolean): FootnoteTarget;
@@ -17,16 +26,17 @@ export interface FootnoteBackref {
   remove(): void;
 }
 
-/** The parts of a keyboard event the island reads. */
+/** The parts of a keyboard or pointer event the island reads. */
 export interface FootnoteKeyEvent {
   readonly key?: string | undefined;
+  readonly target?: unknown;
 }
 
-/** The document the island reads: definitions by id and the Escape key. */
+/** The document the island reads: definitions by id, Escape, and outside clicks. */
 export interface FootnoteDocument {
   getElementById(id: string): FootnoteTarget | null;
-  addEventListener(type: "keydown", listener: (event: FootnoteKeyEvent) => void): void;
-  removeEventListener(type: "keydown", listener: (event: FootnoteKeyEvent) => void): void;
+  addEventListener(type: "keydown" | "click", listener: (event: FootnoteKeyEvent) => void): void;
+  removeEventListener(type: "keydown" | "click", listener: (event: FootnoteKeyEvent) => void): void;
 }
 
 /** The parent the popover is placed in, beside the reference it describes. */
@@ -88,6 +98,20 @@ export function definitionText(doc: FootnoteDocument, href: string): string | un
   return id === undefined ? undefined : previewText(doc, id);
 }
 
+/** The popover element as the shared module measures it, when it is a real element. */
+function boxOf(popover: FootnotePopover): PopoverBox | undefined {
+  const candidate = popover as unknown as Partial<PopoverBox>;
+  return typeof candidate.getBoundingClientRect === "function" && candidate.style !== undefined
+    ? (candidate as PopoverBox)
+    : undefined;
+}
+
+/** Whether a click landed inside the popover; a fake popover holds nothing. */
+function containsOf(popover: FootnotePopover, target: unknown): boolean {
+  const candidate = popover as unknown as { contains?: (target: unknown) => boolean };
+  return typeof candidate.contains === "function" && candidate.contains(target);
+}
+
 /**
  * Wires every reference to one popover and returns a cleanup that removes the listeners and puts
  * the page back as it was. Entering a reference with any pointer (mouse, pen, or touch) or focusing
@@ -95,10 +119,11 @@ export function definitionText(doc: FootnoteDocument, href: string): string | un
  * Escape hides it from anywhere. When focus and the pointer sit on different references, the one
  * engaged last stays shown, so no stale note or `aria-describedby` is left behind. The note is
  * copied beside the reference it describes, and the reference keeps its own description alongside
- * the tooltip's. Without a reference nothing is wired. Nothing here calls `preventDefault`, adds a
- * click handler, or takes focus, so a tap or click still navigates to the note, the back-link still
- * returns, and tab order is unchanged. Each definition's preview is normalized once per activation
- * and reused, so repeated engagements and several references to one note copy it only once.
+ * the tooltip's. Without a reference nothing is wired. Nothing here calls `preventDefault` or takes
+ * focus, so a tap or click still navigates to the note, the back-link still returns, and tab order
+ * is unchanged; an outside click puts the note away, and opening a symbol closes it. Each
+ * definition's preview is normalized once per activation and reused, so repeated engagements and
+ * several references to one note copy it only once.
  */
 export function activate(refs: readonly FootnoteRef[], popover: FootnotePopover, doc: FootnoteDocument): () => void {
   if (refs.length === 0) return () => undefined;
@@ -107,6 +132,7 @@ export function activate(refs: readonly FootnoteRef[], popover: FootnotePopover,
   let focused: FootnoteRef | undefined;
   let active: FootnoteRef | undefined;
   let shown: FootnoteRef | undefined;
+  let shownEntry: PopoverEntry | undefined;
   let previousDescription: string | null = null;
 
   /** Normalized previews by resolved definition id; page definitions are static for one activation. */
@@ -121,6 +147,8 @@ export function activate(refs: readonly FootnoteRef[], popover: FootnotePopover,
 
   const hide = (): void => {
     if (shown === undefined) return;
+    forgetPopover(shownEntry);
+    shownEntry = undefined;
     if (previousDescription === null) shown.removeAttribute("aria-describedby");
     else shown.setAttribute("aria-describedby", previousDescription);
     shown = undefined;
@@ -166,6 +194,17 @@ export function activate(refs: readonly FootnoteRef[], popover: FootnotePopover,
     anchor.setAttribute("data-footnote-anchor", "true");
     anchor.appendChild(popover);
     popover.hidden = false;
+    if (shownEntry === undefined) {
+      shownEntry = openPopover(
+        "footnote",
+        {
+          close: () => hide(),
+          contains: (target) => containsOf(popover, target),
+          panel: boxOf(popover),
+        },
+        true,
+      );
+    }
   };
 
   /** A reference stopped being hovered or focused; fall back to the other, if any. */
@@ -185,7 +224,12 @@ export function activate(refs: readonly FootnoteRef[], popover: FootnotePopover,
     pointer = undefined;
     focused = undefined;
     active = undefined;
-    hide();
+    if (!escapePopover(event, shownEntry)) hide();
+  };
+
+  /** A click anywhere but inside the note puts it away, and closes any other open popover. */
+  const outside = (event: FootnoteKeyEvent): void => {
+    clickPopover(event.target);
   };
 
   const listeners: Array<[FootnoteRef, FootnoteEventType, () => void]> = [];
@@ -211,11 +255,13 @@ export function activate(refs: readonly FootnoteRef[], popover: FootnotePopover,
   }
 
   doc.addEventListener("keydown", escape);
+  doc.addEventListener("click", outside);
 
   return () => {
     for (const [ref, type, listener] of listeners) ref.removeEventListener(type, listener);
     listeners.length = 0;
     doc.removeEventListener("keydown", escape);
+    doc.removeEventListener("click", outside);
     pointer = undefined;
     focused = undefined;
     active = undefined;
