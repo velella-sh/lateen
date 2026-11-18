@@ -9,7 +9,9 @@
 }
 
 .term-label {
-  display: inline;
+  display: inline-flex;
+  align-items: center;
+  min-block-size: 1.5rem;
   cursor: pointer;
   border-block-end: 1px dotted var(--color-border-strong);
   color: var(--color-link);
