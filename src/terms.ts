@@ -1,4 +1,5 @@
 import type { Site } from "@velella/mizzen/contracts";
+import { baseOf, withBase } from "./url.ts";
 
 /**
  * One glossary term in the page's language. The term, definition and other names are read from the
@@ -82,12 +83,51 @@ function aliasesOf(value: unknown): string[] {
 }
 
 /** The collection `theme.options.glossary.collection` names, or `undefined` when no option does. */
-function glossaryCollection(site: Site): string | undefined {
+export function glossaryCollectionName(site: Site): string | undefined {
   const options = site.config.theme?.options;
   const glossary = options?.glossary;
   if (!isMapping(glossary)) return undefined;
   const name = glossary.collection;
   return typeof name === "string" && name.trim() !== "" ? name.trim() : undefined;
+}
+
+/** The glossary options the unit reads, for the documentation test and the reader. */
+export const GLOSSARY_OPTION_PATHS = [
+  "theme.options.glossary.collection",
+  "theme.options.glossary.page",
+] as const;
+
+/**
+ * The address of the page that carries the `glossary` component, in `lang`, with the site's base
+ * path. `theme.options.glossary.page` is one address or a mapping keyed by language; a mapping
+ * falls back to the site's default language, so a translated page can share one glossary.
+ */
+export function glossaryPage(site: Site, lang: string): string | undefined {
+  const options = site.config.theme?.options;
+  const glossary = options?.glossary;
+  if (!isMapping(glossary)) return undefined;
+  const value = localized(glossary.page, lang.trim() === "" ? site.config.lang : lang.trim(), site.config.lang);
+  if (typeof value !== "string") return undefined;
+  const address = value.trim();
+  return address === "" ? undefined : withBase(baseOf(site), address);
+}
+
+/**
+ * Where a term's definition links: its own record page when the glossary collection is built as
+ * pages, else its entry on the glossary page, else nowhere. A record page already carries the
+ * base path; the glossary page gets the base here.
+ */
+export function termHref(term: Term, site: Site, lang: string): string | undefined {
+  const collection = glossaryCollectionName(site);
+  if (collection !== undefined) {
+    const pages = site.pages.filter(
+      (page) => page.record?.collection === collection && page.record.id === term.id && page.record.view === undefined,
+    );
+    const own = pages.find((page) => page.lang === lang) ?? pages[0];
+    if (own !== undefined) return own.url;
+  }
+  const glossary = glossaryPage(site, lang);
+  return glossary === undefined ? undefined : `${glossary}#${term.id}`;
 }
 
 /**
@@ -97,7 +137,7 @@ function glossaryCollection(site: Site): string | undefined {
  * failing the build.
  */
 export function selectTerms(site: Site, pageLang: string): readonly Term[] {
-  const name = glossaryCollection(site);
+  const name = glossaryCollectionName(site);
   if (name === undefined) return [];
   const collection = site.collections[name];
   if (collection === undefined) return [];

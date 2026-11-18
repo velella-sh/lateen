@@ -59,6 +59,8 @@ main:
         url: /components/file-tree/
       - title: Gallery layout
         url: /components/gallery/
+      - title: Glossary
+        url: /components/glossary/
       - title: Guide layout
         url: /components/guide/
       - title: Heading anchor

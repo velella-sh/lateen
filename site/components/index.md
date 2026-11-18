@@ -52,6 +52,7 @@ The theme's own look is set with the [Brand options](/brand-options/); the shipp
 | [Figure](./figure/) | An image with alt text, a caption, and a credit, in light and dark. |
 | [File tree](./file-tree/) | A folder structure with a note per entry. |
 | [Gallery layout](./gallery/) | A collection as cards, with facet filters, a sort choice, a count, and an empty note. |
+| [Glossary](./glossary/) | Terms from a collection as an alphabetical list, and an inline term whose definition opens in place. |
 | [Guide layout](./guide/) | A layout for step-by-step guides, with a summary bar and related guides. |
 | [Heading anchor](./heading-anchor/) | A link icon on every h2 to h4, added automatically. |
 | [Kbd](./kbd/) | A keyboard key or key combination. |

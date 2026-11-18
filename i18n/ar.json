@@ -439,6 +439,8 @@
   "superseded": "مُستبدَل",
   "symbol_reference": "مرجع",
   "tags": "الوسوم",
+  "term_glossary_link": "فتح في المعجم",
+  "term_page_link": "اقرأ المدخل كاملاً",
   "tested": "مُختبَر",
   "tested_failed": "{n} فاشل",
   "tested_last_passed": "آخر نجاح {date}",

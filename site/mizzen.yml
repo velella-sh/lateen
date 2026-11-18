@@ -10,6 +10,9 @@ repository:
   dir: site
 theme:
   options:
+    glossary:
+      collection: glossary
+      page: /components/glossary/
     installTabs:
       managers:
         - name: npm
@@ -60,6 +63,8 @@ theme:
           label: Draft
 
 collections:
+  glossary:
+    source: _data/glossary.yml
   books:
     source: _data/books.yml
     id: slug

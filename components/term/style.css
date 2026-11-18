@@ -1,0 +1,104 @@
+/* Term popover: an inline disclosure whose chip opens the term's definition. The chip is the
+   <summary> of a native <details>, so it opens with Enter, Space, or a tap and needs no JavaScript;
+   the island only adds Escape and outside dismissal. Logical properties keep it working under RTL,
+   and every colour and length comes from a token. */
+
+.term-popover {
+  position: relative;
+  display: inline-block;
+  vertical-align: baseline;
+}
+
+.term-popover-chip {
+  display: inline;
+  color: var(--color-text);
+  text-decoration: underline dotted;
+  text-underline-offset: 0.2em;
+  cursor: pointer;
+  list-style: none;
+}
+
+/* The native disclosure marker is replaced by the dotted underline and the open state. */
+.term-popover-chip::-webkit-details-marker {
+  display: none;
+}
+
+.term-popover-chip::marker {
+  content: "";
+}
+
+.term-popover[open] > .term-popover-chip {
+  color: var(--color-link-hover);
+  text-decoration-style: solid;
+}
+
+.term-popover-chip:focus-visible {
+  outline: 2px solid var(--state-focus-ring);
+  outline-offset: 2px;
+}
+
+/* The panel is only in the layout while the details is open; the browser hides it otherwise. */
+.term-popover-panel {
+  position: absolute;
+  inset-block-start: calc(100% + var(--space-1));
+  inset-inline-start: 0;
+  z-index: var(--layer-popover);
+  max-inline-size: var(--type-measure-min);
+  padding-block: var(--space-2);
+  padding-inline: var(--space-3);
+  border: 1px solid var(--color-border-strong);
+  border-radius: var(--radius-md);
+  background-color: var(--color-surface-raised);
+  box-shadow: var(--shadow-popover);
+  color: var(--color-text);
+  font-family: var(--type-font-ui);
+  font-size: var(--type-size-sm);
+  line-height: var(--type-leading-body);
+  white-space: normal;
+}
+
+.term-popover-definition {
+  margin: 0;
+}
+
+.term-popover-link {
+  display: inline-flex;
+  align-items: center;
+  min-block-size: 1.5rem;
+  margin-block-start: var(--space-1);
+  color: var(--color-link);
+  font-size: var(--type-size-sm);
+}
+
+.term-popover-link:hover {
+  color: var(--color-link-hover);
+  text-decoration: underline;
+}
+
+.term-popover-link:focus-visible {
+  outline: 2px solid var(--state-focus-ring);
+  outline-offset: 2px;
+}
+
+/* An unknown term stays the author's text; the marker says why nothing opened. */
+.term-unknown-marker {
+  margin-inline-start: 0.15em;
+  color: var(--color-muted);
+  font-size: var(--type-size-sm);
+}
+
+/* On a narrow screen the panel sits in the flow instead of over the content, so the link stays
+   inside the viewport. */
+@media (max-width: 40rem) {
+  details.term-popover {
+    position: static;
+    display: block;
+  }
+
+  .term-popover-panel {
+    position: static;
+    inline-size: auto;
+    max-inline-size: none;
+    margin-block-start: var(--space-2);
+  }
+}

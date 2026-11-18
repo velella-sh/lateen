@@ -1,0 +1,7 @@
+- id: widget
+  term: Widget
+  definition: A small reusable control that a page composes instead of repeating its markup.
+  aliases: [control]
+- id: pipeline
+  term: Pipeline
+  definition: The ordered stages a build runs from source to output.
