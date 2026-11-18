@@ -13,14 +13,14 @@
         "count": 1
       },
       "js/chrome": {
-        "raw": 83266,
-        "gzip": 30434,
+        "raw": 84038,
+        "gzip": 30669,
         "count": 29
       },
       "js/components": {
-        "raw": 3333,
-        "gzip": 1335,
-        "count": 2
+        "raw": 5133,
+        "gzip": 2037,
+        "count": 3
       },
       "js/inline": {
         "raw": 293,
@@ -143,14 +143,14 @@
         "count": 1
       },
       "js/chrome": {
-        "raw": 83266,
-        "gzip": 30434,
+        "raw": 84038,
+        "gzip": 30669,
         "count": 29
       },
       "js/components": {
-        "raw": 10811,
-        "gzip": 3934,
-        "count": 4
+        "raw": 12611,
+        "gzip": 4636,
+        "count": 5
       },
       "js/inline": {
         "raw": 293,
@@ -273,14 +273,14 @@
         "count": 1
       },
       "js/chrome": {
-        "raw": 83266,
-        "gzip": 30434,
+        "raw": 84038,
+        "gzip": 30669,
         "count": 29
       },
       "js/components": {
-        "raw": 3333,
-        "gzip": 1335,
-        "count": 2
+        "raw": 5133,
+        "gzip": 2037,
+        "count": 3
       },
       "js/inline": {
         "raw": 293,
@@ -533,14 +533,14 @@
         "count": 1
       },
       "js/chrome": {
-        "raw": 83266,
-        "gzip": 30434,
+        "raw": 84038,
+        "gzip": 30669,
         "count": 29
       },
       "js/components": {
-        "raw": 3333,
-        "gzip": 1335,
-        "count": 2
+        "raw": 5133,
+        "gzip": 2037,
+        "count": 3
       },
       "js/inline": {
         "raw": 293,
@@ -793,14 +793,14 @@
         "count": 1
       },
       "js/chrome": {
-        "raw": 83266,
-        "gzip": 30434,
+        "raw": 84038,
+        "gzip": 30669,
         "count": 29
       },
       "js/components": {
-        "raw": 3333,
-        "gzip": 1335,
-        "count": 2
+        "raw": 5133,
+        "gzip": 2037,
+        "count": 3
       },
       "js/inline": {
         "raw": 293,
@@ -1053,14 +1053,14 @@
         "count": 1
       },
       "js/chrome": {
-        "raw": 83266,
-        "gzip": 30434,
+        "raw": 84038,
+        "gzip": 30669,
         "count": 29
       },
       "js/components": {
-        "raw": 3333,
-        "gzip": 1335,
-        "count": 2
+        "raw": 5133,
+        "gzip": 2037,
+        "count": 3
       },
       "js/inline": {
         "raw": 293,
@@ -1313,14 +1313,14 @@
         "count": 1
       },
       "js/chrome": {
-        "raw": 83266,
-        "gzip": 30434,
+        "raw": 84038,
+        "gzip": 30669,
         "count": 29
       },
       "js/components": {
-        "raw": 3333,
-        "gzip": 1335,
-        "count": 2
+        "raw": 5133,
+        "gzip": 2037,
+        "count": 3
       },
       "js/inline": {
         "raw": 293,
@@ -1443,14 +1443,14 @@
         "count": 1
       },
       "js/chrome": {
-        "raw": 83266,
-        "gzip": 30434,
+        "raw": 84038,
+        "gzip": 30669,
         "count": 29
       },
       "js/components": {
-        "raw": 7808,
-        "gzip": 3181,
-        "count": 5
+        "raw": 9608,
+        "gzip": 3883,
+        "count": 6
       },
       "js/inline": {
         "raw": 293,
@@ -1573,14 +1573,14 @@
         "count": 1
       },
       "js/chrome": {
-        "raw": 83266,
-        "gzip": 30434,
+        "raw": 84038,
+        "gzip": 30669,
         "count": 29
       },
       "js/components": {
-        "raw": 27177,
-        "gzip": 9185,
-        "count": 7
+        "raw": 28977,
+        "gzip": 9887,
+        "count": 8
       },
       "js/inline": {
         "raw": 293,
@@ -1703,14 +1703,14 @@
         "count": 1
       },
       "js/chrome": {
-        "raw": 83266,
-        "gzip": 30434,
+        "raw": 84038,
+        "gzip": 30669,
         "count": 29
       },
       "js/components": {
-        "raw": 6804,
-        "gzip": 2995,
-        "count": 6
+        "raw": 8604,
+        "gzip": 3697,
+        "count": 7
       },
       "js/inline": {
         "raw": 293,
@@ -1833,14 +1833,14 @@
         "count": 1
       },
       "js/chrome": {
-        "raw": 83266,
-        "gzip": 30434,
+        "raw": 84038,
+        "gzip": 30669,
         "count": 29
       },
       "js/components": {
-        "raw": 5704,
-        "gzip": 2340,
-        "count": 3
+        "raw": 7504,
+        "gzip": 3042,
+        "count": 4
       },
       "js/inline": {
         "raw": 293,
@@ -1963,14 +1963,14 @@
         "count": 1
       },
       "js/chrome": {
-        "raw": 83266,
-        "gzip": 30434,
+        "raw": 84038,
+        "gzip": 30669,
         "count": 29
       },
       "js/components": {
-        "raw": 3333,
-        "gzip": 1335,
-        "count": 2
+        "raw": 5133,
+        "gzip": 2037,
+        "count": 3
       },
       "js/inline": {
         "raw": 293,
@@ -2093,14 +2093,14 @@
         "count": 1
       },
       "js/chrome": {
-        "raw": 83266,
-        "gzip": 30434,
+        "raw": 84038,
+        "gzip": 30669,
         "count": 29
       },
       "js/components": {
-        "raw": 29855,
-        "gzip": 11358,
-        "count": 11
+        "raw": 31655,
+        "gzip": 12060,
+        "count": 12
       },
       "js/inline": {
         "raw": 293,
@@ -2223,14 +2223,14 @@
         "count": 1
       },
       "js/chrome": {
-        "raw": 83266,
-        "gzip": 30434,
+        "raw": 84038,
+        "gzip": 30669,
         "count": 29
       },
       "js/components": {
-        "raw": 3333,
-        "gzip": 1335,
-        "count": 2
+        "raw": 5133,
+        "gzip": 2037,
+        "count": 3
       },
       "js/inline": {
         "raw": 293,
@@ -2353,14 +2353,14 @@
         "count": 1
       },
       "js/chrome": {
-        "raw": 83266,
-        "gzip": 30434,
+        "raw": 84038,
+        "gzip": 30669,
         "count": 29
       },
       "js/components": {
-        "raw": 3333,
-        "gzip": 1335,
-        "count": 2
+        "raw": 5133,
+        "gzip": 2037,
+        "count": 3
       },
       "js/inline": {
         "raw": 293,
@@ -2483,14 +2483,14 @@
         "count": 1
       },
       "js/chrome": {
-        "raw": 83266,
-        "gzip": 30434,
+        "raw": 84038,
+        "gzip": 30669,
         "count": 29
       },
       "js/components": {
-        "raw": 3333,
-        "gzip": 1335,
-        "count": 2
+        "raw": 5133,
+        "gzip": 2037,
+        "count": 3
       },
       "js/inline": {
         "raw": 293,
@@ -2613,14 +2613,14 @@
         "count": 1
       },
       "js/chrome": {
-        "raw": 83266,
-        "gzip": 30434,
+        "raw": 84038,
+        "gzip": 30669,
         "count": 29
       },
       "js/components": {
-        "raw": 3333,
-        "gzip": 1335,
-        "count": 2
+        "raw": 5133,
+        "gzip": 2037,
+        "count": 3
       },
       "js/inline": {
         "raw": 293,
@@ -2743,14 +2743,14 @@
         "count": 1
       },
       "js/chrome": {
-        "raw": 83266,
-        "gzip": 30434,
+        "raw": 84038,
+        "gzip": 30669,
         "count": 29
       },
       "js/components": {
-        "raw": 5503,
-        "gzip": 2195,
-        "count": 3
+        "raw": 7303,
+        "gzip": 2897,
+        "count": 4
       },
       "js/inline": {
         "raw": 293,
