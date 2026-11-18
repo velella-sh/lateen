@@ -8,6 +8,7 @@ import { test } from "node:test";
  * is never loaded; the page renders it unstyled (a `<svg>` with no size fills the viewport).
  */
 const LAYOUT_COMPONENTS: Readonly<Record<string, string>> = {
+  "add-to-calendar": ".add-to-calendar",
   "changelog-entry": ".changelog-entry",
   code: ".code",
   "drift-banner": ".drift-banner",

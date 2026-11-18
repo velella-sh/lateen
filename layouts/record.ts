@@ -12,6 +12,7 @@ import pageFooter from "../chrome/page-footer/index.ts";
 import header from "../chrome/header/index.ts";
 import sidebar from "../chrome/sidebar/index.ts";
 import toc from "../chrome/toc/index.ts";
+import addToCalendar from "../components/add-to-calendar/index.ts";
 import embedCode from "../components/embed-code/index.ts";
 import { t } from "../i18n/index.ts";
 import { FACTS_ID, factsOf, factsPanel, recordHeader, summaryOf } from "../src/record-parts.ts";
@@ -57,6 +58,15 @@ function article(props: LayoutProps): ComponentChildren {
     breadcrumb(props) as ComponentChildren,
     recordHeader(props),
     summaryOf(props),
+    addToCalendar({
+      props: {
+        ...(props.record?.calendar === undefined ? {} : { calendar: props.record.calendar }),
+        ...(props.record?.calendars === undefined ? {} : { calendars: props.record.calendars }),
+      },
+      page: props.page,
+      site: props.site,
+      html: "",
+    }) as ComponentChildren,
     factsPanel(props),
     lastUpdated(props) as ComponentChildren,
     h("div", { class: "record-body", dangerouslySetInnerHTML: { __html: props.page.html } }),
