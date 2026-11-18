@@ -47,11 +47,33 @@ export function render(component: Component): string {
 ```
 :::
 
+## Fence metadata
+
+A plain fenced block can carry metadata after its language. The engine reads it and the theme renders it on every doc and guide page:
+
+| Meta | What it renders |
+| --- | --- |
+| `title="answer.ts"` | A title bar above the block. |
+| `{1,3-5}` | Highlighted lines. |
+| `showLineNumbers` | A line number on every line, kept out of copied text. |
+| `ins={2}` / `del={3-4}` | Added and removed lines, marked with CSS only. |
+| `diff` | Strips the diff marker from the code and styles the lines. |
+| `annotations={2: a note \| 3-4: another note}` | A disclosure of notes below the block, each linked to its line. |
+
+```ts title="answer.ts" {3} showLineNumbers annotations={2: The exported constant | 3-4: A range of two lines}
+export const answer = 42;
+const doubled = answer * 2;
+const tripled = answer * 3;
+const quadrupled = answer * 4;
+```
+
+The notes are ordinary HTML: a `<details>` element with a summary and an ordered list, so they open without JavaScript and read in order. A note's link points at the line's `id`; the line gets no visible text, so copying and selecting the code stays clean.
+
 ## Notes
 
 - The copy button is made by JavaScript on every page and starts hidden. Without JavaScript the code still reads and selects by hand.
 - A `console`, `shellsession`, or `terminal` fence is read as a recorded session: the copy takes only the `$`/`%` command lines and their `>` continuations, never the output. A `bash` fence is a script, so every line is copied with any prompt taken off.
 - A `diff` fence keeps its `+` and `−` lines. Use it to show a change to a file.
-- Fence meta such as `title="…"`, line marks, and `ins`/`del` is parsed by the engine, but the current component does not render it. Put a file name in the sentence above the block.
+- Metadata is rendered by the doc and guide layouts for ordinary fences; a block written through the `:::code` directive keeps the directive's own output.
 - The block keeps its source span, so the page footer can edit the exact block with an agent.
 - A language outside the default set is imported when a fence asks for it. Each grammar is imported once per build and shared by overlapping callers; an import that fails is retried on the next call instead of being remembered as loaded.

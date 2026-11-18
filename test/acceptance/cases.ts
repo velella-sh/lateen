@@ -108,4 +108,15 @@ export const CASES: readonly AcceptanceCase[] = [
       { selector: ".api-reference-status", text: "200" },
     ],
   },
+  {
+    name: "code-annotations",
+    path: "/annotations/",
+    expect: [
+      { selector: ".code-title", text: "answer.ts" },
+      { selector: "pre.code .highlighted", count: 1 },
+      { selector: "details.code-annotations summary", text: "Annotations (1)" },
+    ],
+    action: { selector: "details.code-annotations summary", click: true },
+    after: [{ selector: "details.code-annotations a", hrefIncludes: "-line-2" }],
+  },
 ];
