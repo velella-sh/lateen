@@ -1,0 +1,19 @@
+# A small site that exercises the API reference layouts beside the data API output.
+title: Lateen API reference fixture
+description: One full operation, one minimal operation, and the data API beside them.
+lang: en
+url: https://example.com
+base: ""
+search: { text: 300 }
+apiReference:
+  source: openapi.json
+  path: /reference/
+api:
+  version: v1
+  collections:
+    books:
+      fields: [title, author]
+collections:
+  books:
+    source: _data/books.json
+    id: id
