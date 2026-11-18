@@ -1,0 +1,41 @@
+# A catalogue site for an invented field-kit collection, read by Mizzen. Replace the title, url, data, and statuses.
+title: Driftwood
+description: Driftwood is an invented field-kit catalogue, used here to show a complete data site.
+lang: en
+url: https://example.com
+base: ""
+search: { text: 300 }
+repository:
+  url: https://github.com/example/driftwood
+  branch: main
+  dir: ""
+collections:
+  kits:
+    source: _data/kits.yml
+    id: id
+    template: _templates/kit.md
+    permalink: /kits/{id}/
+    schema: _data/kits.schema.json
+    dates: [added, updated]
+    index:
+      fields: [id, name, category, status, updated, weight_grams, pieces]
+theme:
+  name: "@velella/lateen"
+  options:
+    status:
+      values:
+        in-service:
+          tone: positive
+          label: In service
+          description: Ready to pack and use.
+        maintenance:
+          tone: caution
+          label: Needs care
+          description: Usable, but a part needs attention.
+        retired:
+          tone: neutral
+          label: Retired
+          description: Kept for the record only.
+    footer:
+      copyright: "© Example"
+      license: "MIT license"

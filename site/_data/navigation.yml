@@ -6,6 +6,8 @@ main:
         url: /
       - title: Install and quickstart
         url: /install/
+      - title: Starters
+        url: /starters/
       - title: Layouts
         url: /layouts/
       - title: List layout

@@ -62,4 +62,4 @@ npx sandbar run test
 
 ## بعد از این
 
-[مرجع دستورها](/fa/reference/commands/) و [مرجع پیکربندی](/fa/reference/configuration/) را بخوانید.
+[مرجع دستورها](../../reference/commands/) و [مرجع پیکربندی](../../reference/configuration/) را بخوانید.

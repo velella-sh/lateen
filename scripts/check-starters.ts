@@ -1,5 +1,5 @@
 // Builds every starter in `starters/` with the installed engine and this theme, runs the engine's check on it,
-// and fails on any diagnostic, any broken internal link, any file over the size limit, or a build over the time
+// and fails on any error or warning diagnostic, any broken internal link, any file over the size limit, or a build over the time
 // limit. A starter that declares optional languages is also built without them, so the installer can leave
 // them out. A failing starter is never skipped. See starters/README.md for what a starter is.
 // Usage: node scripts/check-starters.ts [starters-folder]
@@ -136,7 +136,9 @@ function checkVariant(name: string, variant: string, source: string): Problem[] 
   } catch {
     problems.push(problem(`the engine's check gave no readable result: ${check.stderr || check.stdout || check.error?.message}`));
   }
-  for (const d of diagnostics) problems.push(problem(`${d.file ?? "site"}:${d.line ?? 0} ${d.code ?? ""} ${d.message ?? ""}`.trim()));
+  // Info lines report sizes the build wrote; a starter with a collection index always has one.
+  for (const d of diagnostics.filter((entry) => entry.severity !== "info"))
+    problems.push(problem(`${d.file ?? "site"}:${d.line ?? 0} ${d.code ?? ""} ${d.message ?? ""}`.trim()));
 
   const out = mkdtempSync(join(tmpdir(), "lateen-starter-out-"));
   try {
