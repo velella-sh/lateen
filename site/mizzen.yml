@@ -63,3 +63,5 @@ collections:
   books:
     source: _data/books.yml
     id: slug
+    template: _templates/books.md
+    permalink: /books/{id}/
