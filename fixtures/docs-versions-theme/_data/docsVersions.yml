@@ -1,0 +1,12 @@
+# The switcher's page -> versions data. The engine writes the same shape as versions.json after a
+# build; copy that file here before the build that renders the switcher.
+"/":
+  - version: v1
+    url: /v1/
+  - version: v2
+    url: /v2/
+"/guide/install/":
+  - version: v1
+    url: /v1/guide/install/
+  - version: v2
+    url: /v2/guide/install/
