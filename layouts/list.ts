@@ -2,6 +2,7 @@ import { Fragment, h } from "preact";
 import type { ComponentChildren } from "preact";
 import type { Heading, Island, Layout, LayoutProps, RecordProps } from "@velella/mizzen/contracts";
 import base from "./base.ts";
+import { authorNameOf, authorPageOf, blogAuthorOf, blogKindOf, blogOf, postsOf } from "./blog/index.ts";
 import breadcrumb from "../chrome/breadcrumb/index.ts";
 import drawer from "../chrome/drawer/index.ts";
 import header from "../chrome/header/index.ts";
@@ -14,6 +15,7 @@ import datedList from "../components/dated-list/index.ts";
 import { formatCount, pluralCategory } from "../components/reading-time/index.ts";
 import recordTable, { columnsOf as tableColumnsOf, type RecordColumn } from "../components/record-table/index.ts";
 import { t } from "../i18n/index.ts";
+import { calendarDate } from "../src/dates.ts";
 import { formatField, isEmpty } from "../src/fields.ts";
 import { baseOf } from "../src/url.ts";
 
@@ -203,12 +205,76 @@ function recordsView(props: LayoutProps, records: readonly RecordProps[]): Compo
   return table(props, records);
 }
 
+/** The date in a blog row: a `<time>` when the engine wrote a real date, else the text as written. */
+function blogDate(props: LayoutProps, iso: string): ComponentChildren {
+  const date = calendarDate(iso, props.page.lang);
+  return date === undefined ? h("span", null, iso) : h("time", { datetime: date.datetime }, date.text);
+}
+
+/** One post in a blog list: its title link, date, author, and description when it has one. */
+function blogItem(props: LayoutProps, post: ReturnType<typeof postsOf>[number]): ComponentChildren {
+  const lang = props.page.lang;
+  const name = authorNameOf(props.site, post.author);
+  const authorPage = authorPageOf(props.site, post.author);
+  return h(
+    "li",
+    { class: "blog-item" },
+    h("h2", { class: "blog-item-title" }, h("a", { href: post.url }, post.title)),
+    h(
+      "p",
+      { class: "blog-meta" },
+      blogDate(props, post.date),
+      h("span", { "aria-hidden": "true" }, " · "),
+      h(
+        "span",
+        { class: "blog-author" },
+        h("span", { class: "post-by" }, t(lang, "post_by")),
+        " ",
+        authorPage === undefined ? name : h("a", { href: authorPage.url }, name),
+      ),
+    ),
+    post.description === undefined ? null : h("p", { class: "blog-description" }, post.description),
+  );
+}
+
+/** The localized heading of an archive or author page. */
+function blogHeading(props: LayoutProps): ComponentChildren {
+  const lang = props.page.lang;
+  if (blogKindOf(props.page) !== "author") return h("h1", null, t(lang, "blog_archive"));
+  const record = blogAuthorOf(props.page);
+  const id = typeof record?.id === "string" ? record.id : "";
+  return h("h1", null, t(lang, "blog_author_heading", { name: authorNameOf(props.site, id) }));
+}
+
+/**
+ * A blog archive or author page: its localized heading and the public posts the engine planned,
+ * in the engine's newest-first order. The engine gives these pages no records, so the record
+ * table would be empty; the posts are the page.
+ */
+function blogArticle(props: LayoutProps): ComponentChildren {
+  const posts = postsOf(props.page);
+  return h(
+    "article",
+    { class: "list blog", "data-pagefind-body": true },
+    breadcrumb(props) as ComponentChildren,
+    titleFromBody(props) ? null : blogHeading(props),
+    props.page.html === ""
+      ? null
+      : h("div", { class: "list-intro", dangerouslySetInnerHTML: { __html: props.page.html } }),
+    posts.length === 0
+      ? h("p", { class: "list-empty" }, t(props.page.lang, "blog_empty"))
+      : h("ul", { class: "blog-list" }, posts.map((post) => blogItem(props, post))),
+    h("div", { class: "doc-actions" }, pageFooter(props) as ComponentChildren),
+  );
+}
+
 /**
  * A list page: the page title and body as the introduction, then the records the engine selected,
  * in the engine's order, one section per group when it grouped them. A page that names this layout
- * without list data renders its body alone.
+ * without list data renders its body alone. A blog archive or author page lists its posts instead.
  */
 function article(props: LayoutProps): ComponentChildren {
+  if (blogOf(props.page) !== undefined) return blogArticle(props);
   const list = props.list;
   const groups = groupsOf(props);
   const records: ComponentChildren =

@@ -54,6 +54,11 @@ export function postsOf(page: Page): BlogPost[] {
   });
 }
 
+/** The author record an author page carries, or undefined on every other page. */
+export function blogAuthorOf(page: Page): Readonly<Record<string, unknown>> | undefined {
+  return mapping(blogOf(page)?.author);
+}
+
 /** An author record from `_data/authors.yml` by id. */
 export function authorOf(site: Site, id: string): Readonly<Record<string, unknown>> | undefined {
   return mapping(mapping(site.data.authors)?.[id]);
@@ -72,10 +77,8 @@ export function authorPageOf(site: Site, id: string): Page | undefined {
   });
 }
 
-/** The archive URL: the page the engine generated, else the configured route under the site's base. */
+/** The archive URL: the configured route under the site's base, never the build's output folder. */
 export function archiveUrlOf(site: Site): string {
-  const archive = site.pages.find((page) => blogKindOf(page) === "archive");
-  if (archive !== undefined) return archive.url;
   const base = site.config.base;
   const route = (site.config.blog?.route ?? "blog").replace(/^\/+|\/+$/g, "");
   const name = (site.config.blog?.archive ?? "archive").replace(/^\/+|\/+$/g, "");
