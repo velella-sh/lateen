@@ -102,3 +102,24 @@
 .gallery-item > .gallery-card {
   flex: 1;
 }
+
+/* Paper has no links to follow: the cards print, the controls do not, and a card stays in one piece. */
+@media print {
+  .gallery-item {
+    break-inside: avoid;
+  }
+}
+
+@media (forced-colors: active) {
+  .gallery-filter-value,
+  .gallery-sort-link {
+    border-color: CanvasText;
+  }
+
+  .gallery-filter-selected,
+  .gallery-sort-active {
+    border-color: Highlight;
+    background-color: Highlight;
+    color: HighlightText;
+  }
+}

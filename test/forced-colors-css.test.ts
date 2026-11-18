@@ -322,6 +322,13 @@ test("the record table keeps a visible edge on its filter fields in forced color
   assert.match(rules, /\.record-table-filter select,[\s\S]*?border-color:\s*CanvasText/);
 });
 
+test("the gallery filters keep a visible edge and a distinct selected state in forced colors", () => {
+  const text = read("../components/gallery-filters/style.css");
+  const rules = text.slice(text.indexOf("@media (forced-colors: active)"));
+  assert.match(rules, /\.gallery-filter-value,[\s\S]*?border-color:\s*CanvasText/);
+  assert.match(rules, /\.gallery-filter-selected,[\s\S]*?background-color:\s*Highlight/);
+});
+
 test("the guide layout's components keep a visible edge in forced colors", () => {
   for (const [unit, selector] of [
     ["steps", ".steps > ol > li"],

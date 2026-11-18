@@ -21,6 +21,14 @@ import { cardOf, groupsOf, titleFromBody } from "./list.ts";
    shortcut: the island path is the engine's convention; revisit when a layout can declare a client. */
 const FILTER_ISLAND = "assets/theme/islands/components/gallery-filters/client.js";
 
+/** Every option the gallery reads, in the order the docs page lists them. */
+export const GALLERY_OPTIONS = [
+  "list.collection",
+  "collection.search.filters",
+  "collection.search.sort",
+  "theme.options.gallery.addCard",
+] as const;
+
 /** The configured fields as a list, ignoring a malformed value. */
 function fieldsOf(value: unknown): string[] {
   return Array.isArray(value) ? value.filter((field): field is string => typeof field === "string" && field.trim() !== "") : [];
