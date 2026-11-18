@@ -265,6 +265,8 @@ test("the built fixture shows both releases, keeps old URLs, and falls back to a
   assert.equal(legacyNotice?.querySelector(".version-notice-link")?.getAttribute("href"), "/");
   assert.equal(legacyNotice?.querySelector(".version-notice-link")?.getAttribute("data-version-target"), "home");
   assert.equal(textOf(legacyNotice?.querySelector(".version-notice-link")), "Go to the v2 home page");
+  // The fallback names a real built page, not an invented URL.
+  assert.match(textOf(site.document("/").querySelector("article")), /Release 2 documentation\./);
 
   // Both release URLs exist in the output while the default release is v2.
   assert.ok(site.html("/v1/guide/install/").includes("Install release 1."));
