@@ -14,6 +14,7 @@ import sidebar from "../chrome/sidebar/index.ts";
 import toc from "../chrome/toc/index.ts";
 import addToCalendar from "../components/add-to-calendar/index.ts";
 import embedCode from "../components/embed-code/index.ts";
+import recordHistory from "../components/record-history/index.ts";
 import { t } from "../i18n/index.ts";
 import { FACTS_ID, factsOf, factsPanel, recordHeader, summaryOf } from "../src/record-parts.ts";
 import doc from "./doc.ts";
@@ -70,6 +71,12 @@ function article(props: LayoutProps): ComponentChildren {
     factsPanel(props),
     lastUpdated(props) as ComponentChildren,
     h("div", { class: "record-body", dangerouslySetInnerHTML: { __html: props.page.html } }),
+    recordHistory({
+      props: props.record?.changes === undefined ? {} : { changes: props.record.changes },
+      page: props.page,
+      site: props.site,
+      html: "",
+    }) as ComponentChildren,
     embedPanel(props),
     h(
       "div",
