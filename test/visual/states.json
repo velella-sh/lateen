@@ -67,6 +67,13 @@
       ]
     },
     {
+      "name": "dated-list",
+      "selector": ".dated-list-day",
+      "states": [
+        "hover"
+      ]
+    },
+    {
       "name": "diff-block",
       "selector": "[data-diff-copy]",
       "states": [
