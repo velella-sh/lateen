@@ -6,6 +6,9 @@ import chartData from "../chart-data/index.ts";
 /** The Markdown directive this component handles: `::bar-chart{from="sales"}`. */
 export const directive = "bar-chart";
 
+/** The directive's options; the docs page and its test read this list. */
+export const OPTIONS = ["from", "category", "value", "direction", "title", "id"] as const;
+
 /** Class on the `<figure>`. `style.css` styles it. */
 export const CLASS = "bar-chart";
 

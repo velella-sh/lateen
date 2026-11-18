@@ -12,6 +12,9 @@ import {
 /** The Markdown directive this component handles: `::stacked-bar{from="revenue" series="region"}`. */
 export const directive = "stacked-bar";
 
+/** The directive's options; the docs page and its test read this list. */
+export const OPTIONS = ["from", "category", "series", "value", "title", "id"] as const;
+
 /** Class on the `<figure>`. `style.css` styles it. */
 export const CLASS = "stacked-bar";
 
