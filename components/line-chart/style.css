@@ -143,3 +143,10 @@
     fill: CanvasText;
   }
 }
+
+/* The data table is nested inside the chart, so the chart's stylesheet carries its target size. */
+.chart-data-downloads a {
+  display: inline-flex;
+  align-items: center;
+  min-block-size: 1.5rem;
+}

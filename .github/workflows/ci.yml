@@ -112,6 +112,8 @@ jobs:
         run: npm run test:visual
         working-directory: lateen
         timeout-minutes: 8
+        env:
+          VISUAL_CHECKS: strict
       - name: Design check
         run: npm run check:design
         working-directory: lateen

@@ -9,6 +9,14 @@
   white-space: nowrap;
 }
 
+.glossary-index a {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-inline-size: 1.5rem;
+  min-block-size: 1.5rem;
+}
+
 .glossary-group {
   margin-block: 0 var(--space-8);
 }

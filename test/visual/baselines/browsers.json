@@ -1,5 +1,5 @@
 {
   "chromium": "158.0.8127.18",
   "playwright": "1.65.0",
-  "note": "Recorded locally with the pinned settings; CI was queueing at the time."
+  "note": "Recorded on the CI Linux runner with the pinned settings."
 }

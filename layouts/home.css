@@ -157,6 +157,9 @@ body:has(.home-showpiece) .site-footer-inner {
 }
 
 .home-section-title a {
+  display: inline-flex;
+  align-items: center;
+  min-block-size: 1.5rem;
   color: inherit;
   text-decoration: none;
 }
