@@ -37,4 +37,4 @@ An optional language lives in the folder named by its `prefix`, and in the `lang
 
 ## Check
 
-`npm run check:starters` builds every starter with the installed engine and this theme, runs the engine's `check`, and fails on any diagnostic, broken internal link, source file over 256 KiB, or build over 60 seconds. A starter with optional languages is checked twice: with all of them and with the default language alone. CI runs it on every pull request, and no starter is skipped.
+`npm run check:starters` builds every starter with the installed engine and this theme, runs the engine's `check`, and fails on any error or warning diagnostic, broken internal link, source file over 256 KiB, or build over 60 seconds. A starter with optional languages is checked twice: with all of them and with the default language alone. CI runs it on every pull request, and no starter is skipped.

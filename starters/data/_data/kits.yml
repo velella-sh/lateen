@@ -1,0 +1,221 @@
+# Twenty invented field-kit records. Every name, date, and number is sample data.
+
+- id: shelter-tarp
+  name: Shelter tarp
+  summary: A square tarp with reinforced corners that pitches as a roof or a ground sheet.
+  category: Shelter
+  status: in-service
+  added: 2025-03-12
+  updated: 2026-01-18
+  weight_grams: 640
+  pieces: 1
+  tags: [rain, overnight]
+
+- id: storm-tent
+  name: Storm tent
+  summary: A two-person tent with a low profile and four guy lines for open ground.
+  category: Shelter
+  status: maintenance
+  added: 2025-03-12
+  updated: 2025-11-02
+  weight_grams: 1850
+  pieces: 3
+  tags: [wind, overnight]
+
+- id: bivy-bag
+  name: Bivy bag
+  summary: A breathable cover for a sleeping bag when the night is dry but cold.
+  category: Shelter
+  status: in-service
+  added: 2025-04-08
+  updated: 2025-09-14
+  weight_grams: 420
+  pieces: 1
+  tags: [cold]
+
+- id: ground-sheet
+  name: Ground sheet
+  summary: A fitted sheet that keeps the tent floor off wet grass and stone.
+  category: Shelter
+  status: in-service
+  added: 2025-04-08
+  updated: 2025-10-01
+  weight_grams: 310
+  pieces: 1
+  tags: [rain]
+
+- id: cook-set
+  name: Cook set
+  summary: A nesting pot and pan with a lid that doubles as a plate.
+  category: Cooking
+  status: in-service
+  added: 2025-02-20
+  updated: 2026-02-06
+  weight_grams: 780
+  pieces: 3
+  tags: [cooking]
+
+- id: spirit-stove
+  name: Spirit stove
+  summary: A small alcohol stove that burns steadily in a sheltered spot.
+  category: Cooking
+  status: retired
+  added: 2025-02-20
+  updated: 2025-06-30
+  weight_grams: 190
+  pieces: 1
+  tags: [cooking, flame]
+
+- id: fuel-bottle
+  name: Fuel bottle
+  summary: A sealed bottle with a wide mouth and a measured cap.
+  category: Cooking
+  status: in-service
+  added: 2025-05-15
+  updated: 2025-12-11
+  weight_grams: 120
+  pieces: 1
+  tags: [fuel]
+
+- id: folding-cup
+  name: Folding cup
+  summary: A flat cup that opens for a hot drink and folds back into a pocket.
+  category: Cooking
+  status: in-service
+  added: 2025-05-15
+  updated: 2025-08-19
+  weight_grams: 45
+  pieces: 1
+  tags: [hot-drink]
+
+- id: baseplate-compass
+  name: Baseplate compass
+  summary: A clear compass with a ruler edge and a rotating bezel.
+  category: Navigation
+  status: in-service
+  added: 2025-01-09
+  updated: 2026-03-03
+  weight_grams: 60
+  pieces: 1
+  tags: [bearing]
+
+- id: map-case
+  name: Map case
+  summary: A clear wallet that keeps a folded map dry and readable.
+  category: Navigation
+  status: maintenance
+  added: 2025-01-09
+  updated: 2025-07-22
+  weight_grams: 95
+  pieces: 1
+  tags: [rain, map]
+
+- id: signal-mirror
+  name: Signal mirror
+  summary: A sighted mirror for signaling over open distance.
+  category: Navigation
+  status: in-service
+  added: 2025-06-01
+  updated: 2025-06-01
+  weight_grams: 40
+  pieces: 1
+  tags: [signal]
+
+- id: repair-roll
+  name: Repair roll
+  summary: A canvas roll of needles, thread, wire, and safety pins.
+  category: Repair
+  status: in-service
+  added: 2025-02-02
+  updated: 2025-11-27
+  weight_grams: 210
+  pieces: 12
+  tags: [patch]
+
+- id: patch-kit
+  name: Patch kit
+  summary: Adhesive patches and a small roller for mending a sleeping pad.
+  category: Repair
+  status: in-service
+  added: 2025-02-02
+  updated: 2025-10-16
+  weight_grams: 55
+  pieces: 6
+  tags: [patch]
+
+- id: wire-saw
+  name: Wire saw
+  summary: A flexible saw for cutting a small branch or a straight edge.
+  category: Repair
+  status: retired
+  added: 2025-03-30
+  updated: 2025-05-05
+  weight_grams: 70
+  pieces: 1
+  tags: [cut]
+
+- id: head-torch
+  name: Head torch
+  summary: A three-mode light with a strap that fits over a hat.
+  category: Light
+  status: in-service
+  added: 2025-01-25
+  updated: 2026-02-24
+  weight_grams: 85
+  pieces: 1
+  tags: [battery, night]
+
+- id: lantern
+  name: Lantern
+  summary: A hanging light with a diffuser for a shared table.
+  category: Light
+  status: maintenance
+  added: 2025-01-25
+  updated: 2025-09-02
+  weight_grams: 240
+  pieces: 1
+  tags: [battery, camp]
+
+- id: candle-lantern
+  name: Candle lantern
+  summary: A glass chimney around a single candle for a still evening.
+  category: Light
+  status: retired
+  added: 2025-04-18
+  updated: 2025-04-18
+  weight_grams: 330
+  pieces: 2
+  tags: [flame]
+
+- id: water-filter
+  name: Water filter
+  summary: A squeeze filter that fits a wide-mouth bottle and a bladder.
+  category: Water
+  status: in-service
+  added: 2025-02-14
+  updated: 2026-01-07
+  weight_grams: 160
+  pieces: 2
+  tags: [filter]
+
+- id: collapsible-jug
+  name: Collapsible jug
+  summary: A two-litre jug that folds flat when it is empty.
+  category: Water
+  status: in-service
+  added: 2025-02-14
+  updated: 2025-12-29
+  weight_grams: 110
+  pieces: 1
+  tags: [carry]
+
+- id: spare-gasket
+  name: Spare gasket
+  summary: A small rubber ring for the filter housing and the fuel cap.
+  category: Water
+  status: maintenance
+  added: 2025-07-04
+  updated: 2025-07-04
+  weight_grams: 5
+  pieces: 3
+  tags: [spare]

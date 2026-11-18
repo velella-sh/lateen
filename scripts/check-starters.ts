@@ -136,7 +136,9 @@ function checkVariant(name: string, variant: string, source: string): Problem[] 
   } catch {
     problems.push(problem(`the engine's check gave no readable result: ${check.stderr || check.stdout || check.error?.message}`));
   }
-  for (const d of diagnostics) problems.push(problem(`${d.file ?? "site"}:${d.line ?? 0} ${d.code ?? ""} ${d.message ?? ""}`.trim()));
+  // Info lines report sizes the build wrote; a starter with a collection index always has one.
+  for (const d of diagnostics.filter((entry) => entry.severity !== "info"))
+    problems.push(problem(`${d.file ?? "site"}:${d.line ?? 0} ${d.code ?? ""} ${d.message ?? ""}`.trim()));
 
   const out = mkdtempSync(join(tmpdir(), "lateen-starter-out-"));
   try {
