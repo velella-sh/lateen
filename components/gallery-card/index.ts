@@ -1,6 +1,7 @@
 import { h } from "preact";
 import type { ComponentChildren } from "preact";
 import { hrefOf } from "../cards/index.ts";
+import tile from "./tile.ts";
 
 /** The card itself: the whole card is one link, so the focus ring covers it. */
 export const GALLERY_CARD_CLASS = "gallery-card";
@@ -30,6 +31,8 @@ function textOf(value: unknown): string | undefined {
 export type GalleryCardProps = {
   /** Where the whole card goes. Only safe destinations become links; see hrefOf. */
   href: string;
+  /** The record's id, which gives a coverless card its stable tile tone. Falls back to the href. */
+  id?: string;
   /** The item's name. A blank title renders static content, never an unnamed link. */
   title: string;
   /** The cover image or logo. Decorative, because the title already names the item. */
@@ -45,7 +48,7 @@ export type GalleryCardProps = {
  * optional status. Without a safe href or a title it renders as static content instead, so a
  * malformed card never becomes an unlabeled or `javascript:` link.
  */
-export default function galleryCard({ href, title, cover, summary, status }: GalleryCardProps) {
+export default function galleryCard({ href, id, title, cover, summary, status }: GalleryCardProps) {
   const safeHref = hrefOf(href);
   const heading = textOf(title);
   const image = textOf(cover);
@@ -53,7 +56,11 @@ export default function galleryCard({ href, title, cover, summary, status }: Gal
   const state = textOf(status);
 
   const parts: ComponentChildren[] = [
-    image === undefined ? null : h("img", { class: COVER_CLASS, src: image, alt: "" }),
+    image === undefined
+      ? heading === undefined
+        ? null
+        : tile({ title: heading, id: textOf(id) ?? href })
+      : h("img", { class: COVER_CLASS, src: image, alt: "" }),
     h(
       "span",
       { class: BODY_CLASS },
