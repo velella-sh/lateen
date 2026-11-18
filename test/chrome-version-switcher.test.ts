@@ -85,6 +85,18 @@ test("lists versions from the N17 versions.json shape and marks the current one"
   assert.equal(out.match(/aria-current="true"/g)?.length, 1);
 });
 
+test("marks the default release current on its unprefixed canonical URL", () => {
+  const page = pageWith({ url: "/example/guide/install/" });
+  const data = { docsVersions: n17, versions: { default: "v2", old: ["v1"] } };
+  const links = versionsOf(props(data, page).site, page);
+
+  assert.deepEqual(links?.map((link) => [link.version, link.url, link.current]), [
+    ["v1", "/example/v1/guide/install/", false],
+    ["v2", "/example/v2/guide/install/", true],
+  ]);
+  assert.match(render(props(data, page)), /<span class="version-switcher-value" dir="ltr">v2<\/span>/);
+});
+
 test("links the same page URL from the data, adding base once", () => {
   const out = render(props({ versions: n17 }));
 

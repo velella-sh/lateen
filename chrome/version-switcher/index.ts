@@ -215,18 +215,34 @@ function dataOf(value: unknown): VersionsData | undefined {
   return pages.length === 0 ? undefined : { pages, byUrl };
 }
 
-/** The data page that holds `pageUrl`, through `byUrl`, an entry's URL, or a URL-shaped key. */
-function pageOf(data: VersionsData, base: string, pageUrl: string): DataPage | undefined {
+/** A source path or data key with forward slashes and no leading `./`. */
+function normalizedPath(value: string): string {
+  return value.replace(/\\/g, "/").replace(/^(\.\/)+/, "");
+}
+
+/**
+ * The data page that holds `page`, through `byUrl`, an entry's URL, a URL-shaped key, or the page's source path.
+ * The default release's canonical page has the version folder in its source but not in the data's path key, so the
+ * default version is stripped before comparing.
+ */
+function pageOf(data: VersionsData, base: string, page: Page, defaultVersion: string | undefined): DataPage | undefined {
+  const pageUrl = page.url;
   const path = data.byUrl.get(pageUrl);
   if (path !== undefined) {
-    const found = data.pages.find((page) => page.key === path);
+    const found = data.pages.find((candidate) => candidate.key === path);
     if (found !== undefined) return found;
   }
-  return data.pages.find(
-    (page) =>
-      page.entries.some((entry) => withBase(base, entry.url) === pageUrl) ||
-      withBase(base, page.key) === pageUrl,
+  const urlMatch = data.pages.find(
+    (candidate) =>
+      candidate.entries.some((entry) => withBase(base, entry.url) === pageUrl) ||
+      withBase(base, candidate.key) === pageUrl,
   );
+  if (urlMatch !== undefined) return urlMatch;
+
+  const source = normalizedPath(page.source.file);
+  const prefix = defaultVersion === undefined ? undefined : `${defaultVersion}/`;
+  const versions = prefix !== undefined && source.startsWith(prefix) ? [source, source.slice(prefix.length)] : [source];
+  return data.pages.find((candidate) => versions.includes(normalizedPath(candidate.key)));
 }
 
 /**
@@ -265,13 +281,21 @@ function isRouting(value: unknown): boolean {
   );
 }
 
+/** The release served at canonical URLs, from `_data/versions.yml`; `current` and invalid values are undefined. */
+function defaultVersionOf(site: Site): string | undefined {
+  const value = site.data.versions;
+  if (!isRecord(value)) return undefined;
+  const name = textOf(value.default);
+  return name === undefined || name === "current" ? undefined : name;
+}
+
 /** The versions a page can switch between, from `site.data.docsVersions` first and its front matter second. */
 export function versionsOf(site: Site, page: Page): readonly VersionLink[] | undefined {
   const base = baseOf(site);
   const data = dataOf(site.data.docsVersions) ?? (isRouting(site.data.versions) ? undefined : dataOf(site.data.versions));
 
   if (data !== undefined) {
-    const current = pageOf(data, base, page.url);
+    const current = pageOf(data, base, page, defaultVersionOf(site));
     if (current === undefined) return undefined;
 
     const homes = homesOf(data, base);
@@ -286,6 +310,13 @@ export function versionsOf(site: Site, page: Page): readonly VersionLink[] | und
         current: entry !== undefined && url === page.url,
         home: entry === undefined,
       });
+    }
+    // The default release answers at both its canonical and versioned URLs; the canonical page matches no entry,
+    // so mark the release the routing file names as default.
+    if (!links.some((link) => link.current) && !links.some((link) => link.url === page.url)) {
+      const fallback = defaultVersionOf(site);
+      const index = links.findIndex((link) => link.version === fallback);
+      if (index >= 0) links[index] = { ...links[index]!, current: true };
     }
     return links.length === 0 ? undefined : links;
   }
