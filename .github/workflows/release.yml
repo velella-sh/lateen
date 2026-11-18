@@ -1,0 +1,146 @@
+name: release
+
+# The only path to npm. Pushing a `v*` tag asks for a release; the acceptance job packs the commit,
+# installs the tarball and the exact Mizzen version into an empty project, builds the public
+# acceptance site with the installed CLI and runs the Playwright cases. Publishing needs that report
+# and publishes the same tarball. A skipped case, a failed case, a different engine or a different
+# tarball blocks the release.
+on:
+  push:
+    tags: ["v*"]
+  workflow_dispatch:
+    inputs:
+      version:
+        description: The version to release, without the leading v (for example 0.3.0).
+        required: true
+
+permissions:
+  contents: read
+  id-token: write
+
+concurrency:
+  group: release-${{ github.ref }}
+  cancel-in-progress: false
+
+jobs:
+  # Packs the commit and runs the same gate a pull request runs, then keeps the tarball and the
+  # report as the only artifact publishing may use.
+  acceptance:
+    name: acceptance
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          path: lateen
+          persist-credentials: false
+          fetch-depth: 0
+      - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
+        with:
+          node-version: "24"
+      - name: Install
+        run: npm ci --no-audit --no-fund
+        working-directory: lateen
+      - name: Install Chromium
+        run: npx playwright install chromium
+        working-directory: lateen
+      - name: Public acceptance gate
+        run: npm run test:acceptance -- --report ../acceptance/report.json
+        working-directory: lateen
+      - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
+        with:
+          name: acceptance
+          path: acceptance
+          retention-days: 1
+
+  publish:
+    name: publish
+    needs: acceptance
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    environment: release
+    permissions:
+      contents: read
+      id-token: write
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          path: lateen
+          persist-credentials: false
+      - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
+        with:
+          node-version: "24"
+          registry-url: https://registry.npmjs.org
+      - name: Install
+        run: npm ci --no-audit --no-fund
+        working-directory: lateen
+      - uses: actions/download-artifact@v4
+        with:
+          name: acceptance
+          path: acceptance
+      - name: Read the version
+        id: version
+        run: |
+          version="${{ inputs.version }}"
+          if [ -z "$version" ]; then version="${GITHUB_REF_NAME#v}"; fi
+          echo "value=$version" >> "$GITHUB_OUTPUT"
+      - name: Require the tag to name the package version
+        working-directory: lateen
+        run: test "$(node -p "require('./package.json').version")" = "${{ steps.version.outputs.value }}"
+      - name: Require the tested tarball and the tested engine
+        working-directory: lateen
+        run: |
+          tarball="$(ls ../acceptance/*.tgz)"
+          node scripts/acceptance.ts --gate ../acceptance/report.json --tarball "$tarball"
+      - name: Publish the tested tarball
+        working-directory: lateen
+        run: |
+          tarball="$(ls ../acceptance/*.tgz)"
+          npm publish "$tarball" --access public --provenance
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
+
+  # Installs the exact published version from npm and runs the same cases again. The digest check
+  # proves publishing shipped the bytes the acceptance gate tested.
+  verify-published:
+    name: verify published
+    needs: publish
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    permissions:
+      contents: read
+      id-token: write
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          path: lateen
+          persist-credentials: false
+          fetch-depth: 0
+      - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
+        with:
+          node-version: "24"
+          registry-url: https://registry.npmjs.org
+      - name: Install
+        run: npm ci --no-audit --no-fund
+        working-directory: lateen
+      - name: Install Chromium
+        run: npx playwright install chromium
+        working-directory: lateen
+      - uses: actions/download-artifact@v4
+        with:
+          name: acceptance
+          path: acceptance
+      - name: Read the version
+        id: version
+        run: |
+          version="${{ inputs.version }}"
+          if [ -z "$version" ]; then version="${GITHUB_REF_NAME#v}"; fi
+          echo "value=$version" >> "$GITHUB_OUTPUT"
+      - name: Install and check the published version
+        working-directory: lateen
+        run: npm run test:acceptance -- --theme "@velella/lateen@${{ steps.version.outputs.value }}" --report ../published/report.json
+      - name: Prove the published tarball is the tested tarball
+        working-directory: lateen
+        run: |
+          published="$(ls ../published/*.tgz)"
+          node scripts/acceptance.ts --gate ../acceptance/report.json --tarball "$published"

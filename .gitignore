@@ -4,3 +4,4 @@ dist/
 .mizzen/
 coverage/
 test/visual/out/
+test/acceptance/out/
