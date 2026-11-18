@@ -315,6 +315,13 @@ test("the comparison prints every record and shows the difference without its ta
   assert.match(print, /\.compare-diff-marker\s*\{[^}]*position:\s*static/);
 });
 
+test("the dated list prints its groups and drops the jump and action controls", () => {
+  const text = read("../components/dated-list/style.css");
+  const print = text.slice(text.indexOf("@media print"));
+  assert.match(print, /\.dated-list-jump,[\s\S]*?\.dated-list-actions\s*\{[^}]*display:\s*none/);
+  assert.match(print, /\.dated-list-group > h2\s*\{[^}]*break-after:\s*avoid/);
+});
+
 test("the report link prints nowhere", () => {
   const report = read("../chrome/report-issue/style.css");
   assert.match(report.slice(report.indexOf("@media print")), /\.report-issue\s*\{[^}]*display:\s*none/);

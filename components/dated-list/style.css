@@ -129,3 +129,22 @@
   inline-size: 1em;
   block-size: 1em;
 }
+
+@media print {
+  /* The jump link and the feed/calendar actions are screen controls; paper keeps the groups. */
+  .dated-list-jump,
+  .dated-list-actions {
+    display: none;
+  }
+
+  .dated-list-group > h2 {
+    break-after: avoid;
+  }
+}
+
+/* Forced colors: the date dot keeps its shape when the system palette replaces the token. */
+@media (forced-colors: active) {
+  .dated-list-item::before {
+    background-color: CanvasText;
+  }
+}
