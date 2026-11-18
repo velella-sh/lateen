@@ -10,6 +10,9 @@ repository:
   dir: site
 theme:
   options:
+    glossary:
+      collection: glossary
+      page: /components/glossary/
     installTabs:
       managers:
         - name: npm
@@ -76,6 +79,9 @@ collections:
     search:
       filters: [format, published]
       sort: [title, published]
+  glossary:
+    source: _data/glossary.json
+    id: id
 
 calendars:
   books:
