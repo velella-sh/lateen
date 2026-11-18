@@ -1,4 +1,4 @@
-import { calendarDate } from "../../src/dates.ts";
+import { calendarDate, calendarParts } from "../../src/dates.ts";
 
 /** What the axis counts in: whole years, or quarters when the range is under two years. */
 export type ScaleUnit = "year" | "quarter";
@@ -77,14 +77,85 @@ function monthsBetween(from: number, to: number): number {
   return (b.getUTCFullYear() - a.getUTCFullYear()) * 12 + (b.getUTCMonth() - a.getUTCMonth());
 }
 
+/** Enough days to reach the next unit in any calendar: a leap year, or a long lunar quarter. */
+const UNIT_SPAN: Record<ScaleUnit, number> = { year: 400, quarter: 100 };
+
+/** A day as one number, so two days compare in the page calendar's order. */
+function calendarKey(day: number, lang: string): number {
+  const parts = calendarParts(iso(day), lang);
+  // `iso` always writes a real date, so the parts are always there.
+  return parts === undefined ? Number.NaN : parts.year * 10_000 + parts.month * 100 + parts.day;
+}
+
+/** The first day in `[from, to]` whose calendar date is at or past `target`, or undefined if none is. */
+function firstDay(from: number, to: number, target: number, lang: string): number | undefined {
+  if (calendarKey(to, lang) < target) return undefined;
+  let low = from;
+  let high = to;
+  while (low < high) {
+    const middle = low + Math.floor((high - low) / DAY / 2) * DAY;
+    if (calendarKey(middle, lang) >= target) high = middle;
+    else low = middle + DAY;
+  }
+  return low;
+}
+
+/** The year and month a unit starts in, for the unit the calendar day is in. */
+function calendarStart(
+  parts: { readonly year: number; readonly month: number },
+  unit: ScaleUnit,
+): { readonly year: number; readonly month: number } {
+  return unit === "year"
+    ? { year: parts.year, month: 1 }
+    : { year: parts.year, month: Math.floor((parts.month - 1) / 3) * 3 + 1 };
+}
+
+/** The year and month of the start of the unit after a unit start. */
+function calendarNext(
+  start: { readonly year: number; readonly month: number },
+  unit: ScaleUnit,
+): { readonly year: number; readonly month: number } {
+  if (unit === "year") return { year: start.year + 1, month: 1 };
+  return start.month + 3 > 12
+    ? { year: start.year + 1, month: start.month - 9 }
+    : { year: start.year, month: start.month + 3 };
+}
+
+/** The first day of each year or quarter of the page's calendar inside the axis. */
+function ticksOf(
+  from: number,
+  to: number,
+  unit: ScaleUnit,
+  lang: string,
+  percent: (day: number) => number,
+): ScaleTick[] {
+  const parts = calendarParts(iso(from), lang);
+  if (parts === undefined) return [];
+
+  const ticks: ScaleTick[] = [];
+  let start = calendarStart(parts, unit);
+  if (parts.day === 1 && parts.month === start.month) ticks.push({ date: iso(from), position: percent(from) });
+  let last = from;
+  for (;;) {
+    const next = calendarNext(start, unit);
+    const target = next.year * 10_000 + next.month * 100 + 1;
+    const day = firstDay(last + DAY, last + UNIT_SPAN[unit] * DAY, target, lang);
+    if (day === undefined || day >= to) return ticks;
+    ticks.push({ date: iso(day), position: percent(day) });
+    start = next;
+    last = day;
+  }
+}
+
 /**
  * The time axis for `rows`: their first and last dates rounded outward to whole years, or to
  * quarters when the range is under two years. Explicit `bounds` widen the axis so timelines can
- * share a scale. Tick positions and segment start and length are percentages of the axis; a row
- * with no real date is left out of the bounds rather than read as today. Undefined when there is
- * no date at all.
+ * share a scale. Ticks sit on the year or quarter boundaries of `lang`'s calendar while the axis
+ * and its dates stay Gregorian. Tick positions and segment start and length are percentages of the
+ * axis; a row with no real date is left out of the bounds rather than read as today. Undefined when
+ * there is no date at all.
  */
-export function scale(rows: readonly ScaleRow[], bounds: ScaleBounds = {}): Scale | undefined {
+export function scale(rows: readonly ScaleRow[], bounds: ScaleBounds = {}, lang = "en"): Scale | undefined {
   const ranges: readonly ({ readonly from: number; readonly to: number } | undefined)[] = rows.map((row) => {
     const start = dayOf(row.start);
     const end = dayOf(row.end);
@@ -113,10 +184,7 @@ export function scale(rows: readonly ScaleRow[], bounds: ScaleBounds = {}): Scal
   const span = to - from;
   const percent = (day: number) => ((day - from) / span) * 100;
 
-  const ticks: ScaleTick[] = [];
-  for (let day = from; day < to; day = unitNext(day, unit)) {
-    ticks.push({ date: iso(day), position: percent(day) });
-  }
+  const ticks = ticksOf(from, to, unit, lang, percent);
 
   return {
     from: iso(from),

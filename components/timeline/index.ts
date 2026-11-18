@@ -2,7 +2,7 @@ import { h } from "preact";
 import type { ComponentChildren } from "preact";
 import type { ComponentProps, SiteConfig } from "@velella/mizzen/contracts";
 import { t } from "../../i18n/index.ts";
-import { calendarDate } from "../../src/dates.ts";
+import { calendarDate, calendarParts, calendarYear } from "../../src/dates.ts";
 import { formatField, isEmpty } from "../../src/fields.ts";
 import { selectRecords } from "../../src/records.ts";
 import { DEFAULT_TONE, type StatusTone } from "../status/index.ts";
@@ -119,10 +119,13 @@ function pct(value: number): string {
   return `${Math.round(value * 100) / 100}%`;
 }
 
-/** A tick's label: the year, or the year and quarter when the axis counts quarters. */
-export function tickLabel(date: string, unit: "year" | "quarter"): string {
-  const [year = date, month = "01"] = date.split("-");
-  return unit === "year" ? year : `${year} Q${Math.floor((Number(month) - 1) / 3) + 1}`;
+/** A tick's label: the year, or the year and quarter, in the page's calendar and digits. */
+export function tickLabel(date: string, unit: "year" | "quarter", lang: string): string {
+  const year = calendarYear(date, lang) ?? date.split("-")[0] ?? date;
+  if (unit === "year") return year;
+  const month = calendarParts(date, lang)?.month ?? 1;
+  const quarter = new Intl.NumberFormat(lang, { useGrouping: false }).format(Math.floor((month - 1) / 3) + 1);
+  return `${year} Q${quarter}`;
 }
 
 /** The tone of a row's status value, neutral when the row has none or the site maps none. */
@@ -358,7 +361,7 @@ export default function timeline({ props, page, site }: ComponentProps<Readonly<
 
   const config = site?.config;
   const phaseRows = rows.map((row) => phasesOf(row, fields.phases));
-  const scaled = scale(rows.map((row, index) => rangeOf(row, phaseRows[index] ?? [], fields) ?? {}));
+  const scaled = scale(rows.map((row, index) => rangeOf(row, phaseRows[index] ?? [], fields) ?? {}), {}, lang);
   const axis =
     scaled === undefined
       ? undefined
@@ -396,7 +399,7 @@ export default function timeline({ props, page, site }: ComponentProps<Readonly<
                   h(
                     "span",
                     { class: TICK_CLASS, style: `inset-inline-start:${pct(tick.position)}` },
-                    tickLabel(tick.date, scaled.unit),
+                    tickLabel(tick.date, scaled.unit, lang),
                   ),
                 ),
               ),

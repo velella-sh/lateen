@@ -104,6 +104,35 @@ export function calendarDate(iso: string, lang: string): CalendarDate | undefine
   return { datetime: date.iso, text };
 }
 
+/** A day of a page's calendar, as numbers, so boundaries can be found and ordered. */
+export interface CalendarParts {
+  /** The year within the calendar. */
+  year: number;
+  /** The month within the calendar year, 1 to 12. */
+  month: number;
+  /** The day within the calendar month. */
+  day: number;
+}
+
+/**
+ * The year, month and day an ISO date falls on in the calendar `calendarDate` uses for `lang`, in
+ * Latin digits so callers can compare and step through calendar boundaries. Returns `undefined`
+ * when the value is not a real calendar date.
+ */
+export function calendarParts(iso: string, lang: string): CalendarParts | undefined {
+  const date = utcOf(iso);
+  if (date === undefined) return undefined;
+
+  const parts = formatter(dateStyle(lang), {
+    year: "numeric",
+    month: "numeric",
+    day: "numeric",
+    numberingSystem: "latn",
+  }).formatToParts(date.utc);
+  const value = (type: string) => Number(parts.find((part) => part.type === type)?.value);
+  return { year: value("year"), month: value("month"), day: value("day") };
+}
+
 /** A month of a page's calendar: the grouping key and the heading text. */
 export interface CalendarMonth {
   /** The month within its calendar year, such as `1404/12`; days share it only in the same month. */
