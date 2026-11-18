@@ -435,6 +435,7 @@ test("the committed budget covers every fixture route and asset class", () => {
     "/alpha/books/gamma/embed/",
     "/alpha/charts/",
     "/alpha/cli-demo/",
+    "/alpha/compare/",
     "/alpha/explorer/",
     "/alpha/guide/",
     "/alpha/guide/upgrade/",

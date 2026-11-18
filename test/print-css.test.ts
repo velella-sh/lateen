@@ -299,6 +299,15 @@ test("only the @page rule uses a physical length", () => {
   assert.deepEqual(raw, []);
 });
 
+test("the comparison prints every record and shows the difference without its tabs", () => {
+  const text = read("../components/compare/style.css");
+  const print = text.slice(text.indexOf("@media print"));
+  assert.match(print, /\.compare-tabs\s*\{[^}]*display:\s*none/);
+  assert.match(print, /\[data-compare-column\]\[hidden\][^{]*\{[^}]*display:\s*table-cell/);
+  assert.match(print, /\.compare \.table-scroll\s*\{[^}]*max-block-size:\s*none/);
+  assert.match(print, /\.compare-diff-marker\s*\{[^}]*position:\s*static/);
+});
+
 test("the report components print at page width, keep rows whole, and drop the decorative bar", () => {
   const scroll = blocks(css).find((block) => block.selector.includes(".a11y-report-scroll") && block.selector.includes(".wcag-checklist-scroll"));
   assert.ok(scroll, "no printed rule for the report tables' scroll regions");

@@ -10,6 +10,9 @@ import table from "../table/index.ts";
 /** The Markdown directive this component handles: `::compare{from="books" ids="a,b" fields='[...]'}`. */
 export const directive = "compare";
 
+/** The directive attributes the comparison reads. */
+export const OPTIONS = ["from", "ids", "fields"] as const;
+
 /** Class on the wrapper around the notes and the table. */
 export const WRAPPER_CLASS = "compare";
 
