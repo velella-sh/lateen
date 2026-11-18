@@ -73,6 +73,8 @@ main:
         url: /components/steps/
       - title: Table
         url: /components/table/
+      - title: Report issue
+        url: /components/report-issue/
       - title: Reports
         url: /components/reports/
       - title: Terminal

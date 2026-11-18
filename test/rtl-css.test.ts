@@ -447,6 +447,8 @@ const REFINED = ["components/table", "components/callout", "components/cards", "
     ),
     "../layouts/guide.css",
     "../chrome/source-mode/style.css",
+    "../chrome/page-footer/style.css",
+    "../chrome/report-issue/style.css",
   );
 
 test("refined component styles use logical properties and known tokens (light, dark and RTL follow)", () => {

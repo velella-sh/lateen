@@ -315,6 +315,12 @@ test("the comparison prints every record and shows the difference without its ta
   assert.match(print, /\.compare-diff-marker\s*\{[^}]*position:\s*static/);
 });
 
+test("the report link prints nowhere", () => {
+  const report = read("../chrome/report-issue/style.css");
+  assert.match(report.slice(report.indexOf("@media print")), /\.report-issue\s*\{[^}]*display:\s*none/);
+  assert.ok(hiddenSelectors(printBody(css)).has(".page-footer"), "the page footer with the link still prints");
+});
+
 test("the report components print at page width, keep rows whole, and drop the decorative bar", () => {
   const scroll = blocks(css).find((block) => block.selector.includes(".a11y-report-scroll") && block.selector.includes(".wcag-checklist-scroll"));
   assert.ok(scroll, "no printed rule for the report tables' scroll regions");

@@ -451,6 +451,14 @@ test("source mode ships hidden and adds no labels without its island", () => {
   assert.equal(all(page, ".source-label").length, 0, "no label is written without the island");
 });
 
+test("the report link is server-rendered and needs no island", () => {
+  const page = site.document("/guide/install/");
+  const link = page.querySelector('a[href^="https://tracker.example/"]');
+  assert.ok(link, "the report link is in the HTML");
+  assert.match(link.getAttribute("href") ?? "", /title=/);
+  assert.equal(link.getAttribute("rel"), "noopener");
+});
+
 test("the comparison ships every record and no script-only control", () => {
   const page = site.document("/compare/");
   const table = page.querySelector(".compare table");
