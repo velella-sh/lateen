@@ -3,6 +3,7 @@ import type { ComponentProps } from "@velella/mizzen/contracts";
 import { patternOf, t } from "../../i18n/index.ts";
 import { formatField, isEmpty, kindOf } from "../../src/fields.ts";
 import { selectRecords, type SelectedRecord } from "../../src/records.ts";
+import { baseOf } from "../../src/url.ts";
 import { columnsOf } from "../record-table/index.ts";
 import table from "../table/index.ts";
 
@@ -197,7 +198,24 @@ export default function compare({ props, page, site }: ComponentProps<Readonly<R
 
   return h(
     "div",
-    { class: WRAPPER_CLASS, [ROOT_ATTRIBUTE]: "" },
+    {
+      class: WRAPPER_CLASS,
+      [ROOT_ATTRIBUTE]: "",
+      "data-base": baseOf(site),
+      "data-collection": from,
+      "data-lang": lang,
+      "data-fields": JSON.stringify(fields.map(({ field, kind }) => ({ field, kind }))),
+          "data-compare-pick": t(lang, "compare_change_record"),
+      "data-compare-loading": t(lang, "compare_loading"),
+      "data-compare-failed": t(lang, "compare_load_failed"),
+      "data-compare-retry": t(lang, "compare_retry"),
+      "data-compare-marker": t(lang, "compare_differs"),
+      "data-compare-unknown": patternOf(lang, "compare_unknown_record"),
+      "data-compare-empty": t(lang, "field_empty"),
+      "data-compare-true": t(lang, "field_true"),
+      "data-compare-false": t(lang, "field_false"),
+      "data-compare-records": t(lang, "compare_records"),
+    },
     notes,
     h(
       "div",

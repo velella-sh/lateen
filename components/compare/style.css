@@ -39,6 +39,50 @@
   font-size: var(--font-size-sm, 0.875rem);
 }
 
+/* The island's record picker: a button under the record's title, and the panel it opens. Only the
+   island draws either, so the built header holds the title and its link alone. */
+.compare-title {
+  display: block;
+  overflow-wrap: anywhere;
+}
+
+.compare-pick {
+  margin-block-start: var(--space-1, 0.25rem);
+  padding-block: var(--space-1, 0.25rem);
+  padding-inline: var(--space-2, 0.5rem);
+  border: thin solid var(--color-border);
+  border-radius: var(--radius-sm, 0.25rem);
+  background-color: var(--color-canvas);
+  color: var(--color-link);
+  font-family: var(--type-font-ui);
+  font-size: var(--type-size-sm);
+  cursor: pointer;
+}
+
+.compare-picker {
+  margin-block-start: var(--space-2, 0.5rem);
+}
+
+.compare-picker-select {
+  inline-size: 100%;
+  max-inline-size: 16rem;
+  padding-block: var(--space-1, 0.25rem);
+  padding-inline: var(--space-2, 0.5rem);
+  border: thin solid var(--color-border-strong);
+  border-radius: var(--radius-sm, 0.25rem);
+  background-color: var(--color-canvas);
+  color: var(--color-text);
+  font: inherit;
+}
+
+.compare-picker-status,
+.compare-picker-missing {
+  margin-block: var(--space-1, 0.25rem) 0;
+  color: var(--color-muted);
+  font-size: var(--type-size-sm);
+  font-style: italic;
+}
+
 /* A row whose raw values are not all equal: a tint, and a text marker in the row header for
    assistive technology and for paper, so the color is never the only signal. */
 .compare-diff {

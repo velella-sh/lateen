@@ -1,6 +1,9 @@
 /* Compare island: reveals the "only differences" toggle `index.ts` writes hidden and wires it. The
  * rows are hidden, never removed, so turning the toggle off brings the whole table back. The chosen
- * state lives in the address as `?compare=diff`, so a saved or shared link opens the same view. */
+ * state lives in the address as `?compare=diff`, so a saved or shared link opens the same view. The
+ * record pickers are `picker.ts`; they read the collection's index only when first opened. */
+
+import { attachPickers } from "./picker.ts";
 
 /** The wrapper around a comparison. */
 export const ROOT_SELECTOR = "[data-compare]";
@@ -60,6 +63,9 @@ export interface CompareDocument {
   createElement(tag: string): CompareElement;
 }
 
+/** The record pickers: one per column, reading the collection's index the first time one opens. */
+export { attachPickers } from "./picker.ts";
+
 /** What the island reads and writes outside the document, so tests can pass fakes. */
 export interface CompareEnv {
   /** The page URL's query, as `location.search` gives it (`"?compare=diff"` or `""`). */
@@ -72,6 +78,8 @@ export interface CompareEnv {
   width?(root: CompareElement): number;
   /** Calls `update` when the container's width changes, and returns the stop function. */
   watch?(root: CompareElement, update: () => void): () => void;
+  /** Reads a text file, used by the record pickers; without it the pickers are not drawn. */
+  fetchText?(url: string, signal: AbortSignal): Promise<string>;
 }
 
 /** One comparison with its record tabs: the buttons, the columns they show, and the chosen record. */
@@ -225,6 +233,8 @@ export function activate(doc: CompareDocument, env: CompareEnv = browserEnv()): 
       env.replaceUrl(`${withDiff(env.search(), on)}${env.hash()}`);
     });
   }
+
+  attachPickers(doc, env);
 }
 
 /** The browser environment: the page's address and history. */
@@ -244,6 +254,11 @@ function browserEnv(): CompareEnv {
       const observer = new globals.ResizeObserver(update);
       observer.observe(root);
       return () => observer.disconnect();
+    },
+    async fetchText(url, signal) {
+      const response = await fetch(url, { signal });
+      if (!response.ok) throw new Error(`${url}: ${response.status}`);
+      return response.text();
     },
   };
 }
