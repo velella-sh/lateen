@@ -1,0 +1,7 @@
+main:
+  - title: Guide
+    children:
+      - title: Install
+        url: /v2/guide/install/
+      - title: Legacy setup
+        url: /v1/guide/legacy/

@@ -18,6 +18,7 @@ import guideSummary from "../components/guide-summary/index.ts";
 import pageStatus, { type PageStatusProps } from "../components/page-status/index.ts";
 import readingTime from "../components/reading-time/index.ts";
 import relatedGuides from "../components/related-guides/index.ts";
+import versionNotice from "../components/version-notice/index.ts";
 import { codeBackgrounds } from "../src/brand.ts";
 
 /** True when the body already supplies the page's `h1`, so the layout never renders a second one. */
@@ -49,6 +50,7 @@ function article(props: LayoutProps): ComponentChildren {
     { class: "doc guide", "data-pagefind-body": true },
     breadcrumb(props) as ComponentChildren,
     pageStatus({ props: statusProps(page), page, site: props.site, html: "" }) as ComponentChildren,
+    versionNotice({ props: {}, page, site: props.site, html: "" }) as ComponentChildren,
     titleFromBody(props) ? null : h("h1", null, page.title),
     guideSummary({ props: {}, page, site: props.site, html: "" }) as ComponentChildren,
     lastUpdated(props) as ComponentChildren,

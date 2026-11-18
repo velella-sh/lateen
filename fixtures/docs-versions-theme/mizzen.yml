@@ -1,0 +1,5 @@
+title: Version notice fixture
+description: Two releases of the same documentation, with one page missing from the current release.
+url: https://example.com
+base: /docs
+lang: en

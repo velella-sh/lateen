@@ -1,0 +1,58 @@
+/* Version notice: says whether the page is the current release or an old one, and links the same
+   page in the other version. The accent sits on the inline start edge, so it moves under RTL.
+   Colours and lengths come from tokens; the label and hint carry the meaning, never colour alone. */
+
+.version-notice {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: var(--space-1) var(--space-3);
+  margin-block: 0 var(--space-4);
+  padding-block: var(--space-3);
+  padding-inline: var(--space-4);
+  border: 1px solid var(--color-border);
+  border-inline-start-width: 4px;
+  border-radius: var(--radius-md);
+  background-color: var(--color-surface);
+  color: var(--color-text);
+  font-size: var(--type-size-sm);
+  line-height: var(--type-leading-body);
+}
+
+.version-notice[data-version-status="default"] {
+  border-inline-start-color: var(--color-success);
+}
+
+.version-notice[data-version-status="old"] {
+  border-inline-start-color: var(--color-warning);
+}
+
+.version-notice-label {
+  color: var(--color-heading);
+  font-weight: var(--type-weight-bold);
+}
+
+.version-notice-version {
+  color: var(--color-heading);
+  font-family: var(--type-font-mono);
+  font-variant-numeric: tabular-nums;
+}
+
+.version-notice-hint {
+  color: var(--color-muted);
+}
+
+.version-notice-link {
+  color: var(--color-link);
+  font-weight: var(--type-weight-medium);
+  text-decoration-thickness: 1px;
+}
+
+.version-notice-link:hover {
+  color: var(--color-link-hover);
+}
+
+.version-notice-link:focus-visible {
+  outline: 2px solid var(--state-focus-ring);
+  outline-offset: 2px;
+}
