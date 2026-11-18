@@ -17,6 +17,12 @@ export const COLLECTION_FILTER = "filter.collection";
 /** Id of the query field; the form's label points at it. */
 export const QUERY_ID = "data-explorer-query";
 
+/** Id of the sort field; its label points at it. */
+export const SORT_ID = "data-explorer-sort";
+
+/** Id of the sort direction; its label points at it. */
+export const SORT_DIRECTION_ID = "data-explorer-sort-direction";
+
 /** The site's search results page, which answers a submit without any script. */
 export const SEARCH_PATH = "/search/";
 
@@ -28,6 +34,8 @@ export type DataExplorerProps = {
   columns?: string | readonly RecordColumn[];
   /** The fields the island offers as filters, such as `author,status`; a field with one value is skipped. */
   filters?: string;
+  /** The fields the island offers as sort choices, such as `title,year`; relevance comes first. */
+  sort?: string;
 };
 
 /** A comma list of field names, such as the `filters` prop. */
@@ -55,8 +63,8 @@ function columnsOf(value: unknown): RecordColumn[] {
  * The explorer without JavaScript: a labelled `GET` form that submits to the site's search results
  * page with the collection as a filter, and the first records of the collection as the same table the
  * island draws. Every message the island needs travels as a `data-` attribute in the page language, as
- * the search dialog does, so the island carries no catalog. No filter, sort, or Show more control is
- * rendered, because none would work without a script.
+ * the search dialog does, so the island carries no catalog. The sort control starts `hidden`, because
+ * it would do nothing without a script; the island reveals it.
  */
 export default function dataExplorer({ props, page, site }: ComponentProps<Readonly<Record<string, unknown>>>) {
   const input = props as DataExplorerProps;
@@ -64,6 +72,10 @@ export default function dataExplorer({ props, page, site }: ComponentProps<Reado
   const from = typeof input.from === "string" ? input.from.trim() : "";
   const columns = columnsOf(input.columns);
   const filters = fieldsOf(input.filters);
+  const sortables = fieldsOf(input.sort).map((field) => {
+    const column = columns.find((entry) => entry.field === field);
+    return { field, kind: column?.kind ?? "text", label: column?.label ?? field };
+  });
 
   // record-table owns both notes: a page that names no setup, and a collection the site lacks.
   const table = (records?: readonly SelectedRecord[]) =>
@@ -88,11 +100,15 @@ export default function dataExplorer({ props, page, site }: ComponentProps<Reado
       "data-explorer-empty": patternOf(lang, "search_results_empty"),
       "data-explorer-retry": t(lang, "search_retry"),
       "data-explorer-more": t(lang, "data_explorer_more"),
+      "data-explorer-relevance": t(lang, "data_explorer_relevance"),
+      "data-explorer-ascending": t(lang, "data_explorer_sort_ascending"),
+      "data-explorer-descending": t(lang, "data_explorer_sort_descending"),
       "data-explorer-no-value": t(lang, "field_empty"),
       "data-explorer-filter-column": patternOf(lang, "record_table_filter_column"),
       "data-explorer-filter-empty": t(lang, "record_table_filter_empty"),
       "data-explorer-remove": patternOf(lang, "data_explorer_filter_remove"),
       "data-filters": JSON.stringify(filters),
+      "data-sort": JSON.stringify(sortables),
       "data-columns": JSON.stringify(columns.map(({ field, label, kind }) => ({ field, label, kind }))),
       "data-explorer-count-zero": patternOf(lang, "search_count_zero"),
       "data-explorer-count-one": patternOf(lang, "search_count_one"),
@@ -108,6 +124,14 @@ export default function dataExplorer({ props, page, site }: ComponentProps<Reado
       h("input", { class: "data-explorer-input", id: QUERY_ID, name: "q", type: "search", autocomplete: "off" }),
       h("input", { type: "hidden", name: COLLECTION_FILTER, value: from }),
       h("button", { class: "data-explorer-submit", type: "submit" }, t(lang, "search")),
+      sortables.length === 0
+        ? null
+        : h(
+            "div",
+            { class: "data-explorer-sort", "data-explorer-sort": "", hidden: true },
+            h("label", { class: "data-explorer-sort-label", for: SORT_ID }, t(lang, "data_explorer_sort")),
+            h("select", { class: "data-explorer-sort-field", id: SORT_ID, "data-explorer-sort-field": "" }),
+          ),
     ),
     filters.length === 0
       ? null

@@ -54,6 +54,34 @@
   cursor: pointer;
 }
 
+/* The sort control starts hidden, since it would do nothing without a script. */
+.data-explorer-sort {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-2);
+  align-items: end;
+}
+
+.data-explorer-sort-label {
+  flex-basis: 100%;
+  color: var(--color-heading);
+  font-family: var(--type-font-ui);
+  font-size: var(--type-size-sm);
+  font-weight: var(--type-weight-medium);
+}
+
+.data-explorer-sort-field {
+  min-block-size: 2.5rem;
+  padding-block: var(--space-2);
+  padding-inline: var(--space-3);
+  border: thin solid var(--color-border);
+  border-radius: var(--radius-sm);
+  background-color: var(--color-canvas);
+  color: var(--color-text);
+  font-family: var(--type-font-ui);
+  font-size: var(--type-size-sm);
+}
+
 /* The live region is silent until the island writes a count into it. */
 .data-explorer-status {
   margin-block: var(--space-2);
