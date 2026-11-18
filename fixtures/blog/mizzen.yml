@@ -1,0 +1,19 @@
+# A blog fixture: public posts, a draft, two authors, and a home page. The blog block turns the
+# engine's post, archive, author, and feed routes on; the acceptance test builds it at the root
+# and again under a base path.
+title: Lateen blog fixture
+description: A small site with posts, an archive, author pages, and a feed.
+lang: en
+url: https://example.com
+base: ""
+navigation: _data/navigation.yml
+search: false
+blog:
+  posts: posts
+  route: blog
+  archive: archive
+  authors: true
+  feed: true
+  pageSize: 10
+theme:
+  options: {}

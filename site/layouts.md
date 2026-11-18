@@ -16,6 +16,7 @@ A page picks a layout with `layout` in its front matter, or gets one from `defau
 | `home` | The docs home: a hero, action buttons, and section cards from `hero`, `actions`, and `sections` in front matter. |
 | `list` | The list page: a collection's records as a table, cards, or a dated list, with groups, a count, pagination, and an empty note. [List layout](/layouts/list/) is a live example. |
 | `not-found` | The 404 page, with a search form and links to the home page and the top-level sections. |
+| `post` | A blog post: the docs shell with the date, author, description, highlighted body, and an archive link. The archive and author pages use `list`. [Blog layout](/layouts/post/) is the reference. |
 | `record` | One record from a data collection: title, summary, status, a facts panel, and the body's sections. [Record layout](/layouts/record/) is the reference and a live example. |
 | `versions` | The versions index: a page's versions from `site.data.docsVersions` or the `versions` front matter key, each row linked to the same page when it exists and marked with Latest, Deprecated, or Dev in text. |
 

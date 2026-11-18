@@ -14,6 +14,8 @@ main:
         url: /layouts/list/
       - title: Record layout
         url: /layouts/record/
+      - title: Blog layout
+        url: /layouts/post/
       - title: Showpiece home
         url: /showpiece/
   - title: Components
