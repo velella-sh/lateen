@@ -38,6 +38,45 @@
   background-color: var(--color-surface-sunken);
 }
 
+/* A coverless card gets a tile with the title's first letter, in one stable tone per record. */
+.gallery-card-tile {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  inline-size: 100%;
+  aspect-ratio: 16 / 9;
+  font-family: var(--type-font-ui);
+  font-size: var(--type-size-3xl);
+  font-weight: var(--type-weight-bold);
+  line-height: var(--type-leading-tight);
+}
+
+/* One pair per TILE_TONES entry in tile.ts; every pair is 4.5:1 or better in both themes. */
+.gallery-card-tile-0 {
+  background-color: var(--status-positive-bg);
+  color: var(--status-positive-fg);
+}
+
+.gallery-card-tile-1 {
+  background-color: var(--status-caution-bg);
+  color: var(--status-caution-fg);
+}
+
+.gallery-card-tile-2 {
+  background-color: var(--status-negative-bg);
+  color: var(--status-negative-fg);
+}
+
+.gallery-card-tile-3 {
+  background-color: var(--status-neutral-bg);
+  color: var(--status-neutral-fg);
+}
+
+.gallery-card-tile-4 {
+  background-color: var(--status-info-bg);
+  color: var(--status-info-fg);
+}
+
 .gallery-card-body {
   display: flex;
   flex-direction: column;
