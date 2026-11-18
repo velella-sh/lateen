@@ -84,3 +84,10 @@
   line-height: var(--type-leading-body);
 }
 
+
+/* Forced colours drop the surface and border colours: the disclosure keeps a system edge. */
+@media (forced-colors: active) {
+  .chart-data {
+    border-color: CanvasText;
+  }
+}
