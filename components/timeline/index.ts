@@ -22,6 +22,9 @@ export const MISSING_CLASS = "timeline-missing";
 /** Class on a cell whose date is not ISO 8601. */
 export const INVALID_CLASS = "timeline-invalid";
 
+/** Class on the wrapper that is the chart's container query. */
+export const TIMELINE_CLASS = "timeline";
+
 /** Class on the decorative column that holds the axis and the bars. */
 export const CHART_CLASS = "timeline-chart";
 
@@ -466,26 +469,30 @@ export default function timeline({ props, page, site }: ComponentProps<Readonly<
     [caption === "" ? null : h("caption", null, caption), head, body] as never,
   );
 
-  if (legend.length === 0) return chart;
-
-  return [
+  // The wrapper is the container the narrow form queries, so a timeline in a narrow column drops
+  // the chart without a viewport media query. The table's own scroll region is labelled and focusable.
+  return h(
+    "div",
+    { class: TIMELINE_CLASS },
     chart,
-    h(
-      "div",
-      { class: LEGEND_CLASS, [LEGEND_ATTRIBUTE]: "", ...today },
-      h("p", { class: "timeline-legend-title" }, t(lang, "timeline_legend")),
-      h(
-        "ul",
-        null,
-        legend.map((entry) =>
+    legend.length === 0
+      ? null
+      : h(
+          "div",
+          { class: LEGEND_CLASS, [LEGEND_ATTRIBUTE]: "", ...today },
+          h("p", { class: "timeline-legend-title" }, t(lang, "timeline_legend")),
           h(
-            "li",
+            "ul",
             null,
-            h("span", { class: `${BAR_CLASS} ${BAR_CLASS}-${entry.tone}`, "aria-hidden": "true" }),
-            entry.label,
+            legend.map((entry) =>
+              h(
+                "li",
+                null,
+                h("span", { class: `${BAR_CLASS} ${BAR_CLASS}-${entry.tone}`, "aria-hidden": "true" }),
+                entry.label,
+              ),
+            ),
           ),
         ),
-      ),
-    ),
-  ];
+  );
 }
