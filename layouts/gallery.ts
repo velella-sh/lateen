@@ -1,13 +1,15 @@
 import { Fragment, h } from "preact";
 import type { ComponentChildren } from "preact";
-import type { Heading, Layout, LayoutProps } from "@velella/mizzen/contracts";
+import type { Heading, Layout, LayoutProps, RecordProps } from "@velella/mizzen/contracts";
 import base from "./base.ts";
 import breadcrumb from "../chrome/breadcrumb/index.ts";
 import drawer from "../chrome/drawer/index.ts";
 import header from "../chrome/header/index.ts";
 import sidebar from "../chrome/sidebar/index.ts";
 import toc from "../chrome/toc/index.ts";
-import { cardsView, groupsOf, titleFromBody } from "./list.ts";
+import cards from "../components/cards/index.ts";
+import { addCardOf } from "../components/gallery-card/add-card.ts";
+import { cardOf, cardsView, groupsOf, titleFromBody } from "./list.ts";
 
 /**
  * The records as a gallery: one responsive grid of the list layout's cards, in the engine's order,
@@ -17,19 +19,27 @@ import { cardsView, groupsOf, titleFromBody } from "./list.ts";
 function article(props: LayoutProps): ComponentChildren {
   const list = props.list;
   const groups = groupsOf(props);
+  const add = addCardOf(props.site.config);
+
+  /** The cards for one group; the site's own card closes the last group, or the one grid. */
+  const view = (records: readonly RecordProps[], last: boolean): ComponentChildren => {
+    if (add === undefined || !last) return cardsView(props, records);
+    return cards({ children: [...records.map((record) => cardOf(props, record)), add] }) as ComponentChildren;
+  };
+
   const grid: ComponentChildren =
     groups.length > 0
-      ? groups.map((group) =>
+      ? groups.map((group, index) =>
           h(
             "section",
             { class: "gallery-group" },
             h("h2", { id: group.id }, group.key),
-            cardsView(props, group.records),
+            view(group.records, index === groups.length - 1),
           ),
         )
       : list === undefined
         ? null
-        : cardsView(props, list.records);
+        : view(list.records, true);
   return h(
     "article",
     { class: "gallery", "data-pagefind-body": true },
