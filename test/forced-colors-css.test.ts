@@ -336,6 +336,14 @@ test("the guide layout's components keep a visible edge in forced colors", () =>
   }
 });
 
+test("the record layout names a fact's report link without colour", () => {
+  const text = read("../layouts/record.css");
+  const rules = text.slice(text.indexOf("@media (forced-colors: active)"));
+
+  assert.match(rules, /\.record-fact-report\s*\{[^}]*color:\s*LinkText/);
+  assert.match(rules, /\.record-fact-report\s*\{[^}]*text-decoration:\s*underline/);
+});
+
 test("the current project keeps a visible edge when colour is replaced", () => {
   const rules = css.slice(css.indexOf("@media (forced-colors: active)"));
   for (const selector of [

@@ -31,6 +31,8 @@ collections:
   books:
     source: _data/books.json
     id: id
+    template: _templates/books.md
+    permalink: /books/{id}/
 
 network:
   source: network.yml

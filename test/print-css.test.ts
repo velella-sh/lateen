@@ -376,6 +376,13 @@ test("the guide layout's components print whole and drop their copy controls", (
   }
 });
 
+test("the record layout prints each fact pair whole and drops its report links", () => {
+  const print = read("../layouts/record.css").slice(read("../layouts/record.css").indexOf("@media print"));
+
+  assert.match(print, /\.key-value > dt,\s*\.key-value > dd\s*\{[^}]*break-inside:\s*avoid/);
+  assert.match(print, /\.record-fact-report\s*\{[^}]*display:\s*none/);
+});
+
 test("the network chrome stays out of print with the header and footer", () => {
   const rules = css.slice(css.indexOf("@media print"));
   assert.match(rules, /body > header/);

@@ -9,7 +9,12 @@ collections:
   books:
     source: _data/books.json
     id: id
+    template: _templates/books.md
+    permalink: /books/{id}/
 languages:
+  - code: en
+    name: English
+    prefix: ""
   - code: fa
     name: فارسی
     prefix: /fa

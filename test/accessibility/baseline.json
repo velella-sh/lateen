@@ -5,8 +5,6 @@
     { "case": "*", "theme": "light", "rule": "color-contrast", "target": ".home-eyebrow" },
     { "case": "fixture versions", "theme": "light", "rule": "color-contrast", "target": ".versions-status-deprecated > .versions-status-label" },
     { "case": "fixture versions", "theme": "light", "rule": "color-contrast", "target": ".versions-status-dev > .versions-status-label" },
-    { "case": "fixture versions", "theme": "light", "rule": "color-contrast", "target": ".versions-status-latest > .versions-status-label" },
-    { "case": "docs variables form", "theme": "light", "rule": "scrollable-region-focusable", "target": "table" },
-    { "case": "docs variables form", "theme": "dark", "rule": "scrollable-region-focusable", "target": "table" }
+    { "case": "fixture versions", "theme": "light", "rule": "color-contrast", "target": ".versions-status-latest > .versions-status-label" }
   ]
 }
