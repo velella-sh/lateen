@@ -55,7 +55,74 @@
   white-space: nowrap;
 }
 
+/* A tall comparison scrolls inside its region, so the column headers stay in view; the row header
+   is the table's first column and already sticks sideways in either direction. The focus ring of a
+   cell tabbed to near the top edge lands below the header instead of under it. */
+.compare .table-scroll {
+  max-block-size: 70vh;
+  overflow-y: auto;
+  scroll-padding-block-start: var(--space-12, 3rem);
+}
+
+/* A long value wraps inside its column rather than widening the table without bound. */
+.compare th[scope="col"],
+.compare-cell {
+  max-inline-size: 22rem;
+  overflow-wrap: anywhere;
+  white-space: normal;
+}
+
+.compare th[scope="row"] {
+  max-inline-size: 12rem;
+  overflow-wrap: anywhere;
+  white-space: normal;
+}
+
+/* The narrow form's tabs: only the island draws buttons, so no dead control shows without it. */
+.compare-tabs {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-1, 0.25rem);
+  margin-block: var(--space-2, 0.5rem);
+  border-block-end: thin solid var(--color-border);
+}
+
+.compare-tab {
+  min-block-size: 2.5rem;
+  padding-block: var(--space-1, 0.25rem);
+  padding-inline: var(--space-3, 0.75rem);
+  border: thin solid var(--color-border);
+  border-block-end: 0;
+  border-start-start-radius: var(--radius-sm, 0.25rem);
+  border-start-end-radius: var(--radius-sm, 0.25rem);
+  background-color: var(--color-canvas);
+  color: var(--color-text);
+  font-family: var(--type-font-ui);
+  font-size: var(--type-size-sm);
+  font-weight: var(--type-weight-medium);
+  cursor: pointer;
+}
+
+.compare-tab[aria-selected="true"] {
+  background-color: var(--color-surface-raised);
+  color: var(--color-heading);
+}
+
 @media print {
+  /* Paper shows every record: the tabs are a screen control and the hidden columns print. */
+  .compare-tabs {
+    display: none;
+  }
+
+  .compare [data-compare-column][hidden] {
+    display: table-cell;
+  }
+
+  .compare .table-scroll {
+    max-block-size: none;
+    overflow: visible;
+  }
+
   .compare-diff-marker {
     position: static;
     inline-size: auto;

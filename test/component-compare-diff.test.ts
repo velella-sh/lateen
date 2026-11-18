@@ -60,8 +60,8 @@ test("a differing row is marked and named in text, not only by its background", 
   const row = rowOf(out, "pages");
   assert.match(row, new RegExp(`<tr data-compare-row class="${DIFF_CLASS}" data-diff>`));
   assert.match(row, new RegExp(`<span class="${DIFF_MARKER_CLASS}"> Differs</span>`));
-  assert.match(row, /<td class="compare-cell" data-kind="number">120<\/td>/);
-  assert.match(row, /<td class="compare-cell" data-kind="number">80<\/td>/);
+  assert.match(row, /<td class="compare-cell" data-kind="number" data-compare-column="0">120<\/td>/);
+  assert.match(row, /<td class="compare-cell" data-kind="number" data-compare-column="1">80<\/td>/);
 });
 
 test("a number compares by value, so 1.0 and 1.00 are equal", () => {

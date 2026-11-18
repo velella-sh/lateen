@@ -36,6 +36,7 @@ The theme's own look is set with the [Brand options](/brand-options/); the shipp
 | [CLI demo](./cli-demo/) | A terminal session and an install command as fixed, copyable text. |
 | [Code](./code/) | Code highlighted at build time, with a copy button when JavaScript runs. |
 | [Code tabs](./code-tabs/) | The same example in several languages or package managers, as tabs. |
+| [Compare](./compare/) | Records side by side, with the differing rows marked. |
 | [Details](./details/) | A native disclosure that the reader can open and close. |
 | [Diff block](./diff-block/) | Added, removed, and context lines, with a copy of the new file. |
 | [Drift banner](./drift-banner/) | A warning above a page whose documentation has drifted from the code. |
