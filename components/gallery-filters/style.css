@@ -1,0 +1,104 @@
+/* Gallery filters: one group of links per facet, a count on each, and the sort choices. Every
+   control is a plain link, so the page says the same thing without a script. */
+
+.gallery-filters {
+  display: grid;
+  gap: var(--space-4);
+  margin-block-end: var(--space-6);
+}
+
+.gallery-facets,
+.gallery-sort {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-3);
+  align-items: center;
+}
+
+.gallery-facet {
+  min-inline-size: 0;
+  margin: 0;
+  padding: 0;
+  border: 0;
+}
+
+.gallery-facet legend,
+.gallery-sort-label {
+  padding: 0;
+  color: var(--color-muted);
+  font-family: var(--type-font-ui);
+  font-size: var(--type-size-sm);
+  font-weight: var(--type-weight-medium);
+}
+
+.gallery-facet-values {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-2);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.gallery-filter-value,
+.gallery-sort-link {
+  display: inline-flex;
+  gap: var(--space-1);
+  padding-block: var(--space-1);
+  padding-inline: var(--space-2);
+  border: thin solid var(--elevation-low-border);
+  border-radius: var(--radius-full);
+  background-color: var(--elevation-low-bg);
+  color: var(--color-text);
+  font-size: var(--type-size-sm);
+  text-decoration: none;
+}
+
+.gallery-filter-value:hover,
+.gallery-sort-link:hover {
+  border-color: var(--border-strong);
+  background-color: var(--elevation-mid-bg);
+}
+
+.gallery-filter-selected,
+.gallery-filter-selected:hover,
+.gallery-sort-active,
+.gallery-sort-active:hover {
+  border-color: var(--color-accent);
+  background-color: var(--color-accent);
+  color: var(--color-on-accent);
+}
+
+.gallery-sort-arrow {
+  font-variant-numeric: tabular-nums;
+}
+
+.gallery-filter-clear {
+  justify-self: start;
+  color: var(--color-accent);
+  font-size: var(--type-size-sm);
+}
+
+/* The live region takes no space until it has words. */
+.gallery-count:empty {
+  display: none;
+}
+
+.gallery-count {
+  margin-block: 0 var(--space-3);
+  color: var(--color-muted);
+  font-size: var(--type-size-sm);
+}
+
+.gallery-empty {
+  margin-block: var(--space-4);
+}
+
+.gallery-item {
+  display: flex;
+}
+
+.gallery-item > .card,
+.gallery-item > .gallery-card {
+  flex: 1;
+}
