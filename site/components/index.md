@@ -67,6 +67,7 @@ The theme's own look is set with the [Brand options](/brand-options/); the shipp
 | [Tags](./tags/) | A wrapping list of tag chips, as links or plain text. |
 | [Terminal](./terminal/) | A shell session with commands and their output. |
 | [Tested chip](./tested-chip/) | The pass or fail result of a page's examples, next to a code block. |
+| [Timeline](./timeline/) | Rows on one time axis, with phases, status tones, and a readable table. |
 | [Trust panel](./trust-panel/) | A chip under the title that opens the page's trust level, examples, drift, reviewer, and actions. |
 | [Variables form](./variables-form/) | Inputs that fill a page's code-example variables with the reader's own values. |
 | [Version badge](./version-badge/) | A version badge that says when a feature was added, changed, or removed. |

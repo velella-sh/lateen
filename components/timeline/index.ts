@@ -84,6 +84,18 @@ export type TimelineProps = {
   caption?: string;
 };
 
+/** The option names the component reads, for the docs and their test. */
+export const OPTIONS = [
+  "from",
+  "items",
+  "phases",
+  "label",
+  "start",
+  "end",
+  "status",
+  "caption",
+] as const satisfies readonly (keyof TimelineProps)[];
+
 /** One row's fields, and the URL of its page when the collection has one. */
 interface Row {
   readonly fields: Readonly<Record<string, unknown>>;
