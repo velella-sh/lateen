@@ -65,6 +65,8 @@ main:
         url: /components/reports/
       - title: Terminal
         url: /components/terminal/
+      - title: Timeline
+        url: /components/timeline/
   - title: Customize
     tab: true
     children:
