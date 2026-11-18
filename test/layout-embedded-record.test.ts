@@ -83,12 +83,12 @@ test("the embedded view renders the record's status and key facts with the recor
   assert.match(html, /<html lang="en" dir="ltr" data-scheme="auto" data-transparent="false">/);
   assert.match(html, /<div class="record-header"><h1>Button<\/h1><span class="record-status">/);
   assert.match(html, /<span class="field-status" data-value="stable"><span class="status status-neutral"/);
-  assert.match(html, /<dt class="key-value-key">Id<\/dt><dd class="key-value-value">button<\/dd>/);
+  assert.match(html, /<dt class="key-value-key">Id<\/dt><dd class="key-value-value record-fact">button<\/dd>/);
   assert.match(
     html,
-    /<dt class="key-value-key">Released<\/dt><dd class="key-value-value"><time datetime="2026-01-12">January 12, 2026<\/time><\/dd>/,
+    /<dt class="key-value-key">Released<\/dt><dd class="key-value-value record-fact"[^>]*><time datetime="2026-01-12">January 12, 2026<\/time><\/dd>/,
   );
-  assert.match(html, /<dt class="key-value-key">Region<\/dt><dd class="key-value-value">north<\/dd>/);
+  assert.match(html, /<dt class="key-value-key">Region<\/dt><dd class="key-value-value record-fact"[^>]*>north<\/dd>/);
   assert.match(html, /<strong>button<\/strong>/, "the Markdown summary is rendered");
 });
 
