@@ -202,6 +202,10 @@ Layout component: a layout passes it the `features` list, which Markdown cannot 
 The hidden content.
 :::
 
+## gallery-filters
+
+Facet filters, sort links and a count for a gallery, as plain links that work without JavaScript.
+
 ## gallery-card
 
 Layout component: the gallery layout draws it from records, so see a gallery page built from data.

@@ -167,6 +167,7 @@ test("print.css hides every piece of chrome and every screen-only control", () =
     ".heading-anchor",
     ".terminal-copy",
     ".record-table-filters",
+    ".gallery-filters",
     ".page-footer-copy",
     ".source-mode-switch",
     ".source-label",
@@ -184,6 +185,12 @@ test("the layout grid flattens and a list article fills the page", () => {
   assert.ok(flat, "no layout rule");
   assert.match(flat.body, /display:\s*block/);
   assert.match(css, /\.layout > main,\s*\.doc,\s*\.list\s*\{[^}]*max-inline-size:\s*none/, "the list article keeps its screen width");
+});
+
+test("the gallery prints its cards and drops the filter and sort controls", () => {
+  const gallery = stripComments(read("../components/gallery-filters/style.css"));
+  assert.match(gallery, /@media print\s*\{[^}]*\.gallery-item\s*\{[^}]*break-inside:\s*avoid/s);
+  assert.doesNotMatch(read("../components/gallery-filters/style.css"), /@media print\s*\{[^}]*\.gallery-card\s*\{[^}]*display:\s*none/s);
 });
 
 test("a closed details prints its body, and its summary stays with it", () => {

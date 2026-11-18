@@ -565,6 +565,20 @@ test("the showpiece units are right-to-left ready and their arrow mirrors (#491)
   assert.equal((a11y.match(/^dir: rtl$/gm) ?? []).length, 2, "the Persian and Arabic showpiece pages are right to left");
 });
 
+test("the gallery controls use logical properties and the RTL pages render them", () => {
+  const gallery = stripComments(read("../components/gallery-filters/style.css"));
+  assert.match(gallery, /padding-inline:/);
+  assert.match(gallery, /margin-block:/);
+  assert.doesNotMatch(gallery, /(^|[;{\s])(left|right)\s*:/);
+  assert.doesNotMatch(gallery, /(?<![\w-])(min-|max-)?(width|height)\s*:/);
+  assert.match(read("../components/gallery-card/style.css"), /inline-size: 100%/);
+  const pages =
+    read("./accessibility/fixtures/site/fa/gallery-layout.md") +
+    read("./accessibility/fixtures/site/ar/gallery-layout.md");
+  assert.equal((pages.match(/^dir: rtl$/gm) ?? []).length, 2, "both gallery pages are right to left");
+  assert.equal((pages.match(/^layout: gallery$/gm) ?? []).length, 2);
+});
+
 test("the network chrome uses logical properties and isolates project names", () => {
   for (const path of ["../chrome/project-switcher/style.css", "../chrome/network-footer/style.css"]) {
     const css = read(path);

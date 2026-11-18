@@ -71,3 +71,6 @@ collections:
         - pages
         - published
         - format
+    search:
+      filters: [format, published]
+      sort: [title, published]

@@ -33,6 +33,50 @@ test("the status badge and legend read before any island runs", () => {
   assert.equal(all(page, ".status-legend .status-negative").length, 1);
 });
 
+test("the gallery draws every card, filter link and sort choice before its island runs", () => {
+  const gallerySite = build("integration", process.env, {
+    "gallery-layout.md": [
+      "---",
+      'title: "Book gallery"',
+      'description: "Every book as a card."',
+      "layout: gallery",
+      "permalink: /gallery-layout/",
+      "list:",
+      "  collection: books",
+      "---",
+      "",
+      "Every book the fixture publishes.",
+      "",
+    ].join("\n"),
+  });
+  try {
+    const page = gallerySite.document("/gallery-layout/");
+    assert.equal(all(page, ".gallery-item").length, 4, "every record is a card");
+    assert.equal(page.querySelector(".gallery-count")?.textContent, "Showing 4 of 4");
+    assert.equal((page.querySelector(".gallery-count") as HTMLElement).getAttribute("role"), "status");
+
+    const filters = all(page, ".gallery-filter-value") as HTMLAnchorElement[];
+    assert.ok(filters.length > 0, "the facet links are in the markup");
+    for (const link of filters) {
+      assert.match(link.getAttribute("href") ?? "", /^\/(?:lateen\/)?gallery-layout\/\?filter\.author=/);
+    }
+    assert.ok(filters.every((link) => !link.hidden), "the filter links are visible without the island");
+
+    const sorts = all(page, ".gallery-sort-link") as HTMLAnchorElement[];
+    assert.deepEqual(
+      sorts.map((link) => link.getAttribute("data-gallery-sort")),
+      ["title", "published"],
+    );
+    assert.equal(sorts[0]?.getAttribute("aria-current"), "true", "the first key is the default");
+    assert.match(sorts[0]?.getAttribute("href") ?? "", /\?sort=title&order=asc$/);
+
+    const empty = page.querySelector(".gallery-empty") as HTMLElement;
+    assert.equal(empty.hidden, true, "the empty note waits for a filter that matches nothing");
+  } finally {
+    rmSync(gallerySite.out, { recursive: true, force: true });
+  }
+});
+
 test("the list layout draws the whole record table before its island runs", () => {
   const page = site.document("/books/");
   const article = page.querySelector("article.list");

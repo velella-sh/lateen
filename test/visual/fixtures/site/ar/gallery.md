@@ -204,6 +204,10 @@ Layout component: a layout passes it the `features` list, which Markdown cannot 
 المحتوى المخفي.
 :::
 
+## gallery-filters
+
+Facet filters, sort links and a count for a gallery, as plain links that work without JavaScript.
+
 ## gallery-card
 
 مكوّن تخطيط: يبنيه تخطيط المعرض من السجلات، فراجع صفحة معرض مبنية من البيانات.

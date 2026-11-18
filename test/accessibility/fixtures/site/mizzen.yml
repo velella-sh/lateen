@@ -24,6 +24,9 @@ collections:
         - title
         - pages
         - published
+    search:
+      filters: [author, published]
+      sort: [title, published]
 languages:
   - code: en
     name: English

@@ -34,6 +34,9 @@ collections:
         - title
         - author
         - published
+    search:
+      filters: [author]
+      sort: [title, published]
 theme:
   options:
     status:

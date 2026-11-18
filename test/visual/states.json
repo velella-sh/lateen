@@ -113,6 +113,16 @@
       ]
     },
     {
+      "name": "gallery-filters",
+      "selector": ".gallery-filter-value",
+      "states": [
+        "hover",
+        "focus",
+        "pressed"
+      ],
+      "page": "/gallery-layout/"
+    },
+    {
       "name": "install-tabs",
       "selector": ".install-tabs-tab",
       "focusSelector": ".install-tabs-radio",

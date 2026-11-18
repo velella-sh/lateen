@@ -51,6 +51,9 @@ collections:
         - title
         - author
         - published
+    search:
+      filters: [author]
+      sort: [title, published]
 
 network:
   source: network.yml
