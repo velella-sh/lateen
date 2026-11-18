@@ -251,20 +251,22 @@ test("the built fixture shows both releases, keeps old URLs, and falls back to a
   const oldNotice = old.querySelector(".version-notice");
   assert.equal(oldNotice?.getAttribute("data-version-status"), "old");
   assert.equal(oldNotice?.querySelector(".version-notice-label")?.textContent, "Old version");
-  assert.equal(oldNotice?.querySelector(".version-notice-link")?.getAttribute("href"), "/docs/guide/install/");
+  assert.equal(oldNotice?.querySelector(".version-notice-link")?.getAttribute("href"), "/guide/install/");
   assert.equal(oldNotice?.querySelector(".version-notice-link")?.getAttribute("data-version-target"), "page");
 
   const current = site.document("/v2/guide/install/");
   const currentNotice = current.querySelector(".version-notice");
   assert.equal(currentNotice?.getAttribute("data-version-status"), "default");
   assert.equal(currentNotice?.querySelector(".version-notice-label")?.textContent, "Current version");
-  assert.equal(currentNotice?.querySelector(".version-notice-link")?.getAttribute("href"), "/docs/v1/guide/install/");
+  assert.equal(currentNotice?.querySelector(".version-notice-link")?.getAttribute("href"), "/v1/guide/install/");
 
   const legacy = site.document("/v1/guide/legacy/");
   const legacyNotice = legacy.querySelector(".version-notice");
-  assert.equal(legacyNotice?.querySelector(".version-notice-link")?.getAttribute("href"), "/docs/");
+  assert.equal(legacyNotice?.querySelector(".version-notice-link")?.getAttribute("href"), "/");
   assert.equal(legacyNotice?.querySelector(".version-notice-link")?.getAttribute("data-version-target"), "home");
   assert.equal(textOf(legacyNotice?.querySelector(".version-notice-link")), "Go to the v2 home page");
+  // The fallback names a real built page, not an invented URL.
+  assert.match(textOf(site.document("/").querySelector("article")), /Release 2 documentation\./);
 
   // Both release URLs exist in the output while the default release is v2.
   assert.ok(site.html("/v1/guide/install/").includes("Install release 1."));

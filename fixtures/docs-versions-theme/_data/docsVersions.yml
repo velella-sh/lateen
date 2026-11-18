@@ -1,0 +1,15 @@
+# The switcher's page -> versions data, in the shape `mizzen build` writes as versions.json.
+# Copy that file here before the build that renders the switcher.
+pages:
+  - path: index.md
+    versions:
+      - version: v1
+        url: /v1/
+      - version: v2
+        url: /v2/
+  - path: guide/install.md
+    versions:
+      - version: v1
+        url: /v1/guide/install/
+      - version: v2
+        url: /v2/guide/install/

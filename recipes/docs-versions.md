@@ -1,53 +1,74 @@
-# Documentation versions: theme behavior
+# Documentation versions
 
-Lateen shows a reader which documentation release a page belongs to and links the same page in the
-other release. The engine owns the lifecycle data and the versioned URLs; the theme only reads the
-site model and renders it.
+One release answers at the unprefixed URLs; older releases stay reachable under `/vN/`. The engine
+owns the snapshot, the routing, and the versioned URLs; the theme renders the notice and the switcher.
 
-## Site data
+## Snapshot a release
 
-The dispositions live in `_data/versions.yml` and reach the theme as `site.data.versions`:
+Keep the current docs at the site root, then freeze them:
+
+```bash
+npx mizzen versions snapshot v1 . --dry-run   # list what it would write
+npx mizzen versions snapshot v1 .
+```
+
+The command copies every current page and the navigation file into `v1/`, rewrites navigation links
+that target a copied page to its versioned URL, and writes nothing else. It refuses an existing
+folder or a name that is not newer than a release already present.
+
+## Route the default
+
+`_data/versions.yml` names the release served at the canonical URLs:
 
 ```yaml
-default: v2   # a released version folder, or `current`
+default: v2   # a released folder such as v2, or `current`
 old: [v1]     # releases the default replaced
 ```
 
-A page's version is the first segment of its source path when it is a version folder (`v1`, `v1.2`,
-`v1.2.3`), by the engine's rule. Pages outside every version are the current docs.
+| Page | Written at |
+| --- | --- |
+| default release | `/path/` and `/vN/path/` |
+| old release | `/vN/path/` only |
+| current docs | `/path/` only while `default: current` |
 
-## The notice
+The versioned URL never moves when the default changes. The copy that owns the canonical URL carries
+no `canonical_url`; a versioned copy names the default release, and the theme writes that canonical.
 
-`components/version-notice/` renders above the title on `doc`, `guide`, and `tutorial` pages:
+To promote a release, snapshot the current docs as the next `vN`, set `default: vN`, and list the
+previous default under `old`. To retire the current docs instead, set `default: current` and list
+every release under `old`.
 
-- A page in the default release says **Current version** and links the same page in the first old
-  release.
-- A page in an old release says **Old version** and links the same page in the default release, or
-  in the current docs when the default is `current`.
-- A page the other release does not have links that release's home page when the site publishes one
-  (`v2/index.md` at `/v2/`), else the site home. URLs come from `site.pages` only; the theme never
-  builds one from a version name.
-- A page outside the dispositions, or a site with no lifecycle data, renders no notice.
+## Feed the switcher
 
-The notice is a named `note`, works without JavaScript, keeps version names left to right in RTL
-text, and uses logical properties, so it mirrors with the page. Its label and hint carry the
-meaning, so colour is not the only signal.
+The switcher reads `_data/docsVersions.*`, never `_data/versions.yml` (that file is routing). The
+engine writes `versions.json` after rendering, so build once, copy it in, and build again:
 
-## What is not done here
+```bash
+npx mizzen build . --theme <lateen-theme>
+mkdir -p _data
+cp dist/versions.json _data/docsVersions.json
+npx mizzen build . --theme <lateen-theme>
+```
 
-Default routing is still engine work. The installed engine has `resolveVersionRouting`, but a 0.2.3
-build writes current pages at `/` and versioned pages at `/v1/` and `/v2/`; it does not yet rewrite
-a release to the canonical URL when `default` changes. The theme does not fake that behavior. The
-end-to-end two-release acceptance test remains in #599.
+`versions.json` keys pages by source path and lists each version's URL, which the switcher accepts.
+A page the data does not list shows no switcher. The notice reads only the routing data and appears on
+every page in a version folder: it says **Current version** for the default release, **Old version**
+for the others, and links the same page in the other release. A page with no equivalent links that
+release's home, or the site home, and always a built page.
+
+## Base path
+
+Set `base: /docs` in `mizzen.yml` when the site is served below a path. Canonicals, the notice,
+navigation, and the switcher carry the base once; the output folder stays unprefixed.
 
 ## Check it
 
 ```bash
-npm run typecheck
+node --test test/docs-versions/acceptance.test.ts
 node --test test/docs-versions-theme/version-notice.test.ts
-npx mizzen check site --theme .
+node_modules/.bin/mizzen check fixtures/docs-versions-theme --theme .
 ```
 
-The build fixture is `fixtures/docs-versions-theme/`: `v2` is default, `v1` is old, the install page
-exists in both, and `v1/guide/legacy.md` exists only in the old release so its notice falls back to
-the published `v2` home.
+The fixture is `fixtures/docs-versions-theme/`: `v2` is default, `v1` is old, `guide/install` exists
+in both, and `v1/guide/legacy` exists only in the old release. The acceptance test builds it at the
+root, under `/docs`, and with `v1` as the default, then reads the written HTML and `versions.json`.
