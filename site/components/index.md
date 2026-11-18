@@ -42,6 +42,7 @@ The theme's own look is set with the [Brand options](/brand-options/); the shipp
 | [Diff block](./diff-block/) | Added, removed, and context lines, with a copy of the new file. |
 | [Drift banner](./drift-banner/) | A warning above a page whose documentation has drifted from the code. |
 | [Embed](./embed/) | A video or another page in a lazy iframe. |
+| [Embed code](./embed-code/) | The snippet that embeds one of this site's pages elsewhere, with a preview. |
 | [Endpoint](./endpoint/) | An HTTP method, path, parameters, and body for API reference pages. |
 | [Figure](./figure/) | An image with alt text, a caption, and a credit, in light and dark. |
 | [File tree](./file-tree/) | A folder structure with a note per entry. |

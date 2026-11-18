@@ -337,11 +337,26 @@ test("the guide layout's components keep a visible edge in forced colors", () =>
 });
 
 test("the record layout names a fact's report link without colour", () => {
-  const text = read("../layouts/record.css");
+  const text = read("../styles/parts-record.css");
   const rules = text.slice(text.indexOf("@media (forced-colors: active)"));
 
   assert.match(rules, /\.record-fact-report\s*\{[^}]*color:\s*LinkText/);
   assert.match(rules, /\.record-fact-report\s*\{[^}]*text-decoration:\s*underline/);
+});
+
+test("the embedded view keeps its attribution edge and link in forced colors", () => {
+  const text = read("../layouts/embedded.css");
+  const rules = text.slice(text.indexOf("@media (forced-colors: active)"));
+
+  assert.match(rules, /\.embedded-attribution\s*\{[^}]*border-block-start-color:\s*CanvasText/);
+  assert.match(rules, /\.embedded-attribution a\s*\{[^}]*color:\s*LinkText/);
+});
+
+test("the embed code marks the selected format without colour alone", () => {
+  const text = read("../components/embed-code/style.css");
+  const rules = text.slice(text.indexOf("@media (forced-colors: active)"));
+
+  assert.match(rules, /\.embed-code-tablist button\[aria-selected="true"\]\s*\{[^}]*border-block-end-color:\s*Highlight/);
 });
 
 test("a timeline keeps its bars and axis when colour is replaced", () => {

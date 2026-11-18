@@ -426,9 +426,13 @@ test("the committed budget covers every fixture route and asset class", () => {
     "/alpha/",
     "/alpha/books/",
     "/alpha/books/alpha/",
+    "/alpha/books/alpha/embed/",
     "/alpha/books/beta/",
+    "/alpha/books/beta/embed/",
     "/alpha/books/delta/",
+    "/alpha/books/delta/embed/",
     "/alpha/books/gamma/",
+    "/alpha/books/gamma/embed/",
     "/alpha/charts/",
     "/alpha/cli-demo/",
     "/alpha/guide/",
@@ -445,7 +449,9 @@ test("the committed budget covers every fixture route and asset class", () => {
   for (const [route, classes] of Object.entries(budget.routes)) {
     for (const assetClass of ASSET_CLASSES) assert.ok(classes[assetClass], `${route} has no ${assetClass} baseline`);
     assert.ok(classes["css/base"].gzip > 0, `${route} should load the base stylesheet`);
-    assert.ok(classes["js/chrome"].count > 0, `${route} should load the chrome islands`);
+    // The embedded record view is the one page that must read without a script.
+    if (route.endsWith("/embed/")) assert.equal(classes["js/chrome"].count, 0, `${route} should ship no chrome`);
+    else assert.ok(classes["js/chrome"].count > 0, `${route} should load the chrome islands`);
 
     const fonts = classes[FONT_CLASS];
     assert.ok(fonts.count > 0, `${route} should load the self-hosted fonts`);
