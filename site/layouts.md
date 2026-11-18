@@ -11,6 +11,7 @@ A page picks a layout with `layout` in its front matter, or gets one from `defau
 | --- | --- |
 | `base` | The document shell: `<head>`, skip link, theme script, and slots for the header, sidebar, main column, aside, and footer. The other layouts build on it; a page does not name it. |
 | `doc` | The docs page: header, sidebar, breadcrumb, article, table of contents, pager, and page footer. Front matter `status`, `since`, and `replaced_by` add the page-status banner. |
+| `guide` | The task page: the docs shell with a summary bar from `guide.from`, `guide.to`, `guide.time`, and `guide.risk`, reading time, and related guides. [Guide layout](/components/guide/) is a live example. |
 | `home` | The docs home: a hero, action buttons, and section cards from `hero`, `actions`, and `sections` in front matter. |
 | `not-found` | The 404 page, with a search form and links to the home page and the top-level sections. |
 | `versions` | The versions index: a page's versions from `site.data.versions` or the `versions` front matter key, each row linked to the same page when it exists and marked with Latest, Deprecated, or Dev in text. |
