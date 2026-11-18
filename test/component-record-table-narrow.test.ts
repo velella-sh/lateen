@@ -62,5 +62,5 @@ test("the stacked form is a container query, so it adapts inside a narrow column
   const css = readFileSync(new URL("../components/record-table/style.css", import.meta.url), "utf8");
   assert.match(css, /container-type: inline-size/);
   assert.match(css, /@container \(max-inline-size: 40rem\)/);
-  assert.ok(!/@media/.test(css));
+  assert.ok(!/@media[^{]*width/.test(css), "no width media query; forced colors and print may stay");
 });
