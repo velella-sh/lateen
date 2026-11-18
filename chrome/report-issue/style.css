@@ -8,12 +8,12 @@
 }
 
 .report-issue-link {
-  color: var(--color-accent);
+  color: var(--color-link);
   text-decoration: none;
 }
 
 .report-issue-link:hover {
-  color: var(--color-accent-hover);
+  color: var(--color-link-hover);
   text-decoration: underline;
 }
 

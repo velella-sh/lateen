@@ -8,6 +8,7 @@ import copyMarkdown from "../chrome/copy-markdown/index.ts";
 import drawer from "../chrome/drawer/index.ts";
 import lastUpdated from "../chrome/last-updated/index.ts";
 import pageAgentMenu from "../chrome/page-agent-menu/index.ts";
+import pageFooter from "../chrome/page-footer/index.ts";
 import { LINK_CLASS, reportHref } from "../chrome/report-issue/index.ts";
 import header from "../chrome/header/index.ts";
 import sidebar from "../chrome/sidebar/index.ts";
@@ -174,6 +175,7 @@ function article(props: LayoutProps): ComponentChildren {
     h(
       "div",
       { class: "doc-actions" },
+      pageFooter(props) as ComponentChildren,
       copyMarkdown(props) as ComponentChildren,
       pageAgentMenu(props) as ComponentChildren,
     ),

@@ -108,10 +108,60 @@ test("the button carries the copied and failure messages for the island", () => 
 test("the feedback link opens a new issue with the page's address and source", () => {
   const out = html(pageFooter(props(pageWith(), repository)));
 
-  assert.match(out, /<p class="page-footer-feedback">Was this helpful\? <a href="https:\/\/github\.com\/velella-sh\/lateen\/issues\/new\?title=Feedback%3A%20Install&body=Page%3A%20%2Fexample%2Fguide%2Finstall%2F%0ASource%3A%20docs%2Fguide%2Finstall\.md%0A">Give feedback<\/a><\/p>/);
+  assert.match(
+    out,
+    /<p class="page-footer-feedback">Was this helpful\? <a href="https:\/\/github\.com\/velella-sh\/lateen\/issues\/new\?title=Feedback%3A%20Install&body=Page%3A%20%2Fexample%2Fguide%2Finstall%2F%0ASource%3A%20docs%2Fguide%2Finstall\.md%0A">Give feedback<\/a> · <a /,
+  );
+  assert.match(out, /rel="noopener">Report a problem with this page<\/a><\/p>/);
 });
 
-test("without a repository, the feedback link is left out and the prompt stays", () => {
+test("the report link fills an issue with the page, source, language and version", () => {
+  const out = html(pageFooter(props(pageWith({ version: "v2" }), repository)));
+
+  assert.match(out, /issues\/new\?title=Install&body=I%20found%20a%20problem%20with%20this%20page\.%0A%0APage%3A%20%2Fexample%2Fguide%2Finstall%2F%0ASource%3A%20docs%2Fguide%2Finstall\.md%0ALanguage%3A%20en%0AVersion%3A%20v2%0A/);
+});
+
+test("a record page asks about the data, not the page", () => {
+  const page = { ...pageWith(), record: { collection: "books", id: "a", position: { file: "books.json", startLine: 1, endLine: 2 } } } as Page;
+  const out = html(pageFooter(props(page, repository)));
+
+  assert.match(out, /Report a problem with this data/);
+  assert.match(out, /Collection%3A%20books/);
+});
+
+test("a custom tracker template works without a repository", () => {
+  const config = siteConfig();
+  const site: Site = {
+    config: { ...config, theme: { options: { reportIssue: { url: "https://tracker.example.com/new?title={title}&body={body}" } } } },
+    pages: [],
+    nav: {},
+    data: {},
+    collections: {},
+  };
+  const page = pageWith();
+  const out = html(pageFooter({ site, page, trail, pager }));
+
+  assert.match(out, /https:\/\/tracker\.example\.com\/new\?title=Install&body=I%20found/);
+  assert.doesNotMatch(out, /Was this helpful/);
+});
+
+test("reportIssue false turns the report link off, and the feedback link stays", () => {
+  const config = siteConfig(repository);
+  const site: Site = {
+    config: { ...config, theme: { options: { reportIssue: false } } },
+    pages: [],
+    nav: {},
+    data: {},
+    collections: {},
+  };
+  const page = pageWith();
+  const out = html(pageFooter({ site, page, trail, pager }));
+
+  assert.doesNotMatch(out, /Report a problem/);
+  assert.match(out, /Give feedback/);
+});
+
+test("without a repository or a tracker, both links are left out and the prompt stays", () => {
   const out = html(pageFooter(props(pageWith())));
 
   assert.doesNotMatch(out, /issues\/new/);

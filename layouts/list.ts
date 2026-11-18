@@ -5,6 +5,7 @@ import base from "./base.ts";
 import breadcrumb from "../chrome/breadcrumb/index.ts";
 import drawer from "../chrome/drawer/index.ts";
 import header from "../chrome/header/index.ts";
+import pageFooter from "../chrome/page-footer/index.ts";
 import pagination, { paginationLinks } from "../chrome/pagination/index.ts";
 import sidebar from "../chrome/sidebar/index.ts";
 import toc from "../chrome/toc/index.ts";
@@ -243,6 +244,7 @@ function article(props: LayoutProps): ComponentChildren {
     list === undefined
       ? null
       : (pagination({ url: props.page.url, lang: props.page.lang, pagination: list.pagination }) as ComponentChildren),
+    h("div", { class: "doc-actions" }, pageFooter(props) as ComponentChildren),
   );
 }
 
