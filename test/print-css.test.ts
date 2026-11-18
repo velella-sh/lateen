@@ -349,6 +349,25 @@ test("the showpiece decoration drops in print and its bands print as plain text 
   assert.match(read("../components/cta-band/style.css").slice(read("../components/cta-band/style.css").indexOf("@media print")), /background:\s*none/);
 });
 
+test("the guide layout's components print whole and drop their copy controls", () => {
+  for (const unit of ["guide-summary", "related-guides", "steps", "trap", "check-list", "before-after"]) {
+    const text = read(`../components/${unit}/style.css`);
+    const print = text.slice(text.indexOf("@media print"));
+    assert.match(print, /break-inside:\s*avoid/, `${unit} may split across pages`);
+  }
+  for (const [unit, selector] of [
+    ["steps", ".step-tick"],
+    ["check-list", ".check-copy"],
+    ["before-after", ".ba-copy"],
+  ] as const) {
+    const print = read(`../components/${unit}/style.css`).slice(
+      read(`../components/${unit}/style.css`).indexOf("@media print"),
+    );
+    const escaped = selector.replace(".", "\\.");
+    assert.match(print, new RegExp(`${escaped}[^{]*\\{[^}]*display:\\s*none`), `${unit}: ${selector} still prints`);
+  }
+});
+
 test("the network chrome stays out of print with the header and footer", () => {
   const rules = css.slice(css.indexOf("@media print"));
   assert.match(rules, /body > header/);

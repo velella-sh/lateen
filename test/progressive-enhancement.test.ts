@@ -33,6 +33,32 @@ test("the status badge and legend read before any island runs", () => {
   assert.equal(all(page, ".status-legend .status-negative").length, 1);
 });
 
+test("the guide layout and its components read before their islands run", () => {
+  const page = site.document("/guide/start/");
+  const article = page.querySelector("article.guide");
+  assert.ok(article, "the guide layout renders its article");
+  const text = textOf(article);
+  for (const expected of [
+    "From",
+    "To",
+    "Time",
+    "Risk",
+    "Done",
+    "0.1",
+    "10 minutes",
+    "Install the package.",
+    "Keep the old output beside the new one",
+    "npm run build",
+  ]) {
+    assert.ok(text.includes(expected), `the server-rendered guide contains ${JSON.stringify(expected)}`);
+  }
+  assert.equal(all(page, ".guide-summary-fact").length, 4, "every front-matter fact renders");
+  assert.equal(all(page, ".steps > ol > li").length, 3);
+  assert.equal(all(page, ".before-after .ba-pane").length, 2);
+  assert.ok(page.querySelector(".trap"));
+  assert.equal(all(page, ".check-list .check-item").length, 2);
+});
+
 test("the whole page reads before its islands run: prose, tabs, disclosures, output, and form defaults", () => {
   const article = document.querySelector("article.doc");
   assert.ok(article);
