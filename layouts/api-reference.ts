@@ -200,11 +200,13 @@ function code(value: string): ComponentChildren {
 /** A schema's keywords, items, additional properties, and nested properties as one readable block. */
 function schemaBlock(schema: ApiSchema, lang: string): ComponentChildren {
   const rows: ComponentChildren[] = [];
+  const required = Array.isArray(schema.required) ? schema.required : [];
+  const properties = Array.isArray(schema.properties) ? schema.properties : [];
   const type = typeNames(schema);
   if (type !== undefined) rows.push(metaRow(t(lang, "type"), code(type)));
   if (schema.format !== undefined) rows.push(metaRow(t(lang, "api_format"), code(schema.format)));
-  if (schema.required.length > 0) {
-    rows.push(metaRow(t(lang, "required"), h("span", { class: "api-reference-code-list" }, ...schema.required.map(code))));
+  if (required.length > 0) {
+    rows.push(metaRow(t(lang, "required"), h("span", { class: "api-reference-code-list" }, ...required.map(code))));
   }
   if (schema.enum !== undefined) {
     rows.push(
@@ -225,8 +227,8 @@ function schemaBlock(schema: ApiSchema, lang: string): ComponentChildren {
     rows.push(metaRow(t(lang, "api_additional_properties"), schemaBlock(schema.additionalProperties, lang)));
   }
 
-  const properties =
-    schema.properties.length === 0
+  const propertiesNode =
+    properties.length === 0
       ? null
       : h(
           "div",
@@ -235,7 +237,7 @@ function schemaBlock(schema: ApiSchema, lang: string): ComponentChildren {
           h(
             "ul",
             { class: "api-reference-schema-list" },
-            ...schema.properties.map((property) =>
+            ...properties.map((property) =>
               h(
                 "li",
                 { class: "api-reference-schema-property" },
@@ -245,7 +247,7 @@ function schemaBlock(schema: ApiSchema, lang: string): ComponentChildren {
                   code(property.name),
                   " ",
                   h("span", { class: "api-reference-schema-type", dir: "ltr" }, typeLabel(property.schema)),
-                  schema.required.includes(property.name) ? [" ", flag(t(lang, "required"))] : null,
+                  required.includes(property.name) ? [" ", flag(t(lang, "required"))] : null,
                 ),
                 schemaBlock(property.schema, lang),
               ),
@@ -258,7 +260,7 @@ function schemaBlock(schema: ApiSchema, lang: string): ComponentChildren {
     null,
     description(schema.description),
     rows.length === 0 ? null : h("dl", { class: "api-reference-schema-meta" }, ...rows),
-    properties,
+    propertiesNode,
   );
 }
 
@@ -369,7 +371,7 @@ function responseBlock(response: ApiResponse, lang: string): ComponentChildren {
     h(
       "h3",
       null,
-      code(response.status),
+      h("code", { class: "api-reference-status", dir: "ltr" }, response.status),
       response.description.trim() === "" ? null : h("span", { class: "api-reference-response-description" }, " ", response.description),
     ),
     ...response.content.map((media) => mediaBlock(media, 4, lang)),
