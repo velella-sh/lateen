@@ -65,6 +65,8 @@ collections:
     id: slug
     template: _templates/books.md
     permalink: /books/{id}/
+    dates: [published]
+    referenceDate: 2026-03-01
     index:
       fields:
         - title
@@ -74,3 +76,11 @@ collections:
     search:
       filters: [format, published]
       sort: [title, published]
+
+calendars:
+  books:
+    collection: books
+    events:
+      - name: published
+        field: published
+        title: "{title} published"

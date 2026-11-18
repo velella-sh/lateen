@@ -92,6 +92,16 @@ A field is shown by its kind. The default is `text`; `status` reads the site's s
 | `status` | A badge from the site's `theme.options.status.values` map. |
 | `days` | A signed day count from `derived`, as "N days left", "today", or "N days ago". |
 
+## Calendar, history, and derived values
+
+The layout adds two parts from the record data, with no key under `record`:
+[Add to calendar](/components/add-to-calendar/) when the collection names its dates and a calendar
+covers it, and [Record history](/components/record-history/) when the template shows `:::changes`.
+Both need Mizzen 0.2.3 or later, and both render nothing when the record has no calendar or no event.
+
+A fact whose field is `derived.<name>` shows a value the collection's `derived` rules computed, and
+the `days` kind writes a day count as "N days left", "today", or "N days ago".
+
 ## The facts panel
 
 The panel is a description list with one term and one value per fact. It sits after the summary and gets a "Key facts" heading in the table of contents, so a long page can jump to it. When no entry survives, the panel and its heading are left out.
