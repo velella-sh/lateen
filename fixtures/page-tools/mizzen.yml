@@ -1,0 +1,5 @@
+title: Page tools fixture
+description: One page that attaches a browser tool, and one that does not.
+lang: en
+url: https://example.com
+base: ""
