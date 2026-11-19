@@ -1807,7 +1807,12 @@
   details:not([open]) > button.block-action,
   details > button.block-action,
   button.block-action,
-  .block-action {
+  .block-action,
+  details:not([open]) > .source-label,
+  details > .source-label,
+  .source-label,
+  .source-label-copy,
+  button.source-label-copy {
     display: none !important;
   }
 
@@ -1820,15 +1825,31 @@
     break-inside: avoid;
     margin-block-end: 1rem;
   }
+
+  /* print.css reveals tab titles; keep them in flow so RTL absolute chips cannot widen the page. */
+  .code-tabs-title,
+  .tabs-title,
+  .os-tabs-title,
+  .install-tabs-title {
+    position: static !important;
+    inset: auto !important;
+    inline-size: auto !important;
+    block-size: auto !important;
+    margin: 0 0 0.5rem !important;
+    clip-path: none !important;
+    overflow: visible !important;
+  }
 }
 
 /* Screen-reader-only status chips must not extend the scroll width (print gallery overflow). */
 .diff-block-sr,
 .diff-block-status {
   position: absolute !important;
+  inset-inline-start: 0 !important;
+  inset-block-start: 0 !important;
   inline-size: 1px !important;
   block-size: 1px !important;
-  margin: -1px !important;
+  margin: 0 !important;
   padding: 0 !important;
   overflow: hidden !important;
   clip-path: inset(50%) !important;
