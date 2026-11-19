@@ -1,4 +1,11 @@
-# Releases whose two reports are stored, one entry per version. `scripts/archive-reports.ts` writes
-# this file at release time and refuses to rewrite a version that is already here; `test/reports-archive.test.ts`
-# checks every stored file against the hash recorded beside it.
-releases: []
+releases:
+  - version: 0.2.3
+    a11y:
+      file: a11y.json
+      sha256: 3ed62d6285fb3c72c1e2d52c0660c0e0ef90252a8ba5ca7473e123fe18f32cba
+    performance:
+      file: performance.json
+      sha256: 981fc31b694ed634e925ea485fb32c542b6a9b660b246da867bb96eddb8285a6
+    totals:
+      javascript: 921751
+      css: 482144

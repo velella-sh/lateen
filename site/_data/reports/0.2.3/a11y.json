@@ -1,0 +1,2358 @@
+{
+  "tool": "lateen/a11y-report",
+  "version": 1,
+  "commit": "f6379a46838480fdb80040fdd2eccbd0eb4a11c6",
+  "tools": {
+    "node": "v22.23.1",
+    "playwright": "1.65.0",
+    "axe": "4.14.0",
+    "chromium": "158.0.8127.18"
+  },
+  "rules": [
+    "wcag2a",
+    "wcag2aa",
+    "wcag21a",
+    "wcag21aa",
+    "wcag22aa"
+  ],
+  "matrix": [
+    {
+      "case": "docs ask agent",
+      "site": "docs",
+      "path": "/lateen/ask-agent/",
+      "layout": "doc",
+      "lang": "en",
+      "theme": "dark",
+      "width": 1280,
+      "height": 900
+    },
+    {
+      "case": "docs ask agent",
+      "site": "docs",
+      "path": "/lateen/ask-agent/",
+      "layout": "doc",
+      "lang": "en",
+      "theme": "light",
+      "width": 1280,
+      "height": 900
+    },
+    {
+      "case": "docs ask agent open",
+      "site": "docs",
+      "path": "/lateen/install/",
+      "layout": "doc",
+      "lang": "en",
+      "theme": "dark",
+      "width": 1280,
+      "height": 900,
+      "open": "ask"
+    },
+    {
+      "case": "docs ask agent open",
+      "site": "docs",
+      "path": "/lateen/install/",
+      "layout": "doc",
+      "lang": "en",
+      "theme": "light",
+      "width": 1280,
+      "height": 900,
+      "open": "ask"
+    },
+    {
+      "case": "docs callout",
+      "site": "docs",
+      "path": "/lateen/components/callout/",
+      "layout": "doc",
+      "lang": "en",
+      "theme": "dark",
+      "width": 1280,
+      "height": 900
+    },
+    {
+      "case": "docs callout",
+      "site": "docs",
+      "path": "/lateen/components/callout/",
+      "layout": "doc",
+      "lang": "en",
+      "theme": "light",
+      "width": 1280,
+      "height": 900
+    },
+    {
+      "case": "docs cli demo",
+      "site": "docs",
+      "path": "/lateen/components/cli-demo/",
+      "layout": "doc",
+      "lang": "en",
+      "theme": "dark",
+      "width": 1280,
+      "height": 900
+    },
+    {
+      "case": "docs cli demo",
+      "site": "docs",
+      "path": "/lateen/components/cli-demo/",
+      "layout": "doc",
+      "lang": "en",
+      "theme": "light",
+      "width": 1280,
+      "height": 900
+    },
+    {
+      "case": "docs code tabs",
+      "site": "docs",
+      "path": "/lateen/components/code-tabs/",
+      "layout": "doc",
+      "lang": "en",
+      "theme": "dark",
+      "width": 1280,
+      "height": 900
+    },
+    {
+      "case": "docs code tabs",
+      "site": "docs",
+      "path": "/lateen/components/code-tabs/",
+      "layout": "doc",
+      "lang": "en",
+      "theme": "light",
+      "width": 1280,
+      "height": 900
+    },
+    {
+      "case": "docs compare",
+      "site": "docs",
+      "path": "/lateen/components/compare/",
+      "layout": "doc",
+      "lang": "en",
+      "theme": "dark",
+      "width": 1280,
+      "height": 900
+    },
+    {
+      "case": "docs compare",
+      "site": "docs",
+      "path": "/lateen/components/compare/",
+      "layout": "doc",
+      "lang": "en",
+      "theme": "light",
+      "width": 1280,
+      "height": 900
+    },
+    {
+      "case": "docs compare narrow",
+      "site": "docs",
+      "path": "/lateen/components/compare/",
+      "layout": "doc",
+      "lang": "en",
+      "theme": "dark",
+      "width": 375,
+      "height": 800
+    },
+    {
+      "case": "docs compare narrow",
+      "site": "docs",
+      "path": "/lateen/components/compare/",
+      "layout": "doc",
+      "lang": "en",
+      "theme": "light",
+      "width": 375,
+      "height": 800
+    },
+    {
+      "case": "docs details",
+      "site": "docs",
+      "path": "/lateen/components/details/",
+      "layout": "doc",
+      "lang": "en",
+      "theme": "dark",
+      "width": 1280,
+      "height": 900
+    },
+    {
+      "case": "docs details",
+      "site": "docs",
+      "path": "/lateen/components/details/",
+      "layout": "doc",
+      "lang": "en",
+      "theme": "light",
+      "width": 1280,
+      "height": 900
+    },
+    {
+      "case": "docs document",
+      "site": "docs",
+      "path": "/lateen/install/",
+      "layout": "doc",
+      "lang": "en",
+      "theme": "dark",
+      "width": 1280,
+      "height": 900
+    },
+    {
+      "case": "docs document",
+      "site": "docs",
+      "path": "/lateen/install/",
+      "layout": "doc",
+      "lang": "en",
+      "theme": "light",
+      "width": 1280,
+      "height": 900
+    },
+    {
+      "case": "docs drawer open",
+      "site": "docs",
+      "path": "/lateen/install/",
+      "layout": "doc",
+      "lang": "en",
+      "theme": "dark",
+      "width": 375,
+      "height": 800,
+      "open": "drawer"
+    },
+    {
+      "case": "docs drawer open",
+      "site": "docs",
+      "path": "/lateen/install/",
+      "layout": "doc",
+      "lang": "en",
+      "theme": "light",
+      "width": 375,
+      "height": 800,
+      "open": "drawer"
+    },
+    {
+      "case": "docs home",
+      "site": "docs",
+      "path": "/lateen/",
+      "layout": "home",
+      "lang": "en",
+      "theme": "dark",
+      "width": 1280,
+      "height": 900
+    },
+    {
+      "case": "docs home",
+      "site": "docs",
+      "path": "/lateen/",
+      "layout": "home",
+      "lang": "en",
+      "theme": "light",
+      "width": 1280,
+      "height": 900
+    },
+    {
+      "case": "docs not found",
+      "site": "docs",
+      "path": "/lateen/404.html",
+      "layout": "not-found",
+      "lang": "en",
+      "theme": "dark",
+      "width": 1280,
+      "height": 900
+    },
+    {
+      "case": "docs not found",
+      "site": "docs",
+      "path": "/lateen/404.html",
+      "layout": "not-found",
+      "lang": "en",
+      "theme": "light",
+      "width": 1280,
+      "height": 900
+    },
+    {
+      "case": "docs search open",
+      "site": "docs",
+      "path": "/lateen/install/",
+      "layout": "doc",
+      "lang": "en",
+      "theme": "dark",
+      "width": 1280,
+      "height": 900,
+      "open": "search"
+    },
+    {
+      "case": "docs search open",
+      "site": "docs",
+      "path": "/lateen/install/",
+      "layout": "doc",
+      "lang": "en",
+      "theme": "light",
+      "width": 1280,
+      "height": 900,
+      "open": "search"
+    },
+    {
+      "case": "docs table",
+      "site": "docs",
+      "path": "/lateen/components/table/",
+      "layout": "doc",
+      "lang": "en",
+      "theme": "dark",
+      "width": 1280,
+      "height": 900
+    },
+    {
+      "case": "docs table",
+      "site": "docs",
+      "path": "/lateen/components/table/",
+      "layout": "doc",
+      "lang": "en",
+      "theme": "light",
+      "width": 1280,
+      "height": 900
+    },
+    {
+      "case": "docs tabs",
+      "site": "docs",
+      "path": "/lateen/components/tabs/",
+      "layout": "doc",
+      "lang": "en",
+      "theme": "dark",
+      "width": 1280,
+      "height": 900
+    },
+    {
+      "case": "docs tabs",
+      "site": "docs",
+      "path": "/lateen/components/tabs/",
+      "layout": "doc",
+      "lang": "en",
+      "theme": "light",
+      "width": 1280,
+      "height": 900
+    },
+    {
+      "case": "docs terminal",
+      "site": "docs",
+      "path": "/lateen/components/terminal/",
+      "layout": "doc",
+      "lang": "en",
+      "theme": "dark",
+      "width": 1280,
+      "height": 900
+    },
+    {
+      "case": "docs terminal",
+      "site": "docs",
+      "path": "/lateen/components/terminal/",
+      "layout": "doc",
+      "lang": "en",
+      "theme": "light",
+      "width": 1280,
+      "height": 900
+    },
+    {
+      "case": "docs variables form",
+      "site": "docs",
+      "path": "/lateen/components/variables-form/",
+      "layout": "doc",
+      "lang": "en",
+      "theme": "dark",
+      "width": 1280,
+      "height": 900
+    },
+    {
+      "case": "docs variables form",
+      "site": "docs",
+      "path": "/lateen/components/variables-form/",
+      "layout": "doc",
+      "lang": "en",
+      "theme": "light",
+      "width": 1280,
+      "height": 900
+    },
+    {
+      "case": "fixture api",
+      "site": "fixtures",
+      "path": "/api/",
+      "layout": "api",
+      "lang": "en",
+      "theme": "dark",
+      "width": 1280,
+      "height": 900
+    },
+    {
+      "case": "fixture api",
+      "site": "fixtures",
+      "path": "/api/",
+      "layout": "api",
+      "lang": "en",
+      "theme": "light",
+      "width": 1280,
+      "height": 900
+    },
+    {
+      "case": "fixture arabic",
+      "site": "fixtures",
+      "path": "/ar/",
+      "layout": "doc",
+      "lang": "ar",
+      "theme": "dark",
+      "width": 1280,
+      "height": 900
+    },
+    {
+      "case": "fixture arabic",
+      "site": "fixtures",
+      "path": "/ar/",
+      "layout": "doc",
+      "lang": "ar",
+      "theme": "light",
+      "width": 1280,
+      "height": 900
+    },
+    {
+      "case": "fixture brand",
+      "site": "fixtures",
+      "path": "/brand/",
+      "layout": "doc",
+      "lang": "en",
+      "theme": "dark",
+      "width": 1280,
+      "height": 900
+    },
+    {
+      "case": "fixture brand",
+      "site": "fixtures",
+      "path": "/brand/",
+      "layout": "doc",
+      "lang": "en",
+      "theme": "light",
+      "width": 1280,
+      "height": 900
+    },
+    {
+      "case": "fixture brand arabic",
+      "site": "fixtures",
+      "path": "/ar/brand/",
+      "layout": "doc",
+      "lang": "ar",
+      "theme": "dark",
+      "width": 1280,
+      "height": 900
+    },
+    {
+      "case": "fixture brand arabic",
+      "site": "fixtures",
+      "path": "/ar/brand/",
+      "layout": "doc",
+      "lang": "ar",
+      "theme": "light",
+      "width": 1280,
+      "height": 900
+    },
+    {
+      "case": "fixture brand mobile",
+      "site": "fixtures",
+      "path": "/brand/",
+      "layout": "doc",
+      "lang": "en",
+      "theme": "dark",
+      "width": 375,
+      "height": 800
+    },
+    {
+      "case": "fixture brand mobile",
+      "site": "fixtures",
+      "path": "/brand/",
+      "layout": "doc",
+      "lang": "en",
+      "theme": "light",
+      "width": 375,
+      "height": 800
+    },
+    {
+      "case": "fixture brand persian",
+      "site": "fixtures",
+      "path": "/fa/brand/",
+      "layout": "doc",
+      "lang": "fa",
+      "theme": "dark",
+      "width": 1280,
+      "height": 900
+    },
+    {
+      "case": "fixture brand persian",
+      "site": "fixtures",
+      "path": "/fa/brand/",
+      "layout": "doc",
+      "lang": "fa",
+      "theme": "light",
+      "width": 1280,
+      "height": 900
+    },
+    {
+      "case": "fixture changelog",
+      "site": "fixtures",
+      "path": "/changelog/",
+      "layout": "changelog",
+      "lang": "en",
+      "theme": "dark",
+      "width": 1280,
+      "height": 900
+    },
+    {
+      "case": "fixture changelog",
+      "site": "fixtures",
+      "path": "/changelog/",
+      "layout": "changelog",
+      "lang": "en",
+      "theme": "light",
+      "width": 1280,
+      "height": 900
+    },
+    {
+      "case": "fixture changelog history",
+      "site": "fixtures",
+      "path": "/changes/books/",
+      "layout": "list",
+      "lang": "en",
+      "theme": "dark",
+      "width": 1280,
+      "height": 900
+    },
+    {
+      "case": "fixture changelog history",
+      "site": "fixtures",
+      "path": "/changes/books/",
+      "layout": "list",
+      "lang": "en",
+      "theme": "light",
+      "width": 1280,
+      "height": 900
+    },
+    {
+      "case": "fixture changelog history mobile",
+      "site": "fixtures",
+      "path": "/changes/books/",
+      "layout": "list",
+      "lang": "en",
+      "theme": "dark",
+      "width": 375,
+      "height": 800
+    },
+    {
+      "case": "fixture changelog history mobile",
+      "site": "fixtures",
+      "path": "/changes/books/",
+      "layout": "list",
+      "lang": "en",
+      "theme": "light",
+      "width": 375,
+      "height": 800
+    },
+    {
+      "case": "fixture charts",
+      "site": "fixtures",
+      "path": "/charts/",
+      "layout": "doc",
+      "lang": "en",
+      "theme": "dark",
+      "width": 1280,
+      "height": 900
+    },
+    {
+      "case": "fixture charts",
+      "site": "fixtures",
+      "path": "/charts/",
+      "layout": "doc",
+      "lang": "en",
+      "theme": "light",
+      "width": 1280,
+      "height": 900
+    },
+    {
+      "case": "fixture charts arabic",
+      "site": "fixtures",
+      "path": "/ar/charts/",
+      "layout": "doc",
+      "lang": "ar",
+      "theme": "dark",
+      "width": 1280,
+      "height": 900
+    },
+    {
+      "case": "fixture charts arabic",
+      "site": "fixtures",
+      "path": "/ar/charts/",
+      "layout": "doc",
+      "lang": "ar",
+      "theme": "light",
+      "width": 1280,
+      "height": 900
+    },
+    {
+      "case": "fixture charts persian",
+      "site": "fixtures",
+      "path": "/fa/charts/",
+      "layout": "doc",
+      "lang": "fa",
+      "theme": "dark",
+      "width": 1280,
+      "height": 900
+    },
+    {
+      "case": "fixture charts persian",
+      "site": "fixtures",
+      "path": "/fa/charts/",
+      "layout": "doc",
+      "lang": "fa",
+      "theme": "light",
+      "width": 1280,
+      "height": 900
+    },
+    {
+      "case": "fixture cli demo",
+      "site": "fixtures",
+      "path": "/cli-demo/",
+      "layout": "doc",
+      "lang": "en",
+      "theme": "dark",
+      "width": 1280,
+      "height": 900
+    },
+    {
+      "case": "fixture cli demo",
+      "site": "fixtures",
+      "path": "/cli-demo/",
+      "layout": "doc",
+      "lang": "en",
+      "theme": "light",
+      "width": 1280,
+      "height": 900
+    },
+    {
+      "case": "fixture cli demo arabic",
+      "site": "fixtures",
+      "path": "/ar/cli-demo/",
+      "layout": "doc",
+      "lang": "ar",
+      "theme": "dark",
+      "width": 1280,
+      "height": 900
+    },
+    {
+      "case": "fixture cli demo arabic",
+      "site": "fixtures",
+      "path": "/ar/cli-demo/",
+      "layout": "doc",
+      "lang": "ar",
+      "theme": "light",
+      "width": 1280,
+      "height": 900
+    },
+    {
+      "case": "fixture cli demo mobile",
+      "site": "fixtures",
+      "path": "/cli-demo/",
+      "layout": "doc",
+      "lang": "en",
+      "theme": "dark",
+      "width": 375,
+      "height": 800
+    },
+    {
+      "case": "fixture cli demo mobile",
+      "site": "fixtures",
+      "path": "/cli-demo/",
+      "layout": "doc",
+      "lang": "en",
+      "theme": "light",
+      "width": 375,
+      "height": 800
+    },
+    {
+      "case": "fixture cli demo persian",
+      "site": "fixtures",
+      "path": "/fa/cli-demo/",
+      "layout": "doc",
+      "lang": "fa",
+      "theme": "dark",
+      "width": 1280,
+      "height": 900
+    },
+    {
+      "case": "fixture cli demo persian",
+      "site": "fixtures",
+      "path": "/fa/cli-demo/",
+      "layout": "doc",
+      "lang": "fa",
+      "theme": "light",
+      "width": 1280,
+      "height": 900
+    },
+    {
+      "case": "fixture compare",
+      "site": "fixtures",
+      "path": "/compare/",
+      "layout": "compare",
+      "lang": "en",
+      "theme": "dark",
+      "width": 1280,
+      "height": 900
+    },
+    {
+      "case": "fixture compare",
+      "site": "fixtures",
+      "path": "/compare/",
+      "layout": "compare",
+      "lang": "en",
+      "theme": "light",
+      "width": 1280,
+      "height": 900
+    },
+    {
+      "case": "fixture compare arabic",
+      "site": "fixtures",
+      "path": "/ar/compare/",
+      "layout": "compare",
+      "lang": "ar",
+      "theme": "dark",
+      "width": 1280,
+      "height": 900
+    },
+    {
+      "case": "fixture compare arabic",
+      "site": "fixtures",
+      "path": "/ar/compare/",
+      "layout": "compare",
+      "lang": "ar",
+      "theme": "light",
+      "width": 1280,
+      "height": 900
+    },
+    {
+      "case": "fixture compare mobile",
+      "site": "fixtures",
+      "path": "/compare/",
+      "layout": "compare",
+      "lang": "en",
+      "theme": "dark",
+      "width": 375,
+      "height": 800
+    },
+    {
+      "case": "fixture compare mobile",
+      "site": "fixtures",
+      "path": "/compare/",
+      "layout": "compare",
+      "lang": "en",
+      "theme": "light",
+      "width": 375,
+      "height": 800
+    },
+    {
+      "case": "fixture compare persian",
+      "site": "fixtures",
+      "path": "/fa/compare/",
+      "layout": "compare",
+      "lang": "fa",
+      "theme": "dark",
+      "width": 1280,
+      "height": 900
+    },
+    {
+      "case": "fixture compare persian",
+      "site": "fixtures",
+      "path": "/fa/compare/",
+      "layout": "compare",
+      "lang": "fa",
+      "theme": "light",
+      "width": 1280,
+      "height": 900
+    },
+    {
+      "case": "fixture data explorer",
+      "site": "fixtures",
+      "path": "/explorer/",
+      "layout": "data-explorer",
+      "lang": "en",
+      "theme": "dark",
+      "width": 1280,
+      "height": 900
+    },
+    {
+      "case": "fixture data explorer",
+      "site": "fixtures",
+      "path": "/explorer/",
+      "layout": "data-explorer",
+      "lang": "en",
+      "theme": "light",
+      "width": 1280,
+      "height": 900
+    },
+    {
+      "case": "fixture data explorer arabic",
+      "site": "fixtures",
+      "path": "/ar/explorer/",
+      "layout": "data-explorer",
+      "lang": "ar",
+      "theme": "dark",
+      "width": 1280,
+      "height": 900
+    },
+    {
+      "case": "fixture data explorer arabic",
+      "site": "fixtures",
+      "path": "/ar/explorer/",
+      "layout": "data-explorer",
+      "lang": "ar",
+      "theme": "light",
+      "width": 1280,
+      "height": 900
+    },
+    {
+      "case": "fixture data explorer persian",
+      "site": "fixtures",
+      "path": "/fa/explorer/",
+      "layout": "data-explorer",
+      "lang": "fa",
+      "theme": "dark",
+      "width": 1280,
+      "height": 900
+    },
+    {
+      "case": "fixture data explorer persian",
+      "site": "fixtures",
+      "path": "/fa/explorer/",
+      "layout": "data-explorer",
+      "lang": "fa",
+      "theme": "light",
+      "width": 1280,
+      "height": 900
+    },
+    {
+      "case": "fixture data time",
+      "site": "fixtures",
+      "path": "/data-time/",
+      "layout": "list",
+      "lang": "en",
+      "theme": "dark",
+      "width": 1280,
+      "height": 900
+    },
+    {
+      "case": "fixture data time",
+      "site": "fixtures",
+      "path": "/data-time/",
+      "layout": "list",
+      "lang": "en",
+      "theme": "light",
+      "width": 1280,
+      "height": 900
+    },
+    {
+      "case": "fixture data time arabic",
+      "site": "fixtures",
+      "path": "/ar/data-time/",
+      "layout": "list",
+      "lang": "ar",
+      "theme": "dark",
+      "width": 1280,
+      "height": 900
+    },
+    {
+      "case": "fixture data time arabic",
+      "site": "fixtures",
+      "path": "/ar/data-time/",
+      "layout": "list",
+      "lang": "ar",
+      "theme": "light",
+      "width": 1280,
+      "height": 900
+    },
+    {
+      "case": "fixture data time mobile",
+      "site": "fixtures",
+      "path": "/data-time/",
+      "layout": "list",
+      "lang": "en",
+      "theme": "dark",
+      "width": 375,
+      "height": 800
+    },
+    {
+      "case": "fixture data time mobile",
+      "site": "fixtures",
+      "path": "/data-time/",
+      "layout": "list",
+      "lang": "en",
+      "theme": "light",
+      "width": 375,
+      "height": 800
+    },
+    {
+      "case": "fixture data time persian",
+      "site": "fixtures",
+      "path": "/fa/data-time/",
+      "layout": "list",
+      "lang": "fa",
+      "theme": "dark",
+      "width": 1280,
+      "height": 900
+    },
+    {
+      "case": "fixture data time persian",
+      "site": "fixtures",
+      "path": "/fa/data-time/",
+      "layout": "list",
+      "lang": "fa",
+      "theme": "light",
+      "width": 1280,
+      "height": 900
+    },
+    {
+      "case": "fixture dated list",
+      "site": "fixtures",
+      "path": "/dated-list/",
+      "layout": "dated-list",
+      "lang": "en",
+      "theme": "dark",
+      "width": 1280,
+      "height": 900
+    },
+    {
+      "case": "fixture dated list",
+      "site": "fixtures",
+      "path": "/dated-list/",
+      "layout": "dated-list",
+      "lang": "en",
+      "theme": "light",
+      "width": 1280,
+      "height": 900
+    },
+    {
+      "case": "fixture dated list arabic",
+      "site": "fixtures",
+      "path": "/ar/dated-list/",
+      "layout": "dated-list",
+      "lang": "ar",
+      "theme": "dark",
+      "width": 1280,
+      "height": 900
+    },
+    {
+      "case": "fixture dated list arabic",
+      "site": "fixtures",
+      "path": "/ar/dated-list/",
+      "layout": "dated-list",
+      "lang": "ar",
+      "theme": "light",
+      "width": 1280,
+      "height": 900
+    },
+    {
+      "case": "fixture dated list mobile",
+      "site": "fixtures",
+      "path": "/dated-list/",
+      "layout": "dated-list",
+      "lang": "en",
+      "theme": "dark",
+      "width": 375,
+      "height": 800
+    },
+    {
+      "case": "fixture dated list mobile",
+      "site": "fixtures",
+      "path": "/dated-list/",
+      "layout": "dated-list",
+      "lang": "en",
+      "theme": "light",
+      "width": 375,
+      "height": 800
+    },
+    {
+      "case": "fixture dated list persian",
+      "site": "fixtures",
+      "path": "/fa/dated-list/",
+      "layout": "dated-list",
+      "lang": "fa",
+      "theme": "dark",
+      "width": 1280,
+      "height": 900
+    },
+    {
+      "case": "fixture dated list persian",
+      "site": "fixtures",
+      "path": "/fa/dated-list/",
+      "layout": "dated-list",
+      "lang": "fa",
+      "theme": "light",
+      "width": 1280,
+      "height": 900
+    },
+    {
+      "case": "fixture document",
+      "site": "fixtures",
+      "path": "/doc/",
+      "layout": "doc",
+      "lang": "en",
+      "theme": "dark",
+      "width": 1280,
+      "height": 900
+    },
+    {
+      "case": "fixture document",
+      "site": "fixtures",
+      "path": "/doc/",
+      "layout": "doc",
+      "lang": "en",
+      "theme": "light",
+      "width": 1280,
+      "height": 900
+    },
+    {
+      "case": "fixture document mobile",
+      "site": "fixtures",
+      "path": "/doc/",
+      "layout": "doc",
+      "lang": "en",
+      "theme": "dark",
+      "width": 375,
+      "height": 800
+    },
+    {
+      "case": "fixture document mobile",
+      "site": "fixtures",
+      "path": "/doc/",
+      "layout": "doc",
+      "lang": "en",
+      "theme": "light",
+      "width": 375,
+      "height": 800
+    },
+    {
+      "case": "fixture embedded record",
+      "site": "fixtures",
+      "path": "/books/a/embed/",
+      "layout": "embedded",
+      "lang": "en",
+      "theme": "dark",
+      "width": 1280,
+      "height": 900
+    },
+    {
+      "case": "fixture embedded record",
+      "site": "fixtures",
+      "path": "/books/a/embed/",
+      "layout": "embedded",
+      "lang": "en",
+      "theme": "light",
+      "width": 1280,
+      "height": 900
+    },
+    {
+      "case": "fixture embedded record arabic",
+      "site": "fixtures",
+      "path": "/ar/books/a/embed/",
+      "layout": "embedded",
+      "lang": "ar",
+      "theme": "dark",
+      "width": 1280,
+      "height": 900
+    },
+    {
+      "case": "fixture embedded record arabic",
+      "site": "fixtures",
+      "path": "/ar/books/a/embed/",
+      "layout": "embedded",
+      "lang": "ar",
+      "theme": "light",
+      "width": 1280,
+      "height": 900
+    },
+    {
+      "case": "fixture embedded record mobile",
+      "site": "fixtures",
+      "path": "/books/a/embed/",
+      "layout": "embedded",
+      "lang": "en",
+      "theme": "dark",
+      "width": 375,
+      "height": 800
+    },
+    {
+      "case": "fixture embedded record mobile",
+      "site": "fixtures",
+      "path": "/books/a/embed/",
+      "layout": "embedded",
+      "lang": "en",
+      "theme": "light",
+      "width": 375,
+      "height": 800
+    },
+    {
+      "case": "fixture embedded record persian",
+      "site": "fixtures",
+      "path": "/fa/books/a/embed/",
+      "layout": "embedded",
+      "lang": "fa",
+      "theme": "dark",
+      "width": 1280,
+      "height": 900
+    },
+    {
+      "case": "fixture embedded record persian",
+      "site": "fixtures",
+      "path": "/fa/books/a/embed/",
+      "layout": "embedded",
+      "lang": "fa",
+      "theme": "light",
+      "width": 1280,
+      "height": 900
+    },
+    {
+      "case": "fixture gallery",
+      "site": "fixtures",
+      "path": "/gallery-layout/",
+      "layout": "gallery",
+      "lang": "en",
+      "theme": "dark",
+      "width": 1280,
+      "height": 900
+    },
+    {
+      "case": "fixture gallery",
+      "site": "fixtures",
+      "path": "/gallery-layout/",
+      "layout": "gallery",
+      "lang": "en",
+      "theme": "light",
+      "width": 1280,
+      "height": 900
+    },
+    {
+      "case": "fixture gallery arabic",
+      "site": "fixtures",
+      "path": "/ar/gallery-layout/",
+      "layout": "gallery",
+      "lang": "ar",
+      "theme": "dark",
+      "width": 1280,
+      "height": 900
+    },
+    {
+      "case": "fixture gallery arabic",
+      "site": "fixtures",
+      "path": "/ar/gallery-layout/",
+      "layout": "gallery",
+      "lang": "ar",
+      "theme": "light",
+      "width": 1280,
+      "height": 900
+    },
+    {
+      "case": "fixture gallery mobile",
+      "site": "fixtures",
+      "path": "/gallery-layout/",
+      "layout": "gallery",
+      "lang": "en",
+      "theme": "dark",
+      "width": 375,
+      "height": 800
+    },
+    {
+      "case": "fixture gallery mobile",
+      "site": "fixtures",
+      "path": "/gallery-layout/",
+      "layout": "gallery",
+      "lang": "en",
+      "theme": "light",
+      "width": 375,
+      "height": 800
+    },
+    {
+      "case": "fixture gallery persian",
+      "site": "fixtures",
+      "path": "/fa/gallery-layout/",
+      "layout": "gallery",
+      "lang": "fa",
+      "theme": "dark",
+      "width": 1280,
+      "height": 900
+    },
+    {
+      "case": "fixture gallery persian",
+      "site": "fixtures",
+      "path": "/fa/gallery-layout/",
+      "layout": "gallery",
+      "lang": "fa",
+      "theme": "light",
+      "width": 1280,
+      "height": 900
+    },
+    {
+      "case": "fixture glossary",
+      "site": "fixtures",
+      "path": "/glossary/",
+      "layout": "doc",
+      "lang": "en",
+      "theme": "dark",
+      "width": 1280,
+      "height": 900
+    },
+    {
+      "case": "fixture glossary",
+      "site": "fixtures",
+      "path": "/glossary/",
+      "layout": "doc",
+      "lang": "en",
+      "theme": "light",
+      "width": 1280,
+      "height": 900
+    },
+    {
+      "case": "fixture glossary arabic",
+      "site": "fixtures",
+      "path": "/ar/glossary/",
+      "layout": "doc",
+      "lang": "ar",
+      "theme": "dark",
+      "width": 1280,
+      "height": 900
+    },
+    {
+      "case": "fixture glossary arabic",
+      "site": "fixtures",
+      "path": "/ar/glossary/",
+      "layout": "doc",
+      "lang": "ar",
+      "theme": "light",
+      "width": 1280,
+      "height": 900
+    },
+    {
+      "case": "fixture glossary persian",
+      "site": "fixtures",
+      "path": "/fa/glossary/",
+      "layout": "doc",
+      "lang": "fa",
+      "theme": "dark",
+      "width": 1280,
+      "height": 900
+    },
+    {
+      "case": "fixture glossary persian",
+      "site": "fixtures",
+      "path": "/fa/glossary/",
+      "layout": "doc",
+      "lang": "fa",
+      "theme": "light",
+      "width": 1280,
+      "height": 900
+    },
+    {
+      "case": "fixture guide",
+      "site": "fixtures",
+      "path": "/guide/install/",
+      "layout": "guide",
+      "lang": "en",
+      "theme": "dark",
+      "width": 1280,
+      "height": 900
+    },
+    {
+      "case": "fixture guide",
+      "site": "fixtures",
+      "path": "/guide/install/",
+      "layout": "guide",
+      "lang": "en",
+      "theme": "light",
+      "width": 1280,
+      "height": 900
+    },
+    {
+      "case": "fixture guide arabic",
+      "site": "fixtures",
+      "path": "/ar/guide/install/",
+      "layout": "guide",
+      "lang": "ar",
+      "theme": "dark",
+      "width": 1280,
+      "height": 900
+    },
+    {
+      "case": "fixture guide arabic",
+      "site": "fixtures",
+      "path": "/ar/guide/install/",
+      "layout": "guide",
+      "lang": "ar",
+      "theme": "light",
+      "width": 1280,
+      "height": 900
+    },
+    {
+      "case": "fixture guide persian",
+      "site": "fixtures",
+      "path": "/fa/guide/install/",
+      "layout": "guide",
+      "lang": "fa",
+      "theme": "dark",
+      "width": 1280,
+      "height": 900
+    },
+    {
+      "case": "fixture guide persian",
+      "site": "fixtures",
+      "path": "/fa/guide/install/",
+      "layout": "guide",
+      "lang": "fa",
+      "theme": "light",
+      "width": 1280,
+      "height": 900
+    },
+    {
+      "case": "fixture home",
+      "site": "fixtures",
+      "path": "/",
+      "layout": "home",
+      "lang": "en",
+      "theme": "dark",
+      "width": 1280,
+      "height": 900
+    },
+    {
+      "case": "fixture home",
+      "site": "fixtures",
+      "path": "/",
+      "layout": "home",
+      "lang": "en",
+      "theme": "light",
+      "width": 1280,
+      "height": 900
+    },
+    {
+      "case": "fixture list",
+      "site": "fixtures",
+      "path": "/books/",
+      "layout": "list",
+      "lang": "en",
+      "theme": "dark",
+      "width": 1280,
+      "height": 900
+    },
+    {
+      "case": "fixture list",
+      "site": "fixtures",
+      "path": "/books/",
+      "layout": "list",
+      "lang": "en",
+      "theme": "light",
+      "width": 1280,
+      "height": 900
+    },
+    {
+      "case": "fixture list arabic",
+      "site": "fixtures",
+      "path": "/ar/books/",
+      "layout": "list",
+      "lang": "ar",
+      "theme": "dark",
+      "width": 1280,
+      "height": 900
+    },
+    {
+      "case": "fixture list arabic",
+      "site": "fixtures",
+      "path": "/ar/books/",
+      "layout": "list",
+      "lang": "ar",
+      "theme": "light",
+      "width": 1280,
+      "height": 900
+    },
+    {
+      "case": "fixture list persian",
+      "site": "fixtures",
+      "path": "/fa/books/",
+      "layout": "list",
+      "lang": "fa",
+      "theme": "dark",
+      "width": 1280,
+      "height": 900
+    },
+    {
+      "case": "fixture list persian",
+      "site": "fixtures",
+      "path": "/fa/books/",
+      "layout": "list",
+      "lang": "fa",
+      "theme": "light",
+      "width": 1280,
+      "height": 900
+    },
+    {
+      "case": "fixture not found",
+      "site": "fixtures",
+      "path": "/404.html",
+      "layout": "not-found",
+      "lang": "en",
+      "theme": "dark",
+      "width": 1280,
+      "height": 900
+    },
+    {
+      "case": "fixture not found",
+      "site": "fixtures",
+      "path": "/404.html",
+      "layout": "not-found",
+      "lang": "en",
+      "theme": "light",
+      "width": 1280,
+      "height": 900
+    },
+    {
+      "case": "fixture persian",
+      "site": "fixtures",
+      "path": "/fa/",
+      "layout": "doc",
+      "lang": "fa",
+      "theme": "dark",
+      "width": 1280,
+      "height": 900
+    },
+    {
+      "case": "fixture persian",
+      "site": "fixtures",
+      "path": "/fa/",
+      "layout": "doc",
+      "lang": "fa",
+      "theme": "light",
+      "width": 1280,
+      "height": 900
+    },
+    {
+      "case": "fixture record",
+      "site": "fixtures",
+      "path": "/books/a/",
+      "layout": "record",
+      "lang": "en",
+      "theme": "dark",
+      "width": 1280,
+      "height": 900
+    },
+    {
+      "case": "fixture record",
+      "site": "fixtures",
+      "path": "/books/a/",
+      "layout": "record",
+      "lang": "en",
+      "theme": "light",
+      "width": 1280,
+      "height": 900
+    },
+    {
+      "case": "fixture record arabic",
+      "site": "fixtures",
+      "path": "/ar/books/a/",
+      "layout": "record",
+      "lang": "ar",
+      "theme": "dark",
+      "width": 1280,
+      "height": 900
+    },
+    {
+      "case": "fixture record arabic",
+      "site": "fixtures",
+      "path": "/ar/books/a/",
+      "layout": "record",
+      "lang": "ar",
+      "theme": "light",
+      "width": 1280,
+      "height": 900
+    },
+    {
+      "case": "fixture record persian",
+      "site": "fixtures",
+      "path": "/fa/books/a/",
+      "layout": "record",
+      "lang": "fa",
+      "theme": "dark",
+      "width": 1280,
+      "height": 900
+    },
+    {
+      "case": "fixture record persian",
+      "site": "fixtures",
+      "path": "/fa/books/a/",
+      "layout": "record",
+      "lang": "fa",
+      "theme": "light",
+      "width": 1280,
+      "height": 900
+    },
+    {
+      "case": "fixture refinement",
+      "site": "fixtures",
+      "path": "/refinement/",
+      "layout": "doc",
+      "lang": "en",
+      "theme": "dark",
+      "width": 1280,
+      "height": 900
+    },
+    {
+      "case": "fixture refinement",
+      "site": "fixtures",
+      "path": "/refinement/",
+      "layout": "doc",
+      "lang": "en",
+      "theme": "light",
+      "width": 1280,
+      "height": 900
+    },
+    {
+      "case": "fixture refinement arabic",
+      "site": "fixtures",
+      "path": "/ar/refinement/",
+      "layout": "doc",
+      "lang": "ar",
+      "theme": "dark",
+      "width": 1280,
+      "height": 900
+    },
+    {
+      "case": "fixture refinement arabic",
+      "site": "fixtures",
+      "path": "/ar/refinement/",
+      "layout": "doc",
+      "lang": "ar",
+      "theme": "light",
+      "width": 1280,
+      "height": 900
+    },
+    {
+      "case": "fixture refinement mobile",
+      "site": "fixtures",
+      "path": "/refinement/",
+      "layout": "doc",
+      "lang": "en",
+      "theme": "dark",
+      "width": 375,
+      "height": 800
+    },
+    {
+      "case": "fixture refinement mobile",
+      "site": "fixtures",
+      "path": "/refinement/",
+      "layout": "doc",
+      "lang": "en",
+      "theme": "light",
+      "width": 375,
+      "height": 800
+    },
+    {
+      "case": "fixture refinement persian",
+      "site": "fixtures",
+      "path": "/fa/refinement/",
+      "layout": "doc",
+      "lang": "fa",
+      "theme": "dark",
+      "width": 1280,
+      "height": 900
+    },
+    {
+      "case": "fixture refinement persian",
+      "site": "fixtures",
+      "path": "/fa/refinement/",
+      "layout": "doc",
+      "lang": "fa",
+      "theme": "light",
+      "width": 1280,
+      "height": 900
+    },
+    {
+      "case": "fixture report issue",
+      "site": "fixtures",
+      "path": "/books/a/",
+      "layout": "report-issue",
+      "lang": "en",
+      "theme": "dark",
+      "width": 1280,
+      "height": 900
+    },
+    {
+      "case": "fixture report issue",
+      "site": "fixtures",
+      "path": "/books/a/",
+      "layout": "report-issue",
+      "lang": "en",
+      "theme": "light",
+      "width": 1280,
+      "height": 900
+    },
+    {
+      "case": "fixture report issue arabic",
+      "site": "fixtures",
+      "path": "/ar/books/a/",
+      "layout": "report-issue",
+      "lang": "ar",
+      "theme": "dark",
+      "width": 1280,
+      "height": 900
+    },
+    {
+      "case": "fixture report issue arabic",
+      "site": "fixtures",
+      "path": "/ar/books/a/",
+      "layout": "report-issue",
+      "lang": "ar",
+      "theme": "light",
+      "width": 1280,
+      "height": 900
+    },
+    {
+      "case": "fixture report issue mobile",
+      "site": "fixtures",
+      "path": "/books/a/",
+      "layout": "report-issue",
+      "lang": "en",
+      "theme": "dark",
+      "width": 375,
+      "height": 800
+    },
+    {
+      "case": "fixture report issue mobile",
+      "site": "fixtures",
+      "path": "/books/a/",
+      "layout": "report-issue",
+      "lang": "en",
+      "theme": "light",
+      "width": 375,
+      "height": 800
+    },
+    {
+      "case": "fixture report issue persian",
+      "site": "fixtures",
+      "path": "/fa/books/a/",
+      "layout": "report-issue",
+      "lang": "fa",
+      "theme": "dark",
+      "width": 1280,
+      "height": 900
+    },
+    {
+      "case": "fixture report issue persian",
+      "site": "fixtures",
+      "path": "/fa/books/a/",
+      "layout": "report-issue",
+      "lang": "fa",
+      "theme": "light",
+      "width": 1280,
+      "height": 900
+    },
+    {
+      "case": "fixture reports",
+      "site": "fixtures",
+      "path": "/reports/",
+      "layout": "doc",
+      "lang": "en",
+      "theme": "dark",
+      "width": 1280,
+      "height": 900
+    },
+    {
+      "case": "fixture reports",
+      "site": "fixtures",
+      "path": "/reports/",
+      "layout": "doc",
+      "lang": "en",
+      "theme": "light",
+      "width": 1280,
+      "height": 900
+    },
+    {
+      "case": "fixture reports arabic",
+      "site": "fixtures",
+      "path": "/ar/reports/",
+      "layout": "doc",
+      "lang": "ar",
+      "theme": "dark",
+      "width": 1280,
+      "height": 900
+    },
+    {
+      "case": "fixture reports arabic",
+      "site": "fixtures",
+      "path": "/ar/reports/",
+      "layout": "doc",
+      "lang": "ar",
+      "theme": "light",
+      "width": 1280,
+      "height": 900
+    },
+    {
+      "case": "fixture reports persian",
+      "site": "fixtures",
+      "path": "/fa/reports/",
+      "layout": "doc",
+      "lang": "fa",
+      "theme": "dark",
+      "width": 1280,
+      "height": 900
+    },
+    {
+      "case": "fixture reports persian",
+      "site": "fixtures",
+      "path": "/fa/reports/",
+      "layout": "doc",
+      "lang": "fa",
+      "theme": "light",
+      "width": 1280,
+      "height": 900
+    },
+    {
+      "case": "fixture search results",
+      "site": "fixtures",
+      "path": "/search/",
+      "layout": "search-results",
+      "lang": "en",
+      "theme": "dark",
+      "width": 1280,
+      "height": 900
+    },
+    {
+      "case": "fixture search results",
+      "site": "fixtures",
+      "path": "/search/",
+      "layout": "search-results",
+      "lang": "en",
+      "theme": "light",
+      "width": 1280,
+      "height": 900
+    },
+    {
+      "case": "fixture showpiece",
+      "site": "fixtures",
+      "path": "/showpiece/",
+      "layout": "home",
+      "lang": "en",
+      "theme": "dark",
+      "width": 1280,
+      "height": 900
+    },
+    {
+      "case": "fixture showpiece",
+      "site": "fixtures",
+      "path": "/showpiece/",
+      "layout": "home",
+      "lang": "en",
+      "theme": "light",
+      "width": 1280,
+      "height": 900
+    },
+    {
+      "case": "fixture showpiece arabic",
+      "site": "fixtures",
+      "path": "/ar/showpiece/",
+      "layout": "home",
+      "lang": "ar",
+      "theme": "dark",
+      "width": 1280,
+      "height": 900
+    },
+    {
+      "case": "fixture showpiece arabic",
+      "site": "fixtures",
+      "path": "/ar/showpiece/",
+      "layout": "home",
+      "lang": "ar",
+      "theme": "light",
+      "width": 1280,
+      "height": 900
+    },
+    {
+      "case": "fixture showpiece mobile",
+      "site": "fixtures",
+      "path": "/showpiece/",
+      "layout": "home",
+      "lang": "en",
+      "theme": "dark",
+      "width": 375,
+      "height": 800
+    },
+    {
+      "case": "fixture showpiece mobile",
+      "site": "fixtures",
+      "path": "/showpiece/",
+      "layout": "home",
+      "lang": "en",
+      "theme": "light",
+      "width": 375,
+      "height": 800
+    },
+    {
+      "case": "fixture showpiece persian",
+      "site": "fixtures",
+      "path": "/fa/showpiece/",
+      "layout": "home",
+      "lang": "fa",
+      "theme": "dark",
+      "width": 1280,
+      "height": 900
+    },
+    {
+      "case": "fixture showpiece persian",
+      "site": "fixtures",
+      "path": "/fa/showpiece/",
+      "layout": "home",
+      "lang": "fa",
+      "theme": "light",
+      "width": 1280,
+      "height": 900
+    },
+    {
+      "case": "fixture source mode",
+      "site": "fixtures",
+      "path": "/books/a/?source=_data/books.json:4:5",
+      "layout": "source-mode",
+      "lang": "en",
+      "theme": "dark",
+      "width": 1280,
+      "height": 900
+    },
+    {
+      "case": "fixture source mode",
+      "site": "fixtures",
+      "path": "/books/a/?source=_data/books.json:4:5",
+      "layout": "source-mode",
+      "lang": "en",
+      "theme": "light",
+      "width": 1280,
+      "height": 900
+    },
+    {
+      "case": "fixture source mode arabic",
+      "site": "fixtures",
+      "path": "/ar/books/a/?source=_data/books.json:4:5",
+      "layout": "source-mode",
+      "lang": "ar",
+      "theme": "dark",
+      "width": 1280,
+      "height": 900
+    },
+    {
+      "case": "fixture source mode arabic",
+      "site": "fixtures",
+      "path": "/ar/books/a/?source=_data/books.json:4:5",
+      "layout": "source-mode",
+      "lang": "ar",
+      "theme": "light",
+      "width": 1280,
+      "height": 900
+    },
+    {
+      "case": "fixture source mode mobile",
+      "site": "fixtures",
+      "path": "/books/a/?source=_data/books.json:4:5",
+      "layout": "source-mode",
+      "lang": "en",
+      "theme": "dark",
+      "width": 375,
+      "height": 800
+    },
+    {
+      "case": "fixture source mode mobile",
+      "site": "fixtures",
+      "path": "/books/a/?source=_data/books.json:4:5",
+      "layout": "source-mode",
+      "lang": "en",
+      "theme": "light",
+      "width": 375,
+      "height": 800
+    },
+    {
+      "case": "fixture source mode persian",
+      "site": "fixtures",
+      "path": "/fa/books/a/?source=_data/books.json:4:5",
+      "layout": "source-mode",
+      "lang": "fa",
+      "theme": "dark",
+      "width": 1280,
+      "height": 900
+    },
+    {
+      "case": "fixture source mode persian",
+      "site": "fixtures",
+      "path": "/fa/books/a/?source=_data/books.json:4:5",
+      "layout": "source-mode",
+      "lang": "fa",
+      "theme": "light",
+      "width": 1280,
+      "height": 900
+    },
+    {
+      "case": "fixture stale page",
+      "site": "fixtures",
+      "path": "/stale/",
+      "layout": "doc",
+      "lang": "en",
+      "theme": "dark",
+      "width": 1280,
+      "height": 900
+    },
+    {
+      "case": "fixture stale page",
+      "site": "fixtures",
+      "path": "/stale/",
+      "layout": "doc",
+      "lang": "en",
+      "theme": "light",
+      "width": 1280,
+      "height": 900
+    },
+    {
+      "case": "fixture stale page arabic",
+      "site": "fixtures",
+      "path": "/ar/stale/",
+      "layout": "doc",
+      "lang": "ar",
+      "theme": "dark",
+      "width": 1280,
+      "height": 900
+    },
+    {
+      "case": "fixture stale page arabic",
+      "site": "fixtures",
+      "path": "/ar/stale/",
+      "layout": "doc",
+      "lang": "ar",
+      "theme": "light",
+      "width": 1280,
+      "height": 900
+    },
+    {
+      "case": "fixture stale page persian",
+      "site": "fixtures",
+      "path": "/fa/stale/",
+      "layout": "doc",
+      "lang": "fa",
+      "theme": "dark",
+      "width": 1280,
+      "height": 900
+    },
+    {
+      "case": "fixture stale page persian",
+      "site": "fixtures",
+      "path": "/fa/stale/",
+      "layout": "doc",
+      "lang": "fa",
+      "theme": "light",
+      "width": 1280,
+      "height": 900
+    },
+    {
+      "case": "fixture status badge",
+      "site": "fixtures",
+      "path": "/status/",
+      "layout": "doc",
+      "lang": "en",
+      "theme": "dark",
+      "width": 1280,
+      "height": 900
+    },
+    {
+      "case": "fixture status badge",
+      "site": "fixtures",
+      "path": "/status/",
+      "layout": "doc",
+      "lang": "en",
+      "theme": "light",
+      "width": 1280,
+      "height": 900
+    },
+    {
+      "case": "fixture status badge arabic",
+      "site": "fixtures",
+      "path": "/ar/status/",
+      "layout": "doc",
+      "lang": "ar",
+      "theme": "dark",
+      "width": 1280,
+      "height": 900
+    },
+    {
+      "case": "fixture status badge arabic",
+      "site": "fixtures",
+      "path": "/ar/status/",
+      "layout": "doc",
+      "lang": "ar",
+      "theme": "light",
+      "width": 1280,
+      "height": 900
+    },
+    {
+      "case": "fixture status badge persian",
+      "site": "fixtures",
+      "path": "/fa/status/",
+      "layout": "doc",
+      "lang": "fa",
+      "theme": "dark",
+      "width": 1280,
+      "height": 900
+    },
+    {
+      "case": "fixture status badge persian",
+      "site": "fixtures",
+      "path": "/fa/status/",
+      "layout": "doc",
+      "lang": "fa",
+      "theme": "light",
+      "width": 1280,
+      "height": 900
+    },
+    {
+      "case": "fixture timeline",
+      "site": "fixtures",
+      "path": "/timeline/",
+      "layout": "doc",
+      "lang": "en",
+      "theme": "dark",
+      "width": 1280,
+      "height": 900
+    },
+    {
+      "case": "fixture timeline",
+      "site": "fixtures",
+      "path": "/timeline/",
+      "layout": "doc",
+      "lang": "en",
+      "theme": "light",
+      "width": 1280,
+      "height": 900
+    },
+    {
+      "case": "fixture timeline arabic",
+      "site": "fixtures",
+      "path": "/ar/timeline/",
+      "layout": "doc",
+      "lang": "ar",
+      "theme": "dark",
+      "width": 1280,
+      "height": 900
+    },
+    {
+      "case": "fixture timeline arabic",
+      "site": "fixtures",
+      "path": "/ar/timeline/",
+      "layout": "doc",
+      "lang": "ar",
+      "theme": "light",
+      "width": 1280,
+      "height": 900
+    },
+    {
+      "case": "fixture timeline persian",
+      "site": "fixtures",
+      "path": "/fa/timeline/",
+      "layout": "doc",
+      "lang": "fa",
+      "theme": "dark",
+      "width": 1280,
+      "height": 900
+    },
+    {
+      "case": "fixture timeline persian",
+      "site": "fixtures",
+      "path": "/fa/timeline/",
+      "layout": "doc",
+      "lang": "fa",
+      "theme": "light",
+      "width": 1280,
+      "height": 900
+    },
+    {
+      "case": "fixture tutorial",
+      "site": "fixtures",
+      "path": "/tutorial/",
+      "layout": "tutorial",
+      "lang": "en",
+      "theme": "dark",
+      "width": 1280,
+      "height": 900
+    },
+    {
+      "case": "fixture tutorial",
+      "site": "fixtures",
+      "path": "/tutorial/",
+      "layout": "tutorial",
+      "lang": "en",
+      "theme": "light",
+      "width": 1280,
+      "height": 900
+    },
+    {
+      "case": "fixture versions",
+      "site": "fixtures",
+      "path": "/versions/",
+      "layout": "versions",
+      "lang": "en",
+      "theme": "dark",
+      "width": 1280,
+      "height": 900
+    },
+    {
+      "case": "fixture versions",
+      "site": "fixtures",
+      "path": "/versions/",
+      "layout": "versions",
+      "lang": "en",
+      "theme": "light",
+      "width": 1280,
+      "height": 900
+    },
+    {
+      "case": "network alpha",
+      "site": "network",
+      "path": "/alpha/",
+      "layout": "doc",
+      "lang": "en",
+      "theme": "dark",
+      "width": 1280,
+      "height": 900
+    },
+    {
+      "case": "network alpha",
+      "site": "network",
+      "path": "/alpha/",
+      "layout": "doc",
+      "lang": "en",
+      "theme": "light",
+      "width": 1280,
+      "height": 900
+    },
+    {
+      "case": "network alpha arabic",
+      "site": "network",
+      "path": "/alpha/ar/",
+      "layout": "doc",
+      "lang": "ar",
+      "theme": "dark",
+      "width": 1280,
+      "height": 900
+    },
+    {
+      "case": "network alpha arabic",
+      "site": "network",
+      "path": "/alpha/ar/",
+      "layout": "doc",
+      "lang": "ar",
+      "theme": "light",
+      "width": 1280,
+      "height": 900
+    },
+    {
+      "case": "network alpha persian",
+      "site": "network",
+      "path": "/alpha/fa/",
+      "layout": "doc",
+      "lang": "fa",
+      "theme": "dark",
+      "width": 1280,
+      "height": 900
+    },
+    {
+      "case": "network alpha persian",
+      "site": "network",
+      "path": "/alpha/fa/",
+      "layout": "doc",
+      "lang": "fa",
+      "theme": "light",
+      "width": 1280,
+      "height": 900
+    },
+    {
+      "case": "network drawer open",
+      "site": "network",
+      "path": "/alpha/",
+      "layout": "doc",
+      "lang": "en",
+      "theme": "dark",
+      "width": 375,
+      "height": 800,
+      "open": "drawer"
+    },
+    {
+      "case": "network drawer open",
+      "site": "network",
+      "path": "/alpha/",
+      "layout": "doc",
+      "lang": "en",
+      "theme": "light",
+      "width": 375,
+      "height": 800,
+      "open": "drawer"
+    },
+    {
+      "case": "network search",
+      "site": "network",
+      "path": "/alpha/search/",
+      "layout": "search-results",
+      "lang": "en",
+      "theme": "dark",
+      "width": 1280,
+      "height": 900
+    },
+    {
+      "case": "network search",
+      "site": "network",
+      "path": "/alpha/search/",
+      "layout": "search-results",
+      "lang": "en",
+      "theme": "light",
+      "width": 1280,
+      "height": 900
+    }
+  ],
+  "findings": [
+    {
+      "case": "docs home",
+      "theme": "light",
+      "rule": "color-contrast",
+      "impact": "serious",
+      "target": ".home-btn-primary",
+      "help": "Elements must meet minimum color contrast ratio thresholds",
+      "helpUrl": "https://dequeuniversity.com/rules/axe/4.14/color-contrast?application=playwright"
+    },
+    {
+      "case": "docs home",
+      "theme": "light",
+      "rule": "color-contrast",
+      "impact": "serious",
+      "target": ".home-eyebrow",
+      "help": "Elements must meet minimum color contrast ratio thresholds",
+      "helpUrl": "https://dequeuniversity.com/rules/axe/4.14/color-contrast?application=playwright"
+    },
+    {
+      "case": "fixture versions",
+      "theme": "light",
+      "rule": "color-contrast",
+      "impact": "serious",
+      "target": ".versions-status-deprecated > .versions-status-label",
+      "help": "Elements must meet minimum color contrast ratio thresholds",
+      "helpUrl": "https://dequeuniversity.com/rules/axe/4.14/color-contrast?application=playwright"
+    },
+    {
+      "case": "fixture versions",
+      "theme": "light",
+      "rule": "color-contrast",
+      "impact": "serious",
+      "target": ".versions-status-dev > .versions-status-label",
+      "help": "Elements must meet minimum color contrast ratio thresholds",
+      "helpUrl": "https://dequeuniversity.com/rules/axe/4.14/color-contrast?application=playwright"
+    },
+    {
+      "case": "fixture versions",
+      "theme": "light",
+      "rule": "color-contrast",
+      "impact": "serious",
+      "target": ".versions-status-latest > .versions-status-label",
+      "help": "Elements must meet minimum color contrast ratio thresholds",
+      "helpUrl": "https://dequeuniversity.com/rules/axe/4.14/color-contrast?application=playwright"
+    }
+  ],
+  "known": [
+    {
+      "case": "*",
+      "theme": "light",
+      "rule": "color-contrast",
+      "target": ".home-btn-primary"
+    },
+    {
+      "case": "*",
+      "theme": "light",
+      "rule": "color-contrast",
+      "target": ".home-eyebrow"
+    },
+    {
+      "case": "fixture versions",
+      "theme": "light",
+      "rule": "color-contrast",
+      "target": ".versions-status-deprecated > .versions-status-label"
+    },
+    {
+      "case": "fixture versions",
+      "theme": "light",
+      "rule": "color-contrast",
+      "target": ".versions-status-dev > .versions-status-label"
+    },
+    {
+      "case": "fixture versions",
+      "theme": "light",
+      "rule": "color-contrast",
+      "target": ".versions-status-latest > .versions-status-label"
+    }
+  ],
+  "journeys": [
+    {
+      "name": "ask your agent",
+      "theme": "dark",
+      "result": "pass"
+    },
+    {
+      "name": "ask your agent",
+      "theme": "light",
+      "result": "pass"
+    },
+    {
+      "name": "change the language",
+      "theme": "dark",
+      "result": "pass"
+    },
+    {
+      "name": "change the language",
+      "theme": "light",
+      "result": "pass"
+    },
+    {
+      "name": "copy a code block",
+      "theme": "dark",
+      "result": "pass"
+    },
+    {
+      "name": "copy a code block",
+      "theme": "light",
+      "result": "pass"
+    },
+    {
+      "name": "open the navigation",
+      "theme": "dark",
+      "result": "pass"
+    },
+    {
+      "name": "open the navigation",
+      "theme": "light",
+      "result": "pass"
+    },
+    {
+      "name": "read without JavaScript",
+      "theme": "system",
+      "result": "pass"
+    },
+    {
+      "name": "search the site",
+      "theme": "dark",
+      "result": "pass"
+    },
+    {
+      "name": "search the site",
+      "theme": "light",
+      "result": "pass"
+    }
+  ],
+  "summary": {
+    "states": 218,
+    "findings": {
+      "minor": 0,
+      "moderate": 0,
+      "serious": 5,
+      "critical": 0
+    },
+    "journeys": {
+      "pass": 11,
+      "fail": 0,
+      "skip": 0
+    }
+  }
+}

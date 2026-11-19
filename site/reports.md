@@ -17,7 +17,7 @@ recorded beside it.
 <!-- reports:start -->
 | Version | Reports | JavaScript gzip | CSS gzip | Change |
 | --- | --- | --- | --- | --- |
-| — | No release is stored yet. | | | |
+| [0.2.3](/reports/0.2.3/) | [accessibility and performance](/reports/0.2.3/) | 921,751 B | 482,144 B | — |
 <!-- reports:end -->
 
 The current commit's reports are on the [accessibility page](/accessibility/) and the
