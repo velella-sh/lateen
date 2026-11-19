@@ -195,6 +195,7 @@ test("forced-colors.css covers every unit whose meaning relies on color", () => 
     ".tag",
     ".code",
     ".table-scroll",
+    ".list-subscribe",
     ".schema-table",
     ".copy-markdown-button",
     ".feedback-button",

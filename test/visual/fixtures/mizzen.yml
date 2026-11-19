@@ -6,6 +6,7 @@ title: Lateen visual fixture
 description: Fixed pages and a component gallery for the visual gates.
 lang: en
 url: https://example.com
+asOf: 2026-06-01
 base: ""
 languages:
   - code: fa
@@ -20,6 +21,9 @@ collections:
   books:
     source: _data/record-table.json
     id: id
+    template: _templates/books.md
+    permalink: /books/{id}/
+    dates: [updated]
     search:
       filters: [published]
       sort: [title]
@@ -77,3 +81,11 @@ theme:
             en: The work is behind plan.
             fa: کار از برنامه عقب است.
             ar: العمل متأخر عن الخطة.
+
+calendars:
+  books:
+    collection: books
+    events:
+      - name: updated
+        field: updated
+        title: "{title} updated"

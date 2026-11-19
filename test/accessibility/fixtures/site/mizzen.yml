@@ -4,6 +4,7 @@ title: Lateen accessibility fixture
 description: Representative pages for the accessibility gate.
 lang: en
 url: https://example.com
+asOf: 2026-06-01
 base: ""
 repository:
   url: https://github.com/example/example-site
@@ -17,6 +18,18 @@ collections:
     id: id
     template: _templates/books.md
     permalink: /books/{id}/
+    dates: [published, updated]
+    derived:
+      daysLeft: { field: published, kind: days-left }
+      state:
+        field: published
+        bands:
+          - { below: 0, value: expired }
+          - { below: 90, value: soon }
+          - { value: later }
+    changelog:
+      track: [title, pages]
+      pages: true
     views:
       embed:
         template: _templates/books-embed.md
@@ -27,6 +40,7 @@ collections:
         - title
         - pages
         - published
+        - derived.daysLeft
     search:
       filters: [author, published]
       sort: [title, published]
@@ -82,6 +96,15 @@ theme:
         draft:
           tone: neutral
           label: { en: Draft, fa: پیش‌نویس, ar: مسودة }
+        expired:
+          tone: negative
+          label: { en: Expired, fa: گذشته, ar: منتهٍ }
+        soon:
+          tone: caution
+          label: { en: Soon, fa: نزدیک, ar: قريب }
+        later:
+          tone: neutral
+          label: { en: Later, fa: بعدتر, ar: لاحقًا }
     preset: graphite
     brand:
       accent: "#2f6f9f"
@@ -96,3 +119,12 @@ theme:
           files:
             - src: /fonts/example-mono.woff2
               weight: 400
+
+calendars:
+  books:
+    collection: books
+    events:
+      - name: updated
+        field: updated
+        title: "{title} updated"
+    groupBy: author

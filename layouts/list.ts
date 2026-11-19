@@ -12,8 +12,11 @@ import sidebar from "../chrome/sidebar/index.ts";
 import toc from "../chrome/toc/index.ts";
 import cards, { CARD_CLASS, hrefOf } from "../components/cards/index.ts";
 import datedList from "../components/dated-list/index.ts";
+import { subscribePanel } from "../components/add-to-calendar/index.ts";
 import { formatCount, pluralCategory } from "../components/reading-time/index.ts";
 import recordTable, { columnsOf as tableColumnsOf, type RecordColumn } from "../components/record-table/index.ts";
+import status, { type StatusTone } from "../components/status/index.ts";
+import { feed as feedIcon } from "../icons/index.ts";
 import { t } from "../i18n/index.ts";
 import { calendarDate } from "../src/dates.ts";
 import { formatField, isEmpty } from "../src/fields.ts";
@@ -27,6 +30,9 @@ export const OPTIONS = ["view", "date", "columns"] as const;
    so the same control the gallery shows also runs on a list.
    shortcut: the island path is the engine's convention; revisit when a layout can declare its client. */
 const SORT_ISLAND = "assets/theme/islands/components/record-table/client.js";
+
+/** The island that reveals the subscribe panel's copy buttons; a list with no calendar never loads it. */
+const SUBSCRIBE_ISLAND = "assets/theme/islands/components/add-to-calendar/client.js";
 
 /** A group as the page shows it: the engine's key, its heading anchor, and its records. */
 interface ListGroupView {
@@ -170,8 +176,9 @@ export function datedView(props: LayoutProps, records: readonly RecordProps[]): 
       ...(isEmpty(fields[STATUS_FIELD]) ? {} : { status: fields[STATUS_FIELD] }),
     };
   });
+  const calendar = props.list?.calendars?.[0]?.url;
   return datedList({
-    props: { items, status: "status" },
+    props: { items, status: "status", ...(calendar === undefined ? {} : { calendar }) },
     page: props.page,
     site: props.site,
     html: "",
@@ -203,6 +210,70 @@ function recordsView(props: LayoutProps, records: readonly RecordProps[]): Compo
   if (view === "cards") return cardsView(props, records);
   if (view === "dated") return datedView(props, records);
   return table(props, records);
+}
+
+/** The tone of each event type's badge; an unknown type reads neutral. */
+const EVENT_TONES: Readonly<Record<string, StatusTone>> = {
+  added: "positive",
+  removed: "negative",
+  changed: "info",
+  renamed: "caution",
+  imported: "neutral",
+};
+
+/** A path on this site or an https address, as the engine's record links are written. */
+const SAFE_HREF = /^(?:\/(?![/\\])|https:\/\/)[^\s"<>\\]*$/i;
+
+/** True for the engine's generated changelog pages, whose collection is `<name>.changes`. */
+function isChanges(props: LayoutProps): boolean {
+  return props.list !== undefined && props.list.collection.endsWith(".changes");
+}
+
+/** The event type of a change record, as written. */
+function eventTypeOf(record: RecordProps): string {
+  const type = record.fields.type;
+  return typeof type === "string" ? type.trim() : "";
+}
+
+/** One change row: the date, the event type as a status badge, the record's link, and a changed field. */
+function changeRow(props: LayoutProps, record: RecordProps): ComponentChildren {
+  const lang = props.page.lang;
+  const type = eventTypeOf(record);
+  const tone = EVENT_TONES[type] ?? "neutral";
+  const label = type in EVENT_TONES ? t(lang, `history_${type}`) : type;
+  const id = typeof record.fields.record === "string" && record.fields.record.trim() !== "" ? record.fields.record.trim() : record.id;
+  const href = typeof record.links.record === "string" && SAFE_HREF.test(record.links.record) ? record.links.record : undefined;
+  const day = typeof record.fields.date === "string" ? calendarDate(record.fields.date, lang) : undefined;
+  const field = typeof record.fields.field === "string" && record.fields.field.trim() !== "" ? record.fields.field.trim() : undefined;
+  return h(
+    "li",
+    { class: "dated-list-item changes-item" },
+    day === undefined ? null : h("time", { class: "dated-list-day", datetime: day.datetime }, day.text),
+    status({ props: { tone, label }, html: "", page: props.page, site: props.site } as never) as ComponentChildren,
+    href === undefined ? h("span", { class: "changes-record" }, id) : h("a", { class: "changes-record", href }, id),
+    field === undefined ? null : h("code", { class: "changes-field" }, field),
+  );
+}
+
+/**
+ * A collection's changelog: the engine's change records, grouped by the snapshot date it already
+ * grouped them by, each with the event type as a badge and a link to the record. The page's feed
+ * link is drawn above by the article; an empty history is left to the list's empty note.
+ */
+function changesView(props: LayoutProps): ComponentChildren {
+  const list = props.list;
+  if (list === undefined || list.records.length === 0) return null;
+  const groups = groupsOf(props);
+  if (groups.length === 0) return h("ol", { class: "dated-list-items changes-list" }, list.records.map((record) => changeRow(props, record)));
+  return groups.map((group) => {
+    const day = calendarDate(group.key, props.page.lang);
+    return h(
+      "section",
+      { class: "list-group changes-group" },
+      h("h2", { id: group.id }, day === undefined ? group.key : day.text),
+      h("ol", { class: "dated-list-items changes-list" }, group.records.map((record) => changeRow(props, record))),
+    );
+  });
 }
 
 /** The date in a blog row: a `<time>` when the engine wrote a real date, else the text as written. */
@@ -277,8 +348,9 @@ function article(props: LayoutProps): ComponentChildren {
   if (blogOf(props.page) !== undefined) return blogArticle(props);
   const list = props.list;
   const groups = groupsOf(props);
-  const records: ComponentChildren =
-    groups.length > 0
+  const records: ComponentChildren = isChanges(props)
+    ? changesView(props)
+    : groups.length > 0
       ? groups.map((group) =>
           h(
             "section",
@@ -304,6 +376,27 @@ function article(props: LayoutProps): ComponentChildren {
     titleFromBody(props) ? null : h("h1", null, props.page.title),
     h("div", { class: "list-intro", dangerouslySetInnerHTML: { __html: props.page.html } }),
     list === undefined ? null : summaryOf(props, count),
+    list === undefined
+      ? null
+      : subscribePanel(
+          {
+            ...(list.calendars === undefined ? {} : { calendars: list.calendars }),
+            groups: list.groups,
+          },
+          props.page.lang,
+        ),
+    list?.feed === undefined
+      ? null
+      : h(
+          "p",
+          { class: "list-feed" },
+          h(
+            "a",
+            { class: "list-feed-link", href: list.feed },
+            h("span", { class: "list-feed-icon", "aria-hidden": "true", dangerouslySetInnerHTML: { __html: feedIcon } }),
+            t(props.page.lang, "dated_list_feed"),
+          ),
+        ),
     list !== undefined && list.pagination.next !== undefined && viewOf(props) === "dated"
       ? h(
           "p",
@@ -341,6 +434,10 @@ const list: Layout = (props) => {
   // shortcut: mutating `islands`; upgrade when a layout can declare a client island.
   const islands = props.islands as Island[];
   if (!islands.some((island) => island.src === sortIsland.src)) islands.push(sortIsland);
+  const calendars =
+    (props.list?.calendars?.length ?? 0) > 0 || (props.list?.groups.some((group) => (group.calendars?.length ?? 0) > 0) ?? false);
+  const subscribeIsland: Island = { name: "add-to-calendar", src: `${baseOf(props.site)}/${SUBSCRIBE_ISLAND}` };
+  if (calendars && !islands.some((island) => island.src === subscribeIsland.src)) islands.push(subscribeIsland);
   const head =
     props.list === undefined
       ? props.head

@@ -35,7 +35,7 @@ test("both links render, in reading order, and name the record", () => {
     "/items/dated/calendar.ics",
     "webcal://example.com/calendars/items.ics",
   ]);
-  assert.equal(found[0]!.getAttribute("aria-label"), "Add Dated item to calendar");
+  assert.equal(found[0]!.getAttribute("aria-label"), "Add to calendar: Dated item");
   assert.equal(found[0]!.getAttribute("title"), "Download the .ics file");
   assert.equal(found[1]!.getAttribute("aria-label"), "Subscribe to Dated item in a calendar app");
 

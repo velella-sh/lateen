@@ -6,7 +6,7 @@ Releases of this package are tagged `v<version>`. Add a one-line fragment in `ch
 
 ## 0.2.3 — 2026-11-19
 
-This release needs `@velella/mizzen@^0.2.4`. It is additive: no existing option changes meaning or
+This release needs `@velella/mizzen@^0.2.5`. It is additive: no existing option changes meaning or
 default, and a site that only bumps the package renders the same pages. [Upgrade from
 0.2.2](https://velella.sh/lateen/upgrade/) is the adoption guide.
 
@@ -18,7 +18,12 @@ default, and a site that only bumps the package renders the same pages. [Upgrade
   chrome-free iframe view. A home page with `home: { style: showpiece }` is composed from the hero,
   backdrop, motif, stat strip, feature grid, frame and call-to-action band (#481–#492).
 - Data views: `timeline`, `compare`, `data-explorer`, `dated-list`, `charts`, `gallery`,
-  `record-history`, `stale-notice`, `add-to-calendar` and `related-guides` (#251, #270, #385).
+  `record-history`, `stale-notice`, `add-to-calendar` and `related-guides` (#251, #270, #385, #535).
+- A list page whose collection has a calendar shows a subscribe panel: a `webcal` link per calendar,
+  the full `https` address, and a copy control that needs JavaScript; a collection with no calendar
+  renders no panel. The dated view's Add to calendar link uses the first calendar (#535).
+- A collection's changes page shows the engine's recorded events, grouped by date with a type badge,
+  the changed field with its old and new value, and the collection's Atom feed (#539).
 - Evidence: `status`, `status-legend`, `trust-panel`, `drift-banner`, `tested-chip`, and components
   that render the accessibility, performance and WCAG reports. The accessibility gate and the
   performance budget can write a checked-in, schema-validated report (#392).
@@ -40,7 +45,7 @@ default, and a site that only bumps the package renders the same pages. [Upgrade
   overflow, clipped text, small controls and prose measure (#494–#499, #501). A design-token gate
   fails on raw colours, sizes, shadows, times and z-index values outside the allowlist (#500).
 - Blog and API reference routes, code annotations, text directives, docs versions and the `term`
-  directive come from the engine; see the Mizzen 0.2.4 release.
+  directive come from the engine; see the Mizzen 0.2.5 release.
 
 ### Changed
 
@@ -55,6 +60,8 @@ default, and a site that only bumps the package renders the same pages. [Upgrade
 - Presets carry a showpiece backdrop, motif seed and intensity; accents are unchanged (#490).
 - The changelog, status, glossary, feedback and error-page translations are complete in English,
   Persian and Arabic; keys no unit reads were removed.
+- The add-to-calendar link's accessible name now starts with its visible text, so it passes the
+  label-in-name rule in every language.
 
 ### Fixed
 

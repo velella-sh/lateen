@@ -56,6 +56,13 @@ calendars:
 A record with no date in the calendar's field gets no calendar file and no link. A calendar without a
 `webcal` address keeps the download link and drops Subscribe.
 
+## List pages
+
+The list layout uses the same calendars on a collection's index page. It renders a subscribe panel
+with each calendar's `webcal` link, its `https` address, and a copy control that is added only when
+JavaScript runs; the result is announced in a live region. The dated view passes the first calendar
+to its own Add to calendar link. A collection with no calendar renders no panel.
+
 ## Theme options
 
 None: the control reads no `theme.options` key. Its words come from the theme's translations in the

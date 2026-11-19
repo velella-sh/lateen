@@ -4,20 +4,23 @@
     "title": "Alpha",
     "pages": 120,
     "published": "2026-11-09",
-    "draft": false
+    "draft": false,
+    "updated": "2026-06-04"
   },
   {
     "id": "b",
     "title": "Beta",
     "pages": 80,
     "published": "2026-02-30",
-    "draft": true
+    "draft": true,
+    "updated": "2026-06-18"
   },
   {
     "id": "c",
     "title": "Gamma",
     "pages": 200,
     "published": "2025-06-01",
-    "draft": false
+    "draft": false,
+    "updated": "2026-06-25"
   }
 ]

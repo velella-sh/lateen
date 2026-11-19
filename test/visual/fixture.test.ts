@@ -32,7 +32,9 @@ test("the page list names real, unique pages, and the gallery exists in every la
 });
 
 test("the fixture reuses the accessibility pages instead of copying them", () => {
-  const own = readdirSync(GALLERY_SITE, { recursive: true, encoding: "utf8" }).filter((f) => f.endsWith(".md"));
+  const own = readdirSync(GALLERY_SITE, { recursive: true, encoding: "utf8" }).filter(
+    (f) => f.endsWith(".md") && !f.startsWith("_templates"),
+  );
   assert.deepEqual(own.sort(), ["ar/gallery.md", "fa/gallery.md", "gallery.md"]);
   assert.ok(statSync(join(ROOT, "test/visual/fixtures/mizzen.yml")).isFile());
 });

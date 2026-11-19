@@ -41,6 +41,31 @@
   margin-block: 0 var(--space-4);
 }
 
+/* A collection's changelog: the engine's date groups, each row a date, an event badge, the record
+   and the changed field. Rows mirror with logical properties. */
+.changes-list {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.changes-item {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-1) var(--space-3);
+  align-items: baseline;
+  padding-block: var(--space-2);
+  border-block-start: thin solid var(--color-border);
+}
+
+.changes-record {
+  font-weight: var(--type-weight-medium);
+}
+
+.changes-field {
+  font-size: var(--type-size-sm);
+}
+
 .list-group-count {
   font-size: var(--type-size-sm);
   font-weight: var(--type-weight-medium);
@@ -348,6 +373,76 @@
 }
 
 /* A paginated dated list says the dates go on, so a page ending mid-month never looks complete. */
+/* A list's subscribe panel: one row per calendar with the webcal link, the address as text, and
+   the copy button the island reveals. */
+.list-subscribe {
+  margin-block: var(--space-6);
+  padding: var(--space-4);
+  border: thin solid var(--color-border);
+  border-radius: var(--radius-md);
+}
+
+.list-subscribe-heading {
+  margin-block: 0 var(--space-3);
+  font-size: var(--type-size-lg);
+}
+
+.list-subscribe-list {
+  display: grid;
+  gap: var(--space-3);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.list-subscribe-item {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-1) var(--space-3);
+  align-items: center;
+}
+
+.list-subscribe-link,
+.list-subscribe-copy {
+  display: inline-flex;
+  align-items: center;
+  min-block-size: 2.5rem;
+}
+
+.list-subscribe-address {
+  overflow-wrap: anywhere;
+  font-size: var(--type-size-sm);
+}
+
+.list-subscribe-status:empty {
+  display: none;
+}
+
+.list-subscribe-sr {
+  position: absolute;
+  inline-size: 1px;
+  block-size: 1px;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+}
+
+.list-feed {
+  margin-block: var(--space-4) 0;
+}
+
+.list-feed-link {
+  display: inline-flex;
+  gap: var(--space-1);
+  align-items: center;
+  min-block-size: 2.5rem;
+}
+
+.list-feed-icon svg {
+  inline-size: 1em;
+  block-size: 1em;
+}
+
 .list-dated-continues {
   margin-block: var(--space-4) 0;
   color: var(--color-muted);
@@ -393,4 +488,13 @@
 .blog-description {
   margin-block: var(--space-2) 0;
   color: var(--color-muted);
+}
+
+/* Printed lists keep a subscribe row and one change event on one page. */
+@media print {
+  .list-subscribe-list,
+  .changes-list,
+  .changes-item {
+    break-inside: avoid;
+  }
 }
