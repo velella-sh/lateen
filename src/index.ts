@@ -1,6 +1,6 @@
 /**
  * Lateen theme entry. Sailcloth design stack only:
- * Mizzen + Node + TypeScript + Preact + Tailwind + Basecoat + Lucide + Chart.js.
+ * Mizzen + Node + TypeScript + Preact + Tailwind + Lucide + Chart.js.
  */
 export const theme = {
   name: "lateen",
