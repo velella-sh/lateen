@@ -31,20 +31,206 @@
   },
   {
     "file": "layouts/home.css",
-    "kind": "font-size",
-    "value": "2.75rem",
-    "reason": "The home title is a larger fluid display than size-display (clamp lower bound). It is replaced by the hero component's display size, so it is listed until that move."
+    "kind": "colour",
+    "value": "#23212c",
+    "reason": "Sailcloth mockup home stage (Untitled/home.html): locked Velella Night/Foam/Mist/Shell/Lateen Blue surfaces, type sizes, and hairline shadows until global token cutover."
+  },
+  {
+    "file": "layouts/home.css",
+    "kind": "colour",
+    "value": "#393743",
+    "reason": "Sailcloth mockup home stage (Untitled/home.html): locked Velella Night/Foam/Mist/Shell/Lateen Blue surfaces, type sizes, and hairline shadows until global token cutover."
+  },
+  {
+    "file": "layouts/home.css",
+    "kind": "colour",
+    "value": "#dcd7eb",
+    "reason": "Sailcloth mockup home stage (Untitled/home.html): locked Velella Night/Foam/Mist/Shell/Lateen Blue surfaces, type sizes, and hairline shadows until global token cutover."
+  },
+  {
+    "file": "layouts/home.css",
+    "kind": "colour",
+    "value": "#8f8cd8",
+    "reason": "Sailcloth mockup home stage (Untitled/home.html): locked Velella Night/Foam/Mist/Shell/Lateen Blue surfaces, type sizes, and hairline shadows until global token cutover."
+  },
+  {
+    "file": "layouts/home.css",
+    "kind": "colour",
+    "value": "#8481c7",
+    "reason": "Sailcloth mockup home stage (Untitled/home.html): locked Velella Night/Foam/Mist/Shell/Lateen Blue surfaces, type sizes, and hairline shadows until global token cutover."
+  },
+  {
+    "file": "layouts/home.css",
+    "kind": "colour",
+    "value": "#f4f4f9",
+    "reason": "Sailcloth mockup home stage (Untitled/home.html): locked Velella Night/Foam/Mist/Shell/Lateen Blue surfaces, type sizes, and hairline shadows until global token cutover."
+  },
+  {
+    "file": "layouts/home.css",
+    "kind": "colour",
+    "value": "#e7e7ed",
+    "reason": "Sailcloth mockup home stage (Untitled/home.html): locked Velella Night/Foam/Mist/Shell/Lateen Blue surfaces, type sizes, and hairline shadows until global token cutover."
+  },
+  {
+    "file": "layouts/home.css",
+    "kind": "colour",
+    "value": "#ede6d8",
+    "reason": "Sailcloth mockup home stage (Untitled/home.html): locked Velella Night/Foam/Mist/Shell/Lateen Blue surfaces, type sizes, and hairline shadows until global token cutover."
+  },
+  {
+    "file": "layouts/home.css",
+    "kind": "colour",
+    "value": "#4c6f9a",
+    "reason": "Sailcloth mockup home stage (Untitled/home.html): locked Velella Night/Foam/Mist/Shell/Lateen Blue surfaces, type sizes, and hairline shadows until global token cutover."
+  },
+  {
+    "file": "layouts/home.css",
+    "kind": "colour",
+    "value": "#8fb0d4",
+    "reason": "Sailcloth mockup home stage (Untitled/home.html): locked Velella Night/Foam/Mist/Shell/Lateen Blue surfaces, type sizes, and hairline shadows until global token cutover."
+  },
+  {
+    "file": "layouts/home.css",
+    "kind": "colour",
+    "value": "#4a4658",
+    "reason": "Sailcloth mockup home stage (Untitled/home.html): locked Velella Night/Foam/Mist/Shell/Lateen Blue surfaces, type sizes, and hairline shadows until global token cutover."
+  },
+  {
+    "file": "layouts/home.css",
+    "kind": "colour",
+    "value": "#b7b2c9",
+    "reason": "Sailcloth mockup home stage (Untitled/home.html): locked Velella Night/Foam/Mist/Shell/Lateen Blue surfaces, type sizes, and hairline shadows until global token cutover."
+  },
+  {
+    "file": "layouts/home.css",
+    "kind": "colour",
+    "value": "#fbfbfd",
+    "reason": "Sailcloth mockup home stage (Untitled/home.html): locked Velella Night/Foam/Mist/Shell/Lateen Blue surfaces, type sizes, and hairline shadows until global token cutover."
+  },
+  {
+    "file": "layouts/home.css",
+    "kind": "shadow",
+    "value": "inset 0 0 0 1px color-mix(in srgb, var(--sail-shell) 55%, transparent)",
+    "reason": "Sailcloth mockup home stage (Untitled/home.html): locked Velella Night/Foam/Mist/Shell/Lateen Blue surfaces, type sizes, and hairline shadows until global token cutover."
+  },
+  {
+    "file": "layouts/home.css",
+    "kind": "shadow",
+    "value": "0 0 0 3px color-mix(in srgb, var(--color-link) 18%, transparent)",
+    "reason": "Sailcloth mockup home stage (Untitled/home.html): locked Velella Night/Foam/Mist/Shell/Lateen Blue surfaces, type sizes, and hairline shadows until global token cutover."
   },
   {
     "file": "layouts/home.css",
     "kind": "font-size",
-    "value": "7vw",
-    "reason": "The preferred value of the home title's fluid clamp; see the 2.75rem entry."
+    "value": "0.94rem",
+    "reason": "Sailcloth mockup home stage (Untitled/home.html): locked Velella Night/Foam/Mist/Shell/Lateen Blue surfaces, type sizes, and hairline shadows until global token cutover."
   },
   {
     "file": "layouts/home.css",
     "kind": "font-size",
-    "value": "5rem",
-    "reason": "The upper bound of the home title's fluid clamp; see the 2.75rem entry."
+    "value": "2.5rem",
+    "reason": "Sailcloth mockup home stage (Untitled/home.html): locked Velella Night/Foam/Mist/Shell/Lateen Blue surfaces, type sizes, and hairline shadows until global token cutover."
+  },
+  {
+    "file": "layouts/home.css",
+    "kind": "font-size",
+    "value": "6vw",
+    "reason": "Sailcloth mockup home stage (Untitled/home.html): locked Velella Night/Foam/Mist/Shell/Lateen Blue surfaces, type sizes, and hairline shadows until global token cutover."
+  },
+  {
+    "file": "layouts/home.css",
+    "kind": "font-size",
+    "value": "3.75rem",
+    "reason": "Sailcloth mockup home stage (Untitled/home.html): locked Velella Night/Foam/Mist/Shell/Lateen Blue surfaces, type sizes, and hairline shadows until global token cutover."
+  },
+  {
+    "file": "layouts/home.css",
+    "kind": "font-size",
+    "value": "1.125rem",
+    "reason": "Sailcloth mockup home stage (Untitled/home.html): locked Velella Night/Foam/Mist/Shell/Lateen Blue surfaces, type sizes, and hairline shadows until global token cutover."
+  },
+  {
+    "file": "layouts/home.css",
+    "kind": "font-size",
+    "value": "0.81rem",
+    "reason": "Sailcloth mockup home stage (Untitled/home.html): locked Velella Night/Foam/Mist/Shell/Lateen Blue surfaces, type sizes, and hairline shadows until global token cutover."
+  },
+  {
+    "file": "layouts/home.css",
+    "kind": "font-size",
+    "value": "0.72rem",
+    "reason": "Sailcloth mockup home stage (Untitled/home.html): locked Velella Night/Foam/Mist/Shell/Lateen Blue surfaces, type sizes, and hairline shadows until global token cutover."
+  },
+  {
+    "file": "layouts/home.css",
+    "kind": "shadow",
+    "value": "inset 0 0 0 1px color-mix(in srgb, var(--color-border) 80%, transparent)",
+    "reason": "Sailcloth mockup home stage (Untitled/home.html): locked Velella Night/Foam/Mist/Shell/Lateen Blue surfaces, type sizes, and hairline shadows until global token cutover."
+  },
+  {
+    "file": "layouts/home.css",
+    "kind": "font-size",
+    "value": "0.7rem",
+    "reason": "Sailcloth mockup home stage (Untitled/home.html): locked Velella Night/Foam/Mist/Shell/Lateen Blue surfaces, type sizes, and hairline shadows until global token cutover."
+  },
+  {
+    "file": "layouts/home.css",
+    "kind": "font-size",
+    "value": "0.5rem",
+    "reason": "Sailcloth mockup home stage (Untitled/home.html): locked Velella Night/Foam/Mist/Shell/Lateen Blue surfaces, type sizes, and hairline shadows until global token cutover."
+  },
+  {
+    "file": "layouts/home.css",
+    "kind": "shadow",
+    "value": "inset 2px 0 0 var(--color-link)",
+    "reason": "Sailcloth mockup home stage (Untitled/home.html): locked Velella Night/Foam/Mist/Shell/Lateen Blue surfaces, type sizes, and hairline shadows until global token cutover."
+  },
+  {
+    "file": "layouts/home.css",
+    "kind": "shadow",
+    "value": "inset 2px 0 0 color-mix(in srgb, var(--color-link) 45%, transparent)",
+    "reason": "Sailcloth mockup home stage (Untitled/home.html): locked Velella Night/Foam/Mist/Shell/Lateen Blue surfaces, type sizes, and hairline shadows until global token cutover."
+  },
+  {
+    "file": "layouts/home.css",
+    "kind": "shadow",
+    "value": "inset 0 0 0 1px color-mix(in srgb, var(--color-border) 70%, transparent)",
+    "reason": "Sailcloth mockup home stage (Untitled/home.html): locked Velella Night/Foam/Mist/Shell/Lateen Blue surfaces, type sizes, and hairline shadows until global token cutover."
+  },
+  {
+    "file": "layouts/home.css",
+    "kind": "transition",
+    "value": "160ms",
+    "reason": "Sailcloth mockup home stage (Untitled/home.html): locked Velella Night/Foam/Mist/Shell/Lateen Blue surfaces, type sizes, and hairline shadows until global token cutover."
+  },
+  {
+    "file": "layouts/home.css",
+    "kind": "shadow",
+    "value": "inset 0 0 0 1px var(--color-border)",
+    "reason": "Sailcloth mockup home stage (Untitled/home.html): locked Velella Night/Foam/Mist/Shell/Lateen Blue surfaces, type sizes, and hairline shadows until global token cutover."
+  },
+  {
+    "file": "layouts/home.css",
+    "kind": "font-size",
+    "value": "1rem",
+    "reason": "Sailcloth mockup home stage (Untitled/home.html): locked Velella Night/Foam/Mist/Shell/Lateen Blue surfaces, type sizes, and hairline shadows until global token cutover."
+  },
+  {
+    "file": "layouts/home.css",
+    "kind": "font-size",
+    "value": "0.84rem",
+    "reason": "Sailcloth mockup home stage (Untitled/home.html): locked Velella Night/Foam/Mist/Shell/Lateen Blue surfaces, type sizes, and hairline shadows until global token cutover."
+  },
+  {
+    "file": "layouts/home.css",
+    "kind": "font-size",
+    "value": "0.875rem",
+    "reason": "Sailcloth mockup home stage (Untitled/home.html): locked Velella Night/Foam/Mist/Shell/Lateen Blue surfaces, type sizes, and hairline shadows until global token cutover."
+  },
+  {
+    "file": "layouts/home.css",
+    "kind": "font-size",
+    "value": "0.78rem",
+    "reason": "Sailcloth mockup home stage (Untitled/home.html): locked Velella Night/Foam/Mist/Shell/Lateen Blue surfaces, type sizes, and hairline shadows until global token cutover."
   }
 ]
