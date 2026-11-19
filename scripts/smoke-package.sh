@@ -46,7 +46,7 @@ npx mizzen build starter --out out-starter
 test -s out-starter/index.html
 
 # A unit's file that the tarball leaves out fails here, not in a reader's build.
-for path in layouts/doc.ts components/code/index.ts styles/base.css i18n/en.json tokens/presets/harbor.json skills/lateen/SKILL.md starters/docs/starter.json visual/index.ts schema/options.schema.json; do
+for path in layouts/doc.ts components/code/index.ts styles/src/ui.css i18n/en.json tokens/presets/harbor.json skills/lateen/SKILL.md starters/docs/starter.json visual/index.ts schema/options.schema.json; do
   test -s "node_modules/@velella/lateen/$path" || {
     echo "the package omits $path" >&2
     exit 1
