@@ -264,7 +264,7 @@ test("all four states render their own label and shape, so colour is never the o
     assert.match(out, new RegExp(`class="trust-panel trust-panel-${state}"`));
     assert.match(out, new RegExp(`data-trust-level="${state}"`));
   }
-  const shapes = LEVELS.map((state) => ICONS[state].join("|"));
+  const shapes = LEVELS.map((state) => JSON.stringify(ICONS[state]));
   assert.equal(new Set(shapes).size, LEVELS.length, "every state has its own icon shape");
 });
 

@@ -1,6 +1,7 @@
 import assert from "node:assert/strict";
 import { test } from "node:test";
 import { renderToString } from "preact-render-to-string";
+import { Check, Copy } from "lucide";
 import type { ComponentProps } from "@velella/mizzen/contracts";
 import code from "../components/code/index.ts";
 import {
@@ -22,6 +23,13 @@ import {
 
 const FAILED = "Copy failed. Select the text and copy it by hand.";
 const COPIED = "Copied";
+const DEFAULT_TEMPLATE = {
+  getAttribute(name: string): string | null {
+    if (name === "data-copy-icon") return JSON.stringify(Copy);
+    if (name === "data-check-icon") return JSON.stringify(Check);
+    return null;
+  },
+};
 
 /** An element as the island builds and reads it: attributes, children, listeners, and text. */
 class FakeNode implements CopyNode {
@@ -92,7 +100,7 @@ class FakeDoc implements CopyDocument {
   readonly blocks: FakeBlock[];
   readonly template: { getAttribute(name: string): string | null } | undefined;
 
-  constructor(blocks: FakeBlock[], template?: { getAttribute(name: string): string | null }) {
+  constructor(blocks: FakeBlock[], template: { getAttribute(name: string): string | null } = DEFAULT_TEMPLATE) {
     this.blocks = blocks;
     this.template = template;
   }

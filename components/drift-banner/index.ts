@@ -1,6 +1,9 @@
 import { h } from "preact";
 import type { Component, Site, SiteConfig } from "@velella/mizzen/contracts";
+import { CircleQuestionMark, Clock, TriangleAlert } from "lucide";
+import type { IconNode } from "lucide";
 import { t } from "../../i18n/index.ts";
+import { icon as lucideIcon } from "../../src/icon.ts";
 import { optionOf } from "../../src/options.ts";
 
 /** Class on the banner. `style.css` styles it. */
@@ -70,17 +73,13 @@ export const WHAT_KEYS: Readonly<Record<DriftState, string>> = {
 };
 
 /**
- * Stroke paths for each state's icon, drawn on a 16×16 grid. Each state has its own shape, so the
- * banner never relies on colour alone. The shapes are direction-neutral and need no RTL flip.
+ * Lucide icons for each state. Each state has its own shape, so the banner never relies on colour
+ * alone. The shapes are direction-neutral and need no RTL flip.
  */
-export const ICONS: Readonly<Record<DriftState, readonly string[]>> = {
-  drifting: ["M8 1.8 14.8 13.5H1.2Z", "M8 6v3.25", "M8 11.2v.01"],
-  stale: ["M8 1.5a6.5 6.5 0 1 0 0 13 6.5 6.5 0 0 0 0-13Z", "M8 4.25V8l2.5 1.5"],
-  unavailable: [
-    "M8 1.5a6.5 6.5 0 1 0 0 13 6.5 6.5 0 0 0 0-13Z",
-    "M6.2 6.4a1.8 1.8 0 1 1 2.8 1.5c-.6.4-1 .8-1 1.6",
-    "M8 11.4v.01",
-  ],
+export const ICONS: Readonly<Record<DriftState, IconNode>> = {
+  drifting: TriangleAlert,
+  stale: Clock,
+  unavailable: CircleQuestionMark,
 };
 
 /** One page's drift evidence: what the banner reports and how serious it is. */
@@ -358,21 +357,7 @@ export function whatOf(lang: string, state: DriftState): string {
 
 /** The state's inline icon. It is decorative: the label beside it carries the meaning for a screen reader. */
 function icon(state: DriftState) {
-  return h(
-    "svg",
-    {
-      class: `${CLASS}-icon`,
-      viewBox: "0 0 16 16",
-      fill: "none",
-      stroke: "currentColor",
-      "stroke-width": "1.5",
-      "stroke-linecap": "round",
-      "stroke-linejoin": "round",
-      "aria-hidden": "true",
-      focusable: "false",
-    },
-    ICONS[state].map((d) => h("path", { d })),
-  );
+  return lucideIcon({ node: ICONS[state], class: `${CLASS}-icon` });
 }
 
 /**

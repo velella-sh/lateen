@@ -1,6 +1,8 @@
 import { h } from "preact";
 import type { LinkTag, ListPagination } from "@velella/mizzen/contracts";
+import { ArrowLeft, ArrowRight } from "lucide";
 import { t } from "../../i18n/index.ts";
+import { icon } from "../../src/icon.ts";
 
 /** Props of the pagination chrome: the page being rendered and where the list sits in its pages. */
 export interface PaginationProps {
@@ -14,12 +16,7 @@ export interface PaginationProps {
 
 /** Arrow pointing toward the page it leads to; `style.css` mirrors it under `dir="rtl"`. */
 function arrow(kind: "prev" | "next") {
-  const d = kind === "prev" ? "M11 6l-6 6 6 6M5 12h14" : "M13 6l6 6-6 6M19 12H5";
-  return h(
-    "svg",
-    { class: "pagination-arrow", viewBox: "0 0 24 24", "aria-hidden": "true", focusable: "false" },
-    h("path", { d }),
-  );
+  return icon({ node: kind === "prev" ? ArrowLeft : ArrowRight, class: "pagination-arrow" });
 }
 
 /** The list's first page URL: the current URL without the engine's `page/<n>/` suffix. */

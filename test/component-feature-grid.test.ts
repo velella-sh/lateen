@@ -4,7 +4,7 @@ import { join } from "node:path";
 import { test } from "node:test";
 import { fileURLToPath } from "node:url";
 import featureGrid, { columnsOf, DEFAULT_COLUMNS } from "../components/feature-grid/index.ts";
-import { iconByName } from "../icons/index.ts";
+import { iconByName } from "../src/icon.ts";
 
 const root = fileURLToPath(new URL("../", import.meta.url));
 const css = "" /* lateen-legacy removed: components/feature-grid/style.css */;

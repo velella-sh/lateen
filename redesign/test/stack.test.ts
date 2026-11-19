@@ -31,3 +31,11 @@ test("Lucide icon helper and Chart.js components live on the main theme", () => 
   assert.ok(existsSync(new URL("../../components/charts/index.ts", import.meta.url)));
   assert.ok(existsSync(new URL("../../components/performance-chart/index.ts", import.meta.url)));
 });
+
+test("icons come from Lucide, not the legacy inline SVG sheet", () => {
+  assert.equal(existsSync(new URL("../../icons/index.ts", import.meta.url)), false);
+});
+
+test("performance chart styles live in the Tailwind source, not a companion sheet", () => {
+  assert.equal(existsSync(new URL("../../components/performance-chart/style.css", import.meta.url)), false);
+});

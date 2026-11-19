@@ -7,4 +7,4 @@ Site-wide keepers beside that build:
 - `tokens.css` / `fonts.css` — shared custom properties and `@font-face`
 - `print.css` / `rtl.css` / `forced-colors.css` — media and writing-mode gates
 
-Per-unit `style.css` sheets are gone: new visuals go in `src/ui.css` (or a Lucide / Chart.js island). The Chart.js performance chart keeps a small companion sheet next to its island.
+Per-unit `style.css` sheets are gone: new visuals go in `src/ui.css` (or a Lucide / Chart.js island).

@@ -1,14 +1,12 @@
 import { h } from "preact";
 import type { Chrome, NavLink } from "@velella/mizzen/contracts";
+import { ChevronRight } from "lucide";
 import { t } from "../../i18n/index.ts";
+import { icon } from "../../src/icon.ts";
 
 /** Chevron pointing toward the current page; `style.css` mirrors it under `dir="rtl"`. Decorative, so it stays out of the accessibility tree. */
 function separator() {
-  return h(
-    "svg",
-    { class: "breadcrumb-sep", viewBox: "0 0 24 24", "aria-hidden": "true", focusable: "false" },
-    h("path", { d: "m9 6 6 6-6 6" }),
-  );
+  return icon({ node: ChevronRight, class: "breadcrumb-sep" });
 }
 
 /**

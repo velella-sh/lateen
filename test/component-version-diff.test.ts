@@ -101,7 +101,7 @@ test("all four kinds render with their visible label, their icon, and their clas
 });
 
 test("each kind has its own icon shape, so color is never the only signal", () => {
-  const shapes = KINDS.map((kind) => ICONS[kind].join("|"));
+  const shapes = KINDS.map((kind) => JSON.stringify(ICONS[kind]));
   assert.equal(new Set(shapes).size, KINDS.length);
   for (const kind of KINDS) assert.ok(ICONS[kind].length > 0, `${kind} has a shape`);
 });

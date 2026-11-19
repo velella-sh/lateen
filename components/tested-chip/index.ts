@@ -1,6 +1,9 @@
 import { h } from "preact";
 import type { Component, Page, Site } from "@velella/mizzen/contracts";
+import { Check, CircleDashed, CircleQuestionMark, Minus, X } from "lucide";
+import type { IconNode } from "lucide";
 import { t } from "../../i18n/index.ts";
+import { icon as lucideIcon } from "../../src/icon.ts";
 import { calendarDate } from "../../src/dates.ts";
 
 /** The Markdown directive this component handles: `::tested-chip{passed=2 failed=0}`. */
@@ -29,20 +32,15 @@ export const STATES = ["passed", "partial", "unrun", "failed", "unavailable"] as
 export type TestedChipState = (typeof STATES)[number];
 
 /**
- * Stroke paths for each state's icon, drawn on a 16×16 grid. The states differ by shape as well as
- * by text, so colour is never the only signal. All shapes are direction-neutral: `unavailable` uses
- * a circle around an upright tick and a dot, which read the same right-to-left.
+ * Lucide icons for each state. The states differ by shape as well as by text, so colour is never
+ * the only signal. All shapes are direction-neutral and read the same right-to-left.
  */
-export const ICONS: Readonly<Record<TestedChipState, readonly string[]>> = {
-  passed: ["m3.5 8.25 3 3 6-6"],
-  partial: ["M8 2.25a5.75 5.75 0 0 1 0 11.5", "M8 2.25v11.5"],
-  unrun: ["M3.5 8h9"],
-  failed: ["m4.5 4.5 7 7", "m11.5 4.5-7 7"],
-  unavailable: [
-    "M8 1.75a6.25 6.25 0 1 0 0 12.5 6.25 6.25 0 0 0 0-12.5Z",
-    "M8 4.75v3.5",
-    "M8 11.1v.01",
-  ],
+export const ICONS: Readonly<Record<TestedChipState, IconNode>> = {
+  passed: Check,
+  partial: CircleDashed,
+  unrun: Minus,
+  failed: X,
+  unavailable: CircleQuestionMark,
 };
 
 /** Props from the directive: `::tested-chip{passed=2 failed=0 total=2 lastPassed=2026-11-08}`. */
@@ -217,21 +215,7 @@ function count(counts: TestedCounts, state: TestedChipState, lang: string) {
 
 /** The chip's icon. It is decorative: the visible label and counts carry the meaning. */
 function icon(state: TestedChipState) {
-  return h(
-    "svg",
-    {
-      class: `${CHIP_CLASS}-icon`,
-      viewBox: "0 0 16 16",
-      fill: "none",
-      stroke: "currentColor",
-      "stroke-width": "1.5",
-      "stroke-linecap": "round",
-      "stroke-linejoin": "round",
-      "aria-hidden": "true",
-      focusable: "false",
-    },
-    ICONS[state].map((d) => h("path", { d })),
-  );
+  return lucideIcon({ node: ICONS[state], class: `${CHIP_CLASS}-icon` });
 }
 
 /**

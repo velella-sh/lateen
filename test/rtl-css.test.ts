@@ -256,7 +256,6 @@ function themeCss(): { path: string; text: string }[] {
       found.push({ path, text: read(`../${folder}/${name}`) });
     }
   }
-  found.push({ path: "components/performance-chart/style.css", text: read("../components/performance-chart/style.css") });
   return found;
 }
 

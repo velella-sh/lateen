@@ -113,7 +113,7 @@ test("the accessible name follows the page language", () => {
 
 test("separators sit between the crumbs and stay out of the accessibility tree", () => {
   const out = render(fullTrail);
-  assert.equal(count(out, /<svg class="breadcrumb-sep" viewBox="0 0 24 24" aria-hidden="true" focusable="false">/g), 2);
+  assert.equal(count(out, /<svg class="breadcrumb-sep"[^>]*viewBox="0 0 24 24"[^>]*aria-hidden="true"[^>]*focusable="false">/g), 2);
 
   // Every chevron is hidden and unfocusable, so assistive technology counts crumbs but reads no arrows.
   assert.equal(count(out, /aria-hidden="true"/g), 2);

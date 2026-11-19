@@ -3,6 +3,7 @@ import { readFileSync } from "node:fs";
 import { test } from "node:test";
 import type { ComponentProps } from "@velella/mizzen/contracts";
 import { renderToString } from "preact-render-to-string";
+import { iconHtml } from "../src/icon.ts";
 import { stringsOf } from "../i18n/index.ts";
 import testedChip, {
   CHIP_CLASS,
@@ -59,7 +60,7 @@ test("a passing example shows an icon, the label, and the passed count", () => {
   assert.match(out, /data-passed="2"/);
   assert.match(out, /data-failed="0"/);
   assert.match(out, /<svg class="tested-chip-icon"[^>]*aria-hidden="true"[^>]*focusable="false">/);
-  assert.ok(out.includes(`<path d="${ICONS.passed[0]}"></path>`));
+  assert.ok(out.includes(iconHtml({ node: ICONS.passed, class: "tested-chip-icon" })));
   assert.ok(out.includes(`<span class="${LABEL_CLASS}">${stringsOf("en").tested}</span>`));
   assert.ok(out.includes(`<span class="${COUNT_CLASS} ${COUNT_CLASS}-passed">2 passed</span>`));
   assert.doesNotMatch(out, /failed<\/span>/);
@@ -69,8 +70,7 @@ test("a failing example shows the failed count and its own icon shape", () => {
   const out = render({ passed: 0, failed: 1 });
   assert.ok(out);
   assert.match(out, /class="tested-chip tested-chip-failed"/);
-  assert.ok(out.includes(`<path d="${ICONS.failed[0]}"></path>`));
-  assert.ok(out.includes(`<path d="${ICONS.failed[1]}"></path>`));
+  assert.ok(out.includes(iconHtml({ node: ICONS.failed, class: "tested-chip-icon" })));
   assert.ok(out.includes(`<span class="${COUNT_CLASS} ${COUNT_CLASS}-failed">1 failed</span>`));
   assert.doesNotMatch(out, new RegExp(`${COUNT_CLASS}-passed`));
 });
@@ -109,7 +109,7 @@ test("a positive total with nothing run says all examples did not run and never 
   assert.ok(out);
   assert.match(out, /^<span class="tested-chip tested-chip-unrun" role="note"/);
   assert.match(out, /role="note" data-passed="0" data-failed="0" data-total="5"/);
-  assert.ok(out.includes(`<path d="${ICONS.unrun[0]}"></path>`));
+  assert.ok(out.includes(iconHtml({ node: ICONS.unrun, class: "tested-chip-icon" })));
   assert.ok(out.includes(`<span class="${LABEL_CLASS}">${stringsOf("en").tested}</span>`));
   assert.ok(out.includes(`<span class="${COUNT_CLASS} ${COUNT_CLASS}-not-run">5 not run</span>`));
   assert.doesNotMatch(out, new RegExp(`${COUNT_CLASS}-passed`));
@@ -305,11 +305,7 @@ test("the unavailable state is localised, RTL-safe, and machine-identifiable by 
     assert.doesNotMatch(out, /data-passed=/, `${lang} hides fabricated count`);
     assert.doesNotMatch(out, /data-failed=/, `${lang} hides fabricated failed`);
     assert.doesNotMatch(out, /data-total=/, `${lang} hides fabricated total`);
-    // The unavailable icon is a circle, an upright tick, and a dot at the horizontal centre, so a
-    // mirrored reading is identical: the shape never depends on direction.
-    const paths = ICONS.unavailable.join("|");
-    assert.ok(paths.includes("a6.25 6.25 0 1 0 0 12.5"), `${lang} symmetric circle`);
-    assert.ok(!/h-?[0-9]/.test(paths), `${lang} no horizontal offsets`);
+    assert.ok(out.includes(iconHtml({ node: ICONS.unavailable, class: "tested-chip-icon" })), `${lang} Lucide icon`);
   }
 });
 
@@ -450,7 +446,7 @@ test("values are escaped or rejected, never parsed as markup", () => {
 
 test("each state has a different icon, so the result never depends on colour alone", () => {
   assert.deepEqual([...STATES], ["passed", "partial", "unrun", "failed", "unavailable"]);
-  assert.equal(new Set(STATES.map((state) => ICONS[state].join("|"))).size, STATES.length);
+  assert.equal(new Set(STATES.map((state) => JSON.stringify(ICONS[state]))).size, STATES.length);
   for (const state of STATES) assert.ok(ICONS[state].length > 0);
 });
 

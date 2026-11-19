@@ -187,7 +187,7 @@ test("an explicit unavailable marker is its own state, never healthy", () => {
 test("each state has its own icon, so shape carries the meaning too", () => {
   const shapes = new Set<string>();
   for (const state of STATES) {
-    const shape = ICONS[state].join("|");
+    const shape = JSON.stringify(ICONS[state]);
     assert.ok(!shapes.has(shape), `${state} has its own icon shape`);
     shapes.add(shape);
   }

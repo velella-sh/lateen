@@ -19,7 +19,7 @@ test("the bar shows the trimmed title beside a file icon", () => {
   const out = render("  src/index.ts  ");
   assert.ok(out !== undefined);
   assert.match(out, new RegExp(`^<div class="${TITLE_CLASS}">`));
-  assert.match(out, /<svg class="code-title-icon"[^>]*viewBox="0 0 16 16"/);
+  assert.match(out, /<svg class="code-title-icon"[^>]*viewBox="0 0 24 24"/);
   assert.match(out, /<span class="code-title-name">src\/index\.ts<\/span>/);
 });
 

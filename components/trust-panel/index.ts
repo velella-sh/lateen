@@ -1,6 +1,9 @@
 import { h } from "preact";
 import type { Component, Page, Site, SiteConfig } from "@velella/mizzen/contracts";
+import { CircleCheckBig, CircleDashed, CircleQuestionMark, Minus } from "lucide";
+import type { IconNode } from "lucide";
 import { t } from "../../i18n/index.ts";
+import { icon as lucideIcon } from "../../src/icon.ts";
 import { calendarDate } from "../../src/dates.ts";
 import { optionOf } from "../../src/options.ts";
 import { examplesAttrs, examplesClassName, examplesFor, examplesText } from "./examples.ts";
@@ -124,12 +127,12 @@ interface TrustOptions {
   readonly suggestEditUrl?: unknown;
 }
 
-/** Stroke paths for each state's icon, drawn on a 16×16 grid. The shapes differ, so colour is never the only signal. */
-export const ICONS: Readonly<Record<TrustLevel, readonly string[]>> = {
-  verified: ["m3.5 8.25 3 3 6-6"],
-  partial: ["M8 2.25a5.75 5.75 0 0 1 0 11.5", "M8 2.25v11.5"],
-  unreviewed: ["M8 2.25a5.75 5.75 0 1 0 0 11.5 5.75 5.75 0 0 0 0-11.5Z", "M5.5 8h5"],
-  unknown: ["M6.1 6a2 2 0 1 1 2.9 1.8c-.6.35-.9.8-.9 1.4v.4", "M8 12.3h.01"],
+/** Lucide icons for each state. The shapes differ, so colour is never the only signal. */
+export const ICONS: Readonly<Record<TrustLevel, IconNode>> = {
+  verified: CircleCheckBig,
+  partial: CircleDashed,
+  unreviewed: Minus,
+  unknown: CircleQuestionMark,
 };
 
 /** The i18n key of each state's label. */
@@ -419,21 +422,7 @@ export function actionHrefOf(
 
 /** The chip's icon; it is decorative, so the level text carries the meaning. */
 function icon(level: TrustLevel) {
-  return h(
-    "svg",
-    {
-      class: ICON_CLASS,
-      viewBox: "0 0 16 16",
-      fill: "none",
-      stroke: "currentColor",
-      "stroke-width": "1.5",
-      "stroke-linecap": "round",
-      "stroke-linejoin": "round",
-      "aria-hidden": "true",
-      focusable: "false",
-    },
-    ICONS[level].map((d) => h("path", { d })),
-  );
+  return lucideIcon({ node: ICONS[level], class: ICON_CLASS });
 }
 
 /** The disclosure's summary: the decorative icon and the localised level text. */
