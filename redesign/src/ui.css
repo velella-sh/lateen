@@ -578,180 +578,283 @@
     }
   }
 
+  .home-stage {
+    display: grid;
+    grid-template-columns: minmax(0, 1.05fr) minmax(17.5rem, 0.95fr);
+    gap: 2.25rem;
+    align-items: center;
+    padding-block: 1.75rem 1rem;
+  }
+
   .home-hero {
-    @apply grid items-center gap-16 py-20;
-    grid-template-columns: minmax(0, 1.08fr) minmax(22rem, 0.92fr);
+    max-width: 36rem;
   }
 
   .home-eyebrow {
-    @apply mb-6 gap-2 px-3 py-1 font-mono text-xs font-medium;
+    @apply mb-0 inline-flex items-center gap-2 rounded-full px-3 py-1 text-xs font-semibold;
+    background: color-mix(in srgb, var(--shell) 88%, var(--card));
+    color: var(--night);
+    box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--shell) 55%, transparent);
   }
 
   .status-dot {
     @apply size-1.5 rounded-full;
-    background: var(--primary);
-    box-shadow: 0 0 0 4px color-mix(in oklch, var(--primary) 12%, transparent);
+    background: var(--link);
+    box-shadow: 0 0 0 3px color-mix(in srgb, var(--link) 18%, transparent);
   }
 
-  .hero-copy h1 {
-    @apply m-0 max-w-11/12;
-    font-size: clamp(3rem, 5.6vw, 5.25rem);
-    line-height: 0.99;
-    letter-spacing: -0.065em;
+  .product {
+    margin: 1.35rem 0 0;
+    font-size: 0.94rem;
+    font-weight: 700;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--link);
   }
 
-  .hero-copy h1::after {
-    content: "";
-    @apply block h-1 w-16 rounded-full mt-7;
-    background: var(--primary);
+  .home-hero .display,
+  .home-hero h1 {
+    margin: 0.65rem 0 0;
+    font-size: clamp(2.5rem, 6vw, 3.75rem);
+    line-height: 1.06;
+    letter-spacing: -0.038em;
+    font-weight: 600;
   }
 
   .home-lead {
-    @apply mt-7 max-w-xl text-lg text-muted-foreground;
-    line-height: 1.75;
+    @apply mt-4 max-w-xl text-muted-foreground;
+    font-size: 1.125rem;
+    line-height: 1.7;
   }
 
   .home-actions {
-    @apply mt-8 flex flex-wrap gap-3;
+    @apply mt-7 flex flex-wrap gap-2.5;
   }
 
   .home-actions .btn {
-    @apply px-5 no-underline;
+    @apply px-4.5 no-underline;
   }
 
-  .hero-proofs {
-    @apply mt-7 flex flex-wrap gap-x-5 gap-y-2 p-0 text-xs text-muted-foreground;
-    list-style: none;
+  .hero-hint {
+    margin: 1.1rem 0 0;
+    color: var(--muted-foreground);
+    font-size: 0.81rem;
   }
 
-  .hero-proofs li {
-    @apply flex items-center gap-1.5;
-  }
-
-  .hero-proofs svg {
-    @apply size-3.5;
-    color: var(--primary);
+  .hero-hint kbd {
+    font-family: "JetBrains Mono", ui-monospace, monospace;
+    font-size: 0.72rem;
+    margin-inline-end: 0.1rem;
+    border: 1px solid var(--border);
+    border-bottom-width: 2px;
+    border-radius: 0.35rem;
+    padding: 0.05rem 0.35rem;
+    background: var(--background);
   }
 
   .home-preview {
-    @apply relative overflow-hidden rounded-2xl p-0 shadow-2xl;
-    transform: rotate(1.25deg);
-    background: oklch(0.21 0.025 245);
-    color: oklch(0.9 0.015 220);
-    border-color: oklch(0.35 0.03 235);
+    border-radius: 1.125rem;
+    background: color-mix(in srgb, var(--card) 72%, transparent);
+    box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--border) 80%, transparent);
+    overflow: hidden;
+    transform: perspective(900px) rotateY(-6deg) rotateX(2deg);
+    transform-origin: left center;
   }
 
-  .home-preview::before {
-    content: "";
-    @apply absolute inset-0 pointer-events-none;
-    background: radial-gradient(circle at 90% 0%, oklch(0.48 0.12 198 / 20%), transparent 45%);
+  .preview-chrome {
+    display: flex;
+    align-items: center;
+    gap: 0.35rem;
+    padding: 0.65rem 0.75rem;
+    border-bottom: 1px solid color-mix(in srgb, var(--border) 85%, transparent);
+    background: color-mix(in srgb, var(--muted) 40%, transparent);
   }
 
-  .preview-topbar {
-    @apply relative flex items-center gap-1.5 border-b px-4 py-3;
-    border-color: oklch(0.34 0.025 235);
+  .preview-dot {
+    width: 0.45rem;
+    height: 0.45rem;
+    border-radius: 999px;
+    background: color-mix(in srgb, var(--muted-foreground) 35%, transparent);
   }
 
-  .preview-topbar > span {
-    @apply size-2 rounded-full;
-    background: oklch(0.5 0.025 235);
-  }
-
-  .preview-topbar > span:first-child {
-    background: oklch(0.68 0.16 25);
-  }
-
-  .preview-topbar > span:nth-child(2) {
-    background: oklch(0.75 0.14 90);
-  }
-
-  .preview-topbar > span:nth-child(3) {
-    background: oklch(0.7 0.13 155);
-  }
-
-  .preview-topbar p {
-    @apply m-0 ms-auto font-mono text-xs;
-    color: oklch(0.65 0.025 225);
+  .preview-chrome em {
+    margin-inline-start: 0.5rem;
+    font-style: normal;
+    font-family: "JetBrains Mono", ui-monospace, monospace;
+    font-size: 0.7rem;
+    color: var(--muted-foreground);
   }
 
   .preview-body {
-    @apply relative p-6 font-mono text-sm;
+    display: grid;
+    grid-template-columns: 4.5rem 1fr 4rem;
+    gap: 0.65rem;
+    padding: 0.9rem 0.75rem 1rem;
+    min-height: 13rem;
   }
 
-  .preview-icon {
-    @apply absolute end-6 top-6 size-5;
-    color: oklch(0.72 0.13 190);
+  .preview-side,
+  .preview-toc {
+    display: grid;
+    gap: 0.35rem;
+    align-content: start;
   }
 
-  .preview-command {
-    @apply mb-5 font-medium;
-    color: oklch(0.96 0 0);
+  .preview-side b,
+  .preview-toc b {
+    font-size: 0.5rem;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--muted-foreground);
   }
 
-  .preview-command span {
-    color: oklch(0.72 0.13 190);
+  .preview-side i,
+  .preview-toc i {
+    display: block;
+    height: 0.45rem;
+    border-radius: 0.25rem;
+    background: color-mix(in srgb, var(--muted-foreground) 18%, transparent);
   }
 
-  .preview-muted {
-    color: oklch(0.65 0.025 225);
+  .preview-side i.on,
+  .preview-toc i.on {
+    background: color-mix(in srgb, var(--link) 45%, var(--muted));
+    box-shadow: inset 2px 0 0 var(--link);
   }
 
-  .preview-success {
-    @apply flex items-center gap-2 rounded-lg px-3 py-2;
-    color: oklch(0.8 0.12 155);
-    background: oklch(0.7 0.13 155 / 8%);
+  .preview-article {
+    display: grid;
+    gap: 0.5rem;
+    align-content: start;
   }
 
-  .preview-success svg {
-    @apply size-4;
+  .preview-crumb {
+    width: 42%;
+    height: 0.4rem;
+    border-radius: 0.25rem;
+    background: color-mix(in srgb, var(--muted-foreground) 16%, transparent);
   }
 
-  .preview-body pre {
-    @apply my-5 overflow-auto text-xs leading-6;
-    color: oklch(0.72 0.025 225);
+  .preview-article strong {
+    font-size: 0.94rem;
+    letter-spacing: -0.02em;
   }
 
-  .preview-footer {
-    @apply flex justify-between border-t pt-4 text-xs;
-    border-color: oklch(0.34 0.025 235);
-    color: oklch(0.65 0.025 225);
+  .preview-line {
+    height: 0.4rem;
+    border-radius: 0.25rem;
+    background: color-mix(in srgb, var(--muted-foreground) 16%, transparent);
   }
 
-  .home-sections {
-    @apply grid grid-cols-3 gap-5 pb-20;
+  .preview-line.short {
+    width: 68%;
+  }
+
+  .preview-code {
+    height: 2.1rem;
+    border-radius: 0.5rem;
+    margin-top: 0.25rem;
+    background: var(--primary);
+  }
+
+  .preview-callout {
+    height: 1.75rem;
+    border-radius: 0.5rem;
+    background: color-mix(in srgb, var(--muted) 80%, var(--card));
+    box-shadow: inset 2px 0 0 color-mix(in srgb, var(--link) 45%, transparent);
+  }
+
+  .home-sections,
+  .cards {
+    @apply grid grid-cols-3 gap-3.5 pb-16 mt-10;
   }
 
   .home-section {
-    @apply relative rounded-2xl p-6 no-underline;
-    transition: transform 160ms ease, border-color 160ms ease, box-shadow 160ms ease;
+    @apply relative rounded-2xl p-5;
+    background: color-mix(in srgb, var(--card) 55%, transparent);
+    box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--border) 70%, transparent);
+    transition: transform 160ms ease, background-color 160ms ease;
   }
 
   .home-section:hover {
-    transform: translateY(-3px);
-    border-color: color-mix(in oklch, var(--primary) 35%, var(--border));
-    box-shadow: 0 16px 40px color-mix(in oklch, var(--foreground) 7%, transparent);
-  }
-
-  .section-icon {
-    @apply mb-5 grid size-10 place-items-center rounded-xl;
-    color: var(--primary);
-    background: var(--accent);
-  }
-
-  .section-icon svg {
-    @apply size-5;
+    transform: translateY(-1px);
+    background: var(--card);
+    box-shadow: inset 0 0 0 1px var(--border);
   }
 
   .home-section h2 {
-    @apply m-0 text-lg;
+    @apply m-0 text-base font-semibold;
   }
 
-  .home-section h2 a {
-    @apply flex items-center justify-between no-underline;
+  .home-section > p {
+    margin: 0.4rem 0 0.9rem;
+    color: var(--muted-foreground);
+    font-size: 0.84rem;
+    line-height: 1.5;
   }
 
-  .home-section h2 svg {
-    @apply size-4 text-muted-foreground;
+  .home-section .row {
+    display: flex;
+    justify-content: space-between;
+    gap: 0.75rem;
+    align-items: baseline;
+    text-decoration: none;
+    padding: 0.7rem 0;
+    border-top: 1px solid var(--border);
+    font-size: 0.875rem;
+  }
+
+  .home-section .row:hover {
+    color: var(--link);
+  }
+
+  .home-section .row em {
+    color: var(--muted-foreground);
+    font-style: normal;
+    font-size: 0.78rem;
+  }
+
+  .lonely {
+    padding: 4.5rem 0 6rem;
+    max-width: 28em;
+  }
+
+  .lonely .code-mark {
+    display: inline-block;
+    margin: 0 0 1.1rem;
+    font-family: "JetBrains Mono", ui-monospace, monospace;
+    font-size: 0.78rem;
+    color: var(--muted-foreground);
+    background: var(--muted);
+    border-radius: 999px;
+    padding: 0.3rem 0.7rem;
+  }
+
+  .lonely h1 {
+    margin: 0;
+    font-size: clamp(2.5rem, 6vw, 3.25rem);
+    letter-spacing: -0.035em;
+  }
+
+  .crumb {
+    margin: 0;
+    color: var(--muted-foreground);
+    font-size: 0.81rem;
+  }
+
+  .crumb a {
+    color: var(--link);
+    text-decoration: none;
+  }
+
+  @media (max-width: 1100px) {
+    .home-stage {
+      grid-template-columns: 1fr;
+    }
+
+    .home-preview {
+      display: none;
+    }
   }
 
   .home-section > p {
