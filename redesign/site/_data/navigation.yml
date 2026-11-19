@@ -1,13 +1,23 @@
 main:
-  - title: Overview
-    url: /
-  - title: Install and quickstart
-    url: /install/
-  - title: Layouts
-    url: /layouts/
+  - title: Start
+    children:
+      - title: Overview
+        url: /
+      - title: Install
+        url: /install/
+      - title: Layouts
+        url: /layouts/
+      - title: Changelog
+        url: /changelog/
   - title: Components
-    url: /components/
-  - title: Callout
-    url: /components/callout/
-  - title: Tokens and options
-    url: /tokens/
+    children:
+      - title: All components
+        url: /components/
+      - title: Callout
+        url: /components/callout/
+  - title: Customize
+    children:
+      - title: Tokens
+        url: /tokens/
+      - title: Docs standard
+        url: /standards/

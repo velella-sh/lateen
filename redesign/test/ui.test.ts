@@ -58,6 +58,7 @@ test("document pages render their description, navigation, toc and highlighted b
   assert.match(html, /data-lang="sh"/);
   assert.match(html, /class="doc-body"/);
   assert.match(html, /class="docs-sidebar"/);
+  assert.match(html, /class="crumb/);
   assert.doesNotMatch(html, /class="sidebar"/);
   assert.match(html, /<table tabindex="0" role="region" aria-label="Scrollable table">/);
 });
