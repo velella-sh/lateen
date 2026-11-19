@@ -30,6 +30,19 @@ test("a site without custom fonts keeps every shipped preload", () => {
   assert.equal(urls.filter(mono).length, 2, "two mono weights are preloaded");
 });
 
+test("the standard landing page preloads only the sans family", () => {
+  const site = build("fonts-default", process.env, {
+    "landing.md": "---\ntitle: Landing\nlayout: home\n---\n\nLanding copy.\n",
+  });
+  try {
+    const urls = preloads(site.html("/landing/"));
+    assert.equal(urls.filter(sans).length, 3);
+    assert.equal(urls.filter(mono).length, 0);
+  } finally {
+    rmSync(site.out, { recursive: true, force: true });
+  }
+});
+
 test("a custom sans family leaves out only the sans preloads", () => {
   const html = home("fonts-sans");
   const urls = preloads(html);
