@@ -1,5 +1,5 @@
 import { h } from "preact";
-import type { ComponentChildren, VNode } from "preact";
+import type { ComponentChildren } from "preact";
 import type { Component } from "@velella/mizzen/contracts";
 
 export const directive = "file-tree";
@@ -67,10 +67,10 @@ function finish({ entry, label }: Open): void {
   }
 }
 
-function row(entry: FileTreeEntry, depth: number): VNode {
+function row(entry: FileTreeEntry, depth: number): ComponentChildren {
   return h(
     "div",
-    { class: depth === 0 ? "tree-row" : "tree-row in", style: depth > 1 ? `padding-inline-start:${depth * 16}px` : undefined },
+    { class: depth === 0 ? "tree-row" : "tree-row in" },
     h("span", { class: "tree-name" }, entry.name || "…"),
     entry.note ? h("span", { class: "tree-note" }, entry.note) : null,
     ...entry.children.map((child) => row(child, depth + 1)),

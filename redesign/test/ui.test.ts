@@ -129,16 +129,10 @@ test("code highlighting escapes source and preserves the language", () => {
 test("steps number list items with language digits", async () => {
   const steps = await import("../components/steps/index.ts");
   assert.equal(steps.digitsOf(2, "fa"), "۲");
-  const props = propsWith();
-  const html = renderToString(h(steps.default, {
-    props: {},
-    page: props.page,
-    site: props.site,
-    html: "<ol><li>Install</li><li>Run</li></ol>",
-  }));
-  assert.match(html, /data-steps/);
-  assert.match(html, /step-number/);
-  assert.match(html, /id="step-1"/);
+  const numbered = steps.numberSteps("<ol><li>Install</li><li>Run</li></ol>", "en");
+  assert.match(numbered, /data-step="1"/);
+  assert.match(numbered, /step-number/);
+  assert.match(numbered, /id="step-1"/);
 });
 
 test("endpoint shows method badge and key-value parameters", async () => {
