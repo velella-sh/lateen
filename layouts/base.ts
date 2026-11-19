@@ -5,9 +5,9 @@ import announcement from "../chrome/announcement/index.ts";
 import codeCopy from "../chrome/code-copy/index.ts";
 import footnotePopover from "../chrome/footnote-popover/index.ts";
 import { alternateLinks, canonicalLink } from "../chrome/language-switcher/index.ts";
-import siteFooter from "../chrome/site-footer/index.ts";
 import networkFooter from "../chrome/network-footer/index.ts";
 import projectSwitcher from "../chrome/project-switcher/index.ts";
+import { footer as shellFooter } from "../chrome/shell/index.ts";
 import { resolveNetworkOptions, optionOf } from "../src/options.ts";
 import shortcuts from "../chrome/shortcuts/index.ts";
 import sourceMode from "../chrome/source-mode/index.ts";
@@ -154,7 +154,7 @@ export default function base(props: BaseProps) {
             : null,
           network.footer ? (networkFooter(props) as ComponentChildren) : null,
         );
-  const footerNode = footer ?? (siteFooter(props) as ComponentChildren);
+  const footerNode = footer ?? (shellFooter(props) as ComponentChildren);
   const footerContent =
     footerNode == null && networkChrome == null ? null : h(Fragment, null, footerNode, networkChrome);
   return h(

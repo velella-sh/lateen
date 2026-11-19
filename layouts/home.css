@@ -7,10 +7,10 @@
 }
 
 body:has(.home-content) .header-inner,
-body:has(.home-content) .site-footer-inner,
+body:has(.home-content) .footer-inner,
 body:has(.home-content) .rail,
 body:has(.home-showpiece) .header-inner,
-body:has(.home-showpiece) .site-footer-inner {
+body:has(.home-showpiece) .footer-inner {
   max-inline-size: var(--home-w);
 }
 
