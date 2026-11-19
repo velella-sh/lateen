@@ -1,0 +1,13 @@
+main:
+  - title: Overview
+    url: /
+  - title: Install and quickstart
+    url: /install/
+  - title: Layouts
+    url: /layouts/
+  - title: Components
+    url: /components/
+  - title: Callout
+    url: /components/callout/
+  - title: Tokens and options
+    url: /tokens/
