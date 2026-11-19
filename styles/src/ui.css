@@ -1362,22 +1362,35 @@
     color: var(--sail);
   }
 
+  /* Timeline: keep the chart column in the sailcloth doc column (~37rem). Legacy hides it under
+     40rem from a layered sheet; unlayered rules beat that and re-hide only when truly narrow. */
   .timeline {
-    border-inline-start: 2px solid var(--border);
-    margin: 0.25rem 0 0.25rem 0.4rem;
-    padding-inline-start: 0.9rem;
-    display: grid;
-    gap: 0.65rem;
+    container-type: inline-size;
   }
 
-  .timeline strong {
-    display: block;
-    font-size: 0.875rem;
+  .timeline-chart {
+    display: table-cell;
+    inline-size: 38%;
+    min-inline-size: 9rem;
   }
 
-  .timeline span {
-    color: var(--muted-foreground);
-    font-size: 0.8125rem;
+  .timeline-axis {
+    position: relative;
+    block-size: 1rem;
+  }
+
+  .timeline-bar {
+    position: absolute;
+    inset-block-start: 50%;
+    block-size: 0.5rem;
+    translate: 0 -50%;
+  }
+
+  @container (max-inline-size: 28rem) {
+    .timeline-chart,
+    .timeline-legend {
+      display: none;
+    }
   }
 
   .mini-cards {

@@ -241,7 +241,7 @@
     },
     {
       "name": "timeline",
-      "selector": ".timeline-axis",
+      "selector": ".timeline-bar",
       "states": [
         "hover"
       ]
