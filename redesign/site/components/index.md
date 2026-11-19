@@ -1,6 +1,6 @@
 ---
 title: Components
-description: Every component the Lateen theme provides, with its syntax, options, and a live example.
+description: The pieces a page uses inside its content. The engine turns a directive into the component whose folder has the same name.
 layout: doc
 permalink: /components/
 redirect_from:
@@ -21,67 +21,152 @@ redirect_from:
   - /blocks/timeline/
 ---
 
-Components are the pieces pages use inside their content: a callout, a code tab, an endpoint, a file tree. Each page below shows the Markdown you write, every option it reads, and a live example.
+The pieces a page uses inside its content. The engine turns a directive into the component whose folder has the same name. `:::name` wraps a Markdown body. `::name` stands alone. Attributes are the options: `:::callout{type=warning}`.
 
-The engine turns a directive into the component whose folder has the same name under `components/`. A container directive (`:::name` … `:::`) wraps a Markdown body; a leaf directive (`::name`) stands alone on its own line. Directive attributes are the component's options: `:::callout{type=warning}`.
+## Code tabs
 
-Source mode, the `file:line` view of every block, is described on [Source mode](https://velella.sh/lateen/source-mode/); its switch is part of every page, not a directive.
+:::code-tabs{labels='["npm","pnpm","yarn"]'}
+```sh
+npx mizzen dev .
+```
 
-The theme's own look is set with the [Brand options](https://velella.sh/lateen/brand-options/); the shipped starting points are on [Presets](https://velella.sh/lateen/presets/).
+```sh
+pnpm exec mizzen dev .
+```
 
-| Component | Use it for |
-| --- | --- |
-| [Add to calendar](https://velella.sh/lateen/components/add-to-calendar/) | A download link for a record's `.ics` file and a subscribe link for its calendar. |
-| [Badge](https://velella.sh/lateen/components/badge/) | A short status label, such as a version or a beta marker. |
-| [Callout](./callout/) | A note, tip, important point, warning, or caution. |
-| [Cards](https://velella.sh/lateen/components/cards/) | A responsive grid of linked cards, used by the home layout. |
-| [Changelog entry](https://velella.sh/lateen/components/changelog-entry/) | One release with a version, a date, and categories. |
-| [Charts](https://velella.sh/lateen/components/charts/) | Bar, stacked bar, and line charts drawn at build time, with their values in a table. |
-| [CLI demo](https://velella.sh/lateen/components/cli-demo/) | A terminal session and an install command as fixed, copyable text. |
-| [Code](https://velella.sh/lateen/components/code/) | Code highlighted at build time, with a copy button when JavaScript runs. |
-| [Code tabs](https://velella.sh/lateen/components/code-tabs/) | The same example in several languages or package managers, as tabs. |
-| [Data explorer](https://velella.sh/lateen/components/data-explorer/) | Search, filter, and sort a collection in the browser, with a search page fallback. |
-| [Compare](https://velella.sh/lateen/components/compare/) | Records side by side, with the differing rows marked. |
-| [Dated list](https://velella.sh/lateen/components/dated-list/) | Records grouped by month in the page language's calendar. |
-| [Details](https://velella.sh/lateen/components/details/) | A native disclosure that the reader can open and close. |
-| [Diff block](https://velella.sh/lateen/components/diff-block/) | Added, removed, and context lines, with a copy of the new file. |
-| [Drift banner](https://velella.sh/lateen/components/drift-banner/) | A warning above a page whose documentation has drifted from the code. |
-| [Embed](https://velella.sh/lateen/components/embed/) | A video or another page in a lazy iframe. |
-| [Embed code](https://velella.sh/lateen/components/embed-code/) | The snippet that embeds one of this site's pages elsewhere, with a preview. |
-| [Endpoint](https://velella.sh/lateen/components/endpoint/) | An HTTP method, path, parameters, and body for API reference pages. |
-| [Figure](https://velella.sh/lateen/components/figure/) | An image with alt text, a caption, and a credit, in light and dark. |
-| [File tree](https://velella.sh/lateen/components/file-tree/) | A folder structure with a note per entry. |
-| [Gallery layout](https://velella.sh/lateen/components/gallery/) | A collection as cards, with facet filters, a sort choice, a count, and an empty note. |
-| [Glossary](https://velella.sh/lateen/components/glossary/) | Every term as a lettered list, and inline terms that open their definition in place. |
-| [Guide layout](https://velella.sh/lateen/components/guide/) | A layout for step-by-step guides, with a summary bar and related guides. |
-| [Heading anchor](https://velella.sh/lateen/components/heading-anchor/) | A link icon on every h2 to h4, added automatically. |
-| [Kbd](https://velella.sh/lateen/components/kbd/) | A keyboard key or key combination. |
-| [Key-value list](https://velella.sh/lateen/components/key-value/) | Properties, options, or metadata as a two-column list of keys and values. |
-| [Link card](https://velella.sh/lateen/components/link-card/) | One link that reads as a card, for next steps and related pages. |
-| [Mermaid](https://velella.sh/lateen/components/mermaid/) | A Mermaid diagram rendered to inline SVG at build time, with its source kept. |
-| [OS tabs](https://velella.sh/lateen/components/os-tabs/) | Install instructions grouped by operating system, defaulting to the reader's system. |
-| [Output block](https://velella.sh/lateen/components/output-block/) | The result of a command, apart from the command above it. |
-| [Network chrome](https://velella.sh/lateen/components/network/) | A project switcher, a network footer, and a scope choice for a site in a network. |
-| [Page status](https://velella.sh/lateen/components/page-status/) | An experimental, beta, or deprecated banner from front matter. |
-| [Preset preview](https://velella.sh/lateen/components/preset-preview/) | One preset of the theme in its own scoped block, with the options to copy. |
-| [Reading time](https://velella.sh/lateen/components/reading-time/) | A chip under the title with the page's reading time and word count. |
-| [Record history](https://velella.sh/lateen/components/record-history/) | A record's own change events, newest first, with old and new values. |
-| [Report issue](https://velella.sh/lateen/components/report-issue/) | A prefilled link that opens an issue for the current page. |
-| [Reports](https://velella.sh/lateen/components/reports/) | An accessibility report, a performance budget, and the WCAG checklist, from site data. |
-| [Schema table](https://velella.sh/lateen/components/schema-table/) | A JSON Schema from `_data` as a table of properties. |
-| [Stale notice](https://velella.sh/lateen/components/stale-notice/) | A caution note under the title when a page's covered files changed since its review. |
-| [Status](https://velella.sh/lateen/components/status/) | A short status label with a tone and icon, and a legend of the site's status values. |
-| [Status banner](https://velella.sh/lateen/components/status-banner/) | A page-level deprecated, experimental, or old-version banner, with a replacement link. |
-| [Steps](https://velella.sh/lateen/components/steps/) | A numbered sequence or tutorial. |
-| [Symbol popover](https://velella.sh/lateen/components/symbol-popover/) | A symbol whose signature and reference page appear on hover or focus. |
-| [Table](https://velella.sh/lateen/components/table/) | Markdown tables in a labelled, keyboard-scrollable region. |
-| [Tabs](https://velella.sh/lateen/components/tabs/) | Any sections as tabs, following one chosen label across the page and later pages. |
-| [Tags](https://velella.sh/lateen/components/tags/) | A wrapping list of tag chips, as links or plain text. |
-| [Terminal](https://velella.sh/lateen/components/terminal/) | A shell session with commands and their output. |
-| [Tested chip](https://velella.sh/lateen/components/tested-chip/) | The pass or fail result of a page's examples, next to a code block. |
-| [Timeline](https://velella.sh/lateen/components/timeline/) | Rows on one time axis, with phases, status tones, and a readable table. |
-| [Trust panel](https://velella.sh/lateen/components/trust-panel/) | A chip under the title that opens the page's trust level, examples, drift, reviewer, and actions. |
-| [Variables form](https://velella.sh/lateen/components/variables-form/) | Inputs that fill a page's code-example variables with the reader's own values. |
-| [Version badge](https://velella.sh/lateen/components/version-badge/) | A version badge that says when a feature was added, changed, or removed. |
-| [Version diff](https://velella.sh/lateen/components/version-diff/) | A section-by-section comparison of two versions, with a text label for every change. |
-| [Video](https://velella.sh/lateen/components/video/) | A click-to-load video with a poster and a link that works without JavaScript. |
+```sh
+yarn mizzen dev .
+```
+:::
+
+## In the library
+
+<div class="list">
+<a href="./callout/"><strong>Callout</strong><em>note, tip, important, warning, caution</em></a>
+<div class="item"><strong>Badge</strong><span>A short status label, such as a version or a beta marker.</span></div>
+<div class="item"><strong>Cards</strong><span>A responsive grid of linked cards, used by the home layout.</span></div>
+<div class="item"><strong>Changelog entry</strong><span>One release with a version, a date, and categories.</span></div>
+<div class="item"><strong>Charts</strong><span>Bar, stacked bar, and line charts, with the values kept in a table.</span></div>
+<div class="item"><strong>Code</strong><span>Highlighted at build time, with a copy button when JavaScript runs.</span></div>
+<div class="item"><strong>Code tabs</strong><span>The same example in several languages or package managers.</span></div>
+<div class="item"><strong>Details</strong><span>A native disclosure the reader can open and close.</span></div>
+<div class="item"><strong>Endpoint</strong><span>An HTTP method, path, parameters, and body.</span></div>
+<div class="item"><strong>Figure</strong><span>An image with alt text, a caption, and a credit, in light and dark.</span></div>
+<div class="item"><strong>File tree</strong><span>A folder structure with a note per entry.</span></div>
+<div class="item"><strong>Kbd</strong><span>A keyboard key or a combination.</span></div>
+<div class="item"><strong>Steps</strong><span>A numbered sequence. Digits follow the page language.</span></div>
+<div class="item"><strong>Table</strong><span>A Markdown table in a labelled, keyboard-scrollable region.</span></div>
+<div class="item"><strong>Terminal</strong><span>A shell session with commands and their output.</span></div>
+</div>
+
+## Around the title
+
+<div class="item"><strong>Reading time</strong><span>A chip under the title with the reading time and the word count.</span></div>
+<div class="item"><strong>Page status</strong><span>An experimental, beta, or deprecated banner from front matter.</span></div>
+<div class="item"><strong>Stale notice</strong><span>A caution when the files a page covers changed after its review.</span></div>
+<div class="item"><strong>Trust panel</strong><span>Opens the page’s trust level, examples, drift, reviewer, and actions.</span></div>
+<div class="item"><strong>Heading anchor</strong><span>A link icon on every h2 to h4, added automatically.</span></div>
+
+<div class="pills">
+<span class="pill">Shipped</span>
+<span class="pill">Pending</span>
+<span class="pill ink">Blocked</span>
+<span class="pill">Draft</span>
+</div>
+
+## On the page
+
+These are the components the redesign theme ships. Each one is a folder under `redesign/components/`.
+
+<div class="gallery">
+<div class="specimen">
+<h3>Badge</h3>
+<div class="pills"><span class="pill">v0.2.3</span><span class="pill ink">beta</span></div>
+</div>
+<div class="specimen">
+<h3>Status</h3>
+<div class="pills"><span class="pill">Shipped</span><span class="pill">Pending</span><span class="pill ink">Blocked</span><span class="pill">Draft</span></div>
+<p>Shipped is released. Pending waits on review. Blocked needs a change first.</p>
+</div>
+<div class="specimen">
+<h3>Steps</h3>
+:::steps
+1. Install Lateen
+2. Name the theme
+3. Run mizzen dev
+:::
+</div>
+<div class="specimen">
+<h3>Kbd</h3>
+<p>Press :kbd[⌘] :kbd[K] to search. Single keys are :kbd[/], :kbd[m], and :kbd[?].</p>
+</div>
+<div class="specimen">
+<h3>Endpoint</h3>
+::endpoint{method=GET path="/books/{id}" parameters='[{"name":"id","type":"string","required":true,"description":"hardcover or paper"}]'}
+</div>
+<div class="specimen">
+<h3>File tree</h3>
+:::file-tree
+- site/
+  - index.md
+  - install.md
+  - mizzen.yml
+:::
+</div>
+<div class="specimen">
+<h3>Details</h3>
+:::details{summary="What the theme does not do" open}
+It draws pages. The engine reads the files.
+:::
+</div>
+<div class="specimen">
+<h3>Check list</h3>
+:::check-list
+- Node 24 or later
+- mizzen.yml in the folder
+- A page of Markdown
+:::
+</div>
+<div class="specimen">
+<h3>Cards</h3>
+<div class="mini-cards"><a href="../install/">Install<span>The quickstart</span></a><a href="../layouts/">Layouts<span>Page shapes</span></a></div>
+</div>
+<div class="specimen">
+<h3>Changelog entry</h3>
+:::changelog-entry{version="0.2.3" date="19 Nov 2026" categories="docs theme"}
+:::
+</div>
+<div class="specimen">
+<h3>Tags</h3>
+::tags{items='["guide","reference","component"]'}
+</div>
+<div class="specimen">
+<h3>Key-value</h3>
+:::key-value
+layout: doc
+since: 0.2.0
+status: shipped
+:::
+</div>
+<div class="specimen">
+<h3>Timeline</h3>
+::timeline{items='[{"label":"0.2.3","detail":"Shipped"},{"label":"0.2.0","detail":"Tokens and callouts"}]'}
+</div>
+<div class="specimen">
+<h3>Terminal</h3>
+:::terminal
+$ npx mizzen dev .
+Lateen  ready on http://localhost:4173
+:::
+</div>
+<div class="specimen">
+<h3>Table</h3>
+<div class="item"><strong>docs</strong><span>A documentation site</span></div>
+<div class="item"><strong>changelog</strong><span>Release notes</span></div>
+<div class="item"><strong>data</strong><span>A catalogue</span></div>
+</div>
+<div class="specimen">
+<h3>Charts</h3>
+::charts{title="Pages by section" rows='[{"label":"Install","value":12},{"label":"Layouts","value":28},{"label":"Components","value":46},{"label":"Tokens","value":22}]'}
+</div>
+</div>
