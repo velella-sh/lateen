@@ -1,7 +1,7 @@
 import { h } from "preact";
 import type { ComponentChildren } from "preact";
 import type { LayoutProps, LinkTag, MetaTag } from "@velella/mizzen/contracts";
-import shell from "../chrome/shell/index.ts";
+import shell, { footer } from "../chrome/shell/index.ts";
 
 export const themeScript = `(function(){try{var t=localStorage.getItem("lateen-theme");if(t!=="light"&&t!=="dark")t=matchMedia("(prefers-color-scheme: dark)").matches?"dark":"light"}catch(e){var t="light"}var d=document.documentElement;d.dataset.theme=t;d.classList.toggle("dark",t==="dark")})()`;
 
@@ -36,16 +36,7 @@ export default function base(props: BaseProps) {
         h("main", { id: "main", tabindex: -1 }, props.main),
         props.aside ? h("div", { class: "aside" }, props.aside) : null,
       ),
-      h("footer", { class: "site-footer" },
-        h("div", null,
-          h("p", null, "Built with Mizzen. Designed for people and agents."),
-          h("nav", { "aria-label": "Footer" },
-            h("a", { href: "https://github.com/velella-sh/lateen" }, "GitHub"),
-            h("a", { href: "https://velella.sh/mizzen/" }, "Mizzen"),
-            h("a", { href: `${props.site.config.base}/install/` }, "Install"),
-          ),
-        ),
-      ),
+      footer(props) as ComponentChildren,
       islands.map((island) => h("script", { type: "module", src: island.src })),
     ),
   );
