@@ -1,6 +1,5 @@
 /**
- * Deprecated alias for `@velella/lateen`. Sailcloth is the only theme; import
- * the package root instead. Kept so existing `--theme redesign` / subpath
- * callers resolve to the same folders.
+ * Deprecated alias for `@velella/lateen`. The sailcloth stack
+ * (Tailwind + Basecoat + Lucide + Chart.js) lives on the main theme.
  */
 export { theme } from "../../src/index.ts";

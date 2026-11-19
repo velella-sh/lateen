@@ -1,16 +1,19 @@
 # Working on Lateen
 
-A docs theme for people and agents, built on Mizzen: layouts, chrome, components, design tokens, and styles. The engine lives in Mizzen, not here.
+A docs theme for people and agents, built on Mizzen: layouts, chrome, components, and the sailcloth design stack. The engine lives in Mizzen, not here.
 
-Read `README.md` and `CONTRIBUTING.md` first. Each unit folder has its own rules: `layouts/README.md`, `chrome/README.md`, `components/README.md`, `tokens/README.md`, `styles/README.md`.
+Read `README.md` and `CONTRIBUTING.md` first. Visual contract: `docs/design/sailcloth.md`.
 
 ## Setup
 
-Node 24 or later. The theme has no build step; Node runs its TypeScript source directly. Visual contract: sailcloth (Velella Night/Sail/Mist/Foam/Shell/Lateen Blue) — see `docs/design/sailcloth.md`.
+Node 24 or later.
 
 ```bash
 npm ci
+npm run ui:build
 ```
+
+`npm run ui:build` compiles Tailwind + Basecoat from `styles/ui.css` into `styles/generated.css` and copies the Chart.js asset. Do not edit `styles/generated.css` by hand.
 
 `npm ci` installs the published `@velella/mizzen`, which is what the tests and the docs check run against. No sibling checkout is required.
 
@@ -20,22 +23,31 @@ To test against a local Mizzen instead, clone `velella-sh/mizzen` beside this re
 
 ```bash
 npm run typecheck      # tsc --noEmit
-npm test               # tokens:check + design check + node --test
-npm run tokens         # regenerate styles/tokens.css from tokens/*.json
+npm run ui:build       # Tailwind/Basecoat CSS + Chart.js asset
+npm test               # ui:build + design check + node --test
 npm run test:a11y      # axe gate; needs npx playwright install chromium
 npm run test:performance
 npm run test:visual
+npm run dev:redesign   # sailcloth demo site on port 4173
 ```
 
 Before a pull request: `npm run typecheck && npm test`.
+
+## Stack (only design system)
+
+Mizzen + Node + TypeScript + Preact + **Tailwind CSS** + **Basecoat** + vanilla islands + **Lucide** + **Chart.js**.
+
+- Visuals: `styles/ui.css` → `styles/generated.css`
+- Icons: Lucide via `src/icon.ts` (not hand SVG sheets for new work)
+- Charts: Chart.js islands under `components/charts` and `components/performance-chart`
+- `@velella/lateen/redesign` is a deprecated alias of the main theme
 
 ## Boundaries
 
 - The theme may `import type` from `@velella/mizzen/contracts`, by package name and never by a relative path. It imports nothing else from the engine.
 - Preact is a peer dependency: `jsx: react-jsx`, `jsxImportSource: preact`.
 - A unit is one file or one folder. Adding a unit never edits a shared index; follow the folder's README.
-- `styles/tokens.css` is generated. Never edit it by hand; change `tokens/*.json` and run `npm run tokens`.
-- `@velella/lateen/redesign` is a deprecated alias of the main theme; do not add a second theme under `redesign/`.
+- Never commit `styles/generated.css` or `components/performance-chart/chart.umd.min.js`.
 
 ## Change rules
 

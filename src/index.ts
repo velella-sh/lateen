@@ -1,5 +1,6 @@
 /**
- * Lateen theme entry. Sailcloth (Night/Foam/Lateen Blue) is the only visual system.
+ * Lateen theme entry. Sailcloth design stack only:
+ * Mizzen + Node + TypeScript + Preact + Tailwind + Basecoat + Lucide + Chart.js.
  */
 export const theme = {
   name: "lateen",

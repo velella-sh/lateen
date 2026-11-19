@@ -29,6 +29,10 @@
     "chrome/**/*.ts",
     "components/**/*.ts",
     "test/**/*.ts",
-    "redesign/src/**/*.ts"
+    "redesign/src/**/*.ts",
+    "redesign/layouts/**/*.ts",
+    "redesign/chrome/**/*.ts",
+    "redesign/components/**/*.ts",
+    "redesign/test/**/*.ts"
   ]
 }
