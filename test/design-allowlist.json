@@ -199,12 +199,6 @@
   },
   {
     "file": "layouts/home.css",
-    "kind": "transition",
-    "value": "160ms",
-    "reason": "Sailcloth mockup home stage (Untitled/home.html): locked Velella Night/Foam/Mist/Shell/Lateen Blue surfaces, type sizes, and hairline shadows until global token cutover."
-  },
-  {
-    "file": "layouts/home.css",
     "kind": "shadow",
     "value": "inset 0 0 0 1px var(--color-border)",
     "reason": "Sailcloth mockup home stage (Untitled/home.html): locked Velella Night/Foam/Mist/Shell/Lateen Blue surfaces, type sizes, and hairline shadows until global token cutover."
