@@ -264,12 +264,56 @@ html[data-js] .site-header .search-trigger[hidden] {
 }
 
 @media (max-width: 48rem) {
+  .site-header .rail,
+  .site-header .header-inner {
+    inline-size: min(100% - 2rem, 72.5rem);
+    flex-wrap: wrap;
+    gap: var(--space-2);
+  }
+
   .site-header .search-trigger kbd,
   .site-header .brand-tag {
     display: none;
   }
 
   .site-header .sections {
+    display: none;
+  }
+
+  /* Tools take their own row so language and theme never push the page sideways. */
+  .site-header .tools {
+    flex: 1 1 100%;
+    flex-wrap: wrap;
+    justify-content: flex-end;
+    gap: var(--space-1);
+    min-inline-size: 0;
+  }
+
+  .site-header .search-trigger {
+    inline-size: auto;
+    min-inline-size: 2.25rem;
+    max-inline-size: 11rem;
+    flex: 1 1 8rem;
+  }
+
+  .site-header .language-switcher-list {
+    flex-wrap: wrap;
+    max-inline-size: 100%;
+  }
+}
+
+@media (max-width: 40rem) {
+  /* Tight phones: keep brand, search, theme, menu; language and version live one row down compactly. */
+  .site-header .version-switcher {
+    order: 5;
+  }
+
+  .site-header .language-switcher {
+    order: 6;
+    flex: 1 1 100%;
+  }
+
+  .site-header .header-repo {
     display: none;
   }
 }

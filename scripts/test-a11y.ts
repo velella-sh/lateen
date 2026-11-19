@@ -580,7 +580,7 @@ export async function runJourneys(
 }
 
 /** The shipped optional-font files, whatever hashed folder the build wrote them to. */
-const THEME_FONT = /\/assets\/theme\/fonts\/(?:geist|geist-mono)\//;
+const THEME_FONT = /\/assets\/theme\/fonts\/(?:manrope|jetbrains-mono)\//;
 
 /** The woff2 files a page actually requests, including the ones its preload links start. */
 async function fontRequests(browser: Browser, url: string): Promise<string[]> {
