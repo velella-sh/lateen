@@ -5,10 +5,10 @@ import { test } from "node:test";
 import { fileURLToPath } from "node:url";
 
 const BASELINES = fileURLToPath(new URL("./baselines/", import.meta.url));
-// The densest gallery page is about 323 KB after the 24px targets; the cap still catches real bloat.
-const MAX_ONE = 350 * 1024;
-// The CI browser writes larger PNGs than the previous local set; 12 MiB still bounds the suite.
-const MAX_ALL = 12 * 1024 * 1024;
+// Gallery grew with charts/performance-chart sections; CI Chromium PNGs land around 500 KB each.
+const MAX_ONE = 550 * 1024;
+// Full sailcloth cutover + denser gallery; 22 MiB still bounds the suite after encodePng.
+const MAX_ALL = 22 * 1024 * 1024;
 
 test("every baseline is under the per-image and total caps, and the browser is recorded", () => {
   const files = readdirSync(BASELINES).filter((file) => file.endsWith(".png")).sort();

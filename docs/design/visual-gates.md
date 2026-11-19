@@ -58,8 +58,8 @@ Rules the function follows:
 | Largest share of changed pixels | `0.1%` (0.001) of the image |
 | Baseline location | `test/visual/baselines/<case>.png` |
 | Baseline format | PNG, 8-bit RGB, no metadata chunks |
-| Size of one baseline | 300 KiB at most |
-| Size of all baselines | 10 MiB at most |
+| Size of one baseline | 550 KiB at most |
+| Size of all baselines | 22 MiB at most |
 | Runs per case before a failure counts | 1 (a flaky case is fixed or removed, not retried; #506) |
 
 The size caps are checked by the gate itself, so the repository cannot grow without a decision. A

@@ -63,8 +63,8 @@ node scripts/test-visual.ts --update
 Then commit the changed `test/visual/baselines/` images, add the `visual-change` label to the pull
 request, and explain in the description what changed and why. A pull request that changes a baseline
 without the label fails the `visual` job. Record baselines on the pinned CI image rather than a
-developer machine: fonts and the rasteriser differ locally. Every image stays under 300 KiB and the
-whole folder under 10 MiB; `node --test test/visual/baselines.test.ts` checks both.
+developer machine: fonts and the rasteriser differ locally. Every image stays under 550 KiB and the
+whole folder under 22 MiB; `node --test test/visual/baselines.test.ts` checks both.
 
 ## Check your own site
 

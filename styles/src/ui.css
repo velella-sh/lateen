@@ -1866,7 +1866,27 @@
 }
 
 
-/* A11y gate: unlayered touch targets and contrast fixes. */
+/* Visual/a11y gates: WCAG 2.5.8 target size (24×24). Unlayered so Tailwind/Basecoat cannot shrink them. */
+button,
+input:not([type="hidden"]),
+select,
+textarea,
+summary,
+[role="button"],
+[role="tab"],
+[role="menuitem"],
+[role="link"],
+.home-btn,
+.home-actions a,
+.copy-markdown-link,
+.page-agent-menu-view,
+.page-agent-menu-provider,
+.changelog-toc a,
+.changelog-entry-anchor,
+.version-switcher-summary,
+.version-switcher-link,
+.tag a,
+.tags a,
 .search-input,
 .search-close,
 .page-footer-copy,
@@ -1875,18 +1895,30 @@
 .compare th[scope="col"],
 .compare-title a,
 .compare-pick,
-.glossary-index a {
+.glossary-index a,
+.record-table-filter-text {
+  box-sizing: border-box;
   min-block-size: 1.5rem;
   min-inline-size: 1.5rem;
 }
 
 .glossary-index a,
 .compare-title a,
-.compare-pick {
+.compare-pick,
+.home-btn,
+.home-actions a,
+.copy-markdown-link,
+.page-agent-menu-view,
+.page-agent-menu-provider,
+.changelog-toc a,
+.version-switcher-link,
+.tag a,
+.tags a {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  padding: 0.25rem 0.4rem;
+  padding-block: 0.25rem;
+  padding-inline: 0.4rem;
 }
 
 .terminal-copy,
