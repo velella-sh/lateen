@@ -3,7 +3,7 @@ import type { ComponentChildren } from "preact";
 import type { Layout, LayoutProps, Page } from "@velella/mizzen/contracts";
 import base from "./base.ts";
 import drawer from "../chrome/drawer/index.ts";
-import header from "../chrome/header/index.ts";
+import shell, { footer as shellFooter } from "../chrome/shell/index.ts";
 import sidebar from "../chrome/sidebar/index.ts";
 import changelogEntry, {
   versionTextOf,
@@ -260,9 +260,10 @@ const changelog: Layout = (props) =>
     header: h(
       Fragment,
       null,
-      header(props) as ComponentChildren,
+      shell(props) as ComponentChildren,
       drawer(props) as ComponentChildren,
     ),
+    footer: shellFooter(props) as ComponentChildren,
     sidebar: sidebar(props) as ComponentChildren,
     main: article(props),
   });

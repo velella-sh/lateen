@@ -4,7 +4,7 @@ import type { Heading, Island, Layout, LayoutProps, RecordProps } from "@velella
 import base from "./base.ts";
 import breadcrumb from "../chrome/breadcrumb/index.ts";
 import drawer from "../chrome/drawer/index.ts";
-import header from "../chrome/header/index.ts";
+import shell, { footer as shellFooter } from "../chrome/shell/index.ts";
 import sidebar from "../chrome/sidebar/index.ts";
 import toc from "../chrome/toc/index.ts";
 import cards from "../components/cards/index.ts";
@@ -223,7 +223,8 @@ const gallery: Layout = (props) => {
   return base({
     ...props,
     islands,
-    header: h(Fragment, null, header(props) as ComponentChildren, drawer(props) as ComponentChildren),
+    header: h(Fragment, null, shell(props) as ComponentChildren, drawer(props) as ComponentChildren),
+    footer: shellFooter(props) as ComponentChildren,
     sidebar: sidebar(props) as ComponentChildren,
     main: article(props),
     aside: toc(tocFor(props)) as ComponentChildren,

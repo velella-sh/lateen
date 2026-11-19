@@ -288,6 +288,6 @@ test("the three surface layers step in lightness and the accent is unchanged (#4
     const [sunken, canvas] = ["color-surface-sunken", "color-canvas"].map((n) => luminance(schemeValue(n, mode, tokens)));
     assert.ok((sunken ?? 0) < (canvas ?? 0), `the ${mode} sunken layer is darker than the canvas`);
   }
-  assert.equal(schemeValue("color-accent", "light", tokens), "#5e81ac");
-  assert.equal(schemeValue("color-accent", "dark", tokens), "#7e9cd8");
+  assert.equal(schemeValue("color-accent", "light", tokens), "#23212c");
+  assert.equal(schemeValue("color-accent", "dark", tokens), "#dcd7eb");
 });

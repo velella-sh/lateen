@@ -654,7 +654,7 @@ test("keys other than Tab and Escape are not touched", () => {
 });
 
 test("the header shows the menu button at the same breakpoint the drawer replaces the sidebar", () => {
-  const header = readFileSync(new URL("../chrome/header/style.css", import.meta.url), "utf8");
+  const header = readFileSync(new URL("../chrome/shell/style.css", import.meta.url), "utf8");
   const drawer = readFileSync(new URL("../chrome/drawer/style.css", import.meta.url), "utf8");
 
   const block = /@media \(max-width: 767\.98px\) \{([\s\S]*?)\n\}/.exec(header);

@@ -2,7 +2,7 @@ import { h } from "preact";
 import type { ComponentChildren } from "preact";
 import type { Layout, LayoutProps, NavItem, NavLink, SiteConfig } from "@velella/mizzen/contracts";
 import { hrefFor, resolvedLanguages } from "../chrome/language-switcher/index.ts";
-import shell, { footer } from "../src/shell/index.ts";
+import shell, { footer } from "../chrome/shell/index.ts";
 import { t } from "../i18n/index.ts";
 import base from "./base.ts";
 

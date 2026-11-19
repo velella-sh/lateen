@@ -4,7 +4,7 @@ import type { Layout, LayoutProps } from "@velella/mizzen/contracts";
 import base from "./base.ts";
 import breadcrumb from "../chrome/breadcrumb/index.ts";
 import drawer from "../chrome/drawer/index.ts";
-import header from "../chrome/header/index.ts";
+import shell, { footer as shellFooter } from "../chrome/shell/index.ts";
 import pageFooter from "../chrome/page-footer/index.ts";
 import sidebar from "../chrome/sidebar/index.ts";
 import toc from "../chrome/toc/index.ts";
@@ -135,9 +135,10 @@ const api: Layout = (props) => {
     header: h(
       Fragment,
       null,
-      header(props) as ComponentChildren,
+      shell(props) as ComponentChildren,
       drawer(props) as ComponentChildren,
     ),
+    footer: shellFooter(props) as ComponentChildren,
     sidebar: sidebar(props) as ComponentChildren,
     main: h("div", { class: "api-page" }, article(props), examplesPanel(props, examples)),
     aside: toc(props) as ComponentChildren,

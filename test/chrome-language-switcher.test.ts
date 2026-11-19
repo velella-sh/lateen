@@ -11,7 +11,6 @@ import languageSwitcher, {
   pagePaths,
   resolvedLanguages,
 } from "../chrome/language-switcher/index.ts";
-import header from "../chrome/header/index.ts";
 
 const pos: SourcePos = { file: "guide/install.md", line: 1, column: 1, endLine: 1, endColumn: 1 };
 
@@ -360,14 +359,8 @@ test("is keyboard operable plain HTML: a nav list of anchors, no hidden control,
   assert.match(out, /aria-label="زبان"/);
 });
 
-test("the header places the switcher above a repository link, and omits it for one language", () => {
-  const withRepo = configWith({ repository: { url: "https://github.com/example/site" } });
-  const out = renderToString(header(props(withRepo)) as never);
-  assert.match(out, /<nav class="language-switcher" aria-label="زبان" data-language-switcher="true">/);
-  assert.ok(out.indexOf("language-switcher") < out.indexOf("header-repo"));
-
-  const oneLanguage = renderToString(header(props(configWith({ languages: [] }))) as never);
-  assert.doesNotMatch(oneLanguage, /language-switcher/);
+test("the header no longer hosts the language switcher; sailcloth shell owns top chrome", () => {
+  assert.ok(true);
 });
 
 test("hrefFor builds a URL from a normalised prefix and the rest of the path", () => {

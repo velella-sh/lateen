@@ -1,105 +1,105 @@
 {
   "canvas": {
-    "$value": "#ffffff",
+    "$value": "#f4f4f9",
     "$extensions": {
       "lateen": {
-        "dark": "#1f1f28"
+        "dark": "#23212c"
       }
     }
   },
   "surface": {
-    "$value": "#f5f5f5",
+    "$value": "#e7e7ed",
     "$extensions": {
       "lateen": {
-        "dark": "#2a2a37"
+        "dark": "#393743"
       }
     }
   },
   "surface-raised": {
-    "$value": "#ffffff",
+    "$value": "#fbfbfd",
     "$extensions": {
       "lateen": {
-        "dark": "#363646"
+        "dark": "#4a4760"
       }
     }
   },
   "text": {
-    "$value": "#222222",
+    "$value": "#23212c",
     "$extensions": {
       "lateen": {
-        "dark": "#dcd7ba"
+        "dark": "#dcd7eb"
       }
     }
   },
   "heading": {
-    "$value": "#1a2030",
+    "$value": "#23212c",
     "$extensions": {
       "lateen": {
-        "dark": "#dcd7ba"
+        "dark": "#dcd7eb"
       }
     }
   },
   "muted": {
-    "$value": "#666666",
+    "$value": "#4a4658",
     "$extensions": {
       "lateen": {
-        "dark": "#96938e"
+        "dark": "#b7b2c9"
       }
     }
   },
   "border": {
-    "$value": "#d4d4d4",
+    "$value": "#d5d3e3",
     "$extensions": {
       "lateen": {
-        "dark": "#3c3c4e"
+        "dark": "#4a4760"
       }
     }
   },
   "border-strong": {
-    "$value": "#a3a3a3",
+    "$value": "#8481c7",
     "$extensions": {
       "lateen": {
-        "dark": "#54546d"
+        "dark": "#8f8cd8"
       }
     }
   },
   "accent": {
-    "$value": "#0057b8",
+    "$value": "#23212c",
     "$extensions": {
       "lateen": {
-        "dark": "#7e9cd8"
+        "dark": "#dcd7eb"
       }
     }
   },
   "on-accent": {
-    "$value": "#ffffff",
+    "$value": "#dcd7eb",
     "$extensions": {
       "lateen": {
-        "dark": "#1f1f28"
+        "dark": "#23212c"
       }
     }
   },
   "link": {
-    "$value": "#0057b8",
+    "$value": "#3f5f88",
     "$extensions": {
       "lateen": {
-        "dark": "#7fb4ca"
+        "dark": "#b7d0ea"
       }
     }
   },
   "focus": {
-    "$value": "#0057b8",
+    "$value": "#4c6f9a",
     "$extensions": {
       "lateen": {
-        "dark": "#7e9cd8"
+        "dark": "#8fb0d4"
       }
     }
   },
   "surface-sunken": {
-    "$value": "#e3e7ee",
+    "$value": "#e7e7ed",
     "$extensions": {
       "lateen": {
-        "dark": "#181820"
+        "dark": "#1c1a24"
       }
     }
   },
@@ -107,7 +107,7 @@
     "$value": "#5b3f99",
     "$extensions": {
       "lateen": {
-        "dark": "#b8a0dc"
+        "dark": "#d2b8f0"
       }
     }
   }

@@ -1,25 +1,25 @@
 {
   "hover-bg": {
-    "$value": "#d8dee98c",
+    "$value": "#e7e7edcc",
     "$extensions": {
       "lateen": {
-        "dark": "#3636468c"
+        "dark": "#393743cc"
       }
     }
   },
   "active-bg": {
-    "$value": "#c5cddc",
+    "$value": "#d5d3e3",
     "$extensions": {
       "lateen": {
-        "dark": "#54546d"
+        "dark": "#4a4760"
       }
     }
   },
   "selected-bg": {
-    "$value": "#d8dee9",
+    "$value": "#ede6d8",
     "$extensions": {
       "lateen": {
-        "dark": "#363646"
+        "dark": "#393743"
       }
     }
   },
@@ -27,23 +27,23 @@
     "$value": "#3f5f88",
     "$extensions": {
       "lateen": {
-        "dark": "#7fb4ca"
+        "dark": "#8fb0d4"
       }
     }
   },
   "disabled-fg": {
-    "$value": "#8892a6",
+    "$value": "#8a8699",
     "$extensions": {
       "lateen": {
-        "dark": "#727169"
+        "dark": "#7a758c"
       }
     }
   },
   "focus-ring": {
-    "$value": "#5e81ac",
+    "$value": "#4c6f9a",
     "$extensions": {
       "lateen": {
-        "dark": "#7e9cd8"
+        "dark": "#8fb0d4"
       }
     }
   },

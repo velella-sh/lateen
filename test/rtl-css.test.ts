@@ -542,7 +542,7 @@ test("icons align to the text baseline and quotes use the script's own pair in P
 });
 
 test("the header hairline needs no script and has a solid fallback", () => {
-  const header = stripComments(read("../chrome/header/style.css"));
+  const header = stripComments(read("../chrome/shell/style.css"));
   assert.match(header, /\.header \{[^}]*background: var\(--color-canvas\)[^}]*border-block-end: thin solid var\(--border-subtle\)/s);
   assert.match(header, /@supports \(animation-timeline: scroll\(\)\)/);
   assert.match(header, /@supports \(backdrop-filter: blur\(1px\)\)/);

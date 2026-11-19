@@ -9,7 +9,7 @@ import copyMarkdown from "../chrome/copy-markdown/index.ts";
 import drawer from "../chrome/drawer/index.ts";
 import editPage from "../chrome/edit-page/index.ts";
 import feedback from "../chrome/feedback/index.ts";
-import header from "../chrome/header/index.ts";
+import shell, { footer as shellFooter } from "../chrome/shell/index.ts";
 import lastUpdated from "../chrome/last-updated/index.ts";
 import pageAgentMenu from "../chrome/page-agent-menu/index.ts";
 import pageFooter from "../chrome/page-footer/index.ts";
@@ -101,9 +101,10 @@ const doc: Layout = (props) =>
     header: h(
       Fragment,
       null,
-      header(props) as ComponentChildren,
+      shell(props) as ComponentChildren,
       drawer(props) as ComponentChildren,
     ),
+    footer: shellFooter(props) as ComponentChildren,
     sidebar: sidebar(props) as ComponentChildren,
     main: h(Fragment, null, article(props), blockActions(props) as ComponentChildren),
     aside: toc(props) as ComponentChildren,
