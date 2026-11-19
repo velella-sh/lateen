@@ -1,5 +1,7 @@
 import { h } from "preact";
 import type { ComponentChildren } from "preact";
+import { Link } from "lucide";
+import { icon } from "../../src/icon.ts";
 
 /** Class on the link that points at the heading. */
 export const ANCHOR_CLASS = "heading-anchor";
@@ -11,10 +13,6 @@ export const TEXT_CLASS = "heading-text";
 export const LEVELS = ["h2", "h3", "h4"] as const;
 
 const DEFAULT_LABEL = "Link to this heading";
-
-/** Path data of the link icon (a chain, 16 by 16). */
-const ANCHOR_PATH =
-  "m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z";
 
 export type HeadingAnchorProps = {
   /** The heading's anchor id, from the slug stage. */
@@ -69,11 +67,7 @@ function anchorElement(id: string, label: string) {
   return h(
     "a",
     { class: ANCHOR_CLASS, href: `#${id}`, "aria-label": label },
-    h(
-      "svg",
-      { viewBox: "0 0 16 16", width: 16, height: 16, "aria-hidden": "true", focusable: "false" },
-      h("path", { d: ANCHOR_PATH }),
-    ),
+    icon({ node: Link }),
   );
 }
 
@@ -144,15 +138,19 @@ function anchorNode(id: string, label: string): HastNode {
       {
         type: "element",
         tagName: "svg",
-        properties: { viewBox: "0 0 16 16", width: 16, height: 16, ariaHidden: "true", focusable: "false" },
-        children: [
-          {
-            type: "element",
-            tagName: "path",
-            properties: { d: ANCHOR_PATH },
-            children: [],
-          },
-        ],
+        properties: {
+          viewBox: "0 0 24 24",
+          width: 24,
+          height: 24,
+          fill: "none",
+          stroke: "currentColor",
+          strokeWidth: 2,
+          strokeLinecap: "round",
+          strokeLinejoin: "round",
+          ariaHidden: "true",
+          focusable: "false",
+        },
+        children: Link.map(([tagName, properties]) => ({ type: "element", tagName, properties, children: [] })),
       },
     ],
   };

@@ -1,7 +1,8 @@
 import { h } from "preact";
 import type { ComponentChildren } from "preact";
 import type { CalendarLink, Component, ListProps } from "@velella/mizzen/contracts";
-import { calendarPlus } from "../../icons/index.ts";
+import { CalendarPlus } from "lucide";
+import { icon } from "../../src/icon.ts";
 import { t } from "../../i18n/index.ts";
 import { withBase } from "../link-card/index.ts";
 
@@ -78,11 +79,7 @@ const addToCalendar: Component<AddToCalendarProps> = ({ props, page, site }) => 
             title: t(lang, "record_calendar_download"),
             "aria-label": addName,
           },
-          h("span", {
-            class: ICON_CLASS,
-            "aria-hidden": "true",
-            dangerouslySetInnerHTML: { __html: calendarPlus },
-          }),
+          h("span", { class: ICON_CLASS, "aria-hidden": "true" }, icon({ node: CalendarPlus })),
           t(lang, "record_calendar_add"),
         ),
     webcal === undefined

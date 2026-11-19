@@ -1,6 +1,8 @@
 import { h } from "preact";
-import type { ComponentChildren, VNode } from "preact";
+import type { ComponentChildren } from "preact";
 import type { Component, Page } from "@velella/mizzen/contracts";
+import { File, Folder } from "lucide";
+import { icon as lucideIcon } from "../../src/icon.ts";
 
 /** Markdown directive that turns the nested list in its body into a file tree. */
 export const directive = "file-tree";
@@ -183,21 +185,11 @@ function uniqueNodeId(base: string, path: string, used: Set<string>): string {
   return unique;
 }
 
-function icon(folder: boolean): VNode {
-  return h(
-    "svg",
-    {
-      class: folder ? "file-tree-icon is-folder-icon" : "file-tree-icon is-file-icon",
-      viewBox: "0 0 16 16",
-      "aria-hidden": "true",
-      focusable: "false",
-    },
-    h("path", {
-      d: folder
-        ? "M2 4.5A1.5 1.5 0 0 1 3.5 3h2.6l1.5 1.5h4.9A1.5 1.5 0 0 1 14 6v6.5a1.5 1.5 0 0 1-1.5 1.5h-9A1.5 1.5 0 0 1 2 12.5z"
-        : "M4 2h5.5L13 5.5V14H4zM9.5 2v3.5H13",
-    }),
-  );
+function icon(folder: boolean) {
+  return lucideIcon({
+    node: folder ? Folder : File,
+    class: folder ? "file-tree-icon is-folder-icon" : "file-tree-icon is-file-icon",
+  });
 }
 
 /** One row, as a treeitem with its position in the level and, for a folder, its nested group. */

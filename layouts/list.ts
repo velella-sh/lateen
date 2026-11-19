@@ -16,7 +16,8 @@ import { subscribePanel } from "../components/add-to-calendar/index.ts";
 import { formatCount, pluralCategory } from "../components/reading-time/index.ts";
 import recordTable, { columnsOf as tableColumnsOf, type RecordColumn } from "../components/record-table/index.ts";
 import status, { type StatusTone } from "../components/status/index.ts";
-import { feed as feedIcon } from "../icons/index.ts";
+import { Rss } from "lucide";
+import { icon } from "../src/icon.ts";
 import { t } from "../i18n/index.ts";
 import { calendarDate } from "../src/dates.ts";
 import { formatField, isEmpty } from "../src/fields.ts";
@@ -393,7 +394,7 @@ function article(props: LayoutProps): ComponentChildren {
           h(
             "a",
             { class: "list-feed-link", href: list.feed },
-            h("span", { class: "list-feed-icon", "aria-hidden": "true", dangerouslySetInnerHTML: { __html: feedIcon } }),
+            h("span", { class: "list-feed-icon", "aria-hidden": "true" }, icon({ node: Rss })),
             t(props.page.lang, "dated_list_feed"),
           ),
         ),

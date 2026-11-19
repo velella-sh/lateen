@@ -5,7 +5,8 @@ import { t } from "../../i18n/index.ts";
 import { calendarDate, calendarMonth, calendarYear, type CalendarMonth } from "../../src/dates.ts";
 import { formatField, isEmpty } from "../../src/fields.ts";
 import { selectRecords } from "../../src/records.ts";
-import { feed } from "../../icons/index.ts";
+import { Rss } from "lucide";
+import { icon } from "../../src/icon.ts";
 
 /** The Markdown directive this component handles: `::dated-list{from="posts"}`. */
 export const directive = "dated-list";
@@ -415,7 +416,7 @@ export default function datedList({ props, page, site }: ComponentProps<Readonly
       h(
         "a",
         { class: "dated-list-action", href: feedUrl },
-        h("span", { class: "dated-list-icon", "aria-hidden": "true", dangerouslySetInnerHTML: { __html: feed } }),
+        h("span", { class: "dated-list-icon", "aria-hidden": "true" }, icon({ node: Rss })),
         t(lang, "dated_list_feed"),
       ),
     );

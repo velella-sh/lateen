@@ -93,7 +93,7 @@ test("each status shows its own icon and its visible label, so colour is never t
         `<strong class="status-banner-label" id="status-banner-${status}-label">${stringsOf("en")[LABEL_KEYS[status]]!}</strong>`,
       ),
     );
-    const shape = ICONS[status].join("|");
+    const shape = JSON.stringify(ICONS[status]);
     assert.ok(!shapes.has(shape), `${status} has its own icon shape`);
     shapes.add(shape);
   }

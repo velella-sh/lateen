@@ -1,7 +1,10 @@
 import { h } from "preact";
 import type { VNode } from "preact";
 import type { ComponentProps, Page } from "@velella/mizzen/contracts";
+import { CircleCheck, CircleMinus, CirclePlus, Link, ShieldCheck, SquarePen } from "lucide";
+import type { IconNode } from "lucide";
 import { calendarDate } from "../../src/dates.ts";
+import { icon } from "../../src/icon.ts";
 import { t } from "../../i18n/index.ts";
 
 /** The category names a changelog entry can mark. The order here is the order the documentation lists them. */
@@ -73,20 +76,16 @@ const CATEGORY_KEYS: Readonly<Record<Category, string>> = {
 };
 
 /**
- * Stroke paths for each category's icon, drawn on a 16×16 grid. Every icon is symmetric along the reading
- * direction, so it needs no mirror rule under right-to-left.
+ * Lucide icons for each category. Every icon is symmetric along the reading direction, so it needs
+ * no mirror rule under right-to-left.
  */
-const CATEGORY_ICONS: Readonly<Record<Category, readonly string[]>> = {
-  added: ["M8 2.5a5.5 5.5 0 1 0 0 11 5.5 5.5 0 0 0 0-11Z", "M8 5v6", "M5 8h6"],
-  changed: ["M11.5 2.5a2.12 2.12 0 0 1 3 3L5 15H2v-3Z", "M10 4l2 2"],
-  fixed: ["M8 2.5a5.5 5.5 0 1 0 0 11 5.5 5.5 0 0 0 0-11Z", "M5.5 8.25l1.75 1.75 3.5-3.5"],
-  removed: ["M8 2.5a5.5 5.5 0 1 0 0 11 5.5 5.5 0 0 0 0-11Z", "M5 8h6"],
-  security: ["M8 1.75 13.25 4v4.25c0 3-2.2 5.2-5.25 6-3.05-.8-5.25-3-5.25-6V4Z", "M5.75 8l1.75 1.75L10.5 6.5"],
+const CATEGORY_ICONS: Readonly<Record<Category, IconNode>> = {
+  added: CirclePlus,
+  changed: SquarePen,
+  fixed: CircleCheck,
+  removed: CircleMinus,
+  security: ShieldCheck,
 };
-
-/** Chain path data of the self-link icon, the same 16×16 link the heading anchor uses. */
-const LINK_PATH =
-  "m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z";
 
 /** The slug an id is built from: lower case, dots to dashes, runs of other characters to one dash. */
 export function slugOf(version: unknown): string {
@@ -183,37 +182,12 @@ export function versionTextOf(version: unknown, lang: string): string {
 
 /** The link icon: a chain drawn in `currentColor`, hidden from assistive technology. */
 function anchorIcon() {
-  return h(
-    "svg",
-    {
-      class: "changelog-entry-anchor-icon",
-      viewBox: "0 0 16 16",
-      width: 16,
-      height: 16,
-      "aria-hidden": "true",
-      focusable: "false",
-    },
-    h("path", { d: LINK_PATH }),
-  );
+  return icon({ node: Link, class: "changelog-entry-anchor-icon" });
 }
 
 /** One category's icon, hidden from assistive technology because the label beside it names the category. */
 function categoryIcon(category: Category) {
-  return h(
-    "svg",
-    {
-      class: "changelog-entry-category-icon",
-      viewBox: "0 0 16 16",
-      fill: "none",
-      stroke: "currentColor",
-      "stroke-width": "1.5",
-      "stroke-linecap": "round",
-      "stroke-linejoin": "round",
-      "aria-hidden": "true",
-      focusable: "false",
-    },
-    CATEGORY_ICONS[category].map((d) => h("path", { d })),
-  );
+  return icon({ node: CATEGORY_ICONS[category], class: "changelog-entry-category-icon" });
 }
 
 /** The date, machine-readable when it is a real calendar date, and clear fallback text when it is not. */

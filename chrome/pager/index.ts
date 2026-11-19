@@ -1,15 +1,12 @@
 import { h } from "preact";
 import type { Chrome, NavLink } from "@velella/mizzen/contracts";
+import { ArrowLeft, ArrowRight } from "lucide";
 import { t } from "../../i18n/index.ts";
+import { icon } from "../../src/icon.ts";
 
 /** Arrow pointing toward the page it leads to; `style.css` mirrors it under `dir="rtl"`. */
 function arrow(kind: "prev" | "next") {
-  const d = kind === "prev" ? "M11 6l-6 6 6 6M5 12h14" : "M13 6l6 6-6 6M19 12H5";
-  return h(
-    "svg",
-    { class: "pager-arrow", viewBox: "0 0 24 24", "aria-hidden": "true", focusable: "false" },
-    h("path", { d }),
-  );
+  return icon({ node: kind === "prev" ? ArrowLeft : ArrowRight, class: "pager-arrow" });
 }
 
 /**

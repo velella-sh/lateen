@@ -1,6 +1,9 @@
 import { h } from "preact";
 import type { Chrome, SiteConfig } from "@velella/mizzen/contracts";
+import { OctagonAlert, TriangleAlert } from "lucide";
+import type { IconNode } from "lucide";
 import { t } from "../../i18n/index.ts";
+import { icon } from "../../src/icon.ts";
 import { optionOf } from "../../src/options.ts";
 
 /** The id a bar without one is stored under; two bars need two ids to be dismissed separately. */
@@ -18,12 +21,11 @@ export const TONE_KEYS: Readonly<Record<Exclude<AnnouncementTone, "info">, strin
 };
 
 /**
- * Stroke paths for a non-default tone's icon, drawn on a 16×16 grid. The shapes are direction-neutral
- * and need no RTL flip.
+ * Lucide icons for non-default tones. The shapes are direction-neutral and need no RTL flip.
  */
-const ICONS: Readonly<Record<Exclude<AnnouncementTone, "info">, readonly string[]>> = {
-  danger: ["M5.2 1.5h5.6l3.7 3.7v5.6l-3.7 3.7H5.2l-3.7-3.7V5.2Z", "M8 4.5v4", "M8 11v.01"],
-  warning: ["M8 1.8 14.8 13.5H1.2Z", "M8 6v3.25", "M8 11.2v.01"],
+const ICONS: Readonly<Record<Exclude<AnnouncementTone, "info">, IconNode>> = {
+  danger: OctagonAlert,
+  warning: TriangleAlert,
 };
 
 /** The `announcement` block from `theme.options`, as the config wrote it. */
@@ -68,21 +70,7 @@ function hrefOf(base: string, url: string): string {
 
 /** A non-default tone's inline icon. It is decorative: the label beside it carries the meaning. */
 function toneIcon(tone: Exclude<AnnouncementTone, "info">) {
-  return h(
-    "svg",
-    {
-      class: "announcement-icon",
-      viewBox: "0 0 16 16",
-      fill: "none",
-      stroke: "currentColor",
-      "stroke-width": "1.5",
-      "stroke-linecap": "round",
-      "stroke-linejoin": "round",
-      "aria-hidden": "true",
-      focusable: "false",
-    },
-    ICONS[tone].map((d) => h("path", { d })),
-  );
+  return icon({ node: ICONS[tone], class: "announcement-icon" });
 }
 
 /**

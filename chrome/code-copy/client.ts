@@ -31,22 +31,27 @@ export interface CopyLabels {
 }
 
 const SVG_NS = "http://www.w3.org/2000/svg";
-const COPY_PATH =
-  "M0 6.75C0 5.784.784 5 1.75 5h1.5a.75.75 0 0 1 0 1.5h-1.5a.25.25 0 0 0-.25.25v7.5c0 .138.112.25.25.25h7.5a.25.25 0 0 0 .25-.25v-1.5a.75.75 0 0 1 1.5 0v1.5A1.75 1.75 0 0 1 9.25 16h-7.5A1.75 1.75 0 0 1 0 14.25Zm5-5C5 .784 5.784 0 6.75 0h7.5C15.216 0 16 .784 16 1.75v7.5A1.75 1.75 0 0 1 14.25 11h-7.5A1.75 1.75 0 0 1 5 9.25Zm1.75-.25a.25.25 0 0 0-.25.25v7.5c0 .138.112.25.25.25h7.5a.25.25 0 0 0 .25-.25v-7.5a.25.25 0 0 0-.25-.25Z";
-const CHECK_PATH =
-  "M13.78 4.22a.75.75 0 0 1 0 1.06l-7.25 7.25a.75.75 0 0 1-1.06 0L2.22 9.28a.751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018L6 10.94l6.72-6.72a.75.75 0 0 1 1.06 0Z";
+type IconNode = [string, Record<string, string | number>][];
+type CopyIcons = { copy: IconNode; check: IconNode };
 
-/** An SVG icon: one path in `currentColor`, hidden from assistive tech. */
-function icon(env: CopyDocument, d: string): CopyNode {
+/** A Lucide icon in `currentColor`, hidden from assistive tech. */
+function icon(env: CopyDocument, node: IconNode): CopyNode {
   const svg = env.createElementNS(SVG_NS, "svg");
-  svg.setAttribute("viewBox", "0 0 16 16");
-  svg.setAttribute("width", "16");
-  svg.setAttribute("height", "16");
+  svg.setAttribute("viewBox", "0 0 24 24");
+  svg.setAttribute("width", "24");
+  svg.setAttribute("height", "24");
+  svg.setAttribute("fill", "none");
+  svg.setAttribute("stroke", "currentColor");
+  svg.setAttribute("stroke-width", "2");
+  svg.setAttribute("stroke-linecap", "round");
+  svg.setAttribute("stroke-linejoin", "round");
   svg.setAttribute("aria-hidden", "true");
   svg.setAttribute("focusable", "false");
-  const path = env.createElementNS(SVG_NS, "path");
-  path.setAttribute("d", d);
-  svg.append(path);
+  for (const [tag, attrs] of node) {
+    const child = env.createElementNS(SVG_NS, tag);
+    for (const [name, value] of Object.entries(attrs)) child.setAttribute(name, String(value));
+    svg.append(child);
+  }
   return svg;
 }
 
@@ -209,8 +214,9 @@ export function copy(text: string, ui: CopyUi, env: CopyEnv, isLatest: () => boo
 /** Adds a copy button above each code block and wires it. Nothing is added to a page the island does not run on. */
 export function activate(doc: CopyDocument, env: CopyEnv): void {
   const labels = labelsOf(doc);
+  const icons = iconsOf(doc);
   for (const block of doc.querySelectorAll(BLOCK_SELECTOR)) {
-    attach(doc, block, env, labels);
+    attach(doc, block, env, labels, icons);
   }
 }
 
@@ -228,8 +234,22 @@ export function labelsOf(doc: CopyDocument): CopyLabels {
   };
 }
 
+function iconsOf(doc: CopyDocument): CopyIcons {
+  const template = doc.querySelector?.(TEMPLATE_SELECTOR) ?? null;
+  const read = (name: string): IconNode => {
+    const value = template?.getAttribute(name);
+    if (!value) return [];
+    try {
+      return JSON.parse(value) as IconNode;
+    } catch {
+      return [];
+    }
+  };
+  return { copy: read("data-copy-icon"), check: read("data-check-icon") };
+}
+
 /** One block's control: a bar above the block with the button and the live message. */
-function attach(doc: CopyDocument, block: CopyBlock, env: CopyEnv, labels: CopyLabels): void {
+function attach(doc: CopyDocument, block: CopyBlock, env: CopyEnv, labels: CopyLabels, icons: CopyIcons): void {
   const code = block.querySelector("code");
   if (code === null) return;
 
@@ -254,8 +274,8 @@ function attach(doc: CopyDocument, block: CopyBlock, env: CopyEnv, labels: CopyL
   const identity = block.getAttribute("id") ?? source;
   if (identity !== null) button.setAttribute("data-block-id", identity);
 
-  const copyIcon = icon(doc, COPY_PATH);
-  const checkIcon = icon(doc, CHECK_PATH);
+  const copyIcon = icon(doc, icons.copy);
+  const checkIcon = icon(doc, icons.check);
   checkIcon.setAttribute("hidden", "");
   button.append(copyIcon, checkIcon);
   bar.append(button, status);

@@ -1,7 +1,8 @@
 import { h } from "preact";
 import type { ComponentChildren } from "preact";
 import type { Component, PageStale, PageStaleFile } from "@velella/mizzen/contracts";
-import { warning } from "../../icons/index.ts";
+import { TriangleAlert } from "lucide";
+import { icon } from "../../src/icon.ts";
 import { t } from "../../i18n/index.ts";
 import { calendarDate } from "../../src/dates.ts";
 import { optionOf } from "../../src/options.ts";
@@ -102,7 +103,7 @@ const staleNotice: Component<StaleNoticeProps> = ({ props, page, site }) => {
     h(
       "h2",
       { id: `${CLASS}-title` },
-      h("span", { class: ICON_CLASS, "aria-hidden": "true", dangerouslySetInnerHTML: { __html: warning } }),
+      h("span", { class: ICON_CLASS, "aria-hidden": "true" }, icon({ node: TriangleAlert })),
       t(lang, "stale_title"),
     ),
     reviewed === undefined

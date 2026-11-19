@@ -2,7 +2,7 @@
 
 A component is a piece of content or interface used inside pages (a callout, a code tab). One folder per component: `components/<name>/`, lowercase kebab-case.
 
-A folder holds `index.ts` (the Preact component, written with `h()`; its default export is the component), `style.css`, an optional `client.ts` (its island), and its tests.
+A folder holds `index.ts` (the Preact component, written with `h()`; its default export is the component), an optional `client.ts` (its island), and its tests. Visuals live in `styles/src/ui.css`.
 
 Example, `components/callout/index.ts`:
 

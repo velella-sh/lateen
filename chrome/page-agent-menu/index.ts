@@ -1,6 +1,8 @@
 import { h } from "preact";
 import type { Chrome } from "@velella/mizzen/contracts";
+import { ChevronDown } from "lucide";
 import { t } from "../../i18n/index.ts";
+import { icon } from "../../src/icon.ts";
 import { expand, jsonUrl, providersOf, SAFE_SCHEME } from "./providers.ts";
 import { twinUrl } from "../copy-markdown/twin.ts";
 
@@ -9,11 +11,7 @@ export { twinUrl };
 
 /** The chevron that turns over when the menu opens; decorative, so it is hidden from assistive tech. */
 function chevron() {
-  return h(
-    "svg",
-    { class: "page-agent-menu-chevron", viewBox: "0 0 16 16", "aria-hidden": "true", focusable: "false" },
-    h("path", { d: "M4 6l4 4 4-4" }),
-  );
+  return icon({ node: ChevronDown, class: "page-agent-menu-chevron" });
 }
 
 /**

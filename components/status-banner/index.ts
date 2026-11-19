@@ -1,6 +1,9 @@
 import { h } from "preact";
 import type { Component, Page } from "@velella/mizzen/contracts";
+import { CircleSlash, Clock, FlaskConical } from "lucide";
+import type { IconNode } from "lucide";
 import { t } from "../../i18n/index.ts";
+import { icon as lucideIcon } from "../../src/icon.ts";
 
 /** The Markdown directive this component handles: `::status-banner{status=deprecated}`. */
 export const directive = "status-banner";
@@ -44,16 +47,13 @@ export type StatusBannerProps = {
 };
 
 /**
- * Stroke paths for each status's icon, drawn on a 16×16 grid. Each status has its own shape, so the
- * banner never relies on colour alone. The shapes are direction-neutral and need no RTL flip.
+ * Lucide icons for each status. Each status has its own shape, so the banner never relies on colour
+ * alone. The shapes are direction-neutral and need no RTL flip.
  */
-export const ICONS: Readonly<Record<StatusBannerStatus, readonly string[]>> = {
-  deprecated: ["M8 1.5a6.5 6.5 0 1 0 0 13 6.5 6.5 0 0 0 0-13Z", "m4.6 4.6 6.8 6.8"],
-  experimental: [
-    "M6 1.5h4",
-    "M6.75 1.5v4.25L3.4 12a1.5 1.5 0 0 0 1.3 2.25h6.6a1.5 1.5 0 0 0 1.3-2.25L9.25 5.75V1.5",
-  ],
-  "old-version": ["M8 1.5a6.5 6.5 0 1 0 0 13 6.5 6.5 0 0 0 0-13Z", "M8 4.25V8l2.5 1.5"],
+export const ICONS: Readonly<Record<StatusBannerStatus, IconNode>> = {
+  deprecated: CircleSlash,
+  experimental: FlaskConical,
+  "old-version": Clock,
 };
 
 /** A path on this site (not protocol-relative `//host`) or an https link. Anything else is not a link. */
@@ -134,21 +134,7 @@ function uniqueId(page: Page, base: string): string {
 
 /** The status's inline icon. It is decorative: the label beside it carries the meaning for a screen reader. */
 function icon(status: StatusBannerStatus) {
-  return h(
-    "svg",
-    {
-      class: "status-banner-icon",
-      viewBox: "0 0 16 16",
-      fill: "none",
-      stroke: "currentColor",
-      "stroke-width": "1.5",
-      "stroke-linecap": "round",
-      "stroke-linejoin": "round",
-      "aria-hidden": "true",
-      focusable: "false",
-    },
-    ICONS[status].map((d) => h("path", { d })),
-  );
+  return lucideIcon({ node: ICONS[status], class: "status-banner-icon" });
 }
 
 /**

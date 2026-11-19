@@ -1,6 +1,8 @@
 import { h } from "preact";
 import type { ComponentProps, Page } from "@velella/mizzen/contracts";
+import { OctagonX } from "lucide";
 import { t } from "../../i18n/index.ts";
+import { icon } from "../../src/icon.ts";
 
 /** The Markdown directive this component handles: `:::trap`. */
 export const directive = "trap";
@@ -39,23 +41,7 @@ export default function trap({ props, html, page }: ComponentProps<TrapProps>) {
   return h(
     "div",
     { class: "trap", role: "note", "aria-labelledby": id },
-    h(
-      "svg",
-      {
-        class: "trap-icon",
-        viewBox: "0 0 16 16",
-        fill: "none",
-        stroke: "currentColor",
-        "stroke-width": "1.5",
-        "stroke-linecap": "round",
-        "stroke-linejoin": "round",
-        "aria-hidden": "true",
-        focusable: "false",
-      },
-      h("path", { d: "M8 1.5 14.5 8 8 14.5 1.5 8Z" }),
-      h("path", { d: "M5.5 5.5l5 5" }),
-      h("path", { d: "M10.5 5.5l-5 5" }),
-    ),
+    icon({ node: OctagonX, class: "trap-icon" }),
     h(
       "div",
       { class: "trap-content" },

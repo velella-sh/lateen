@@ -1,6 +1,9 @@
 import { h } from "preact";
 import type { Component } from "@velella/mizzen/contracts";
+import { ArrowLeftRight, Diamond, Minus, Plus } from "lucide";
+import type { IconNode } from "lucide";
 import { patternOf, t } from "../../i18n/index.ts";
+import { icon as lucideIcon } from "../../src/icon.ts";
 import { instanceId } from "../../src/page-ids.ts";
 
 /** The Markdown directive this component handles: `::version-diff{from=v1 to=v2 changes='[...]'}`. */
@@ -30,11 +33,11 @@ export const SR_CLASS = "version-diff-sr";
  * The icon before each kind's label. Each kind has its own shape, so the kinds differ by shape and
  * by the visible label, never by color alone.
  */
-export const ICONS: Readonly<Record<ChangeKind, readonly string[]>> = {
-  added: ["M8 3v10", "M3 8h10"],
-  removed: ["M3 8h10"],
-  changed: ["M8 2.5 13.5 8 8 13.5 2.5 8Z"],
-  moved: ["M3 5h10", "m10 2 3 3-3 3", "M13 11H3", "m6-3-3 3 3 3"],
+export const ICONS: Readonly<Record<ChangeKind, IconNode>> = {
+  added: Plus,
+  removed: Minus,
+  changed: Diamond,
+  moved: ArrowLeftRight,
 };
 
 /** The i18n key with each kind's visible label. */
@@ -284,21 +287,7 @@ export function idBase(raw: unknown): string {
 
 /** One kind's inline icon; the visible label beside it carries the meaning, so it is decorative. */
 function icon(kind: ChangeKind) {
-  return h(
-    "svg",
-    {
-      class: "version-diff-icon",
-      viewBox: "0 0 16 16",
-      fill: "none",
-      stroke: "currentColor",
-      "stroke-width": "1.5",
-      "stroke-linecap": "round",
-      "stroke-linejoin": "round",
-      "aria-hidden": "true",
-      focusable: "false",
-    },
-    ICONS[kind].map((d) => h("path", { d })),
-  );
+  return lucideIcon({ node: ICONS[kind], class: "version-diff-icon" });
 }
 
 /** A section of text from one side of the change, under its `Before` or `After` label and marker. */

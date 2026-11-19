@@ -61,6 +61,7 @@
     "jsdom": "^31.0.0",
     "lucide": "1.75.0",
     "mermaid": "^12.3.0",
+    "preact-render-to-string": "^6.8.2",
     "shiki": "^4.6.0"
   },
   "peerDependencies": {
@@ -82,7 +83,6 @@
     "chart.js": "4.6.1",
     "playwright": "1.65.0",
     "preact": "^11.2.0",
-    "preact-render-to-string": "^6.8.2",
     "tailwindcss": "4.3.5",
     "typescript": "^7.0.2",
     "yaml": "^2.9.1"
@@ -100,7 +100,6 @@
     "tokens",
     "fonts",
     "i18n",
-    "icons",
     "redesign",
     "skills",
     "starters",

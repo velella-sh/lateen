@@ -1,6 +1,8 @@
 import { h } from "preact";
 import type { Component } from "@velella/mizzen/contracts";
-import { check, danger, info, minus, warning } from "../../icons/index.ts";
+import { Check, Info, Minus, OctagonAlert, TriangleAlert } from "lucide";
+import type { IconNode } from "lucide";
+import { icon } from "../../src/icon.ts";
 import { resolveStatus } from "./values.ts";
 
 /** The Markdown directive this component handles: `:status[Done]{tone=positive}`. */
@@ -18,12 +20,12 @@ export type StatusTone = (typeof TONES)[number];
 export const DEFAULT_TONE: StatusTone = "neutral";
 
 /** One icon per tone, so tones differ by shape and text as well as by colour. */
-export const ICONS: Readonly<Record<StatusTone, string>> = {
-  positive: check,
-  caution: warning,
-  negative: danger,
-  neutral: minus,
-  info: info,
+export const ICONS: Readonly<Record<StatusTone, IconNode>> = {
+  positive: Check,
+  caution: TriangleAlert,
+  negative: OctagonAlert,
+  neutral: Minus,
+  info: Info,
 };
 
 /** Props from the directive: `:status[Done]{tone=positive}`. */
@@ -69,7 +71,7 @@ const status: Component<StatusProps> = ({ props, html, page, site }) => {
   return h(
     "span",
     { class: classNameOf(tone), "data-tone": tone, ...(src === undefined ? {} : { "data-src": src }) },
-    h("span", { class: "status-icon", "aria-hidden": "true", dangerouslySetInnerHTML: { __html: ICONS[tone] } }),
+    h("span", { class: "status-icon", "aria-hidden": "true" }, icon({ node: ICONS[tone] })),
     label,
   );
 };

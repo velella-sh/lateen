@@ -179,7 +179,7 @@ test("folders get the folder icon and files the file icon", () => {
   const out = render(NESTED);
   assert.equal(out.match(/file-tree-icon is-folder-icon/g)?.length, 4);
   assert.equal(out.match(/file-tree-icon is-file-icon/g)?.length, 3);
-  assert.match(out, /<svg class="file-tree-icon is-file-icon" viewBox="0 0 16 16" aria-hidden="true"/);
+  assert.match(out, /<svg class="file-tree-icon is-file-icon"[^>]*viewBox="0 0 24 24"[^>]*aria-hidden="true"/);
 });
 
 test("the comment after # renders in a muted note, not in the name", () => {

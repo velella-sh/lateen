@@ -1,6 +1,6 @@
 import { h } from "preact";
 import type { ComponentChild } from "preact";
-import { iconByName } from "../../icons/index.ts";
+import { icon, iconByName } from "../../src/icon.ts";
 import { hrefOf } from "../link-card/index.ts";
 
 /** Class on the grid (`<ul>`). `data-columns` holds the column count it fits at the widest. */
@@ -63,12 +63,12 @@ export default function featureGrid({ features, columns }: FeatureGridProps): Co
   const items = entries.map((feature, index) => {
     const title = textOf(feature.title)!;
     const description = textOf(feature.description);
-    const icon = iconByName(feature.icon);
+    const node = iconByName(feature.icon);
     const href = hrefOf(feature.url);
     const parts = [
-      icon === undefined
+      node === undefined
         ? null
-        : h("span", { class: "feature-grid-icon", "aria-hidden": "true", dangerouslySetInnerHTML: { __html: icon } }),
+        : h("span", { class: "feature-grid-icon", "aria-hidden": "true" }, icon({ node })),
       h("span", { class: "feature-grid-title" }, title),
       description === undefined ? null : h("span", { class: "feature-grid-text" }, description),
     ];

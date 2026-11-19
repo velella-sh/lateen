@@ -1,16 +1,14 @@
 import { h } from "preact";
+import { File } from "lucide";
+import { iconHtml } from "../../src/icon.ts";
 import { escapeHtml } from "./escape.ts";
 
 /** Class on the file name bar above a code block. */
 export const TITLE_CLASS = "code-title";
 
-/** A file outline on a 16 by 16 grid, drawn with strokes so it takes the text color. */
-const FILE_PATH: readonly string[] = ["M4 1.5h5.5L13 5v9.5H4Z", "M9.5 1.5V5H13"];
-
 /** The bar's insides: a decorative file icon and the escaped name. */
 function titleInner(name: string): string {
-  const paths = FILE_PATH.map((d) => `<path d="${d}"></path>`).join("");
-  const icon = `<svg class="${TITLE_CLASS}-icon" viewBox="0 0 16 16" width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false">${paths}</svg>`;
+  const icon = iconHtml({ node: File, class: `${TITLE_CLASS}-icon` });
   return `${icon}<span class="${TITLE_CLASS}-name">${escapeHtml(name)}</span>`;
 }
 
