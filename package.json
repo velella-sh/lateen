@@ -50,7 +50,7 @@
     "test:visual": "npm run ui:build && node scripts/test-visual.ts",
     "test:performance": "npm run ui:build && node scripts/performance-budget.ts",
 
-    "test:coverage": "npm run ui:build && node scripts/tokens.ts --check && mkdir -p coverage && node --test --experimental-test-coverage --test-coverage-exclude=\"test/**\" --test-coverage-exclude=\"scripts/**\" --test-reporter=spec --test-reporter-destination=stdout --test-reporter=lcov --test-reporter-destination=coverage/lcov.info \"test/**/*.test.ts\"",
+    "test:coverage": "npm run ui:build && node scripts/tokens.ts --check && mkdir -p coverage && node --test --experimental-test-coverage --test-coverage-exclude=\"test/**\" --test-coverage-exclude=\"scripts/**\" --test-reporter=spec --test-reporter-destination=stdout --test-reporter=lcov --test-reporter-destination=coverage/lcov.info \"test/**/*.test.ts\" && npm run coverage:badge",
     "coverage:badge": "node scripts/coverage-badge.ts coverage/lcov.info coverage/coverage.json",
     "check:design": "node scripts/check-design.ts",
     "check:starters": "node scripts/check-starters.ts",
