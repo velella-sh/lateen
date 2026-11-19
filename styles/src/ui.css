@@ -1803,6 +1803,14 @@
     display: none !important;
   }
 
+  /* print.css forces closed-details children to `display:block`; beat that for chrome we hide. */
+  details:not([open]) > button.block-action,
+  details > button.block-action,
+  button.block-action,
+  .block-action {
+    display: none !important;
+  }
+
   .layout, .doc-layout, .home-hero, .home-sections {
     display: block;
     inline-size: 100%;
@@ -1812,6 +1820,20 @@
     break-inside: avoid;
     margin-block-end: 1rem;
   }
+}
+
+/* Screen-reader-only status chips must not extend the scroll width (print gallery overflow). */
+.diff-block-sr,
+.diff-block-status {
+  position: absolute !important;
+  inline-size: 1px !important;
+  block-size: 1px !important;
+  margin: -1px !important;
+  padding: 0 !important;
+  overflow: hidden !important;
+  clip-path: inset(50%) !important;
+  white-space: nowrap !important;
+  border: 0 !important;
 }
 
 /* Narrow screens: tools wrap so language/theme never widen the page. */
