@@ -63,6 +63,22 @@ test("document pages render their description, navigation, toc and highlighted b
   assert.match(html, /<table tabindex="0" role="region" aria-label="Scrollable table">/);
 });
 
+test("code tabs parse labels and keep panels without JavaScript", async () => {
+  const codeTabs = await import("../components/code-tabs/index.ts");
+  assert.deepEqual(codeTabs.parseLabels('["npm","pnpm"]'), ["npm", "pnpm"]);
+  const props = propsWith();
+  const html = renderToString(h(codeTabs.default, {
+    props: { labels: '["npm","pnpm"]' },
+    page: props.page,
+    site: props.site,
+    html: "<pre><code>npm i</code></pre><pre><code>pnpm i</code></pre>",
+  }));
+  assert.match(html, /data-code-tabs/);
+  assert.match(html, /role="tablist"/);
+  assert.match(html, /npm/);
+  assert.match(html, /pnpm/);
+});
+
 test("callouts keep their accessible name and normalize aliases and unknown kinds", () => {
   assert.ok(calloutModule);
   assert.equal(calloutModule.calloutKind("danger"), "caution");
