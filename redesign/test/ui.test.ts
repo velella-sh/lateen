@@ -37,6 +37,11 @@ test("home uses Basecoat actions and cards with the authored content", () => {
   assert.match(html, /Quickstart/);
   assert.match(html, /<main id="main"/);
   assert.match(html, /<a class="brand" href="\/lateen\/">/);
+  assert.match(html, /data-site-header/);
+  assert.match(html, /data-progress/);
+  assert.match(html, /Search the docs/);
+  assert.match(html, /aria-label="Sections"/);
+  assert.match(html, /site-footer/);
 });
 
 test("document pages render their description, navigation, toc and highlighted body", () => {
