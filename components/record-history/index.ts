@@ -4,6 +4,7 @@ import type { ChangeEvent, Component } from "@velella/mizzen/contracts";
 import { t } from "../../i18n/index.ts";
 import { calendarDate } from "../../src/dates.ts";
 import { formatField } from "../../src/fields.ts";
+import { optionOf } from "../../src/options.ts";
 
 /**
  * The record's own events: newest first, with the date in the page's calendar, the event type, and
@@ -67,7 +68,7 @@ const TYPE_KEYS: Readonly<Record<ChangeEvent["type"], string>> = {
 
 /** The configured limit, falling back to the default for a missing, non-numeric or too-small value. */
 export function limitOf(site: { config?: { theme?: { options?: Readonly<Record<string, unknown>> } } } | undefined): number {
-  const history = site?.config?.theme?.options?.history;
+  const history = optionOf(site?.config?.theme?.options, "history");
   const value = typeof history === "object" && history !== null ? (history as { limit?: unknown }).limit : undefined;
   return typeof value === "number" && Number.isInteger(value) && value >= 1 ? value : DEFAULT_LIMIT;
 }

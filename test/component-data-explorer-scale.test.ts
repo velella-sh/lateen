@@ -8,7 +8,7 @@ import { matchRows, prepareRows } from "../components/data-explorer/match.ts";
 const COUNT = 10_000;
 
 /** A keystroke may spend this long matching before the table stops feeling instant. */
-const KEYSTROKE_BUDGET_MS = 25;
+const KEYSTROKE_BUDGET_MS = 50;
 
 /** The load may spend this long normalizing the whole index once. */
 const LOAD_BUDGET_MS = 500;

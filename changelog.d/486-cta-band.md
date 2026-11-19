@@ -1,1 +1,0 @@
-- CTA band: `cta-band` closes a page with a heading, a line of text, one primary action and an optional install command shown through `install-tabs`, with one copy button that takes the selected manager's command. The action comes first in the reading order; the band prints plainly and mirrors in right-to-left.

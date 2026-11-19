@@ -61,7 +61,7 @@ The body of the record.
 
 The marker itself renders no visible list when it has no body; the layout's section is the view. A
 collection without a history file, and a page whose record has no event, are unchanged. Both the
-`:::changes` marker and `record.changes` need Mizzen 0.2.3 or later.
+`:::changes` marker and `record.changes` need Mizzen 0.2.4 or later.
 
 ## Without JavaScript
 

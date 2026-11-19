@@ -41,7 +41,7 @@ theme:
 ## Site setup
 
 A page names the files it describes in its front matter, and the site keeps the review lock at its
-root. Both are engine keys, so the theme only renders the result. Both need Mizzen 0.2.3 or later.
+root. Both are engine keys, so the theme only renders the result. Both need Mizzen 0.2.4 or later.
 
 ```yaml
 ---

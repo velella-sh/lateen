@@ -1,1 +1,0 @@
-- Motif (#487): `::motif{seed pattern}` draws a decorative contours, dots or grid SVG at build time from a seed, in the theme's accent colours for both themes. The same input gives the same bytes, each motif stays under 4 KB, and it carries no text, no raster image and is hidden from assistive technology.

@@ -1,6 +1,7 @@
 import type { ComponentChildren } from "preact";
 import type { SiteConfig } from "@velella/mizzen/contracts";
 import { card, hrefOf } from "../cards/index.ts";
+import { optionOf } from "../../src/options.ts";
 import { withBase } from "../../src/url.ts";
 
 /** Class on the site's own card, so a gallery can mark it apart from the records. */
@@ -18,8 +19,7 @@ interface AddCardOptions {
  * root-relative, as the cards accept) and a non-blank label render it.
  */
 export function addCardOf(config: SiteConfig): ComponentChildren {
-  const options = config.theme.options as Readonly<Record<string, unknown>> | undefined;
-  const gallery = options?.gallery;
+  const gallery = optionOf(config.theme.options, "gallery");
   if (gallery === null || typeof gallery !== "object") return undefined;
 
   const add = (gallery as Readonly<Record<string, unknown>>).addCard as AddCardOptions | undefined;

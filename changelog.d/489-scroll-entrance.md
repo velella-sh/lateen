@@ -1,1 +1,0 @@
-- Showpiece scroll entrance (#489): showpiece sections rise as they enter the view with scroll-driven animation written in CSS, behind `@supports (animation-timeline: view())`. The resting state is the finished page, so an unsupported browser, reduced motion, print and forced colours show it complete; no script.

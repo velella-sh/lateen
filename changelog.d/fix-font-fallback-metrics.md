@@ -1,1 +1,0 @@
-- Fonts: the size-adjusted fallback faces now use measured metrics, so a first visit that paints before the web fonts arrive no longer shows an oversized, overlapping page; a bold fallback face is added.

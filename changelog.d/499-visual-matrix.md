@@ -1,1 +1,0 @@
-- Visual screenshot matrix (#499): `test/visual/matrix.json` lists every layout and gallery case in light and dark, in English, Persian and Arabic, at 375, 768 and 1280 pixels, with the gallery in print and forced-colors emulation; `node scripts/test-visual.ts` takes one image per entry.

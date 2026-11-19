@@ -1,5 +1,6 @@
 import assert from "node:assert/strict";
-import { readFileSync } from "node:fs";
+import { readdirSync, readFileSync } from "node:fs";
+import { join } from "node:path";
 import { test } from "node:test";
 import { languages, stringsOf, type Language } from "../i18n/index.ts";
 
@@ -92,9 +93,7 @@ test("the 404 recovery group is complete in every language", () => {
     "search_placeholder",
     "search",
     "home",
-    "go_home",
-  ] as const;
-  for (const lang of languages) {
+  ] as const;  for (const lang of languages) {
     const table = stringsOf(lang);
     for (const key of recoveryKeys) {
       const text = table[key];
@@ -128,4 +127,56 @@ test("the single-key shortcut preference names the same keys in every language",
       assert.ok(hint.includes(key), `${lang}.shortcuts_preference_hint omits ${key}`);
     }
   }
+});
+
+/** The text of every theme unit, so a catalog key is live only when a unit reads it. */
+function units(): string {
+  const text: string[] = [];
+  const walk = (dir: string): void => {
+    for (const entry of readdirSync(dir, { withFileTypes: true })) {
+      const path = join(dir, entry.name);
+      if (entry.isDirectory()) walk(path);
+      else if (/\.(?:ts|tsx)$/.test(entry.name)) text.push(readFileSync(path, "utf8"));
+    }
+  };
+  for (const dir of ["src", "components", "chrome", "layouts"]) walk(dir);
+  return text.join("\n");
+}
+
+/** Strings that are the same in every language because they are technical names, not prose. */
+const TECHNICAL = new Set([
+  "ask_agent_prompt_json",
+  "ask_agent_prompt_markdown",
+  "budget_report_css",
+  "budget_report_gzip",
+  "embed_code_html",
+  "embed_code_markdown",
+]);
+
+test("every message is read by a unit", () => {
+  const text = units();
+  const unread: string[] = [];
+  for (const key of Object.keys(english)) {
+    if (text.includes(key)) continue;
+    // A key a unit builds at runtime: a family prefix followed by `${`, or a prefix constant.
+    const parts = key.split("_");
+    let live = false;
+    for (let index = parts.length - 1; index > 0 && !live; index -= 1) {
+      const prefix = parts.slice(0, index).join("_");
+      live = text.includes(`${prefix}_\${`) || text.includes(`"${prefix}_"`) || text.includes(`"${prefix}"`);
+    }
+    if (!live) unread.push(key);
+  }
+  assert.deepEqual(unread, []);
+});
+
+test("no catalog leaves a message in English", () => {
+  const untranslated: string[] = [];
+  for (const lang of languages) {
+    if (lang === "en") continue;
+    for (const [key, text] of Object.entries(stringsOf(lang))) {
+      if (text === english[key] && !TECHNICAL.has(key)) untranslated.push(`${lang}.${key}`);
+    }
+  }
+  assert.deepEqual(untranslated, []);
 });

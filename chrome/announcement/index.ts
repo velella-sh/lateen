@@ -1,6 +1,7 @@
 import { h } from "preact";
 import type { Chrome, SiteConfig } from "@velella/mizzen/contracts";
 import { t } from "../../i18n/index.ts";
+import { optionOf } from "../../src/options.ts";
 
 /** The id a bar without one is stored under; two bars need two ids to be dismissed separately. */
 export const DEFAULT_ID = "announcement";
@@ -35,7 +36,7 @@ type Announcement = {
 
 /** The announcement options, or undefined when the site sets no block. */
 function announcementOf(config: SiteConfig): Announcement | undefined {
-  const value = config.theme.options?.announcement;
+  const value = optionOf(config.theme.options, "announcement");
   return typeof value === "object" && value !== null && !Array.isArray(value) ? (value as Announcement) : undefined;
 }
 

@@ -1,6 +1,7 @@
 import { h } from "preact";
 import type { Chrome, SiteConfig } from "@velella/mizzen/contracts";
 import { t } from "../../i18n/index.ts";
+import { optionOf } from "../../src/options.ts";
 
 type FooterLink = { readonly title: string; readonly url: string };
 
@@ -13,7 +14,7 @@ type Footer = {
 
 /** The footer options as the config wrote them, or undefined when the site sets none. */
 function footerOf(config: SiteConfig): Footer | undefined {
-  const value = config.theme.options?.footer;
+  const value = optionOf(config.theme.options, "footer");
   return typeof value === "object" && value !== null ? (value as Footer) : undefined;
 }
 

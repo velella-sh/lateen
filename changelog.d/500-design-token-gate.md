@@ -1,1 +1,0 @@
-- Design-token gate: `npm run check:design` (also run by `npm test`) fails on raw colours, font sizes, shadows, transition times and unscaled z-index values in the CSS of `layouts/`, `components/`, `chrome/` and `styles/`. Exceptions live in `test/design-allowlist.json`, each with a written reason (#500).

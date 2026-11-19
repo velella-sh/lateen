@@ -1,0 +1,464 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://velella.sh/lateen/schema/options.schema.json",
+  "title": "Lateen theme options",
+  "description": "Every key a site may write under `theme.options` in `mizzen.yml`. The theme never requires a block: an absent key keeps the shipped behaviour, and a value it cannot use is ignored or, where a unit says so, stops the build with the option's path. `test/options-schema.test.ts` validates every site in this repository with this schema and fails when a unit reads a key the schema does not list.",
+  "type": "object",
+  "additionalProperties": false,
+  "properties": {
+    "announcement": {
+      "description": "The dismissible bar above the header. It renders nothing without `text`.",
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "id": {
+          "description": "The dismissal key, so two bars are remembered separately.",
+          "type": "string",
+          "minLength": 1,
+          "default": "announcement"
+        },
+        "text": {
+          "description": "The message. The bar is absent without it.",
+          "type": "string",
+          "minLength": 1
+        },
+        "href": {
+          "description": "Where the message links: `http`, `https`, `mailto`, or a root-relative path. Other schemes are dropped.",
+          "type": "string",
+          "minLength": 1
+        },
+        "tone": {
+          "description": "How serious the message is. A non-`info` tone adds a visible label and icon.",
+          "enum": ["info", "warning", "danger"],
+          "default": "info"
+        }
+      }
+    },
+    "brand": {
+      "description": "Brand overrides. Every value is optional; an absent one keeps the shipped token.",
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "accent": {
+          "description": "The accent, links, focus ring, selection, and selected state, in light and dark.",
+          "type": "string",
+          "pattern": "^#(?:[0-9a-fA-F]{3}|[0-9a-fA-F]{6})$"
+        },
+        "neutral": {
+          "description": "The hue of the canvas, surfaces, borders, text, muted text, and code background.",
+          "type": "string",
+          "pattern": "^#(?:[0-9a-fA-F]{3}|[0-9a-fA-F]{6})$"
+        },
+        "fonts": {
+          "description": "The site's own self-hosted families.",
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "mono": { "$ref": "#/$defs/fontFamily" },
+            "sans": { "$ref": "#/$defs/fontFamily" }
+          }
+        },
+        "radius": {
+          "description": "A multiplier of the shipped corner scale.",
+          "enum": ["none", "small", "medium", "large"]
+        },
+        "density": {
+          "description": "A multiplier of the spacing rhythm; `comfortable` is the shipped scale.",
+          "enum": ["compact", "comfortable"]
+        },
+        "showpiece": {
+          "description": "The home showpiece look a preset carries.",
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "backdrop": {
+              "description": "The backdrop variant.",
+              "enum": ["glow", "grid", "none"]
+            },
+            "motif": {
+              "description": "The seed text of the decorative motif.",
+              "type": "string",
+              "minLength": 1
+            },
+            "intensity": {
+              "description": "How strong the backdrop is.",
+              "enum": ["soft", "standard"]
+            }
+          }
+        }
+      }
+    },
+    "drift": {
+      "description": "The drift banner's details link.",
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "detailsUrl": {
+          "description": "Where the details link points: a site path or an `https` URL. Missing or unsafe values show no link.",
+          "type": "string",
+          "minLength": 1
+        }
+      }
+    },
+    "editPage": {
+      "description": "The edit-page link's optional extras.",
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "headingLinks": {
+          "description": "`true` adds a per-heading suggest-an-edit link; any other value, or no block, leaves them out.",
+          "type": "boolean",
+          "default": false
+        }
+      }
+    },
+    "favicon": {
+      "description": "The icon links, each a path from the site root.",
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "apple": {
+          "description": "The apple-touch-icon path.",
+          "type": "string",
+          "minLength": 1
+        },
+        "ico": {
+          "description": "The classic icon path.",
+          "type": "string",
+          "minLength": 1
+        },
+        "svg": {
+          "description": "The scalable icon path.",
+          "type": "string",
+          "minLength": 1
+        }
+      }
+    },
+    "feedback": {
+      "description": "The page feedback widget. Without an endpoint it renders nothing.",
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "endpoint": {
+          "description": "The address the helpful/not-helpful vote is POSTed to.",
+          "type": "string",
+          "minLength": 1
+        }
+      }
+    },
+    "footer": {
+      "description": "The site footer lines and links.",
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "copyright": {
+          "description": "The copyright line.",
+          "type": "string"
+        },
+        "license": {
+          "description": "The license line.",
+          "type": "string"
+        },
+        "links": {
+          "description": "Footer links with a title and a safe URL: `http`, `https`, `mailto`, or a root-relative path.",
+          "type": "array",
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": ["title", "url"],
+            "properties": {
+              "title": { "type": "string", "minLength": 1 },
+              "url": { "type": "string", "minLength": 1 }
+            }
+          }
+        }
+      }
+    },
+    "gallery": {
+      "description": "The gallery layout's extra card.",
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "addCard": {
+          "description": "A closing card with a `label` and a `link`. A blank label or an unsafe link renders nothing.",
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["label", "link"],
+          "properties": {
+            "label": { "type": "string", "minLength": 1 },
+            "link": { "type": "string", "minLength": 1 }
+          }
+        }
+      }
+    },
+    "glossary": {
+      "description": "The data collection and page that carry the glossary and its inline terms.",
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "collection": {
+          "description": "The collection holding the terms; its fields are `term`, `definition`, and `aliases`.",
+          "type": "string",
+          "minLength": 1
+        },
+        "page": {
+          "description": "The address of the page that carries `::glossary`, or one address per language.",
+          "$ref": "#/$defs/localizedText"
+        }
+      }
+    },
+    "history": {
+      "description": "The record history component.",
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "limit": {
+          "description": "How many change events a record history shows.",
+          "type": "integer",
+          "minimum": 1,
+          "default": 5
+        }
+      }
+    },
+    "installTabs": {
+      "description": "The package managers the install tabs offer.",
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "managers": {
+          "description": "Up to eight managers, each with a `name` and a `command`. `{package}` in a command becomes the package name; entries without both are skipped.",
+          "type": "array",
+          "maxItems": 8,
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": ["name", "command"],
+            "properties": {
+              "name": { "type": "string", "minLength": 1 },
+              "command": { "type": "string", "minLength": 1 }
+            }
+          }
+        }
+      }
+    },
+    "logo": {
+      "description": "The header mark. A root-relative path gets the site base; an absolute URL is used as written.",
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "light": { "type": "string", "minLength": 1 },
+        "dark": { "type": "string", "minLength": 1 }
+      }
+    },
+    "network": {
+      "description": "The network chrome: project switcher and network footer.",
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "switcher": {
+          "description": "Shows the project switcher.",
+          "type": "boolean",
+          "default": true
+        },
+        "footer": {
+          "description": "Shows the network footer.",
+          "type": "boolean",
+          "default": true
+        },
+        "position": {
+          "description": "Places the switcher in the header or above the network footer. Any other value stops the build.",
+          "enum": ["header", "footer"],
+          "default": "header"
+        }
+      }
+    },
+    "pageAgent": {
+      "description": "The \"Use with an agent\" menu.",
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "providers": {
+          "description": "Each provider has a `title` and a `url`; `{markdown}`, `{json}`, `{url}`, and `{title}` are filled per page. Without the block the menu offers Claude, ChatGPT, and Cursor.",
+          "type": "array",
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": ["title", "url"],
+            "properties": {
+              "title": { "type": "string", "minLength": 1 },
+              "url": { "type": "string", "minLength": 1, "pattern": "^(?:https?|cursor|claude|codex|vscode):" }
+            }
+          }
+        }
+      }
+    },
+    "preset": {
+      "description": "A shipped set of brand options, used as a starting point.",
+      "enum": ["clay", "graphite", "harbor", "orchard", "plum"]
+    },
+    "reportIssue": {
+      "description": "The report-an-issue link. `false` turns it off.",
+      "oneOf": [
+        { "const": false },
+        {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "labels": {
+              "description": "Labels to request on the new issue.",
+              "type": "array",
+              "items": { "type": "string", "minLength": 1 }
+            },
+            "template": {
+              "description": "The issue template name the forge adds to the new-issue URL.",
+              "type": "string",
+              "minLength": 1
+            },
+            "titlePrefix": {
+              "description": "Text placed before the issue title.",
+              "type": "string",
+              "minLength": 1
+            },
+            "url": {
+              "description": "A tracker template for hosts other than GitHub and GitLab; `{title}`, `{body}`, `{url}`, `{source}`, `{lang}`, and `{version}` are filled.",
+              "type": "string",
+              "minLength": 1
+            }
+          }
+        }
+      ]
+    },
+    "sourceMode": {
+      "description": "The source-mode switch.",
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "editor": {
+          "description": "A URL template that opens a block in a local editor. It must include `{path}`; `{line}` and `{column}` are optional. Only editor-handler schemes are accepted.",
+          "type": "string",
+          "minLength": 1
+        }
+      }
+    },
+    "stale": {
+      "description": "The stale-page notice.",
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "show": {
+          "description": "`false` leaves the notice out while the data stays on the page.",
+          "type": "boolean",
+          "default": true
+        },
+        "maxFiles": {
+          "description": "How many changed files the notice lists.",
+          "type": "integer",
+          "minimum": 1,
+          "default": 5
+        }
+      }
+    },
+    "status": {
+      "description": "The site's own map from a data value to a status tone and label.",
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "values": {
+          "description": "One entry per data value. An unmapped value still shows, as written, in the neutral tone.",
+          "type": "object",
+          "propertyNames": { "minLength": 1 },
+          "additionalProperties": {
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "tone": {
+                "description": "The status tone; `neutral` when absent or unknown.",
+                "enum": ["positive", "caution", "negative", "neutral", "info"],
+                "default": "neutral"
+              },
+              "label": {
+                "description": "The visible label, or one label per language.",
+                "$ref": "#/$defs/localizedText"
+              },
+              "description": {
+                "description": "The legend's explanation, or one per language.",
+                "$ref": "#/$defs/localizedText"
+              }
+            }
+          }
+        }
+      }
+    },
+    "trust": {
+      "description": "The trust panel's action links.",
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "contextPackUrl": {
+          "description": "A link that copies or opens the page's context pack; `{url}`, `{title}`, `{source}`, `{build}`, `{generated}`, and `{reviewed}` are filled.",
+          "type": "string",
+          "minLength": 1
+        },
+        "suggestEditUrl": {
+          "description": "A link that opens the host's edit or new-issue form; the same placeholders are filled.",
+          "type": "string",
+          "minLength": 1
+        }
+      }
+    }
+  },
+  "$defs": {
+    "localizedText": {
+      "description": "One string shared by every language, or a map from language code to string.",
+      "oneOf": [
+        { "type": "string", "minLength": 1 },
+        {
+          "type": "object",
+          "minProperties": 1,
+          "propertyNames": { "pattern": "^[a-z]{2}(?:-[A-Za-z0-9]+)*$" },
+          "additionalProperties": { "type": "string", "minLength": 1 }
+        }
+      ]
+    },
+    "fontFamily": {
+      "description": "One self-hosted family and its files.",
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["family", "files"],
+      "properties": {
+        "family": {
+          "description": "The family name written in `@font-face` and first in the stack.",
+          "type": "string",
+          "minLength": 1
+        },
+        "files": {
+          "description": "One entry per weight: `src` (a root-relative path), `weight`, and optionally `style`.",
+          "type": "array",
+          "minItems": 1,
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": ["src"],
+            "properties": {
+              "src": {
+                "description": "A root-relative path; a font from another origin is not allowed.",
+                "type": "string",
+                "pattern": "^/(?!/)"
+              },
+              "weight": {
+                "description": "A font weight such as 400 or \"100 900\".",
+                "type": ["integer", "string"],
+                "pattern": "^\\d{1,3}(?: \\d{1,3})?$"
+              },
+              "style": {
+                "description": "The font style.",
+                "enum": ["normal", "italic", "oblique"],
+                "default": "normal"
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}

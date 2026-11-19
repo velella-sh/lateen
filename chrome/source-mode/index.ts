@@ -2,6 +2,7 @@ import { h } from "preact";
 import type { Chrome } from "@velella/mizzen/contracts";
 import { patternOf, t } from "../../i18n/index.ts";
 import { hostOf } from "../../src/repository.ts";
+import { optionOf } from "../../src/options.ts";
 import { acceptEditorTemplate } from "./editor.ts";
 import { SOURCE_MODE_KEY_CHAR } from "./state.ts";
 
@@ -14,7 +15,7 @@ export const SOURCE_MODE_OPTIONS = [
 
 /** The `theme.options.sourceMode.editor` template, when it passes the scheme allowlist; else `undefined`. */
 export function editorOf(options: Readonly<Record<string, unknown>> | undefined): string | undefined {
-  const block = options?.sourceMode;
+  const block = optionOf(options, "sourceMode");
   if (typeof block !== "object" || block === null || Array.isArray(block)) return undefined;
   return acceptEditorTemplate((block as Record<string, unknown>).editor);
 }

@@ -1,6 +1,7 @@
 import { h } from "preact";
 import type { ComponentProps, SiteConfig } from "@velella/mizzen/contracts";
 import { t } from "../../i18n/index.ts";
+import { optionOf } from "../../src/options.ts";
 import { bodyText } from "../terminal/index.ts";
 
 /** The Markdown directive this component handles: `:::install-tabs`. */
@@ -51,7 +52,7 @@ const isRecord = (value: unknown): value is Record<string, unknown> =>
  * entry, the one generic manager is returned.
  */
 export function managersOf(config: Pick<SiteConfig, "theme"> | undefined): PackageManager[] {
-  const options = config?.theme?.options?.installTabs;
+  const options = optionOf(config?.theme?.options, "installTabs");
   const list = isRecord(options) ? options.managers : undefined;
   const found: PackageManager[] = [];
   if (Array.isArray(list)) {

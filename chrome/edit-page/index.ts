@@ -1,6 +1,7 @@
 import { h } from "preact";
 import type { Chrome, Heading, Page, RepositoryConfig, Site, SiteConfig, SourcePos } from "@velella/mizzen/contracts";
 import { t } from "../../i18n/index.ts";
+import { optionOf } from "../../src/options.ts";
 import {
   DEFAULT_BRANCH,
   clipTitle,
@@ -201,7 +202,7 @@ interface EditPageOptions {
 
 /** Whether the site opted in to per-heading links. */
 export function headingLinksEnabled(config: SiteConfig): boolean {
-  const options = config.theme.options?.editPage;
+  const options = optionOf(config.theme.options, "editPage");
   return isRecord(options) && (options as EditPageOptions).headingLinks === true;
 }
 

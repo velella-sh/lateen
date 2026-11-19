@@ -38,4 +38,6 @@ A change to behavior needs a test beside the others in `test/`. A change to the 
 ## Releasing
 
 Maintainers release from a checkout; the reports of the release commit are archived before the tag
-is created. The commands and the order are in [`docs/release.md`](./docs/release.md).
+is created. The commands and the order are in [`docs/release.md`](./docs/release.md). Pushing the
+tag publishes to npm and writes the GitHub Release; publishing uses npm trusted publishing (OIDC),
+so there is no npm token in the repository. The one-time setup is in the same guide.

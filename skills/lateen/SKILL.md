@@ -26,6 +26,9 @@ Use Node 24's erasable TypeScript, `.ts` extensions in relative imports, and no 
 | Global style | Use `styles/` only when no single unit owns it |
 | Browser interaction | Enhance the unit through its optional `client.ts` island |
 | RTL or accessibility issue | Fix the owning unit and test every affected state below |
+| A new page kind | Check the layout list in `layouts/README.md`: record, list, post, API reference, gallery, guide, embedded and the showpiece home are the multi-unit layouts |
+| A starter | Change `starters/<name>/` and run `npm run check:starters` |
+| Previous-version behavior | Keep `fixtures/upgrade-0.2.2/` and `test/upgrade-0.2.test.ts` green; its reviewed difference list is the contract |
 
 Write layouts and components as Preact elements with `h()`, not JSX or `.tsx`; Node's type stripping does not transform JSX. Layouts are one `layouts/<name>.ts` file with a default export typed by Mizzen's layout contract. Components and chrome use lowercase kebab-case folders with default-exported `index.ts`, optional `style.css`, and optional `client.ts`. Follow Mizzen's render contract for props; component bodies arrive as rendered HTML.
 
@@ -59,4 +62,4 @@ npm run typecheck
 npm test
 ```
 
-For docs-site changes, run `node ../mizzen/bin/mizzen.ts check site` and require zero errors. For layout, color, interaction, responsive, RTL, or accessibility changes, run the full `npm run test:a11y` gate. If Chromium is missing, install it with `npx playwright install chromium`. A filtered run such as `node scripts/test-a11y.ts --only "fixture persian"` helps debugging but does not replace the full gate. For packed-file changes, also run `scripts/smoke-package.sh`. Report exactly which checks and states were verified and any environmental limitation.
+For docs-site changes, run `node ../mizzen/bin/mizzen.ts check site` and require zero errors. For layout, color, interaction, responsive, RTL, or accessibility changes, run the full `npm run test:a11y` gate. If Chromium is missing, install it with `npx playwright install chromium`. A filtered run such as `node scripts/test-a11y.ts --only "fixture persian"` helps debugging but does not replace the full gate. For a visual change, run `npm run test:visual` and review the screenshots rather than regenerating a baseline to make it pass. `npm test` already runs `npm run check:design`; a raw color, size, shadow, time or z-index value outside the allowlist fails it. For packed-file changes, also run `scripts/smoke-package.sh`. Report exactly which checks and states were verified and any environmental limitation.

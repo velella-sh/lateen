@@ -1,1 +1,0 @@
-- Reports: the accessibility gate and the performance budget can write a checked-in schema-validated report, and three new components render it; the docs site publishes the reports of the deployed commit.

@@ -1,1 +1,0 @@
-- Frame: `frame` draws a neutral window (title bar, scrolling body, caption) around a `terminal`, `cli-demo`, `figure` or code block without a second renderer; overflow scrolls inside it, terminal content stays left to right on right-to-left pages, and an empty frame renders nothing.

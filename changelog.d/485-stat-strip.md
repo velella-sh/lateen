@@ -1,1 +1,0 @@
-- Stat strip (#485): the `stat-strip` component shows three to six figures from a `stats` front-matter list (`value`, `label`, optional `url`) as text with tabular numerals, wraps to two rows on a narrow screen, keeps Persian and Arabic digits as authored, and renders nothing with fewer than three valid figures. It never computes or animates a number.

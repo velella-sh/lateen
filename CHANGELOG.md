@@ -4,6 +4,67 @@ Releases of this package are tagged `v<version>`. Add a one-line fragment in `ch
 
 ## Unreleased
 
+## 0.2.3 — 2026-11-19
+
+This release needs `@velella/mizzen@^0.2.4`. It is additive: no existing option changes meaning or
+default, and a site that only bumps the package renders the same pages. [Upgrade from
+0.2.2](https://velella.sh/lateen/upgrade/) is the adoption guide.
+
+### Added
+
+- New layouts: `record` for one data record, `list` for a collection index, `post` for a blog post
+  with its archive, author pages and feed, `api-reference` and `api-reference-index` for a pinned
+  OpenAPI document, `gallery` for a faceted card grid, `guide` for a task page, and `embedded` for a
+  chrome-free iframe view. A home page with `home: { style: showpiece }` is composed from the hero,
+  backdrop, motif, stat strip, feature grid, frame and call-to-action band (#481–#492).
+- Data views: `timeline`, `compare`, `data-explorer`, `dated-list`, `charts`, `gallery`,
+  `record-history`, `stale-notice`, `add-to-calendar` and `related-guides` (#251, #270, #385).
+- Evidence: `status`, `status-legend`, `trust-panel`, `drift-banner`, `tested-chip`, and components
+  that render the accessibility, performance and WCAG reports. The accessibility gate and the
+  performance budget can write a checked-in, schema-validated report (#392).
+- Commands and embeds: `install-tabs` with `installTabs.managers`, `cli-demo`, `terminal`,
+  `output-block`, `embed-code`, `embed`, `figure`, `video`, inline glossary terms and `::motif`
+  (#385, #420, #487).
+- Docs chrome: the announcement bar, footer, logo, favicon, the network project switcher, footer and
+  search scope, the feedback vote, the prefilled report-issue link, edit-by-heading links, source
+  mode, and the ask-your-agent row in search (#390, #391).
+- `schema/options.schema.json` documents every `theme.options` block, and `optionOf` reads a path
+  against that contract; a test checks the schema against the docs site and scans the units for
+  reads the schema does not cover.
+- Starters: a published `starters/` folder with the docs, data and changelog starters, and
+  `npm run check:starters` builds and checks each one in CI (#336, #389).
+- Theme overrides: a site replaces a component or layout by name under `theme.overrides`, with
+  paths inside the site root, CSS sidecars, and fail-closed diagnostics (#589–#593).
+- Visual gates: `test/visual/` builds one fixture, takes the light, dark, RTL, print and
+  forced-colors screenshots, compares them with reviewed baselines, and runs layout checks for
+  overflow, clipped text, small controls and prose measure (#494–#499, #501). A design-token gate
+  fails on raw colours, sizes, shadows, times and z-index values outside the allowlist (#500).
+- Blog and API reference routes, code annotations, text directives, docs versions and the `term`
+  directive come from the engine; see the Mizzen 0.2.4 release.
+
+### Changed
+
+- Refinement pass over tokens, components and chrome: border strengths, three elevation levels,
+  per-size heading tracking and leading, balanced text, tabular numerals, a sunken surface, a visited
+  link colour, enter and exit easings, one shared focus ring, hairline code frames and table rows,
+  a scroll-aware header, and a logical start-edge sidebar marker that mirrors in right-to-left
+  (#466–#478). CSS only; markup is unchanged.
+- Showpiece sections rise into view with scroll-driven CSS animation behind `@supports`, so an
+  unsupported browser, reduced motion, print and forced colours show the finished page (#489,
+  #491).
+- Presets carry a showpiece backdrop, motif seed and intensity; accents are unchanged (#490).
+- The changelog, status, glossary, feedback and error-page translations are complete in English,
+  Persian and Arabic; keys no unit reads were removed.
+
+### Fixed
+
+- Size-adjusted fallback fonts now use measured metrics, so a first visit that paints before the web
+  fonts arrive no longer shows an oversized, overlapping page.
+
+The base stylesheet and the theme script grow in this release; a site with a byte budget should
+rerun its own checks.
+
+
 ## 0.2.2 — 2026-11-14
 
 ### Changed

@@ -32,6 +32,20 @@ function isRecord(value: unknown): value is Record<string, unknown> {
   return typeof value === "object" && value !== null && !Array.isArray(value);
 }
 
+/**
+ * The value at a dotted path under `theme.options`, or `undefined` when the path is absent or does
+ * not lead through objects. Every path this returns is listed in `schema/options.schema.json`;
+ * `test/options-schema.test.ts` fails when a unit names one the schema does not.
+ */
+export function optionOf(options: unknown, path: string): unknown {
+  let value = options;
+  for (const key of path.split(".")) {
+    if (!isRecord(value)) return undefined;
+    value = value[key];
+  }
+  return value;
+}
+
 /** An option value the theme cannot use, named by its path in `mizzen.yml`. */
 function reject(option: string, expected: string, value: unknown): never {
   throw new Error(`${option} ${expected}; got ${JSON.stringify(value)}.`);
