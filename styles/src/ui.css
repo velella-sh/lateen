@@ -141,7 +141,10 @@
   }
 
   .badge {
-    @apply h-5 gap-1 rounded-4xl border border-transparent px-2 py-0.5 text-xs font-medium;
+    /* No fixed h-*: clipped-text fails when type is taller than the box. */
+    @apply gap-1 rounded-4xl border border-transparent px-2 py-0.5 text-xs font-medium leading-tight;
+    min-block-size: 1.25rem;
+    overflow: visible;
   }
 
   .badge[data-variant='outline'] {
@@ -1076,7 +1079,27 @@
   }
 
   .code-frame {
-    @apply relative;
+    @apply relative max-w-full;
+  }
+
+  /* Scroll inside the block, never the page (was styles/parts-code.css). */
+  .code,
+  .cli-demo-body,
+  .terminal-body,
+  .api-example-code,
+  pre:has(> code) {
+    max-inline-size: 100%;
+    overflow-x: auto;
+    overscroll-behavior-inline: contain;
+  }
+
+  .a11y-report-scroll,
+  .budget-report-scroll,
+  .wcag-checklist-scroll,
+  .table-scroll,
+  .schema-table-scroll {
+    max-inline-size: 100%;
+    overflow-x: auto;
   }
 
   .code-copy-bar {
@@ -1950,7 +1973,15 @@ summary,
 .compare-title a,
 .compare-pick,
 .glossary-index a,
-.record-table-filter-text {
+.record-table-filter-text,
+.cta-band-action,
+.chart-data-downloads a,
+.embed-link,
+.embed-code-preview-link,
+.page-status-replacement,
+.status-banner-replacement,
+.symbol-popover-link,
+.video-link {
   box-sizing: border-box;
   min-block-size: 1.5rem;
   min-inline-size: 1.5rem;
@@ -1969,12 +2000,28 @@ summary,
 .tag a,
 .tags a,
 .breadcrumb-item a,
-.code-copy {
+.code-copy,
+.cta-band-action,
+.chart-data-downloads a,
+.embed-link,
+.embed-code-preview-link,
+.page-status-replacement,
+.status-banner-replacement,
+.symbol-popover-link,
+.video-link {
   display: inline-flex;
   align-items: center;
   justify-content: center;
   padding-block: 0.25rem;
   padding-inline: 0.4rem;
+}
+
+/* Badge must not clip its own label (Basecoat h-5 + overflow). */
+.badge {
+  height: auto;
+  min-block-size: 1.25rem;
+  overflow: visible;
+  line-height: 1.25;
 }
 
 .code-copy {
