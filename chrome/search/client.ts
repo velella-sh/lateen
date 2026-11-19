@@ -974,7 +974,11 @@ export function activate(parts: SearchParts, env: SearchEnv): void {
     status.textContent = matched.length === 0 ? messages.searching : "";
     api
       .search(query)
-      .then((page) => Promise.all(page.results.slice(0, RESULT_LIMIT).map((hit) => hit.data())))
+      .then((page) => {
+        // Pagefind resolves metadata separately for each hit. Only load it for the current query.
+        if (current !== sequence) return [];
+        return Promise.all(page.results.slice(0, RESULT_LIMIT).map((hit) => hit.data()));
+      })
       .then(
         (records) => {
           if (current !== sequence) return;
@@ -1012,12 +1016,13 @@ export function activate(parts: SearchParts, env: SearchEnv): void {
       (loaded) => {
         api = loaded;
         loading = false;
+        if (!dialog.open) return;
         if (input.value.trim() === "") status.textContent = "";
         run();
       },
       () => {
         loading = false;
-        status.textContent = messages.failed;
+        if (dialog.open) status.textContent = messages.failed;
       },
     );
   };
@@ -1030,6 +1035,7 @@ export function activate(parts: SearchParts, env: SearchEnv): void {
     if (event.target === dialog) dialog.close();
   });
   dialog.addEventListener("close", () => {
+    ++sequence;
     button.setAttribute("aria-expanded", "false");
     input.setAttribute("aria-expanded", "false");
     markActive(-1);
