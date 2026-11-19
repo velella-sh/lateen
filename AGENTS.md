@@ -13,7 +13,7 @@ npm ci
 npm run ui:build
 ```
 
-`npm run ui:build` compiles Tailwind + Basecoat from `styles/src/ui.css` into `styles/generated.css` and copies the Chart.js asset. Do not edit `styles/generated.css` by hand.
+`npm run ui:build` compiles Tailwind + Basecoat from `styles/src/ui.css` into `styles/generated.css` and bundles the Chart.js entry in `scripts/chart-entry.ts`. Do not edit generated files by hand.
 
 `npm ci` installs the published `@velella/mizzen`, which is what the tests and the docs check run against. No sibling checkout is required.
 
@@ -47,7 +47,7 @@ Mizzen + Node + TypeScript + Preact + **Tailwind CSS** + **Basecoat** + vanilla 
 - The theme may `import type` from `@velella/mizzen/contracts`, by package name and never by a relative path. It imports nothing else from the engine.
 - Preact is a peer dependency: `jsx: react-jsx`, `jsxImportSource: preact`.
 - A unit is one file or one folder. Adding a unit never edits a shared index; follow the folder's README.
-- Never commit `styles/generated.css` or `components/performance-chart/chart.umd.min.js`.
+- Never commit `styles/generated.css` or `components/performance-chart/chart.min.js`.
 
 ## Change rules
 
