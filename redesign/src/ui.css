@@ -1141,18 +1141,389 @@
     color: var(--primary-foreground);
   }
 
-  .steps-ui {
-    @apply grid gap-2;
+  .steps-ui,
+  .checks {
+    @apply grid gap-2 m-0 p-0 list-none;
   }
 
-  .steps-ui > div {
+  .steps-ui > div,
+  .steps-ui .step,
+  .checks li {
     @apply flex items-center gap-2.5 text-sm;
   }
 
-  .steps-ui .num {
-    @apply grid size-5 place-items-center rounded-full text-[0.7rem] font-bold;
+  .steps-ui .num,
+  .step-number {
+    @apply grid size-5 place-items-center rounded-full text-[0.7rem] font-bold not-italic;
     background: var(--primary);
     color: var(--primary-foreground);
+    flex: none;
+  }
+
+  .checks li::before {
+    content: "";
+    width: 0.875rem;
+    height: 0.875rem;
+    border-radius: 0.25rem;
+    box-shadow: inset 0 0 0 1.5px var(--link);
+    flex: none;
+  }
+
+  kbd,
+  .kbd {
+    font-family: "JetBrains Mono", ui-monospace, monospace;
+    font-size: 0.75rem;
+    border: 1px solid var(--border);
+    border-bottom-width: 2px;
+    border-radius: 0.375rem;
+    padding: 0.05rem 0.4rem;
+    background: var(--background);
+  }
+
+  .endpoint {
+    @apply my-4;
+  }
+
+  .endpoint-line {
+    @apply flex items-center gap-2.5;
+    font-family: "JetBrains Mono", ui-monospace, monospace;
+    font-size: 0.84rem;
+  }
+
+  .endpoint-path {
+    @apply text-sm;
+  }
+
+  .endpoint-param {
+    color: var(--link);
+  }
+
+  .endpoint-params,
+  .kv,
+  .key-value {
+    display: grid;
+    grid-template-columns: 7rem 1fr;
+    gap: 0.4rem 0.75rem;
+    margin-top: 0.65rem;
+    font-size: 0.875rem;
+  }
+
+  .key-value-key,
+  .kv span,
+  .kv dt {
+    color: var(--muted-foreground);
+  }
+
+  .key-value-value,
+  .kv strong,
+  .kv dd {
+    margin: 0;
+    font-weight: 600;
+  }
+
+  .details,
+  details.soft {
+    background: color-mix(in srgb, var(--background) 80%, transparent);
+    border-radius: 0.75rem;
+    padding: 0.5rem 0.75rem;
+  }
+
+  .details-summary,
+  details.soft summary {
+    cursor: pointer;
+    font-weight: 600;
+  }
+
+  .details-body > :last-child {
+    margin-block-end: 0;
+  }
+
+  .file-tree,
+  .tree {
+    font-family: "JetBrains Mono", ui-monospace, monospace;
+    font-size: 0.8125rem;
+    line-height: 1.7;
+  }
+
+  .tree .in,
+  .tree-row.in {
+    padding-inline-start: 1rem;
+    color: var(--muted-foreground);
+  }
+
+  .tree-note {
+    margin-inline-start: 0.5rem;
+    color: var(--muted-foreground);
+  }
+
+  .terminal {
+    @apply relative my-6 overflow-hidden rounded-xl;
+    background: var(--night);
+    color: var(--sail);
+  }
+
+  .terminal-body {
+    @apply m-0 overflow-x-auto p-4 text-sm leading-relaxed;
+    font-family: "JetBrains Mono", ui-monospace, monospace;
+  }
+
+  .terminal-command {
+    color: var(--sail);
+  }
+
+  .terminal-output {
+    color: var(--sail-soft);
+  }
+
+  .terminal-copy {
+    @apply absolute end-3 top-3 rounded-md px-2 py-1 text-xs font-medium;
+    background: var(--night-raised);
+    color: var(--sail);
+  }
+
+  .timeline {
+    border-inline-start: 2px solid var(--border);
+    margin: 0.25rem 0 0.25rem 0.4rem;
+    padding-inline-start: 0.9rem;
+    display: grid;
+    gap: 0.65rem;
+  }
+
+  .timeline strong {
+    display: block;
+    font-size: 0.875rem;
+  }
+
+  .timeline span {
+    color: var(--muted-foreground);
+    font-size: 0.8125rem;
+  }
+
+  .mini-cards {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 0.5rem;
+  }
+
+  .mini-cards a,
+  .mini-card,
+  .link-card {
+    text-decoration: none;
+    background: color-mix(in srgb, var(--background) 70%, transparent);
+    border-radius: 0.75rem;
+    padding: 0.65rem 0.75rem;
+    font-size: 0.875rem;
+    font-weight: 600;
+    box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--border) 80%, transparent);
+  }
+
+  .mini-card .card-description,
+  .link-card .card-description,
+  .mini-cards span {
+    display: block;
+    color: var(--muted-foreground);
+    font-weight: 500;
+    font-size: 0.8125rem;
+  }
+
+  .changelog-entry {
+    @apply my-6;
+  }
+
+  .changelog-entry-version {
+    @apply m-0 text-base font-semibold;
+  }
+
+  .changelog-entry-meta {
+    margin: 0.35rem 0 0;
+    color: var(--muted-foreground);
+    font-size: 0.875rem;
+  }
+
+  .figure {
+    @apply my-6;
+  }
+
+  .figure-img {
+    @apply block max-w-full rounded-xl;
+  }
+
+  .figure-pair {
+    display: grid;
+  }
+
+  .figure-img-dark {
+    display: none;
+  }
+
+  [data-theme="dark"] .figure-paired .figure-img-light {
+    display: none;
+  }
+
+  [data-theme="dark"] .figure-paired .figure-img-dark {
+    display: block;
+  }
+
+  .figure-caption {
+    margin-top: 0.65rem;
+    color: var(--muted-foreground);
+    font-size: 0.875rem;
+  }
+
+  .figure-credit {
+    display: block;
+    margin-top: 0.25rem;
+  }
+
+  .reading-time {
+    @apply inline-flex items-center gap-1;
+  }
+
+  .page-status {
+    @apply flex flex-wrap items-center gap-2 rounded-xl px-3 py-2 my-4 text-sm;
+    background: color-mix(in srgb, var(--card) 70%, transparent);
+    box-shadow: inset 0 0 0 1px var(--border);
+  }
+
+  .page-status-message {
+    color: var(--muted-foreground);
+  }
+
+  .tags {
+    @apply list-none m-0 p-0;
+  }
+
+  .tags li {
+    display: contents;
+  }
+
+  .pills {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+    margin: 0.75rem 0;
+  }
+
+  .list,
+  .item {
+    display: grid;
+  }
+
+  .item,
+  .list a {
+    display: grid;
+    grid-template-columns: minmax(7.5rem, 0.4fr) minmax(0, 1fr);
+    gap: 0.9rem 1.75rem;
+    align-items: baseline;
+    padding: 0.95rem 0;
+    border-bottom: 1px solid var(--border);
+    text-decoration: none;
+  }
+
+  .item strong,
+  .list a strong {
+    font-family: "JetBrains Mono", ui-monospace, monospace;
+    font-size: 0.8125rem;
+    font-weight: 500;
+  }
+
+  .item span,
+  .list a span,
+  .item em,
+  .list a em {
+    color: var(--muted-foreground);
+    font-style: normal;
+    font-size: 0.94rem;
+  }
+
+  .list a:hover strong {
+    color: var(--link);
+  }
+
+  .gallery {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 0.75rem;
+    margin: 0.65rem 0 1.4rem;
+  }
+
+  .specimen {
+    border-radius: 0.9rem;
+    padding: 1rem;
+    background: color-mix(in srgb, var(--card) 50%, transparent);
+    box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--border) 75%, transparent);
+    transition: background-color 180ms ease, box-shadow 180ms ease;
+  }
+
+  .specimen:hover {
+    background: var(--card);
+    box-shadow: inset 0 0 0 1px var(--border);
+  }
+
+  .specimen h3 {
+    margin: 0 0 0.75rem;
+    font-size: 0.8125rem;
+    font-weight: 700;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+    color: var(--muted-foreground);
+  }
+
+  .specimen p {
+    margin: 0.65rem 0 0;
+    color: var(--muted-foreground);
+    font-size: 0.84rem;
+  }
+
+  .charts,
+  .performance-chart {
+    @apply my-6 gap-4 p-5;
+  }
+
+  .charts-title,
+  .chart-heading h2 {
+    @apply m-0 mb-3 text-sm font-semibold;
+  }
+
+  .charts-fallback.bars {
+    display: flex;
+    align-items: end;
+    gap: 0.4rem;
+    height: 3rem;
+    margin-bottom: 0.75rem;
+  }
+
+  .charts-fallback.bars i {
+    display: block;
+    width: 0.75rem;
+    border-radius: 0.2rem;
+    background: var(--chart-1);
+  }
+
+  .chart-canvas {
+    position: relative;
+    min-block-size: 12rem;
+  }
+
+  .chart-canvas:has(canvas[hidden]) {
+    display: none;
+  }
+
+  .chart-data {
+    margin-top: 0.75rem;
+  }
+
+  .chart-data table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 0.875rem;
+  }
+
+  .chart-data th,
+  .chart-data td {
+    text-align: start;
+    padding: 0.35rem 0;
+    border-bottom: 1px solid var(--border);
   }
 
   .pager {
@@ -1265,6 +1636,17 @@
 
   .home-sections {
     @apply grid-cols-1 pb-12;
+  }
+
+  .gallery,
+  .mini-cards {
+    grid-template-columns: 1fr;
+  }
+
+  .item,
+  .list a {
+    grid-template-columns: 1fr;
+    gap: 0.25rem;
   }
 
   .home-hero {

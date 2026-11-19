@@ -125,3 +125,79 @@ test("code highlighting escapes source and preserves the language", () => {
   assert.match(html, /shiki/);
   assert.doesNotMatch(html, /<ok>/);
 });
+
+test("steps number list items with language digits", async () => {
+  const steps = await import("../components/steps/index.ts");
+  assert.equal(steps.digitsOf(2, "fa"), "۲");
+  const props = propsWith();
+  const html = renderToString(h(steps.default, {
+    props: {},
+    page: props.page,
+    site: props.site,
+    html: "<ol><li>Install</li><li>Run</li></ol>",
+  }));
+  assert.match(html, /data-steps/);
+  assert.match(html, /step-number/);
+  assert.match(html, /id="step-1"/);
+});
+
+test("endpoint shows method badge and key-value parameters", async () => {
+  const endpoint = await import("../components/endpoint/index.ts");
+  const props = propsWith();
+  const html = renderToString(h(endpoint.default, {
+    props: {
+      method: "get",
+      path: "/books/{id}",
+      parameters: '[{"name":"id","type":"string","required":true,"description":"book id"}]',
+    },
+    page: props.page,
+    site: props.site,
+    html: "",
+  }));
+  assert.match(html, /GET/);
+  assert.match(html, /\/books\/\{id\}/);
+  assert.match(html, /book id/);
+});
+
+test("file tree parses nested lists into rows", async () => {
+  const fileTree = await import("../components/file-tree/index.ts");
+  const entries = fileTree.parseEntries("<ul><li>site/<ul><li>index.md</li></ul></li></ul>");
+  assert.equal(entries[0]?.name, "site/");
+  assert.equal(entries[0]?.children[0]?.name, "index.md");
+});
+
+test("charts keep a data table and lazy canvas", async () => {
+  const charts = await import("../components/charts/index.ts");
+  const props = propsWith();
+  const html = renderToString(h(charts.default, {
+    props: { title: "Budgets", rows: '[{"label":"Core","value":12}]' },
+    page: props.page,
+    site: props.site,
+    html: "",
+  }));
+  assert.match(html, /data-charts/);
+  assert.match(html, /<canvas[^>]*hidden/);
+  assert.match(html, /<table/);
+  assert.match(html, /Core/);
+});
+
+test("terminal separates commands from output", async () => {
+  const terminal = await import("../components/terminal/index.ts");
+  const lines = terminal.sessionLines("$ npx mizzen dev .\nready");
+  assert.deepEqual(lines, [
+    { kind: "command", text: "npx mizzen dev ." },
+    { kind: "output", text: "ready" },
+  ]);
+});
+
+test("key-value and timeline parse authored pairs", async () => {
+  const keyValue = await import("../components/key-value/index.ts");
+  const timeline = await import("../components/timeline/index.ts");
+  assert.deepEqual(keyValue.parseBody("layout: doc\nstatus: shipped"), [
+    { key: "layout", value: "doc" },
+    { key: "status", value: "shipped" },
+  ]);
+  assert.deepEqual(timeline.parseItems('[{"label":"0.2.3","detail":"Shipped"}]'), [
+    { label: "0.2.3", detail: "Shipped" },
+  ]);
+});
