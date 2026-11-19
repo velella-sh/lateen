@@ -90,7 +90,7 @@ const GOLDEN = new URL("./golden/home-classic.html", import.meta.url);
 
 test("an existing home page renders byte for byte as before", () => {
   const page = out(CLASSIC, CLASSIC_BODY);
-  if (process.env.UPDATE_GOLDEN === "1" && !existsSync(GOLDEN)) writeFileSync(GOLDEN, page);
+  if (process.env.UPDATE_GOLDEN === "1") writeFileSync(GOLDEN, page);
   assert.equal(page, readFileSync(GOLDEN, "utf8"));
 });
 

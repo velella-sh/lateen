@@ -29,6 +29,7 @@
   },
   "exports": {
     ".": "./src/index.ts",
+    "./redesign": "./redesign/src/index.ts",
     "./visual": "./visual/index.ts",
     "./package.json": "./package.json"
   },
@@ -57,6 +58,7 @@
   "dependencies": {
     "@velella/mizzen": "^0.2.5",
     "jsdom": "^31.0.0",
+    "lucide": "1.75.0",
     "mermaid": "^12.3.0",
     "shiki": "^4.6.0"
   },
@@ -77,7 +79,6 @@
     "ajv": "^8.20.0",
     "basecoat-css": "1.1.0",
     "chart.js": "4.6.1",
-    "lucide": "1.75.0",
     "playwright": "1.65.0",
     "preact": "^11.2.0",
     "preact-render-to-string": "^6.8.2",
@@ -99,8 +100,12 @@
     "fonts",
     "i18n",
     "icons",
+    "redesign",
     "skills",
     "starters",
+    "!redesign/dist",
+    "!redesign/styles/generated.css",
+    "!redesign/components/performance-chart/chart.umd.min.js",
     "!skills/*-workspace",
     "!skills/**/evals",
     "CHANGELOG.md"
