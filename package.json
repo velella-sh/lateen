@@ -29,6 +29,7 @@
   },
   "exports": {
     ".": "./src/index.ts",
+    "./redesign": "./redesign/src/index.ts",
     "./visual": "./visual/index.ts",
     "./package.json": "./package.json"
   },
@@ -99,8 +100,12 @@
     "fonts",
     "i18n",
     "icons",
+    "redesign",
     "skills",
     "starters",
+    "!redesign/dist",
+    "!redesign/styles/generated.css",
+    "!redesign/components/performance-chart/chart.umd.min.js",
     "!skills/*-workspace",
     "!skills/**/evals",
     "CHANGELOG.md"

@@ -2,6 +2,7 @@ import { h } from "preact";
 import type { ComponentChildren } from "preact";
 import type { Layout, LayoutProps, NavItem, NavLink, SiteConfig } from "@velella/mizzen/contracts";
 import { hrefFor, resolvedLanguages } from "../chrome/language-switcher/index.ts";
+import shell, { footer } from "../chrome/shell/index.ts";
 import { t } from "../i18n/index.ts";
 import base from "./base.ts";
 
@@ -75,6 +76,12 @@ function content(props: LayoutProps) {
  * current language's prefix under the site base; the search form stays a plain GET form and the
  * section links keep their authored titles and URLs, so the page recovers readers without JavaScript.
  */
-const notFound: Layout = (props) => base({ ...props, main: content(props) });
+const notFound: Layout = (props) =>
+  base({
+    ...props,
+    header: shell(props) as ComponentChildren,
+    footer: footer(props) as ComponentChildren,
+    main: content(props),
+  });
 
 export default notFound;

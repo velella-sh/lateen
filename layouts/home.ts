@@ -1,8 +1,7 @@
-import { Fragment, h } from "preact";
+import { h } from "preact";
 import type { ComponentChildren } from "preact";
 import type { ComponentProps, Layout, LayoutProps } from "@velella/mizzen/contracts";
-import drawer from "../chrome/drawer/index.ts";
-import header from "../chrome/header/index.ts";
+import shell, { footer } from "../chrome/shell/index.ts";
 import backdrop from "../components/backdrop/index.ts";
 import ctaBand from "../components/cta-band/index.ts";
 import featureGrid from "../components/feature-grid/index.ts";
@@ -14,33 +13,8 @@ import { resolveBrand } from "../src/brand.ts";
 import base from "./base.ts";
 
 /**
- * The docs home, following `docs/design/mockups/home.html`. Everything comes from the page's front
- * matter and body:
- *
- * - `hero: { eyebrow, title, lead }` — the eyebrow pill, the `h1` (falling back to the page title),
- *   and the one-line description.
- * - `actions: [{ label, url, primary }]` — the call-to-action buttons; `primary: true` fills the
- *   button and adds the arrow.
- * - `sections: [{ title, url, description, icon, links }]` — the card grids, where each entry is a
- *   card with a heading (linked when it has a URL), a description, and a list of links with a
- *   right-aligned `meta` note. `icon` is the path data of a 24×24 stroke icon.
- *
- * The page body renders after the hero and the section grids. Values that do not match the shape
- * above are dropped, never a broken page.
- *
- * Showpiece style: `home: { style: showpiece }` recomposes the page from the showpiece components, in
- * this order, each left out when it has no data (see `docs/design/showpiece.md`):
- *
- * 1. hero (`hero`, `actions`), over a backdrop (`home.backdrop`: `glow`, `grid` or `none`) and an
- *    optional motif (`home.motif`: the seed text);
- * 2. stat strip (`stats: [{ value, label, url }]`);
- * 3. feature grid (`features: [{ title, description, icon, url }]`, else the `sections` entries);
- * 4. framed demo (`demo: { title, caption }`): the frame wraps the page body, which then is not
- *    drawn a second time;
- * 5. call to action (`cta: { title, lead, package, actions }`): the first action with a label and a
- *    URL is the band's action.
- *
- * Any other value of `home.style`, or none, is the layout above, unchanged.
+ * The docs home, cut over to the sailcloth shell. Classic pages keep the hero/sections contract;
+ * `home.style: showpiece` still recomposes from the showpiece components.
  */
 
 /** An arrow pointing toward the reading direction; `style.css` mirrors it under `dir="rtl"`. */
@@ -246,11 +220,12 @@ function showpieceContent(props: LayoutProps): ComponentChildren {
   return h("div", { class: "home-showpiece" }, blocks);
 }
 
-/** The home page: the base document shell around the hero, the section grids, and the page body. */
+/** The home page: sailcloth shell around the hero, the section grids, and the page body. */
 const home: Layout = (props) =>
   base({
     ...props,
-    header: h(Fragment, null, header(props) as ComponentChildren, drawer(props) as ComponentChildren),
+    header: shell(props) as ComponentChildren,
+    footer: footer(props) as ComponentChildren,
     main: isShowpiece(props) ? showpieceContent(props) : content(props),
   });
 
