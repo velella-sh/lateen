@@ -42,7 +42,8 @@ export default function shell({ site, page }: ChromeProps) {
         h("div", { class: "header-actions tools" },
           h("button", {
             type: "button",
-            class: "search",
+            class: "search-trigger",
+            "aria-label": "Search the docs",
             "data-search-open": true,
           }, "Search the docs ", h("kbd", null, "⌘K")),
           h("button", {

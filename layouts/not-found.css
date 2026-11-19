@@ -112,19 +112,27 @@
   display: flex;
   align-items: center;
   gap: var(--space-2);
+  margin-inline-start: auto;
+  flex-shrink: 0;
 }
 
-.site-header .search {
+/* Named search-trigger so it never collides with chrome/search's dialog .search. */
+.site-header .search-trigger {
   display: inline-flex;
   align-items: center;
+  justify-content: space-between;
   gap: var(--space-2);
+  inline-size: 14.25rem;
+  block-size: 2.25rem;
   border: 0;
   border-radius: var(--radius-full);
   background: var(--color-surface);
   color: var(--color-muted);
-  padding: var(--space-2) var(--space-3);
+  padding: 0 var(--space-3);
   font: inherit;
+  font-size: var(--type-size-sm);
   cursor: pointer;
+  flex-shrink: 0;
 }
 
 .site-header .iconbtn {
@@ -244,7 +252,7 @@
 }
 
 @media (max-width: 48rem) {
-  .site-header .search kbd,
+  .site-header .search-trigger kbd,
   .site-header .brand-tag {
     display: none;
   }
