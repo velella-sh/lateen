@@ -13,18 +13,9 @@ import { resolveBrand } from "../src/brand.ts";
 import base from "./base.ts";
 
 /**
- * The docs home, cut over to the sailcloth shell. Classic pages keep the hero/sections contract;
+ * The docs home: sailcloth shell + mockup home stage (brand, preview pane, section cards).
  * `home.style: showpiece` still recomposes from the showpiece components.
  */
-
-/** An arrow pointing toward the reading direction; `style.css` mirrors it under `dir="rtl"`. */
-function arrow() {
-  return h(
-    "svg",
-    { class: "home-arrow", viewBox: "0 0 24 24", "aria-hidden": "true", focusable: "false" },
-    h("path", { d: "M5 12h14M13 6l6 6-6 6" }),
-  );
-}
 
 function isRecord(value: unknown): value is Readonly<Record<string, unknown>> {
   return typeof value === "object" && value !== null && !Array.isArray(value);
@@ -45,7 +36,7 @@ function stringAt(record: Readonly<Record<string, unknown>>, key: string): strin
   return isString(value) ? value : undefined;
 }
 
-/** One action: the author's label and URL; `primary: true` gets the filled button and the arrow. */
+/** One action: the author's label and URL; `primary: true` gets the filled button. */
 function actionLink(fields: Readonly<Record<string, unknown>>): ComponentChildren {
   const label = stringAt(fields, "label");
   const url = stringAt(fields, "url");
@@ -54,17 +45,90 @@ function actionLink(fields: Readonly<Record<string, unknown>>): ComponentChildre
     "a",
     { class: fields.primary === true ? "home-btn home-btn-primary" : "home-btn home-btn-quiet", href: url },
     label,
-    fields.primary === true ? arrow() : null,
   );
 }
 
-/** The hero: the eyebrow pill, the title, the one-line description, and the action buttons. */
-function heroBlock(props: LayoutProps): ComponentChildren {
+/** Decorative docs-window preview from the sailcloth mockup (not interactive). */
+function preview(): ComponentChildren {
+  return h(
+    "aside",
+    { class: "home-preview", "aria-hidden": "true" },
+    h(
+      "div",
+      { class: "preview-chrome" },
+      h("span", { class: "preview-dot" }),
+      h("span", { class: "preview-dot" }),
+      h("span", { class: "preview-dot" }),
+      h("em", null, "layouts.md"),
+    ),
+    h(
+      "div",
+      { class: "preview-body" },
+      h(
+        "div",
+        { class: "preview-side" },
+        h("b", null, "Start"),
+        h("i", null),
+        h("i", { class: "on" }),
+        h("i", null),
+        h("b", null, "Components"),
+        h("i", null),
+        h("i", null),
+      ),
+      h(
+        "div",
+        { class: "preview-article" },
+        h("span", { class: "preview-crumb" }),
+        h("strong", null, "Layouts"),
+        h("span", { class: "preview-line" }),
+        h("span", { class: "preview-line short" }),
+        h("span", { class: "preview-code" }),
+        h("span", { class: "preview-callout" }),
+      ),
+      h(
+        "div",
+        { class: "preview-toc" },
+        h("b", null, "On this page"),
+        h("i", { class: "on" }),
+        h("i", null),
+        h("i", null),
+      ),
+    ),
+  );
+}
+
+/** One section card matching the mockup: title, description, and row links. */
+function sectionBlock(fields: Readonly<Record<string, unknown>>): ComponentChildren {
+  const title = stringAt(fields, "title");
+  if (title === undefined) return null;
+  const description = stringAt(fields, "description");
+
+  const rows: ComponentChildren[] = [];
+  for (const link of recordsOf(fields.links)) {
+    const linkTitle = stringAt(link, "title");
+    const linkUrl = stringAt(link, "url");
+    if (linkTitle === undefined || linkUrl === undefined) continue;
+    const meta = stringAt(link, "meta") ?? stringAt(link, "kind") ?? "page";
+    rows.push(h("a", { class: "row", href: linkUrl }, h("span", null, linkTitle), h("em", null, meta)));
+  }
+
+  return h(
+    "article",
+    { class: "home-section card" },
+    h("h2", { class: "home-section-title" }, title),
+    description === undefined ? null : h("p", { class: "home-section-description" }, description),
+    rows,
+  );
+}
+
+/** Sailcloth home: stage (hero + preview), section cards, then the page body. */
+function content(props: LayoutProps): ComponentChildren {
   const hero = props.page.frontMatter.hero;
   const fields = isRecord(hero) ? hero : {};
   const eyebrow = stringAt(fields, "eyebrow");
   const lead = stringAt(fields, "lead");
   const title = stringAt(fields, "title") ?? props.page.title;
+  const product = props.site.config.title || "Lateen";
 
   const buttons: ComponentChildren[] = [];
   for (const action of recordsOf(props.page.frontMatter.actions)) {
@@ -72,64 +136,43 @@ function heroBlock(props: LayoutProps): ComponentChildren {
     if (button !== null) buttons.push(button);
   }
 
-  return h(
-    "div",
-    { class: "home-hero" },
-    eyebrow === undefined ? null : h("p", { class: "home-eyebrow" }, h("i", { "aria-hidden": "true" }), eyebrow),
-    h("h1", { class: "home-title" }, title),
-    lead === undefined ? null : h("p", { class: "home-lead" }, lead),
-    buttons.length === 0 ? null : h("div", { class: "home-actions" }, buttons),
-  );
-}
-
-/** One section card: a heading (linked when it has a URL), a description, and a list of links. */
-function sectionBlock(fields: Readonly<Record<string, unknown>>): ComponentChildren {
-  const title = stringAt(fields, "title");
-  if (title === undefined) return null;
-  const url = stringAt(fields, "url");
-  const description = stringAt(fields, "description");
-  const icon = stringAt(fields, "icon");
-
-  const items: ComponentChildren[] = [];
-  for (const link of recordsOf(fields.links)) {
-    const linkTitle = stringAt(link, "title");
-    const linkUrl = stringAt(link, "url");
-    if (linkTitle === undefined || linkUrl === undefined) continue;
-    const meta = stringAt(link, "meta");
-    items.push(
-      h(
-        "li",
-        null,
-        h("a", { href: linkUrl }, h("span", null, linkTitle), meta === undefined ? null : h("span", { class: "home-link-meta" }, meta)),
-      ),
-    );
-  }
-
-  return h(
-    "div",
-    { class: "home-section" },
-    h(
-      "h2",
-      { class: "home-section-title" },
-      icon === undefined
-        ? null
-        : h("span", { class: "home-section-icon", "aria-hidden": "true" }, h("svg", { viewBox: "0 0 24 24", focusable: "false" }, h("path", { d: icon }))),
-      url === undefined ? title : h("a", { href: url }, title),
-    ),
-    description === undefined ? null : h("p", { class: "home-section-description" }, description),
-    items.length === 0 ? null : h("ul", { class: "home-section-links" }, items),
-  );
-}
-
-/** The home content: the hero, the section card grids, then the page body. */
-function content(props: LayoutProps): ComponentChildren {
-  const blocks: ComponentChildren[] = [heroBlock(props)];
-
   const cards = recordsOf(props.page.frontMatter.sections).map(sectionBlock).filter((card) => card !== null);
-  if (cards.length > 0) blocks.push(h("div", { class: "home-sections" }, cards));
 
-  if (props.page.html.length > 0) blocks.push(h("div", { dangerouslySetInnerHTML: { __html: props.page.html } }));
-  return blocks;
+  return h(
+    "div",
+    { class: "home-content" },
+    h(
+      "div",
+      { class: "home-stage" },
+      h(
+        "section",
+        { class: "home-hero", "aria-labelledby": "home-title" },
+        eyebrow === undefined
+          ? null
+          : h("p", { class: "home-eyebrow" }, h("i", { "aria-hidden": "true" }), eyebrow),
+        h("p", { class: "product" }, product),
+        h("h1", { id: "home-title", class: "home-title display" }, title),
+        lead === undefined ? null : h("p", { class: "home-lead lead" }, lead),
+        buttons.length === 0 ? null : h("div", { class: "home-actions actions" }, buttons),
+        h(
+          "p",
+          { class: "hero-hint" },
+          h("kbd", null, "⌘"),
+          h("kbd", null, "K"),
+          " search · ",
+          h("kbd", null, "/"),
+          " focus · theme in the corner",
+        ),
+      ),
+      preview(),
+    ),
+    cards.length === 0
+      ? null
+      : h("section", { class: "home-sections cards", "aria-label": "Explore" }, cards),
+    props.page.html.length > 0
+      ? h("div", { class: "home-body", dangerouslySetInnerHTML: { __html: props.page.html } })
+      : null,
+  );
 }
 
 /** The record without its undefined values, for components that forbid explicit `undefined`. */
