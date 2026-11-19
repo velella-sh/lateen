@@ -1,7 +1,6 @@
 /// <reference lib="dom" />
 
 type ChartRow = { label: string; value: number };
-type ChartApi = new (context: CanvasRenderingContext2D, config: unknown) => unknown;
 
 async function draw(root: HTMLElement): Promise<void> {
   if (root.dataset.loaded === "true") return;
@@ -10,11 +9,10 @@ async function draw(root: HTMLElement): Promise<void> {
   const data = root.querySelector("[data-chart-data]")?.textContent;
   if (!(canvas instanceof HTMLCanvasElement) || !data) return;
   const rows = JSON.parse(data) as ChartRow[];
-  // @ts-expect-error The generated Chart.js UMD vendor module has no TypeScript declarations.
-  await import("./chart.umd.min.js");
-  const Chart = (globalThis as typeof globalThis & { Chart?: ChartApi }).Chart;
+  // @ts-expect-error The generated chart bundle has no TypeScript declarations.
+  const { default: Chart } = await import("./chart.min.js");
   const context = canvas.getContext("2d");
-  if (!Chart || !context) return;
+  if (!context) return;
   const styles = getComputedStyle(root);
   new Chart(context, {
     type: "bar",

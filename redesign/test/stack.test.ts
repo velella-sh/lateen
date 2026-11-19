@@ -23,7 +23,7 @@ test("styles/src/ui.css is the Tailwind + Basecoat source of truth", () => {
 
 test("ui:build wrote the generated stylesheet and Chart.js asset", () => {
   assert.ok(existsSync(new URL("../../styles/generated.css", import.meta.url)));
-  assert.ok(existsSync(new URL("../../components/performance-chart/chart.umd.min.js", import.meta.url)));
+  assert.ok(existsSync(new URL("../../components/performance-chart/chart.min.js", import.meta.url)));
 });
 
 test("Lucide icon helper and Chart.js components live on the main theme", () => {
