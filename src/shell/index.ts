@@ -1,7 +1,7 @@
 import { h } from "preact";
 import type { ChromeProps } from "@velella/mizzen/contracts";
 import { CodeXml, Moon, Search, Sun } from "lucide";
-import { icon } from "../../src/icon.ts";
+import { icon } from "../icon.ts";
 
 export default function shell({ site, page }: ChromeProps) {
   const base = site.config.base;

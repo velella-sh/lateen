@@ -1,7 +1,7 @@
 import { h } from "preact";
 import type { ComponentChildren } from "preact";
 import type { ComponentProps, Layout, LayoutProps } from "@velella/mizzen/contracts";
-import shell, { footer } from "../chrome/shell/index.ts";
+import shell, { footer } from "../src/shell/index.ts";
 import backdrop from "../components/backdrop/index.ts";
 import ctaBand from "../components/cta-band/index.ts";
 import featureGrid from "../components/feature-grid/index.ts";
