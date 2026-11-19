@@ -1,0 +1,51 @@
+/* Visual source of truth: styles/ui.css → generated.css. This sheet stays for unit contract tests and behavioral fallbacks; demoted so Tailwind wins. */
+@layer lateen-legacy {
+/* Backdrop: decoration behind a hero, drawn from the accent token. No image file, nothing that moves.
+   The strongest tint anywhere is 10% accent over the canvas, which the tests keep under 4.5:1
+   for body text and headings in light and dark. */
+
+.backdrop {
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  pointer-events: none;
+}
+
+.backdrop-glow {
+  background-image:
+    radial-gradient(
+      ellipse 60% 70% at 50% 0%,
+      color-mix(in srgb, var(--color-accent) 10%, var(--color-canvas)),
+      transparent 100%
+    ),
+    radial-gradient(
+      ellipse 40% 50% at 100% 0%,
+      color-mix(in srgb, var(--color-accent) 6%, var(--color-canvas)),
+      transparent 100%
+    );
+}
+
+.backdrop-grid {
+  background-image:
+    linear-gradient(to right, color-mix(in srgb, var(--color-accent) 8%, var(--color-canvas)) 1px, transparent 1px),
+    linear-gradient(to bottom, color-mix(in srgb, var(--color-accent) 8%, var(--color-canvas)) 1px, transparent 1px);
+  background-size: var(--space-8) var(--space-8);
+  mask-image: radial-gradient(ellipse 70% 80% at 50% 0%, #000, transparent);
+}
+
+.backdrop-soft {
+  opacity: 0.6;
+}
+
+@media print {
+  .backdrop {
+    display: none;
+  }
+}
+
+@media (forced-colors: active) {
+  .backdrop {
+    display: none;
+  }
+}
+}

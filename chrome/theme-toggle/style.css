@@ -1,0 +1,67 @@
+/* Visual source of truth: styles/ui.css → generated.css. This sheet stays for unit contract tests and behavioral fallbacks; demoted so Tailwind wins. */
+@layer lateen-legacy {
+/* Theme toggle: one icon button the size of the repository link. It shows the icon of the current
+   choice (sun, screen, or moon) and a press moves to the next one. Hidden until client.ts runs it. */
+
+.theme-toggle {
+  display: inline-flex;
+  position: relative;
+}
+
+.theme-toggle[hidden] {
+  display: none;
+}
+
+.theme-toggle-status {
+  position: absolute;
+  inline-size: 1px;
+  block-size: 1px;
+  margin: -1px;
+  padding: 0;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+}
+
+.theme-toggle-button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-block-size: var(--space-8);
+  min-inline-size: var(--space-8);
+  padding: var(--space-1);
+  border: 0;
+  border-radius: var(--radius-md);
+  background: transparent;
+  color: var(--color-muted);
+  cursor: pointer;
+}
+
+.theme-toggle-button:hover {
+  background: var(--state-hover-bg);
+  color: var(--color-heading);
+}
+
+.theme-toggle-button:focus-visible {
+  outline: 2px solid var(--state-focus-ring);
+  outline-offset: 2px;
+}
+
+.theme-toggle-icon {
+  display: none;
+  inline-size: var(--space-6);
+  block-size: var(--space-6);
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 2;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+/* Only the icon of the current choice is drawn. */
+.theme-toggle[data-choice="light"] .theme-toggle-icon-light,
+.theme-toggle[data-choice="system"] .theme-toggle-icon-system,
+.theme-toggle[data-choice="dark"] .theme-toggle-icon-dark {
+  display: block;
+}
+}

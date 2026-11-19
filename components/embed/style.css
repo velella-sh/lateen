@@ -1,0 +1,124 @@
+/* Visual source of truth: styles/ui.css → generated.css. This sheet stays for unit contract tests and behavioral fallbacks; demoted so Tailwind wins. */
+@layer lateen-legacy {
+/* Embeds: a 16:9 box that reserves its space, with a load button and a fallback link that works without JavaScript. Colors come from tokens, so dark mode follows. */
+
+.embed {
+  max-inline-size: 100%;
+  margin-block: var(--space-6);
+  margin-inline: auto;
+}
+
+/* The box keeps the 16:9 ratio before the iframe exists, so nothing shifts when the reader loads it. */
+.embed-box {
+  position: relative;
+  inline-size: 100%;
+  aspect-ratio: 16 / 9;
+  overflow: hidden;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  background-color: var(--color-surface);
+}
+
+.embed-iframe {
+  position: absolute;
+  inset: 0;
+  inline-size: 100%;
+  block-size: 100%;
+  border: 0;
+}
+
+/* The placeholder names the embed and covers the frame until it reports that it loaded. */
+.embed-placeholder {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-3);
+  padding-block: var(--space-4);
+  padding-inline: var(--space-4);
+  background-color: var(--color-surface);
+  text-align: center;
+}
+
+.embed-placeholder[hidden] {
+  display: none;
+}
+
+.embed-title {
+  color: var(--color-text);
+  font-size: var(--type-size-sm);
+  line-height: var(--type-leading-body);
+}
+
+/* The island writes "Loading…" and then the failure text here; an empty line takes no space. */
+.embed-status {
+  margin: 0;
+  color: var(--color-text);
+  font-size: var(--type-size-sm);
+  line-height: var(--type-leading-body);
+}
+
+.embed-status:empty {
+  display: none;
+}
+
+/* The island reveals the button, so a reader without JavaScript sees the title and the fallback link. */
+.embed-load {
+  padding-block: var(--space-2);
+  padding-inline: var(--space-4);
+  border: 1px solid var(--color-accent);
+  border-radius: var(--radius-full);
+  background-color: var(--color-accent);
+  color: var(--color-on-accent);
+  font: inherit;
+  font-weight: var(--type-weight-medium);
+  cursor: pointer;
+}
+
+/* The button sets display, so the hidden attribute needs its own rule to keep it out of sight. */
+.embed-load[hidden] {
+  display: none;
+}
+
+.embed-load:hover {
+  border-color: var(--color-accent-hover);
+  background-color: var(--color-accent-hover);
+}
+
+.embed-load:focus-visible,
+.embed-link:focus-visible {
+  outline: 2px solid var(--state-focus-ring);
+  outline-offset: 2px;
+}
+
+/* The fallback link stays under the box, so it survives the iframe and a blocked frame keeps a way through. */
+.embed-link {
+  display: inline-flex;
+  align-items: center;
+  min-block-size: 1.5rem;
+  margin-block-start: var(--space-2);
+  color: var(--color-link);
+  font-size: var(--type-size-sm);
+}
+
+.embed-link:hover {
+  color: var(--color-link-hover);
+  text-decoration: underline;
+}
+
+/* The message for an embed without a title: a visible note, styled like the callouts' text. */
+.embed-diagnostic {
+  margin-block: var(--space-6);
+  padding-block: var(--space-3);
+  padding-inline: var(--space-4);
+  border-inline-start: 4px solid var(--color-warning);
+  border-radius: var(--radius-sm);
+  background-color: var(--color-surface);
+  color: var(--color-text);
+  font-size: var(--type-size-sm);
+  line-height: var(--type-leading-body);
+  text-align: start;
+}
+}

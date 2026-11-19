@@ -16,7 +16,7 @@ export const SCANNED = ["layouts", "components", "chrome", "styles"];
 /** Sheets that may hold raw values: sailcloth source, its build output, and self-hosted faces. */
 export const SKIPPED = new Set([
   "styles/tokens.css",
-  "styles/ui.css",
+  "styles/src/ui.css",
   "styles/generated.css",
   "styles/fonts.css",
 ]);

@@ -1,0 +1,327 @@
+/* Visual source of truth: styles/ui.css → generated.css. This sheet stays for unit contract tests and behavioral fallbacks; demoted so Tailwind wins. */
+@layer lateen-legacy {
+/* The explorer without JavaScript: the query form above the table the island replaces, and the
+   table's own styling copied from components/table/style.css. A component's stylesheet is bundled
+   only when a directive names that component, and this table is drawn by record-table from inside
+   this one, so its rules have to travel with this file too.
+   shortcut: table rules are copied, keep them in step with components/table/style.css; upgrade when
+   the engine bundles the CSS of nested components. */
+
+.data-explorer {
+  margin-block: var(--space-6);
+}
+
+.data-explorer-form {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-2);
+  align-items: end;
+  margin-block-end: var(--space-4);
+}
+
+.data-explorer-label {
+  flex-basis: 100%;
+  color: var(--color-heading);
+  font-family: var(--type-font-ui);
+  font-size: var(--type-size-sm);
+  font-weight: var(--type-weight-medium);
+}
+
+.data-explorer-input {
+  flex: 1 1 14rem;
+  min-inline-size: 0;
+  /* The 24 by 24 target the layout check asks for, whatever the type scale gives. */
+  min-block-size: 2.5rem;
+  padding-block: var(--space-2);
+  padding-inline: var(--space-3);
+  border: thin solid var(--color-border);
+  border-radius: var(--radius-sm);
+  background-color: var(--color-canvas);
+  color: var(--color-text);
+  font-family: var(--type-font-ui);
+  font-size: var(--type-size-sm);
+}
+
+.data-explorer-submit {
+  min-block-size: 2.5rem;
+  padding-block: var(--space-2);
+  padding-inline: var(--space-4);
+  border: thin solid var(--color-border);
+  border-radius: var(--radius-sm);
+  background-color: var(--color-surface-raised);
+  color: var(--color-text);
+  font-family: var(--type-font-ui);
+  font-size: var(--type-size-sm);
+  font-weight: var(--type-weight-medium);
+  cursor: pointer;
+}
+
+/* The sort control starts hidden, since it would do nothing without a script. */
+.data-explorer-sort {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-2);
+  align-items: end;
+}
+
+.data-explorer-sort-label {
+  flex-basis: 100%;
+  color: var(--color-heading);
+  font-family: var(--type-font-ui);
+  font-size: var(--type-size-sm);
+  font-weight: var(--type-weight-medium);
+}
+
+.data-explorer-sort-field {
+  min-block-size: 2.5rem;
+  padding-block: var(--space-2);
+  padding-inline: var(--space-3);
+  border: thin solid var(--color-border);
+  border-radius: var(--radius-sm);
+  background-color: var(--color-canvas);
+  color: var(--color-text);
+  font-family: var(--type-font-ui);
+  font-size: var(--type-size-sm);
+}
+
+/* The live region is silent until the island writes a count into it. */
+.data-explorer-status {
+  margin-block: var(--space-2);
+  color: var(--color-muted);
+  font-family: var(--type-font-ui);
+  font-size: var(--type-size-sm);
+}
+
+.data-explorer-status:empty {
+  display: none;
+}
+
+.data-explorer-empty {
+  margin-block: var(--space-4);
+  color: var(--color-muted);
+}
+
+.data-explorer-more {
+  min-block-size: 2.5rem;
+  margin-block-start: var(--space-4);
+  padding-block: var(--space-2);
+  padding-inline: var(--space-4);
+  border: thin solid var(--color-border);
+  border-radius: var(--radius-sm);
+  background-color: var(--color-surface-raised);
+  color: var(--color-text);
+  font-family: var(--type-font-ui);
+  font-size: var(--type-size-sm);
+  font-weight: var(--type-weight-medium);
+  cursor: pointer;
+}
+
+/* Numbers line up on the end side, which is the reading end in right-to-left pages too. */
+.record-table-cell[data-kind="number"] {
+  text-align: end;
+  font-variant-numeric: tabular-nums;
+}
+
+/* A field the records do not have, and a table that cannot read its collection: visible, not blank. */
+.record-table-missing,
+.record-table-error {
+  color: var(--color-muted);
+  font-style: italic;
+}
+
+/* Tables: readable cells, horizontal scroll, sticky first column, edge shadow. */
+
+.table-scroll {
+  max-inline-size: 100%;
+  margin-block: var(--space-6);
+  overflow-x: auto;
+  border: thin solid var(--color-border);
+  border-radius: var(--radius-md);
+  background-color: var(--color-canvas);
+}
+
+.table-scroll:focus {
+  outline: none;
+}
+
+.table-scroll:focus-visible {
+  outline: 2px solid var(--state-focus-ring);
+  outline-offset: var(--space-1);
+}
+
+.table-scroll > .table,
+.table-scroll > table {
+  border-collapse: collapse;
+  inline-size: max-content;
+  min-inline-size: 100%;
+  margin: 0;
+  font-family: var(--type-font-body);
+  font-size: var(--type-size-sm);
+  line-height: var(--type-leading-body);
+  color: var(--color-text);
+}
+
+.table-scroll th,
+.table-scroll td {
+  padding-block: var(--space-2);
+  padding-inline: var(--space-3);
+  /* Hairline row dividers only; vertical rules add noise to a table that scrolls sideways. */
+  border: 0;
+  border-block-end: thin solid var(--color-border);
+  text-align: start;
+  vertical-align: top;
+  font-variant-numeric: tabular-nums;
+}
+
+/* A numeric column is aligned to the end, so digits line up in both directions. */
+.table-scroll :is(th, td)[align="right"],
+.table-scroll :is(th, td)[align="end"],
+.table-scroll :is(th, td).num {
+  text-align: end;
+}
+
+.table-scroll tbody tr:last-child td {
+  border-block-end: 0;
+}
+
+.table-scroll th {
+  position: sticky;
+  inset-block-start: 0;
+  z-index: 1;
+  background-color: var(--color-surface);
+  color: var(--color-heading);
+  font-weight: var(--type-weight-medium);
+}
+
+.table-scroll td {
+  background-color: var(--color-canvas);
+}
+
+.table-scroll tbody tr:nth-child(even) td {
+  background-color: var(--color-surface);
+}
+
+/* Calm row hover: a tint only, nothing moves. */
+.table-scroll tbody tr:hover td {
+  background-color: var(--state-hover-bg);
+}
+
+.table-scroll th:first-child,
+.table-scroll td:first-child {
+  position: sticky;
+  inset-inline-start: 0;
+  z-index: 1;
+  box-shadow: var(--shadow-md);
+}
+
+.table-scroll th:first-child {
+  z-index: 3;
+  background-color: var(--color-surface);
+}
+
+.table-scroll td:first-child {
+  background-color: var(--color-canvas);
+}
+
+.table-scroll tbody tr:nth-child(even) td:first-child {
+  background-color: var(--color-surface);
+}
+
+.table-scroll code {
+  font-family: var(--type-font-mono);
+  font-size: var(--type-size-sm);
+  color: var(--code-fg);
+  background-color: var(--code-bg);
+  border: thin solid var(--code-border);
+  border-radius: var(--radius-sm);
+  padding-block: 0;
+  padding-inline: var(--space-1);
+}
+
+/* The filter box and the chips are empty in the HTML; the island fills or reveals them. */
+.data-explorer-filters {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-4);
+  margin-block-end: var(--space-4);
+}
+
+.data-explorer-filter {
+  flex: 1 1 12rem;
+  min-inline-size: 0;
+  margin: 0;
+  padding: var(--space-3);
+  border: thin solid var(--color-border);
+  border-radius: var(--radius-sm);
+}
+
+.data-explorer-filter-label {
+  padding-inline: var(--space-1);
+  color: var(--color-heading);
+  font-family: var(--type-font-ui);
+  font-size: var(--type-size-sm);
+  font-weight: var(--type-weight-medium);
+}
+
+.data-explorer-filter-option {
+  display: flex;
+  gap: var(--space-2);
+  align-items: center;
+  min-block-size: 2.5rem;
+  font-family: var(--type-font-ui);
+  font-size: var(--type-size-sm);
+}
+
+.data-explorer-filter-count {
+  margin-inline-start: auto;
+  color: var(--color-muted);
+}
+
+.data-explorer-chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-2);
+  margin-block-end: var(--space-4);
+}
+
+.data-explorer-chip {
+  min-block-size: 2.5rem;
+  padding-block: var(--space-1);
+  padding-inline: var(--space-3);
+  border: thin solid var(--color-border);
+  border-radius: var(--radius-full);
+  background-color: var(--color-surface-raised);
+  color: var(--color-text);
+  font-family: var(--type-font-ui);
+  font-size: var(--type-size-sm);
+  cursor: pointer;
+}
+
+/* A printed explorer keeps the table and drops the controls that need the island. */
+@media print {
+  .data-explorer-form,
+  .data-explorer-filters,
+  .data-explorer-chips,
+  .data-explorer-status,
+  .data-explorer-more {
+    display: none;
+  }
+
+  .table-scroll {
+    overflow: visible;
+    box-shadow: none;
+  }
+}
+
+/* The system palette replaces the tokens, so every control keeps a visible edge. */
+@media (forced-colors: active) {
+  .data-explorer-input,
+  .data-explorer-sort-field,
+  .data-explorer-submit,
+  .data-explorer-more,
+  .data-explorer-filter,
+  .data-explorer-chip {
+    border-color: CanvasText;
+  }
+}
+}

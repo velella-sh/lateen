@@ -36,7 +36,7 @@
   "scripts": {
     "tokens": "node scripts/tokens.ts",
     "tokens:check": "node scripts/tokens.ts --check",
-    "ui:css": "tailwindcss -i styles/ui.css -o styles/generated.css --minify",
+    "ui:css": "tailwindcss -i styles/src/ui.css -o styles/generated.css --minify",
     "ui:assets": "node --input-type=module -e \"import { copyFileSync, mkdirSync } from 'node:fs'; mkdirSync('components/performance-chart', { recursive: true }); copyFileSync('node_modules/chart.js/dist/chart.umd.min.js', 'components/performance-chart/chart.umd.min.js')\"",
     "ui:build": "npm run ui:css && npm run ui:assets",
     "dev:redesign": "npm run ui:build && mizzen dev redesign/site --theme . --port 4173",

@@ -1,0 +1,132 @@
+/* Visual source of truth: styles/ui.css → generated.css. This sheet stays for unit contract tests and behavioral fallbacks; demoted so Tailwind wins. */
+@layer lateen-legacy {
+/* Embedded layout: a page body alone, sized by the frame that holds it. It follows the reader's
+   colour scheme with CSS only; `data-scheme` fixes a published light or dark variant, and
+   `data-transparent` lets the host's background show through. Tokens and logical properties only. */
+
+html[data-scheme="light"] {
+  color-scheme: light;
+}
+
+html[data-scheme="dark"] {
+  color-scheme: dark;
+}
+
+html[data-transparent="true"],
+html[data-transparent="true"] body {
+  background-color: transparent;
+}
+
+html,
+body.embedded-body {
+  block-size: 100%;
+}
+
+.embedded {
+  container-type: size;
+  container-name: embedded;
+  display: flex;
+  flex-direction: column;
+  block-size: 100%;
+  min-block-size: 0;
+  max-block-size: var(--embedded-height);
+  overflow: hidden;
+}
+
+.embedded-content {
+  flex: 1 1 auto;
+  min-block-size: 0;
+  padding: var(--space-4);
+  overflow: hidden;
+  overflow-wrap: anywhere;
+}
+
+.embedded-content > :first-child {
+  margin-block-start: 0;
+}
+
+.embedded-content img,
+.embedded-content svg,
+.embedded-content video,
+.embedded-content table {
+  max-inline-size: 100%;
+}
+
+.embedded-content pre {
+  overflow: hidden;
+}
+
+.embedded-attribution {
+  flex: none;
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-1) var(--space-3);
+  justify-content: space-between;
+  margin: 0;
+  padding: var(--space-2) var(--space-4);
+  border-block-start: 1px solid var(--color-border);
+  background-color: var(--color-surface);
+  color: var(--color-muted);
+  font-size: var(--type-size-sm);
+}
+
+html[data-transparent="true"] .embedded-attribution {
+  background-color: transparent;
+}
+
+/* A printed embedded view shows the whole page: the frame's height and clipping are screen rules. */
+@media print {
+  .embedded {
+    block-size: auto;
+    max-block-size: none;
+    overflow: visible;
+  }
+
+  .embedded-content {
+    overflow: visible;
+  }
+}
+
+.embedded-attribution a {
+  color: var(--color-link);
+  font-weight: 600;
+  text-decoration: underline;
+}
+
+.embedded-attribution a:hover {
+  color: var(--color-link-hover);
+}
+
+@container embedded (max-inline-size: 30rem) {
+  .embedded-content {
+    padding: var(--space-3);
+    font-size: var(--type-size-sm);
+  }
+
+  .embedded-attribution {
+    padding-inline: var(--space-3);
+  }
+}
+
+@container embedded (min-inline-size: 30rem) and (max-inline-size: 45rem) {
+  .embedded-content {
+    padding: var(--space-4);
+  }
+}
+
+@container embedded (min-inline-size: 45rem) {
+  .embedded-content {
+    padding: var(--space-6);
+  }
+}
+
+@media (forced-colors: active) {
+  .embedded-attribution {
+    border-block-start-color: CanvasText;
+  }
+
+  .embedded-attribution a {
+    color: LinkText;
+  }
+}
+}

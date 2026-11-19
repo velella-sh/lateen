@@ -13,7 +13,7 @@ npm ci
 npm run ui:build
 ```
 
-`npm run ui:build` compiles Tailwind + Basecoat from `styles/ui.css` into `styles/generated.css` and copies the Chart.js asset. Do not edit `styles/generated.css` by hand.
+`npm run ui:build` compiles Tailwind + Basecoat from `styles/src/ui.css` into `styles/generated.css` and copies the Chart.js asset. Do not edit `styles/generated.css` by hand.
 
 `npm ci` installs the published `@velella/mizzen`, which is what the tests and the docs check run against. No sibling checkout is required.
 
@@ -37,7 +37,7 @@ Before a pull request: `npm run typecheck && npm test`.
 
 Mizzen + Node + TypeScript + Preact + **Tailwind CSS** + **Basecoat** + vanilla islands + **Lucide** + **Chart.js**.
 
-- Visuals: `styles/ui.css` → `styles/generated.css`
+- Visuals: `styles/src/ui.css` → `styles/generated.css`
 - Icons: Lucide via `src/icon.ts` (not hand SVG sheets for new work)
 - Charts: Chart.js islands under `components/charts` and `components/performance-chart`
 - `@velella/lateen/redesign` is a deprecated alias of the main theme

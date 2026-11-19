@@ -1,0 +1,119 @@
+/* Visual source of truth: styles/ui.css → generated.css. This sheet stays for unit contract tests and behavioral fallbacks; demoted so Tailwind wins. */
+@layer lateen-legacy {
+/* Symbol popover: an inline disclosure whose chip opens the signature and reference link. The chip
+   is the <summary> of a native <details>, so it opens with Enter, Space, or a tap and needs no
+   JavaScript; the island only adds Escape and outside dismissal. Logical properties keep it working
+   under RTL, and every colour and length comes from a token. */
+
+.symbol-popover {
+  position: relative;
+  display: inline-block;
+  vertical-align: baseline;
+}
+
+.symbol-popover-chip {
+  display: inline-flex;
+  align-items: center;
+  min-block-size: 1.5rem;
+  padding-block: 0;
+  padding-inline: var(--space-1);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-sm);
+  background-color: var(--code-bg);
+  color: var(--color-text);
+  font-family: var(--type-font-mono);
+  font-size: var(--type-size-sm);
+  line-height: var(--type-leading-tight);
+  white-space: nowrap;
+  list-style: none;
+}
+
+/* The native disclosure marker is replaced by the chip's border and open state. */
+.symbol-popover-chip::-webkit-details-marker {
+  display: none;
+}
+
+.symbol-popover-chip::marker {
+  content: "";
+}
+
+details > .symbol-popover-chip {
+  cursor: pointer;
+}
+
+details > .symbol-popover-chip:hover,
+.symbol-popover[open] > .symbol-popover-chip {
+  border-color: var(--color-border-strong);
+}
+
+.symbol-popover-chip:focus-visible {
+  outline: 2px solid var(--state-focus-ring);
+  outline-offset: 2px;
+}
+
+/* The panel is only in the layout while the details is open; the browser hides it otherwise. */
+.symbol-popover-panel {
+  position: absolute;
+  inset-block-start: calc(100% + var(--space-1));
+  inset-inline-start: 0;
+  z-index: var(--layer-popover);
+  max-inline-size: var(--type-measure-min);
+  padding-block: var(--space-2);
+  padding-inline: var(--space-3);
+  border: 1px solid var(--color-border-strong);
+  border-radius: var(--radius-md);
+  background-color: var(--color-surface-raised);
+  box-shadow: var(--shadow-popover);
+  color: var(--color-text);
+  font-family: var(--type-font-mono);
+  font-size: var(--type-size-sm);
+  line-height: var(--type-leading-code);
+  white-space: normal;
+}
+
+/* A signature is code, so it stays left to right inside a right-to-left page. */
+.symbol-popover-signature {
+  display: block;
+  direction: ltr;
+  unicode-bidi: isolate;
+  text-align: start;
+  overflow-wrap: anywhere;
+  color: var(--color-heading);
+}
+
+.symbol-popover-link {
+  display: inline-flex;
+  align-items: center;
+  min-block-size: 1.5rem;
+  margin-block-start: var(--space-1);
+  color: var(--color-link);
+  font-family: var(--type-font-ui);
+  font-size: var(--type-size-sm);
+}
+
+.symbol-popover-link:hover {
+  color: var(--color-link-hover);
+  text-decoration: underline;
+}
+
+.symbol-popover-link:focus-visible {
+  outline: 2px solid var(--state-focus-ring);
+  outline-offset: 2px;
+}
+
+/* On a narrow screen the panel sits in the flow instead of over the content, so a tap target and
+   the reference link stay inside the viewport. */
+@media (max-width: 40rem) {
+  details.symbol-popover {
+    position: static;
+    display: block;
+  }
+
+  .symbol-popover-panel {
+    position: static;
+    inline-size: auto;
+    max-inline-size: none;
+    margin-block-start: var(--space-2);
+  }
+}
+}

@@ -1,0 +1,106 @@
+/* Visual source of truth: styles/ui.css → generated.css. This sheet stays for unit contract tests and behavioral fallbacks; demoted so Tailwind wins. */
+@layer lateen-legacy {
+/* CTA band: a closing call to action. Colours come from tokens; spacing uses logical properties, so it mirrors in right-to-left. */
+
+.cta-band {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: var(--space-4);
+  margin-block: var(--space-12);
+  padding-block: var(--space-8);
+  padding-inline: var(--space-8);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-lg);
+  background-color: var(--color-surface);
+  color: var(--color-text);
+  text-align: start;
+}
+
+.cta-band-title {
+  margin: 0;
+  font-size: var(--type-size-xl);
+}
+
+.cta-band-lead {
+  margin: 0;
+  max-inline-size: 60ch;
+}
+
+.cta-band-action {
+  display: inline-flex;
+  align-items: center;
+  padding-block: var(--space-2);
+  padding-inline: var(--space-6);
+  border: 1px solid transparent;
+  border-radius: var(--radius-md);
+  background-color: var(--color-accent);
+  color: var(--color-on-accent);
+  font-family: var(--type-font-ui);
+  font-weight: var(--type-weight-medium);
+  text-decoration: none;
+}
+
+.cta-band-action:hover {
+  border-color: var(--color-accent-hover);
+  background-color: var(--color-accent-hover);
+}
+
+.cta-band-action:focus-visible,
+.cta-band-copy:focus-visible {
+  outline: 2px solid var(--state-focus-ring);
+  outline-offset: 2px;
+}
+
+.cta-band-command {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-start;
+  gap: var(--space-2);
+  max-inline-size: 100%;
+}
+
+.cta-band-command .install-tabs {
+  margin-block: 0;
+  flex: 1 1 auto;
+  min-inline-size: 0;
+}
+
+.cta-band-copy {
+  padding-block: var(--space-1);
+  padding-inline: var(--space-2);
+  border: 1px solid var(--color-border-strong);
+  border-radius: var(--radius-sm);
+  background-color: transparent;
+  color: var(--color-text);
+  font-family: var(--type-font-ui);
+  font-size: var(--type-size-sm);
+  cursor: pointer;
+}
+
+/* The button sets display, so the hidden attribute needs its own rule to keep it out of sight. */
+.cta-band-copy[hidden] {
+  display: none;
+}
+
+.cta-band-copy:hover {
+  background-color: var(--state-hover-bg);
+}
+
+@media print {
+  .cta-band {
+    border-color: currentColor;
+    background: none;
+  }
+
+  .cta-band-action {
+    border-color: currentColor;
+    background: none;
+    color: inherit;
+  }
+
+  .cta-band-copy {
+    display: none;
+  }
+}
+}

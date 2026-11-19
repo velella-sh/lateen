@@ -4,9 +4,9 @@
 @import "basecoat-css/components/card.css";
 @import "basecoat-css/components/badge.css";
 
-@source "../layouts";
-@source "../chrome";
-@source "../components";
+@source "../../layouts";
+@source "../../chrome";
+@source "../../components";
 
 /* Sailcloth tokens — locked Velella brand (see docs/design/sailcloth.md).
    Bridge aliases keep older class hooks readable while markup migrates to Tailwind. */
@@ -160,7 +160,7 @@
     position: relative;
     isolation: isolate;
     background: var(--background);
-    font-family: "Manrope", ui-sans-serif, system-ui, sans-serif;
+    font-family: var(--type-font-body);
     font-size: 1.0625rem;
     line-height: 1.65;
   }
@@ -390,36 +390,68 @@
     @apply ms-auto flex items-center gap-1.5;
   }
 
-  .search {
-    display: flex;
+  /* Header search control (not the dialog — that also uses class "search"). */
+  .site-header .search-trigger {
+    display: inline-flex;
     align-items: center;
     justify-content: space-between;
-    width: 14.25rem;
-    height: 2.125rem;
+    gap: 0.5rem;
+    min-block-size: 2.125rem;
+    min-inline-size: 2.125rem;
+    inline-size: 14.25rem;
     padding: 0 0.75rem;
+    border: 0;
     border-radius: 999px;
     background: transparent;
     color: var(--muted-foreground);
     font-size: 0.84rem;
     font-weight: 500;
+    cursor: pointer;
   }
 
-  .site-header.is-scrolled .search,
-  .search:hover,
-  .search:focus-visible {
+  .site-header.is-scrolled .search-trigger,
+  .site-header .search-trigger:hover,
+  .site-header .search-trigger:focus-visible {
     background: color-mix(in srgb, var(--muted) 78%, var(--background));
     box-shadow: inset 0 0 0 1px var(--border);
     color: var(--foreground);
   }
 
-  .search kbd,
+  .site-header .search-trigger kbd,
   .search-field kbd,
   .search-foot kbd {
-    font-family: "JetBrains Mono", ui-monospace, monospace;
+    font-family: var(--type-font-mono);
     font-size: 0.66rem;
     padding: 0.1rem 0.35rem;
     border-radius: 0.3rem;
     box-shadow: inset 0 0 0 1px var(--border);
+  }
+
+  dialog.search {
+    inline-size: min(40rem, calc(100vw - 2rem));
+    max-block-size: min(80vh, 40rem);
+    margin: 10vh auto auto;
+    padding: 0;
+    border: 1px solid var(--border);
+    border-radius: 1.25rem;
+    background: color-mix(in srgb, var(--background) 92%, var(--card));
+    color: var(--foreground);
+    box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--border) 90%, transparent);
+    overflow: hidden;
+  }
+
+  dialog.search[hidden] {
+    display: none !important;
+  }
+
+  dialog.search .search-close {
+    min-block-size: 2.75rem;
+    min-inline-size: 2.75rem;
+  }
+
+  dialog.search .search-input {
+    min-block-size: 2.75rem;
+    min-inline-size: 2.75rem;
   }
 
   .iconbtn {
@@ -577,14 +609,14 @@
       display: none;
     }
 
-    .search {
-      width: 2.125rem;
+    .site-header .search-trigger {
+      inline-size: 2.125rem;
       padding: 0;
       justify-content: center;
       font-size: 0;
     }
 
-    .search kbd {
+    .site-header .search-trigger kbd {
       display: none;
     }
   }
@@ -653,7 +685,7 @@
   }
 
   .hero-hint kbd {
-    font-family: "JetBrains Mono", ui-monospace, monospace;
+    font-family: var(--type-font-mono);
     font-size: 0.72rem;
     margin-inline-end: 0.1rem;
     border: 1px solid var(--border);
@@ -691,7 +723,7 @@
   .preview-chrome em {
     margin-inline-start: 0.5rem;
     font-style: normal;
-    font-family: "JetBrains Mono", ui-monospace, monospace;
+    font-family: var(--type-font-mono);
     font-size: 0.7rem;
     color: var(--muted-foreground);
   }
@@ -833,7 +865,7 @@
   .lonely .code-mark {
     display: inline-block;
     margin: 0 0 1.1rem;
-    font-family: "JetBrains Mono", ui-monospace, monospace;
+    font-family: var(--type-font-mono);
     font-size: 0.78rem;
     color: var(--muted-foreground);
     background: var(--muted);
@@ -1063,6 +1095,31 @@
     color: var(--shiki-dark);
   }
 
+  /* Inverse code / terminal: night panel + dark-theme Shiki tokens (light theme pages included). */
+  .code,
+  .code-frame > .code,
+  .terminal-body,
+  .ba-code,
+  .ba-before .code,
+  .ba-after .code {
+    background-color: var(--night) !important;
+    color: var(--sail);
+  }
+
+  .code .shiki span,
+  .code-frame .shiki span,
+  .code .line > span,
+  .terminal .shiki span,
+  .terminal-body .shiki span,
+  .terminal-body .line > span,
+  .ba-before .shiki span,
+  .ba-after .shiki span,
+  .ba-code .shiki span,
+  .ba-before .line > span,
+  .ba-after .line > span {
+    color: var(--shiki-dark, var(--sail));
+  }
+
   .doc-body table {
     @apply my-6 w-full overflow-hidden rounded-xl text-sm;
     border-collapse: collapse;
@@ -1092,8 +1149,13 @@
 
   .callout-note { --callout-color: var(--muted-foreground); }
   .callout-tip {
-    --callout-color: var(--mist);
+    /* Mist alone fails contrast on Foam; mix toward Night for the title/icon. */
+    --callout-color: color-mix(in srgb, var(--mist) 42%, var(--night));
     box-shadow: inset 2px 0 0 color-mix(in srgb, var(--mist) 55%, transparent);
+  }
+
+  [data-theme="dark"] .callout-tip {
+    --callout-color: color-mix(in srgb, var(--mist) 70%, var(--sail));
   }
   .callout-important {
     --callout-color: var(--link);
@@ -1182,7 +1244,7 @@
 
   kbd,
   .kbd {
-    font-family: "JetBrains Mono", ui-monospace, monospace;
+    font-family: var(--type-font-mono);
     font-size: 0.75rem;
     border: 1px solid var(--border);
     border-bottom-width: 2px;
@@ -1197,7 +1259,7 @@
 
   .endpoint-line {
     @apply flex items-center gap-2.5;
-    font-family: "JetBrains Mono", ui-monospace, monospace;
+    font-family: var(--type-font-mono);
     font-size: 0.84rem;
   }
 
@@ -1251,7 +1313,7 @@
 
   .file-tree,
   .tree {
-    font-family: "JetBrains Mono", ui-monospace, monospace;
+    font-family: var(--type-font-mono);
     font-size: 0.8125rem;
     line-height: 1.7;
   }
@@ -1275,7 +1337,7 @@
 
   .terminal-body {
     @apply m-0 overflow-x-auto p-4 text-sm leading-relaxed;
-    font-family: "JetBrains Mono", ui-monospace, monospace;
+    font-family: var(--type-font-mono);
   }
 
   .terminal-command {
@@ -1433,7 +1495,7 @@
 
   .item strong,
   .list a strong {
-    font-family: "JetBrains Mono", ui-monospace, monospace;
+    font-family: var(--type-font-mono);
     font-size: 0.8125rem;
     font-weight: 500;
   }
@@ -1704,7 +1766,7 @@
   }
 }
 
-[dir="rtl"] :is(.home-actions [data-icon="inline-end"], .home-section h2 a, .home-section li a, .pager a, .breadcrumb) svg {
+[dir="rtl"] :is(.pager-arrow, .breadcrumb-sep, .home-arrow, .pagination-arrow) {
   transform: scaleX(-1);
 }
 
@@ -1780,4 +1842,98 @@
   .site-header .header-repo {
     display: none;
   }
+}
+
+
+/* A11y gate: unlayered touch targets and contrast fixes. */
+.search-input,
+.search-close,
+.page-footer-copy,
+.project-switcher-mobile-summary,
+.breadcrumb-item a,
+.compare th[scope="col"],
+.compare-title a,
+.compare-pick,
+.glossary-index a {
+  min-block-size: 1.5rem;
+  min-inline-size: 1.5rem;
+}
+
+.glossary-index a,
+.compare-title a,
+.compare-pick {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0.25rem 0.4rem;
+}
+
+.terminal-copy,
+button[data-text-total],
+button[data-block-id] {
+  color: var(--sail);
+  background: var(--night-raised);
+}
+
+.breadcrumb-title {
+  color: var(--foreground);
+}
+
+.code .highlighted,
+.code-frame .highlighted {
+  background-color: color-mix(in srgb, var(--sail) 14%, var(--night)) !important;
+}
+
+.code .highlighted span,
+.code-frame .highlighted span {
+  color: var(--sail) !important;
+}
+
+.code .highlighted span,
+.code-frame .highlighted span {
+  color: var(--sail) !important;
+}
+
+.source-mode-button {
+  color: var(--foreground);
+  background: var(--card);
+  border-color: var(--border);
+}
+
+.source-mode-button[aria-pressed="true"] {
+  color: var(--primary-foreground);
+  background: var(--primary);
+}
+
+.doc-body th,
+.schema-table th,
+.budget-report-table th,
+.a11y-report-table th,
+.line-chart-table th,
+.compare th,
+table th {
+  color: var(--foreground);
+  background: color-mix(in srgb, var(--muted) 72%, var(--card));
+}
+
+.home-btn-primary,
+a.home-btn-primary,
+.home-actions .btn[data-variant="primary"],
+.home-actions a.btn:first-child {
+  color: var(--primary-foreground);
+  background: var(--primary);
+}
+
+[data-theme="dark"] .home-btn-primary,
+[data-theme="dark"] a.home-btn-primary {
+  color: var(--night);
+  background: var(--sail);
+}
+
+.code-tabs [role="tab"][aria-selected="true"],
+.tabs [role="tab"][aria-selected="true"],
+.os-tabs-tab[aria-selected="true"],
+.install-tabs [role="tab"][aria-selected="true"] {
+  color: var(--foreground);
+  background: color-mix(in srgb, var(--card) 70%, var(--muted));
 }

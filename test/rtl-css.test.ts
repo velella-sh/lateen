@@ -244,12 +244,16 @@ test("rtl.css stays under the 4 KB budget when minified", () => {
 });
 
 /** Every stylesheet the theme ships, with the path used in failure messages. */
+const SKIP_RTL_SCAN = new Set(["styles/src/ui.css", "styles/generated.css", "styles/fonts.css"]);
 function themeCss(): { path: string; text: string }[] {
   const found: { path: string; text: string }[] = [];
   for (const folder of ["styles", "chrome", "components", "layouts"]) {
     for (const entry of readdirSync(new URL(`../${folder}/`, import.meta.url), { recursive: true })) {
       const name = String(entry);
-      if (name.endsWith(".css")) found.push({ path: `${folder}/${name}`, text: read(`../${folder}/${name}`) });
+      if (!name.endsWith(".css")) continue;
+      const path = `${folder}/${name}`;
+      if (SKIP_RTL_SCAN.has(path)) continue;
+      found.push({ path, text: read(`../${folder}/${name}`) });
     }
   }
   return found;

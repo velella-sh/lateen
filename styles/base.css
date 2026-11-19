@@ -1,0 +1,254 @@
+/* Visual source of truth: styles/ui.css → generated.css. This sheet stays for unit contract tests and behavioral fallbacks; demoted so Tailwind wins. */
+@layer lateen-legacy {
+/* Base styles every page loads: a small reset and the article typography.
+   Every color and every length comes from a token (a raw value fails `test/base-css.test.ts`),
+   and every rule uses logical properties so `dir="rtl"` mirrors the page. Headings keep clear of
+   the sticky header. `styles/tokens.css` must load before this file. */
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+html {
+  -webkit-text-size-adjust: 100%;
+  text-size-adjust: 100%;
+}
+
+body {
+  margin: 0;
+  background-color: var(--color-canvas);
+  color: var(--color-text);
+  font-family: var(--type-font-body);
+  font-size: var(--type-size-base);
+  line-height: var(--type-leading-body);
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+}
+
+::selection {
+  background-color: var(--color-selection);
+}
+
+/* The one focus recipe: a medium ring, offset from the edge so it never touches the control's own border.
+   Units reuse it and add no outline of their own. It keeps 3:1 on every surface (test/tokens.test.ts). */
+:focus-visible {
+  outline: medium solid var(--state-focus-ring);
+  outline-offset: var(--space-1);
+}
+
+/* Forced colors mode replaces token colors with system colors; name the ring so it stays visible. */
+@media (forced-colors: active) {
+  :focus-visible {
+    outline-color: Highlight;
+  }
+}
+
+/* Article typography */
+
+:where(h1, h2, h3, h4, h5, h6) {
+  margin-block: var(--space-8) var(--space-4);
+  color: var(--color-heading);
+  font-family: var(--type-font-heading);
+  font-weight: var(--type-weight-bold);
+  line-height: var(--type-leading-heading);
+  letter-spacing: var(--type-tracking-heading);
+  text-wrap: balance;
+  /* The sticky header is one `--space-16` tall, so an anchored heading lands below it. */
+  scroll-margin-block-start: var(--space-16);
+}
+
+/* More space above a heading than below it: a section break is wider than a subsection break,
+   and a heading straight after another sits closer. */
+:where(h2) {
+  margin-block-start: var(--space-12);
+}
+
+:where(h1, h2, h3, h4, h5, h6) + :where(h2, h3, h4, h5, h6) {
+  margin-block-start: var(--space-4);
+}
+
+:where(h1, h2, h3, h4, h5, h6):first-child {
+  margin-block-start: 0;
+}
+
+:where(h1) {
+  font-size: var(--type-size-2xl);
+  line-height: var(--type-leading-display);
+  letter-spacing: var(--type-tracking-display);
+}
+
+:where(h2) {
+  font-size: var(--type-size-xl);
+  line-height: var(--type-leading-snug);
+}
+
+:where(h3) {
+  font-size: var(--type-size-lg);
+  line-height: var(--type-leading-snug);
+}
+
+:where(h4, h5, h6) {
+  font-weight: var(--type-weight-medium);
+  letter-spacing: normal;
+}
+
+:where(h4) {
+  font-size: var(--type-size-base);
+}
+
+:where(h5, h6) {
+  font-size: var(--type-size-sm);
+}
+
+/* Paragraphs avoid a lone last word where the browser supports it. */
+:where(p, li, blockquote) {
+  text-wrap: pretty;
+}
+
+:where(p, ul, ol, blockquote, figure) {
+  margin-block: 0 var(--space-4);
+}
+
+:where(ul, ol) {
+  padding-inline-start: var(--space-6);
+}
+
+:where(li + li) {
+  margin-block-start: var(--space-1);
+}
+
+:where(li > ul, li > ol) {
+  margin-block: var(--space-2) 0;
+}
+
+:where(a) {
+  color: var(--color-link);
+  text-decoration: underline;
+  text-decoration-thickness: from-font;
+}
+
+/* A visited link in the article reads as visited; chrome and components keep their own link colours. */
+:where(.doc-body a:visited) {
+  color: var(--color-link-visited);
+}
+
+:where(a:hover) {
+  color: var(--color-link-hover);
+}
+
+:where(code) {
+  font-family: var(--type-font-mono);
+  font-size: var(--type-size-sm);
+}
+
+/* Inline code reads as a chip. Code blocks are a `pre`, so they keep their own component styles. */
+:where(:not(pre) > code) {
+  /* Sized from the surrounding text, so it follows a heading or a small note. */
+  font-size: smaller;
+  padding-block: 0;
+  padding-inline: var(--space-1);
+  border: thin solid var(--code-border);
+  border-radius: var(--radius-sm);
+  background-color: var(--code-bg);
+  color: var(--code-fg);
+}
+
+/* A plain code block, one without the code-block component around it, gets the same chip colours. */
+:where(pre) {
+  overflow-x: auto;
+  padding: var(--space-4);
+  border: thin solid var(--code-border);
+  border-radius: var(--radius-md);
+  background-color: var(--code-bg);
+  color: var(--code-fg);
+  line-height: var(--type-leading-body);
+  tab-size: 2;
+}
+
+:where(blockquote) {
+  padding-inline-start: var(--space-4);
+  border-inline-start: thin solid var(--color-border);
+  color: var(--color-text);
+}
+
+:where(blockquote > :last-child) {
+  margin-block-end: 0;
+}
+
+:where(hr) {
+  margin-block: var(--space-8);
+  border: 0;
+  border-block-start: thin solid var(--color-border);
+}
+
+:where(img, video, canvas) {
+  display: block;
+  max-inline-size: 100%;
+  block-size: auto;
+}
+
+:where(button, input, select, textarea) {
+  font: inherit;
+}
+
+:where(:disabled, [aria-disabled="true"]) {
+  color: var(--state-disabled-fg);
+  cursor: not-allowed;
+}
+
+/* Tables: the header cells start at the reading start, rows are separated by a hairline, and code never breaks inside a cell. */
+table {
+  inline-size: 100%;
+  border-collapse: collapse;
+  font-size: var(--type-size-sm);
+}
+
+th,
+td {
+  font-variant-numeric: tabular-nums;
+  padding-block: var(--space-2);
+  padding-inline: var(--space-3);
+  border-block-end: thin solid var(--color-border);
+  text-align: start;
+  vertical-align: top;
+}
+
+th {
+  font-weight: var(--type-weight-medium);
+  color: var(--color-heading);
+}
+
+td code {
+  white-space: nowrap;
+}
+
+/* A table wider than the article scrolls inside it, so the page never gains a horizontal scrollbar. */
+.doc-body > table {
+  display: block;
+  max-inline-size: 100%;
+  overflow-x: auto;
+}
+
+/* Calm motion: hover and press changes ease on a surface or colour, never on layout, and the theme
+   change crossfades its colours. Every duration and easing is a motion token, which a reader who
+   prefers reduced motion gets as zero (`styles/tokens.css`). */
+:where(a, button, summary, [role="button"]) {
+  transition:
+    background-color var(--motion-fast) var(--motion-ease),
+    border-color var(--motion-fast) var(--motion-ease),
+    color var(--motion-fast) var(--motion-ease);
+}
+
+:where(button, [role="button"]):active {
+  transition-duration: var(--motion-press);
+}
+
+:where(body, header, nav, aside, main, footer, article, pre, table, th, td, blockquote) {
+  transition:
+    background-color var(--motion-base) var(--motion-ease-in-out),
+    border-color var(--motion-base) var(--motion-ease-in-out),
+    color var(--motion-base) var(--motion-ease-in-out);
+}
+}

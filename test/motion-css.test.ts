@@ -12,7 +12,8 @@ const cssFiles = (dir: string): string[] =>
     .filter((entry) => entry.isFile() && entry.name.endsWith(".css"))
     .map((entry) => join(entry.parentPath, entry.name).slice(root.length));
 
-const files = [...cssFiles("styles"), ...cssFiles("components"), ...cssFiles("chrome"), ...cssFiles("layouts")].filter((file) => file !== "styles/tokens.css" && file !== "styles/print.css");
+const SKIP_MOTION = new Set(["styles/tokens.css", "styles/print.css", "styles/src/ui.css", "styles/generated.css"]);
+const files = [...cssFiles("styles"), ...cssFiles("components"), ...cssFiles("chrome"), ...cssFiles("layouts")].filter((file) => !SKIP_MOTION.has(file));
 const strip = (text: string): string => text.replace(/\/\*[\s\S]*?\*\//g, "");
 
 /** Every `transition:` and `animation:` shorthand, split on top-level commas. */

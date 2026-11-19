@@ -1,0 +1,22 @@
+/* Visual source of truth: styles/ui.css → generated.css. This sheet stays for unit contract tests and behavioral fallbacks; demoted so Tailwind wins. */
+@layer lateen-legacy {
+/* Formulas are MathML the engine writes for `$…$` and a `$$` block. The formula takes the page's
+   text colour in either theme, keeps its own left-to-right direction inside right-to-left prose,
+   and scrolls sideways instead of widening a narrow page. The `<annotation>` and the `alttext`
+   attribute stay in the markup for assistive technology; nothing here hides them. */
+
+math {
+  color: inherit;
+  unicode-bidi: isolate;
+}
+
+/* A block formula scrolls as a whole at a narrow width. `max-inline-size` lets it shrink, and the
+   overflow keeps a long equation inside the article instead of pushing the page sideways. */
+math[display="block"] {
+  max-inline-size: 100%;
+  overflow-x: auto;
+  overflow-y: hidden;
+  margin-block: var(--space-4);
+  padding-block: var(--space-1);
+}
+}

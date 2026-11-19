@@ -31,7 +31,7 @@ Type: **Manrope** for UI and prose. **JetBrains Mono** for code. **Vazirmatn** o
 
 Mizzen + Node + TypeScript + Preact + Tailwind CSS + Basecoat + vanilla islands + Lucide + Chart.js.
 
-This is the only design stack. Hand-authored 0.2.x component CSS is not the source of truth; author visuals in `styles/ui.css` (Tailwind + Basecoat) and Lucide/Chart.js islands.
+This is the only design stack. Hand-authored 0.2.x component CSS is not the source of truth; author visuals in `styles/src/ui.css` (Tailwind + Basecoat → `styles/generated.css`) and Lucide/Chart.js islands.
 
 ## Surfaces
 

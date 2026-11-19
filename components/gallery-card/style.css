@@ -1,0 +1,112 @@
+/* Visual source of truth: styles/ui.css → generated.css. This sheet stays for unit contract tests and behavioral fallbacks; demoted so Tailwind wins. */
+@layer lateen-legacy {
+/* Gallery cards: one link per item, with a fixed-ratio cover, a title, a summary, and a status. */
+
+.gallery-card {
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  background-color: var(--color-surface);
+  border: thin solid var(--color-border);
+  border-radius: var(--radius-lg);
+  color: var(--color-text);
+  text-decoration: none;
+  transition: border-color var(--motion-fast) var(--motion-ease), background-color var(--motion-fast) var(--motion-ease);
+}
+
+.gallery-card:hover {
+  border-color: var(--color-border);
+  background-color: var(--color-surface-raised);
+}
+
+.gallery-card:active {
+  background-color: var(--state-active-bg);
+}
+
+.gallery-card:hover .gallery-card-title {
+  color: var(--color-link);
+}
+
+/* One ratio reserves the space before the image loads. Contain keeps a logo whole. */
+.gallery-card-cover {
+  display: block;
+  inline-size: 100%;
+  aspect-ratio: 16 / 9;
+  object-fit: contain;
+  background-color: var(--color-surface-sunken);
+}
+
+/* A coverless card gets a tile with the title's first letter, in one stable tone per record. */
+.gallery-card-tile {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  inline-size: 100%;
+  aspect-ratio: 16 / 9;
+  font-family: var(--type-font-ui);
+  font-size: var(--type-size-3xl);
+  font-weight: var(--type-weight-bold);
+  line-height: var(--type-leading-tight);
+}
+
+/* One pair per TILE_TONES entry in tile.ts; every pair is 4.5:1 or better in both themes. */
+.gallery-card-tile-0 {
+  background-color: var(--status-positive-bg);
+  color: var(--status-positive-fg);
+}
+
+.gallery-card-tile-1 {
+  background-color: var(--status-caution-bg);
+  color: var(--status-caution-fg);
+}
+
+.gallery-card-tile-2 {
+  background-color: var(--status-negative-bg);
+  color: var(--status-negative-fg);
+}
+
+.gallery-card-tile-3 {
+  background-color: var(--status-neutral-bg);
+  color: var(--status-neutral-fg);
+}
+
+.gallery-card-tile-4 {
+  background-color: var(--status-info-bg);
+  color: var(--status-info-fg);
+}
+
+.gallery-card-body {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+  padding: var(--space-4);
+}
+
+.gallery-card-title {
+  font-family: var(--type-font-ui);
+  font-size: var(--type-size-lg);
+  font-weight: var(--type-weight-medium);
+  line-height: var(--type-leading-tight);
+  color: var(--color-heading);
+}
+
+.gallery-card-summary {
+  font-family: var(--type-font-body);
+  font-size: var(--type-size-sm);
+  line-height: var(--type-leading-body);
+  color: var(--color-muted);
+}
+
+.gallery-card-status {
+  align-self: flex-start;
+  padding-inline: var(--space-2);
+  border: 1px solid var(--status-neutral-border);
+  border-radius: var(--radius-full);
+  background-color: var(--status-neutral-bg);
+  color: var(--status-neutral-fg);
+  font-family: var(--type-font-ui);
+  font-size: var(--type-size-xs);
+  font-weight: var(--type-weight-medium);
+  line-height: var(--type-leading-tight);
+}
+}

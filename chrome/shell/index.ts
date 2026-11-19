@@ -133,7 +133,8 @@ const shell: Chrome = (props) => {
             {
               type: "button",
               class: "search-trigger",
-              "aria-label": t(page.lang, "search"),
+              // Visible label is the accessible name; an aria-label that only said "Search"
+              // failed axe label-content-name-mismatch against "Search the docs ⌘K".
               hidden: true,
               "data-search-open": true,
             },

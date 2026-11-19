@@ -1,0 +1,66 @@
+/* Visual source of truth: styles/ui.css → generated.css. This sheet stays for unit contract tests and behavioral fallbacks; demoted so Tailwind wins. */
+@layer lateen-legacy {
+/* Breadcrumb: the trail from the navigation tree above the title. Ancestor links, then the current page last, as one ordered list. */
+
+.breadcrumb {
+  margin-block-end: var(--space-6);
+  font-family: var(--type-font-ui);
+  font-size: var(--type-size-sm);
+  color: var(--color-muted);
+}
+
+/* The ordered list is the row; the nav keeps only the typography so the landmark holds no layout of its own. */
+.breadcrumb-list {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--space-2);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.breadcrumb-item {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+}
+
+.breadcrumb a {
+  display: inline-flex;
+  align-items: center;
+  min-block-size: 1.5rem;
+  color: var(--color-muted);
+  text-decoration: none;
+}
+
+.breadcrumb a:hover {
+  color: var(--color-link);
+}
+
+.breadcrumb a:focus-visible {
+  outline: 2px solid var(--state-focus-ring);
+  outline-offset: 2px;
+}
+
+/* Each authored title is a `<bdi>`; this keeps the isolation explicit where the element itself is dropped. */
+.breadcrumb-title {
+  unicode-bidi: isolate;
+}
+
+.breadcrumb-sep {
+  flex: none;
+  inline-size: var(--space-3);
+  block-size: var(--space-3);
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 2;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+/* Separators point toward the current page: mirror them when the page is right-to-left. */
+[dir="rtl"] .breadcrumb-sep {
+  transform: scaleX(-1);
+}
+}

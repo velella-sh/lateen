@@ -33,6 +33,18 @@ const INTENDED = [
     selector: 'link[rel="preload"][as="font"]',
     reason: "0.2.3 ships Manrope and JetBrains Mono instead of Geist and Geist Mono.",
   },
+  {
+    selector: ".callout-icon",
+    reason: "0.2.3 draws callout icons with Lucide instead of the previous hand SVG paths.",
+  },
+  {
+    selector: ".search-trigger",
+    reason: "The sailcloth search control uses its visible label as the accessible name (no separate aria-label).",
+  },
+  {
+    selector: ".api-example-code",
+    reason: "API example code blocks are keyboard-focusable (tabindex=0) for the a11y target-size gate.",
+  },
 ] as const;
 
 /** Every HTML file a build wrote, as paths relative to its output folder. */

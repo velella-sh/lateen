@@ -93,7 +93,7 @@ function exampleItem(example: Example, index: number): ComponentChildren {
     example.lang === "" ? null : h("p", { class: "api-example-lang" }, example.lang),
     h(
       "pre",
-      { class: "api-example-code" },
+      { class: "api-example-code", tabindex: 0 },
       h("code", { class: example.lang === "" ? undefined : `language-${example.lang}` }, example.code),
     ),
   );

@@ -23,6 +23,14 @@
       ]
     },
     {
+      "name": "charts",
+      "selector": "[data-charts] summary",
+      "states": [
+        "hover",
+        "focus"
+      ]
+    },
+    {
       "name": "check-list",
       "selector": "[data-check-list-copy]",
       "states": [
@@ -163,6 +171,14 @@
         "focus",
         "pressed",
         "disabled"
+      ]
+    },
+    {
+      "name": "performance-chart",
+      "selector": "[data-performance-chart] summary",
+      "states": [
+        "hover",
+        "focus"
       ]
     },
     {

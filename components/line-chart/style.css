@@ -1,0 +1,155 @@
+/* Visual source of truth: styles/ui.css → generated.css. This sheet stays for unit contract tests and behavioral fallbacks; demoted so Tailwind wins. */
+@layer lateen-legacy {
+/* Line charts: fixed SVG lines with a direct label at each line's end, then the same rows as a
+   table. Colours come from the chart tokens of `tokens/chart.json`, so light and dark follow the
+   theme. */
+
+.line-chart {
+  margin-block: var(--space-6);
+  break-inside: avoid;
+}
+
+.line-chart-title {
+  margin-block: 0 var(--space-2);
+  color: var(--color-heading);
+  font-family: var(--type-font-heading);
+  font-size: var(--type-size-lg);
+  font-weight: var(--type-weight-medium);
+}
+
+.line-chart-svg {
+  display: block;
+  inline-size: 100%;
+  block-size: auto;
+  max-inline-size: 100%;
+}
+
+.line-chart-svg text {
+  font-family: var(--type-font-body);
+  font-size: var(--type-size-xs);
+}
+
+/* `currentColor` lets one series class colour its line, its points and its label. */
+.line-chart-line {
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 2;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+.line-chart-point {
+  fill: currentColor;
+}
+
+.line-chart-end-label {
+  fill: currentColor;
+  font-weight: var(--type-weight-medium);
+}
+
+.line-chart-series-1 {
+  color: var(--chart-cat-1);
+}
+
+.line-chart-series-2 {
+  color: var(--chart-cat-2);
+}
+
+.line-chart-series-3 {
+  color: var(--chart-cat-3);
+}
+
+.line-chart-series-4 {
+  color: var(--chart-cat-4);
+}
+
+.line-chart-series-5 {
+  color: var(--chart-cat-5);
+}
+
+.line-chart-series-6 {
+  color: var(--chart-cat-6);
+}
+
+.line-chart-series-7 {
+  color: var(--chart-cat-7);
+}
+
+.line-chart-series-8 {
+  color: var(--chart-cat-8);
+}
+
+.line-chart-axis {
+  stroke: var(--color-border);
+  stroke-width: 1;
+}
+
+.line-chart-grid {
+  stroke: var(--border-subtle);
+  stroke-width: 1;
+}
+
+.line-chart-tick {
+  fill: var(--color-muted);
+}
+
+.line-chart-no-value {
+  fill: var(--color-muted);
+  color: var(--color-muted);
+  font-style: italic;
+}
+
+.line-chart-table {
+  inline-size: 100%;
+  margin-block-start: var(--space-4);
+  border-collapse: collapse;
+  font-size: var(--type-size-sm);
+  line-height: var(--type-leading-body);
+}
+
+.line-chart-table caption {
+  padding-block: var(--space-2);
+  color: var(--color-muted);
+  font-weight: var(--type-weight-medium);
+  text-align: start;
+}
+
+.line-chart-table th,
+.line-chart-table td {
+  padding-block: var(--space-2);
+  padding-inline: var(--space-3);
+  border-block-end: 1px solid var(--color-border);
+  text-align: start;
+  vertical-align: top;
+}
+
+.line-chart-table thead th {
+  color: var(--color-heading);
+  font-weight: var(--type-weight-medium);
+}
+
+.line-chart-table tbody th {
+  color: var(--color-text);
+  font-weight: var(--type-weight-regular);
+}
+
+@media (forced-colors: active) {
+  .line-chart-line,
+  .line-chart-axis,
+  .line-chart-grid {
+    stroke: CanvasText;
+  }
+
+  .line-chart-point,
+  .line-chart-end-label {
+    fill: CanvasText;
+  }
+}
+
+/* The data table is nested inside the chart, so the chart's stylesheet carries its target size. */
+.chart-data-downloads a {
+  display: inline-flex;
+  align-items: center;
+  min-block-size: 1.5rem;
+}
+}

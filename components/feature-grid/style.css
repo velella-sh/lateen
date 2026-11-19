@@ -1,0 +1,96 @@
+/* Visual source of truth: styles/ui.css → generated.css. This sheet stays for unit contract tests and behavioral fallbacks; demoted so Tailwind wins. */
+@layer lateen-legacy {
+/* Feature grid: items fit two to four columns; one wide item makes a bento layout. */
+
+.feature-grid {
+  /* At most --feature-grid-max columns, each at least --feature-grid-min wide; fewer when narrow. */
+  --feature-grid-max: 3;
+  --feature-grid-min: 14rem;
+  --feature-grid-gap: var(--space-4);
+  display: grid;
+  grid-template-columns: repeat(
+    auto-fit,
+    minmax(
+      min(100%, max(var(--feature-grid-min), (100% - (var(--feature-grid-max) - 1) * var(--feature-grid-gap)) / var(--feature-grid-max))),
+      1fr
+    )
+  );
+  gap: var(--feature-grid-gap);
+  margin-block: var(--space-6);
+  padding: 0;
+  list-style: none;
+}
+
+.feature-grid[data-columns="2"] { --feature-grid-max: 2; }
+.feature-grid[data-columns="3"] { --feature-grid-max: 3; }
+.feature-grid[data-columns="4"] { --feature-grid-max: 4; --feature-grid-min: 12rem; }
+
+.feature-grid-item {
+  display: flex;
+  min-inline-size: 0;
+}
+
+/* The wide item spans two columns, and one on a narrow screen. */
+.feature-grid-item-wide { grid-column: span 2; }
+
+@media (max-width: 36rem) {
+  .feature-grid-item-wide { grid-column: auto; }
+}
+
+.feature-grid-card {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+  inline-size: 100%;
+  padding: var(--space-4);
+  background-color: var(--color-surface);
+  border: thin solid var(--color-border);
+  border-radius: var(--radius-lg);
+  color: var(--color-text);
+  text-decoration: none;
+}
+
+a.feature-grid-card {
+  transition: border-color var(--motion-fast) var(--motion-ease), background-color var(--motion-fast) var(--motion-ease);
+}
+
+a.feature-grid-card:hover {
+  border-color: var(--color-border);
+  background-color: var(--color-surface-raised);
+}
+
+a.feature-grid-card:active {
+  background-color: var(--state-active-bg);
+}
+
+.feature-grid-icon {
+  display: inline-flex;
+  inline-size: var(--space-8);
+  block-size: var(--space-8);
+  color: var(--color-accent);
+}
+
+.feature-grid-icon > svg {
+  inline-size: 100%;
+  block-size: 100%;
+}
+
+.feature-grid-title {
+  font-family: var(--type-font-ui);
+  font-size: var(--type-size-lg);
+  font-weight: var(--type-weight-medium);
+  line-height: var(--type-leading-tight);
+  color: var(--color-heading);
+}
+
+.feature-grid-text {
+  font-family: var(--type-font-body);
+  font-size: var(--type-size-sm);
+  line-height: var(--type-leading-body);
+  color: var(--color-muted);
+}
+
+@media print {
+  .feature-grid-card { background: none; box-shadow: none; border-color: currentColor; break-inside: avoid; }
+}
+}

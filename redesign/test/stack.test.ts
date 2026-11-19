@@ -13,8 +13,8 @@ test("the sailcloth stack deps are declared on the package", () => {
   }
 });
 
-test("styles/ui.css is the Tailwind + Basecoat source of truth", () => {
-  const css = readFileSync(new URL("../../styles/ui.css", import.meta.url), "utf8");
+test("styles/src/ui.css is the Tailwind + Basecoat source of truth", () => {
+  const css = readFileSync(new URL("../../styles/src/ui.css", import.meta.url), "utf8");
   assert.match(css, /@import "tailwindcss"/);
   assert.match(css, /@import "basecoat-css\/base\/base\.css"/);
   assert.match(css, /--foam:\s*#f4f4f9/i);

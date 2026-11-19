@@ -1,0 +1,62 @@
+/* Visual source of truth: styles/ui.css → generated.css. This sheet stays for unit contract tests and behavioral fallbacks; demoted so Tailwind wins. */
+@layer lateen-legacy {
+/* Status: a label with a tone's colours and a small icon. Colours come from the status tokens. */
+
+.status {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-1);
+  padding-block: 0;
+  padding-inline: var(--space-2);
+  border: 1px solid var(--status-neutral-border);
+  border-radius: var(--radius-full);
+  background-color: var(--status-neutral-bg);
+  color: var(--status-neutral-fg);
+  font-family: var(--type-font-ui);
+  font-size: var(--type-size-sm);
+  font-weight: var(--type-weight-medium);
+  line-height: var(--type-leading-tight);
+  white-space: nowrap;
+  vertical-align: baseline;
+}
+
+.status-icon {
+  display: inline-flex;
+  flex: none;
+}
+
+.status-icon svg {
+  inline-size: 1em;
+  block-size: 1em;
+}
+
+.status-positive {
+  border-color: var(--status-positive-border);
+  background-color: var(--status-positive-bg);
+  color: var(--status-positive-fg);
+}
+
+.status-caution {
+  border-color: var(--status-caution-border);
+  background-color: var(--status-caution-bg);
+  color: var(--status-caution-fg);
+}
+
+.status-negative {
+  border-color: var(--status-negative-border);
+  background-color: var(--status-negative-bg);
+  color: var(--status-negative-fg);
+}
+
+.status-neutral {
+  border-color: var(--status-neutral-border);
+  background-color: var(--status-neutral-bg);
+  color: var(--status-neutral-fg);
+}
+
+.status-info {
+  border-color: var(--status-info-border);
+  background-color: var(--status-info-bg);
+  color: var(--status-info-fg);
+}
+}

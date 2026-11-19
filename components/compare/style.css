@@ -1,0 +1,232 @@
+/* Visual source of truth: styles/ui.css → generated.css. This sheet stays for unit contract tests and behavioral fallbacks; demoted so Tailwind wins. */
+@layer lateen-legacy {
+/* Compare: a record per column and a field per row. Tokens and logical properties only. */
+
+/* The field names frame their row; they read from the start side in either writing direction. */
+.compare th[scope="row"] {
+  text-align: start;
+}
+
+/* Numbers line up on the end side, which is the reading end in right-to-left pages too. */
+.compare-cell[data-kind="number"] {
+  text-align: end;
+  font-variant-numeric: tabular-nums;
+}
+
+/* A record the collection lacks, and a comparison that cannot read its setup: visible, not blank. */
+.compare-missing,
+.compare-error {
+  color: var(--color-muted);
+  font-style: italic;
+}
+
+/* The controls stay hidden until the island runs, so no control appears that would do nothing. */
+.compare-controls {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: var(--space-2, 0.5rem);
+  margin-block: var(--space-2, 0.5rem);
+}
+
+.compare-toggle {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-1, 0.25rem);
+}
+
+/* The browser default checkbox is 13px; size it up to the 24px target. */
+.compare-toggle input {
+  inline-size: 1.5rem;
+  block-size: 1.5rem;
+}
+
+.compare-status {
+  margin: 0;
+  color: var(--color-muted);
+  font-size: var(--type-size-sm, 0.875rem);
+}
+
+/* The island's record picker: a button under the record's title, and the panel it opens. Only the
+   island draws either, so the built header holds the title and its link alone. */
+.compare-title {
+  display: block;
+  overflow-wrap: anywhere;
+}
+
+.compare-pick {
+  margin-block-start: var(--space-1, 0.25rem);
+  padding-block: var(--space-1, 0.25rem);
+  padding-inline: var(--space-2, 0.5rem);
+  border: thin solid var(--color-border);
+  border-radius: var(--radius-sm, 0.25rem);
+  background-color: var(--color-canvas);
+  color: var(--color-link);
+  font-family: var(--type-font-ui);
+  font-size: var(--type-size-sm);
+  cursor: pointer;
+}
+
+.compare-picker {
+  margin-block-start: var(--space-2, 0.5rem);
+}
+
+.compare-picker-select {
+  inline-size: 100%;
+  max-inline-size: 16rem;
+  padding-block: var(--space-1, 0.25rem);
+  padding-inline: var(--space-2, 0.5rem);
+  border: thin solid var(--color-border-strong);
+  border-radius: var(--radius-sm, 0.25rem);
+  background-color: var(--color-canvas);
+  color: var(--color-text);
+  font: inherit;
+}
+
+.compare-picker-status,
+.compare-picker-missing {
+  margin-block: var(--space-1, 0.25rem) 0;
+  color: var(--color-muted);
+  font-size: var(--type-size-sm);
+  font-style: italic;
+}
+
+/* A row whose raw values are not all equal: a tint, and a text marker in the row header for
+   assistive technology and for paper, so the color is never the only signal. */
+.compare-diff {
+  background-color: var(--color-surface-sunken);
+}
+
+.compare-diff-marker {
+  position: absolute;
+  inline-size: 1px;
+  block-size: 1px;
+  margin: -1px;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+}
+
+/* A tall comparison scrolls inside its region, so the column headers stay in view; the row header
+   is the table's first column and already sticks sideways in either direction. The focus ring of a
+   cell tabbed to near the top edge lands below the header instead of under it. */
+.compare .table-scroll {
+  max-block-size: 70vh;
+  overflow-y: auto;
+  scroll-padding-block-start: var(--space-12, 3rem);
+}
+
+/* A long value wraps inside its column rather than widening the table without bound. */
+.compare th[scope="col"],
+.compare-cell {
+  max-inline-size: 22rem;
+  overflow-wrap: anywhere;
+  white-space: normal;
+}
+
+.compare th[scope="row"] {
+  max-inline-size: 12rem;
+  overflow-wrap: anywhere;
+  white-space: normal;
+}
+
+/* The narrow form's tabs: only the island draws buttons, so no dead control shows without it. */
+.compare-tabs {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-1, 0.25rem);
+  margin-block: var(--space-2, 0.5rem);
+  border-block-end: thin solid var(--color-border);
+}
+
+.compare-tab {
+  min-block-size: 2.5rem;
+  padding-block: var(--space-1, 0.25rem);
+  padding-inline: var(--space-3, 0.75rem);
+  border: thin solid var(--color-border);
+  border-block-end: 0;
+  border-start-start-radius: var(--radius-sm, 0.25rem);
+  border-start-end-radius: var(--radius-sm, 0.25rem);
+  background-color: var(--color-canvas);
+  color: var(--color-text);
+  font-family: var(--type-font-ui);
+  font-size: var(--type-size-sm);
+  font-weight: var(--type-weight-medium);
+  cursor: pointer;
+}
+
+.compare-tab[aria-selected="true"] {
+  background-color: var(--color-surface-raised);
+  color: var(--color-heading);
+}
+
+@media print {
+  /* Paper shows every record: the tabs are a screen control and the hidden columns print. */
+  .compare-tabs {
+    display: none;
+  }
+
+  .compare [data-compare-column][hidden] {
+    display: table-cell;
+  }
+
+  .compare .table-scroll {
+    max-block-size: none;
+    overflow: visible;
+  }
+
+  .compare-diff-marker {
+    position: static;
+    inline-size: auto;
+    block-size: auto;
+    margin: 0;
+    overflow: visible;
+    clip-path: none;
+    white-space: normal;
+  }
+}
+
+/* Copy: the island reveals the button; the copied table is the visible rows, so a differences-only
+   view copies only the differences. */
+.compare-copy {
+  min-block-size: 2.5rem;
+  padding-block: var(--space-1, 0.25rem);
+  padding-inline: var(--space-2, 0.5rem);
+  border: thin solid var(--color-border);
+  border-radius: var(--radius-sm, 0.25rem);
+  background-color: var(--color-surface);
+  color: var(--color-heading);
+  font: inherit;
+  font-size: var(--type-size-sm, 0.875rem);
+  cursor: pointer;
+}
+
+.compare-copy:hover {
+  background-color: var(--state-hover-bg);
+}
+
+.compare-copy:focus-visible {
+  outline: 2px solid var(--state-focus-ring);
+  outline-offset: 2px;
+}
+
+.compare-copy-status {
+  margin: 0;
+  color: var(--color-muted);
+  font-size: var(--type-size-sm, 0.875rem);
+}
+
+/* Forced colors: the differing row keeps an edge without its tint, and the controls keep their border. */
+@media (forced-colors: active) {
+  .compare-diff > * {
+    border-block-start: 1px solid CanvasText;
+  }
+
+  .compare-copy,
+  .compare-pick,
+  .compare-picker-select,
+  .compare-tab {
+    border-color: ButtonText;
+  }
+}
+}

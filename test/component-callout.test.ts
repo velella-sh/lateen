@@ -8,7 +8,7 @@ import { renderToString } from "preact-render-to-string";
 import callout, { TITLE_CLASS, calloutKind, type CalloutProps } from "../components/callout/index.ts";
 
 const root = fileURLToPath(new URL("../", import.meta.url));
-const stylePath = join(root, "styles/ui.css");
+const stylePath = join(root, "styles/src/ui.css");
 
 
 /** The parts of a preact VNode the assertions read. */
@@ -265,6 +265,6 @@ test("the icon is decorative", () => {
 test("sailcloth ui.css styles callouts with the quiet inset edge", () => {
   const css = readFileSync(stylePath, "utf8");
   assert.match(css, /\.callout\s*\{/);
-  assert.match(css, /border-inline-start/);
+  assert.match(css, /box-shadow:\s*inset/);
   assert.match(css, /\.callout-tip/);
 });

@@ -1,0 +1,110 @@
+/* Visual source of truth: styles/ui.css → generated.css. This sheet stays for unit contract tests and behavioral fallbacks; demoted so Tailwind wins. */
+@layer lateen-legacy {
+/* Announcement bar: a dismissible message at the top of every page, from theme.options.announcement.
+   The dismiss button starts hidden; client.ts reveals it and hides the bar again on a later visit. */
+
+.announcement {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-2);
+  padding-block: var(--space-2);
+  padding-inline: var(--space-4);
+  background: var(--color-accent);
+  color: var(--color-on-accent);
+  font-family: var(--type-font-ui);
+  font-size: var(--type-size-sm);
+}
+
+/* The bar sets display, so the hidden attribute needs its own rule to keep it out of sight. */
+.announcement[hidden] {
+  display: none;
+}
+
+/* A warning or an outage is not a release note: it keeps the label and icon, and swaps the accent fill. */
+.announcement-warning {
+  background: color-mix(in srgb, var(--color-warning) 20%, var(--color-canvas));
+  color: var(--color-text);
+}
+
+.announcement-danger {
+  background: color-mix(in srgb, var(--color-danger) 20%, var(--color-canvas));
+  color: var(--color-text);
+}
+
+.announcement-icon {
+  flex: none;
+  inline-size: var(--space-4);
+  block-size: var(--space-4);
+}
+
+.announcement-warning .announcement-icon {
+  color: var(--color-warning);
+}
+
+.announcement-danger .announcement-icon {
+  color: var(--color-danger);
+}
+
+.announcement-tone {
+  font-weight: var(--type-weight-bold);
+}
+
+.announcement-text {
+  margin: 0;
+  text-align: center;
+}
+
+.announcement-link {
+  color: var(--color-on-accent);
+  text-decoration: underline;
+  text-underline-offset: var(--space-1);
+}
+
+.announcement-warning .announcement-link,
+.announcement-danger .announcement-link {
+  color: var(--color-link);
+}
+
+.announcement-link:hover {
+  color: var(--color-on-accent);
+}
+
+.announcement-warning .announcement-link:hover,
+.announcement-danger .announcement-link:hover {
+  color: var(--color-link-hover);
+}
+
+.announcement-link:focus-visible {
+  outline: 2px solid var(--state-focus-ring);
+  outline-offset: 2px;
+}
+
+.announcement-dismiss {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0 var(--space-1);
+  border: 0;
+  border-radius: var(--radius-sm);
+  background: transparent;
+  color: inherit;
+  font: inherit;
+  line-height: 1;
+  cursor: pointer;
+}
+
+/* The button sets display, so the hidden attribute needs its own rule to keep it out of sight. */
+.announcement-dismiss[hidden] {
+  display: none;
+}
+
+.announcement-dismiss:hover {
+  opacity: 0.8;
+}
+
+.announcement-dismiss:focus-visible {
+  outline: 2px solid var(--state-focus-ring);
+  outline-offset: 2px;
+}
+}

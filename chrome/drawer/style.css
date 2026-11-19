@@ -1,0 +1,132 @@
+/* Visual source of truth: styles/ui.css → generated.css. This sheet stays for unit contract tests and behavioral fallbacks; demoted so Tailwind wins. */
+@layer lateen-legacy {
+/* Sailcloth drawer — canvas panel with a hairline edge; no drop shadow or frame kit. */
+
+/* Without JavaScript the drawer is in the flow below 768 px, above the article, and absent on wide screens. */
+.drawer:not([data-enhanced]) {
+  display: none;
+}
+
+@media (max-width: 767.98px) {
+  .drawer:not([data-enhanced]) {
+    display: block;
+    position: static;
+    inset: auto;
+    inline-size: auto;
+    max-inline-size: none;
+    max-block-size: none;
+    margin: 0;
+    padding-block: var(--space-3);
+    padding-inline: var(--space-1);
+    border: 0;
+    border-block-end: thin solid var(--border-subtle);
+    background: transparent;
+    color: inherit;
+    overflow: visible;
+  }
+}
+
+/* The head script marks a page that will run its scripts (`html[data-js]`): the drawer starts closed there, so the first paint is the layout the script leaves and the article does not jump when it runs. */
+html[data-js] .drawer:not([data-enhanced]) {
+  display: none;
+}
+
+/* With JavaScript: a full-height dialog pinned to the start edge, so it opens on the reading-order side in both directions. */
+.drawer[data-enhanced] {
+  inset-block: 0;
+  inset-inline: 0 auto;
+  inline-size: min(20rem, 100%);
+  max-block-size: 100%;
+  margin: 0;
+  padding: var(--space-4) var(--space-3);
+  border: 0;
+  border-inline-end: thin solid var(--border-subtle);
+  background: var(--color-canvas);
+  color: var(--color-text);
+  box-shadow: none;
+  overflow-y: auto;
+  /* Closed: off the start edge. Open: in place. `display` and `overlay` keep the dialog on screen while it leaves. */
+  translate: -100% 0;
+  transition:
+    translate var(--motion-base) var(--motion-ease-in),
+    overlay var(--motion-base) var(--motion-ease-in) allow-discrete,
+    display var(--motion-base) var(--motion-ease-in) allow-discrete;
+}
+
+.drawer[data-enhanced]:dir(rtl) {
+  translate: 100% 0;
+}
+
+.drawer[data-enhanced][open] {
+  translate: 0 0;
+  transition-timing-function: var(--motion-ease-out);
+}
+
+@starting-style {
+  .drawer[data-enhanced][open] {
+    translate: -100% 0;
+  }
+
+  .drawer[data-enhanced][open]:dir(rtl) {
+    translate: 100% 0;
+  }
+}
+
+.drawer[data-enhanced]::backdrop {
+  background: var(--state-overlay);
+  opacity: 0;
+  transition:
+    opacity var(--motion-base) var(--motion-ease-in),
+    overlay var(--motion-base) var(--motion-ease-in) allow-discrete,
+    display var(--motion-base) var(--motion-ease-in) allow-discrete;
+}
+
+.drawer[data-enhanced][open]::backdrop {
+  opacity: 1;
+}
+
+@starting-style {
+  .drawer[data-enhanced][open]::backdrop {
+    opacity: 0;
+  }
+}
+
+.drawer-close {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-block-size: var(--space-8);
+  min-inline-size: var(--space-8);
+  margin-block-end: var(--space-2);
+  padding: var(--space-1);
+  border: 0;
+  border-radius: var(--radius-md);
+  background: transparent;
+  color: var(--color-muted);
+  font-size: var(--type-size-lg);
+  line-height: 1;
+  cursor: pointer;
+}
+
+.drawer-close[hidden] {
+  display: none;
+}
+
+.drawer-close:hover {
+  background: var(--state-hover-bg);
+  color: var(--color-heading);
+}
+
+.drawer-close:focus-visible {
+  outline: 2px solid var(--state-focus-ring);
+  outline-offset: 2px;
+}
+
+/* The sidebar scrolls with the drawer, not on its own; it is not sticky inside a dialog or in the flow. */
+.drawer .sidebar-nav {
+  position: static;
+  max-block-size: none;
+  overflow: visible;
+  padding-block: 0 var(--space-8);
+}
+}
