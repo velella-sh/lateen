@@ -8,13 +8,28 @@
  */
 import { readFile, writeFile } from "node:fs/promises";
 
-/** Line coverage as a percentage of the lines the report instruments, or undefined when it has none. */
+/** Count each instrumented source line once, even when Node lists the same source more than once. */
 export function lineCoverage(lcov: string): number | undefined {
+  const sources = new Map<string, Map<string, boolean>>();
+  let lines: Map<string, boolean> | undefined;
+  for (const entry of lcov.split(/\r?\n/)) {
+    if (entry.startsWith("SF:")) {
+      const source = entry.slice(3);
+      lines = sources.get(source) ?? new Map();
+      sources.set(source, lines);
+    } else if (entry === "end_of_record") {
+      lines = undefined;
+    } else if (lines && entry.startsWith("DA:")) {
+      const [line, hits] = entry.slice(3).split(",", 2);
+      if (line && hits !== undefined) lines.set(line, lines.get(line) === true || Number(hits) > 0);
+    }
+  }
+
   let found = 0;
   let hit = 0;
-  for (const line of lcov.split(/\r?\n/)) {
-    if (line.startsWith("LF:")) found += Number(line.slice(3));
-    else if (line.startsWith("LH:")) hit += Number(line.slice(3));
+  for (const source of sources.values()) {
+    found += source.size;
+    for (const covered of source.values()) if (covered) hit++;
   }
   return found > 0 ? (hit / found) * 100 : undefined;
 }
@@ -38,4 +53,4 @@ if (percent === undefined) {
 }
 const badge = { schemaVersion: 1, label: "coverage", message: `${Math.floor(percent)}%`, color: colorFor(percent) };
 await writeFile(output, `${JSON.stringify(badge)}\n`);
-process.stdout.write(`coverage: ${badge.message}\n`);
+process.stdout.write(`Line coverage by source file: ${percent.toFixed(2)}%\n`);

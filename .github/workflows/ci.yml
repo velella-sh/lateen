@@ -211,7 +211,6 @@ jobs:
         working-directory: lateen
         run: |
           npm run test:coverage
-          npm run coverage:badge
           echo "line coverage: $(node -p "require('./coverage/coverage.json').message")" >> "$GITHUB_STEP_SUMMARY"
       - name: Publish the badge
         env:
