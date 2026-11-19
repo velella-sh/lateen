@@ -8,10 +8,10 @@ permalink: /upgrade/
 Lateen 0.2.3 is additive. Every layout, component, option, translation key, and default that a 0.2.2 site uses still works, and a site that only bumps the package renders the same pages.
 
 ```sh
-npm install @velella/lateen@^0.2.3 @velella/mizzen@^0.2.4
+npm install @velella/lateen@^0.2.3 @velella/mizzen@^0.2.5
 ```
 
-The theme needs Mizzen 0.2.4 or later. The engine owns collections, blogs, OpenAPI inputs, blog routes, version routing, and theme overrides; the theme only renders what the engine plans. `npm ci` in a 0.2.2 project installs both without a config change. The base stylesheet and the theme script grow in this release, so a site with a strict byte budget should rerun its own checks.
+The theme needs Mizzen 0.2.5 or later. The engine owns collections, blogs, OpenAPI inputs, blog routes, version routing, and theme overrides; the theme only renders what the engine plans. `npm ci` in a 0.2.2 project installs both without a config change. The base stylesheet and the theme script grow in this release, so a site with a strict byte budget should rerun its own checks.
 
 Everything below is optional. Adopt one section at a time and rebuild.
 

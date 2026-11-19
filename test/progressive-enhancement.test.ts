@@ -466,6 +466,62 @@ test("the report link is server-rendered and needs no island", () => {
   assert.equal(link.getAttribute("rel"), "noopener");
 });
 
+test("a list's subscribe panel and changelog survive without an island", async () => {
+  const { default: list } = await import("../layouts/list.ts");
+  const page = {
+    url: "/books/",
+    title: "Books",
+    lang: "en",
+    html: "",
+    headings: [],
+    frontMatter: {},
+    source: { file: "books.md", line: 1, column: 1, endLine: 1, endColumn: 1 },
+    kind: "doc",
+  };
+  const calendar = {
+    name: "books",
+    title: "Books",
+    url: "https://example.com/calendars/books.ics",
+    webcal: "webcal://example.com/calendars/books.ics",
+  };
+  const html = renderToString(
+    list({
+      site: {
+        config: {
+          title: "Example",
+          base: "",
+          lang: "en",
+          dir: "ltr",
+          languages: [],
+          theme: { options: {} },
+          search: { text: 300 },
+          outputs: {},
+        },
+        pages: [page],
+        nav: {},
+        data: {},
+        collections: {},
+      },
+      page,
+      trail: [],
+      pager: {},
+      head: { title: "Books", meta: [], links: [], jsonLd: [] },
+      islands: [],
+      list: {
+        collection: "books",
+        records: [],
+        groups: [],
+        pagination: { page: 1, total: 1 },
+        calendars: [calendar],
+      },
+    } as never) as never,
+  );
+  assert.match(html, /data-list-subscribe/);
+  assert.match(html, /webcal:\/\/example\.com\/calendars\/books\.ics/);
+  assert.match(html, /<button[^>]*hidden[^>]*data-calendar-copy/);
+  assert.match(html, /https:\/\/example\.com\/calendars\/books\.ics/);
+});
+
 test("the comparison ships every record and no script-only control", () => {
   const page = site.document("/compare/");
   const table = page.querySelector(".compare table");

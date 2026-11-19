@@ -2,6 +2,17 @@
   "version": 1,
   "components": [
     {
+      "name": "add-to-calendar",
+      "selector": "[data-calendar-copy]",
+      "page": "/data-time/",
+      "states": [
+        "hover",
+        "focus",
+        "pressed",
+        "disabled"
+      ]
+    },
+    {
       "name": "before-after",
       "selector": "[data-before-after-copy]",
       "states": [

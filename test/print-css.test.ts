@@ -322,6 +322,13 @@ test("the dated list prints its groups and drops the jump and action controls", 
   assert.match(print, /\.dated-list-group > h2\s*\{[^}]*break-after:\s*avoid/);
 });
 
+test("a list keeps its subscribe rows and change events on one page", () => {
+  assert.ok(hiddenSelectors(printBody(css)).has(".list-subscribe-copy"), "the copy button never prints");
+  const text = read("../layouts/list.css");
+  const print = text.slice(text.indexOf("@media print"));
+  assert.match(print, /\.list-subscribe-list,[\s\S]*?\.changes-list,[\s\S]*?\.changes-item\s*\{[^}]*break-inside:\s*avoid/);
+});
+
 test("the report link prints nowhere", () => {
   const report = read("../chrome/report-issue/style.css");
   assert.match(report.slice(report.indexOf("@media print")), /\.report-issue\s*\{[^}]*display:\s*none/);

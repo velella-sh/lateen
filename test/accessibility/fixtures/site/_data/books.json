@@ -4,13 +4,15 @@
     "title": "Alpha",
     "author": "Ada",
     "pages": 120,
-    "published": "2026-11-09"
+    "published": "2026-11-09",
+    "updated": "2026-06-04"
   },
   {
     "id": "b",
     "title": "Beta",
     "author": "Bashir",
     "pages": 80,
-    "published": "2026-02-30"
+    "published": "2026-02-28",
+    "updated": "2026-06-18"
   }
 ]

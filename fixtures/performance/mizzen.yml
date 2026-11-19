@@ -4,6 +4,8 @@
 title: Lateen performance fixture
 description: A fixed site for measuring the theme's shipped JavaScript and CSS.
 lang: en
+asOf: 2026-06-01
+url: https://example.com
 base: ""
 search: false
 repository:
@@ -25,6 +27,9 @@ theme:
       values:
         done: { tone: positive, label: Done, description: Shipped and released. }
         late: { tone: negative, label: Late, description: Past its date. }
+        expired: { tone: negative, label: Expired, description: Past its date. }
+        soon: { tone: caution, label: Soon, description: Close to its date. }
+        later: { tone: neutral, label: Later, description: Some time away. }
     preset: harbor
     brand:
       accent: "#0b6e4f"
@@ -41,6 +46,18 @@ collections:
     id: id
     template: _templates/books.md
     permalink: /books/{id}/
+    dates: [published]
+    derived:
+      daysLeft: { field: published, kind: days-left }
+      state:
+        field: published
+        bands:
+          - { below: 0, value: expired }
+          - { below: 90, value: soon }
+          - { value: later }
+    changelog:
+      track: [title, published]
+      pages: true
     views:
       embed:
         template: _templates/books-embed.md
@@ -51,6 +68,7 @@ collections:
         - title
         - author
         - published
+        - derived.daysLeft
     search:
       filters: [author]
       sort: [title, published]
@@ -58,3 +76,12 @@ collections:
 network:
   source: network.yml
   project: perf
+
+calendars:
+  books:
+    collection: books
+    events:
+      - name: published
+        field: published
+        title: "{title} published"
+    groupBy: author

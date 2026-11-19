@@ -9,7 +9,19 @@ record:
     - field: published
       label: Published
       kind: date
+    - field: derived.daysLeft
+      label: Days left
+      kind: days
+    - field: derived.state
+      label: State
+      kind: status
 ---
 # :field[title]
 
 A record page for the accessibility fixture.
+
+## History
+
+:::changes
+- :field[type] :field[record]
+:::

@@ -48,6 +48,26 @@ The default view draws one table row per record. The columns are the fields the 
 
 `view: dated` draws the records as a dated list, grouped by the month of `date`'s field. The oldest month comes first, a record with that field empty goes to the undated section, and a paginated list names the page where the dates continue. A `status` field shows as a badge.
 
+### Changes
+
+A changelog page the engine builds for a collection (a list page the site serves under the
+collection's `.changes` route) shows the recorded events instead of the records: one row per event,
+grouped by the engine's dates, with the event's type as a badge and the changed field, its old value,
+and its new value beside it. An event whose `type` the theme has no tone for still renders with its
+type as text. With no events the page says the history is empty.
+
+The page also links the collection's Atom feed when the engine wrote one. Both the events and that
+feed need Mizzen 0.2.5 or later.
+
+## Calendars and feeds
+
+When the site config declares a calendar for the page's collection, the layout adds a subscribe
+panel: the calendars' `webcal` links, each calendar's full `https` address as text, and a copy
+control that appears only when JavaScript runs and reports the result in a live region. Group
+calendars for the list's group field are offered beside the panel. The dated view also passes the
+first calendar to its Add to calendar link. A site with no calendar renders no panel, so nothing
+changes for it.
+
 ## Groups and pagination
 
 When the engine groups the records, the layout gives each group its own section, heading, and count, and adds those headings to the page's table of contents. A grouped page does not draw a table across groups. Pagination comes from the engine too: the layout adds the page links and, on page two onwards, says which page of how many the reader is on.

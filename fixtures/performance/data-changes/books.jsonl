@@ -1,0 +1,3 @@
+{"id":"aaaaaaaaaaaaaaaa","type":"added","record":"alpha","fields":{"title":"Alpha","published":"2026-01-12"},"date":"2026-05-01"}
+{"id":"bbbbbbbbbbbbbbbb","type":"changed","record":"beta","field":"author","old":"Bashir","new":"Bashira","date":"2026-05-15"}
+{"id":"cccccccccccccccc","type":"removed","record":"gone","date":"2026-05-15"}

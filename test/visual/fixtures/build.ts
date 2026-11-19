@@ -16,7 +16,7 @@ const GALLERY_SITE = join(HERE, "site");
 const SHARED_FOLDERS = ["_data", "fonts"];
 
 /** The gallery's own folders: its image and its data (the reports, the schema, the variables and the drift evidence). */
-const GALLERY_FOLDERS = ["assets", "_data"];
+const GALLERY_FOLDERS = ["assets", "_data", "_templates"];
 
 /** Hard-links a file, or every file under a folder, to `at`. The engine skips symbolic links; a hard link shares the bytes and is not a copy. */
 function link(target: string, at: string): void {
@@ -39,6 +39,8 @@ export function stageFixture(dir: string): string {
   }
   // The gallery layout has no directive of its own, so its state shots need a page that uses it.
   link(join(A11Y_SITE, "gallery-layout.md"), join(dir, "gallery-layout.md"));
+  // The subscribe panel's copy button lives on a list page with a calendar.
+  link(join(A11Y_SITE, "data-time.md"), join(dir, "data-time.md"));
   for (const entry of readdirSync(GALLERY_SITE, { withFileTypes: true })) {
     if (entry.isDirectory() && GALLERY_FOLDERS.includes(entry.name)) link(join(GALLERY_SITE, entry.name), join(dir, entry.name));
   }
