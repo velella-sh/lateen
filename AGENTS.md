@@ -6,7 +6,7 @@ Read `README.md` and `CONTRIBUTING.md` first. Visual contract: `docs/design/sail
 
 ## Setup
 
-Node 24 or later.
+Use the Node version in `.node-version` and the npm version in `package.json` to match CI. The package supports Node 24 or later.
 
 ```bash
 npm ci
