@@ -21,6 +21,9 @@ theme:
           command: pnpm add {package}
         - name: yarn
           command: yarn add {package}
+    logo:
+      light: /brand/mark-light.svg
+      dark: /brand/mark-dark.svg
     favicon:
       svg: /brand/favicon.svg
       ico: /brand/favicon.ico
