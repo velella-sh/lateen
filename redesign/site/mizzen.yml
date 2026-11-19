@@ -1,0 +1,8 @@
+title: Lateen
+description: A docs theme for people and agents, built on Mizzen.
+lang: en
+url: https://velella.sh
+base: /lateen
+navigation: _data/navigation.yml
+theme:
+  options: {}
