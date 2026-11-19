@@ -13,8 +13,13 @@ export const root = fileURLToPath(new URL("../", import.meta.url));
 /** The folders whose CSS is scanned. */
 export const SCANNED = ["layouts", "components", "chrome", "styles"];
 
-/** The generated token sheet: the one place raw values belong. */
-export const SKIPPED = "styles/tokens.css";
+/** Sheets that may hold raw values: sailcloth source, its build output, and self-hosted faces. */
+export const SKIPPED = new Set([
+  "styles/tokens.css",
+  "styles/src/ui.css",
+  "styles/generated.css",
+  "styles/fonts.css",
+]);
 
 /** The kinds of raw value the gate finds. */
 export type Kind = "colour" | "font-size" | "shadow" | "transition" | "z-index";
@@ -122,7 +127,7 @@ export function cssFiles(base: string = root): string[] {
     }
   };
   for (const dir of SCANNED) if (existsSync(join(base, dir))) walk(join(base, dir));
-  return out.filter((f) => f !== SKIPPED).sort();
+  return out.filter((f) => !SKIPPED.has(f)).sort();
 }
 
 /** The problems with the allowlist itself: bad shape, an unknown kind, an empty reason, a duplicate. */

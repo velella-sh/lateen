@@ -1,3 +1,5 @@
+/* Visual source of truth: styles/ui.css → generated.css. This sheet stays for unit contract tests and behavioral fallbacks; demoted so Tailwind wins. */
+@layer lateen-legacy {
 /* Schema tables: a JSON Schema as a table of properties, with nested properties indented under their parent. Colors and spacing come from tokens, so dark mode follows. */
 
 .schema-table-scroll {
@@ -113,4 +115,5 @@
 .schema-table-missing {
   margin-block: var(--space-4);
   color: var(--color-muted);
+}
 }

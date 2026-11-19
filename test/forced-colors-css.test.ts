@@ -284,8 +284,8 @@ test("controls share one hover, pressed and focus recipe, and the ring still dra
   for (const [path, selector] of [["../components/cards/style.css", ".card"], ["../components/link-card/style.css", ".link-card"]] as const) {
     const source = unit(path);
     const hover = blocks(source).find((block) => block.selector === `${selector}:hover`);
-    assert.match(hover?.body ?? "", /border-color:\s*var\(--border-strong\)/, `${selector} hover changes the border`);
-    assert.match(hover?.body ?? "", /background-color:/, `${selector} hover changes the surface`);
+    assert.match(hover?.body ?? "", /background-color:\s*var\(--color-surface-raised\)/, `${selector} hover raises the surface`);
+    assert.doesNotMatch(hover?.body ?? "", /(?:transform|margin|padding)/, `${selector} hover never moves`);
     assert.match(blocks(source).find((block) => block.selector === `${selector}:active`)?.body ?? "", /background-color:\s*var\(--state-active-bg\)/, `${selector} has a pressed state`);
   }
   assert.match(unit("../components/tabs/style.css"), /\[role="tab"\]:active\s*\{[^}]*--state-active-bg/);

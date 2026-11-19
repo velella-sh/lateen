@@ -1,3 +1,5 @@
+/* Visual source of truth: styles/ui.css → generated.css. This sheet stays for unit contract tests and behavioral fallbacks; demoted so Tailwind wins. */
+@layer lateen-legacy {
 /* Page status: a banner above the title for experimental, beta, and deprecated pages. The accent sits on the inline start edge, so it moves under RTL. Colors come from tokens, so dark mode follows. */
 
 .page-status {
@@ -55,4 +57,5 @@
 .page-status-replacement:focus-visible {
   outline: 2px solid var(--state-focus-ring);
   outline-offset: 2px;
+}
 }

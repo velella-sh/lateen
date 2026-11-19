@@ -1,3 +1,5 @@
+/* Visual source of truth: styles/ui.css → generated.css. This sheet stays for unit contract tests and behavioral fallbacks; demoted so Tailwind wins. */
+@layer lateen-legacy {
 /* Keyboard keys: `<kbd>` and `:kbd[Ctrl+K]`. Keys stay left-to-right inside right-to-left text. Colors come from tokens, so dark mode follows. */
 
 kbd,
@@ -16,4 +18,5 @@ kbd,
   white-space: nowrap;
   direction: ltr;
   unicode-bidi: isolate;
+}
 }

@@ -6,6 +6,7 @@ import code from "../components/code/index.ts";
 import {
   activate,
   BAR_CLASS,
+  BLOCK_SELECTOR,
   BUTTON_CLASS,
   FRAME_CLASS,
   copyText,
@@ -105,7 +106,7 @@ class FakeDoc implements CopyDocument {
   }
 
   querySelectorAll(selector: string): FakeBlock[] {
-    assert.equal(selector, "pre.code");
+    assert.equal(selector, "pre.code:not(.terminal-body)");
     return this.blocks;
   }
 
@@ -261,6 +262,10 @@ test("the server output has no copy control: it appears only when the island run
   const out = renderToString(code(input as unknown as ComponentProps<never>) as never);
   assert.doesNotMatch(out, /code-copy/);
   assert.doesNotMatch(out, /<button/);
+});
+
+test("the block selector skips terminal bodies that already have their own copy control", () => {
+  assert.equal(BLOCK_SELECTOR, "pre.code:not(.terminal-body)");
 });
 
 test("activate wraps each block and places one icon control at its top-right", () => {

@@ -1,3 +1,5 @@
+/* Visual source of truth: styles/ui.css → generated.css. This sheet stays for unit contract tests and behavioral fallbacks; demoted so Tailwind wins. */
+@layer lateen-legacy {
 /* Variables form: one labelled input per code-example variable. It is complete without JavaScript and
    shows each declared default as both the value and the placeholder. */
 
@@ -128,4 +130,5 @@
 .variables-form-reset:focus-visible {
   outline: 2px solid var(--state-focus-ring);
   outline-offset: 2px;
+}
 }

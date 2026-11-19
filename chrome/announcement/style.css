@@ -1,3 +1,5 @@
+/* Visual source of truth: styles/ui.css → generated.css. This sheet stays for unit contract tests and behavioral fallbacks; demoted so Tailwind wins. */
+@layer lateen-legacy {
 /* Announcement bar: a dismissible message at the top of every page, from theme.options.announcement.
    The dismiss button starts hidden; client.ts reveals it and hides the bar again on a later visit. */
 
@@ -104,4 +106,5 @@
 .announcement-dismiss:focus-visible {
   outline: 2px solid var(--state-focus-ring);
   outline-offset: 2px;
+}
 }

@@ -1,3 +1,5 @@
+/* Visual source of truth: styles/ui.css → generated.css. This sheet stays for unit contract tests and behavioral fallbacks; demoted so Tailwind wins. */
+@layer lateen-legacy {
 /* The explorer without JavaScript: the query form above the table the island replaces, and the
    table's own styling copied from components/table/style.css. A component's stylesheet is bundled
    only when a directive names that component, and this table is drawn by record-table from inside
@@ -136,7 +138,6 @@
   border: thin solid var(--color-border);
   border-radius: var(--radius-md);
   background-color: var(--color-canvas);
-  box-shadow: var(--elevation-low-shadow);
 }
 
 .table-scroll:focus {
@@ -322,4 +323,5 @@
   .data-explorer-chip {
     border-color: CanvasText;
   }
+}
 }

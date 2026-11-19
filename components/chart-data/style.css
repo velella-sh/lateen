@@ -1,3 +1,5 @@
+/* Visual source of truth: styles/ui.css → generated.css. This sheet stays for unit contract tests and behavioral fallbacks; demoted so Tailwind wins. */
+@layer lateen-legacy {
 /* Chart data: the table under a chart, in a closed disclosure so the drawing keeps the focus and
    the same rows stay one keypress away. `styles/print.css` opens the disclosure on paper. */
 
@@ -89,4 +91,5 @@
   .chart-data {
     border-color: CanvasText;
   }
+}
 }

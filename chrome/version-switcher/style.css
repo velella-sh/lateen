@@ -1,3 +1,5 @@
+/* Visual source of truth: styles/ui.css → generated.css. This sheet stays for unit contract tests and behavioral fallbacks; demoted so Tailwind wins. */
+@layer lateen-legacy {
 /* Version switcher: a native disclosure in the header that lists the same page in every documentation version. */
 
 .version-switcher {
@@ -138,4 +140,5 @@
     inset-inline-start: 0;
     inset-inline-end: auto;
   }
+}
 }

@@ -14,8 +14,8 @@ export const FRAME_CLASS = "code-frame";
 /** Class on the live region that announces the result. */
 export const STATUS_CLASS = "code-copy-status";
 
-/** Class on the code block the island works on (`CODE_CLASS` in `index.ts`). */
-export const BLOCK_SELECTOR = "pre.code";
+/** Class on the code block the island works on (`CODE_CLASS` in `index.ts`). Terminal bodies also use `pre.code` but own their copy control. */
+export const BLOCK_SELECTOR = "pre.code:not(.terminal-body)";
 
 /** How long the result stays on the button before its label comes back. */
 export const RESET_MS = 2000;

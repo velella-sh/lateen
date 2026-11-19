@@ -1,10 +1,11 @@
 import { h } from "preact";
 import type { ComponentChildren } from "preact";
 import type { Layout, LayoutProps } from "@velella/mizzen/contracts";
-import base from "./base.ts";
 import { askAgentSection } from "../chrome/ask-agent/index.ts";
 import searchScope from "../chrome/search-scope/index.ts";
+import shell, { footer as shellFooter } from "../chrome/shell/index.ts";
 import { patternOf, t } from "../i18n/index.ts";
+import base from "./base.ts";
 
 /** Id of the query field, which its label points to. */
 export const SEARCH_RESULTS_INPUT_ID = "search-results-input";
@@ -188,6 +189,12 @@ function content(props: LayoutProps): ComponentChildren {
  * name in this folder and rejects it inside `packages/engine/`, and the engine's search output uses
  * the word `search`. Renaming the layout keeps that gate honest about the boundary.
  */
-const searchResults: Layout = (props) => base({ ...props, main: content(props) });
+const searchResults: Layout = (props) =>
+  base({
+    ...props,
+    header: shell(props) as ComponentChildren,
+    footer: shellFooter(props) as ComponentChildren,
+    main: content(props),
+  });
 
 export default searchResults;

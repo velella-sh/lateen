@@ -1,3 +1,5 @@
+/* Visual source of truth: styles/ui.css → generated.css. This sheet stays for unit contract tests and behavioral fallbacks; demoted so Tailwind wins. */
+@layer lateen-legacy {
 /* CLI demo: a terminal session as fixed text. Every line says what it is without colour: commands start with a prompt, errors carry an "error" label, comments are italic with their # mark. Prompts and labels are never selected, so a selection copies only the text. */
 
 .cli-demo {
@@ -157,4 +159,5 @@
   padding: var(--space-3);
   font-family: var(--type-font-ui);
   color: var(--code-fg);
+}
 }

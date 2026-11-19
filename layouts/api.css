@@ -1,3 +1,5 @@
+/* Visual source of truth: styles/ui.css → generated.css. This sheet stays for unit contract tests and behavioral fallbacks; demoted so Tailwind wins. */
+@layer lateen-legacy {
 /* The API reference layout: the article and a sticky examples panel side by side on wide screens,
    one column below the breakpoint. Tokens and logical properties only; the panel reuses the
    table-of-contents treatment for its heading so the two asides read alike. */
@@ -104,4 +106,5 @@
   .layout:has(> main > .api-page) {
     grid-template-columns: minmax(0, 1fr);
   }
+}
 }

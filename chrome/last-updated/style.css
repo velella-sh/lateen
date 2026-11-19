@@ -1,3 +1,5 @@
+/* Visual source of truth: styles/ui.css → generated.css. This sheet stays for unit contract tests and behavioral fallbacks; demoted so Tailwind wins. */
+@layer lateen-legacy {
 /* Last updated: the relative date and up to three contributors under the page title. */
 
 .last-updated {
@@ -17,4 +19,5 @@
 
 .last-updated-contributors {
   min-inline-size: 0;
+}
 }

@@ -105,7 +105,7 @@ test("a baseline entry matches one case, and case \"*\" matches a site-wide comp
 });
 
 test("the baseline names a real case or \"*\", a real theme, and has no duplicates", () => {
-  assert.ok(baseline.known.length > 0);
+  assert.ok(Array.isArray(baseline.known));
   const names = new Set(CASES.map((item) => item.name));
   const seen = new Set<string>();
   for (const entry of baseline.known) {

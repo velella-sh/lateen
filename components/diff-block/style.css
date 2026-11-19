@@ -1,3 +1,5 @@
+/* Visual source of truth: styles/ui.css → generated.css. This sheet stays for unit contract tests and behavioral fallbacks; demoted so Tailwind wins. */
+@layer lateen-legacy {
 /* Diff block: added lines with a green edge and a +, removed lines with a red edge and a −, and
    context lines in between. The markers and prefixes, not the colour, carry the meaning. Colours are
    tokens with a light and a dark value, so both modes follow the theme, and every property is logical
@@ -128,4 +130,5 @@
   clip-path: inset(50%);
   white-space: nowrap;
   border: 0;
+}
 }

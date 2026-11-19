@@ -1,3 +1,5 @@
+/* Visual source of truth: styles/ui.css → generated.css. This sheet stays for unit contract tests and behavioral fallbacks; demoted so Tailwind wins. */
+@layer lateen-legacy {
 /* Bar charts: fixed SVG bars with their values as text, then the same data as a table. Colours come
    from the chart tokens of `tokens/chart.json`, so light and dark follow the theme. */
 
@@ -75,4 +77,5 @@
   display: inline-flex;
   align-items: center;
   min-block-size: 1.5rem;
+}
 }

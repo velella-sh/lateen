@@ -1,3 +1,5 @@
+/* Visual source of truth: styles/ui.css → generated.css. This sheet stays for unit contract tests and behavioral fallbacks; demoted so Tailwind wins. */
+@layer lateen-legacy {
 /* Heading anchors: a link icon after each h2 to h4. Hidden until hover or focus; always shown on touch. */
 
 .heading-anchor {
@@ -39,4 +41,5 @@
   .heading-anchor {
     opacity: 1;
   }
+}
 }

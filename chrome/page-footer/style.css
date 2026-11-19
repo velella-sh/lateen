@@ -1,3 +1,5 @@
+/* Visual source of truth: styles/ui.css → generated.css. This sheet stays for unit contract tests and behavioral fallbacks; demoted so Tailwind wins. */
+@layer lateen-legacy {
 /* Page footer: the agent prompt button and the feedback link, under the article. */
 
 /* The footer's children join the page's action row (`.doc-actions`), so the buttons share one line. */
@@ -58,4 +60,5 @@
 .page-footer-feedback {
   order: 1;
   margin-inline-start: auto;
+}
 }

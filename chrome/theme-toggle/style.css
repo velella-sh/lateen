@@ -1,3 +1,5 @@
+/* Visual source of truth: styles/ui.css → generated.css. This sheet stays for unit contract tests and behavioral fallbacks; demoted so Tailwind wins. */
+@layer lateen-legacy {
 /* Theme toggle: one icon button the size of the repository link. It shows the icon of the current
    choice (sun, screen, or moon) and a press moves to the next one. Hidden until client.ts runs it. */
 
@@ -61,4 +63,5 @@
 .theme-toggle[data-choice="system"] .theme-toggle-icon-system,
 .theme-toggle[data-choice="dark"] .theme-toggle-icon-dark {
   display: block;
+}
 }

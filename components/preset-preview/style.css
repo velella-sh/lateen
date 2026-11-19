@@ -1,3 +1,5 @@
+/* Visual source of truth: styles/ui.css → generated.css. This sheet stays for unit contract tests and behavioral fallbacks; demoted so Tailwind wins. */
+@layer lateen-legacy {
 /* Preset preview: one scoped sample of the theme under a preset, plus the accent try-out. The block
    re-declares the theme's tokens under its own class in an inline <style>, so every value below reads
    the preset's palette without touching the rest of the page. */
@@ -186,4 +188,5 @@
   .preset-preview-input {
     border: 1px solid CanvasText;
   }
+}
 }

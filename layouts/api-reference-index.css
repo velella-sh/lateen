@@ -1,3 +1,5 @@
+/* Visual source of truth: styles/ui.css → generated.css. This sheet stays for unit contract tests and behavioral fallbacks; demoted so Tailwind wins. */
+@layer lateen-legacy {
 /* API reference index: the document title, version, description, and grouped operation links.
    The doc column comes from .doc; this file only groups the links. Logical properties only. */
 
@@ -36,4 +38,5 @@
 
 .api-reference-index-link {
   font-weight: var(--type-weight-medium);
+}
 }

@@ -1,3 +1,5 @@
+/* Visual source of truth: styles/ui.css → generated.css. This sheet stays for unit contract tests and behavioral fallbacks; demoted so Tailwind wins. */
+@layer lateen-legacy {
 /* Source mode: a switch and a `file:line` label beside every top-level block. Labels exist in the page
    but are not rendered (and so not read) until the root carries `.source-mode`; they are absolutely
    placed, so turning the mode on shifts no content. Logical properties put the label in the start margin
@@ -167,4 +169,5 @@
   .source-label-editor {
     color: LinkText;
   }
+}
 }

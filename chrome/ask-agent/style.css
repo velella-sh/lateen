@@ -1,3 +1,5 @@
+/* Visual source of truth: styles/ui.css → generated.css. This sheet stays for unit contract tests and behavioral fallbacks; demoted so Tailwind wins. */
+@layer lateen-legacy {
 /* Ask your agent: the prompt panel inside the search dialog and the static section on the results page. */
 
 /* The dialog's reserved slot stays out of the flow until the island fills it. */
@@ -161,4 +163,5 @@
   .ask-agent-panel {
     padding-inline: var(--space-2);
   }
+}
 }

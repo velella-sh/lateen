@@ -1,3 +1,5 @@
+/* Visual source of truth: styles/ui.css → generated.css. This sheet stays for unit contract tests and behavioral fallbacks; demoted so Tailwind wins. */
+@layer lateen-legacy {
 /* Embed code: format tabs, a variant choice, the code blocks, and a preview that loads on request.
    Without JavaScript every panel is visible. Tokens and logical properties only. */
 
@@ -108,4 +110,5 @@
   .embed-code-tablist button[aria-selected="true"] {
     border-block-end-color: Highlight;
   }
+}
 }

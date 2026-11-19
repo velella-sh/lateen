@@ -1,3 +1,5 @@
+/* Visual source of truth: styles/ui.css → generated.css. This sheet stays for unit contract tests and behavioral fallbacks; demoted so Tailwind wins. */
+@layer lateen-legacy {
 /* Before and after: two code panes, side by side when there is room and stacked when there is not.
    A changed line carries a sign and a style, so it reads without colour. */
 
@@ -104,4 +106,5 @@
   .ba-copy {
     border-color: CanvasText;
   }
+}
 }

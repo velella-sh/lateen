@@ -1,3 +1,5 @@
+/* Visual source of truth: styles/ui.css → generated.css. This sheet stays for unit contract tests and behavioral fallbacks; demoted so Tailwind wins. */
+@layer lateen-legacy {
 /* Gallery: the list layout's cards in a grid with room for a cover, one column on a narrow screen. */
 
 .gallery .cards {
@@ -10,4 +12,5 @@
 
 .gallery-group {
   margin-block: 0 var(--space-10);
+}
 }

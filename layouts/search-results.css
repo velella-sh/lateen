@@ -1,3 +1,5 @@
+/* Visual source of truth: styles/ui.css → generated.css. This sheet stays for unit contract tests and behavioral fallbacks; demoted so Tailwind wins. */
+@layer lateen-legacy {
 /* Search results layout: the form, the status region, and the result list on a page of their own.
    Every color and length comes from a token, and every rule uses logical properties so the page
    mirrors under `dir="rtl"`. The inline module in `search-results.ts` fills the list. */
@@ -138,4 +140,5 @@
   border-radius: var(--radius-sm);
   background-color: var(--color-selection);
   color: var(--color-heading);
+}
 }

@@ -1,3 +1,5 @@
+/* Visual source of truth: styles/ui.css → generated.css. This sheet stays for unit contract tests and behavioral fallbacks; demoted so Tailwind wins. */
+@layer lateen-legacy {
 /* Network footer: one link per project in the site's network, named by the site's own label. The list
    wraps to several lines on a narrow screen instead of overflowing. */
 
@@ -52,4 +54,5 @@
 .network-footer-link[aria-current="true"] {
   color: var(--color-heading);
   font-weight: var(--type-weight-bold);
+}
 }

@@ -1,3 +1,5 @@
+/* Visual source of truth: styles/ui.css → generated.css. This sheet stays for unit contract tests and behavioral fallbacks; demoted so Tailwind wins. */
+@layer lateen-legacy {
 /* Mermaid diagrams rendered to inline SVG at build time. Mermaid's own style element uses literal
    colors; these rules repaint the common shapes with the theme tokens, so light, dark, and forced
    colors follow the page without a second render. */
@@ -127,4 +129,5 @@
 .mermaid-source pre code {
   font: inherit;
   white-space: pre;
+}
 }

@@ -1,3 +1,5 @@
+/* Visual source of truth: styles/ui.css → generated.css. This sheet stays for unit contract tests and behavioral fallbacks; demoted so Tailwind wins. */
+@layer lateen-legacy {
 /* Edit this page: the footer link to the page's source, and opt-in per-heading "suggest an edit" links.
    A link placed inside a heading starts hidden and is revealed on hover or keyboard focus, like the heading
    anchor; the footer list stays visible because it sits outside a heading. */
@@ -66,4 +68,5 @@
   .doc-body :is(h2, h3, h4) .edit-page-heading-link {
     opacity: 1;
   }
+}
 }

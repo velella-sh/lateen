@@ -1,3 +1,5 @@
+/* Visual source of truth: styles/ui.css → generated.css. This sheet stays for unit contract tests and behavioral fallbacks; demoted so Tailwind wins. */
+@layer lateen-legacy {
 /* Post layout: the doc layout's three columns, with a blog post between them. A layout's CSS is
    bundled only for its own pages, so the grid is repeated here rather than loaded from doc.css. */
 
@@ -88,4 +90,5 @@
     grid-column: 1;
     grid-row: 2;
   }
+}
 }

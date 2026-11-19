@@ -1,3 +1,5 @@
+/* Visual source of truth: styles/ui.css → generated.css. This sheet stays for unit contract tests and behavioral fallbacks; demoted so Tailwind wins. */
+@layer lateen-legacy {
 /* Video: a 16:9 poster with a play button that loads the provider's player on click, plus a link under the box that works without JavaScript. Colors come from tokens, so dark mode follows. */
 
 .video {
@@ -133,4 +135,5 @@
   font-size: var(--type-size-sm);
   line-height: var(--type-leading-body);
   text-align: start;
+}
 }

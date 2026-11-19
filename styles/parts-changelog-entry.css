@@ -1,3 +1,5 @@
+/* Visual source of truth: styles/ui.css → generated.css. This sheet stays for unit contract tests and behavioral fallbacks; demoted so Tailwind wins. */
+@layer lateen-legacy {
 /* Changelog entry: a release heading that links to itself, a date, category badges, and the entry text.
    Category badges always pair an icon and a label, so color is never the only signal. Tokens keep dark mode
    and right-to-left pages consistent. */
@@ -178,4 +180,5 @@
 .changelog-entry:dir(rtl) .changelog-entry-date {
   direction: ltr;
   unicode-bidi: isolate;
+}
 }

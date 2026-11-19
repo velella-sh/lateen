@@ -1,3 +1,5 @@
+/* Visual source of truth: styles/ui.css → generated.css. This sheet stays for unit contract tests and behavioral fallbacks; demoted so Tailwind wins. */
+@layer lateen-legacy {
 /* Numbered steps: each step carries its number as text ("Step 1", in the page's digits), a stable
    anchor, and an optional tick the island adds. Token names and logical properties only. */
 
@@ -24,17 +26,20 @@
 }
 
 .step-number {
-  display: inline-block;
+  display: inline-grid;
+  place-items: center;
   margin-block-end: var(--space-2);
-  padding-block: var(--space-1);
-  padding-inline: var(--space-3);
-  border: 1px solid var(--color-border-strong);
+  min-inline-size: var(--space-6);
+  min-block-size: var(--space-6);
+  padding-block: 0;
+  padding-inline: var(--space-2);
+  border: 0;
   border-radius: var(--radius-full);
-  background-color: var(--color-canvas);
-  color: var(--color-heading);
+  background-color: var(--color-link);
+  color: var(--color-canvas);
   font-family: var(--type-font-ui);
-  font-size: var(--type-size-sm);
-  font-weight: var(--type-weight-medium);
+  font-size: var(--type-size-xs);
+  font-weight: var(--type-weight-bold);
   line-height: 1;
 }
 
@@ -92,4 +97,5 @@
   .step-number {
     border-color: CanvasText;
   }
+}
 }

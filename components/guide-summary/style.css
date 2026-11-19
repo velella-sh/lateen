@@ -1,3 +1,5 @@
+/* Visual source of truth: styles/ui.css → generated.css. This sheet stays for unit contract tests and behavioral fallbacks; demoted so Tailwind wins. */
+@layer lateen-legacy {
 /* Guide summary bar: from, to, time and risk as labelled facts. Token names and logical properties only. */
 
 .guide-summary {
@@ -36,4 +38,5 @@
   .guide-summary {
     break-inside: avoid;
   }
+}
 }

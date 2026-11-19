@@ -1,3 +1,5 @@
+/* Visual source of truth: styles/ui.css → generated.css. This sheet stays for unit contract tests and behavioral fallbacks; demoted so Tailwind wins. */
+@layer lateen-legacy {
 /* Frame: a neutral window around a demo. A title bar, a scrolling body, a caption. Overflow scrolls inside the frame; terminal content stays left to right on a right-to-left page. Colors come from tokens, and borders stay in print. */
 
 .frame {
@@ -87,4 +89,5 @@
   .frame-body {
     overflow: visible;
   }
+}
 }

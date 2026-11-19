@@ -1,6 +1,9 @@
+/* Visual source of truth: styles/ui.css → generated.css. This sheet stays for unit contract tests and behavioral fallbacks; demoted so Tailwind wins. */
+@layer lateen-legacy {
 /* Breadcrumb: the trail from the navigation tree above the title. Ancestor links, then the current page last, as one ordered list. */
 
 .breadcrumb {
+  margin-block-end: var(--space-6);
   font-family: var(--type-font-ui);
   font-size: var(--type-size-sm);
   color: var(--color-muted);
@@ -32,7 +35,7 @@
 }
 
 .breadcrumb a:hover {
-  color: var(--color-accent);
+  color: var(--color-link);
 }
 
 .breadcrumb a:focus-visible {
@@ -59,4 +62,5 @@
 /* Separators point toward the current page: mirror them when the page is right-to-left. */
 [dir="rtl"] .breadcrumb-sep {
   transform: scaleX(-1);
+}
 }

@@ -1,3 +1,5 @@
+/* Visual source of truth: styles/ui.css → generated.css. This sheet stays for unit contract tests and behavioral fallbacks; demoted so Tailwind wins. */
+@layer lateen-legacy {
 /* Search dialog: a modal palette over the page, hidden until client.ts loads the index and opens it. */
 
 /* The static HTML carries `hidden`; client.ts removes it once it has wired the dialog. */
@@ -236,4 +238,5 @@
 :root[data-theme="dark"] .search-result-excerpt,
 :root[data-theme="dark"] .search-action-hint {
   color: var(--color-text);
+}
 }

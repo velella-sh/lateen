@@ -1,3 +1,5 @@
+/* Visual source of truth: styles/ui.css → generated.css. This sheet stays for unit contract tests and behavioral fallbacks; demoted so Tailwind wins. */
+@layer lateen-legacy {
 /* Tags: a wrapping list of small chips for categories and topics. A chip is a link only when its URL is root-relative or http(s). Colors come from tokens, so dark mode follows and contrast holds in both. */
 
 .tags {
@@ -37,4 +39,5 @@
 .tag > a:focus-visible {
   outline: 2px solid var(--state-focus-ring);
   outline-offset: 2px;
+}
 }

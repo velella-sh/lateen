@@ -164,7 +164,8 @@ test("skip link is the first element in body and targets main", () => {
 test("main always renders; page HTML is the default content", () => {
   const html = out(layoutProps());
   assert.match(html, /<main[^>]*><div><p>Body<\/p><\/div><\/main>/);
-  assert.doesNotMatch(html, /<header|<footer|class="sidebar"|class="aside"/);
+  assert.match(html, /<footer>[\s\S]*class="site-footer"/);
+  assert.doesNotMatch(html, /<header|class="sidebar"|class="aside"/);
 });
 
 test("slots land in their landmarks in document order", () => {

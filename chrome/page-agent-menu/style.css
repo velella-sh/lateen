@@ -1,3 +1,5 @@
+/* Visual source of truth: styles/ui.css → generated.css. This sheet stays for unit contract tests and behavioral fallbacks; demoted so Tailwind wins. */
+@layer lateen-legacy {
 /* Page agent menu: copy the page's Markdown, view it as a plain link, or open the page in an agent. */
 
 .page-agent-menu {
@@ -151,4 +153,5 @@
     margin-block-start: var(--space-1);
     box-shadow: none;
   }
+}
 }

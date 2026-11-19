@@ -1,3 +1,5 @@
+/* Visual source of truth: styles/ui.css → generated.css. This sheet stays for unit contract tests and behavioral fallbacks; demoted so Tailwind wins. */
+@layer lateen-legacy {
 /* Version notice: says whether the page is the current release or an old one, and links the same
    page in the other version. The accent sits on the inline start edge, so it moves under RTL.
    Colours and lengths come from tokens; the label and hint carry the meaning, never colour alone. */
@@ -55,4 +57,5 @@
 .version-notice-link:focus-visible {
   outline: 2px solid var(--state-focus-ring);
   outline-offset: 2px;
+}
 }

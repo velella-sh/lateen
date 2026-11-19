@@ -5,9 +5,9 @@ import announcement from "../chrome/announcement/index.ts";
 import codeCopy from "../chrome/code-copy/index.ts";
 import footnotePopover from "../chrome/footnote-popover/index.ts";
 import { alternateLinks, canonicalLink } from "../chrome/language-switcher/index.ts";
-import siteFooter from "../chrome/site-footer/index.ts";
 import networkFooter from "../chrome/network-footer/index.ts";
 import projectSwitcher from "../chrome/project-switcher/index.ts";
+import { footer as shellFooter } from "../chrome/shell/index.ts";
 import { resolveNetworkOptions, optionOf } from "../src/options.ts";
 import shortcuts from "../chrome/shortcuts/index.ts";
 import sourceMode from "../chrome/source-mode/index.ts";
@@ -88,8 +88,8 @@ function jsonLd(data: Readonly<Record<string, unknown>>) {
  */
 function brandStyle(config: SiteConfig, hints: LayoutProps["hints"]) {
   const { brand, problems } = resolveBrand(config.theme.options);
-  if (brand?.sans !== undefined) hints?.skipFontPreload("Geist");
-  if (brand?.mono !== undefined) hints?.skipFontPreload("Geist Mono");
+  if (brand?.sans !== undefined) hints?.skipFontPreload("Manrope");
+  if (brand?.mono !== undefined) hints?.skipFontPreload("JetBrains Mono");
   const comments = problems.map(problemComment).join("\n");
   const css = [brand === undefined ? "" : brandCss(brand, { base: config.base }), comments].filter((part) => part !== "").join("\n");
   return css === "" ? null : h("style", { "data-brand": true, dangerouslySetInnerHTML: { __html: css } });
@@ -154,7 +154,7 @@ export default function base(props: BaseProps) {
             : null,
           network.footer ? (networkFooter(props) as ComponentChildren) : null,
         );
-  const footerNode = footer ?? (siteFooter(props) as ComponentChildren);
+  const footerNode = footer ?? (shellFooter(props) as ComponentChildren);
   const footerContent =
     footerNode == null && networkChrome == null ? null : h(Fragment, null, footerNode, networkChrome);
   return h(

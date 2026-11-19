@@ -88,6 +88,10 @@ Layout component: the home layout draws it from `sections` in front matter, so s
 - شغّل البناء.
 :::
 
+## charts
+
+::charts{title="Pages by section"}
+
 ## check-list
 
 :::check-list
@@ -301,6 +305,10 @@ A page with `tool: tool.js` loads that browser tool in a named slot and keeps a 
 ## version-notice
 
 A page outside the default version states its version and links to the equivalent page in the default version.
+
+## performance-chart
+
+::performance-chart
 
 ## preset-preview
 

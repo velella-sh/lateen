@@ -1,6 +1,6 @@
-# Lateen redesign — sailcloth standard
+# Lateen sailcloth standard
 
-Visual contract for the experimental `redesign/` theme. Matches the Untitled HTML mockups.
+Visual contract for Lateen. Matches the Untitled HTML mockups.
 
 ## Direction
 
@@ -30,6 +30,8 @@ Type: **Manrope** for UI and prose. **JetBrains Mono** for code. **Vazirmatn** o
 ## Stack
 
 Mizzen + Node + TypeScript + Preact + Tailwind CSS + Basecoat + vanilla islands + Lucide + Chart.js.
+
+This is the only design stack. Hand-authored 0.2.x component CSS is not the source of truth; author visuals in `styles/src/ui.css` (Tailwind + Basecoat → `styles/generated.css`) and Lucide/Chart.js islands.
 
 ## Surfaces
 

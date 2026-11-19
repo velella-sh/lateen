@@ -1,3 +1,5 @@
+/* Visual source of truth: styles/ui.css → generated.css. This sheet stays for unit contract tests and behavioral fallbacks; demoted so Tailwind wins. */
+@layer lateen-legacy {
 /* API reference operation: the method, path, parameters, body, responses, schemas, and examples.
    The article keeps the doc column and every value that must read left to right keeps `dir="ltr"`.
    Tokens and logical properties only. */
@@ -305,4 +307,5 @@
   .api-reference-table td {
     padding-inline: var(--space-2);
   }
+}
 }

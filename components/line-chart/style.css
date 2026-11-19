@@ -1,3 +1,5 @@
+/* Visual source of truth: styles/ui.css → generated.css. This sheet stays for unit contract tests and behavioral fallbacks; demoted so Tailwind wins. */
+@layer lateen-legacy {
 /* Line charts: fixed SVG lines with a direct label at each line's end, then the same rows as a
    table. Colours come from the chart tokens of `tokens/chart.json`, so light and dark follow the
    theme. */
@@ -149,4 +151,5 @@
   display: inline-flex;
   align-items: center;
   min-block-size: 1.5rem;
+}
 }

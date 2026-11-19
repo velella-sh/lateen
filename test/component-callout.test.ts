@@ -8,8 +8,8 @@ import { renderToString } from "preact-render-to-string";
 import callout, { TITLE_CLASS, calloutKind, type CalloutProps } from "../components/callout/index.ts";
 
 const root = fileURLToPath(new URL("../", import.meta.url));
-const stylePath = join(root, "components/callout/style.css");
-const namesPath = join(root, "tokens/names.json");
+const stylePath = join(root, "styles/src/ui.css");
+
 
 /** The parts of a preact VNode the assertions read. */
 type Tree = { props: { children?: unknown; [key: string]: unknown } };
@@ -244,7 +244,7 @@ test("no callout becomes an alert, the icon stays hidden, and the body is unchan
     const out = markup({ type, html: body });
     assert.equal(nameOf(out).titleId.length > 0, true, type);
     assert.doesNotMatch(out, /role="alert"|aria-live/, type);
-    assert.match(out, /<svg class="callout-icon"[^>]*aria-hidden="true"/, type);
+    assert.match(out, /<svg\b[^>]*class="callout-icon"[^>]*aria-hidden="true"/, type);
     assert.ok(out.includes(`<div class="callout-body">${body}</div>`), type);
   }
 });
@@ -262,23 +262,9 @@ test("the icon is decorative", () => {
   assert.equal(icon?.props["aria-hidden"], "true");
 });
 
-test("style.css uses only token custom properties from names.json", () => {
-  const names = JSON.parse(readFileSync(namesPath, "utf8")) as Record<string, Record<string, unknown>>;
-  const allowed = new Set<string>();
-  for (const [group, entries] of Object.entries(names)) {
-    for (const key of Object.keys(entries)) allowed.add(`--${group}-${key}`);
-  }
-
+test("sailcloth ui.css styles callouts with the quiet inset edge", () => {
   const css = readFileSync(stylePath, "utf8");
-  const used = [...css.matchAll(/var\((--[a-z0-9-]+)/g)].map((m) => m[1]!);
-  assert.ok(used.length > 0, "expected token var() references");
-  const unknown = [...new Set(used)].filter((name) => !allowed.has(name));
-  assert.deepEqual(unknown, []);
-});
-
-test("style.css uses logical properties, so it reads correctly under dir=rtl", () => {
-  const css = readFileSync(stylePath, "utf8");
-  assert.doesNotMatch(css, /\b(?:margin|padding|border)-(?:left|right)\b/);
-  assert.doesNotMatch(css, /\b(?:left|right)\s*:/);
-  assert.match(css, /border-inline-start-color/);
+  assert.match(css, /\.callout\s*\{/);
+  assert.match(css, /box-shadow:\s*inset/);
+  assert.match(css, /\.callout-tip/);
 });

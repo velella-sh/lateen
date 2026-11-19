@@ -1,3 +1,5 @@
+/* Visual source of truth: styles/ui.css → generated.css. This sheet stays for unit contract tests and behavioral fallbacks; demoted so Tailwind wins. */
+@layer lateen-legacy {
 /* Stat strip: three to six figures in one row; two rows on a narrow screen. */
 
 .stat-strip {
@@ -52,4 +54,5 @@ a.stat-label {
   .stat {
     border-inline-end: 1px solid currentColor;
   }
+}
 }

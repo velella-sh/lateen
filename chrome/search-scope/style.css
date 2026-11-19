@@ -1,3 +1,5 @@
+/* Visual source of truth: styles/ui.css → generated.css. This sheet stays for unit contract tests and behavioral fallbacks; demoted so Tailwind wins. */
+@layer lateen-legacy {
 /* Search scope: two radio choices beside the search box. The engine's form submission carries the
    choice to the results address as `scope=project` or `scope=all`; no script and no extra state. */
 
@@ -39,4 +41,5 @@
 .search-scope-input:focus-visible {
   outline: 2px solid var(--state-focus-ring);
   outline-offset: 2px;
+}
 }

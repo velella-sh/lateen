@@ -1,3 +1,5 @@
+/* Visual source of truth: styles/ui.css → generated.css. This sheet stays for unit contract tests and behavioral fallbacks; demoted so Tailwind wins. */
+@layer lateen-legacy {
 /* Key-value list: a semantic <dl> in two columns, one below 40rem. Long values wrap instead of widening the page. */
 
 .key-value {
@@ -37,4 +39,5 @@
   .key-value {
     grid-template-columns: minmax(0, 1fr);
   }
+}
 }

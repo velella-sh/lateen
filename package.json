@@ -36,19 +36,20 @@
   "scripts": {
     "tokens": "node scripts/tokens.ts",
     "tokens:check": "node scripts/tokens.ts --check",
-    "ui:css": "tailwindcss -i redesign/src/ui.css -o redesign/styles/generated.css --minify",
-    "ui:assets": "node --input-type=module -e \"import { copyFileSync, mkdirSync } from 'node:fs'; mkdirSync('redesign/components/performance-chart', { recursive: true }); copyFileSync('node_modules/chart.js/dist/chart.umd.min.js', 'redesign/components/performance-chart/chart.umd.min.js')\"",
+    "ui:css": "tailwindcss -i styles/src/ui.css -o styles/generated.css --minify",
+    "ui:assets": "node --input-type=module -e \"import { copyFileSync, mkdirSync } from 'node:fs'; mkdirSync('components/performance-chart', { recursive: true }); copyFileSync('node_modules/chart.js/dist/chart.umd.min.js', 'components/performance-chart/chart.umd.min.js')\"",
     "ui:build": "npm run ui:css && npm run ui:assets",
-    "dev:redesign": "npm run ui:build && mizzen dev redesign/site --theme redesign --port 4173",
-    "build:redesign": "npm run ui:build && mizzen build redesign/site --out redesign/dist --theme redesign",
-    "check:redesign": "npm run ui:build && mizzen check redesign/site --theme redesign",
+    "dev:redesign": "npm run ui:build && mizzen dev redesign/site --theme . --port 4173",
+    "build:redesign": "npm run ui:build && mizzen build redesign/site --out redesign/dist --theme .",
+    "check:redesign": "npm run ui:build && mizzen check redesign/site --theme .",
     "test:redesign": "node --test \"redesign/test/*.test.ts\"",
     "pretest": "npm run ui:build",
-    "test": "node scripts/tokens.ts --check && node scripts/check-design.ts && node --test \"test/**/*.test.ts\" && npm run test:redesign",
-    "test:a11y": "node scripts/test-a11y.ts",
-    "test:acceptance": "node scripts/acceptance.ts",
-    "test:visual": "node scripts/test-visual.ts",
-    "test:performance": "node scripts/performance-budget.ts",
+    "test": "npm run ui:build && node scripts/tokens.ts --check && node scripts/check-design.ts && node --test \"test/**/*.test.ts\" && npm run test:redesign",
+    "test:a11y": "npm run ui:build && node scripts/test-a11y.ts",
+    "test:acceptance": "npm run ui:build && node scripts/acceptance.ts",
+    "test:visual": "npm run ui:build && node scripts/test-visual.ts",
+    "test:performance": "npm run ui:build && node scripts/performance-budget.ts",
+
     "test:coverage": "node scripts/tokens.ts --check && mkdir -p coverage && node --test --experimental-test-coverage --test-coverage-exclude=\"test/**\" --test-coverage-exclude=\"scripts/**\" --test-reporter=spec --test-reporter-destination=stdout --test-reporter=lcov --test-reporter-destination=coverage/lcov.info \"test/**/*.test.ts\"",
     "coverage:badge": "node scripts/coverage-badge.ts coverage/lcov.info coverage/coverage.json",
     "check:design": "node scripts/check-design.ts",
@@ -108,7 +109,9 @@
     "!redesign/components/performance-chart/chart.umd.min.js",
     "!skills/*-workspace",
     "!skills/**/evals",
-    "CHANGELOG.md"
+    "CHANGELOG.md",
+    "!styles/generated.css",
+    "!components/performance-chart/chart.umd.min.js"
   ],
   "publishConfig": {
     "access": "public"

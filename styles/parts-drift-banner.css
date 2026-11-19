@@ -1,3 +1,5 @@
+/* Visual source of truth: styles/ui.css → generated.css. This sheet stays for unit contract tests and behavioral fallbacks; demoted so Tailwind wins. */
+@layer lateen-legacy {
 /* Drift banner: a banner above a page whose drift evidence is not clean. The accent sits on the
    inline start edge, so it moves under RTL, and the severity picks its colour: error, warning, info,
    or the muted, dashed edge of an unavailable check. Colors come from tokens, so dark mode follows. */
@@ -152,4 +154,5 @@
 .drift-banner-details:focus-visible {
   outline: 2px solid var(--state-focus-ring);
   outline-offset: 2px;
+}
 }

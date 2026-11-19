@@ -1,3 +1,5 @@
+/* Visual source of truth: styles/ui.css → generated.css. This sheet stays for unit contract tests and behavioral fallbacks; demoted so Tailwind wins. */
+@layer lateen-legacy {
 /* Version badge: a small label that says when a feature was added, changed, or removed. The icon
    differs per state, so color is never the only signal. The version value stays left to right. */
 
@@ -9,7 +11,7 @@
   padding-inline: var(--space-2);
   border: 1px solid var(--color-border);
   border-radius: var(--radius-full);
-  background-color: var(--color-canvas);
+  background-color: var(--color-surface);
   color: var(--color-text);
   font-family: var(--type-font-ui);
   font-size: var(--type-size-sm);
@@ -86,4 +88,5 @@
     clip-path: none;
     white-space: normal;
   }
+}
 }

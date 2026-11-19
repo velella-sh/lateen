@@ -1,4 +1,6 @@
-/* Mobile drawer: a modal dialog at the start edge below 768 px. Without JavaScript it is not a dialog: the sidebar shows above the article. */
+/* Visual source of truth: styles/ui.css → generated.css. This sheet stays for unit contract tests and behavioral fallbacks; demoted so Tailwind wins. */
+@layer lateen-legacy {
+/* Sailcloth drawer — canvas panel with a hairline edge; no drop shadow or frame kit. */
 
 /* Without JavaScript the drawer is in the flow below 768 px, above the article, and absent on wide screens. */
 .drawer:not([data-enhanced]) {
@@ -17,7 +19,7 @@
     padding-block: var(--space-3);
     padding-inline: var(--space-1);
     border: 0;
-    border-block-end: 1px solid var(--color-border);
+    border-block-end: thin solid var(--border-subtle);
     background: transparent;
     color: inherit;
     overflow: visible;
@@ -38,10 +40,10 @@ html[data-js] .drawer:not([data-enhanced]) {
   margin: 0;
   padding: var(--space-4) var(--space-3);
   border: 0;
-  border-inline-end: 1px solid var(--color-border);
+  border-inline-end: thin solid var(--border-subtle);
   background: var(--color-canvas);
   color: var(--color-text);
-  box-shadow: var(--shadow-lg);
+  box-shadow: none;
   overflow-y: auto;
   /* Closed: off the start edge. Open: in place. `display` and `overlay` keep the dialog on screen while it leaves. */
   translate: -100% 0;
@@ -126,4 +128,5 @@ html[data-js] .drawer:not([data-enhanced]) {
   max-block-size: none;
   overflow: visible;
   padding-block: 0 var(--space-8);
+}
 }

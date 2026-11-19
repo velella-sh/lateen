@@ -1,3 +1,5 @@
+/* Visual source of truth: styles/ui.css → generated.css. This sheet stays for unit contract tests and behavioral fallbacks; demoted so Tailwind wins. */
+@layer lateen-legacy {
 /* Motif: decorative SVG built from the accent tokens. Colours are the theme's own light-dark pairs,
    so the same markup follows the light and dark themes. It has no text and nothing to focus. */
 
@@ -53,4 +55,5 @@
   .motif {
     display: none;
   }
+}
 }

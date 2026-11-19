@@ -1,3 +1,5 @@
+/* Visual source of truth: styles/ui.css → generated.css. This sheet stays for unit contract tests and behavioral fallbacks; demoted so Tailwind wins. */
+@layer lateen-legacy {
 /* Stale notice: a caution note that names the review date and the changed files. Logical properties
    keep it readable in either direction; the icon and the wording carry the tone, so forced colors
    and print keep the meaning without the background. */
@@ -74,4 +76,5 @@
 
 .stale-notice-action {
   font-weight: 500;
+}
 }

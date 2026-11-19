@@ -1,3 +1,5 @@
+/* Visual source of truth: styles/ui.css → generated.css. This sheet stays for unit contract tests and behavioral fallbacks; demoted so Tailwind wins. */
+@layer lateen-legacy {
 /* Endpoint: an API route on a reference page. A method badge and the path (parameters highlighted), the parameters the path names, and the body. Colors come from tokens, so dark mode follows. The path stays left to right under RTL. */
 
 .endpoint {
@@ -121,4 +123,5 @@
 
 .endpoint-body > :last-child {
   margin-block-end: 0;
+}
 }

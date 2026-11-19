@@ -1,3 +1,5 @@
+/* Visual source of truth: styles/ui.css → generated.css. This sheet stays for unit contract tests and behavioral fallbacks; demoted so Tailwind wins. */
+@layer lateen-legacy {
 /* Reading time: quiet metadata under the title. It sits beside the trust chip without looking like
    a second control, and uses logical properties and tokens, so dark mode and right-to-left follow. */
 
@@ -21,4 +23,5 @@
 
 .reading-time-words {
   color: var(--color-muted);
+}
 }

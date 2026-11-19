@@ -1,3 +1,5 @@
+/* Visual source of truth: styles/ui.css → generated.css. This sheet stays for unit contract tests and behavioral fallbacks; demoted so Tailwind wins. */
+@layer lateen-legacy {
 /* OS tabs: install instructions grouped by operating system. Without JavaScript the sections stack,
  * each under its title. With the island, a tab list shows the reader's OS and remembers a manual choice. */
 
@@ -106,4 +108,5 @@
 /* With no headings, the component keeps the body whole and there is no tab list to frame. */
 .os-tabs > .os-tabs-body:only-child {
   padding-block: var(--space-4);
+}
 }

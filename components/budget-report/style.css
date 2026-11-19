@@ -1,3 +1,5 @@
+/* Visual source of truth: styles/ui.css → generated.css. This sheet stays for unit contract tests and behavioral fallbacks; demoted so Tailwind wins. */
+@layer lateen-legacy {
 /* Performance report: bytes against the budget, with a bar that repeats the numbers already in text. */
 
 .budget-report {
@@ -92,4 +94,5 @@
   display: block;
   block-size: 100%;
   background-color: var(--color-accent);
+}
 }

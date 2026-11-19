@@ -1,3 +1,5 @@
+/* Visual source of truth: styles/ui.css → generated.css. This sheet stays for unit contract tests and behavioral fallbacks; demoted so Tailwind wins. */
+@layer lateen-legacy {
 /* Code tabs: a group of code blocks. Without JavaScript the blocks stack, each under its title. With the island, a tab list shows one block at a time. */
 
 .code-tabs {
@@ -87,4 +89,5 @@
   margin-block: 0;
   border: 0;
   border-radius: 0;
+}
 }

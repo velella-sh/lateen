@@ -580,7 +580,7 @@ export async function runJourneys(
 }
 
 /** The shipped optional-font files, whatever hashed folder the build wrote them to. */
-const THEME_FONT = /\/assets\/theme\/fonts\/(?:geist|geist-mono)\//;
+const THEME_FONT = /\/assets\/theme\/fonts\/(?:manrope|jetbrains-mono)\//;
 
 /** The woff2 files a page actually requests, including the ones its preload links start. */
 async function fontRequests(browser: Browser, url: string): Promise<string[]> {
@@ -601,7 +601,7 @@ async function fontRequests(browser: Browser, url: string): Promise<string[]> {
 
 /**
  * Records the font requests of a custom-font page and of a page without custom fonts. The first must
- * request none of the shipped Geist or Geist Mono files and at least one of its own; the second must
+ * request none of the shipped Manrope or JetBrains Mono files and at least one of its own; the second must
  * still request a shipped file, which proves the default preloads were not removed for everyone.
  * Returns a failure sentence, or `undefined` when both hold.
  */

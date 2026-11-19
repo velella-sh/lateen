@@ -1,3 +1,5 @@
+/* Visual source of truth: styles/ui.css → generated.css. This sheet stays for unit contract tests and behavioral fallbacks; demoted so Tailwind wins. */
+@layer lateen-legacy {
 /* Figures: an image with a caption and credit, centered and never wider than its column. Colors come from tokens, so dark mode follows. */
 
 .figure {
@@ -71,4 +73,5 @@
 
 .figure-credit a:hover {
   color: var(--color-link-hover);
+}
 }

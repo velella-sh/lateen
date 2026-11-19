@@ -1,3 +1,5 @@
+/* Visual source of truth: styles/ui.css → generated.css. This sheet stays for unit contract tests and behavioral fallbacks; demoted so Tailwind wins. */
+@layer lateen-legacy {
 /* Feature grid: items fit two to four columns; one wide item makes a bento layout. */
 
 .feature-grid {
@@ -41,9 +43,9 @@
   gap: var(--space-2);
   inline-size: 100%;
   padding: var(--space-4);
-  background-color: var(--elevation-low-bg);
-  border: thin solid var(--elevation-low-border);
-  border-radius: var(--radius-md);
+  background-color: var(--color-surface);
+  border: thin solid var(--color-border);
+  border-radius: var(--radius-lg);
   color: var(--color-text);
   text-decoration: none;
 }
@@ -53,8 +55,8 @@ a.feature-grid-card {
 }
 
 a.feature-grid-card:hover {
-  border-color: var(--border-strong);
-  background-color: var(--elevation-mid-bg);
+  border-color: var(--color-border);
+  background-color: var(--color-surface-raised);
 }
 
 a.feature-grid-card:active {
@@ -90,4 +92,5 @@ a.feature-grid-card:active {
 
 @media print {
   .feature-grid-card { background: none; box-shadow: none; border-color: currentColor; break-inside: avoid; }
+}
 }

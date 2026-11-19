@@ -66,4 +66,4 @@ neither, the switcher stays hidden.
 
 ## Placement
 
-`chrome/header/index.ts` places it in `header-actions` before the search button.
+`chrome/shell/index.ts` places it in the header tools cluster before the search trigger.

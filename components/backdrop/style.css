@@ -1,3 +1,5 @@
+/* Visual source of truth: styles/ui.css → generated.css. This sheet stays for unit contract tests and behavioral fallbacks; demoted so Tailwind wins. */
+@layer lateen-legacy {
 /* Backdrop: decoration behind a hero, drawn from the accent token. No image file, nothing that moves.
    The strongest tint anywhere is 10% accent over the canvas, which the tests keep under 4.5:1
    for body text and headings in light and dark. */
@@ -45,4 +47,5 @@
   .backdrop {
     display: none;
   }
+}
 }

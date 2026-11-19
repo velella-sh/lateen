@@ -11,8 +11,8 @@ import { build } from "./integration-helpers.ts";
 const preloads = (html: string): string[] =>
   [...html.matchAll(/<link rel="preload" as="font"[^>]*href="([^"]+)"/g)].map((match) => match[1] ?? "");
 
-const sans = (url: string): boolean => /\/fonts\/geist\/[^/]+\.woff2$/.test(url);
-const mono = (url: string): boolean => /\/fonts\/geist-mono\/[^/]+\.woff2$/.test(url);
+const sans = (url: string): boolean => /\/fonts\/manrope\/[^/]+\.woff2$/.test(url);
+const mono = (url: string): boolean => /\/fonts\/jetbrains-mono\/[^/]+\.woff2$/.test(url);
 
 /** Builds one fixture, reads its home page, and removes the output. */
 function home(name: string): string {
@@ -36,7 +36,7 @@ test("a custom sans family leaves out only the sans preloads", () => {
   assert.equal(urls.filter(sans).length, 0);
   assert.equal(urls.filter(mono).length, 2, "the mono family was not replaced");
   assert.match(html, /@font-face \{ font-family: "Example Sans";/);
-  assert.match(html, /--type-font-body: "Example Sans", Geist, "Geist Fallback", Vazirmatn,/);
+  assert.match(html, /--type-font-body: "Example Sans", Manrope, "Manrope Fallback", Vazirmatn,/);
 });
 
 test("a custom mono family leaves out only the mono preloads", () => {
@@ -45,7 +45,7 @@ test("a custom mono family leaves out only the mono preloads", () => {
   assert.equal(urls.filter(sans).length, 3, "the sans family was not replaced");
   assert.equal(urls.filter(mono).length, 0);
   assert.match(html, /@font-face \{ font-family: "Example Mono";/);
-  assert.match(html, /--type-font-mono: "Example Mono", Geist Mono, "Geist Mono Fallback", ui-monospace, monospace;/);
+  assert.match(html, /--type-font-mono: "Example Mono", JetBrains Mono, "JetBrains Mono Fallback", ui-monospace, monospace;/);
 });
 
 test("custom sans and mono families leave out both shipped preloads and keep both fallbacks", () => {
@@ -56,6 +56,6 @@ test("custom sans and mono families leave out both shipped preloads and keep bot
   assert.doesNotMatch(html, /<link rel="preload" as="font"/, "no shipped font is preloaded");
   assert.match(html, /@font-face \{ font-family: "Example Sans";/);
   assert.match(html, /@font-face \{ font-family: "Example Mono";/);
-  assert.match(html, /--type-font-body: "Example Sans", Geist, "Geist Fallback", Vazirmatn,/);
-  assert.match(html, /--type-font-mono: "Example Mono", Geist Mono, "Geist Mono Fallback", ui-monospace, monospace;/);
+  assert.match(html, /--type-font-body: "Example Sans", Manrope, "Manrope Fallback", Vazirmatn,/);
+  assert.match(html, /--type-font-mono: "Example Mono", JetBrains Mono, "JetBrains Mono Fallback", ui-monospace, monospace;/);
 });

@@ -1,0 +1,33 @@
+import assert from "node:assert/strict";
+import { existsSync, readFileSync } from "node:fs";
+import { test } from "node:test";
+
+test("the sailcloth stack deps are declared on the package", () => {
+  const pkg = JSON.parse(readFileSync(new URL("../../package.json", import.meta.url), "utf8")) as {
+    dependencies?: Record<string, string>;
+    devDependencies?: Record<string, string>;
+  };
+  const deps = { ...pkg.dependencies, ...pkg.devDependencies };
+  for (const name of ["tailwindcss", "@tailwindcss/cli", "basecoat-css", "chart.js", "lucide", "preact"]) {
+    assert.ok(deps[name], `${name} is installed`);
+  }
+});
+
+test("styles/src/ui.css is the Tailwind + Basecoat source of truth", () => {
+  const css = readFileSync(new URL("../../styles/src/ui.css", import.meta.url), "utf8");
+  assert.match(css, /@import "tailwindcss"/);
+  assert.match(css, /@import "basecoat-css\/base\/base\.css"/);
+  assert.match(css, /--foam:\s*#f4f4f9/i);
+  assert.match(css, /--night:\s*#23212c/i);
+});
+
+test("ui:build wrote the generated stylesheet and Chart.js asset", () => {
+  assert.ok(existsSync(new URL("../../styles/generated.css", import.meta.url)));
+  assert.ok(existsSync(new URL("../../components/performance-chart/chart.umd.min.js", import.meta.url)));
+});
+
+test("Lucide icon helper and Chart.js components live on the main theme", () => {
+  assert.ok(existsSync(new URL("../../src/icon.ts", import.meta.url)));
+  assert.ok(existsSync(new URL("../../components/charts/index.ts", import.meta.url)));
+  assert.ok(existsSync(new URL("../../components/performance-chart/index.ts", import.meta.url)));
+});

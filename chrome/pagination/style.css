@@ -1,3 +1,5 @@
+/* Visual source of truth: styles/ui.css → generated.css. This sheet stays for unit contract tests and behavioral fallbacks; demoted so Tailwind wins. */
+@layer lateen-legacy {
 /* Pagination: a list's previous, numbered, and next pages in one row that wraps on narrow screens. */
 
 .pagination {
@@ -23,8 +25,8 @@
   padding-block: var(--space-2);
   padding-inline: var(--space-3);
   border: thin solid var(--color-border);
-  border-radius: var(--radius-md);
-  background: var(--elevation-low-bg);
+  border-radius: var(--radius-full);
+  background: var(--color-surface);
   color: var(--color-text);
   font-family: var(--type-font-ui);
   font-size: var(--type-size-sm);
@@ -32,8 +34,9 @@
 }
 
 .pagination-link:hover {
-  border-color: var(--border-strong);
-  background: var(--elevation-mid-bg);
+  border-color: var(--color-border);
+  background: var(--color-surface-raised);
+  color: var(--color-heading);
 }
 
 .pagination-link:active {
@@ -46,9 +49,9 @@
 }
 
 .pagination-page[aria-current="page"] {
-  border-color: var(--color-accent);
-  background: var(--state-selected-bg);
-  color: var(--state-selected-fg);
+  border-color: transparent;
+  background: var(--color-link);
+  color: var(--color-canvas);
   font-weight: var(--type-weight-medium);
 }
 
@@ -81,4 +84,5 @@
 /* Arrows point the way the reader moves: mirror them when the page is right-to-left. */
 [dir="rtl"] .pagination-arrow {
   transform: scaleX(-1);
+}
 }

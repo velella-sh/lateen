@@ -1,3 +1,5 @@
+/* Visual source of truth: styles/ui.css → generated.css. This sheet stays for unit contract tests and behavioral fallbacks; demoted so Tailwind wins. */
+@layer lateen-legacy {
 /* Project switcher: a native disclosure in the header, one link per project, current one marked by
    `aria-current` and not colour alone. Long names wrap instead of being cut off. */
 
@@ -189,4 +191,5 @@
 .project-switcher-mobile-link[aria-current="true"] {
   color: var(--color-heading);
   font-weight: var(--type-weight-bold);
+}
 }

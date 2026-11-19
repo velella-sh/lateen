@@ -1,3 +1,5 @@
+/* Visual source of truth: styles/ui.css → generated.css. This sheet stays for unit contract tests and behavioral fallbacks; demoted so Tailwind wins. */
+@layer lateen-legacy {
 /* Record parts a layout renders directly: the title row, the summary, and the key facts. The
    engine bundles a component's stylesheet only when page content uses that component, so these
    rules live here for both the record layout and an embedded record view. Logical properties only. */
@@ -92,4 +94,5 @@
     color: LinkText;
     text-decoration: underline;
   }
+}
 }

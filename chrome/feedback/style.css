@@ -1,3 +1,5 @@
+/* Visual source of truth: styles/ui.css → generated.css. This sheet stays for unit contract tests and behavioral fallbacks; demoted so Tailwind wins. */
+@layer lateen-legacy {
 /* Page feedback: a question with two vote buttons under the article. Hidden until the island runs. */
 
 .feedback {
@@ -57,4 +59,5 @@
 .feedback-status {
   margin: 0;
   min-block-size: var(--space-4);
+}
 }

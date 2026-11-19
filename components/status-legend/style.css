@@ -1,3 +1,5 @@
+/* Visual source of truth: styles/ui.css → generated.css. This sheet stays for unit contract tests and behavioral fallbacks; demoted so Tailwind wins. */
+@layer lateen-legacy {
 /* Status legend: each mapped status as its badge, with an optional description beside it. */
 
 .status-legend {
@@ -18,4 +20,5 @@
 .status-legend-description {
   color: var(--color-muted);
   font-size: var(--type-size-sm);
+}
 }

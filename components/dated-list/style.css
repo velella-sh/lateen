@@ -1,3 +1,5 @@
+/* Visual source of truth: styles/ui.css → generated.css. This sheet stays for unit contract tests and behavioral fallbacks; demoted so Tailwind wins. */
+@layer lateen-legacy {
 /* Dated list: a section per month, one line per date. Tokens and logical properties only. */
 
 /* The table of contents the page can ask for: one quiet line per group. */
@@ -147,4 +149,5 @@
   .dated-list-item::before {
     background-color: CanvasText;
   }
+}
 }

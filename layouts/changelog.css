@@ -1,3 +1,5 @@
+/* Visual source of truth: styles/ui.css → generated.css. This sheet stays for unit contract tests and behavioral fallbacks; demoted so Tailwind wins. */
+@layer lateen-legacy {
 /* Changelog layout: the release list with a compact version contents above it. The entries
    themselves are styled by components/changelog-entry/style.css; this file places the page and
    the contents. Tokens and logical properties only. */
@@ -80,4 +82,5 @@
 .changelog-toc:dir(rtl) .changelog-toc-list a {
   direction: ltr;
   unicode-bidi: isolate;
+}
 }

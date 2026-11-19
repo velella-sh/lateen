@@ -1,3 +1,5 @@
+/* Visual source of truth: styles/ui.css → generated.css. This sheet stays for unit contract tests and behavioral fallbacks; demoted so Tailwind wins. */
+@layer lateen-legacy {
 /* Install tabs: one command per package manager. The tabs are radio buttons, so the choice works without scripts: the checked one shows its panel and the others stay hidden. Colours come from the code tokens. */
 
 .install-tabs {
@@ -185,4 +187,5 @@
 .install-tabs-radio:nth-of-type(8):focus-visible ~ .install-tabs-list .install-tabs-tab:nth-child(8) {
   outline: 2px solid var(--state-focus-ring);
   outline-offset: 2px;
+}
 }

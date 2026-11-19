@@ -1,3 +1,5 @@
+/* Visual source of truth: styles/ui.css → generated.css. This sheet stays for unit contract tests and behavioral fallbacks; demoted so Tailwind wins. */
+@layer lateen-legacy {
 /* Footnote popover: the note a reference points at, shown below the reference while a pointer or
    keyboard focus rests on it. The island moves this root beside the reference and marks that
    element `data-footnote-anchor`, which gives the absolutely positioned tooltip its containing
@@ -45,4 +47,5 @@
   .footnote-popover {
     display: none;
   }
+}
 }

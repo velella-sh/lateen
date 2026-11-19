@@ -1,3 +1,5 @@
+/* Visual source of truth: styles/ui.css → generated.css. This sheet stays for unit contract tests and behavioral fallbacks; demoted so Tailwind wins. */
+@layer lateen-legacy {
 /* The versions index: a page's versions as rows, each with its status in text. The icon repeats
    the status so a row never relies on colour alone, and the current row is underlined as well as
    tinted. Colours, lengths, and durations come from tokens; logical properties only, so the list
@@ -127,4 +129,5 @@
 
 .versions-body {
   margin-block-start: var(--space-8);
+}
 }

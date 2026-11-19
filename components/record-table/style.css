@@ -1,3 +1,5 @@
+/* Visual source of truth: styles/ui.css → generated.css. This sheet stays for unit contract tests and behavioral fallbacks; demoted so Tailwind wins. */
+@layer lateen-legacy {
 /* Numbers line up on the end side, which is the reading end in right-to-left pages too. */
 .record-table-cell[data-kind="number"] {
   text-align: end;
@@ -128,4 +130,5 @@
   .record-table-filter input {
     border-color: CanvasText;
   }
+}
 }

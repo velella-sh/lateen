@@ -24,7 +24,8 @@ test("every npm command on the page is a script package.json defines", () => {
 test("test:visual runs the file the page tells a reader to run", () => {
   assert.ok(commands.includes("node scripts/test-visual.ts --update"));
   assert.ok(commands.includes("node scripts/test-visual.ts --only gallery"));
-  assert.equal(scripts["test:visual"], "node scripts/test-visual.ts");
+  assert.equal(scripts["test:visual"], "npm run ui:build && node scripts/test-visual.ts");
+
 });
 
 test("every flag the page shows for the runner is one the runner reads, and the reverse", () => {

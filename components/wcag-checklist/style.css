@@ -1,3 +1,5 @@
+/* Visual source of truth: styles/ui.css → generated.css. This sheet stays for unit contract tests and behavioral fallbacks; demoted so Tailwind wins. */
+@layer lateen-legacy {
 /* WCAG checklist: one table per principle, every row a link to the W3C's own wording. */
 
 .wcag-checklist {
@@ -65,4 +67,5 @@
 
 .wcag-checklist code {
   font-family: var(--type-font-mono);
+}
 }

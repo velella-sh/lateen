@@ -1,3 +1,5 @@
+/* Visual source of truth: styles/ui.css → generated.css. This sheet stays for unit contract tests and behavioral fallbacks; demoted so Tailwind wins. */
+@layer lateen-legacy {
 /* Dates line up on the end side, which is the reading end in right-to-left pages too. */
 .timeline-cell[data-field="start"],
 .timeline-cell[data-field="end"] {
@@ -216,4 +218,5 @@
   .timeline-tick {
     color: CanvasText;
   }
+}
 }

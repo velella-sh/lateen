@@ -1,3 +1,5 @@
+/* Visual source of truth: styles/ui.css → generated.css. This sheet stays for unit contract tests and behavioral fallbacks; demoted so Tailwind wins. */
+@layer lateen-legacy {
 /* Tested chip: the pass, partial, or fail result of a page's examples, next to a code block. The
    icon's shape, the visible label, and the counts carry the meaning, so colour is never the only signal. */
 
@@ -9,7 +11,7 @@
   padding-inline: var(--space-2);
   border: 1px solid var(--color-border);
   border-radius: var(--radius-full);
-  background-color: var(--color-canvas);
+  background-color: var(--color-surface);
   color: var(--color-text);
   font-family: var(--type-font-ui);
   font-size: var(--type-size-sm);
@@ -104,4 +106,5 @@
   overflow: hidden;
   clip-path: inset(50%);
   white-space: nowrap;
+}
 }

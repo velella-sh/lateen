@@ -1,3 +1,5 @@
+/* Visual source of truth: styles/ui.css → generated.css. This sheet stays for unit contract tests and behavioral fallbacks; demoted so Tailwind wins. */
+@layer lateen-legacy {
 /* Base styles every page loads: a small reset and the article typography.
    Every color and every length comes from a token (a raw value fails `test/base-css.test.ts`),
    and every rule uses logical properties so `dir="rtl"` mirrors the page. Headings keep clear of
@@ -248,4 +250,5 @@ td code {
     background-color var(--motion-base) var(--motion-ease-in-out),
     border-color var(--motion-base) var(--motion-ease-in-out),
     color var(--motion-base) var(--motion-ease-in-out);
+}
 }

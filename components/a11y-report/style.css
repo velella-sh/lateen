@@ -1,3 +1,5 @@
+/* Visual source of truth: styles/ui.css → generated.css. This sheet stays for unit contract tests and behavioral fallbacks; demoted so Tailwind wins. */
+@layer lateen-legacy {
 /* Accessibility report: a readable matrix, findings, and journeys; every list scrolls inside its own region. */
 
 .a11y-report {
@@ -68,4 +70,5 @@
 
 .a11y-report code {
   font-family: var(--type-font-mono);
+}
 }

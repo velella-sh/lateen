@@ -1,3 +1,5 @@
+/* Visual source of truth: styles/ui.css → generated.css. This sheet stays for unit contract tests and behavioral fallbacks; demoted so Tailwind wins. */
+@layer lateen-legacy {
 /* Glossary: a letter index and a section per letter with a definition list. Tokens and logical properties only. */
 
 .glossary-index {
@@ -41,4 +43,5 @@
 .glossary-aliases {
   color: var(--color-muted);
   font-size: var(--type-size-sm);
+}
 }

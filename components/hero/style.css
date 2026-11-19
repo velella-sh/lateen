@@ -1,3 +1,5 @@
+/* Visual source of truth: styles/ui.css → generated.css. This sheet stays for unit contract tests and behavioral fallbacks; demoted so Tailwind wins. */
+@layer lateen-legacy {
 /* Hero: eyebrow, h1, lead, actions and an optional visual. DOM order is reading order in every
    alignment; `split` places the visual in a second column and never reorders it. */
 
@@ -112,4 +114,5 @@
     background: none;
     color: inherit;
   }
+}
 }

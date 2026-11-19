@@ -1,3 +1,5 @@
+/* Visual source of truth: styles/ui.css → generated.css. This sheet stays for unit contract tests and behavioral fallbacks; demoted so Tailwind wins. */
+@layer lateen-legacy {
 /* Version diff: a section-by-section comparison of two versions. Every kind has its own icon shape
    and visible label, so color is never the only signal. Spacing and edges are logical, so the viewer
    mirrors under RTL, and every color comes from a token, so dark mode follows. */
@@ -279,4 +281,5 @@
   font-family: var(--type-font-body);
   white-space: pre-wrap;
   overflow-wrap: anywhere;
+}
 }

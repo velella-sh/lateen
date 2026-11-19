@@ -1,3 +1,5 @@
+/* Visual source of truth: styles/ui.css → generated.css. This sheet stays for unit contract tests and behavioral fallbacks; demoted so Tailwind wins. */
+@layer lateen-legacy {
 /* Tutorial layout: a numbered progress list under the title, and one section per step with its
    own "Step n of N" text and previous/next step links. Token names and logical properties only. */
 
@@ -121,4 +123,5 @@
   .tutorial-step-next {
     grid-column: 1;
   }
+}
 }

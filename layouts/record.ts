@@ -9,7 +9,7 @@ import drawer from "../chrome/drawer/index.ts";
 import lastUpdated from "../chrome/last-updated/index.ts";
 import pageAgentMenu from "../chrome/page-agent-menu/index.ts";
 import pageFooter from "../chrome/page-footer/index.ts";
-import header from "../chrome/header/index.ts";
+import shell, { footer as shellFooter } from "../chrome/shell/index.ts";
 import sidebar from "../chrome/sidebar/index.ts";
 import toc from "../chrome/toc/index.ts";
 import addToCalendar from "../components/add-to-calendar/index.ts";
@@ -100,7 +100,8 @@ const record: Layout = (props) =>
     ? doc(props)
     : base({
         ...props,
-        header: h(Fragment, null, header(props) as ComponentChildren, drawer(props) as ComponentChildren),
+        header: h(Fragment, null, shell(props) as ComponentChildren, drawer(props) as ComponentChildren),
+    footer: shellFooter(props) as ComponentChildren,
         sidebar: sidebar(props) as ComponentChildren,
         main: h(Fragment, null, article(props), blockActions(props) as ComponentChildren),
         aside: toc(tocFor(props)) as ComponentChildren,

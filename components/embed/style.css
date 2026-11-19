@@ -1,3 +1,5 @@
+/* Visual source of truth: styles/ui.css → generated.css. This sheet stays for unit contract tests and behavioral fallbacks; demoted so Tailwind wins. */
+@layer lateen-legacy {
 /* Embeds: a 16:9 box that reserves its space, with a load button and a fallback link that works without JavaScript. Colors come from tokens, so dark mode follows. */
 
 .embed {
@@ -118,4 +120,5 @@
   font-size: var(--type-size-sm);
   line-height: var(--type-leading-body);
   text-align: start;
+}
 }

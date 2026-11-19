@@ -1,3 +1,5 @@
+/* Visual source of truth: styles/ui.css → generated.css. This sheet stays for unit contract tests and behavioral fallbacks; demoted so Tailwind wins. */
+@layer lateen-legacy {
 /* Record history: the newest events in view and the rest behind a native disclosure. Dates and
    types stay on one line; a changed field keeps its old value in `del` and the new one in `ins`, so
    the difference survives forced colors and print without relying on color. */
@@ -75,4 +77,5 @@
   overflow: hidden;
   clip-path: inset(50%);
   white-space: nowrap;
+}
 }

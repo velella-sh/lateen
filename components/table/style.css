@@ -1,3 +1,5 @@
+/* Visual source of truth: styles/ui.css → generated.css. This sheet stays for unit contract tests and behavioral fallbacks; demoted so Tailwind wins. */
+@layer lateen-legacy {
 /* Tables: readable cells, horizontal scroll, sticky first column, edge shadow. */
 
 .table-scroll {
@@ -7,7 +9,6 @@
   border: thin solid var(--color-border);
   border-radius: var(--radius-md);
   background-color: var(--color-canvas);
-  box-shadow: var(--elevation-low-shadow);
 }
 
 .table-scroll:focus {
@@ -106,4 +107,5 @@
   border-radius: var(--radius-sm);
   padding-block: 0;
   padding-inline: var(--space-1);
+}
 }

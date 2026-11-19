@@ -1,12 +1,12 @@
 {
-  "canvas": "#eceff4",
-  "surface": "#e5e9f0",
-  "text": "#2e3440",
-  "muted": "#566074",
-  "border": "#d7dce7",
-  "accent": "#5e81ac",
-  "info": "#5d80aa",
-  "success": "#698650",
-  "warning": "#a47428",
-  "danger": "#94638a"
+  "canvas": "#f4f4f9",
+  "surface": "#e7e7ed",
+  "text": "#23212c",
+  "muted": "#4a4658",
+  "border": "#d5d3e3",
+  "accent": "#23212c",
+  "info": "#4c6f9a",
+  "success": "#3f6b4e",
+  "warning": "#8a6a2f",
+  "danger": "#8a4a6a"
 }

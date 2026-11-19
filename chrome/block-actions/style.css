@@ -1,3 +1,5 @@
+/* Visual source of truth: styles/ui.css → generated.css. This sheet stays for unit contract tests and behavioral fallbacks; demoted so Tailwind wins. */
+@layer lateen-legacy {
 /* Block actions: "Edit with your agent" beside a block on hover or focus. The control starts hidden
    and is stamped in by client.ts, so the page reads the same without JavaScript. Logical insets keep
    it at the top-inline-end of the block in both writing directions. */
@@ -53,4 +55,5 @@
 .block-action:focus-visible {
   outline: 2px solid var(--state-focus-ring);
   outline-offset: 2px;
+}
 }

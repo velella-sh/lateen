@@ -1,3 +1,5 @@
+/* Visual source of truth: styles/ui.css → generated.css. This sheet stays for unit contract tests and behavioral fallbacks; demoted so Tailwind wins. */
+@layer lateen-legacy {
 /* Content tabs: one group of sections, shown as tabs once the island runs. Without JavaScript the
  * tab list stays hidden and every section shows stacked under its title. The same rules style the
  * engine's `:::tabs`/`::tab` markup, whose tab list, tabs, and panels carry roles, not our classes. */
@@ -107,4 +109,5 @@
   margin-block: 0;
   border: 0;
   border-radius: 0;
+}
 }

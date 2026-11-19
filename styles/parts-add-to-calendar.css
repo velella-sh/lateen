@@ -1,3 +1,5 @@
+/* Visual source of truth: styles/ui.css → generated.css. This sheet stays for unit contract tests and behavioral fallbacks; demoted so Tailwind wins. */
+@layer lateen-legacy {
 /* Add to calendar: the record's .ics download and its subscribe link, on one quiet line under the
    summary. Logical properties and tokens keep it mirrored and readable in either direction. */
 
@@ -25,4 +27,5 @@
 .add-to-calendar-icon svg {
   inline-size: 1em;
   block-size: 1em;
+}
 }

@@ -1,3 +1,5 @@
+/* Visual source of truth: styles/ui.css → generated.css. This sheet stays for unit contract tests and behavioral fallbacks; demoted so Tailwind wins. */
+@layer lateen-legacy {
 /* Embedded layout: a page body alone, sized by the frame that holds it. It follows the reader's
    colour scheme with CSS only; `data-scheme` fixes a published light or dark variant, and
    `data-transparent` lets the host's background show through. Tokens and logical properties only. */
@@ -126,4 +128,5 @@ html[data-transparent="true"] .embedded-attribution {
   .embedded-attribution a {
     color: LinkText;
   }
+}
 }

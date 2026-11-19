@@ -1,3 +1,5 @@
+/* Visual source of truth: styles/ui.css → generated.css. This sheet stays for unit contract tests and behavioral fallbacks; demoted so Tailwind wins. */
+@layer lateen-legacy {
 /* Term: an inline native disclosure. The label is the <summary>, so it opens with Enter, Space, or a
    tap and needs no JavaScript; the panel holds the definition and a link. Logical properties keep it
    working under RTL, and every colour and length comes from a token. */
@@ -115,4 +117,5 @@
     max-inline-size: none;
     margin-block-start: var(--space-2);
   }
+}
 }

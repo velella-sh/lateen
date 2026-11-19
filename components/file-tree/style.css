@@ -1,3 +1,5 @@
+/* Visual source of truth: styles/ui.css → generated.css. This sheet stays for unit contract tests and behavioral fallbacks; demoted so Tailwind wins. */
+@layer lateen-legacy {
 /* File tree: a nested list as a tree with folder and file icons, muted comments, and highlighted entries. */
 
 .file-tree {
@@ -104,4 +106,5 @@
 
 .file-tree-item.is-highlighted > .file-tree-row > .file-tree-icon {
   color: var(--color-accent);
+}
 }

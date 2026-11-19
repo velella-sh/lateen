@@ -1,5 +1,5 @@
 /* Right-to-left typography: a Persian or Arabic page gets Vazirmatn for Arabic-script text,
-   Geist for the Latin words and identifiers mixed into it, a line height that leaves room for
+   Manrope for the Latin words and identifiers mixed into it, a line height that leaves room for
    the script's ascenders and descenders, and no letter spacing (spacing between joined Arabic
    letters is wrong). Code stays left to right inside a right-to-left paragraph.
 
@@ -41,7 +41,7 @@
   letter-spacing: var(--rtl-letter-spacing);
 }
 
-/* Geist Mono is named here so no body stack inherited from the RTL root can reach technical text.
+/* JetBrains Mono is named here so no body stack inherited from the RTL root can reach technical text.
    `samp` (sample output) and `var` (a placeholder or identifier) are machine text too, so they join
    `code`, `kbd`, and `pre`. The face is its own rule: an authored `dir` keeps the face even though
    it keeps its direction. */

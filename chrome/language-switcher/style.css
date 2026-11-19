@@ -1,3 +1,5 @@
+/* Visual source of truth: styles/ui.css → generated.css. This sheet stays for unit contract tests and behavioral fallbacks; demoted so Tailwind wins. */
+@layer lateen-legacy {
 /* Language switcher: one entry per configured language, in the header. Plain anchors, so it works
    without JavaScript; the current language carries `aria-current` and a visible word, not colour
    alone. A fallback link names the language it really shows, and an unavailable language is plain
@@ -73,4 +75,5 @@
   overflow: hidden;
   clip-path: inset(50%);
   white-space: nowrap;
+}
 }

@@ -109,7 +109,7 @@ test("the examples panel lists each example under one heading, beside the articl
     }),
   );
   assert.match(page, /<aside class="api-examples" aria-labelledby="api-examples-title" tabindex="0"><h2 class="api-examples-title" id="api-examples-title">Examples<\/h2>/);
-  assert.match(page, /<li class="api-example"><h3 class="api-example-title">Create a charge<\/h3><p class="api-example-lang">bash<\/p><pre class="api-example-code"><code class="language-bash">curl -X POST \/v1\/charges<\/code><\/pre><\/li>/);
+  assert.match(page, /<li class="api-example"><h3 class="api-example-title">Create a charge<\/h3><p class="api-example-lang">bash<\/p><pre class="api-example-code" tabindex="0"><code class="language-bash">curl -X POST \/v1\/charges<\/code><\/pre><\/li>/);
   assert.match(page, /<h3 class="api-example-title">List charges<\/h3><p class="api-example-lang">json<\/p>/);
   const article = page.indexOf('<article class="doc"');
   const aside = page.indexOf('<aside class="api-examples"');
@@ -167,7 +167,7 @@ test("the sidebar column, breadcrumb trail, and on-this-page navigation keep the
   assert.match(page, /<nav class="breadcrumb" aria-label="Breadcrumbs"><ol class="breadcrumb-list"><li class="breadcrumb-item"><a href="\/reference\/"><bdi class="breadcrumb-title">Reference<\/bdi><\/a><\/li>/);
   assert.match(page, /<span aria-current="page"><bdi class="breadcrumb-title">Charges<\/bdi><\/span><\/li><\/ol><\/nav><h1>Charges<\/h1>/);
   assert.match(page, /<div class="aside"><nav class="toc" aria-labelledby="toc-title">/);
-  assert.match(page, /<header class="header">/);
+  assert.match(page, /<header class="site-header"/);
 });
 
 test("titles, example titles, and code are escaped into the markup", () => {

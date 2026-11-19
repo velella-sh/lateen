@@ -1,3 +1,5 @@
+/* Visual source of truth: styles/ui.css → generated.css. This sheet stays for unit contract tests and behavioral fallbacks; demoted so Tailwind wins. */
+@layer lateen-legacy {
 /* CTA band: a closing call to action. Colours come from tokens; spacing uses logical properties, so it mirrors in right-to-left. */
 
 .cta-band {
@@ -100,4 +102,5 @@
   .cta-band-copy {
     display: none;
   }
+}
 }

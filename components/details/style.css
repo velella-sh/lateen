@@ -1,3 +1,5 @@
+/* Visual source of truth: styles/ui.css → generated.css. This sheet stays for unit contract tests and behavioral fallbacks; demoted so Tailwind wins. */
+@layer lateen-legacy {
 /* Details: a styled disclosure block. Native <details>, so it works without JavaScript. */
 
 .details {
@@ -75,4 +77,5 @@
 
 .details-body > :last-child {
   margin-block-end: 0;
+}
 }

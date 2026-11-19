@@ -86,7 +86,7 @@ test("the layout keeps the header, the sidebar, the drawer and the breadcrumb of
   const recordOut = render(page);
   assert.deepEqual(landmarks(recordOut), landmarks(renderDoc(page)));
   assert.match(recordOut, /<nav class="breadcrumb"/);
-  assert.match(recordOut, /<header class="header"/);
+  assert.match(recordOut, /<header class="site-header"/);
 });
 
 test("the title comes from the page, and the body's own h1 is not repeated", () => {
