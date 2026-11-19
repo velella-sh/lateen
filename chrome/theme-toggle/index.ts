@@ -27,7 +27,7 @@ const themeToggle: Chrome = () =>
     { class: "theme-toggle", "data-theme-toggle": true, hidden: true },
     h(
       "button",
-      { class: "theme-toggle-button", type: "button", "aria-label": LABEL },
+      { class: "iconbtn theme-toggle-button", type: "button", "aria-label": LABEL },
       ...OPTIONS.map((option) => icon(option.value)),
     ),
     h("span", { class: "theme-toggle-status", role: "status" }, ""),

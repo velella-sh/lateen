@@ -1,6 +1,7 @@
-import { h } from "preact";
+import { Fragment, h } from "preact";
 import type { ComponentChildren } from "preact";
 import type { ComponentProps, Layout, LayoutProps } from "@velella/mizzen/contracts";
+import drawer from "../chrome/drawer/index.ts";
 import shell, { footer } from "../chrome/shell/index.ts";
 import backdrop from "../components/backdrop/index.ts";
 import ctaBand from "../components/cta-band/index.ts";
@@ -121,6 +122,51 @@ function sectionBlock(fields: Readonly<Record<string, unknown>>): ComponentChild
   );
 }
 
+function componentSpecimens(): ComponentChildren {
+  return h(
+    "section",
+    { class: "home-bits", "aria-label": "Components in the theme" },
+    h(
+      "div",
+      { class: "specimen" },
+      h("h3", null, "Status"),
+      h(
+        "div",
+        { class: "pills" },
+        h("span", { class: "pill" }, "Shipped"),
+        h("span", { class: "pill" }, "Pending"),
+        h("span", { class: "pill ink" }, "Blocked"),
+        h("span", { class: "pill" }, "Draft"),
+      ),
+    ),
+    h(
+      "div",
+      { class: "specimen" },
+      h("h3", null, "Steps"),
+      h(
+        "div",
+        { class: "steps-ui" },
+        h("div", null, h("i", { class: "num" }, "1"), " Install the theme"),
+        h("div", null, h("i", { class: "num" }, "2"), " Write mizzen.yml"),
+        h("div", null, h("i", { class: "num" }, "3"), " Run mizzen dev"),
+      ),
+    ),
+    h(
+      "div",
+      { class: "specimen" },
+      h("h3", null, "Kbd"),
+      h("p", null, h("kbd", null, "⌘"), " ", h("kbd", null, "K"), " opens search. ", h("kbd", null, "/"), " focuses it."),
+    ),
+    h(
+      "div",
+      { class: "specimen" },
+      h("h3", null, "Endpoint"),
+      h("div", { class: "endpoint" }, h("span", { class: "pill ink" }, "GET"), " /books/{id}"),
+      h("p", null, "id · string, required"),
+    ),
+  );
+}
+
 /** Sailcloth home: stage (hero + preview), section cards, then the page body. */
 function content(props: LayoutProps): ComponentChildren {
   const hero = props.page.frontMatter.hero;
@@ -149,7 +195,7 @@ function content(props: LayoutProps): ComponentChildren {
         { class: "home-hero", "aria-labelledby": "home-title" },
         eyebrow === undefined
           ? null
-          : h("p", { class: "home-eyebrow" }, h("i", { "aria-hidden": "true" }), eyebrow),
+          : h("p", { class: "home-eyebrow" }, h("i", { class: "status-dot", "aria-hidden": "true" }), eyebrow),
         h("p", { class: "product" }, product),
         h("h1", { id: "home-title", class: "home-title display" }, title),
         lead === undefined ? null : h("p", { class: "home-lead lead" }, lead),
@@ -169,6 +215,7 @@ function content(props: LayoutProps): ComponentChildren {
     cards.length === 0
       ? null
       : h("section", { class: "home-sections cards", "aria-label": "Explore" }, cards),
+    componentSpecimens(),
     props.page.html.length > 0
       ? h("div", { class: "home-body", dangerouslySetInnerHTML: { __html: props.page.html } })
       : null,
@@ -270,7 +317,7 @@ const home: Layout = (props) => {
   if (!showpiece) props.hints?.skipFontPreload("JetBrains Mono");
   return base({
     ...props,
-    header: shell(props) as ComponentChildren,
+    header: h(Fragment, null, shell(props) as ComponentChildren, drawer(props) as ComponentChildren),
     footer: footer(props) as ComponentChildren,
     main: showpiece ? showpieceContent(props) : content(props),
   });

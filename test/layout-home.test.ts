@@ -41,7 +41,7 @@ function layoutProps(frontMatter: Record<string, unknown> = {}, html = ""): Layo
     markdown: "",
     kind: "doc",
   };
-  const site: Site = { config: configWith(), pages: [page], nav: {}, data: {}, collections: {} };
+  const site: Site = { config: configWith(), pages: [page], nav: { main: [{ title: "Home", url: "/" }] }, data: {}, collections: {} };
   return {
     site,
     page,
@@ -85,7 +85,7 @@ test("the hero renders the brand, eyebrow, title, and lead from front matter", (
   assert.match(page, /<p class="product">Example<\/p>/);
   assert.match(
     page,
-    /<section class="home-hero" aria-labelledby="home-title"><p class="home-eyebrow"><i aria-hidden="true"><\/i>v0\.3\.0 · 12 pages<\/p><p class="product">Example<\/p><h1 id="home-title" class="home-title display">Docs you can trust\.<\/h1><p class="home-lead lead">One line\.<\/p>/,
+    /<section class="home-hero" aria-labelledby="home-title"><p class="home-eyebrow"><i class="status-dot" aria-hidden="true"><\/i>v0\.3\.0 · 12 pages<\/p><p class="product">Example<\/p><h1 id="home-title" class="home-title display">Docs you can trust\.<\/h1><p class="home-lead lead">One line\.<\/p>/,
   );
   assert.match(page, /class="home-preview"/);
   assert.match(page, /class="hero-hint"/);
@@ -142,7 +142,7 @@ test("a section without links still renders its heading", () => {
   assert.doesNotMatch(page, /class="row"/);
 });
 
-test("the page body renders after the stage and the section cards", () => {
+test("the mockup component specimens and page body follow the section cards", () => {
   const page = out(
     {
       hero: { title: "Docs." },
@@ -152,8 +152,10 @@ test("the page body renders after the stage and the section cards", () => {
   );
   const stage = page.indexOf("home-stage");
   const sections = page.indexOf("home-sections");
+  const bits = page.indexOf("home-bits");
   const body = page.indexOf("<p>More about the project.</p>");
-  assert.ok(stage >= 0 && sections > stage && body > sections, `stage ${stage} < sections ${sections} < body ${body}`);
+  assert.ok(stage >= 0 && sections > stage && bits > sections && body > bits, `stage ${stage} < sections ${sections} < bits ${bits} < body ${body}`);
+  for (const heading of ["Status", "Steps", "Kbd", "Endpoint"]) assert.match(page, new RegExp(`<h3>${heading}</h3>`));
 });
 
 test("front matter that does not match the shape is dropped without throwing", () => {
@@ -177,4 +179,5 @@ test("the home content sits in the base shell, so the document keeps lang, dir, 
   assert.match(page, /^<html lang="en" dir="ltr"/);
   assert.match(page, /<body><a class="skip-link" href="#main">Skip to content<\/a>/);
   assert.match(page, /<main id="main" tabindex="-1"><div class="home-content"><div class="home-stage">/i);
+  assert.match(page, /<dialog class="drawer"/);
 });
