@@ -26,6 +26,13 @@ const INTENDED = [
   { selector: ".terminal", reason: "Terminal bodies share the code block markup in 0.2.3." },
   { selector: ".shortcut", reason: "The shortcut list gained the source-mode key in 0.2.3." },
   { selector: "script", reason: "The theme script set grows with the new islands and their data." },
+  { selector: "header", reason: "0.2.3 cuts every layout over to the sailcloth site-header chrome." },
+  { selector: ".progress", reason: "The sailcloth shell adds a reading progress bar above the header." },
+  { selector: "footer", reason: "The sailcloth shell footer replaces the previous site-footer chrome." },
+  {
+    selector: 'link[rel="preload"][as="font"]',
+    reason: "0.2.3 ships Manrope and JetBrains Mono instead of Geist and Geist Mono.",
+  },
 ] as const;
 
 /** Every HTML file a build wrote, as paths relative to its output folder. */

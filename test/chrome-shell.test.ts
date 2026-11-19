@@ -63,7 +63,9 @@ test("shell renders sailcloth header chrome with search trigger", () => {
   const out = html(shell({ site, page, trail: [], pager: {} }));
   assert.match(out, /data-site-header/);
   assert.match(out, /search-trigger/);
-  assert.match(out, /data-shell-theme-toggle/);
+  assert.match(out, /data-search-open/);
+  assert.match(out, /data-drawer-open/);
+  assert.match(out, /data-theme-toggle/);
   assert.match(html(footer({ site })), /site-footer/);
 });
 

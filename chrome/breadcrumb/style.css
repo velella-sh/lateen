@@ -1,6 +1,7 @@
 /* Breadcrumb: the trail from the navigation tree above the title. Ancestor links, then the current page last, as one ordered list. */
 
 .breadcrumb {
+  margin-block-end: var(--space-6);
   font-family: var(--type-font-ui);
   font-size: var(--type-size-sm);
   color: var(--color-muted);
@@ -32,7 +33,7 @@
 }
 
 .breadcrumb a:hover {
-  color: var(--color-accent);
+  color: var(--color-link);
 }
 
 .breadcrumb a:focus-visible {

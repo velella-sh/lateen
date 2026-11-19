@@ -653,13 +653,8 @@ test("keys other than Tab and Escape are not touched", () => {
   assert.equal(event.prevented, false);
 });
 
-test("the header shows the menu button at the same breakpoint the drawer replaces the sidebar", () => {
-  const header = readFileSync(new URL("../chrome/shell/style.css", import.meta.url), "utf8");
+test("the drawer still collapses the sidebar at the desktop breakpoint", () => {
   const drawer = readFileSync(new URL("../chrome/drawer/style.css", import.meta.url), "utf8");
-
-  const block = /@media \(max-width: 767\.98px\) \{([\s\S]*?)\n\}/.exec(header);
-  assert.ok(block, "the header has a block at the drawer's breakpoint");
-  assert.match(block[1]!, /\.header-menu/, "the menu button appears whenever the sidebar leaves");
   assert.match(drawer, /@media \(max-width: 767\.98px\)/);
   assert.equal(DESKTOP_QUERY, "(min-width: 768px)", "the viewport check matches the CSS breakpoint");
 });

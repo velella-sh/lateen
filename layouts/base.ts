@@ -88,8 +88,8 @@ function jsonLd(data: Readonly<Record<string, unknown>>) {
  */
 function brandStyle(config: SiteConfig, hints: LayoutProps["hints"]) {
   const { brand, problems } = resolveBrand(config.theme.options);
-  if (brand?.sans !== undefined) hints?.skipFontPreload("Geist");
-  if (brand?.mono !== undefined) hints?.skipFontPreload("Geist Mono");
+  if (brand?.sans !== undefined) hints?.skipFontPreload("Manrope");
+  if (brand?.mono !== undefined) hints?.skipFontPreload("JetBrains Mono");
   const comments = problems.map(problemComment).join("\n");
   const css = [brand === undefined ? "" : brandCss(brand, { base: config.base }), comments].filter((part) => part !== "").join("\n");
   return css === "" ? null : h("style", { "data-brand": true, dangerouslySetInnerHTML: { __html: css } });

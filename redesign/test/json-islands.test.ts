@@ -12,11 +12,12 @@ function jsonPayload(html: string, attribute: string): unknown {
   return JSON.parse(match[1]!);
 }
 
-test("the search island receives valid JSON", () => {
+test("the sailcloth shell mounts Pagefind search chrome", () => {
   const props = propsWith();
   const html = renderToString(h(home, props));
-  const pages = jsonPayload(html, "data-search-pages");
-  assert.ok(Array.isArray(pages));
+  assert.match(html, /data-site-header/);
+  assert.match(html, /data-search-open/);
+  assert.match(html, /class="search"/);
 });
 
 test("the chart island receives valid JSON", () => {

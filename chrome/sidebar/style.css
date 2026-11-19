@@ -1,4 +1,4 @@
-/* The left column: sticky, with its own scroll; matches the guide mockup's `aside.side`. */
+/* Sailcloth sidebar — sticky nav column; selection is a hairline and Lateen Blue, not a filled chip. */
 
 .sidebar-nav {
   position: sticky;
@@ -32,7 +32,7 @@
   font-size: var(--type-size-xs);
   font-weight: var(--type-weight-medium);
   line-height: var(--type-leading-tight);
-  letter-spacing: 0.06em;
+  letter-spacing: 0.08em;
   text-transform: uppercase;
   color: var(--color-muted);
 }
@@ -42,7 +42,7 @@
 .sidebar-nav h4[aria-current="true"],
 .sidebar-nav h5[aria-current="true"],
 .sidebar-nav h6[aria-current="true"] {
-  color: var(--state-selected-fg);
+  color: var(--color-link);
 }
 
 .sidebar-nav a {
@@ -50,14 +50,13 @@
   padding-block: var(--space-1);
   padding-inline: var(--space-2) var(--space-3);
   /* The marker is the link's own start edge, so it mirrors in right-to-left with no extra rule. */
-  border-inline-start: var(--space-1) solid transparent;
-  border-radius: var(--radius-sm);
+  border-inline-start: 2px solid transparent;
+  border-radius: 0;
   color: var(--color-muted);
   text-decoration: none;
 }
 
 .sidebar-nav a:hover {
-  background: var(--state-hover-bg);
   color: var(--color-text);
 }
 
@@ -66,19 +65,18 @@
 }
 
 .sidebar-nav a[aria-current="page"] {
-  border-inline-start-color: var(--color-accent);
-  background: var(--state-selected-bg);
-  color: var(--state-selected-fg);
+  border-inline-start-color: var(--color-link);
+  color: var(--color-link);
   font-weight: var(--type-weight-medium);
 }
 
 .sidebar-nav a[aria-current="true"] {
-  color: var(--state-selected-fg);
+  color: var(--color-link);
   font-weight: var(--type-weight-medium);
 }
 
 .sidebar-nav ul ul a {
-  padding-inline-start: calc(var(--space-6) - var(--space-1));
+  padding-inline-start: var(--space-6);
 }
 
 /* A nested group sits apart from its parent entry. */

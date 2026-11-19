@@ -114,7 +114,7 @@ const rtlStack = familyNames(token("rtl-font-body"));
 const monoStack = familyNames(token("type-font-mono"));
 
 test("every web font loads a real file and keeps its licence beside it", () => {
-  assert.ok(webFaces.length >= 8, "fonts.css should load Geist, Geist Mono, and Vazirmatn in their weights");
+  assert.ok(webFaces.length >= 8, "fonts.css should load Manrope, JetBrains Mono, and Vazirmatn in their weights");
 
   for (const face of webFaces) {
     const url = /url\("([^"]+)"\)/.exec(face.src);
@@ -133,26 +133,26 @@ test("every web face declares the code points it covers", () => {
 });
 
 test("the scripts do not claim each other's characters", () => {
-  // Geist serves Latin and leaves Persian to Vazirmatn; Vazirmatn leaves Latin letters to Geist.
-  assert.equal(faceFor("Geist", "A".codePointAt(0)!) !== undefined, true);
-  assert.equal(faceFor("Geist", "گ".codePointAt(0)!), undefined);
+  // Manrope serves Latin and leaves Persian to Vazirmatn; Vazirmatn leaves Latin letters to Manrope.
+  assert.equal(faceFor("Manrope", "A".codePointAt(0)!) !== undefined, true);
+  assert.equal(faceFor("Manrope", "گ".codePointAt(0)!), undefined);
   assert.equal(faceFor("Vazirmatn", "گ".codePointAt(0)!) !== undefined, true);
   assert.equal(faceFor("Vazirmatn", "z".codePointAt(0)!), undefined);
 });
 
-test("a Latin page reads entirely in Geist", () => {
-  assert.equal(bodyStack[0], "Geist");
-  assert.deepEqual(familiesOf("Deploy the site in 3 minutes.", bodyStack), ["Geist"]);
-  assert.deepEqual(familiesOf("Voilà — naïve café, 100%", bodyStack), ["Geist"]);
+test("a Latin page reads entirely in Manrope", () => {
+  assert.equal(bodyStack[0], "Manrope");
+  assert.deepEqual(familiesOf("Deploy the site in 3 minutes.", bodyStack), ["Manrope"]);
+  assert.deepEqual(familiesOf("Voilà — naïve café, 100%", bodyStack), ["Manrope"]);
 });
 
-test("a Persian page reads Persian in Vazirmatn, Latin words in Geist, and Persian digits in Vazirmatn", () => {
+test("a Persian page reads Persian in Vazirmatn, Latin words in Manrope, and Persian digits in Vazirmatn", () => {
   assert.equal(rtlStack[0], "Vazirmatn");
-  assert.ok(rtlStack.indexOf("Vazirmatn") < rtlStack.indexOf("Geist"), "Vazirmatn must come before Geist in the RTL stack");
+  assert.ok(rtlStack.indexOf("Vazirmatn") < rtlStack.indexOf("Manrope"), "Vazirmatn must come before Manrope in the RTL stack");
 
   assert.deepEqual(familiesOf("راهنمای نصب لیتن", rtlStack), ["Vazirmatn"]);
   assert.deepEqual(familiesOf("۱۲۳۴۵۶۷۸۹۰، ؛ ؟", rtlStack), ["Vazirmatn"]);
-  assert.deepEqual(familiesOf("Deploy", rtlStack), ["Geist"]);
+  assert.deepEqual(familiesOf("Deploy", rtlStack), ["Manrope"]);
 });
 
 test("a mixed sentence keeps each script in its own face", () => {
@@ -160,7 +160,7 @@ test("a mixed sentence keeps each script in its own face", () => {
   const served = serving(fixture, rtlStack);
 
   for (const char of ["ب", "ر", "ا", "ن", "د"]) assert.equal(served.get(char), "Vazirmatn", char);
-  for (const char of ["N", "o", "d", "e", "j", "s", "2", "4"]) assert.equal(served.get(char), "Geist", char);
+  for (const char of ["N", "o", "d", "e", "j", "s", "2", "4"]) assert.equal(served.get(char), "Manrope", char);
   // The Persian comma and question mark are punctuation of the script, not Latin fallbacks.
   assert.equal(served.get("،"), "Vazirmatn");
 });
@@ -190,9 +190,9 @@ test("a regional Persian or Arabic tag gets the same prose typography", () => {
 });
 
 test("a command or identifier keeps the monospace face on either language page", () => {
-  assert.equal(monoStack[0], "Geist Mono");
-  assert.deepEqual(familiesOf("npm install --save-dev @scope/pkg@1.2.3", monoStack), ["Geist Mono"]);
-  assert.deepEqual(familiesOf("git commit -m 'fix: #28'", monoStack), ["Geist Mono"]);
+  assert.equal(monoStack[0], "JetBrains Mono");
+  assert.deepEqual(familiesOf("npm install --save-dev @scope/pkg@1.2.3", monoStack), ["JetBrains Mono"]);
+  assert.deepEqual(familiesOf("git commit -m 'fix: #28'", monoStack), ["JetBrains Mono"]);
 
   // The right-to-left layer changes prose faces only; it never remaps code to a proportional face.
   assert.doesNotMatch(stripComments(rtlCss), /--type-font-mono\s*:/, "rtl.css remaps the code face");
@@ -201,7 +201,7 @@ test("a command or identifier keeps the monospace face on either language page",
 test("sample output and variables keep the monospace face on a right-to-left page", () => {
   // `samp` and `var` are machine text: their values keep the mono face and isolate in rtl.css.
   for (const value of ["beacon: ready", "retry_limit", "https://example.com/api?q=1", "1,024.50"]) {
-    assert.deepEqual(familiesOf(value, monoStack), ["Geist Mono"]);
+    assert.deepEqual(familiesOf(value, monoStack), ["JetBrains Mono"]);
   }
   const technical = blocks(rtlCss).find((block) => block.body.includes("font-family: var(--type-font-mono)"));
   assert.ok(technical, "rtl.css does not give technical inline content the mono face");
@@ -232,7 +232,7 @@ test("no locale rule changes the case or width class of text", () => {
 });
 
 test("each web family has a metric-matched local fallback", () => {
-  for (const family of ["Geist", "Geist Mono", "Vazirmatn"]) {
+  for (const family of ["Manrope", "JetBrains Mono", "Vazirmatn"]) {
     const fallback = faces.find((face) => face.family === `${family} Fallback`);
     assert.ok(fallback, `${family} has no fallback face`);
 

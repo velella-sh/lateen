@@ -128,7 +128,7 @@ test("breadcrumbs, the sidebar, and the on-this-page aside keep their landmarks"
   assert.match(page, /<div class="sidebar" id="site-navigation"><nav class="sidebar-nav"/);
   assert.match(page, /<nav class="breadcrumb" aria-label="Breadcrumbs">/);
   assert.match(page, /<div class="aside"><nav class="toc" aria-labelledby="toc-title">/);
-  assert.match(page, /<header class="header">/);
+  assert.match(page, /<header class="site-header"/);
 });
 
 test("the index renders its title, version, description, groups, and untagged operations", () => {

@@ -1,5 +1,5 @@
 // The right-to-left stylesheet is where a Persian or Arabic page gets its own type: Vazirmatn
-// before Geist, a roomier line height, no letter spacing, and code that stays left to right.
+// before Manrope, a roomier line height, no letter spacing, and code that stays left to right.
 // This test reads `styles/rtl.css` and `styles/tokens.css` and fails when a rule that makes that
 // contract work disappears, when a token is unknown or invented, when a raw value or a physical
 // property slips in, or when the file grows past its budget. It lives beside the other unit tests
@@ -135,11 +135,11 @@ test("the rtl tokens are a group the pipeline builds", () => {
   }
 });
 
-test("the RTL stack puts Vazirmatn before Geist and keeps a size-adjusted fallback", () => {
+test("the RTL stack puts Vazirmatn before Manrope and keeps a size-adjusted fallback", () => {
   const tokens = loadTokens();
   for (const name of ["rtl-font-body", "rtl-font-heading", "rtl-font-ui"]) {
     const value = tokens.get(name)?.light ?? "";
-    assert.match(value, /^Vazirmatn,\s*Geist,/, `${name} should start with Vazirmatn then Geist: ${value}`);
+    assert.match(value, /^Vazirmatn,\s*Manrope,/, `${name} should start with Vazirmatn then Manrope: ${value}`);
     assert.match(value, /"Vazirmatn Fallback"/, `${name} should keep the Vazirmatn fallback: ${value}`);
     assert.match(value, /system-ui/, `${name} should fall back to the system sans: ${value}`);
   }
@@ -359,7 +359,7 @@ test("the technical inline fixture keeps every run in its own direction", () => 
   assert.equal(direction(window, "#forced-rtl"), "rtl");
   const forcedRtl = document.querySelector("#forced-rtl");
   assert.ok(forcedRtl, "the fixture has no #forced-rtl");
-  assert.match(window.getComputedStyle(forcedRtl).fontFamily, /Geist Mono/, "authored dir keeps the mono face");
+  assert.match(window.getComputedStyle(forcedRtl).fontFamily, /JetBrains Mono/, "authored dir keeps the mono face");
 
   // Every explicit island is isolated, including a string of only neutral characters.
   for (const id of ["url", "number", "neutral-run", "ltr-run", "rtl-run", "forced-rtl"]) {
@@ -431,7 +431,7 @@ test("the report components read only tokens and keep every direction logical", 
 
 test("a site's own family leads the RTL stack and keeps the shipped fallbacks", () => {
   const css = brandCss({ sans: { family: "Example Sans", files: [{ src: "/x.woff2", weight: "400", style: "normal" }] } });
-  assert.match(css, /--rtl-font-body: "Example Sans", Vazirmatn, Geist, "Vazirmatn Fallback", "Geist Fallback", system-ui, sans-serif;/);
+  assert.match(css, /--rtl-font-body: "Example Sans", Vazirmatn, Manrope, "Vazirmatn Fallback", "Manrope Fallback", system-ui, sans-serif;/);
   assert.match(css, /--rtl-font-heading: "Example Sans", Vazirmatn,/);
   assert.deepEqual(physicalLines(css), [], "a brand declares tokens, never a physical edge");
 });
@@ -511,13 +511,13 @@ test("code blocks keep their direction under RTL and draw numbers from data-line
   assert.match(code, /\[data-line\]::before \{[^}]*content: attr\(data-line\)[^}]*user-select: none/);
 });
 
-// Right-to-left refinement (#476): Vazirmatn weights match Geist, shadows have no horizontal offset
+// Right-to-left refinement (#476): Vazirmatn weights match Manrope, shadows have no horizontal offset
 // that would need mirroring, and active markers are logical borders that mirror by themselves.
-test("Vazirmatn ships the same three weights as Geist, so a mixed line looks even", () => {
+test("Vazirmatn ships the same three weights as Manrope, so a mixed line looks even", () => {
   const fonts = read("../styles/fonts.css");
   const weights = (family: string): string[] => [...fonts.matchAll(new RegExp(`font-family: "${family}";[^}]*?font-weight: (\\d+)`, "g"))].map((m) => m[1] ?? "").sort();
   assert.deepEqual(weights("Vazirmatn"), ["400", "500", "700"]);
-  assert.deepEqual(weights("Geist"), ["400", "500", "700"]);
+  assert.deepEqual(weights("Manrope"), ["400", "500", "700"]);
 });
 
 test("no shadow token has a horizontal offset, so none needs mirroring in right-to-left", () => {
@@ -531,9 +531,9 @@ test("no shadow token has a horizontal offset, so none needs mirroring in right-
 test("active markers are logical borders, so they sit at the right edge in right-to-left", () => {
   const sidebar = stripComments(read("../chrome/sidebar/style.css"));
   const toc = stripComments(read("../chrome/toc/style.css"));
-  assert.match(sidebar, /border-inline-start: var\(--space-1\) solid transparent/);
-  assert.match(sidebar, /a\[aria-current="page"\] \{\s*border-inline-start-color: var\(--color-accent\)/);
-  assert.match(toc, /border-inline-start-color: var\(--color-accent\)/);
+  assert.match(sidebar, /border-inline-start: 2px solid transparent/);
+  assert.match(sidebar, /a\[aria-current="page"\] \{\s*border-inline-start-color: var\(--color-link\)/);
+  assert.match(toc, /border-inline-start-color: var\(--color-link\)/);
 });
 
 test("icons align to the text baseline and quotes use the script's own pair in Persian and Arabic", () => {
@@ -541,20 +541,21 @@ test("icons align to the text baseline and quotes use the script's own pair in P
   assert.match(css, /quotes: "\\00ab" "\\00bb"/);
 });
 
-test("the header hairline needs no script and has a solid fallback", () => {
+test("the sailcloth shell header uses sticky glass chrome without script in CSS", () => {
   const header = stripComments(read("../chrome/shell/style.css"));
-  assert.match(header, /\.header \{[^}]*background: var\(--color-canvas\)[^}]*border-block-end: thin solid var\(--border-subtle\)/s);
-  assert.match(header, /@supports \(animation-timeline: scroll\(\)\)/);
-  assert.match(header, /@supports \(backdrop-filter: blur\(1px\)\)/);
+  assert.match(header, /\.site-header \{[^}]*position: sticky/s);
+  assert.match(header, /\.site-header\.is-scrolled/);
+  assert.match(header, /backdrop-filter:/);
   assert.doesNotMatch(header, /addEventListener|IntersectionObserver/);
 });
 
-test("sidebar and pager states: active marker, collapsed group, and pager surface tokens", () => {
+test("sidebar and pager states: active marker, collapsed group, and pager hairline (no card fill)", () => {
   const sidebar = stripComments(read("../chrome/sidebar/style.css"));
   assert.match(sidebar, /details\[open\] > summary \{\s*color: var\(--color-heading\)/);
   const pager = stripComments(read("../chrome/pager/style.css"));
-  assert.match(pager, /\.pager-link \{[^}]*background: var\(--elevation-low-bg\)/s);
-  assert.match(pager, /\.pager-link:hover \{[^}]*background: var\(--elevation-mid-bg\)/s);
+  assert.match(pager, /\.pager-link \{[^}]*background: transparent/s);
+  assert.match(pager, /\.pager-link \{[^}]*border-block-start: thin solid var\(--color-border\)/s);
+  assert.match(pager, /\.pager-link:hover \.pager-title \{[^}]*color: var\(--color-link\)/s);
 });
 
 test("the showpiece units are right-to-left ready and their arrow mirrors (#491)", () => {

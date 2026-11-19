@@ -26,10 +26,10 @@ test("one custom sans family writes its faces and leads every body stack", () =>
   const css = brandCss(brandOf({ sans }), { base: "/site" });
   assert.match(css, /@font-face \{ font-family: "Example Sans"; font-style: normal; font-display: swap; font-weight: 400;/);
   assert.match(css, /url\("\/site\/fonts\/example-sans-400\.woff2"\)/);
-  assert.match(css, /--type-font-body: "Example Sans", Geist, "Geist Fallback", Vazirmatn, system-ui, sans-serif;/);
-  assert.match(css, /--type-font-heading: "Example Sans", Geist,/);
-  assert.match(css, /--type-font-ui: "Example Sans", Geist,/);
-  assert.match(css, /--rtl-font-body: "Example Sans", Vazirmatn, Geist,/);
+  assert.match(css, /--type-font-body: "Example Sans", Manrope, "Manrope Fallback", Vazirmatn, system-ui, sans-serif;/);
+  assert.match(css, /--type-font-heading: "Example Sans", Manrope,/);
+  assert.match(css, /--type-font-ui: "Example Sans", Manrope,/);
+  assert.match(css, /--rtl-font-body: "Example Sans", Vazirmatn, Manrope,/);
   assert.match(css, /--rtl-font-heading: "Example Sans", Vazirmatn,/);
   assert.match(css, /--rtl-font-ui: "Example Sans", Vazirmatn,/);
   assert.doesNotMatch(css, /--type-font-mono: "Example Sans"/);
@@ -37,8 +37,8 @@ test("one custom sans family writes its faces and leads every body stack", () =>
 
 test("a sans and a mono family each lead their own stack", () => {
   const css = brandCss(brandOf({ sans, mono }));
-  assert.match(css, /--type-font-body: "Example Sans", Geist,/);
-  assert.match(css, /--type-font-mono: "Example Mono", Geist Mono, "Geist Mono Fallback", ui-monospace, monospace;/);
+  assert.match(css, /--type-font-body: "Example Sans", Manrope,/);
+  assert.match(css, /--type-font-mono: "Example Mono", JetBrains Mono, "JetBrains Mono Fallback", ui-monospace, monospace;/);
   assert.equal(css.match(/@font-face/g)?.length, 3);
 });
 

@@ -115,7 +115,7 @@ test("the list layout keeps the landmarks of the doc layout", () => {
   const page = pageWith();
   assert.deepEqual(landmarks(render(page)), landmarks(renderDoc(page)));
   assert.match(render(page), /<nav class="breadcrumb"/);
-  assert.match(render(page), /<header class="header"/);
+  assert.match(render(page), /<header class="site-header"/);
 });
 
 test("the list page ends with the page footer under its actions", () => {

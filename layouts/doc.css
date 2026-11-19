@@ -1,4 +1,4 @@
-/* Doc layout: three columns from the guide mockup — navigation, article, on this page.
+/* Sailcloth doc layout — navigation, article, on this page; separation by grid gap and hairlines.
    The chrome units keep their own sticky offsets, scrolls, and width flips; this file only
    places the columns and moves the table-of-contents fold above the article when its column
    leaves. */
@@ -84,7 +84,7 @@
   gap: var(--space-3) var(--space-2);
   margin-block-start: var(--space-8);
   padding-block-start: var(--space-4);
-  border-block-start: thin solid var(--color-border);
+  border-block-start: thin solid var(--border-subtle);
   font-family: var(--type-font-ui);
   font-size: var(--type-size-sm);
   color: var(--color-muted);
@@ -121,9 +121,9 @@
 .page-tool {
   margin-block-start: var(--space-6);
   padding: var(--space-4);
-  background-color: var(--color-surface);
-  border: 1px solid var(--color-border);
-  border-radius: var(--radius-lg);
+  background-color: var(--color-surface-sunken);
+  border: 0;
+  border-radius: var(--radius-sm);
 }
 
 .page-tool-title {
@@ -141,5 +141,5 @@
 }
 
 .page-tool-link {
-  color: var(--color-accent);
+  color: var(--color-link);
 }

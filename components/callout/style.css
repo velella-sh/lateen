@@ -1,15 +1,16 @@
-/* Callouts: a tinted box with an accent edge at the reading start and an icon. Colors come from tokens, so dark mode follows. */
+/* Sailcloth callouts: quiet inset edge and kind-colored label only — no framed card. */
 
 .callout {
   display: flex;
   gap: var(--space-3);
   align-items: flex-start;
-  margin-block: var(--space-4);
-  padding-block: var(--space-3);
+  margin-block: var(--space-6);
+  padding-block: var(--space-4);
   padding-inline: var(--space-4);
-  border: thin solid var(--color-border);
-  border-inline-start-width: var(--space-1);
-  border-radius: var(--radius-md);
+  border: 0;
+  border-inline-start: 2px solid transparent;
+  border-radius: var(--radius-lg);
+  background: color-mix(in srgb, var(--color-surface) 72%, var(--color-surface-raised));
   color: var(--color-text);
   line-height: var(--type-leading-body);
 }
@@ -18,7 +19,6 @@
   flex: none;
   inline-size: 1.25em;
   block-size: 1.25em;
-  /* Centre the icon on the first line of text, whatever the line height. */
   margin-block-start: calc((1lh - 1.25em) / 2);
 }
 
@@ -28,8 +28,10 @@
 
 .callout-title {
   margin: 0 0 var(--space-1);
-  color: var(--color-heading);
+  font-size: var(--type-size-xs);
   font-weight: var(--type-weight-bold);
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
 }
 
 .callout-body > :first-child {
@@ -41,46 +43,46 @@
 }
 
 .callout-note {
-  border-inline-start-color: var(--color-info);
-  background-color: color-mix(in srgb, var(--color-info) 10%, var(--color-canvas));
+  border-inline-start-color: color-mix(in srgb, var(--color-muted) 45%, transparent);
 }
 
-.callout-note .callout-icon {
-  color: var(--color-info);
+.callout-note .callout-icon,
+.callout-note .callout-title {
+  color: var(--color-muted);
 }
 
 .callout-tip {
-  border-inline-start-color: var(--color-success);
-  background-color: color-mix(in srgb, var(--color-success) 10%, var(--color-canvas));
+  border-inline-start-color: color-mix(in srgb, var(--color-accent) 55%, transparent);
 }
 
-.callout-tip .callout-icon {
-  color: var(--color-success);
-}
-
-.callout-important {
-  border-inline-start-color: var(--color-accent);
-  background-color: color-mix(in srgb, var(--color-accent) 10%, var(--color-canvas));
-}
-
-.callout-important .callout-icon {
+.callout-tip .callout-icon,
+.callout-tip .callout-title {
   color: var(--color-accent);
 }
 
-.callout-warning {
-  border-inline-start-color: var(--color-warning);
-  background-color: color-mix(in srgb, var(--color-warning) 10%, var(--color-canvas));
+.callout-important {
+  border-inline-start-color: color-mix(in srgb, var(--color-link) 55%, transparent);
 }
 
-.callout-warning .callout-icon {
-  color: var(--color-warning);
+.callout-important .callout-icon,
+.callout-important .callout-title {
+  color: var(--color-link);
+}
+
+.callout-warning {
+  border-inline-start-color: color-mix(in srgb, var(--color-heading) 35%, transparent);
+}
+
+.callout-warning .callout-icon,
+.callout-warning .callout-title {
+  color: var(--color-heading);
 }
 
 .callout-caution {
-  border-inline-start-color: var(--color-danger);
-  background-color: color-mix(in srgb, var(--color-danger) 10%, var(--color-canvas));
+  border-inline-start-color: color-mix(in srgb, var(--color-heading) 35%, transparent);
 }
 
-.callout-caution .callout-icon {
-  color: var(--color-danger);
+.callout-caution .callout-icon,
+.callout-caution .callout-title {
+  color: var(--color-heading);
 }

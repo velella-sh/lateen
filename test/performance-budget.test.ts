@@ -108,20 +108,20 @@ function output(files: Record<string, string>, html: string): { dir: string; rou
 const styleLink = (href: string): string => `<link rel="stylesheet" href="${href}">`;
 
 test("a route measures the fonts its stylesheets declare, once per file and with their context", () => {
-  const geist = "assets/theme/fonts/geist-sans-400-normal.woff2";
-  const mono = "assets/theme/fonts/geist-mono-400-normal.woff2";
+  const geist = "assets/theme/fonts/manrope-400-normal.woff2";
+  const mono = "assets/theme/fonts/jetbrains-mono-400-normal.woff2";
   const { dir, route } = output(
     {
       // Two faces of one file, a `local()` fallback face with nothing to download, and a commented-out
       // face whose file the build never emitted: none of them may add a response.
       "assets/theme/base-aaaa.css": [
-        faceBlock("Geist", "400", `/${geist}`),
-        faceBlock("Geist", "700", `/${geist}`),
-        '@font-face { font-family: "Geist Fallback"; src: local("Arial"); }',
+        faceBlock("Manrope", "400", `/${geist}`),
+        faceBlock("Manrope", "700", `/${geist}`),
+        '@font-face { font-family: "Manrope Fallback"; src: local("Arial"); }',
         `/* ${faceBlock("Retired", "400", "/assets/theme/fonts/retired.woff2")} */`,
       ].join("\n"),
-      // The page bundle repeats the Geist file and adds its own.
-      "assets/theme/page-bbbb.css": [faceBlock("Geist", "400", `/${geist}`), faceBlock("Geist Mono", "400", `/${mono}`)].join("\n"),
+      // The page bundle repeats the Manrope file and adds its own.
+      "assets/theme/page-bbbb.css": [faceBlock("Manrope", "400", `/${geist}`), faceBlock("JetBrains Mono", "400", `/${mono}`)].join("\n"),
       [geist]: "geist-bytes",
       [mono]: "mono-bytes-longer",
     },
@@ -151,7 +151,7 @@ test("a route measures the fonts its stylesheets declare, once per file and with
     assert.equal(first.path, geist);
     assert.equal(first.url, `/${geist}`);
     assert.equal(first.stylesheet, "assets/theme/base-aaaa.css");
-    assert.equal(first.family, "Geist");
+    assert.equal(first.family, "Manrope");
     assert.equal(first.weight, "400");
     assert.equal(first.style, "normal");
     assert.equal(first.display, "optional");
@@ -169,8 +169,8 @@ test("a route measures the fonts its stylesheets declare, once per file and with
 test("font and stylesheet URLs resolve through the site's base path", () => {
   const { dir, route } = output(
     {
-      "assets/theme/base-aaaa.css": faceBlock("Geist", "400", "/docs/assets/theme/fonts/geist.woff2"),
-      "assets/theme/fonts/geist.woff2": "geist-bytes",
+      "assets/theme/base-aaaa.css": faceBlock("Manrope", "400", "/docs/assets/theme/fonts/manrope.woff2"),
+      "assets/theme/fonts/manrope.woff2": "geist-bytes",
     },
     `${styleLink("/docs/assets/theme/base-aaaa.css")}<body></body>`,
   );
@@ -178,7 +178,7 @@ test("font and stylesheet URLs resolve through the site's base path", () => {
     const result = inventory(dir, [route])["/"];
     assert.ok(result);
     assert.equal(result["css/base"].count, 1, "the base path is not part of the output layout");
-    assert.deepEqual(result[FONT_CLASS].assets?.map((asset) => asset.path), ["assets/theme/fonts/geist.woff2"]);
+    assert.deepEqual(result[FONT_CLASS].assets?.map((asset) => asset.path), ["assets/theme/fonts/manrope.woff2"]);
     assert.equal(result[FONT_CLASS].gzip, gzip("geist-bytes"));
   } finally {
     rmSync(dir, { recursive: true, force: true });
@@ -197,8 +197,8 @@ test("a relative or escaped font URL names the file it points at", () => {
   const { dir, route } = output(
     {
       "assets/theme/base-aaaa.css": [
-        faceBlock("Geist", "400", "/assets/theme/fonts/a%20b.woff2"),
-        faceBlock("Geist", "700", "/assets/theme/fonts/c\\20 d.woff2"),
+        faceBlock("Manrope", "400", "/assets/theme/fonts/a%20b.woff2"),
+        faceBlock("Manrope", "700", "/assets/theme/fonts/c\\20 d.woff2"),
       ].join("\n"),
       "assets/theme/fonts/a b.woff2": "spaced",
       "assets/theme/fonts/c d.woff2": "escaped",
@@ -218,25 +218,25 @@ test("a missing, external, or malformed font fails by name instead of reading sm
   const cases: { readonly name: string; readonly css: string; readonly files?: Record<string, string>; readonly pattern: RegExp }[] = [
     {
       name: "a face whose file the build did not emit",
-      css: faceBlock("Geist", "400", "/assets/theme/fonts/gone.woff2"),
+      css: faceBlock("Manrope", "400", "/assets/theme/fonts/gone.woff2"),
       pattern: /assets\/theme\/base-aaaa\.css.*gone\.woff2.*not a file in the built output/s,
     },
-    { name: "a CDN face", css: faceBlock("Geist", "400", "https://cdn.example/fonts/geist.woff2"), pattern: /external assets are outside this budget/ },
-    { name: "a broken percent escape", css: faceBlock("Geist", "400", "/assets/theme/fonts/bad%zz.woff2"), pattern: /malformed URL escape/ },
+    { name: "a CDN face", css: faceBlock("Manrope", "400", "https://cdn.example/fonts/manrope.woff2"), pattern: /external assets are outside this budget/ },
+    { name: "a broken percent escape", css: faceBlock("Manrope", "400", "/assets/theme/fonts/bad%zz.woff2"), pattern: /malformed URL escape/ },
     {
       name: "a block without its closing brace",
-      css: '@font-face { font-family: "Geist"; src: url("/assets/theme/fonts/geist.woff2") format("woff2")',
-      files: { "assets/theme/fonts/geist.woff2": "geist-bytes" },
+      css: '@font-face { font-family: "Manrope"; src: url("/assets/theme/fonts/manrope.woff2") format("woff2")',
+      files: { "assets/theme/fonts/manrope.woff2": "geist-bytes" },
       pattern: /no closing brace/,
     },
     {
       name: "a url() without its closing paren",
-      css: '@font-face { font-family: "Geist"; src: url("/assets/theme/fonts/geist.woff2" format("woff2"); }',
-      files: { "assets/theme/fonts/geist.woff2": "geist-bytes" },
+      css: '@font-face { font-family: "Manrope"; src: url("/assets/theme/fonts/manrope.woff2" format("woff2"); }',
+      files: { "assets/theme/fonts/manrope.woff2": "geist-bytes" },
       pattern: /malformed @font-face src/,
     },
-    { name: "a face with an empty url()", css: '@font-face { font-family: "Geist"; src: url("") format("woff2"); }', pattern: /no usable url/ },
-    { name: "a stylesheet with no src at all", css: '@font-face { font-family: "Geist"; }', pattern: /no src/ },
+    { name: "a face with an empty url()", css: '@font-face { font-family: "Manrope"; src: url("") format("woff2"); }', pattern: /no usable url/ },
+    { name: "a stylesheet with no src at all", css: '@font-face { font-family: "Manrope"; }', pattern: /no src/ },
   ];
   for (const item of cases) {
     const { dir, route } = output(
@@ -317,7 +317,7 @@ const fontAsset = (path: string, value: { raw?: number; gzip?: number } = {}): F
   path,
   url: `/${path}`,
   stylesheet: "assets/theme/base-aaaa.css",
-  family: "Geist",
+  family: "Manrope",
   weight: "400",
   style: "normal",
   display: "optional",
@@ -339,18 +339,18 @@ function fontMeasurement(assets: readonly FontAsset[]): Measurements {
 }
 
 test("a new or enlarged font fails the route and class it belongs to", () => {
-  const baseline = fontMeasurement([fontAsset("assets/theme/fonts/geist.woff2"), fontAsset("assets/theme/fonts/mono.woff2")]);
+  const baseline = fontMeasurement([fontAsset("assets/theme/fonts/manrope.woff2"), fontAsset("assets/theme/fonts/mono.woff2")]);
   assert.deepEqual(compare(baseline, budgetOf(baseline)), []);
 
   // A bigger file: both the class total and the named file are over the baseline.
   const grown = fontMeasurement([
-    fontAsset("assets/theme/fonts/geist.woff2", { raw: 2000, gzip: 1900 }),
+    fontAsset("assets/theme/fonts/manrope.woff2", { raw: 2000, gzip: 1900 }),
     fontAsset("assets/theme/fonts/mono.woff2"),
   ]);
   const grownFailures = compare(grown, budgetOf(baseline));
   assert.ok(
     grownFailures.some(
-      (failure) => failure.includes("route /") && failure.includes(FONT_CLASS) && failure.includes("geist.woff2") && failure.includes("limit"),
+      (failure) => failure.includes("route /") && failure.includes(FONT_CLASS) && failure.includes("manrope.woff2") && failure.includes("limit"),
     ),
     grownFailures.join("\n"),
   );
@@ -371,25 +371,25 @@ test("a new or enlarged font fails the route and class it belongs to", () => {
 });
 
 test("a font swap that keeps the totals level and a stale baseline are both failures", () => {
-  const baseline = fontMeasurement([fontAsset("assets/theme/fonts/geist.woff2", { gzip: 900 })]);
+  const baseline = fontMeasurement([fontAsset("assets/theme/fonts/manrope.woff2", { gzip: 900 })]);
   const swapped = fontMeasurement([fontAsset("assets/theme/fonts/large.woff2", { gzip: 900 })]);
   const failures = compare(swapped, budgetOf(baseline));
   assert.equal(failures.filter((failure) => failure.includes(FONT_CLASS)).length, 2, failures.join("\n"));
   assert.ok(failures.some((failure) => failure.includes("large.woff2") && failure.includes("not in the budget")), failures.join("\n"));
-  assert.ok(failures.some((failure) => failure.includes("geist.woff2") && failure.includes("no longer loads")), failures.join("\n"));
+  assert.ok(failures.some((failure) => failure.includes("manrope.woff2") && failure.includes("no longer loads")), failures.join("\n"));
 });
 
 test("per-file font checks use the same gzip tolerance as the classes", () => {
-  const baseline = [fontAsset("assets/theme/fonts/geist.woff2", { gzip: 1000 })];
-  const atLimit = compareFonts("/", [fontAsset("assets/theme/fonts/geist.woff2", { gzip: 1000 + TOLERANCE_BYTES })], baseline);
+  const baseline = [fontAsset("assets/theme/fonts/manrope.woff2", { gzip: 1000 })];
+  const atLimit = compareFonts("/", [fontAsset("assets/theme/fonts/manrope.woff2", { gzip: 1000 + TOLERANCE_BYTES })], baseline);
   assert.deepEqual(atLimit, []);
-  const over = compareFonts("/", [fontAsset("assets/theme/fonts/geist.woff2", { gzip: 1000 + TOLERANCE_BYTES + 1 })], baseline);
+  const over = compareFonts("/", [fontAsset("assets/theme/fonts/manrope.woff2", { gzip: 1000 + TOLERANCE_BYTES + 1 })], baseline);
   assert.equal(over.length, 1);
-  assert.ok(over[0]?.includes(FONT_CLASS) && over[0]?.includes("geist.woff2"), over.join("\n"));
+  assert.ok(over[0]?.includes(FONT_CLASS) && over[0]?.includes("manrope.woff2"), over.join("\n"));
 });
 
 test("a budget without the font detail is still checked on its totals", () => {
-  const measured = fontMeasurement([fontAsset("assets/theme/fonts/geist.woff2")]);
+  const measured = fontMeasurement([fontAsset("assets/theme/fonts/manrope.woff2")]);
   const legacy = budgetOf(measured);
   legacy.routes["/"]![FONT_CLASS] = { raw: 0, gzip: 0, count: 0 };
   const failures = compare(measured, legacy);
@@ -483,12 +483,12 @@ test("the committed budget covers every fixture route and asset class", () => {
       assert.ok(asset.raw > 0 && asset.gzip > 0, `${route} lists an empty font ${asset.path}`);
     }
     const families = new Set(assets.map((asset) => asset.family));
-    assert.ok(families.has("Geist") && families.has("Geist Mono"), `${route} should ship the Latin faces it styles with`);
+    assert.ok(families.has("Manrope") && families.has("JetBrains Mono"), `${route} should ship the Latin faces it styles with`);
   }
 });
 
 test("an unknown asset path is not silently counted in a class", () => {
   assert.equal(classOf("assets/theme/islands/src/color.js"), "js/components", "a shared island module ships with the component bundle");
   assert.throws(() => classOf("assets/theme/other-aaaa.css"), /not a base or page CSS bundle/);
-  assert.throws(() => classOf("assets/theme/fonts/geist/geist.woff2"), /measured from the stylesheet/);
+  assert.throws(() => classOf("assets/theme/fonts/manrope/manrope.woff2"), /measured from the stylesheet/);
 });

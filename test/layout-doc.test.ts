@@ -159,10 +159,10 @@ test("the sidebar renders in the site-navigation column and the toc in its own n
   assert.match(page, /<details class="toc-fold"><summary>On this page<\/summary>/);
 });
 
-test("the header and the drawer share the header slot", () => {
+test("the sailcloth shell and the drawer share the header slot", () => {
   const nav = [{ title: "Guides", children: [{ title: "Install", url: "/guide/install/" }] }];
   const page = out(pageWith(), nav);
-  assert.match(page, /<header class="header">/);
+  assert.match(page, /<header class="site-header" data-site-header>/);
   const drawer = /<dialog class="drawer" data-drawer aria-label="Menu">([\s\S]*?)<\/dialog>/.exec(page);
   assert.ok(drawer, "drawer dialog present");
   assert.match(drawer?.[1] ?? "", /data-drawer-close/);

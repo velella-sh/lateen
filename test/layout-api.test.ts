@@ -167,7 +167,7 @@ test("the sidebar column, breadcrumb trail, and on-this-page navigation keep the
   assert.match(page, /<nav class="breadcrumb" aria-label="Breadcrumbs"><ol class="breadcrumb-list"><li class="breadcrumb-item"><a href="\/reference\/"><bdi class="breadcrumb-title">Reference<\/bdi><\/a><\/li>/);
   assert.match(page, /<span aria-current="page"><bdi class="breadcrumb-title">Charges<\/bdi><\/span><\/li><\/ol><\/nav><h1>Charges<\/h1>/);
   assert.match(page, /<div class="aside"><nav class="toc" aria-labelledby="toc-title">/);
-  assert.match(page, /<header class="header">/);
+  assert.match(page, /<header class="site-header"/);
 });
 
 test("titles, example titles, and code are escaped into the markup", () => {

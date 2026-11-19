@@ -1,15 +1,15 @@
 /* Terminal blocks: a shell session with prompts and output. Only the commands are copied, and prompts are never selected. Colors come from the code tokens, so dark mode follows. */
 
 .terminal {
-  margin-block: var(--space-4);
+  margin-block: var(--space-6);
   max-inline-size: 100%;
-  border: 1px solid var(--code-border);
-  border-radius: var(--radius-md);
+  border: thin solid var(--code-border);
+  border-radius: var(--radius-lg);
   background-color: var(--code-bg);
   color: var(--code-fg);
   font-family: var(--type-font-mono);
   font-size: var(--type-size-sm);
-  line-height: var(--type-leading-body);
+  line-height: var(--type-leading-code);
   direction: ltr;
   unicode-bidi: isolate;
   text-align: start;

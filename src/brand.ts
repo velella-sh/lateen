@@ -498,9 +498,9 @@ export function problemComment(problem: BrandProblem): string {
 }
 
 const CSS_FONT_STACK = {
-  body: 'Geist, "Geist Fallback", Vazirmatn, system-ui, sans-serif',
-  rtl: 'Vazirmatn, Geist, "Vazirmatn Fallback", "Geist Fallback", system-ui, sans-serif',
-  mono: 'Geist Mono, "Geist Mono Fallback", ui-monospace, monospace',
+  body: 'Manrope, "Manrope Fallback", Vazirmatn, system-ui, sans-serif',
+  rtl: 'Vazirmatn, Manrope, "Vazirmatn Fallback", "Manrope Fallback", system-ui, sans-serif',
+  mono: 'JetBrains Mono, "JetBrains Mono Fallback", ui-monospace, monospace',
 } as const;
 
 const quote = (value: string): string => `"${value.replace(/["\\]/g, "\\$&").replace(/[\n\r\f]/g, " ")}"`;

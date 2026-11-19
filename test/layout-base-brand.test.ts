@@ -123,7 +123,7 @@ test("custom fonts are requested through the site base", () => {
   );
   assert.match(html, /@font-face \{ font-family: "Example Sans";/);
   assert.match(html, /url\("\/lateen\/fonts\/example-sans-400\.woff2"\)/);
-  assert.match(html, /--type-font-body: "Example Sans", Geist,/);
+  assert.match(html, /--type-font-body: "Example Sans", Manrope,/);
 });
 
 const sans = { family: "Example Sans", files: [{ src: "/fonts/sans.woff2", weight: 400 }] };
@@ -132,15 +132,15 @@ const mono = { family: "Example Mono", files: [{ src: "/fonts/mono.woff2", weigh
 test("a replaced sans or mono family asks the engine to leave its preload out, independently", () => {
   const onlySans = skipping();
   render(configWith({ theme: { options: { brand: { fonts: { sans } } } } }), onlySans.hints);
-  assert.deepEqual(onlySans.families, ["Geist"]);
+  assert.deepEqual(onlySans.families, ["Manrope"]);
 
   const onlyMono = skipping();
   render(configWith({ theme: { options: { brand: { fonts: { mono } } } } }), onlyMono.hints);
-  assert.deepEqual(onlyMono.families, ["Geist Mono"]);
+  assert.deepEqual(onlyMono.families, ["JetBrains Mono"]);
 
   const both = skipping();
   render(configWith({ theme: { options: { brand: { fonts: { sans, mono } } } } }), both.hints);
-  assert.deepEqual(both.families, ["Geist", "Geist Mono"]);
+  assert.deepEqual(both.families, ["Manrope", "JetBrains Mono"]);
 });
 
 test("a site without custom fonts asks for no preload change", () => {
