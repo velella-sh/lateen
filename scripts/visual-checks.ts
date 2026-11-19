@@ -123,7 +123,14 @@ export function inPageChecks(minTarget: number): Finding[] {
     if (!visible(el) || el.disabled) continue;
     const r = el.getBoundingClientRect();
     if (r.width <= 1 && r.height <= 1) continue; // visually hidden control (e.g. a skip link at rest)
-    if (el.localName === "a" && style(el).display === "inline" && el.closest("p, li, dd, dt, blockquote, figcaption, td, th, h1, h2, h3, h4, h5, h6")) continue;
+    // A stacked table blockifies its cells' links, but a link that is a cell's text is still an inline
+    // target: its size is set by the line-height of the text around it (WCAG 2.5.8, inline exception).
+    const cell = el.parentElement !== null && (el.parentElement.localName === "td" || el.parentElement.localName === "th");
+    if (
+      el.localName === "a" &&
+      (style(el).display === "inline" || cell) &&
+      el.closest("p, li, dd, dt, blockquote, figcaption, td, th, h1, h2, h3, h4, h5, h6")
+    ) continue;
     if (r.width < minTarget - 0.5 || r.height < minTarget - 0.5) {
       found.push({ check: "small-target", selector: selectorOf(el), detail: `${px(r.width)} by ${px(r.height)}, under ${minTarget} by ${minTarget}` });
     }
