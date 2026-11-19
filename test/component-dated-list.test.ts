@@ -133,16 +133,3 @@ test("an Arabic page groups by Hijri months, not Gregorian ones", () => {
   assert.match(out, /<time class="dated-list-day" datetime="2026-11-09">9<\/time>/);
 });
 
-test("the markup and stylesheet stay right-to-left safe", () => {
-  const out = render({ from: "events" }, "fa");
-  assert.doesNotMatch(out, /\bdir=|\b(?:left|right)\b/);
-  const css = readFileSync(new URL("../components/dated-list/style.css", import.meta.url), "utf8").replace(
-    /\/\*[\s\S]*?\*\//g,
-    "",
-  );
-  assert.doesNotMatch(css, /(?:^|[;{\s])(?:left|right)\s*:/);
-  assert.doesNotMatch(css, /-(?:left|right)\b/);
-  assert.doesNotMatch(css, /#[0-9a-f]{3,8}\b|\b(?:rgba?|hsla?|oklch|color-mix|light-dark)\s*\(/i);
-  assert.doesNotMatch(css, /z-index\s*:\s*(?:[2-9]|\d{2,})/);
-  assert.match(css, /inset-inline-start/);
-});

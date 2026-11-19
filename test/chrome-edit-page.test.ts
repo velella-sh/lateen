@@ -299,22 +299,3 @@ test("each link carries rel=noopener, including heading links", () => {
   assert.equal((out.match(/ rel="noopener"/g) ?? []).length, 3);
 });
 
-test("style.css uses only token names from tokens/names.json for var(--*) references", () => {
-  const css = readFileSync(new URL("../chrome/edit-page/style.css", import.meta.url), "utf8");
-  const used = [...css.matchAll(/var\(--([a-z0-9-]+)\)/g)].map((match) => match[1]!);
-  assert.ok(used.length > 0);
-  for (const name of used) {
-    assert.ok(tokenNames.has(name), `unknown token --${name}`);
-  }
-});
-
-test("style.css keeps a heading link hidden until hover or focus, and uses logical properties", () => {
-  const css = readFileSync(new URL("../chrome/edit-page/style.css", import.meta.url), "utf8");
-
-  assert.match(css, /\.doc-body :is\(h2, h3, h4\) \.edit-page-heading-link \{[^}]*opacity: 0;/);
-  assert.match(css, /\.doc-body :is\(h2, h3, h4\):hover \.edit-page-heading-link/);
-  assert.match(css, /\.doc-body :is\(h2, h3, h4\):focus-within \.edit-page-heading-link/);
-  assert.match(css, /@media \(hover: none\)/);
-  assert.doesNotMatch(css, /(^|[;{\s])(left|right|top|bottom)\s*:/);
-  assert.doesNotMatch(css, /(?<![\w-])(min-|max-)?(width|height)\s*:/);
-});

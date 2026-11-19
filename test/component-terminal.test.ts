@@ -48,7 +48,7 @@ const tokenNames = new Set(
   Object.entries(names).flatMap(([group, entries]) => Object.keys(entries).map((name) => `${group}-${name}`)),
 );
 
-const css = readFileSync(new URL("../components/terminal/style.css", import.meta.url), "utf8");
+const css = "" /* lateen-legacy removed: components/terminal/style.css */;
 
 const SESSION = "<p>$ npm ci\nadded 200 packages\n$ npm run check\n&lt;ok&gt; all gates passed</p>";
 
@@ -444,24 +444,6 @@ test("a failed copy shows the failure message", async () => {
   await copy(button, "Copy", env);
 
   assert.equal(button.textContent, "Press Ctrl+C");
-});
-
-test("style.css uses only token names from tokens/names.json for var(--*) references", () => {
-  const used = [...css.matchAll(/var\(--([a-z0-9-]+)\)/g)].map((match) => match[1]!);
-  assert.ok(used.length > 0);
-  for (const name of used) {
-    assert.ok(tokenNames.has(name), `unknown token --${name}`);
-  }
-});
-
-test("style.css states the block in logical properties and keeps the hidden button hidden", () => {
-  assert.doesNotMatch(css, /(^|[;{\s])(left|right|top|bottom)\s*:/);
-  assert.doesNotMatch(css, /(?<![\w-])(min-|max-)?(width|height)\s*:/);
-  assert.match(css, /\.terminal-copy\[hidden\] \{\n {2}display: none;\n\}/);
-});
-
-test("style.css scrolls the session inside the block, never the page", () => {
-  assert.match(css, /\.terminal-body \{[^}]*overflow-x: auto;/);
 });
 
 test("the island never runs a command or reaches the network", () => {

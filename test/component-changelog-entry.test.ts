@@ -380,35 +380,3 @@ test("a Persian page shows the Jalali date and Persian category labels", () => {
   assert.match(out, />افزوده‌شده<\/span>/);
 });
 
-test("style.css uses only token custom properties from names.json", () => {
-  const names = JSON.parse(readFileSync(new URL("../tokens/names.json", import.meta.url), "utf8")) as Record<
-    string,
-    Record<string, unknown>
-  >;
-  const allowed = new Set<string>();
-  for (const [group, entries] of Object.entries(names)) {
-    for (const key of Object.keys(entries)) allowed.add(`--${group}-${key}`);
-  }
-
-  const css = readFileSync(new URL("../styles/parts-changelog-entry.css", import.meta.url), "utf8");
-  const used = [...css.matchAll(/var\((--[a-z0-9-]+)/g)].map((match) => match[1]!);
-  assert.ok(used.length > 0, "expected token var() references");
-  const unknown = [...new Set(used)].filter((name) => !allowed.has(name));
-  assert.deepEqual(unknown, []);
-});
-
-test("style.css uses logical properties only, so right-to-left pages work", () => {
-  const css = readFileSync(new URL("../styles/parts-changelog-entry.css", import.meta.url), "utf8");
-  assert.doesNotMatch(css, /\b(margin|padding|border|border-radius)-(left|right|top|bottom)\b/);
-  assert.doesNotMatch(css, /\b(left|right|top|bottom)\s*:/);
-  assert.match(css, /:dir\(rtl\)/);
-});
-
-test("style.css pairs every category color with the label, never color alone", () => {
-  const css = readFileSync(new URL("../styles/parts-changelog-entry.css", import.meta.url), "utf8");
-  for (const category of ["added", "changed", "fixed", "removed", "security"]) {
-    assert.match(css, new RegExp(`\\.changelog-entry-category-${category}\\s*\\{[^}]*color:\\s*var\\(--color-`), category);
-  }
-  assert.doesNotMatch(css, /\.changelog-entry-category-label\s*\{[^}]*display:\s*none/s);
-  assert.match(css, /\.changelog-entry-anchor:focus-visible\s*\{[^}]*outline:\s*2px solid var\(--state-focus-ring\)/s);
-});

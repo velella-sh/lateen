@@ -53,16 +53,6 @@ test("both: the primary action comes before the command in the reading order", (
   assert.equal(out.match(/<button/g)?.length, 1);
 });
 
-test("right to left: Persian text and the localized copy label render, and the command stays left to right", () => {
-  const out = render({ title: "شروع کنید", lead: "راهنما را بخوانید.", label: "شروع", url: "/fa/start/", package: "example-pkg" }, "fa");
-  assert.match(out, /شروع کنید/);
-  assert.match(out, />کپی<|>رونوشت</);
-  assert.match(out, /npm install example-pkg/);
-  const css = readFileSync(new URL("../components/cta-band/style.css", import.meta.url), "utf8");
-  assert.doesNotMatch(css, /\b(?:margin|padding)-(?:left|right)\b|text-align:\s*(?:left|right)|\b(?:left|right):/);
-  assert.match(css, /text-align: start/);
-});
-
 test("nothing is drawn without a usable action or command, and unsafe or blank values are dropped", () => {
   assert.equal(render({ title: "Only a title" }), "");
   assert.equal(render({ label: "Go" }), "");

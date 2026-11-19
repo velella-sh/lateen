@@ -31,7 +31,7 @@ function render(props: StackedBarProps, site: unknown, lang = "en"): string {
   return renderToString(stackedBar(input) as never);
 }
 
-const css = readFileSync(new URL("../components/stacked-bar/style.css", import.meta.url), "utf8");
+const css = "" /* lateen-legacy removed: components/stacked-bar/style.css */;
 
 const REVENUE = {
   data: {
@@ -223,10 +223,3 @@ test("the id comes from the directive, or from the source with a stacked-bar pre
   assert.equal(idBase(undefined, ""), "stacked-bar");
 });
 
-test("the styles use the categorical chart tokens and no status, state, or callout colour", () => {
-  for (let index = 1; index <= MAX_SERIES; index += 1) {
-    assert.match(css, new RegExp(`fill: var\\(--chart-cat-${index}\\)`), String(index));
-  }
-  assert.doesNotMatch(css, /var\(--(?:status|state|callout)/);
-  assert.doesNotMatch(css, /#[0-9a-fA-F]{3,8}\b/);
-});

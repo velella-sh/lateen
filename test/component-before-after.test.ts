@@ -62,13 +62,6 @@ test("copy buttons stay hidden without a clipboard and copy with one", async () 
   assert.equal(button.textContent, "Copy");
 });
 
-test("layout: side by side on wide screens, stacked on narrow ones, logical properties only", () => {
-  const css = readFileSync(new URL("../components/before-after/style.css", import.meta.url), "utf8");
-  assert.match(css, /grid-template-columns:\s*repeat\(auto-fit,\s*minmax\(min\(100%,/);
-  assert.match(css, /line-through/);
-  assert.doesNotMatch(css, /\b(margin|padding|border|inset)-(left|right)\b/);
-});
-
 test("without two code blocks the body is kept as written", () => {
   assert.match(render({}, "en", "<p>No code</p>"), /<p>No code<\/p>/);
 });

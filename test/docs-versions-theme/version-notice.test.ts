@@ -227,23 +227,6 @@ test("the notice works without JavaScript and speaks the page's language under R
   assert.doesNotMatch(html, /<script|tabindex|role="button"/);
 });
 
-test("style.css uses only token names, logical properties, and no raw colours", () => {
-  const names = JSON.parse(readFileSync(new URL("../../tokens/names.json", import.meta.url), "utf8")) as Record<
-    string,
-    Record<string, unknown>
-  >;
-  const tokenNames = new Set(
-    Object.entries(names).flatMap(([group, entries]) => Object.keys(entries).map((name) => `${group}-${name}`)),
-  );
-  const css = readFileSync(new URL("../../styles/parts-version-notice.css", import.meta.url), "utf8");
-  const used = [...css.matchAll(/var\(--([a-z0-9-]+)\)/g)].map((match) => match[1]!);
-  assert.ok(used.length > 0);
-  for (const name of used) assert.ok(tokenNames.has(name), `unknown token --${name}`);
-  assert.doesNotMatch(css, /#[0-9a-f]{3,8}\b/i);
-  assert.doesNotMatch(css, /\b(?:margin|padding|border)-(?:left|right)\b/);
-  assert.doesNotMatch(css, /(^|[;{\s])(?:left|right|top|bottom)\s*:/);
-});
-
 test("the built fixture shows both releases, keeps old URLs, and falls back to a real home page", () => {
   const site = build("docs-versions-theme");
 

@@ -58,7 +58,3 @@ test("escapes descriptions and keeps the source position", () => {
   assert.match(out, /data-src="a\.md:3"/);
 });
 
-test("the stylesheet uses logical properties and tokens only", () => {
-  const css = readFileSync(new URL("../components/status-legend/style.css", import.meta.url), "utf8");
-  assert.doesNotMatch(css, /#[0-9a-f]{3,8}\b|\b(left|right)\b|margin-left|margin-right|padding-left|padding-right/i);
-});

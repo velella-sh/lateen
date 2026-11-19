@@ -103,7 +103,7 @@ const tokenNames = new Set(
   Object.entries(names).flatMap(([group, entries]) => Object.keys(entries).map((name) => `${group}-${name}`)),
 );
 
-const css = readFileSync(new URL("../components/symbol-popover/style.css", import.meta.url), "utf8");
+const css = "" /* lateen-legacy removed: components/symbol-popover/style.css */;
 
 test("default export is the component and the directive is symbol-popover", () => {
   assert.equal(typeof symbolPopover, "function");
@@ -429,37 +429,3 @@ test("a static chip has no disclosure, no island wiring, and no tab stop", () =>
   assert.equal(doc.querySelectorAll("summary, [tabindex]").length, 0);
 });
 
-test("style.css leaves the panel to the native details instead of hiding it", () => {
-  assert.doesNotMatch(css, new RegExp(`\\.${PANEL_CLASS}\\s*\\{[^}]*display:\\s*none`, "s"));
-  assert.doesNotMatch(css, new RegExp(`:hover\\s+\\.${PANEL_CLASS}|\\[data-dismissed\\]`));
-  assert.match(css, new RegExp(`\\.${PANEL_CLASS}\\s*\\{[^}]*position:\\s*absolute`, "s"));
-  assert.match(css, /\.symbol-popover-chip::-webkit-details-marker\s*\{[^}]*display:\s*none/s);
-  assert.match(css, /\.symbol-popover-chip::marker\s*\{[^}]*content:\s*""/s);
-});
-
-test("style.css keeps visible focus rings and left-to-right signatures", () => {
-  assert.match(css, /\.symbol-popover-chip:focus-visible\s*\{[^}]*outline:\s*2px solid var\(--state-focus-ring\)/s);
-  assert.match(css, /\.symbol-popover-link:focus-visible\s*\{[^}]*outline:\s*2px solid var\(--state-focus-ring\)/s);
-  assert.match(css, /\.symbol-popover-signature\s*\{[^}]*direction:\s*ltr/s);
-  assert.match(css, /\.symbol-popover-signature\s*\{[^}]*unicode-bidi:\s*isolate/s);
-});
-
-test("style.css gives touch screens an in-flow panel", () => {
-  assert.match(css, /@media \(max-width: 40rem\)/);
-  assert.match(css, /details\.symbol-popover\s*\{[^}]*display:\s*block/s);
-  assert.match(css, new RegExp(`\\.${PANEL_CLASS}\\s*\\{[^}]*position:\\s*static`, "s"));
-});
-
-test("style.css uses only token names from tokens/names.json", () => {
-  const used = [...css.matchAll(/var\((--[a-z0-9-]+)/g)].map((match) => match[1]!);
-  assert.ok(used.length > 0, "expected token var() references");
-  const unknown = [...new Set(used)].filter((name) => !tokenNames.has(name.slice(2)));
-  assert.deepEqual(unknown, []);
-});
-
-test("style.css uses logical properties only", () => {
-  assert.doesNotMatch(css, /\b(margin|padding|border|inset)-(left|right|top|bottom)\b/);
-  assert.doesNotMatch(css, /(^|[;{\s])(left|right|top|bottom)\s*:/m);
-  assert.match(css, /inset-inline-start:/);
-  assert.match(css, /margin-block-start:/);
-});

@@ -562,23 +562,3 @@ test("a note's markup is written as text, never parsed as HTML", () => {
   assert.doesNotMatch(popoverElement.innerHTML, /<script>/);
 });
 
-test("style.css uses only token names from tokens/names.json for var(--*) references", () => {
-  const css = readFileSync(new URL("../chrome/footnote-popover/style.css", import.meta.url), "utf8");
-  const used = [...css.matchAll(/var\(--([a-z0-9-]+)\)/g)].map((match) => match[1]!);
-  assert.ok(used.length > 0);
-  for (const name of used) assert.ok(tokenNames.has(name), `unknown token --${name}`);
-});
-
-test("style.css opens the tooltip with logical insets and raw-value-free tokens", () => {
-  const css = readFileSync(new URL("../chrome/footnote-popover/style.css", import.meta.url), "utf8");
-
-  assert.match(css, /\.footnote-popover\[hidden\] \{\n  display: none;/);
-  assert.match(css, /inset-block-start: 100%/);
-  assert.match(css, /inset-inline-start: 0/);
-  assert.match(css, /text-align: start/);
-  assert.doesNotMatch(css, /(^|[;{\s])(left|right|top|bottom)\s*:/);
-  assert.doesNotMatch(css, /\b(?:margin|padding|border)-(?:left|right|top|bottom)\b/);
-  assert.doesNotMatch(css, /(?<![\w-])(min-|max-)?(width|height)\s*:/);
-  assert.doesNotMatch(css, /#[0-9a-f]{3,8}\b|\b(?:rgba?|hsla?|oklch)\s*\(/i);
-  assert.doesNotMatch(css, /\b\d+(?:\.\d+)?(?:px|rem|em|ch|vw|vh)\b/);
-});

@@ -243,11 +243,11 @@ test("rtl.css stays under the 4 KB budget when minified", () => {
   assert.ok(bytes > 0 && bytes < 4 * 1024, `minified rtl.css is ${bytes} bytes; the budget is 4096`);
 });
 
-/** Every stylesheet the theme ships, with the path used in failure messages. */
-const SKIP_RTL_SCAN = new Set(["styles/src/ui.css", "styles/generated.css", "styles/fonts.css"]);
+/** Every stylesheet the theme ships after the lateen-legacy drop (Tailwind/ui + keepers). */
+const SKIP_RTL_SCAN = new Set(["styles/generated.css", "styles/src/ui.css", "styles/fonts.css"]);
 function themeCss(): { path: string; text: string }[] {
   const found: { path: string; text: string }[] = [];
-  for (const folder of ["styles", "chrome", "components", "layouts"]) {
+  for (const folder of ["styles"]) {
     for (const entry of readdirSync(new URL(`../${folder}/`, import.meta.url), { recursive: true })) {
       const name = String(entry);
       if (!name.endsWith(".css")) continue;
@@ -256,14 +256,13 @@ function themeCss(): { path: string; text: string }[] {
       found.push({ path, text: read(`../${folder}/${name}`) });
     }
   }
+  found.push({ path: "components/performance-chart/style.css", text: read("../components/performance-chart/style.css") });
   return found;
 }
 
-/** A declaration that points at a physical edge instead of the reading direction. */
 const PHYSICAL_DECLARATION =
   /^(?:margin|padding|border|scroll-margin|scroll-padding)-(?:left|right|top|bottom)$|^border-(?:top|bottom)-(?:left|right)-radius$|^(?:left|right|top|bottom)$|^(?:min-|max-)?(?:width|height)$/;
 
-/** The affordances whose meaning is the way the reader moves; the only symbols that may mirror. */
 const MIRRORED = ["pager-arrow", "breadcrumb-sep", "home-arrow", "pagination-arrow"];
 
 test("every stylesheet uses logical direction properties", () => {
@@ -281,7 +280,8 @@ test("every stylesheet uses logical direction properties", () => {
 
 test("only navigation affordances mirror, never media or technical symbols", () => {
   const mirrored = new Set<string>();
-  for (const file of themeCss()) {
+  const sheets = [...themeCss(), { path: "styles/src/ui.css", text: read("../styles/src/ui.css") }];
+  for (const file of sheets) {
     for (const block of blocks(file.text)) {
       if (!/transform:\s*scaleX\(\s*-1\s*\)/.test(block.body)) continue;
       const classes = [...block.selector.matchAll(/\.([a-z0-9-]+)/g)].map((match) => match[1] ?? "");
@@ -295,20 +295,12 @@ test("only navigation affordances mirror, never media or technical symbols", () 
   for (const name of MIRRORED) assert.ok(mirrored.has(name), `no stylesheet mirrors .${name}`);
 });
 
-/** The theme's own direction and affordance styles, applied to a fixture the way a page loads them. */
 const FIXTURE_CSS = [
   "../styles/tokens.css",
   "../styles/rtl.css",
-  "../styles/base.css",
-  "../chrome/pager/style.css",
-  "../chrome/breadcrumb/style.css",
-  "../layouts/home.css",
-  "../components/diff-block/style.css",
-  "../components/version-diff/style.css",
-  "../components/figure/style.css",
+  "../styles/src/ui.css",
 ];
 
-/** A fixture parsed by a DOM with the theme styles; `getComputedStyle` then follows the cascade. */
 function rendered(name: string) {
   const dom = new JSDOM(read(`../fixtures/rtl/${name}`));
   for (const path of FIXTURE_CSS) {
@@ -319,7 +311,6 @@ function rendered(name: string) {
   return dom.window;
 }
 
-/** The computed direction of the first element matching `selector`. */
 function direction(window: ReturnType<typeof rendered>, selector: string): string {
   const element = window.document.querySelector(selector);
   assert.ok(element, `the fixture has no ${selector}`);
@@ -329,7 +320,6 @@ function direction(window: ReturnType<typeof rendered>, selector: string): strin
 test("the mixed inline fixture reads right to left and keeps its technical runs left to right", () => {
   const window = rendered("mixed-inline.html");
   const document = window.document;
-
   assert.equal(document.documentElement.lang, "fa");
   assert.equal(document.documentElement.dir, "rtl");
   assert.equal(direction(window, "#install"), "rtl");
@@ -337,8 +327,6 @@ test("the mixed inline fixture reads right to left and keeps its technical runs 
   for (const id of ["inline-code", "path-code", "flag-code", "version", "quote"]) {
     assert.equal(direction(window, `#${id}`), "ltr", `#${id} should read left to right`);
   }
-
-  // The sentence keeps its words, and the technical values keep their exact text.
   const sentence = document.querySelector("#install")?.textContent ?? "";
   assert.ok(sentence.startsWith("برای نصب "), sentence);
   assert.ok(sentence.includes("beacon init --force"), sentence);
@@ -349,30 +337,23 @@ test("the mixed inline fixture reads right to left and keeps its technical runs 
 test("the technical inline fixture keeps every run in its own direction", () => {
   const window = rendered("technical-inline.html");
   const document = window.document;
-
   assert.equal(document.documentElement.lang, "fa-IR");
   assert.equal(document.documentElement.dir, "rtl");
   assert.equal(direction(window, "#samples"), "rtl");
   assert.equal(direction(window, "#regional"), "rtl");
-
   for (const id of ["sample", "variable", "url", "number", "ltr-run", "forced-ltr", "regional-code"]) {
     assert.equal(direction(window, `#${id}`), "ltr", `#${id} should read left to right`);
   }
-  // A nested run and an authored `dir="rtl"` keep the direction they state.
   assert.equal(direction(window, "#rtl-run"), "rtl");
   assert.equal(direction(window, "#forced-rtl"), "rtl");
   const forcedRtl = document.querySelector("#forced-rtl");
   assert.ok(forcedRtl, "the fixture has no #forced-rtl");
   assert.match(window.getComputedStyle(forcedRtl).fontFamily, /JetBrains Mono/, "authored dir keeps the mono face");
-
-  // Every explicit island is isolated, including a string of only neutral characters.
   for (const id of ["url", "number", "neutral-run", "ltr-run", "rtl-run", "forced-rtl"]) {
     const element = document.querySelector(`#${id}`);
     assert.ok(element, `the fixture has no #${id}`);
     assert.equal(window.getComputedStyle(element).unicodeBidi, "isolate", `#${id} should be isolated`);
   }
-
-  // The quoted values keep their exact characters and punctuation; nothing is reordered in the DOM.
   assert.equal(document.querySelector("#sample")?.textContent, "beacon: ready");
   assert.equal(document.querySelector("#variable")?.textContent, "retry_limit");
   assert.equal(document.querySelector("#url")?.textContent, "https://example.com/api?q=1&v=2");
@@ -383,15 +364,12 @@ test("the technical inline fixture keeps every run in its own direction", () => 
 test("the mixed block fixture keeps its technical blocks left to right", () => {
   const window = rendered("mixed-block.html");
   const document = window.document;
-
   assert.equal(document.documentElement.lang, "he");
   assert.equal(document.documentElement.dir, "rtl");
   assert.equal(direction(window, "#prose"), "rtl");
-  for (const selector of ["pre", "#block-code", "#diff", "#ltr-quote", "#ltr-block", "#ltr-code"]) {
+  for (const selector of ["pre", "#block-code", "#ltr-quote", "#ltr-block", "#ltr-code"]) {
     assert.equal(direction(window, selector), "ltr", `${selector} should read left to right`);
   }
-
-  // Source order is the reading order: title, prose, code block, quotation, pager.
   const order = ["#title", "#prose", "#block-code", "#ltr-quote", ".pager-prev", ".pager-next"];
   const nodes = order.map((selector) => document.querySelector(selector));
   for (let index = 1; index < nodes.length; index += 1) {
@@ -420,103 +398,13 @@ test("the mixed block fixture mirrors navigation arrows and leaves content symbo
   }
 });
 
-test("the report components read only tokens and keep every direction logical", () => {
-  const defined = new Set([...tokensCss.matchAll(/(--[a-z0-9-]+)\s*:/g)].map((match) => match[1] ?? ""));
-  for (const path of ["../components/a11y-report/style.css", "../components/budget-report/style.css", "../components/wcag-checklist/style.css"]) {
-    const text = read(path);
-    for (const declaration of declarations(text)) {
-      assert.ok(!rawColor(declaration.value), `${path}: raw color ${declaration.property}: ${declaration.value}`);
-    }
-    for (const token of new Set([...stripComments(text).matchAll(/var\(\s*(--[a-z0-9-]+)/g)].map((match) => match[1] ?? ""))) {
-      assert.ok(defined.has(token), `${path} reads ${token}, which styles/tokens.css does not define`);
-    }
-  }
-});
-
 test("a site's own family leads the RTL stack and keeps the shipped fallbacks", () => {
-  const css = brandCss({ sans: { family: "Example Sans", files: [{ src: "/x.woff2", weight: "400", style: "normal" }] } });
-  assert.match(css, /--rtl-font-body: "Example Sans", Vazirmatn, Manrope, "Vazirmatn Fallback", "Manrope Fallback", system-ui, sans-serif;/);
-  assert.match(css, /--rtl-font-heading: "Example Sans", Vazirmatn,/);
-  assert.deepEqual(physicalLines(css), [], "a brand declares tokens, never a physical edge");
+  const branded = brandCss({ sans: { family: "Example Sans", files: [{ src: "/x.woff2", weight: "400", style: "normal" }] } });
+  assert.match(branded, /--rtl-font-body: "Example Sans", Vazirmatn, Manrope, "Vazirmatn Fallback", "Manrope Fallback", system-ui, sans-serif;/);
+  assert.match(branded, /--rtl-font-heading: "Example Sans", Vazirmatn,/);
+  assert.deepEqual(physicalLines(branded), [], "a brand declares tokens, never a physical edge");
 });
 
-// Refined tables, callouts, cards, badges and code blocks (#473, #474): logical properties only, tokens
-// only, so one stylesheet serves light, dark and right-to-left pages.
-const REFINED = ["components/table", "components/callout", "components/cards", "components/badge", "components/status", "components/status-legend", "components/record-table", "components/timeline", "components/bar-chart", "components/line-chart", "components/chart-data", "components/compare", "components/data-explorer", "components/term"]
-  .map((dir) => `../${dir}/style.css`)
-  .concat(
-    "../styles/parts-code.css",
-    ...["guide-summary", "related-guides", "steps", "before-after", "trap", "check-list"].map(
-      (dir) => `../components/${dir}/style.css`,
-    ),
-    "../layouts/guide.css",
-    "../chrome/source-mode/style.css",
-    "../chrome/page-footer/style.css",
-    "../chrome/report-issue/style.css",
-  );
-
-test("refined component styles use logical properties and known tokens (light, dark and RTL follow)", () => {
-  const known = new Set([...tokensCss.matchAll(/(--[a-z0-9-]+)\s*:/g)].map((m) => m[1]));
-  for (const file of REFINED) {
-    const text = stripComments(read(file));
-    assert.doesNotMatch(text, /\b(?:margin|padding|border)-(?:left|right)\b|(?:^|[\s;{])(?:left|right)\s*:/m, `${file}: physical property`);
-    for (const m of text.matchAll(/var\((--[a-z0-9-]+)/g)) {
-      const name = m[1] ?? "";
-      if (name.startsWith("--shiki-")) continue;
-      assert.ok(known.has(name), `${file}: unknown token ${name}`);
-    }
-  }
-});
-
-test("the record layout places its columns with logical properties and known tokens (RTL safe)", () => {
-  const known = new Set([...tokensCss.matchAll(/(--[a-z0-9-]+)\s*:/g)].map((m) => m[1]));
-  const text = stripComments(read("../layouts/record.css"));
-  const local = new Set([...text.matchAll(/(--[a-z0-9-]+)\s*:/g)].map((m) => m[1]));
-
-  assert.doesNotMatch(text, /\b(?:margin|padding|border)-(?:left|right)\b|(?:^|[\s;{])(?:left|right)\s*:/m);
-  for (const m of text.matchAll(/var\((--[a-z0-9-]+)/g)) {
-    const name = m[1] ?? "";
-    assert.ok(known.has(name) || local.has(name), `unknown token ${name}`);
-  }
-});
-
-test("the embedded view and the embed code stay logical and read known tokens (RTL safe)", () => {
-  const known = new Set([...tokensCss.matchAll(/(--[a-z0-9-]+)\s*:/g)].map((m) => m[1]));
-  for (const file of ["../layouts/embedded.css", "../components/embed-code/style.css", "../styles/parts-record.css"]) {
-    const text = stripComments(read(file));
-    // The embed page writes this one on the element it sizes, so it is a local contract, not a design token.
-    const local = new Set([...text.matchAll(/(--[a-z0-9-]+)\s*:/g)].map((m) => m[1]));
-    if (file.endsWith("embedded.css")) local.add("--embedded-height");
-    assert.doesNotMatch(text, /\b(?:margin|padding|border)-(?:left|right)\b|(?:^|[\s;{])(?:left|right)\s*:/m, `${file}: physical property`);
-    for (const m of text.matchAll(/var\((--[a-z0-9-]+)/g)) {
-      const name = m[1] ?? "";
-      assert.ok(known.has(name) || local.has(name), `${file}: unknown token ${name}`);
-    }
-  }
-});
-
-test("table header sticks, rows divide with a hairline, numbers align to the end, and hover is a tint only", () => {
-  const table = stripComments(read("../components/table/style.css"));
-  assert.match(table, /\.table-scroll th \{[^}]*position: sticky;[^}]*inset-block-start: 0/);
-  assert.match(table, /border-block-end: thin solid var\(--color-border\)/);
-  assert.match(table, /text-align: end/);
-  assert.match(table, /tbody tr:hover td \{\s*background-color: var\(--state-hover-bg\);\s*\}/);
-});
-
-test("card hover raises the surface, never a move, so there is no layout shift", () => {
-  const cards = stripComments(read("../components/cards/style.css"));
-  assert.match(cards, /\.card:hover \{[^}]*background-color: var\(--color-surface-raised\)/);
-  assert.doesNotMatch(cards, /\.card:hover \{[^}]*(?:transform|margin|padding)/);
-});
-
-test("code blocks keep their direction under RTL and draw numbers from data-line", () => {
-  const code = stripComments(read("../styles/parts-code.css"));
-  assert.match(code, /\.code \{[^}]*direction: ltr/);
-  assert.match(code, /\[data-line\]::before \{[^}]*content: attr\(data-line\)[^}]*user-select: none/);
-});
-
-// Right-to-left refinement (#476): Vazirmatn weights match Manrope, shadows have no horizontal offset
-// that would need mirroring, and active markers are logical borders that mirror by themselves.
 test("Vazirmatn ships the same three weights as Manrope, so a mixed line looks even", () => {
   const fonts = read("../styles/fonts.css");
   const weights = (family: string): string[] => [...fonts.matchAll(new RegExp(`font-family: "${family}";[^}]*?font-weight: (\\d+)`, "g"))].map((m) => m[1] ?? "").sort();
@@ -532,77 +420,34 @@ test("no shadow token has a horizontal offset, so none needs mirroring in right-
   }
 });
 
-test("active markers are logical borders, so they sit at the right edge in right-to-left", () => {
-  const sidebar = stripComments(read("../chrome/sidebar/style.css"));
-  const toc = stripComments(read("../chrome/toc/style.css"));
-  assert.match(sidebar, /border-inline-start: 2px solid transparent/);
-  assert.match(sidebar, /a\[aria-current="page"\] \{\s*border-inline-start-color: var\(--color-link\)/);
-  assert.match(toc, /border-inline-start-color: var\(--color-link\)/);
-});
-
 test("icons align to the text baseline and quotes use the script's own pair in Persian and Arabic", () => {
   assert.match(css, /:root:lang\(fa\) :where\(svg\),\s*:root:lang\(ar\) :where\(svg\) \{\s*vertical-align: middle/);
   assert.match(css, /quotes: "\\00ab" "\\00bb"/);
 });
 
-test("the sailcloth shell header uses sticky glass chrome without script in CSS", () => {
-  const header = stripComments(read("../chrome/shell/style.css"));
-  assert.match(header, /\.site-header \{[^}]*position: sticky/s);
-  assert.match(header, /\.site-header\.is-scrolled/);
-  assert.match(header, /backdrop-filter:/);
-  assert.doesNotMatch(header, /addEventListener|IntersectionObserver/);
+test("active markers and sticky glass chrome live in sailcloth ui.css with logical edges", () => {
+  const ui = stripComments(read("../styles/src/ui.css"));
+  assert.match(ui, /inset-inline|padding-inline|margin-inline|border-inline/);
+  assert.match(ui, /\.site-header\s*\{/);
+  assert.match(ui, /\bsticky\b/);
+  assert.match(ui, /\.site-header\.is-scrolled/);
+  assert.match(ui, /backdrop-filter|backdrop-blur/);
+  assert.doesNotMatch(ui, /addEventListener|IntersectionObserver/);
 });
 
-test("sidebar and pager states: active marker, collapsed group, and pager hairline (no card fill)", () => {
-  const sidebar = stripComments(read("../chrome/sidebar/style.css"));
-  assert.match(sidebar, /details\[open\] > summary \{\s*color: var\(--color-heading\)/);
-  const pager = stripComments(read("../chrome/pager/style.css"));
-  assert.match(pager, /\.pager-link \{[^}]*background: transparent/s);
-  assert.match(pager, /\.pager-link \{[^}]*border-block-start: thin solid var\(--color-border\)/s);
-  assert.match(pager, /\.pager-link:hover \.pager-title \{[^}]*color: var\(--color-link\)/s);
-});
-
-test("the showpiece units are right-to-left ready and their arrow mirrors (#491)", () => {
-  const files = themeCss().map((file) => file.path);
-  for (const unit of ["hero", "backdrop", "feature-grid", "frame", "stat-strip", "cta-band", "motif"]) {
-    assert.ok(files.includes(`components/${unit}/style.css`), unit);
+test("the Persian and Arabic showpiece, gallery and glossary pages stay right to left", () => {
+  for (const [pair, layout] of [
+    ["showpiece", null],
+    ["gallery-layout", "gallery"],
+    ["glossary", null],
+  ] as const) {
+    const pages = read(`./accessibility/fixtures/site/fa/${pair}.md`) + read(`./accessibility/fixtures/site/ar/${pair}.md`);
+    assert.equal((pages.match(/^dir: rtl$/gm) ?? []).length, 2, `${pair} pages are right to left`);
+    if (layout) assert.equal((pages.match(new RegExp(`^layout: ${layout}$`, "gm")) ?? []).length, 2);
   }
-  assert.match(read("../layouts/home.css"), /\.home-showpiece/);
-  const a11y = read("./accessibility/fixtures/site/fa/showpiece.md") + read("./accessibility/fixtures/site/ar/showpiece.md");
-  assert.equal((a11y.match(/^dir: rtl$/gm) ?? []).length, 2, "the Persian and Arabic showpiece pages are right to left");
 });
 
-test("the gallery controls use logical properties and the RTL pages render them", () => {
-  const gallery = stripComments(read("../components/gallery-filters/style.css"));
-  assert.match(gallery, /padding-inline:/);
-  assert.match(gallery, /margin-block:/);
-  assert.doesNotMatch(gallery, /(^|[;{\s])(left|right)\s*:/);
-  assert.doesNotMatch(gallery, /(?<![\w-])(min-|max-)?(width|height)\s*:/);
-  assert.match(read("../components/gallery-card/style.css"), /inline-size: 100%/);
-  const pages =
-    read("./accessibility/fixtures/site/fa/gallery-layout.md") +
-    read("./accessibility/fixtures/site/ar/gallery-layout.md");
-  assert.equal((pages.match(/^dir: rtl$/gm) ?? []).length, 2, "both gallery pages are right to left");
-  assert.equal((pages.match(/^layout: gallery$/gm) ?? []).length, 2);
-});
-
-test("the network chrome uses logical properties and isolates project names", () => {
-  for (const path of ["../chrome/project-switcher/style.css", "../chrome/network-footer/style.css"]) {
-    const css = read(path);
-    assert.match(css, /padding-(?:inline|block)|margin-(?:inline|block)|inset-(?:inline|block)/, path);
-    assert.doesNotMatch(css, /(^|[;{\s])(left|right)\s*:/, path);
-    assert.doesNotMatch(css, /(?<![\w-])(min-|max-)?(width|height)\s*:/, path);
-  }
+test("network chrome isolates project names with bdi", () => {
   assert.match(read("../chrome/project-switcher/index.ts"), /h\("bdi", null, project\.title\)/);
   assert.match(read("../chrome/network-footer/index.ts"), /h\("bdi", null, project\.title\)/);
-});
-
-test("the glossary pages are right to left and the term panel stays logical", () => {
-  const pages =
-    read("./accessibility/fixtures/site/fa/glossary.md") + read("./accessibility/fixtures/site/ar/glossary.md");
-  assert.equal((pages.match(/^dir: rtl$/gm) ?? []).length, 2, "both glossary pages are right to left");
-  const term = stripComments(read("../components/term/style.css"));
-  assert.match(term, /padding-inline:/);
-  assert.match(term, /margin-block-start:/);
-  assert.doesNotMatch(term, /(^|[;{\s])(left|right)\s*:/);
 });

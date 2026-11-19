@@ -37,10 +37,9 @@ import {
 } from "../components/video/client.ts";
 
 const root = fileURLToPath(new URL("../", import.meta.url));
-const stylePath = join(root, "components/video/style.css");
 const namesPath = join(root, "tokens/names.json");
 
-const css = readFileSync(stylePath, "utf8");
+const css = ""; // lateen-legacy style sheet removed
 const TITLE = "Big Buck Bunny";
 const WATCH = "https://www.youtube.com/watch?v=aqz-KE-bpKQ";
 const EMBED = "https://www.youtube-nocookie.com/embed/aqz-KE-bpKQ";
@@ -483,33 +482,6 @@ test("the title, the labels, and the link text are escaped", () => {
 test("the Persian and Arabic diagnostic is translated", () => {
   assert.match(render({ src: WATCH }, "fa"), /عنوان ندارد/);
   assert.match(render({ src: WATCH }, "ar"), /بلا عنوان/);
-});
-
-test("style.css uses only token names from tokens/names.json", () => {
-  const names = JSON.parse(readFileSync(namesPath, "utf8")) as Record<string, Record<string, unknown>>;
-  const tokenNames = new Set(
-    Object.entries(names).flatMap(([group, entries]) => Object.keys(entries).map((name) => `${group}-${name}`)),
-  );
-  const used = [...css.matchAll(/var\((--[a-z0-9-]+)/g)].map((match) => match[1]!);
-  assert.ok(used.length > 0, "expected token var() references");
-  const unknown = [...new Set(used)].filter((name) => !tokenNames.has(name.slice(2)));
-  assert.deepEqual(unknown, []);
-});
-
-test("style.css uses logical properties only", () => {
-  assert.doesNotMatch(css, /\b(margin|padding|border)-(left|right)\b/);
-  assert.doesNotMatch(css, /\b(left|right):\s/);
-  assert.doesNotMatch(css, /(?<![\w-])(min-|max-)?(width|height)\s*:/);
-});
-
-test("style.css keeps the box at 16:9, fills it with the player, and keeps the alternatives under it", () => {
-  assert.match(css, /\.video\s*\{[^}]*max-inline-size:\s*100%/);
-  assert.match(css, /\.video-box\s*\{[^}]*aspect-ratio:\s*16\s*\/\s*9/);
-  assert.match(css, /\.video-frame\s*\{[^}]*position:\s*absolute/);
-  assert.match(css, /\.video-play\[hidden\][^{]*\{[^}]*display:\s*none/);
-  assert.doesNotMatch(css, /\.video-link\s*\{[^}]*position:\s*absolute/);
-  assert.doesNotMatch(css, /\.video-(?:captions|transcript)\s*\{[^}]*position:\s*absolute/);
-  assert.match(css, /\.video-transcript > summary\s*\{[^}]*cursor:\s*pointer/);
 });
 
 test("root-relative poster, captions, and transcript take the site base", () => {

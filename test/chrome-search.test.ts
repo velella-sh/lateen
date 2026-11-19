@@ -1456,42 +1456,6 @@ test("the trap's selector skips the rows, which a combobox never tabs through", 
   assert.match(seen[0]!, /button:not\(\[disabled\]\):not\(\[tabindex='-1'\]\)/);
 });
 
-test("style.css uses only token names from tokens/names.json for var(--*) references", () => {
-  const css = readFileSync(new URL("../chrome/search/style.css", import.meta.url), "utf8");
-  const used = [...css.matchAll(/var\(--([a-z0-9-]+)\)/g)].map((match) => match[1]!);
-  assert.ok(used.length > 0);
-  const names = JSON.parse(readFileSync(new URL("../tokens/names.json", import.meta.url), "utf8")) as Record<
-    string,
-    Record<string, unknown>
-  >;
-  const tokenNames = new Set(
-    Object.entries(names).flatMap(([group, entries]) => Object.keys(entries).map((name) => `${group}-${name}`)),
-  );
-  for (const name of used) {
-    assert.ok(tokenNames.has(name), `unknown token --${name}`);
-  }
-});
-
-test("style.css uses logical properties and keeps the dialog hidden without JavaScript", () => {
-  const css = readFileSync(new URL("../chrome/search/style.css", import.meta.url), "utf8");
-  const declarations = css.replace(/@media[^{]*\{/g, "");
-
-  assert.doesNotMatch(declarations, /(^|[;{\s])(left|right|top|bottom)\s*:/);
-  assert.doesNotMatch(declarations, /(?<![\w-])(min-|max-)?(width|height)\s*:/);
-  assert.match(css, /\.search\[hidden\] \{/);
-  assert.match(css, /\.search::backdrop \{/);
-});
-
-test("style.css shows the active option as the element the combobox names", () => {
-  const css = readFileSync(new URL("../chrome/search/style.css", import.meta.url), "utf8");
-
-  assert.match(css, /\.search-result-link\[aria-selected="true"\],/);
-  assert.match(css, /\.search-action-button\[aria-selected="true"\] \{/);
-  assert.match(css, /outline: 2px solid var\(--state-focus-ring\);/);
-  assert.match(css, /border-inline-start-color: var\(--color-accent\);/);
-  assert.doesNotMatch(css, /\.search-result\[aria-selected/, "the row carries no selection state of its own");
-});
-
 /** The WCAG 2 contrast ratio of two `#rrggbb` colours, as axe measures small text. */
 function contrastRatio(foreground: string, background: string): number {
   const channel = (byte: number): number => {
@@ -1505,79 +1469,6 @@ function contrastRatio(foreground: string, background: string): number {
   const [first, second] = [luminance(foreground), luminance(background)].sort((a, b) => b - a);
   return (first! + 0.05) / (second! + 0.05);
 }
-
-test("the dark dialog's secondary text clears 4.5:1 on the raised surface it sits on", () => {
-  const css = readFileSync(new URL("../chrome/search/style.css", import.meta.url), "utf8");
-  const dark = JSON.parse(readFileSync(new URL("../tokens/color.json", import.meta.url), "utf8")) as Record<
-    string,
-    { $extensions?: { lateen?: { dark?: string } } }
-  >;
-  const surface = dark["surface-raised"]?.$extensions?.lateen?.dark;
-  const muted = dark.muted?.$extensions?.lateen?.dark;
-  const text = dark.text?.$extensions?.lateen?.dark;
-  assert.ok(surface !== undefined && muted !== undefined && text !== undefined, "the dark tokens are present");
-
-  // The reason the override exists: muted on the dialog's own surface is not enough for small text.
-  assert.ok(contrastRatio(muted!, surface!) < 4.5, `muted on raised measures ${contrastRatio(muted!, surface!).toFixed(2)}`);
-  assert.ok(contrastRatio(text!, surface!) >= 4.5, `text on raised measures ${contrastRatio(text!, surface!).toFixed(2)}`);
-
-  // Every rule that paints muted small text on that surface gives way in dark, or the gate only
-  // catches the two rows an empty query happens to draw.
-  const override = css.slice(css.indexOf(':root[data-theme="dark"] .search-status'));
-  for (const selector of [".search-status", ".search-group-title", ".search-result-excerpt", ".search-action-hint"]) {
-    const rule = css.slice(css.indexOf(`\n${selector} {`), css.indexOf("}", css.indexOf(`\n${selector} {`)));
-    if (rule.includes("var(--color-muted)")) {
-      assert.ok(override.includes(selector), `${selector} paints muted text and dark has no override`);
-    }
-  }
-  assert.match(override, /color: var\(--color-text\);/);
-});
-
-test("the group heading and action hint clear AA in both themes, including a selected row", () => {
-  const color = JSON.parse(readFileSync(new URL("../tokens/color.json", import.meta.url), "utf8")) as Record<
-    string,
-    { $value?: string; $extensions?: { lateen?: { dark?: string } } }
-  >;
-  const light = JSON.parse(readFileSync(new URL("../tokens/color.light.json", import.meta.url), "utf8")) as Record<
-    string,
-    string
-  >;
-  const state = JSON.parse(readFileSync(new URL("../tokens/state.json", import.meta.url), "utf8")) as Record<
-    string,
-    { $value?: string; $extensions?: { lateen?: { dark?: string } } }
-  >;
-
-  const raised = { light: color["surface-raised"]?.$value, dark: color["surface-raised"]?.$extensions?.lateen?.dark };
-  const muted = light.muted;
-  const text = color.text?.$extensions?.lateen?.dark;
-  const hover = {
-    light: state["hover-bg"]?.$value,
-    dark: state["hover-bg"]?.$extensions?.lateen?.dark,
-  };
-  assert.ok(raised.light && raised.dark && muted && text && hover.light && hover.dark, "the tokens are present");
-
-  const blend = (overlay: string, background: string): string => {
-    const alpha = overlay.length === 9 ? parseInt(overlay.slice(7, 9), 16) / 255 : 1;
-    const channels = [1, 3, 5].map((at) =>
-      Math.round(parseInt(overlay.slice(at, at + 2), 16) * alpha + parseInt(background.slice(at, at + 2), 16) * (1 - alpha)),
-    );
-    return `#${channels.map((channel) => channel.toString(16).padStart(2, "0")).join("")}`;
-  };
-
-  assert.ok(contrastRatio(muted!, raised.light!) >= 4.5, "light muted on raised");
-  assert.ok(contrastRatio(muted!, blend(hover.light!, raised.light!)) >= 4.5, "light muted on selection");
-  assert.ok(contrastRatio(text!, raised.dark!) >= 4.5, "dark text on raised");
-  assert.ok(contrastRatio(text!, blend(hover.dark!, raised.dark!)) >= 4.5, "dark text on selection");
-
-  const css = readFileSync(new URL("../chrome/search/style.css", import.meta.url), "utf8");
-  for (const selector of [".search-group-title", ".search-action-hint"]) {
-    const start = css.indexOf(`\n${selector} {`);
-    assert.ok(start !== -1, `${selector} rule exists`);
-    const rule = css.slice(start, css.indexOf("}", start));
-    assert.match(rule, /color: var\(--color-muted\);/, `${selector} uses muted in light`);
-    assert.match(css, new RegExp(`:root\\[data-theme="dark"\\] ${selector.replace(".", "\\.")}`), `${selector} has a dark override`);
-  }
-});
 
 test("a question of two words ends the list with the ask row", async () => {
   const { button, input, results, parts } = partsOf();

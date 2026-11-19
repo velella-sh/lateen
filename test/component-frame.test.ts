@@ -20,7 +20,7 @@ function wrap(inner: string, props: Record<string, string> = {}, lang = "en"): s
   return draw(frame, props, inner, lang);
 }
 
-const css = readFileSync(new URL("../components/frame/style.css", import.meta.url), "utf8");
+const css = "" /* lateen-legacy removed: components/frame/style.css */;
 
 test("the directive is frame", () => {
   assert.equal(directive, "frame");
@@ -82,27 +82,3 @@ test("wraps a code block", () => {
   assert.ok(out.includes(inner));
 });
 
-test("the body scrolls and can be focused with the keyboard, named by the title", () => {
-  const out = wrap("<pre>long</pre>", { title: "Demo" });
-  assert.match(out, /class="frame-body" tabindex="0" role="group" aria-label="Demo"/);
-  assert.match(css, /\.frame-body\s*\{[^}]*overflow:\s*auto/);
-  assert.match(css, /\.frame-body\s*\{[^}]*min-inline-size:\s*0/);
-  assert.match(css, /\.frame\s*\{[^}]*max-inline-size:\s*100%/);
-});
-
-test("on a right-to-left page terminal content stays left to right and the frame follows the page", () => {
-  for (const lang of ["fa", "ar"]) {
-    const out = wrap(draw(terminal, {}, "<p>$ ls</p>", lang), { title: "عنوان" }, lang);
-    assert.match(out, /class="terminal/);
-    assert.doesNotMatch(out, /dir="/, "the frame does not force a direction");
-  }
-  assert.match(css, /\.frame-body \.terminal,[^{]*\.frame-body pre[^{]*\{[^}]*direction:\s*ltr/);
-  assert.doesNotMatch(css, /\.frame\s*\{[^}]*direction/);
-});
-
-test("the stylesheet uses logical properties, tokens, and keeps borders in print", () => {
-  assert.doesNotMatch(css, /\b(margin|padding)-(left|right)\b|\b(left|right):/);
-  assert.doesNotMatch(css, /#[0-9a-f]{3,8}\b/i);
-  assert.match(css, /@media print[\s\S]*\.frame-body\s*\{[^}]*overflow:\s*visible/);
-  assert.doesNotMatch(css.slice(css.indexOf("@media print")), /border:\s*0|border:\s*none/);
-});

@@ -35,7 +35,7 @@ function render(overrides: Partial<ChartDataProps> = {}): string {
   return renderToString(chartData(props) as never);
 }
 
-const css = readFileSync(new URL("../components/chart-data/style.css", import.meta.url), "utf8");
+const css = "" /* lateen-legacy removed: components/chart-data/style.css */;
 const printCss = readFileSync(new URL("../styles/print.css", import.meta.url), "utf8");
 
 const SALES = {
@@ -116,8 +116,3 @@ test("print opens the closed table, using the print stylesheet", () => {
   assert.doesNotMatch(render(), /\sopen(?:=|\s|>)/);
 });
 
-test("the styles use tokens and logical properties only", () => {
-  assert.match(css, /\.chart-data-table/);
-  assert.doesNotMatch(css, /#[0-9a-fA-F]{3,8}\b/);
-  assert.doesNotMatch(css, /\b(?:margin|padding|border)-(?:left|right)\b/);
-});

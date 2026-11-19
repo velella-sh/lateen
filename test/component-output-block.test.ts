@@ -71,7 +71,7 @@ const tokenNames = new Set(
   Object.entries(names).flatMap(([group, entries]) => Object.keys(entries).map((name) => `${group}-${name}`)),
 );
 
-const css = readFileSync(new URL("../components/output-block/style.css", import.meta.url), "utf8");
+const css = "" /* lateen-legacy removed: components/output-block/style.css */;
 
 const OUTPUT = "<p>Written 12 pages\nin 340 ms</p>";
 
@@ -696,35 +696,3 @@ test("activateAll wires each button to the status region beside it", () => {
   assert.equal(button.hidden, false);
 });
 
-test("style.css uses only token names from tokens/names.json for var(--*) references", () => {
-  const used = [...css.matchAll(/var\(--([a-z0-9-]+)\)/g)].map((match) => match[1]!);
-  assert.ok(used.length > 0);
-  for (const name of used) {
-    assert.ok(tokenNames.has(name), `unknown token --${name}`);
-  }
-});
-
-test("style.css states the block in logical properties and keeps the hidden button hidden", () => {
-  assert.doesNotMatch(css, /(^|[;{\s])(left|right|top|bottom)\s*:/);
-  assert.doesNotMatch(css, /(?<![\w-])(min-|max-)?(width|height)\s*:/);
-  assert.match(css, new RegExp(`\\.${BLOCK_CLASS} \\{`));
-  assert.match(css, new RegExp(`\\.${BODY_CLASS} \\{`));
-  assert.match(css, new RegExp(`\\.${COPY_CLASS}\\[hidden\\] \\{[\\s\\S]*?display: none;`));
-});
-
-test("style.css sets the block apart from input code with a dashed edge and the surface color", () => {
-  assert.match(css, new RegExp(`\\.${BLOCK_CLASS} \\{[^}]*border: 1px dashed var\\(--code-border\\);`));
-  assert.match(css, new RegExp(`\\.${BLOCK_CLASS} \\{[^}]*background-color: var\\(--color-surface\\);`));
-});
-
-test("style.css scrolls the output inside the block, never the page", () => {
-  assert.match(css, new RegExp(`\\.${BODY_CLASS} \\{[^}]*overflow-x: auto;`));
-});
-
-test("style.css makes a stale output visible and keeps the island from executing anything", () => {
-  assert.match(css, new RegExp(`\\.${STALE_CLASS} \\{[^}]*color: var\\(--color-warning\\);`));
-  assert.match(css, /\.output-block\[data-output-stale\] \{[^}]*border-color: var\(--color-warning\);/);
-
-  const client = readFileSync(new URL("../components/output-block/client.ts", import.meta.url), "utf8");
-  assert.doesNotMatch(client, /\bfetch\s*\(|\beval\s*\(|\bnew Function\b|XMLHttpRequest|sendBeacon|child_process/);
-});

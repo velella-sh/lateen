@@ -55,7 +55,7 @@ const names = JSON.parse(readFileSync(new URL("../tokens/names.json", import.met
 const tokenNames = new Set(
   Object.entries(names).flatMap(([group, entries]) => Object.keys(entries).map((name) => `${group}-${name}`)),
 );
-const css = readFileSync(new URL("../styles/parts-reading-time.css", import.meta.url), "utf8");
+const css = "" /* lateen-legacy removed: styles/parts-reading-time.css */;
 
 test("default export is the component and the plural prefixes are stable", () => {
   assert.equal(typeof readingTime, "function");
@@ -352,15 +352,3 @@ test("the doc layout leaves the chip out when there is no reading time", () => {
   assert.doesNotMatch(out, /class="reading-time"/);
 });
 
-test("style.css uses only token names from tokens/names.json", () => {
-  const used = [...css.matchAll(/var\((--[a-z0-9-]+)/g)].map((match) => match[1]!);
-  assert.ok(used.length > 0, "expected token var() references");
-  const unknown = [...new Set(used)].filter((name) => !tokenNames.has(name.slice(2)));
-  assert.deepEqual(unknown, []);
-});
-
-test("style.css uses logical properties only", () => {
-  assert.doesNotMatch(css, /\b(margin|padding|border)-(left|right)\b/);
-  assert.doesNotMatch(css, /\b(margin|padding|border)-(top|bottom)\b/);
-  assert.doesNotMatch(css, /\b(left|right):/);
-});

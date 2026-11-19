@@ -84,7 +84,7 @@ function idsOf(out: string): string[] {
   return [...out.matchAll(/\bid="([^"]+)"/g)].map((match) => match[1]!);
 }
 
-const css = readFileSync(new URL("../components/diff-block/style.css", import.meta.url), "utf8");
+const css = "" /* lateen-legacy removed: components/diff-block/style.css */;
 const names = JSON.parse(readFileSync(new URL("../tokens/names.json", import.meta.url), "utf8")) as Record<
   string,
   Record<string, unknown>
@@ -422,25 +422,6 @@ test("idBase keeps safe letters and falls back to a text-derived id", () => {
   assert.equal(idBase("My Block!", "x"), "My-Block");
   assert.equal(idBase("   ", "a"), idBase(undefined, "a"));
   assert.notEqual(idBase(undefined, "a"), idBase(undefined, "b"));
-});
-
-test("style.css uses only token names from tokens/names.json", () => {
-  const used = [...css.matchAll(/var\(--([a-z0-9-]+)\)/g)].map((match) => match[1]!);
-  assert.ok(used.length > 0);
-  for (const name of used) assert.ok(tokenNames.has(name), `unknown token --${name}`);
-});
-
-test("style.css uses logical properties and keeps the hidden buttons hidden", () => {
-  assert.doesNotMatch(css, /(^|[;{\s])(left|right|top|bottom)\s*:/);
-  assert.doesNotMatch(css, /(?<![\w-])(min-|max-)?(width|height)\s*:/);
-  assert.match(css, /\.diff-block-copy\[hidden\] \{\n {2}display: none;\n\}/);
-  assert.match(css, /\.diff-block-bar \{[^}]*gap: var\(--space-2\)/s);
-});
-
-test("style.css names both kinds without colour alone", () => {
-  assert.match(css, /\.diff-block-added > \.diff-block-marker \{[^}]*color: var\(--color-success\)/s);
-  assert.match(css, /\.diff-block-removed > \.diff-block-marker \{[^}]*color: var\(--color-danger\)/s);
-  assert.match(css, /\.diff-block-removed > \.diff-block-text \{[^}]*text-decoration: line-through/s);
 });
 
 /** A button with the attributes the component renders, its own live region, and a click the test fires. */

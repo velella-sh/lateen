@@ -45,6 +45,10 @@ const INTENDED = [
     selector: ".api-example-code",
     reason: "API example code blocks are keyboard-focusable (tabindex=0) for the a11y target-size gate.",
   },
+  {
+    selector: 'link[rel="stylesheet"][href*="/assets/theme/page-"]',
+    reason: "Sailcloth ships one theme CSS bundle; the separate page-*.css sheet from lateen-legacy is gone.",
+  },
 ] as const;
 
 /** Every HTML file a build wrote, as paths relative to its output folder. */

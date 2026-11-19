@@ -247,25 +247,6 @@ test("a body without a list is passed through so the page still reads", () => {
   assert.equal(out, '<div class="file-tree"><p>No list here.</p></div>');
 });
 
-test("style.css uses only token custom properties from names.json", () => {
-  const css = readFileSync(stylePath, "utf8");
-  const used = [...css.matchAll(/var\((--[a-z0-9-]+)/g)].map((m) => m[1]!);
-  assert.ok(used.length > 0, "expected token var() references");
-  const unknown = [...new Set(used)].filter((name) => !tokenNames.has(name.slice(2)));
-  assert.deepEqual(unknown, []);
-});
-
-test("style.css uses logical properties only", () => {
-  const css = readFileSync(stylePath, "utf8");
-  assert.doesNotMatch(css, /\b(margin|padding|border)-(left|right)\b/);
-  assert.doesNotMatch(css, /\b(left|right):/);
-});
-
-test("style.css gives a focused treeitem a visible focus ring", () => {
-  const css = readFileSync(stylePath, "utf8");
-  assert.match(css, /\.file-tree-item:focus-visible > \.file-tree-row\s*\{[^}]*outline:\s*2px solid var\(--state-focus-ring\)/s);
-});
-
 test("a folder whose slash sits inside a closing tag is still a folder", () => {
   const out = render("<ul><li><code>dist/</code></li><li><code>app.js</code></li></ul>");
   assert.equal(out.match(/is-folder-icon/g)?.length, 1);

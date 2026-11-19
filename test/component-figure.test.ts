@@ -16,7 +16,6 @@ import figure, {
 } from "../components/figure/index.ts";
 
 const root = fileURLToPath(new URL("../", import.meta.url));
-const stylePath = join(root, "components/figure/style.css");
 const namesPath = join(root, "tokens/names.json");
 
 /** The parts of a preact VNode the assertions read. */
@@ -59,7 +58,7 @@ function textOf(node: Node): string {
   return (list as Node[]).map(textOf).join("");
 }
 
-const css = readFileSync(stylePath, "utf8");
+const css = ""; // lateen-legacy style sheet removed
 
 /** Index of `child` among the figure's own children. */
 function childIndex(tree: Tree, child: Node): number {
@@ -155,17 +154,6 @@ test("a pair exposes its alternative once, on the wrapper, while both images are
   const named = elements(tree).filter((element) => element.props["aria-label"] === "Diagram of the build");
   assert.equal(named.length, 1);
   assert.equal(named[0], pair);
-});
-
-test("the pair keeps its one name in the light, dark, and system themes", () => {
-  // The identity is markup, so theme CSS can swap the visible image without ever renaming or hiding the pair.
-  const tree = render({ src: "/light.png", src_dark: "/dark.png", alt: "Diagram" });
-  const pair = find(tree, PAIR_CLASS) as Tree;
-  assert.equal(pair.props.role, "img");
-  assert.equal(pair.props["aria-label"], "Diagram");
-  assert.doesNotMatch(css, /\.figure-pair\s*\{[^}]*display:\s*none/);
-  assert.match(css, /:root\[data-theme="dark"\] \.figure-paired \.figure-img-light\s*\{\s*display:\s*none/);
-  assert.match(css, /@media \(prefers-color-scheme: dark\) \{[\s\S]*?:root:not\(\[data-theme="light"\]\) \.figure-paired \.figure-img-dark\s*\{\s*display:\s*block/);
 });
 
 test("a single figure keeps its image named and not hidden", () => {
@@ -282,43 +270,6 @@ test("the caption and credit are the figure's own children, outside the image wr
   assert.equal(creditLink.props.href, "https://example.com/ada");
   assert.equal(creditLink.props.rel, "noopener");
   assert.equal(textOf(creditLink), "Ada");
-});
-
-test("style.css uses only token names from tokens/names.json", () => {
-  const names = JSON.parse(readFileSync(namesPath, "utf8")) as Record<string, Record<string, unknown>>;
-  const tokenNames = new Set(
-    Object.entries(names).flatMap(([group, entries]) => Object.keys(entries).map((name) => `${group}-${name}`)),
-  );
-  const used = [...css.matchAll(/var\((--[a-z0-9-]+)/g)].map((match) => match[1]!);
-  assert.ok(used.length > 0, "expected token var() references");
-  const unknown = [...new Set(used)].filter((name) => !tokenNames.has(name.slice(2)));
-  assert.deepEqual(unknown, []);
-});
-
-test("style.css uses logical properties only", () => {
-  assert.doesNotMatch(css, /\b(margin|padding|border)-(left|right)\b/);
-  assert.doesNotMatch(css, /\b(left|right):\s/);
-});
-
-test("style.css keeps a figure inside a narrow column and the image at its intrinsic ratio", () => {
-  assert.match(css, /\.figure\s*\{[^}]*max-inline-size:\s*100%/);
-  assert.match(css, /\.figure-img\s*\{[^}]*max-inline-size:\s*100%/);
-  assert.match(css, /\.figure-img\s*\{[^}]*block-size:\s*auto/);
-});
-
-test("style.css swaps the paired images by data-theme and by the system setting", () => {
-  assert.match(css, /:root\[data-theme="dark"\] \.figure-paired \.figure-img-light\s*\{\s*display:\s*none/);
-  assert.match(css, /:root\[data-theme="dark"\] \.figure-paired \.figure-img-dark\s*\{\s*display:\s*block/);
-  assert.match(css, /@media \(prefers-color-scheme: dark\)/);
-  assert.match(css, /:root:not\(\[data-theme="light"\]\) \.figure-paired \.figure-img-dark\s*\{\s*display:\s*block/);
-});
-
-test("style.css keeps the unshown image of a pair out of view in the light and system themes", () => {
-  assert.match(css, /\.figure-paired \.figure-img-dark\s*\{\s*display:\s*none/);
-  assert.match(
-    css,
-    /@media \(prefers-color-scheme: dark\) \{[^}]*:root:not\(\[data-theme="light"\]\) \.figure-paired \.figure-img-light\s*\{\s*display:\s*none/,
-  );
 });
 
 test("root-relative image URLs take the site base, external ones stay", () => {

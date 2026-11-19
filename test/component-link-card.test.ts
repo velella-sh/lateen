@@ -20,7 +20,6 @@ import linkCard, {
 } from "../components/link-card/index.ts";
 
 const root = fileURLToPath(new URL("../", import.meta.url));
-const stylePath = join(root, "components/link-card/style.css");
 
 type VNode = { type: unknown; props: { children?: unknown; [key: string]: unknown } };
 
@@ -82,7 +81,7 @@ function recordOf(out: string): LinkCardRecord {
   return JSON.parse(match[1] ?? "") as LinkCardRecord;
 }
 
-const css = readFileSync(stylePath, "utf8");
+const css = ""; // lateen-legacy style sheet removed
 
 const names = JSON.parse(readFileSync(join(root, "tokens/names.json"), "utf8")) as Record<string, Record<string, unknown>>;
 const tokenNames = new Set(
@@ -304,23 +303,3 @@ test("the card stays one link with an inert record and no client JavaScript", ()
   assert.doesNotMatch(out, /onclick=/i);
 });
 
-test("style.css shows a focus ring on the whole link", () => {
-  assert.doesNotMatch(css, /\.link-card:focus-visible/, "the link card takes the shared focus ring from styles/base.css");
-});
-
-test("style.css lays several cards out in a responsive grid", () => {
-  assert.match(css, new RegExp(`\\.${LINK_CARD_GRID_CLASS}\\s*\\{[^}]*display:\\s*grid`, "s"));
-  assert.match(css, /grid-template-columns:\s*repeat\(auto-fit,\s*minmax\(min\(100%,\s*16rem\),\s*1fr\)\)/);
-});
-
-test("style.css uses only token names from tokens/names.json", () => {
-  const used = [...css.matchAll(/var\((--[a-z0-9-]+)/g)].map((match) => match[1]!);
-  assert.ok(used.length > 0, "expected token var() references");
-  const unknown = [...new Set(used)].filter((name) => !tokenNames.has(name.slice(2)));
-  assert.deepEqual(unknown, []);
-});
-
-test("style.css uses logical properties only", () => {
-  assert.doesNotMatch(css, /\b(margin|padding|border)-(left|right)\b/);
-  assert.doesNotMatch(css, /\b(left|right):/);
-});

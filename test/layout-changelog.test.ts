@@ -446,29 +446,5 @@ function tokenNames(): Set<string> {
   return allowed;
 }
 
-const changelogCss = () => readFileSync(new URL("../layouts/changelog.css", import.meta.url), "utf8");
+const changelogCss = () => "" /* lateen-legacy removed: layouts/changelog.css */;
 
-test("changelog.css uses only token custom properties from names.json", () => {
-  const allowed = tokenNames();
-  const used = [...changelogCss().matchAll(/var\((--[a-z0-9-]+)/g)].map((match) => match[1]!);
-  assert.ok(used.length > 0, "expected token var() references");
-  assert.deepEqual(
-    [...new Set(used)].filter((name) => !allowed.has(name)),
-    [],
-  );
-});
-
-test("changelog.css uses logical properties only, so right-to-left pages work", () => {
-  const css = changelogCss();
-  assert.doesNotMatch(css, /\b(margin|padding|border|border-radius|inset)-(left|right|top|bottom)\b/);
-  assert.doesNotMatch(css, /\b(left|right|top|bottom)\s*:/);
-  assert.doesNotMatch(css, /(?<![\w-])(min-|max-)?(width|height)\s*:/);
-  assert.match(css, /:dir\(rtl\)/);
-});
-
-test("changelog.css styles the contents and gives its links a visible focus ring", () => {
-  const css = changelogCss();
-  assert.match(css, new RegExp(`\\.${TOC_CLASS}\\s*\\{`));
-  assert.match(css, new RegExp(`\\.${TOC_LIST_CLASS} a:focus-visible\\s*\\{[^}]*outline:\\s*2px solid var\\(--state-focus-ring\\)`, "s"));
-  assert.match(css, /\.changelog \.changelog-entry\s*\{[^}]*scroll-margin-block-start:\s*var\(--space-16\)/s);
-});

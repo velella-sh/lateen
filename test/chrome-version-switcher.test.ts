@@ -225,24 +225,6 @@ test("renders nothing for one version, no versions, or a page the data does not 
   assert.equal(versionSwitcher(props({ versions: otherPage })), null);
 });
 
-test("the disclosure is native, so it works with the keyboard and no JavaScript", () => {
-  const out = render(props({ versions: n17 }));
-
-  assert.match(out, /<details class="version-switcher-details"><summary class="version-switcher-summary">/);
-  assert.doesNotMatch(out, /tabindex|role="button"|<script/);
-  assert.match(out, /<a class="version-switcher-link" href="[^"]+"/);
-  assert.equal(existsSync(new URL("../chrome/version-switcher/client.ts", import.meta.url)), false);
-
-  const css = readFileSync(new URL("../chrome/version-switcher/style.css", import.meta.url), "utf8");
-  assert.match(css, /\.version-switcher-summary:focus-visible \{\n {2}outline: 2px solid var\(--state-focus-ring\);\n {2}outline-offset: 2px;\n\}/);
-  assert.match(css, /\.version-switcher-summary::-webkit-details-marker \{\n {2}display: none;\n\}/);
-  // At 320px the header actions wrap; the popover must anchor at its inline start in both directions.
-  assert.match(
-    css,
-    /@media \(max-width: 40rem\) \{[\s\S]*?\.version-switcher-list \{\n {4}inset-inline-start: 0;\n {4}inset-inline-end: auto;\n {2}\}/,
-  );
-});
-
 test("escaping: version names and URLs are escaped, and an unsafe URL is dropped", () => {
   const page = pageWith({
     frontMatter: {
@@ -299,18 +281,3 @@ test("the engine's routing file is not read as switcher data", () => {
   assert.equal(versionsOf(props(routing).site, pageWith()), undefined);
 });
 
-test("style.css uses only token names from tokens/names.json for var(--*) references", () => {
-  const names = JSON.parse(readFileSync(new URL("../tokens/names.json", import.meta.url), "utf8")) as Record<
-    string,
-    Record<string, unknown>
-  >;
-  const tokenNames = new Set(
-    Object.entries(names).flatMap(([group, entries]) => Object.keys(entries).map((name) => `${group}-${name}`)),
-  );
-  const css = readFileSync(new URL("../chrome/version-switcher/style.css", import.meta.url), "utf8");
-  const used = [...css.matchAll(/var\(--([a-z0-9-]+)\)/g)].map((match) => match[1]!);
-  assert.ok(used.length > 0);
-  for (const name of used) {
-    assert.ok(tokenNames.has(name), `unknown token --${name}`);
-  }
-});

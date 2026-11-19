@@ -369,28 +369,6 @@ test("hrefFor builds a URL from a normalised prefix and the rest of the path", (
   assert.equal(hrefFor(configWith({ base: "" }), { code: "fa", name: "فارسی", prefix: "/fa" }, "/"), "/fa/");
 });
 
-test("style.css uses only token names from tokens/names.json for var(--*) references", () => {
-  const names = JSON.parse(readFileSync(new URL("../tokens/names.json", import.meta.url), "utf8")) as Record<
-    string,
-    Record<string, unknown>
-  >;
-  const tokenNames = new Set(
-    Object.entries(names).flatMap(([group, entries]) => Object.keys(entries).map((name) => `${group}-${name}`)),
-  );
-  const css = readFileSync(new URL("../chrome/language-switcher/style.css", import.meta.url), "utf8");
-  const used = [...css.matchAll(/var\(--([a-z0-9-]+)\)/g)].map((match) => match[1]!);
-  assert.ok(used.length > 0);
-  for (const name of used) assert.ok(tokenNames.has(name), `unknown token --${name}`);
-});
-
-test("style.css uses logical properties only", () => {
-  const css = readFileSync(new URL("../chrome/language-switcher/style.css", import.meta.url), "utf8");
-  assert.doesNotMatch(css, /(^|[;{\s])(left|right|top|bottom)\s*:/);
-  assert.doesNotMatch(css, /(?<![\w-])(min-|max-)?(width|height)\s*:/);
-  assert.match(css, /padding-inline:/);
-  assert.match(css, /margin-inline-start|padding-inline/);
-});
-
 /** The alternate links the layout would add to this page's head. */
 function alternates(
   config: SiteConfig,

@@ -307,28 +307,3 @@ test("the base layout places the bar above the header", () => {
   assert.ok(header > bar, "the header comes after the bar");
 });
 
-test("style.css uses only token names from tokens/names.json for var(--*) references", () => {
-  const css = readFileSync(new URL("../chrome/announcement/style.css", import.meta.url), "utf8");
-  const used = [...css.matchAll(/var\(--([a-z0-9-]+)\)/g)].map((match) => match[1]!);
-  assert.ok(used.length > 0);
-  for (const name of used) {
-    assert.ok(tokenNames.has(name), `unknown token --${name}`);
-  }
-});
-
-test("style.css gives the warning and danger tones their own token colours", () => {
-  const css = readFileSync(new URL("../chrome/announcement/style.css", import.meta.url), "utf8");
-  assert.match(css, /\.announcement-warning \{[^}]*background: color-mix\(in srgb, var\(--color-warning\)/);
-  assert.match(css, /\.announcement-danger \{[^}]*background: color-mix\(in srgb, var\(--color-danger\)/);
-  assert.match(css, /\.announcement-icon \{[^}]*inline-size: var\(--space-4\)/);
-});
-
-test("style.css uses logical properties and keeps the hidden bar and button hidden", () => {
-  const css = readFileSync(new URL("../chrome/announcement/style.css", import.meta.url), "utf8");
-
-  assert.match(css, /\.announcement\[hidden\] \{/);
-  assert.match(css, /\.announcement-dismiss\[hidden\] \{/);
-  assert.doesNotMatch(css, /\b(?:margin|padding|border)-(?:left|right)\b/);
-  assert.doesNotMatch(css, /(^|[;{\s])(left|right|top|bottom)\s*:/);
-  assert.doesNotMatch(css, /(?<![\w-])(min-|max-)?(width|height)\s*:/);
-});

@@ -583,20 +583,3 @@ test("the island never reads or writes cookies or localStorage, and touches sess
   assert.doesNotMatch(source, /localStorage|document\.cookie|cookieStore/);
 });
 
-test("style.css uses only token names from tokens/names.json for var(--*) references", () => {
-  const css = readFileSync(new URL("../chrome/feedback/style.css", import.meta.url), "utf8");
-  const used = [...css.matchAll(/var\(--([a-z0-9-]+)\)/g)].map((match) => match[1]!);
-  assert.ok(used.length > 0);
-  for (const name of used) {
-    assert.ok(tokenNames.has(name), `unknown token --${name}`);
-  }
-});
-
-test("style.css states the widget in logical properties and keeps hidden things hidden", () => {
-  const css = readFileSync(new URL("../chrome/feedback/style.css", import.meta.url), "utf8");
-
-  assert.doesNotMatch(css, /(^|[;{\s])(left|right|top|bottom)\s*:/);
-  assert.doesNotMatch(css, /(?<![\w-])(min-|max-)?(width|height)\s*:/);
-  assert.match(css, /\.feedback\[hidden\] \{\n {2}display: none;\n\}/);
-  assert.match(css, /\.feedback-button\[hidden\] \{\n {2}display: none;\n\}/);
-});

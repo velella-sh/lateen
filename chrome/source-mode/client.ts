@@ -122,6 +122,9 @@ export interface SourceEnv {
 /** Elements that cannot hold a label child without breaking their content model. */
 const NO_LABEL = new Set(["UL", "OL", "DL", "TABLE", "THEAD", "TBODY", "TR"]);
 
+/** Interactive hosts that already take input; a label with buttons/links inside them nests controls. */
+const NO_LABEL_HOST = new Set(["A", "BUTTON", "INPUT", "SELECT", "TEXTAREA", "SUMMARY", "LABEL"]);
+
 /** Whether `event` is the source-mode shortcut: the bare key, with no command or alt modifier. */
 export function isSourceShortcut(event: SourceKeyEvent): boolean {
   return (
@@ -140,7 +143,10 @@ export function labelable(blocks: Iterable<SourceBlock>): SourceBlock[] {
     const span = parseSpan(block.getAttribute("data-src"));
     if (span === undefined || seen.has(block)) continue;
     if (block.parentElement?.closest?.("[data-src]") != null) continue;
-    if (block.tagName !== undefined && NO_LABEL.has(block.tagName.toUpperCase())) continue;
+    if (block.tagName !== undefined) {
+      const tag = block.tagName.toUpperCase();
+      if (NO_LABEL.has(tag) || NO_LABEL_HOST.has(tag)) continue;
+    }
     seen.add(block);
     out.push(block);
   }

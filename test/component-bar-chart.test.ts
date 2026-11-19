@@ -35,7 +35,7 @@ function render(props: BarChartProps, site: unknown, lang = "en"): string {
   return renderToString(barChart(input) as never);
 }
 
-const css = readFileSync(new URL("../components/bar-chart/style.css", import.meta.url), "utf8");
+const css = "" /* lateen-legacy removed: components/bar-chart/style.css */;
 
 const SALES = {
   data: {
@@ -220,8 +220,3 @@ test("the table under the chart is the text alternative and keeps every row", ()
   }
 });
 
-test("the styles use the chart colour token and no status, state, or callout colour", () => {
-  assert.match(css, /fill: var\(--chart-cat-1\)/);
-  assert.doesNotMatch(css, /var\(--(?:status|state|callout)/);
-  assert.doesNotMatch(css, /#[0-9a-fA-F]{3,8}\b/);
-});

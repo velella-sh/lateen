@@ -103,9 +103,3 @@ test("renders nothing without a network or with one project", () => {
   assert.equal(render({ current: "alpha", lock: "0".repeat(64), projects: [project("alpha", "Alpha", true)] }), "");
 });
 
-test("the list wraps instead of overflowing on a narrow screen", () => {
-  const css = readFileSync(new URL("../chrome/network-footer/style.css", import.meta.url), "utf8");
-  assert.match(css, /\.network-footer-list \{[^}]*flex-wrap: wrap;/);
-  assert.match(css, /\.network-footer-link \{[^}]*overflow-wrap: anywhere;/);
-  assert.doesNotMatch(css, /white-space: nowrap|text-overflow/);
-});

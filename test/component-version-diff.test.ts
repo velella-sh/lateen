@@ -77,7 +77,7 @@ const tokenNames = new Set(
   Object.entries(names).flatMap(([group, entries]) => Object.keys(entries).map((name) => `${group}-${name}`)),
 );
 
-const css = readFileSync(new URL("../components/version-diff/style.css", import.meta.url), "utf8");
+const css = "" /* lateen-legacy removed: components/version-diff/style.css */;
 
 test("default export is the component, the directive is version-diff, and there are four kinds", () => {
   assert.equal(typeof versionDiff, "function");
@@ -157,10 +157,6 @@ test("changed text carries a visible − or + marker beside its label, so a copy
   );
   assert.match(out, /<p class="version-diff-text" dir="auto">old<\/p>/);
   assert.match(out, /<p class="version-diff-text" dir="auto">new<\/p>/);
-});
-
-test("the screen-reader marker word stays out of a copied selection", () => {
-  assert.match(css, new RegExp(`\\.${SR_CLASS}\\s*\\{[^}]*user-select:\\s*none`, "s"));
 });
 
 test("the diff is a heading and an ordered list with one h3 per change", () => {
@@ -758,41 +754,6 @@ test("activate() leaves a viewer without changes alone", () => {
   activate(group, false);
   assert.equal(controls.hidden, true);
   assert.equal(group.attrs.get(ENHANCED_ATTR), undefined);
-});
-
-test("style.css uses only token names from tokens/names.json", () => {
-  const used = [...css.matchAll(/var\((--[a-z0-9-]+)/g)].map((match) => match[1]!);
-  assert.ok(used.length > 0, "expected token var() references");
-  const unknown = [...new Set(used)].filter((name) => !tokenNames.has(name.slice(2)));
-  assert.deepEqual(unknown, []);
-});
-
-test("style.css uses logical properties only", () => {
-  assert.doesNotMatch(css, /\b(margin|padding|border)-(left|right)\b/);
-  assert.doesNotMatch(css, /\b(margin|padding|border)-(top|bottom)\b/);
-  assert.doesNotMatch(css, /\b(left|right|top|bottom):/);
-  assert.doesNotMatch(css, /(?<![\w-])(min-|max-)?(width|height)\s*:/);
-});
-
-test("style.css keeps every kind visible with its own colour and a text label beside the icon", () => {
-  for (const kind of KINDS) {
-    assert.match(css, new RegExp(`\\.version-diff-kind-${kind}\\s*\\{[^}]*color:\\s*var\\(--color-`));
-  }
-  assert.match(css, /\.version-diff-text-label\s*\{[^}]*text-transform:\s*uppercase/s);
-  assert.match(css, /\.version-diff-item:focus-visible\s*\{[^}]*outline:\s*2px solid var\(--state-focus-ring\)/s);
-  assert.match(css, /\.version-diff-previous:focus-visible/);
-});
-
-test("style.css prints the markers and leaves the screen-only controls out", () => {
-  assert.match(css, /@media print\s*\{[^}]*\.version-diff-controls\s*\{[^}]*display:\s*none/s);
-  assert.match(css, /\.version-diff-marker\s*\{[^}]*font-weight:\s*var\(--type-weight-bold\)/s);
-  assert.match(css, /\.version-diff-version-value\s*\{[^}]*direction:\s*ltr/s);
-});
-
-test("style.css marks the incomplete note apart with its own colour token", () => {
-  assert.match(css, /\.version-diff-note\s*\{[^}]*padding-inline:\s*var\(--space-4\)/s);
-  assert.match(css, /\.version-diff-note\s*\{[^}]*border-block-end/s);
-  assert.match(css, /\.version-diff-note-label\s*\{[^}]*color:\s*var\(--color-warning\)/s);
 });
 
 test("two comparisons on one page get distinct ids", () => {

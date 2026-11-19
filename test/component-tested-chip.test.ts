@@ -45,7 +45,7 @@ const tokenNames = new Set(
   Object.entries(names).flatMap(([group, entries]) => Object.keys(entries).map((name) => `${group}-${name}`)),
 );
 
-const css = readFileSync(new URL("../components/tested-chip/style.css", import.meta.url), "utf8");
+const css = "" /* lateen-legacy removed: components/tested-chip/style.css */;
 
 test("default export is the component, with the tested-chip directive", () => {
   assert.equal(typeof testedChip, "function");
@@ -547,24 +547,3 @@ test("stateOf and notRunOf keep unavailable neutral and preserve the other state
   assert.equal(classNameOf("unavailable"), `${CHIP_CLASS} ${CHIP_CLASS}-unavailable`);
 });
 
-test("style.css uses only token names from tokens/names.json", () => {
-  const used = [...css.matchAll(/var\((--[a-z0-9-]+)/g)].map((match) => match[1]!);
-  assert.ok(used.length > 0, "expected token var() references");
-  const unknown = [...new Set(used)].filter((name) => !tokenNames.has(name.slice(2)));
-  assert.deepEqual(unknown, []);
-});
-
-test("style.css stays inline and uses logical properties only", () => {
-  assert.match(css, /\.tested-chip\s*\{[^}]*display:\s*inline-flex/s);
-  assert.match(css, /\.tested-chip\s*\{[^}]*padding-inline:/s);
-  assert.doesNotMatch(css, /\b(margin|padding|border)-(left|right)\b/);
-  assert.doesNotMatch(css, /(^|[;{\s])(left|right|top|bottom)\s*:/);
-});
-
-test("style.css hides the last-passed sentence from sight but not from assistive tech", () => {
-  assert.match(css, /\.tested-chip-sr\s*\{[^}]*position:\s*absolute/s);
-  assert.match(css, /\.tested-chip-sr\s*\{[^}]*clip-path:\s*inset\(50%\)/s);
-  assert.match(css, /\.tested-chip-sr\s*\{[^}]*overflow:\s*hidden/s);
-  assert.doesNotMatch(css, /\.tested-chip-sr\s*\{[^}]*display:\s*none/s);
-  assert.doesNotMatch(css, /\.tested-chip-sr\s*\{[^}]*visibility:\s*hidden/s);
-});

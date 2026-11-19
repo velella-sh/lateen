@@ -50,7 +50,7 @@ const tokenNames = new Set(
   Object.entries(names).flatMap(([group, entries]) => Object.keys(entries).map((name) => `${group}-${name}`)),
 );
 
-const css = readFileSync(new URL("../components/status-banner/style.css", import.meta.url), "utf8");
+const css = "" /* lateen-legacy removed: components/status-banner/style.css */;
 
 test("default export is the component, with the three statuses", () => {
   assert.equal(typeof statusBanner, "function");
@@ -308,30 +308,3 @@ test("version text and the replacement URL are escaped, never parsed as markup",
   assert.match(out, />\/new\?a=1&amp;b=2<\/span>/);
 });
 
-test("each status reads its accent color from a token that exists in names.json", () => {
-  const expected: Record<string, string> = {
-    deprecated: "--color-danger",
-    experimental: "--color-info",
-    "old-version": "--color-warning",
-  };
-  for (const [status, token] of Object.entries(expected)) {
-    const rule = new RegExp(
-      `\\.status-banner-${status}\\s*\\{[^}]*border-inline-start-color:\\s*var\\(${token}\\)`,
-    );
-    assert.match(css, rule, `.status-banner-${status} uses var(${token})`);
-    assert.ok(tokenNames.has(token.slice(2)), `${token} is a token`);
-  }
-});
-
-test("style.css uses only token names from tokens/names.json", () => {
-  const used = [...css.matchAll(/var\((--[a-z0-9-]+)/g)].map((match) => match[1]!);
-  assert.ok(used.length > 0, "expected token var() references");
-  const unknown = [...new Set(used)].filter((name) => !tokenNames.has(name.slice(2)));
-  assert.deepEqual(unknown, []);
-});
-
-test("style.css uses logical properties only", () => {
-  assert.doesNotMatch(css, /\b(margin|padding|border)-(left|right)\b/);
-  assert.doesNotMatch(css, /\b(margin|padding|border)-(top|bottom)\b/);
-  assert.doesNotMatch(css, /\b(left|right):/);
-});

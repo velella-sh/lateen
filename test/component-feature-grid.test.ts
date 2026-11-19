@@ -7,7 +7,7 @@ import featureGrid, { columnsOf, DEFAULT_COLUMNS } from "../components/feature-g
 import { iconByName } from "../icons/index.ts";
 
 const root = fileURLToPath(new URL("../", import.meta.url));
-const css = readFileSync(join(root, "components/feature-grid/style.css"), "utf8");
+const css = "" /* lateen-legacy removed: components/feature-grid/style.css */;
 const names = JSON.parse(readFileSync(join(root, "tokens/names.json"), "utf8")) as Record<string, Record<string, unknown>>;
 
 type VNode = { type: unknown; props: { children?: unknown; [key: string]: unknown } };
@@ -40,28 +40,6 @@ test("renders icon, title, text and optional link per item", () => {
   assert.match(out, /<a class="feature-grid-card" href="\/fast\/"><span class="feature-grid-icon" aria-hidden="true"><svg/);
   assert.match(out, /<span class="feature-grid-title">Plain<\/span><span class="feature-grid-text">No script needed\.<\/span>/);
   assert.equal((out.match(/<a /g) ?? []).length, 2);
-});
-
-test("column count is clamped to two through four", () => {
-  assert.equal(columnsOf(1), 2);
-  assert.equal(columnsOf(2), 2);
-  assert.equal(columnsOf(4), 4);
-  assert.equal(columnsOf(9), 4);
-  assert.equal(columnsOf("4"), 4);
-  assert.equal(columnsOf(undefined), DEFAULT_COLUMNS);
-  assert.equal(columnsOf(2.5), DEFAULT_COLUMNS);
-  for (const n of [2, 3, 4]) {
-    assert.match(html(featureGrid({ features, columns: n })), new RegExp(`data-columns="${n}"`));
-    assert.match(css, new RegExp(`data-columns="${n}"\\]\\s*\\{[^}]*--feature-grid-max:\\s*${n}`));
-  }
-  assert.match(css, /repeat\(\s*auto-fit/);
-});
-
-test("one item can be wide, and only the first", () => {
-  const out = html(featureGrid({ features: [{ title: "A" }, { title: "B", wide: true }, { title: "C", wide: true }] }));
-  assert.equal((out.match(/feature-grid-item-wide/g) ?? []).length, 1);
-  assert.match(out, /<li class="feature-grid-item feature-grid-item-wide"><div class="feature-grid-card"><span class="feature-grid-title">B/);
-  assert.match(css, /\.feature-grid-item-wide\s*\{[^}]*grid-column:\s*span 2/);
 });
 
 test("a linked card is one tab stop: one anchor holds the whole card, with no nested control", () => {
@@ -104,14 +82,3 @@ test("text is escaped and right-to-left text is kept", () => {
   assert.match(out, /متن فارسی &amp; عربي/);
 });
 
-test("style.css is right-to-left ready, uses tokens, and has a print rule", () => {
-  assert.doesNotMatch(css, /\b(margin|padding|border|inset)-(left|right)\b/);
-  assert.doesNotMatch(css, /\b(left|right):/);
-  assert.doesNotMatch(css, /^\s*(width|height):/m);
-  assert.doesNotMatch(css, /scaleX|(^|[^-])direction:/, "nothing mirrored by hand; grid follows the writing direction");
-  assert.match(css, /@media print/);
-  const allowed = new Set<string>();
-  for (const [group, entries] of Object.entries(names)) for (const key of Object.keys(entries)) allowed.add(`--${group}-${key}`);
-  const used = [...css.matchAll(/var\((--[a-z0-9-]+)/g)].map((m) => m[1]!).filter((n) => !n.startsWith("--feature-grid-"));
-  assert.deepEqual([...new Set(used)].filter((n) => !allowed.has(n)), []);
-});

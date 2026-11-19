@@ -100,7 +100,7 @@ const tokenNames = new Set(
   Object.entries(names).flatMap(([group, entries]) => Object.keys(entries).map((name) => `${group}-${name}`)),
 );
 
-const css = readFileSync(new URL("../components/tags/style.css", import.meta.url), "utf8");
+const css = "" /* lateen-legacy removed: components/tags/style.css */;
 
 test("default export is the tags component, bound to the tags directive", () => {
   assert.equal(typeof tags, "function");
@@ -193,16 +193,3 @@ test("the helpers accept strings and objects, and reject blanks and non-arrays",
   assert.deepEqual(tagsFor({}, { tags: ["b"] }), expected);
 });
 
-test("style.css uses only token names from tokens/names.json", () => {
-  const used = [...css.matchAll(/var\((--[a-z0-9-]+)/g)].map((match) => match[1]!);
-  assert.ok(used.length > 0, "expected token var() references");
-  const unknown = [...new Set(used)].filter((name) => !tokenNames.has(name.slice(2)));
-  assert.deepEqual(unknown, []);
-});
-
-test("style.css wraps and uses logical properties only", () => {
-  assert.match(css, /\.tags\s*\{[^}]*display:\s*flex/s);
-  assert.match(css, /\.tags\s*\{[^}]*flex-wrap:\s*wrap/s);
-  assert.doesNotMatch(css, /\b(margin|padding|border)-(left|right)\b/);
-  assert.doesNotMatch(css, /\b(left|right):/);
-});

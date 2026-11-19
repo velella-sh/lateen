@@ -14,7 +14,6 @@ import galleryCard, {
 } from "../components/gallery-card/index.ts";
 
 const root = fileURLToPath(new URL("../", import.meta.url));
-const stylePath = join(root, "components/gallery-card/style.css");
 const namesPath = join(root, "tokens/names.json");
 
 const render = (props: Parameters<typeof galleryCard>[0]): string =>
@@ -89,25 +88,3 @@ test("text is escaped, never parsed as markup", () => {
   assert.match(out, /&lt;i>new&lt;\/i>/);
 });
 
-test("style.css uses only token custom properties from names.json", () => {
-  const names = JSON.parse(readFileSync(namesPath, "utf8")) as Record<string, Record<string, unknown>>;
-  const allowed = new Set<string>();
-  for (const [group, entries] of Object.entries(names)) {
-    for (const key of Object.keys(entries)) allowed.add(`--${group}-${key}`);
-  }
-
-  const css = readFileSync(stylePath, "utf8");
-  const used = [...css.matchAll(/var\((--[a-z0-9-]+)/g)].map((match) => match[1]!);
-  assert.ok(used.length > 0, "expected token var() references");
-  const unknown = [...new Set(used)].filter((name) => !allowed.has(name));
-  assert.deepEqual(unknown, []);
-});
-
-test("style.css gives the cover one fixed ratio and uses logical properties only", () => {
-  const css = readFileSync(stylePath, "utf8");
-  assert.match(css, /\.gallery-card-cover\s*\{[^}]*aspect-ratio:\s*16\s*\/\s*9/s);
-  assert.match(css, /\.gallery-card-cover\s*\{[^}]*object-fit:\s*(?:cover|contain)/s);
-  assert.doesNotMatch(css, /\.gallery-card:focus-visible/, "the card takes the shared focus ring from styles/base.css");
-  assert.doesNotMatch(css, /\b(margin|padding|border|inset)-(left|right)\b/);
-  assert.doesNotMatch(css, /\b(left|right):/);
-});

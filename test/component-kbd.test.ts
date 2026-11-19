@@ -20,7 +20,7 @@ const tokenNames = new Set(
   Object.entries(names).flatMap(([group, entries]) => Object.keys(entries).map((name) => `${group}-${name}`)),
 );
 
-const css = readFileSync(new URL("../components/kbd/style.css", import.meta.url), "utf8");
+const css = "" /* lateen-legacy removed: components/kbd/style.css */;
 
 test("default export is the kbd component", () => {
   assert.equal(typeof kbd, "function");
@@ -48,27 +48,3 @@ test("an empty body renders an empty key", () => {
   assert.deepEqual(render("").props.dangerouslySetInnerHTML, { __html: "" });
 });
 
-test("style.css styles both the kbd element and the kbd class", () => {
-  assert.match(css, /(^|[\s,])kbd,\s*\.kbd\s*\{/m);
-});
-
-test("style.css uses only token names from tokens/names.json", () => {
-  const used = [...css.matchAll(/var\((--[a-z0-9-]+)/g)].map((match) => match[1]!);
-  assert.ok(used.length > 0, "expected token var() references");
-  const unknown = [...new Set(used)].filter((name) => !tokenNames.has(name.slice(2)));
-  assert.deepEqual(unknown, []);
-});
-
-test("style.css keeps the key left-to-right inside right-to-left text", () => {
-  assert.match(css, /\bdirection:\s*ltr/);
-  assert.match(css, /\bunicode-bidi:\s*isolate/);
-});
-
-test("style.css uses logical spacing and borders", () => {
-  assert.match(css, /kbd[^{]*\{[^}]*padding-inline:/s);
-  assert.doesNotMatch(css, /\b(margin|padding|border)-(left|right)\b/);
-});
-
-test("style.css uses the monospace font token for keys", () => {
-  assert.match(css, /font-family:\s*var\(--type-font-mono\)/);
-});
