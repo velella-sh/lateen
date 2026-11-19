@@ -80,28 +80,31 @@ function html(node: unknown): string {
 
 const out = (frontMatter: Record<string, unknown> = {}, body = "") => html(home(layoutProps(frontMatter, body)));
 
-test("the hero renders the eyebrow, title, and lead from front matter", () => {
+test("the hero renders the brand, eyebrow, title, and lead from front matter", () => {
   const page = out({ hero: { eyebrow: "v0.3.0 · 12 pages", title: "Docs you can trust.", lead: "One line." } });
+  assert.match(page, /<p class="product">Example<\/p>/);
   assert.match(
     page,
-    /<div class="home-hero"><p class="home-eyebrow"><i aria-hidden="true"><\/i>v0\.3\.0 · 12 pages<\/p><h1 class="home-title">Docs you can trust\.<\/h1><p class="home-lead">One line\.<\/p>/,
+    /<section class="home-hero" aria-labelledby="home-title"><p class="home-eyebrow"><i aria-hidden="true"><\/i>v0\.3\.0 · 12 pages<\/p><p class="product">Example<\/p><h1 id="home-title" class="home-title display">Docs you can trust\.<\/h1><p class="home-lead lead">One line\.<\/p>/,
   );
+  assert.match(page, /class="home-preview"/);
+  assert.match(page, /class="hero-hint"/);
 });
 
 test("the hero title falls back to the page title", () => {
   const page = out({ hero: { lead: "One line." } });
-  assert.match(page, /<h1 class="home-title">Home<\/h1>/);
+  assert.match(page, /<h1 id="home-title" class="home-title display">Home<\/h1>/);
   assert.doesNotMatch(page, /home-eyebrow/);
 });
 
-test("actions render as buttons; the primary one is filled and carries the arrow", () => {
+test("actions render as buttons; the primary one is filled", () => {
   const page = out({
     actions: [
       { label: "Get started", url: "/guide/", primary: true },
       { label: "Browse the API", url: "/reference/" },
     ],
   });
-  assert.match(page, /<div class="home-actions"><a class="home-btn home-btn-primary" href="\/guide\/">Get started<svg class="home-arrow" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M5 12h14M13 6l6 6-6 6"><\/path><\/svg><\/a>/);
+  assert.match(page, /<div class="home-actions actions"><a class="home-btn home-btn-primary" href="\/guide\/">Get started<\/a>/);
   assert.match(page, /<a class="home-btn home-btn-quiet" href="\/reference\/">Browse the API<\/a>/);
 });
 
@@ -112,7 +115,7 @@ test("an action without a label or a URL is dropped, and an empty list renders n
   assert.doesNotMatch(empty, /home-actions/);
 });
 
-test("sections render as a grid of cards with heading links, descriptions, and link lists", () => {
+test("sections render as mockup cards with row links", () => {
   const page = out({
     sections: [
       {
@@ -127,18 +130,19 @@ test("sections render as a grid of cards with heading links, descriptions, and l
       },
     ],
   });
-  assert.match(page, /<div class="home-sections"><div class="home-section"><h2 class="home-section-title"><span class="home-section-icon" aria-hidden="true"><svg viewBox="0 0 24 24" focusable="false"><path d="M4 5h7a3 3 0 0 1 3 3v11"><\/path><\/svg><\/span><a href="\/guide\/">Guides<\/a><\/h2><p class="home-section-description">Task-based pages\.<\/p><ul class="home-section-links">/);
-  assert.match(page, /<li><a href="\/guide\/install\/"><span>Install<\/span><span class="home-link-meta">3 min<\/span><\/a><\/li>/);
-  assert.match(page, /<li><a href="\/guide\/deploy\/"><span>Deploy<\/span><\/a><\/li>/);
+  assert.match(page, /<section class="home-sections cards" aria-label="Explore"><article class="home-section card"><h2 class="home-section-title">Guides<\/h2><p class="home-section-description">Task-based pages\.<\/p>/);
+  assert.match(page, /<a class="row" href="\/guide\/install\/"><span>Install<\/span><em>3 min<\/em><\/a>/);
+  assert.match(page, /<a class="row" href="\/guide\/deploy\/"><span>Deploy<\/span><em>page<\/em><\/a>/);
+  assert.doesNotMatch(page, /home-section-icon/);
 });
 
-test("a section without a URL has a plain heading, and one without links has no list", () => {
+test("a section without links still renders its heading", () => {
   const page = out({ sections: [{ title: "Components", description: "Callouts, tabs, cards." }] });
   assert.match(page, /<h2 class="home-section-title">Components<\/h2>/);
-  assert.doesNotMatch(page, /home-section-links/);
+  assert.doesNotMatch(page, /class="row"/);
 });
 
-test("the page body renders after the hero and the section grids", () => {
+test("the page body renders after the stage and the section cards", () => {
   const page = out(
     {
       hero: { title: "Docs." },
@@ -146,15 +150,15 @@ test("the page body renders after the hero and the section grids", () => {
     },
     "<p>More about the project.</p>",
   );
-  const hero = page.indexOf("home-hero");
+  const stage = page.indexOf("home-stage");
   const sections = page.indexOf("home-sections");
   const body = page.indexOf("<p>More about the project.</p>");
-  assert.ok(hero >= 0 && sections > hero && body > sections, `hero ${hero} < sections ${sections} < body ${body}`);
+  assert.ok(stage >= 0 && sections > stage && body > sections, `stage ${stage} < sections ${sections} < body ${body}`);
 });
 
 test("front matter that does not match the shape is dropped without throwing", () => {
   const page = out({ hero: "nope", actions: 42, sections: ["x", 7, null] });
-  assert.match(page, /<h1 class="home-title">Home<\/h1>/);
+  assert.match(page, /<h1 id="home-title" class="home-title display">Home<\/h1>/);
   assert.doesNotMatch(page, /home-actions/);
   assert.doesNotMatch(page, /home-sections/);
 });
@@ -165,12 +169,12 @@ test("sections and links with non-string fields are skipped", () => {
   });
   assert.doesNotMatch(page, /href="\/x\/"/);
   assert.match(page, /<h2 class="home-section-title">Guides<\/h2>/);
-  assert.doesNotMatch(page, /home-section-links/);
+  assert.doesNotMatch(page, /class="row"/);
 });
 
 test("the home content sits in the base shell, so the document keeps lang, dir, and the skip link", () => {
   const page = out();
   assert.match(page, /^<html lang="en" dir="ltr"/);
   assert.match(page, /<body><a class="skip-link" href="#main">Skip to content<\/a>/);
-  assert.match(page, /<main id="main" tabindex="-1"><div class="home-hero">/i);
+  assert.match(page, /<main id="main" tabindex="-1"><div class="home-content"><div class="home-stage">/i);
 });

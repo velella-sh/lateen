@@ -5,7 +5,7 @@ layout: home
 hero:
   eyebrow: v0.2.3 · docs theme
   title: Easy to read. Safe to edit.
-  lead: Lateen gives a Mizzen site its layouts, navigation, components, and design tokens. It works without JavaScript, mirrors for right-to-left languages, and is tested against WCAG 2.2 AA.
+  lead: Layouts, navigation, components, and tokens for a Mizzen site. Works without JavaScript, mirrors for right-to-left languages, and is tested against WCAG 2.2 AA.
 actions:
   - label: Install Lateen
     url: install/
