@@ -4,7 +4,7 @@ Thank you for helping. Most contributions are a bug report, a fix, a docs improv
 
 ## Set up
 
-Lateen needs Node 24 or later, which runs the TypeScript source directly: there is no build step.
+Lateen supports Node 24 or later, which runs the TypeScript source directly. For development, use the Node version in `.node-version` and the npm version in `package.json` to match CI.
 
 ```bash
 git clone https://github.com/velella-sh/mizzen.git

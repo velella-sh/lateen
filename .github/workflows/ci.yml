@@ -21,7 +21,10 @@ jobs:
           persist-credentials: false
       - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
         with:
-          node-version: "24"
+          node-version-file: lateen/.node-version
+      - name: Set up npm
+        working-directory: lateen
+        run: npm install --global "$(node -p "require('./package.json').packageManager")" --no-audit --no-fund
       - name: Install
         run: npm ci --no-audit --no-fund
         working-directory: lateen
@@ -55,7 +58,10 @@ jobs:
           persist-credentials: false
       - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
         with:
-          node-version: "24"
+          node-version-file: lateen/.node-version
+      - name: Set up npm
+        working-directory: lateen
+        run: npm install --global "$(node -p "require('./package.json').packageManager")" --no-audit --no-fund
       - name: Install
         run: npm ci --no-audit --no-fund
         working-directory: lateen
@@ -80,7 +86,10 @@ jobs:
           persist-credentials: false
       - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
         with:
-          node-version: "24"
+          node-version-file: lateen/.node-version
+      - name: Set up npm
+        working-directory: lateen
+        run: npm install --global "$(node -p "require('./package.json').packageManager")" --no-audit --no-fund
       - name: Install
         run: npm ci --no-audit --no-fund
         working-directory: lateen
@@ -106,9 +115,12 @@ jobs:
           fetch-depth: 0
       - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
         with:
-          node-version: "24"
+          node-version-file: lateen/.node-version
+      - name: Set up npm
+        working-directory: lateen
+        run: npm install --global "$(node -p "require('./package.json').packageManager")" --no-audit --no-fund
       - name: Cache the Playwright browser
-        uses: actions/cache@0057852bfaa89a56745cba8c7296529d2fc39830 # v4
+        uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
         with:
           path: ~/.cache/ms-playwright
           key: ${{ runner.os }}-playwright-${{ hashFiles('lateen/package-lock.json') }}
@@ -165,7 +177,7 @@ jobs:
           EOF
       - name: Upload the visual review images
         if: failure()
-        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
         with:
           name: visual-out
           path: lateen/test/visual/out
@@ -188,7 +200,10 @@ jobs:
           persist-credentials: false
       - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
         with:
-          node-version: "24"
+          node-version-file: lateen/.node-version
+      - name: Set up npm
+        working-directory: lateen
+        run: npm install --global "$(node -p "require('./package.json').packageManager")" --no-audit --no-fund
       - name: Install
         run: npm ci --no-audit --no-fund
         working-directory: lateen

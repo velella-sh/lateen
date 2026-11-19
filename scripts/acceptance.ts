@@ -39,8 +39,11 @@ function sha256(file: string): string {
 
 function pack(spec: string | undefined, into: string): string {
   const args = spec === undefined ? ["pack", "--json", "--pack-destination", into] : ["pack", spec, "--json", "--pack-destination", into];
-  const output = JSON.parse(sh("npm", args, ROOT)) as [{ filename: string }];
-  return join(into, output[0]!.filename);
+  const output = JSON.parse(sh("npm", args, ROOT)) as Record<string, { filename: string }>;
+  // npm 12 keys pack results by package name. Older versions return an array.
+  const [tarball] = Object.values(output);
+  if (!tarball) throw new Error("npm pack produced no tarball");
+  return join(into, tarball.filename);
 }
 
 /** The exact installed engine, not the range in package.json. */
