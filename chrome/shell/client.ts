@@ -21,26 +21,37 @@ export function readingProgress(scrollY: number, articleTop: number, articleHeig
   return Math.min(1, Math.max(0, ratio));
 }
 
-function boot(): void {
+export function boot(window: Window): void {
   // Progress and sticky glass only; search, theme, and drawer ship their own chrome clients.
-  if (!document.querySelector("[data-site-header]")) return;
-
+  const { document } = window;
   const header = document.querySelector("[data-site-header]");
+  if (!header) return;
+  const headerClasses = header.classList;
   const progress = document.querySelector<HTMLElement>("[data-progress]");
   const article = document.querySelector<HTMLElement>("#main");
+  let scheduled = false;
 
   function syncChrome(): void {
     const y = window.scrollY || 0;
-    header?.classList.toggle("is-scrolled", y > 8);
-    if (!article || !progress) return;
-    const ratio = readingProgress(y, article.offsetTop, article.scrollHeight, window.innerHeight);
-    progress.style.width = `${(ratio * 100).toFixed(2)}%`;
+    const ratio = article && progress ? readingProgress(y, article.offsetTop, article.scrollHeight, window.innerHeight) : 0;
+    headerClasses.toggle("is-scrolled", y > 8);
+    if (!progress || !article) return;
+    progress.style.transform = `scaleX(${ratio.toFixed(4)})`;
     progress.classList.toggle("is-on", y > 20 && ratio > 0 && ratio < 1);
   }
 
+  function scheduleChrome(): void {
+    if (scheduled) return;
+    scheduled = true;
+    window.requestAnimationFrame(() => {
+      scheduled = false;
+      syncChrome();
+    });
+  }
+
   syncChrome();
-  window.addEventListener("scroll", syncChrome, { passive: true });
-  window.addEventListener("resize", syncChrome);
+  window.addEventListener("scroll", scheduleChrome, { passive: true });
+  window.addEventListener("resize", scheduleChrome);
 }
 
-if (typeof document !== "undefined") boot();
+if (typeof window !== "undefined") boot(window);

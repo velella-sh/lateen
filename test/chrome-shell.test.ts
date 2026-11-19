@@ -1,11 +1,37 @@
 import assert from "node:assert/strict";
 import { test } from "node:test";
 import { Fragment, h } from "preact";
+import { JSDOM } from "jsdom";
 import type { Page, Site, SiteConfig, SourcePos } from "@velella/mizzen/contracts";
 import shell, { footer } from "../chrome/shell/index.ts";
-import { searchPages, themeColor, readingProgress } from "../chrome/shell/client.ts";
+import { boot, searchPages, themeColor, readingProgress } from "../chrome/shell/client.ts";
 
 const pos: SourcePos = { file: "index.md", line: 1, column: 1, endLine: 1, endColumn: 1 };
+
+test("the shell batches scroll and resize updates into one frame", (t) => {
+  const { window } = new JSDOM("<header data-site-header></header><div data-progress></div><main id=main></main>");
+  t.after(() => window.close());
+  const { document } = window;
+  const header = document.querySelector("header")!;
+  const progress = document.querySelector<HTMLElement>("[data-progress]")!;
+  const main = document.querySelector("main")!;
+  Object.defineProperty(main, "scrollHeight", { value: 1000 });
+  Object.defineProperty(window, "innerHeight", { value: 600 });
+  const frames: FrameRequestCallback[] = [];
+  window.requestAnimationFrame = (callback) => frames.push(callback);
+  boot(window as unknown as Window);
+
+  Object.defineProperty(window, "scrollY", { value: 160 });
+  window.dispatchEvent(new window.Event("scroll"));
+  window.dispatchEvent(new window.Event("scroll"));
+  window.dispatchEvent(new window.Event("resize"));
+  assert.equal(frames.length, 1);
+  assert.equal(header.classList.contains("is-scrolled"), false);
+  frames.shift()!(0);
+  assert.equal(progress.style.transform, "scaleX(0.5)");
+  assert.equal(progress.classList.contains("is-on"), true);
+  assert.equal(header.classList.contains("is-scrolled"), true);
+});
 
 function html(node: unknown): string {
   if (node == null || node === false || node === true) return "";
