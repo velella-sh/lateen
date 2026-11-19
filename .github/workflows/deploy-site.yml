@@ -39,7 +39,7 @@ jobs:
         run: npx playwright install --with-deps chromium
         working-directory: lateen
       - name: Write the accessibility report
-        run: node scripts/test-a11y.ts --report site/_data/accessibility-report.json
+        run: npm run ui:build && node scripts/test-a11y.ts --report site/_data/accessibility-report.json
         working-directory: lateen
       - name: Write the performance report
         run: node scripts/performance-budget.ts --report site/_data/performance-report.json
