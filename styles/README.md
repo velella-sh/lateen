@@ -1,6 +1,6 @@
 # Styles
 
-Sailcloth visuals are authored in `src/ui.css` (Tailwind CSS + Basecoat + locked brand tokens). Run `npm run ui:build` to write `generated.css`. Do not edit `generated.css` by hand. Keep the Tailwind source under `src/` so Mizzen does not ship raw `@import` / `@apply` into the page bundle.
+Sailcloth visuals are authored in `src/ui.css` with Tailwind CSS and the locked brand tokens. Run `npm run ui:build` to write `generated.css`. Do not edit `generated.css` by hand. Keep the Tailwind source under `src/` so Mizzen does not ship raw `@import` / `@apply` into the page bundle.
 
 Site-wide keepers beside that build:
 

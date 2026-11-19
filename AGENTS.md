@@ -13,7 +13,7 @@ npm ci
 npm run ui:build
 ```
 
-`npm run ui:build` compiles Tailwind + Basecoat from `styles/src/ui.css` into `styles/generated.css` and bundles the Chart.js entry in `scripts/chart-entry.ts`. Do not edit generated files by hand.
+`npm run ui:build` compiles `styles/src/ui.css` with Tailwind and bundles the Chart.js entry in `scripts/chart-entry.ts`. Do not edit generated files by hand.
 
 `npm ci` installs the published `@velella/mizzen`, which is what the tests and the docs check run against. No sibling checkout is required.
 
@@ -23,7 +23,7 @@ To test against a local Mizzen instead, clone `velella-sh/mizzen` beside this re
 
 ```bash
 npm run typecheck      # tsc --noEmit
-npm run ui:build       # Tailwind/Basecoat CSS + Chart.js asset
+npm run ui:build       # Tailwind CSS + Chart.js asset
 npm test               # ui:build + design check + node --test
 npm run test:a11y      # axe gate; needs npx playwright install chromium
 npm run test:performance
@@ -35,7 +35,7 @@ Before a pull request: `npm run typecheck && npm test`.
 
 ## Stack (only design system)
 
-Mizzen + Node + TypeScript + Preact + **Tailwind CSS** + **Basecoat** + vanilla islands + **Lucide** + **Chart.js**.
+Mizzen + Node + TypeScript + Preact + **Tailwind CSS** + vanilla islands + **Lucide** + **Chart.js**.
 
 - Visuals: `styles/src/ui.css` → `styles/generated.css`
 - Icons: Lucide via `src/icon.ts` (not hand SVG sheets for new work)

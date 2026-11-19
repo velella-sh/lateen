@@ -8,15 +8,15 @@ test("the sailcloth stack deps are declared on the package", () => {
     devDependencies?: Record<string, string>;
   };
   const deps = { ...pkg.dependencies, ...pkg.devDependencies };
-  for (const name of ["tailwindcss", "@tailwindcss/cli", "basecoat-css", "chart.js", "lucide", "preact"]) {
+  for (const name of ["tailwindcss", "@tailwindcss/cli", "chart.js", "lucide", "preact"]) {
     assert.ok(deps[name], `${name} is installed`);
   }
 });
 
-test("styles/src/ui.css is the Tailwind + Basecoat source of truth", () => {
+test("styles/src/ui.css declares the Tailwind design tokens", () => {
   const css = readFileSync(new URL("../../styles/src/ui.css", import.meta.url), "utf8");
   assert.match(css, /@import "tailwindcss"/);
-  assert.match(css, /@import "basecoat-css\/base\/base\.css"/);
+  assert.match(css, /@theme\s*\{/);
   assert.match(css, /--foam:\s*#f4f4f9/i);
   assert.match(css, /--night:\s*#23212c/i);
 });
