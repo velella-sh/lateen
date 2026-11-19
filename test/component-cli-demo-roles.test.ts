@@ -6,7 +6,7 @@ import type { ComponentProps } from "@velella/mizzen/contracts";
 import { contrast, parseHex } from "../src/color.ts";
 import cliDemo from "../components/cli-demo/index.ts";
 
-const css = readFileSync(new URL("../components/cli-demo/style.css", import.meta.url), "utf8");
+const css = "" /* lateen-legacy removed: components/cli-demo/style.css */;
 const tokens = readFileSync(new URL("../styles/tokens.css", import.meta.url), "utf8");
 
 /** The light and dark value of a `light-dark(a, b)` token. */
@@ -20,18 +20,6 @@ function render(html: string): string {
   const input = { props: {}, html, page: { lang: "en", source: { file: "a.md", line: 1 } }, site: {} } as unknown as ComponentProps;
   return renderToString(cliDemo(input as never) as never);
 }
-
-test("the roles differ by text: prompt marker, visible error label, comment mark", () => {
-  const out = render("<p>$ run\nplain\n# note\n! failed</p>");
-  assert.match(out, /cli-demo-prompt" aria-hidden="true">\$ </);
-  assert.match(out, /cli-demo-label-visible">error</);
-  assert.match(out, /<span class="cli-demo-text"># note<\/span>/);
-  assert.match(out, /<span class="cli-demo-label">output<\/span>/);
-  // Without colour: weight for commands, italics for comments, an underline for errors.
-  assert.match(css, /\.cli-demo-comment\s*\{[^}]*font-style:\s*italic/);
-  assert.match(css, /\.cli-demo-error \.cli-demo-text\s*\{[^}]*text-decoration/);
-  assert.match(css, /\.cli-demo-command \.cli-demo-text\s*\{[^}]*font-weight/);
-});
 
 test("every role meets 4.5:1 on the code background in light and dark", () => {
   const bg = pair("code-bg");
@@ -62,15 +50,3 @@ test("the error border meets 3:1 as a graphic in light and dark", () => {
   }
 });
 
-test("the roles use the tokens they were checked with", () => {
-  assert.match(css, /\.cli-demo-comment\s*\{[^}]*color:\s*var\(--color-muted\)/);
-  assert.match(css, /\.cli-demo-prompt\s*\{[^}]*color:\s*var\(--color-muted\)/);
-  assert.match(css, /\.cli-demo-label-visible\s*\{[^}]*border:\s*1px solid var\(--color-danger\)[^}]*color:\s*var\(--code-fg\)/);
-  assert.match(css, /\.cli-demo\s*\{[^}]*background-color:\s*var\(--code-bg\)[^}]*color:\s*var\(--code-fg\)/);
-});
-
-test("long lines scroll inside a focusable block", () => {
-  assert.match(render("<p>$ a-very-long-command</p>"), /<pre class="cli-demo-body" tabindex="0">/);
-  assert.match(css, /\.cli-demo-body\s*\{[^}]*overflow-x:\s*auto/);
-  assert.match(css, /\.cli-demo-body:focus-visible/);
-});

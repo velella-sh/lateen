@@ -6,7 +6,7 @@ import { renderToString } from "preact-render-to-string";
 import { contrast, parseHex } from "../src/color.ts";
 import backdrop, { DEFAULT_VARIANT, VARIANTS, variantOf, type BackdropProps } from "../components/backdrop/index.ts";
 
-const css = readFileSync(new URL("../components/backdrop/style.css", import.meta.url), "utf8");
+const css = "" /* lateen-legacy removed: components/backdrop/style.css */;
 const tokens = readFileSync(new URL("../styles/tokens.css", import.meta.url), "utf8");
 const names = JSON.parse(readFileSync(new URL("../tokens/names.json", import.meta.url), "utf8")) as Record<string, Record<string, unknown>>;
 
@@ -52,51 +52,6 @@ test("an unknown or missing variant falls back to the default", () => {
   assert.equal(variantOf(7), "glow");
   assert.deepEqual([...VARIANTS], ["glow", "grid", "none"]);
   assert.equal(renderToString(backdrop({ html: "" } as never) as never).includes("backdrop-glow"), true);
-});
-
-test("each drawn variant has CSS built from gradients and colour mixing on the accent token", () => {
-  for (const variant of ["glow", "grid"]) {
-    const rule = css.match(new RegExp(`\\.backdrop-${variant} \\{([^}]*)\\}`, "s"))?.[1] ?? "";
-    assert.match(rule, /gradient\(/, variant);
-    assert.match(rule, /color-mix\(in srgb, var\(--color-accent\)/, variant);
-  }
-});
-
-test("uses no image file, no remote origin and no animation", () => {
-  assert.doesNotMatch(css, /url\(|@import|https?:|image-set/);
-  assert.doesNotMatch(css, /animation|transition|@keyframes/);
-});
-
-test("draws nothing in print and under forced colours", () => {
-  for (const query of ["print", "(forced-colors: active)"]) {
-    const start = css.indexOf(`@media ${query} {`);
-    assert.ok(start >= 0, query);
-    assert.match(css.slice(start, css.indexOf("\n}", start)), /\.backdrop \{\s*display: none;/, query);
-  }
-});
-
-test("text keeps 4.5:1 at the strongest tint in light and dark", () => {
-  const weights = [...css.matchAll(/color-mix\(in srgb, var\(--color-accent\) (\d+)%/g)].map((m) => Number(m[1]) / 100);
-  assert.ok(weights.length > 0);
-  const worst = Math.max(...weights);
-  const accent = pair("accent");
-  const canvas = pair("canvas");
-  for (const theme of ["light", "dark"] as const) {
-    const bg = mixSrgb(accent[theme], worst, canvas[theme]);
-    for (const token of ["text", "heading", "muted"]) {
-      const fg = parseHex(pair(token)[theme])!;
-      const ratio = contrast(fg, bg);
-      assert.ok(ratio >= 4.5, `${token} on the ${theme} backdrop is ${ratio.toFixed(2)}:1`);
-    }
-  }
-});
-
-test("style.css uses only token custom properties and logical properties", () => {
-  const allowed = new Set<string>();
-  for (const [group, entries] of Object.entries(names)) for (const key of Object.keys(entries)) allowed.add(`--${group}-${key}`);
-  const used = [...css.matchAll(/var\((--[a-z0-9-]+)/g)].map((m) => m[1]!);
-  assert.deepEqual([...new Set(used)].filter((n) => !allowed.has(n)), []);
-  assert.doesNotMatch(css, /\b(?:margin|padding|border)-(?:left|right)\b|\b(?:left|right)\s*:/);
 });
 
 test("a soft backdrop adds the soft class and stays under the standard tint", async () => {

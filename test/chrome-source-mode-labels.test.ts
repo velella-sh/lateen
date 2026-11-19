@@ -33,11 +33,13 @@ test("blocks without a valid span, and list or table blocks, get no label", () =
   assert.equal(labelable(list).length, 1);
 });
 
-test("the stylesheet places labels with logical properties and no flow, so nothing shifts", () => {
-  const css = readFileSync(new URL("../chrome/source-mode/style.css", import.meta.url), "utf8");
-  assert.match(css, /\.source-label \{\s*display: none;/, "labels are not rendered until the mode is on");
-  assert.match(css, /\.source-mode \.source-label \{[^}]*position: absolute;/);
-  assert.match(css, /inset-inline-end: calc\(100% \+ var\(--space-3\)\)/, "start margin on wide screens");
-  assert.match(css, /inset-block-end: 100%/, "above the block on narrow screens");
-  assert.doesNotMatch(css, /\b(left|right|margin-left|margin-right):/);
+test("copy controls that mirror data-src are not labeled, so actions are not nested inside the button", () => {
+  const { list } = blocks(
+    `<pre class="code" data-src="a.md:1:1-3:1" id="code-1"><code>x</code></pre>` +
+      `<button type="button" class="code-copy" data-src="a.md:1:1-3:1" aria-label="Copy"></button>`,
+  );
+  const hosts = labelable(list);
+  assert.equal(hosts.length, 1);
+  assert.equal(hosts[0]?.tagName?.toUpperCase(), "PRE");
 });
+

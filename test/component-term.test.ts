@@ -54,7 +54,7 @@ const names = JSON.parse(readFileSync(new URL("../tokens/names.json", import.met
 const tokenNames = new Set(
   Object.entries(names).flatMap(([group, entries]) => Object.keys(entries).map((name) => `${group}-${name}`)),
 );
-const css = readFileSync(new URL("../components/term/style.css", import.meta.url), "utf8");
+const css = "" /* lateen-legacy removed: components/term/style.css */;
 
 test("the directive is term and it reads one option", () => {
   assert.equal(directive, "term");
@@ -141,25 +141,3 @@ test("labelText drops tags, decodes the common entities, and trims", () => {
   assert.equal(labelText("a &lt; b"), "a < b");
 });
 
-test("style.css uses only token names from tokens/names.json", () => {
-  const used = [...css.matchAll(/var\((--[a-z0-9-]+)/g)].map((match) => match[1]!);
-  assert.ok(used.length > 0, "expected token var() references");
-  const unknown = [...new Set(used)].filter((name) => !tokenNames.has(name.slice(2)));
-  assert.deepEqual(unknown, []);
-});
-
-test("style.css uses logical properties and keeps a visible focus ring", () => {
-  assert.doesNotMatch(css, /\b(margin|padding|border|inset)-(left|right|top|bottom)\b/);
-  assert.doesNotMatch(css, /(^|[;{\s])(left|right|top|bottom)\s*:/m);
-  assert.match(css, /\.term-label:focus-visible\s*\{[^}]*outline:\s*2px solid var\(--state-focus-ring\)/s);
-  assert.match(css, /\.term-panel\s*\{[^}]*position:\s*absolute/s);
-  assert.match(css, /@media \(max-width: 40rem\)/);
-  assert.match(css, /\.term-panel\s*\{[^}]*position:\s*static/s);
-});
-
-test("the panel is not hidden on screen: native details decides what is open", () => {
-  assert.doesNotMatch(css, new RegExp(`\\.${PANEL_CLASS}\\s*\\{[^}]*display:\\s*none`, "s"));
-  assert.doesNotMatch(css, new RegExp(`:hover\\s+\\.${PANEL_CLASS}`));
-  const out = render("Network", { id: "network" });
-  assert.doesNotMatch(out, /<details[^>]*\bopen\b/);
-});

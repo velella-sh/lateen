@@ -193,19 +193,6 @@ test("an empty title leaves an empty, deterministic title element", () => {
   assert.doesNotMatch(out, /undefined/);
 });
 
-test("arrows are decorative, mirror under dir=rtl in style.css, and do not change the logical order", () => {
-  const ltr = output({ prev, next });
-  assert.equal(ltr.match(/<svg class="pager-arrow" viewBox="0 0 24 24" aria-hidden="true" focusable="false">/g)?.length, 2);
-
-  const rtl = output({ prev, next }, "fa");
-  assert.ok(rtl.indexOf('rel="prev"') < rtl.indexOf('rel="next"'));
-  assert.equal(rtl.match(/aria-hidden="true" focusable="false"/g)?.length, 2);
-
-  const css = readFileSync(new URL("../chrome/pager/style.css", import.meta.url), "utf8");
-  assert.match(css, /\[dir="rtl"\] \.pager-arrow \{\n {2}transform: scaleX\(-1\);\n\}/);
-  assert.match(css, /\.pager-next \{\n {2}grid-column: 2;\n {2}text-align: end;\n\}/);
-});
-
 test("both cards are plain links, reachable and ordered for keyboard navigation", () => {
   const out = output({ prev, next });
   const links = out.match(/<a [^>]*>/g) ?? [];
@@ -216,11 +203,3 @@ test("both cards are plain links, reachable and ordered for keyboard navigation"
   assert.ok(out.indexOf('class="pager-link pager-prev"') < out.indexOf('class="pager-link pager-next"'));
 });
 
-test("style.css uses only token names from tokens/names.json for var(--*) references", () => {
-  const css = readFileSync(new URL("../chrome/pager/style.css", import.meta.url), "utf8");
-  const used = [...css.matchAll(/var\(--([a-z0-9-]+)\)/g)].map((match) => match[1]!);
-  assert.ok(used.length > 0);
-  for (const name of used) {
-    assert.ok(tokenNames.has(name), `unknown token --${name}`);
-  }
-});

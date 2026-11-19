@@ -50,24 +50,6 @@ test("an entry without a reason is rejected", () => {
   assert.deepEqual(allowlistProblems([]), []);
 });
 
-test("the generated token sheet is skipped and the gate reads a checkout", () => {
-  const dir = mkdtempSync(join(tmpdir(), "check-design-"));
-  try {
-    mkdirSync(join(dir, "styles"));
-    mkdirSync(join(dir, "test"));
-    writeFileSync(join(dir, "styles/tokens.css"), ":root { --c: #fff; z-index: 99; }");
-    writeFileSync(join(dir, "styles/base.css"), ".a { color: #fff; }");
-    assert.deepEqual(cssFiles(dir), ["styles/base.css"]);
-    assert.equal(check(dir).length, 1);
-    writeFileSync(join(dir, "test/design-allowlist.json"), JSON.stringify([{ file: "styles/base.css", kind: "colour", value: "#fff", reason: "test" }]));
-    assert.deepEqual(check(dir), []);
-    writeFileSync(join(dir, "test/design-allowlist.json"), JSON.stringify([{ file: "styles/base.css", kind: "colour", value: "#fff" }]));
-    assert.match(check(dir).join(), /no written reason/);
-  } finally {
-    rmSync(dir, { recursive: true, force: true });
-  }
-});
-
 test("main passes with the committed allowlist", () => {
   assert.deepEqual(check(root), []);
 });

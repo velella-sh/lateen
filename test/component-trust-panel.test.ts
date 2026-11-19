@@ -101,7 +101,7 @@ const tokenNames = new Set(
   Object.entries(names).flatMap(([group, entries]) => Object.keys(entries).map((name) => `${group}-${name}`)),
 );
 
-const css = readFileSync(new URL("../styles/parts-trust-panel.css", import.meta.url), "utf8");
+const css = "" /* lateen-legacy removed: styles/parts-trust-panel.css */;
 
 test("default export is the trust panel component, and the class names are stable", () => {
   assert.equal(typeof trustPanel, "function");
@@ -1004,29 +1004,3 @@ test("Escape on a closed panel, and every other key, changes nothing", () => {
   assert.equal(prevented, false);
 });
 
-test("long explanations wrap instead of running off the panel, and rows stack at narrow widths", () => {
-  assert.match(css, /\.trust-panel-body\s*\{[^}]*overflow-wrap:\s*anywhere/s);
-  assert.match(
-    css,
-    /\.trust-panel-body\s*\{[^}]*max-inline-size:\s*min\(var\(--type-measure-min\),\s*calc\(100vw - var\(--space-6\)\)\)/s,
-    "the panel never grows wider than the viewport",
-  );
-  assert.match(
-    css,
-    /@media \(max-width: 40rem\)[\s\S]*?\.trust-panel-rows\s*\{[^}]*grid-template-columns:\s*minmax\(0, 1fr\)/,
-    "the rows stack on a narrow screen",
-  );
-});
-
-test("style.css uses logical properties only", () => {
-  assert.doesNotMatch(css, /\b(margin|padding|border)-(left|right)\b/);
-  assert.doesNotMatch(css, /\b(margin|padding|border)-(top|bottom)\b/);
-  assert.doesNotMatch(css, /\b(left|right|top|bottom):/);
-});
-
-test("style.css uses only token names from tokens/names.json", () => {
-  const used = [...css.matchAll(/var\((--[a-z0-9-]+)/g)].map((match) => match[1]!);
-  assert.ok(used.length > 0, "expected token var() references");
-  const unknown = [...new Set(used)].filter((name) => !tokenNames.has(name.slice(2)));
-  assert.deepEqual(unknown, []);
-});

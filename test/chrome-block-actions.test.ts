@@ -570,27 +570,3 @@ test("without a clipboard, copy does nothing", async () => {
   assert.deepEqual(world.wrote, []);
 });
 
-test("style.css uses only token names from tokens/names.json for var(--*) references", () => {
-  const css = readFileSync(new URL("../chrome/block-actions/style.css", import.meta.url), "utf8");
-  const used = [...css.matchAll(/var\(--([a-z0-9-]+)\)/g)].map((match) => match[1]!);
-  assert.ok(used.length > 0);
-  for (const name of used) {
-    assert.ok(tokenNames.has(name), `unknown token --${name}`);
-  }
-});
-
-test("style.css states every edge in logical properties and keeps the hidden button hidden", () => {
-  const css = readFileSync(new URL("../chrome/block-actions/style.css", import.meta.url), "utf8");
-  const declarations = css
-    .split("\n")
-    .filter((line) => !/^\s*@(media|container|supports)/.test(line))
-    .join("\n");
-
-  assert.match(css, /\.block-action\[hidden\] \{\n  display: none;/);
-  // Bottom end: the top end belongs to the code, terminal, and output copy controls.
-  assert.match(css, /inset-block-end: var\(--space-1\);/);
-  assert.doesNotMatch(css, /\.block-action \{[^}]*inset-block-start/s);
-  assert.match(css, /inset-inline-end: var\(--space-1\);/);
-  assert.doesNotMatch(declarations, /(^|[;{\s])(left|right|top|bottom)\s*:/);
-  assert.doesNotMatch(declarations, /(?<![\w-])(min-|max-)?(width|height)\s*:/);
-});

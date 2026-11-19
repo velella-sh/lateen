@@ -757,26 +757,6 @@ test("a failed twin fetch rejects so the palette can announce it", async () => {
   await assert.rejects(handlers.copy?.("/missing.md") ?? Promise.resolve());
 });
 
-test("search style.css keeps token-only values, logical properties, and visible action focus", () => {
-  const css = readFileSync(new URL("../chrome/search/style.css", import.meta.url), "utf8");
-  const used = [...css.matchAll(/var\(--([a-z0-9-]+)\)/g)].map((match) => match[1]!);
-  assert.ok(used.length > 0);
-  const names = JSON.parse(readFileSync(new URL("../tokens/names.json", import.meta.url), "utf8")) as Record<
-    string,
-    Record<string, unknown>
-  >;
-  const tokenNames = new Set(
-    Object.entries(names).flatMap(([group, entries]) => Object.keys(entries).map((name) => `${group}-${name}`)),
-  );
-  for (const name of used) assert.ok(tokenNames.has(name), `unknown token --${name}`);
-
-  const declarations = css.replace(/@media[^{]*\{/g, "");
-  assert.doesNotMatch(declarations, /(^|[;{\s])(left|right|top|bottom)\s*:/);
-  assert.doesNotMatch(declarations, /(?<![\w-])(min-|max-)?(width|height)\s*:/);
-  assert.match(css, /\.search-action-button:focus-visible \{/);
-  assert.match(css, /outline: 2px solid var\(--state-focus-ring\);/);
-});
-
 // ---------------------------------------------------------------------------
 // Fakes shared by the activation tests.
 

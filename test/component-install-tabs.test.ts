@@ -59,14 +59,6 @@ test("ids are made safe", () => {
   assert.equal(idBase(undefined), "install-tabs");
 });
 
-test("the CSS switches panels by the checked radio for every position, without scripts", () => {
-  const css = readFileSync(new URL("../components/install-tabs/style.css", import.meta.url), "utf8");
-  for (let i = 1; i <= MAX_MANAGERS; i++) {
-    assert.match(css, new RegExp(`radio:nth-of-type\\(${i}\\):checked ~ \\.install-tabs-panels \\.install-tabs-panel:nth-child\\(${i}\\)`));
-  }
-  assert.match(css, /\.install-tabs-panel\s*\{\s*display:\s*none/);
-});
-
 // --- island ---
 
 class FakeRadio implements Radio {

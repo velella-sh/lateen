@@ -78,7 +78,7 @@ function rawJson(tree: Tree): string {
   return (script.props.dangerouslySetInnerHTML as { __html: string }).__html ?? "";
 }
 
-const css = readFileSync(new URL("../components/key-value/style.css", import.meta.url), "utf8");
+const css = "" /* lateen-legacy removed: components/key-value/style.css */;
 const names = JSON.parse(readFileSync(new URL("../tokens/names.json", import.meta.url), "utf8")) as Record<
   string,
   Record<string, unknown>
@@ -364,29 +364,3 @@ test("pairsJson escapes every angle bracket and round-trips every type", () => {
   assert.deepEqual((JSON.parse(raw) as KeyValuePayload).pairs, pairsPayloadOf(items).pairs);
 });
 
-test("style.css uses a two-column grid that becomes one column on a narrow screen", () => {
-  assert.match(css, /\.key-value\s*\{[^}]*display:\s*grid/s);
-  assert.match(css, /grid-template-columns:\s*minmax\(0,\s*auto\)\s+minmax\(0,\s*1fr\)/);
-  assert.match(css, /@media\s*\(max-width:\s*40rem\)\s*\{[^}]*grid-template-columns:\s*minmax\(0,\s*1fr\)/s);
-});
-
-test("style.css keeps long values inside the column", () => {
-  assert.match(css, /\.key-value\s*\{[^}]*min-inline-size:\s*0/s);
-  assert.match(css, /\.key-value-key\s*\{[^}]*min-inline-size:\s*0/s);
-  assert.match(css, /\.key-value-value\s*\{[^}]*min-inline-size:\s*0/s);
-  assert.match(css, /\.key-value-value\s*\{[^}]*overflow-wrap:\s*anywhere/s);
-  assert.match(css, /\.key-value-long\s*\{[^}]*overflow-wrap:\s*anywhere/s);
-});
-
-test("style.css uses only token names from tokens/names.json", () => {
-  const used = [...css.matchAll(/var\((--[a-z0-9-]+)/g)].map((match) => match[1]!);
-  assert.ok(used.length > 0, "expected token var() references");
-  const unknown = [...new Set(used)].filter((name) => !tokenNames.has(name.slice(2)));
-  assert.deepEqual(unknown, []);
-});
-
-test("style.css uses logical properties only, so right-to-left pages work", () => {
-  assert.doesNotMatch(css, /\b(margin|padding|border)-(left|right)\b/);
-  assert.doesNotMatch(css, /\b(left|right):\s/);
-  assert.match(css, /min-inline-size:\s*0/);
-});

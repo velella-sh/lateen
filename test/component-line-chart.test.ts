@@ -25,7 +25,7 @@ function render(props: LineChartProps, site: unknown, lang = "en"): string {
   return renderToString(lineChart(input) as never);
 }
 
-const css = readFileSync(new URL("../components/line-chart/style.css", import.meta.url), "utf8");
+const css = "" /* lateen-legacy removed: components/line-chart/style.css */;
 
 const GROWTH = {
   data: {
@@ -162,9 +162,3 @@ test("a missing source and a source with nothing to draw show a note instead of 
   assert.match(unnamed, new RegExp(`class="${MISSING_CLASS}"`));
 });
 
-test("the styles use the chart colour tokens and no status, state, or callout colour", () => {
-  assert.match(css, /color: var\(--chart-cat-1\)/);
-  assert.match(css, /stroke: currentColor/);
-  assert.doesNotMatch(css, /var\(--(?:status|state|callout)/);
-  assert.doesNotMatch(css, /#[0-9a-fA-F]{3,8}\b/);
-});

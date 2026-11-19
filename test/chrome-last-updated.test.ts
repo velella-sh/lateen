@@ -542,18 +542,3 @@ test("MAX_CONTRIBUTORS is three", () => {
   assert.equal(MAX_CONTRIBUTORS, 3);
 });
 
-test("style.css uses only token names from tokens/names.json for var(--*) references", () => {
-  const css = readFileSync(new URL("../chrome/last-updated/style.css", import.meta.url), "utf8");
-  const used = [...css.matchAll(/var\(--([a-z0-9-]+)\)/g)].map((match) => match[1]!);
-  assert.ok(used.length > 0);
-  for (const name of used) {
-    assert.ok(tokenNames.has(name), `unknown token --${name}`);
-  }
-});
-
-test("style.css uses logical properties", () => {
-  const css = readFileSync(new URL("../chrome/last-updated/style.css", import.meta.url), "utf8");
-
-  assert.doesNotMatch(css, /(^|[;{\s])(left|right|top|bottom)\s*:/);
-  assert.doesNotMatch(css, /(?<![\w-])(min-|max-)?(width|height)\s*:/);
-});

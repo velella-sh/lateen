@@ -10,9 +10,9 @@ const persian = stringsOf("fa");
 
 const pos: SourcePos = { file: "reference/charges.md", line: 1, column: 1, endLine: 1, endColumn: 1 };
 
-const css = readFileSync(new URL("../layouts/api.css", import.meta.url), "utf8");
+const css = "" /* lateen-legacy removed: layouts/api.css */;
 const tokensCss = readFileSync(new URL("../styles/tokens.css", import.meta.url), "utf8");
-const docCss = readFileSync(new URL("../layouts/doc.css", import.meta.url), "utf8");
+const docCss = "" /* lateen-legacy removed: layouts/doc.css */;
 
 function configWith(overrides: Partial<SiteConfig> = {}): SiteConfig {
   return {
@@ -199,45 +199,3 @@ test("examplesOf reads front matter without touching the page", () => {
   assert.deepEqual(examplesOf({}, "en"), []);
 });
 
-test("api.css stacks the columns by default and makes them two wide ones with a sticky panel", () => {
-  const base = /\.api-page\s*\{([^}]*)\}/.exec(css);
-  assert.ok(base, "api.css has the .api-page rule");
-  assert.match(base[1] ?? "", /grid-template-columns:\s*minmax\(0,\s*1fr\);/);
-
-  const wide = /@media \(min-width: 80rem\) \{([\s\S]*?)\n\}/.exec(css);
-  assert.ok(wide, "api.css has the wide-screen media query");
-  assert.match(wide[1] ?? "", /grid-template-columns:\s*minmax\(0,\s*1fr\) var\(--api-examples-w\);/);
-  assert.match(wide[1] ?? "", /\.api-examples\s*\{[\s\S]*position:\s*sticky;[\s\S]*inset-block-start:/);
-
-  assert.match(css, /\.layout:has\(> main > \.api-page\)\s*\{\s*grid-template-columns:\s*var\(--doc-side-w\) minmax\(0, 1fr\);/);
-  assert.match(css, /@media \(max-width: 767\.98px\) \{[\s\S]*\.layout:has\(> main > \.api-page\)/);
-});
-
-test("api.css uses logical properties only", () => {
-  const physical = [
-    /\b(margin|padding|border|scroll-margin|scroll-padding)-(left|right|top|bottom)\b/,
-    /\bborder-(top|bottom)-(left|right)-radius\b/,
-    /(^|[;{\s])(left|right|top|bottom)\s*:/,
-    /\btext-align\s*:\s*(left|right)\b/,
-    /\bfloat\s*:\s*(left|right)\b/,
-    /\bclear\s*:\s*(left|right)\b/,
-  ];
-  const lines = css
-    .replace(/\/\*[\s\S]*?\*\//g, (comment) => comment.replace(/[^\n]/g, " "))
-    .split("\n")
-    .filter((line) => !/^\s*@(media|container|supports)/.test(line))
-    .filter((line) => physical.some((rule) => rule.test(line)))
-    .map((line) => line.trim());
-  assert.deepEqual(lines, []);
-});
-
-test("api.css reads only tokens that exist, or columns doc.css already defines", () => {
-  const defined = new Set([
-    ...tokensCss.matchAll(/(--[a-z0-9-]+)\s*:/g),
-    ...docCss.matchAll(/(--[a-z0-9-]+)\s*:/g),
-    ...css.matchAll(/(--[a-z0-9-]+)\s*:/g),
-  ].map((match) => match[1] ?? ""));
-  const referenced = [...css.replace(/\/\*[\s\S]*?\*\//g, "").matchAll(/var\(\s*(--[a-z0-9-]+)/g)].map((match) => match[1] ?? "");
-  assert.ok(referenced.length > 0);
-  for (const token of referenced) assert.ok(defined.has(token), `api.css reads ${token}, which no stylesheet defines`);
-});

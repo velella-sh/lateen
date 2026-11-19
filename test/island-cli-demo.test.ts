@@ -93,20 +93,6 @@ test("a writeText that throws synchronously is not fatal to activation", () => {
   assert.doesNotThrow(() => activateAll({ querySelectorAll: () => [f.root] }, f.env(ok(f.written))));
 });
 
-test("the no-script page: bar and buttons hidden, text plain, prompt and labels unselectable", () => {
-  const input = { props: {}, html: "<p>$ npm ci\nadded</p>", page: { lang: "en", source: { file: "a.md", line: 1 } }, site: {} } as unknown as ComponentProps;
-  const dom = new JSDOM(`<body>${renderToString(cliDemo(input as never) as never)}</body>`);
-  const doc = dom.window.document;
-  assert.equal(doc.querySelector(".cli-demo-bar")?.hasAttribute("hidden"), true);
-  for (const b of doc.querySelectorAll("button")) assert.equal(b.hasAttribute("hidden"), true);
-  assert.equal(doc.querySelector(".cli-demo-body code")?.textContent, "$ npm cioutputadded");
-  const css = readFileSync(new URL("../components/cli-demo/style.css", import.meta.url), "utf8");
-  for (const sel of [".cli-demo-prompt", ".cli-demo-label"]) {
-    const block = new RegExp(`${sel.replace(".", "\\.")}\\s*\\{[^}]*user-select:\\s*none`).test(css);
-    assert.ok(block, `${sel} is unselectable`);
-  }
-});
-
 test("on a rendered page the island wires the real buttons", async () => {
   const input = { props: {}, html: "<p>$ npm ci\nadded</p>", page: { lang: "en", source: { file: "a.md", line: 1 } }, site: {} } as unknown as ComponentProps;
   const dom = new JSDOM(`<body>${renderToString(cliDemo(input as never) as never)}</body>`);

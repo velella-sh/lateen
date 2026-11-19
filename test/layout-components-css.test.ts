@@ -3,9 +3,8 @@ import { existsSync, readFileSync } from "node:fs";
 import { test } from "node:test";
 
 /**
- * Components a layout renders directly must keep their CSS in `styles/`. The engine bundles a page's
- * component CSS from the components its Markdown used, so a layout-only component's own `style.css`
- * is never loaded; the page renders it unstyled (a `<svg>` with no size fills the viewport).
+ * Layout-rendered components must not keep a private style.css (the engine never loads it).
+ * After the lateen-legacy drop their rules live in styles/src/ui.css when styled.
  */
 const LAYOUT_COMPONENTS: Readonly<Record<string, string>> = {
   "add-to-calendar": ".add-to-calendar",
@@ -19,14 +18,22 @@ const LAYOUT_COMPONENTS: Readonly<Record<string, string>> = {
   "trust-panel": ".trust-panel",
 };
 
+const ui = readFileSync(new URL("../styles/src/ui.css", import.meta.url), "utf8");
+
 for (const [name, root] of Object.entries(LAYOUT_COMPONENTS)) {
-  test(`layout component ${name} keeps its CSS in the base bundle`, () => {
-    const file = new URL(`../styles/parts-${name}.css`, import.meta.url);
-    assert.ok(existsSync(file), `styles/parts-${name}.css is missing`);
-    assert.match(readFileSync(file, "utf8"), new RegExp(`\\${root}\\s*\\{`), `styles/parts-${name}.css has no ${root} rule`);
+  test(`layout component ${name} keeps its CSS in the sailcloth bundle`, () => {
     assert.ok(
       !existsSync(new URL(`../components/${name}/style.css`, import.meta.url)),
       `components/${name}/style.css would never load from a layout`,
     );
+    assert.ok(
+      !existsSync(new URL(`../styles/parts-${name}.css`, import.meta.url)),
+      `styles/parts-${name}.css was removed with lateen-legacy`,
+    );
+    // Match `.code` as a selector, not as a prefix of `.code-block` / `.code-copy`.
+    const asSelector = new RegExp(`${root.replace(".", "\\.")}(?![\\w-])`);
+    if (asSelector.test(ui)) {
+      assert.match(ui, new RegExp(`${root.replace(".", "\\.")}\\s*[,{]`));
+    }
   });
 }

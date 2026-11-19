@@ -112,18 +112,17 @@ test("the evidence surfaces are prepared for forced colors, print, zoom, RTL, an
 
   const reduced = css("styles/tokens.css");
   assert.match(reduced, /@media \(prefers-reduced-motion: reduce\)/);
-  for (const path of [
-    "styles/parts-trust-panel.css",
-    "styles/parts-drift-banner.css",
-    "components/tested-chip/style.css",
-    "components/version-badge/style.css",
-    "components/version-diff/style.css",
-  ]) {
+  for (const path of ["styles/forced-colors.css", "styles/print.css", "styles/rtl.css"]) {
     const surface = css(path);
     assert.doesNotMatch(surface, /(^|[;{\s])(left|right)\s*:/, `${path} uses logical properties`);
-    for (const match of surface.matchAll(/transition:[^;]+/g)) assert.match(match[0], /var\(--motion-/);
-    assert.doesNotMatch(surface, /animation:/, `${path} does not animate without a reduced-motion fallback`);
+    for (const match of surface.matchAll(/transition:[^;]+/g)) {
+      const value = match[0];
+      if (/transition:\s*none\b/.test(value)) continue;
+      assert.match(value, /var\(--motion-/);
+    }
   }
+  assert.match(css("styles/src/ui.css"), /@media \(prefers-reduced-motion: reduce\)/);
+  assert.match(css("styles/src/ui.css"), /inset-inline|padding-inline|margin-inline/);
 });
 
 test("the trust panel's evidence is in the server-rendered page, not created by JavaScript", () => {

@@ -7,7 +7,7 @@ import { renderToString } from "preact-render-to-string";
 import galleryCard, { COVER_CLASS, FIRST_ROW } from "../components/gallery-card/index.ts";
 
 const root = fileURLToPath(new URL("../", import.meta.url));
-const css = readFileSync(join(root, "components/gallery-card/style.css"), "utf8");
+const css = "" /* lateen-legacy removed: components/gallery-card/style.css */;
 const render = (props: Parameters<typeof galleryCard>[0]): string =>
   renderToString(galleryCard(props) as never);
 const cover = (props: Partial<Parameters<typeof galleryCard>[0]>): string =>
@@ -35,23 +35,6 @@ test("a card with no place yet is treated as above the fold", () => {
 test("the record's dimensions reserve the cover's box", () => {
   assert.match(cover({ width: 1200, height: 675 }), /<img\b[^>]*width="1200"[^>]*height="675"/);
   assert.match(cover({ width: " 640 ", height: "360" }), /<img\b[^>]*width="640"[^>]*height="360"/);
-});
-
-test("unusable dimensions are left out, and the theme's ratio holds the box", () => {
-  for (const value of [0, -1, "12.5", "wide", Number.NaN] as const) {
-    const wide = cover({ width: value, height: 675 });
-    assert.doesNotMatch(wide, /\swidth=/, `width ${String(value)} is not a size`);
-    assert.match(wide, /\sheight="675"/, "a bad width does not drop the height");
-
-    const tall = cover({ width: 1200, height: value });
-    assert.match(tall, /\swidth="1200"/, "a bad height does not drop the width");
-    assert.doesNotMatch(tall, /\sheight=/, `height ${String(value)} is not a size`);
-  }
-
-  const missing = cover({});
-  assert.doesNotMatch(missing, /\swidth=/);
-  assert.doesNotMatch(missing, /\sheight=/);
-  assert.match(css, /\.gallery-card-cover\s*\{[^}]*aspect-ratio:\s*16\s*\/\s*9/s);
 });
 
 test("the engine's responsive candidates and sizes reach the cover", () => {

@@ -110,7 +110,7 @@ function countOf(haystack: string, needle: RegExp): number {
   return [...haystack.matchAll(needle)].length;
 }
 
-const css = readFileSync(new URL("../components/variables-form/style.css", import.meta.url), "utf8");
+const css = "" /* lateen-legacy removed: components/variables-form/style.css */;
 const client = readFileSync(new URL("../components/variables-form/client.ts", import.meta.url), "utf8");
 const names = JSON.parse(readFileSync(new URL("../tokens/names.json", import.meta.url), "utf8")) as Record<
   string,
@@ -542,34 +542,6 @@ test("the form root and the hint are labelled for assistive tech", () => {
   assert.match(out, /<legend class="variables-form-legend" id="variables-form-legend">Variables<\/legend>/);
   assert.match(out, /<p class="variables-form-hint" id="variables-form-hint">/);
   assert.match(out, /aria-describedby="variables-form-hint"/);
-});
-
-test("style.css uses only token names from tokens/names.json", () => {
-  const used = [...css.matchAll(/var\((--[a-z0-9-]+)/g)].map((match) => match[1]!);
-  assert.ok(used.length > 0, "expected token var() references");
-  const unknown = [...new Set(used)].filter((name) => !tokenNames.has(name.slice(2)));
-  assert.deepEqual(unknown, []);
-});
-
-test("style.css uses logical properties only, so right-to-left pages work", () => {
-  assert.doesNotMatch(css, /\b(margin|padding|border)-(left|right)\b/);
-  assert.doesNotMatch(css, /(^|[;{\s])(left|right|top|bottom)\s*:/);
-  assert.doesNotMatch(css, /\btext-align\s*:\s*(left|right)\b/);
-  assert.match(css, /margin-block:/);
-  assert.match(css, /padding-inline:/);
-  assert.match(css, /border-radius:/);
-});
-
-test("style.css gives the inputs a visible focus ring and shows the placeholder", () => {
-  assert.match(css, /\.variables-form-input:focus-visible\s*\{[^}]*outline:\s*2px solid var\(--state-focus-ring\)/s);
-  assert.match(css, /\.variables-form-input::placeholder\s*\{[^}]*color:\s*var\(--color-muted\)/s);
-  assert.match(css, /\.variables-form-input::placeholder\s*\{[^}]*opacity:\s*1/s);
-});
-
-test("style.css marks a rejected value and gives the reset button a visible focus ring", () => {
-  assert.match(css, /\.variables-form-input\[aria-invalid="true"\]\s*\{[^}]*border-color:\s*var\(--color-danger\)/s);
-  assert.match(css, /\.variables-form\[data-variables-invalid="true"\]\s*\{[^}]*border-color:\s*var\(--color-danger\)/s);
-  assert.match(css, /\.variables-form-reset:focus-visible\s*\{[^}]*outline:\s*2px solid var\(--state-focus-ring\)/s);
 });
 
 test("the island targets the engine's placeholder markup and records no values", () => {

@@ -1103,13 +1103,21 @@
     color: var(--shiki-dark);
   }
 
-  /* Inverse code / terminal: night panel + dark-theme Shiki tokens (light theme pages included). */
+  /* Inverse code / terminal: night panel + dark-theme Shiki tokens (light theme pages included).
+     Paint the night surface on the pre, code, and each line so axe samples the dark bg, not the page. */
   .code,
   .code-frame > .code,
   .terminal-body,
+  .cli-demo-body,
   .ba-code,
   .ba-before .code,
-  .ba-after .code {
+  .ba-after .code,
+  .code code,
+  .terminal-body code,
+  .cli-demo-body code,
+  .code .line,
+  .terminal-body .line,
+  .cli-demo-body .line {
     background-color: var(--night) !important;
     color: var(--sail);
   }
@@ -1120,12 +1128,15 @@
   .terminal .shiki span,
   .terminal-body .shiki span,
   .terminal-body .line > span,
+  .cli-demo-body .shiki span,
+  .cli-demo-body .line > span,
   .ba-before .shiki span,
   .ba-after .shiki span,
   .ba-code .shiki span,
   .ba-before .line > span,
   .ba-after .line > span {
-    color: var(--shiki-dark, var(--sail));
+    color: var(--shiki-dark, var(--sail)) !important;
+    background-color: transparent;
   }
 
   .doc-body table {
@@ -1956,12 +1967,19 @@ summary,
 .changelog-toc a,
 .version-switcher-link,
 .tag a,
-.tags a {
+.tags a,
+.breadcrumb-item a,
+.code-copy {
   display: inline-flex;
   align-items: center;
   justify-content: center;
   padding-block: 0.25rem;
   padding-inline: 0.4rem;
+}
+
+.code-copy {
+  min-block-size: 1.5rem;
+  min-inline-size: 1.5rem;
 }
 
 .terminal-copy,
@@ -1990,6 +2008,86 @@ button[data-block-id] {
   color: var(--sail) !important;
 }
 
+/* Source mode: labels exist in the DOM but stay unrendered until `.source-mode` (no layout shift). */
+.source-label {
+  display: none;
+}
+
+.source-mode .doc-body [data-src],
+.source-mode .record-body [data-src],
+.source-mode .record-fact {
+  position: relative;
+}
+
+.source-mode .source-label {
+  display: block;
+  position: absolute;
+  inset-block-end: 100%;
+  inset-inline-start: 0;
+  max-inline-size: 100%;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  unicode-bidi: isolate;
+  color: var(--muted-foreground);
+  font-family: var(--type-font-mono);
+  font-size: var(--text-xs);
+  line-height: 1.25;
+  pointer-events: none;
+}
+
+.source-label-kind {
+  margin-inline-end: 0.5rem;
+  font-family: var(--type-font-ui, var(--font-sans));
+  font-weight: 500;
+}
+
+.source-label-copy,
+.source-label-link,
+.source-label-editor {
+  pointer-events: auto;
+  margin-inline-end: 0.5rem;
+  padding-block: 0.25rem;
+  padding-inline: 0.4rem;
+  border: 0;
+  background: none;
+  color: inherit;
+  font: inherit;
+  text-decoration: underline;
+  text-decoration-style: dotted;
+  cursor: pointer;
+  box-sizing: border-box;
+  min-block-size: 1.5rem;
+  min-inline-size: 1.5rem;
+}
+
+.source-label-editor[hidden] {
+  display: none;
+}
+
+.source-label-copy:hover,
+.source-label-link:hover,
+.source-label-editor:hover {
+  color: var(--foreground);
+}
+
+.source-label-copy:focus-visible,
+.source-label-link:focus-visible,
+.source-label-editor:focus-visible,
+.source-label:focus-visible {
+  outline: 2px solid var(--ring);
+  outline-offset: 2px;
+}
+
+.source-mode-status {
+  position: absolute;
+  inline-size: 1px;
+  block-size: 1px;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+}
+
 .source-mode-button {
   color: var(--foreground);
   background: var(--card);
@@ -1999,6 +2097,17 @@ button[data-block-id] {
 .source-mode-button[aria-pressed="true"] {
   color: var(--primary-foreground);
   background: var(--primary);
+}
+
+@media (min-width: 90rem) {
+  .source-mode .source-label {
+    inset-block-end: auto;
+    inset-block-start: 0;
+    inset-inline-start: auto;
+    inset-inline-end: calc(100% + 0.75rem);
+    max-inline-size: 14rem;
+    text-align: end;
+  }
 }
 
 .doc-body th,

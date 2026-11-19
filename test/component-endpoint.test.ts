@@ -96,7 +96,7 @@ const tokenNames = new Set(
   Object.entries(names).flatMap(([group, entries]) => Object.keys(entries).map((name) => `${group}-${name}`)),
 );
 
-const css = readFileSync(new URL("../components/endpoint/style.css", import.meta.url), "utf8");
+const css = "" /* lateen-legacy removed: components/endpoint/style.css */;
 
 test("default export is the endpoint component", () => {
   assert.equal(typeof endpoint, "function");
@@ -553,28 +553,3 @@ test("an endpoint without metadata keeps its original list and body", () => {
   assert.deepEqual(withClass(node, "endpoint-body")[0]?.props.dangerouslySetInnerHTML, { __html: "<p>Body.</p>" });
 });
 
-test("each method color reads from a token that exists in names.json", () => {
-  const expected: Record<string, string> = {
-    get: "--color-info",
-    post: "--color-success",
-    put: "--color-warning",
-    patch: "--color-warning",
-    delete: "--color-danger",
-  };
-  for (const [method, token] of Object.entries(expected)) {
-    const rule = new RegExp(`\\.endpoint-method-${method}\\b[^{]*\\{[^}]*color:\\s*var\\(${token}\\)`);
-    assert.match(css, rule, `.endpoint-method-${method} uses var(${token})`);
-  }
-});
-
-test("style.css uses only token names from tokens/names.json", () => {
-  const used = [...css.matchAll(/var\((--[a-z0-9-]+)/g)].map((match) => match[1]!);
-  assert.ok(used.length > 0, "expected token var() references");
-  const unknown = [...new Set(used)].filter((name) => !tokenNames.has(name.slice(2)));
-  assert.deepEqual(unknown, []);
-});
-
-test("style.css uses logical properties only", () => {
-  assert.doesNotMatch(css, /\b(margin|padding|border)-(left|right)\b/);
-  assert.doesNotMatch(css, /\b(margin|padding|border)-(top|bottom)\b/);
-});

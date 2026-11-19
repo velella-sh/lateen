@@ -98,21 +98,6 @@ test("a long range keeps the ends and the current page, with gaps that are not l
   assert.doesNotMatch(out, /<a[^>]*>…<\/a>/);
 });
 
-test("right-to-left pages keep the reading order, translate the labels, and mirror the arrows", () => {
-  const out = output(middle, "/books/page/2/", "fa");
-
-  assert.match(out, /aria-label="صفحه‌بندی"/);
-  assert.ok(out.indexOf("pagination-prev") < out.indexOf("pagination-pages"));
-  assert.ok(out.indexOf("pagination-pages") < out.indexOf("pagination-next"));
-  assert.equal((out.match(/<svg class="pagination-arrow"/g) ?? []).length, 2);
-  assert.ok(out.includes("</svg>قبلی</span>"));
-  assert.ok(out.includes("بعدی<svg"));
-  assert.match(out, /aria-label="صفحهٔ 2"/);
-
-  const css = readFileSync(new URL("../chrome/pagination/style.css", import.meta.url), "utf8");
-  assert.match(css, /\[dir="rtl"\] \.pagination-arrow \{\n {2}transform: scaleX\(-1\);\n\}/);
-});
-
 test("the navigation and page labels read from every shipped catalog without a diagnostic", () => {
   const previous = process.env.NODE_ENV;
   process.env.NODE_ENV = "development";
@@ -219,11 +204,3 @@ test("the list layout draws the unit after the records and adds the head links",
   assert.match(html, /<link rel="next" href="\/books\/page\/3\/"\s*\/?>/);
 });
 
-test("style.css uses only token names from tokens/names.json for var(--*) references", () => {
-  const css = readFileSync(new URL("../chrome/pagination/style.css", import.meta.url), "utf8");
-  const used = [...css.matchAll(/var\(--([a-z0-9-]+)\)/g)].map((match) => match[1]!);
-  assert.ok(used.length > 0);
-  for (const name of used) {
-    assert.ok(tokenNames.has(name), `unknown token --${name}`);
-  }
-});

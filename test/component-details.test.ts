@@ -108,33 +108,3 @@ test("escapes the summary text", () => {
   assert.match(out, /&lt;script&gt;alert\(1\)&lt;\/script&gt;/);
 });
 
-test("style.css uses only token custom properties from names.json", () => {
-  const names = JSON.parse(readFileSync(new URL("../tokens/names.json", import.meta.url), "utf8")) as Record<
-    string,
-    Record<string, unknown>
-  >;
-  const allowed = new Set<string>();
-  for (const [group, entries] of Object.entries(names)) {
-    for (const key of Object.keys(entries)) allowed.add(`--${group}-${key}`);
-  }
-
-  const css = readFileSync(new URL("../components/details/style.css", import.meta.url), "utf8");
-  const used = [...css.matchAll(/var\((--[a-z0-9-]+)/g)].map((m) => m[1]!);
-  assert.ok(used.length > 0, "expected token var() references");
-  const unknown = [...new Set(used)].filter((name) => !allowed.has(name));
-  assert.deepEqual(unknown, []);
-});
-
-test("style.css uses logical properties only, so right-to-left pages work", () => {
-  const css = readFileSync(new URL("../components/details/style.css", import.meta.url), "utf8");
-  assert.doesNotMatch(css, /\b(margin|padding|border|border-radius)-(left|right)\b/);
-  assert.doesNotMatch(css, /\b(left|right)\s*:/);
-  assert.match(css, /:dir\(rtl\)/);
-});
-
-test("style.css keeps a visible focus ring and the native disclosure", () => {
-  const css = readFileSync(new URL("../components/details/style.css", import.meta.url), "utf8");
-  assert.match(css, /\.details-summary:focus-visible\s*\{[^}]*outline:\s*2px solid var\(--state-focus-ring\)/s);
-  assert.doesNotMatch(css, /\.details-body\s*\{[^}]*display:\s*none/s);
-  assert.doesNotMatch(css, /\bhidden\b/);
-});

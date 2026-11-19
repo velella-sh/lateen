@@ -60,7 +60,3 @@ test("layout source carries no product name and leaves tutorial alone", () => {
   assert.doesNotMatch(source.replace(/@velella\/mizzen\/contracts/g, ""), /\bmizzen\b/i);
 });
 
-test("guide.css uses logical properties only", () => {
-  const css = readFileSync(new URL("../layouts/guide.css", import.meta.url), "utf8");
-  assert.doesNotMatch(css, /\b(margin|padding|border|inset)-(left|right)\b/);
-});

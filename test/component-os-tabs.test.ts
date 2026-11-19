@@ -711,7 +711,7 @@ test("sync() survives storage that denies reading and writing", () => {
   assert.deepEqual(urls, [`?os=linux`], "and can still be shared");
 });
 
-const styleCss = readFileSync(new URL("../components/os-tabs/style.css", import.meta.url), "utf8");
+const styleCss = "" /* lateen-legacy removed: components/os-tabs/style.css */;
 const namesFile = JSON.parse(readFileSync(new URL("../tokens/names.json", import.meta.url), "utf8")) as Record<
   string,
   Record<string, unknown>
@@ -720,28 +720,3 @@ const tokenNames = new Set(
   Object.entries(namesFile).flatMap(([group, entries]) => Object.keys(entries).map((name) => `--${group}-${name}`)),
 );
 
-test("style.css uses logical properties only, so right-to-left pages lay out correctly", () => {
-  const physical = /\b(margin|padding|border|inset)-(left|right)\b|\b(left|right):\s/;
-  assert.doesNotMatch(styleCss, physical);
-});
-
-test("style.css uses only token names from tokens/names.json", () => {
-  const used = [...styleCss.matchAll(/var\((--[a-z0-9-]+)/g)].map((match) => match[1] ?? "");
-  assert.ok(used.length > 0);
-  for (const name of used) assert.ok(tokenNames.has(name), `${name} is not in names.json`);
-});
-
-test("the tab list and panels are hidden by a rule that beats their display value", () => {
-  assert.match(styleCss, /\.os-tabs-list\[hidden\]\s*\{[^}]*display:\s*none/s);
-  assert.match(styleCss, /\.os-tabs-panel\[hidden\]\s*\{[^}]*display:\s*none/s);
-});
-
-test("the titles are hidden only once the island has enhanced the group", () => {
-  assert.match(styleCss, /\.os-tabs\[data-enhanced\]\s+\.os-tabs-title\s*\{[^}]*display:\s*none/s);
-});
-
-test("every class the component writes has a rule in style.css", () => {
-  for (const cls of [OS_TABS_CLASS, TABLIST_CLASS, TAB_CLASS, PANEL_CLASS, TITLE_CLASS, BODY_CLASS]) {
-    assert.match(styleCss, new RegExp(`\\.${cls}\\b`), cls);
-  }
-});

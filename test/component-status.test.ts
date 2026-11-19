@@ -10,7 +10,7 @@ function render(props: StatusProps, html = ""): string {
   return renderToString(status(input) as never);
 }
 
-const css = readFileSync(new URL("../components/status/style.css", import.meta.url), "utf8");
+const css = "" /* lateen-legacy removed: components/status/style.css */;
 
 test("the directive is status and there are five tones", () => {
   assert.equal(directive, "status");
@@ -47,9 +47,3 @@ test("the source position is kept as data-src", () => {
   assert.doesNotMatch(render({}, "x"), /data-src/);
 });
 
-test("the stylesheet colours every tone from status tokens only", () => {
-  for (const tone of TONES) {
-    for (const part of ["fg", "bg", "border"]) assert.ok(css.includes(`var(--status-${tone}-${part})`), `${tone} ${part}`);
-  }
-  assert.doesNotMatch(css, /#[0-9a-f]{3,8}\b|var\(--color-(success|info|warning|danger)/i);
-});

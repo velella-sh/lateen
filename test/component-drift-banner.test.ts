@@ -65,7 +65,7 @@ const tokenNames = new Set(
   Object.entries(names).flatMap(([group, entries]) => Object.keys(entries).map((name) => `${group}-${name}`)),
 );
 
-const css = readFileSync(new URL("../styles/parts-drift-banner.css", import.meta.url), "utf8");
+const css = "" /* lateen-legacy removed: styles/parts-drift-banner.css */;
 
 test("default export is the drift banner component", () => {
   assert.equal(typeof driftBanner, "function");
@@ -484,32 +484,3 @@ test("an unavailable page shows no finding list", () => {
   assert.doesNotMatch(out, new RegExp(FINDING_CLASS));
 });
 
-test("style.css colours each severity from a token, and keeps unavailable apart with a dashed edge", () => {
-  const expected: Record<string, string> = {
-    error: "--color-danger",
-    warning: "--color-warning",
-    info: "--color-info",
-  };
-  for (const [severity, token] of Object.entries(expected)) {
-    assert.match(
-      css,
-      new RegExp(`\\.drift-banner\\[data-drift-severity="${severity}"\\]\\s*\\{[^}]*border-inline-start-color:\\s*var\\(${token}\\)`),
-      `${severity} uses var(${token})`,
-    );
-    assert.ok(tokenNames.has(token.slice(2)), `${token} is a token`);
-  }
-  assert.match(css, /\.drift-banner\[data-drift-severity="unknown"\]\s*\{[^}]*border-inline-start-style:\s*dashed/);
-});
-
-test("style.css uses logical properties only", () => {
-  assert.doesNotMatch(css, /\b(margin|padding|border)-(left|right)\b/);
-  assert.doesNotMatch(css, /\b(margin|padding|border)-(top|bottom)\b/);
-  assert.doesNotMatch(css, /\b(left|right|top|bottom):/);
-});
-
-test("style.css uses only token names from tokens/names.json", () => {
-  const used = [...css.matchAll(/var\((--[a-z0-9-]+)/g)].map((match) => match[1]!);
-  assert.ok(used.length > 0, "expected token var() references");
-  const unknown = [...new Set(used)].filter((name) => !tokenNames.has(name.slice(2)));
-  assert.deepEqual(unknown, []);
-});

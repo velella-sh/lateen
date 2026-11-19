@@ -169,23 +169,6 @@ test("without a repository or a tracker, both links are left out and the prompt 
   assert.match(out, /data-page-footer-copy/);
 });
 
-test("style.css uses only token names from tokens/names.json for var(--*) references", () => {
-  const css = readFileSync(new URL("../chrome/page-footer/style.css", import.meta.url), "utf8");
-  const used = [...css.matchAll(/var\(--([a-z0-9-]+)\)/g)].map((match) => match[1]!);
-  assert.ok(used.length > 0);
-  for (const name of used) {
-    assert.ok(tokenNames.has(name), `unknown token --${name}`);
-  }
-});
-
-test("style.css states the footer in logical properties and keeps the hidden button hidden", () => {
-  const css = readFileSync(new URL("../chrome/page-footer/style.css", import.meta.url), "utf8");
-
-  assert.doesNotMatch(css, /(^|[;{\s])(left|right|top|bottom)\s*:/);
-  assert.doesNotMatch(css, /(?<![\w-])(min-|max-)?(width|height)\s*:/);
-  assert.match(css, /\.page-footer-copy\[hidden\] \{\n {2}display: none;\n\}/);
-});
-
 /** A button with the attributes the page renders and a click listener that tests can fire. */
 function fakeButton(hidden = true): CopyButton & { clicks: Array<() => void>; click(): void } {
   const fake = {

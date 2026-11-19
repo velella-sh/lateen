@@ -85,10 +85,3 @@ test("statsOf takes only arrays", () => {
   assert.deepEqual(statsOf({}), []);
 });
 
-test("the stylesheet uses tabular numerals, wraps to two rows, and has no animation", () => {
-  const css = readFileSync(new URL("../components/stat-strip/style.css", import.meta.url), "utf8");
-  assert.match(css, /font-variant-numeric:\s*tabular-nums/);
-  assert.match(css, /repeat\(3, minmax\(0, 1fr\)\)/);
-  assert.doesNotMatch(css, /animation|transition|@keyframes/);
-  assert.doesNotMatch(css, /margin-left|padding-left|text-align:\s*(left|right)/);
-});

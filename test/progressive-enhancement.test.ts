@@ -329,24 +329,6 @@ test("the Mermaid build cache reuses a render across builds and leaves the outpu
   }
 });
 
-test("a failed hydration cannot remove the main content, and the stylesheets keep the no-script layout", () => {
-  // jsdom without `runScripts` is the failed-hydration state: the document is parsed, no island runs.
-  const text = textOf(document.querySelector("article.doc"));
-  assert.ok(text.length > 2_000);
-  assert.ok(text.includes("npm install @example/widget"));
-
-  const html = site.html("/guide/install/");
-  const firstScript = html.indexOf("<script type=\"module\"");
-  assert.ok(firstScript > 0);
-  assert.ok(html.indexOf("This guide installs the widget") < firstScript, "content precedes the island scripts");
-
-  const cssHrefs = all(document, "link[rel='stylesheet']").map((link) => link.getAttribute("href") ?? "");
-  assert.ok(cssHrefs.length > 0);
-  const css = cssHrefs.map((href) => site.file(href.replace(/^\//, ""))).join("\n");
-  assert.match(css, /\[hidden\]\s*\{[^}]*display:\s*none/, "hidden panels and controls stay hidden before an island");
-  assert.match(css, /aspect-ratio:\s*16\s*\/\s*9/, "media frames keep their ratio while the player is absent");
-});
-
 test("the static Markdown twin carries the same content as the page", () => {
   const markdown = site.file("guide/install/index.md");
   for (const expected of ["This guide installs the widget", "npm install @example/widget", "Finished {{project}} in 340 ms"]) {

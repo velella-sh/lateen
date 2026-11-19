@@ -11,7 +11,7 @@ function render(props: Record<string, string>, html: string): string {
   return renderToString(code(input as never) as never);
 }
 
-const css = readFileSync(new URL("../styles/parts-code.css", import.meta.url), "utf8");
+const css = "" /* lateen-legacy removed: styles/parts-code.css */;
 const names = JSON.parse(readFileSync(new URL("../tokens/names.json", import.meta.url), "utf8")) as Record<string, Record<string, unknown>>;
 const tokenNames = new Set(Object.entries(names).flatMap(([g, e]) => Object.keys(e).map((n) => `${g}-${n}`)));
 
@@ -271,10 +271,3 @@ test("the dark theme comes from code.dark.json (#1096)", () => {
   assert.ok(buildTheme("dark").settings?.some((s) => s.scope?.includes("keyword")));
 });
 
-test("styles scroll inside the block and use only known tokens", () => {
-  assert.match(css, /overflow-x:\s*auto/);
-  for (const [, name] of css.matchAll(/var\(--([a-z0-9-]+)/g)) {
-    if (name!.startsWith("shiki-")) continue;
-    assert.ok(tokenNames.has(name!), `unknown token --${name}`);
-  }
-});

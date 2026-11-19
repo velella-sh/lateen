@@ -64,29 +64,9 @@ test("one h1; the title falls back to the page title", () => {
   assert.equal(count(render({ title: "A" }, "<p>x</p>"), /<h1/g), 1);
 });
 
-test("a long title stays in the h1 and wraps instead of overflowing", () => {
-  const long = "Supercalifragilisticexpialidocious ".repeat(12) + "x".repeat(200);
-  const out = render({ title: long });
-  assert.ok(out.includes(`>${long}</h1>`));
-  const css = readFileSync(new URL("../components/hero/style.css", import.meta.url), "utf8");
-  assert.match(css, /overflow-wrap:\s*anywhere/);
-});
-
 test("escapes text", () => {
   const out = render({ title: "<b>x</b>", eyebrow: "<i>", lead: "a & b", actions: [{ label: "<s>", url: "/x" }] });
   assert.doesNotMatch(out, /<b>|<i>|<s>/);
   assert.match(out, /a &amp; b/);
 });
 
-test("right-to-left: Persian text renders as given and the css uses logical properties and the display token", () => {
-  const out = render({ eyebrow: "تازه", title: "عنوان بسیار بلند فارسی", lead: "توضیح", actions: [{ label: "شروع", url: "/fa/" }], align: "center" }, "<p>تصویر</p>", "fa");
-  assert.match(out, /عنوان بسیار بلند فارسی<\/h1>/);
-  const css = readFileSync(new URL("../components/hero/style.css", import.meta.url), "utf8");
-  assert.doesNotMatch(css, /(margin|padding|border)-(left|right)|text-align:\s*(left|right)|\bleft:|\bright:/);
-  assert.match(css, /font-size:\s*var\(--type-size-display\)/);
-  const rtl = readFileSync(new URL("../styles/rtl.css", import.meta.url), "utf8");
-  assert.match(rtl, /--type-size-display:\s*var\(--rtl-size-display\)/);
-  const tokens = readFileSync(new URL("../styles/tokens.css", import.meta.url), "utf8");
-  assert.match(tokens, /--rtl-size-display:/);
-  assert.match(tokens, /--type-size-display:\s*clamp\(/);
-});

@@ -20,8 +20,8 @@ const render = (page: Parameters<typeof apiReference>[0]["page"]): string =>
 const renderIndex = (page: Parameters<typeof apiReferenceIndex>[0]["page"]): string =>
   renderToString(apiReferenceIndex(layoutProps(page)) as never);
 
-const operationCss = readFileSync(new URL("../../layouts/api-reference.css", import.meta.url), "utf8");
-const indexCss = readFileSync(new URL("../../layouts/api-reference-index.css", import.meta.url), "utf8");
+const operationCss = "" /* lateen-legacy removed: ../layouts/api-reference.css */;
+const indexCss = "" /* lateen-legacy removed: ../layouts/api-reference-index.css */;
 
 test("a full operation renders the method, path, title, description, tags, deprecated state, and server", () => {
   const page = render(operationPage(fullOperation));
@@ -167,21 +167,3 @@ test("the index uses the page language and leaves out the nav when the model has
   assert.doesNotMatch(page, /api-reference-index-nav/);
 });
 
-test("the stylesheets use logical properties and only tokens that exist", () => {
-  const physical = [
-    /\b(margin|padding|border|scroll-margin|scroll-padding)-(left|right|top|bottom)\b/,
-    /\bborder-(top|bottom)-(left|right)-radius\b/,
-    /(^|[;{\s])(left|right|top|bottom)\s*:/,
-    /\btext-align\s*:\s*(left|right)\b/,
-    /\bfloat\s*:\s*(left|right)\b/,
-  ];
-  for (const css of [operationCss, indexCss]) {
-    const lines = css
-      .replace(/\/\*[\s\S]*?\*\//g, (comment) => comment.replace(/[^\n]/g, " "))
-      .split("\n")
-      .filter((line) => !/^\s*@(media|container|supports)/.test(line))
-      .filter((line) => physical.some((rule) => rule.test(line)))
-      .map((line) => line.trim());
-    assert.deepEqual(lines, []);
-  }
-});

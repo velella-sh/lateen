@@ -165,17 +165,3 @@ test("titles are escaped and URLs are left unchanged", () => {
   assert.ok(out.includes('<a href="/example/a&amp;b/">'), out);
 });
 
-test("separators mirror under dir=rtl and titles are isolated in style.css", () => {
-  const css = readFileSync(new URL("../chrome/breadcrumb/style.css", import.meta.url), "utf8");
-  assert.match(css, /\[dir="rtl"\] \.breadcrumb-sep \{\n {2}transform: scaleX\(-1\);\n\}/);
-  assert.match(css, /\.breadcrumb-title\s*\{\n {2}unicode-bidi:\s*isolate;\n\}/);
-});
-
-test("style.css uses only token names from tokens/names.json for var(--*) references", () => {
-  const css = readFileSync(new URL("../chrome/breadcrumb/style.css", import.meta.url), "utf8");
-  const used = [...css.matchAll(/var\(--([a-z0-9-]+)\)/g)].map((match) => match[1]!);
-  assert.ok(used.length > 0);
-  for (const name of used) {
-    assert.ok(tokenNames.has(name), `unknown token --${name}`);
-  }
-});

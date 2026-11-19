@@ -78,7 +78,7 @@ function rowNamed(rows: readonly SchemaRow[], name: string): SchemaRow {
   return found;
 }
 
-const css = readFileSync(new URL("../components/schema-table/style.css", import.meta.url), "utf8");
+const css = "" /* lateen-legacy removed: components/schema-table/style.css */;
 const names = JSON.parse(readFileSync(new URL("../tokens/names.json", import.meta.url), "utf8")) as Record<
   string,
   Record<string, unknown>
@@ -802,30 +802,3 @@ test("the JSON is server-rendered markup: it needs no JavaScript to exist", () =
   assert.equal(nodes(tree).filter((node) => node.type === "script").length, 1);
 });
 
-test("style.css styles the wrapper, the table, and the depth classes", () => {
-  assert.match(css, /\.schema-table-scroll\s*\{/);
-  assert.match(css, /\.schema-table\s+th,\s*\.schema-table\s+td/);
-  assert.match(css, /\.schema-depth-1\s*>\s*th\s*\{/);
-});
-
-test("style.css styles the reference marker with logical spacing", () => {
-  assert.match(css, /\.schema-ref\s*\{/);
-  assert.match(css, /\.schema-ref-state\s*\{/);
-  assert.match(css, /margin-block-start:\s*var\(--space-1\)/);
-});
-
-test("style.css uses only token names from tokens/names.json", () => {
-  const used = [...css.matchAll(/var\((--[a-z0-9-]+)/g)].map((match) => match[1]!);
-  assert.ok(used.length > 0, "expected token var() references");
-  const unknown = [...new Set(used)].filter((name) => !tokenNames.has(name.slice(2)));
-  assert.deepEqual(unknown, []);
-});
-
-test("style.css uses logical spacing and borders", () => {
-  assert.doesNotMatch(css, /\b(margin|padding|border)-(left|right)\b/);
-  assert.doesNotMatch(css, /\b(left|right):\s/);
-});
-
-test("style.css keeps code values left-to-right inside right-to-left text", () => {
-  assert.match(css, /unicode-bidi:\s*isolate/);
-});

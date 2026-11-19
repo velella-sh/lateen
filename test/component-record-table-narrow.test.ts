@@ -58,9 +58,3 @@ test("a table without the opt-in keeps its scroll region and carries no stack cl
   assert.ok(!out.includes(LABEL_CLASS));
 });
 
-test("the stacked form is a container query, so it adapts inside a narrow column", () => {
-  const css = readFileSync(new URL("../components/record-table/style.css", import.meta.url), "utf8");
-  assert.match(css, /container-type: inline-size/);
-  assert.match(css, /@container \(max-inline-size: 40rem\)/);
-  assert.ok(!/@media[^{]*width/.test(css), "no width media query; forced colors and print may stay");
-});

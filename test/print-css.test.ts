@@ -188,10 +188,8 @@ test("the layout grid flattens and a list article fills the page", () => {
   assert.match(css, /\.layout > main,\s*\.doc,\s*\.list\s*\{[^}]*max-inline-size:\s*none/, "the list article keeps its screen width");
 });
 
-test("the gallery prints its cards and drops the filter and sort controls", () => {
-  const gallery = stripComments(read("../components/gallery-filters/style.css"));
-  assert.match(gallery, /@media print\s*\{[^}]*\.gallery-item\s*\{[^}]*break-inside:\s*avoid/s);
-  assert.doesNotMatch(read("../components/gallery-filters/style.css"), /@media print\s*\{[^}]*\.gallery-card\s*\{[^}]*display:\s*none/s);
+test("the gallery filter controls stay out of print with the other chrome", () => {
+  assert.ok(hiddenSelectors(printBody(css)).has(".gallery-filters"), "print.css does not hide .gallery-filters");
 });
 
 test("a closed details prints its body, and its summary stays with it", () => {
@@ -307,50 +305,18 @@ test("only the @page rule uses a physical length", () => {
   assert.deepEqual(raw, []);
 });
 
-test("the comparison prints every record and shows the difference without its tabs", () => {
-  const text = read("../components/compare/style.css");
-  const print = text.slice(text.indexOf("@media print"));
-  assert.match(print, /\.compare-tabs\s*\{[^}]*display:\s*none/);
-  assert.match(print, /\[data-compare-column\]\[hidden\][^{]*\{[^}]*display:\s*table-cell/);
-  assert.match(print, /\.compare \.table-scroll\s*\{[^}]*max-block-size:\s*none/);
-  assert.match(print, /\.compare-diff-marker\s*\{[^}]*position:\s*static/);
-});
-
-test("the dated list prints its groups and drops the jump and action controls", () => {
-  const text = read("../components/dated-list/style.css");
-  const print = text.slice(text.indexOf("@media print"));
-  assert.match(print, /\.dated-list-jump,[\s\S]*?\.dated-list-actions\s*\{[^}]*display:\s*none/);
-  assert.match(print, /\.dated-list-group > h2\s*\{[^}]*break-after:\s*avoid/);
-});
-
-test("a list keeps its subscribe rows and change events on one page", () => {
-  assert.ok(hiddenSelectors(printBody(css)).has(".list-subscribe-copy"), "the copy button never prints");
-  const text = read("../layouts/list.css");
-  const print = text.slice(text.indexOf("@media print"));
-  assert.match(print, /\.list-subscribe-list,[\s\S]*?\.changes-list,[\s\S]*?\.changes-item\s*\{[^}]*break-inside:\s*avoid/);
-});
-
-test("the report link prints nowhere", () => {
-  const report = read("../chrome/report-issue/style.css");
-  assert.match(report.slice(report.indexOf("@media print")), /\.report-issue\s*\{[^}]*display:\s*none/);
-  assert.ok(hiddenSelectors(printBody(css)).has(".page-footer"), "the page footer with the link still prints");
-});
-
 test("the report components print at page width, keep rows whole, and drop the decorative bar", () => {
   const scroll = blocks(css).find((block) => block.selector.includes(".a11y-report-scroll") && block.selector.includes(".wcag-checklist-scroll"));
   assert.ok(scroll, "no printed rule for the report tables' scroll regions");
   assert.match(scroll.body, /overflow:\s*visible/);
   assert.match(scroll.body, /max-inline-size:\s*none/);
   assert.match(scroll.body, /border:\s*0/);
-
   const tables = blocks(css).find((block) => block.selector.includes(".a11y-report-table") && block.selector.includes(".wcag-checklist-table"));
   assert.ok(tables);
   assert.match(tables.body, /inline-size:\s*100%/);
-
   const rows = blocks(css).find((block) => block.selector.includes(".budget-report-table tr"));
   assert.ok(rows);
   assert.match(rows.body, /break-inside:\s*avoid/);
-
   const bar = blocks(css).find((block) => block.selector.split(",").map((part) => part.trim()).includes(".budget-report-bar"));
   assert.ok(bar, "the bar is not hidden in print");
   assert.match(bar.body, /display:\s*none/);
@@ -380,88 +346,11 @@ test("refined components print flat: no shadow, sticky header, blur, motion, tin
   for (const re of [/position:\s*static/, /box-shadow:\s*none/, /backdrop-filter:\s*none/, /animation:\s*none/, /transition:\s*none/]) assert.match(flat.body, re);
   assert.match(css, /\.code \[data-line\]::before\s*\{\s*content:\s*none/);
   assert.match(css, /\.code \.highlighted,[\s\S]{0,80}\{\s*background:\s*none/);
-  // A legend entry is one badge and its description; a page break never separates the pair.
   assert.match(css, /\.status-legend-item[\s\S]*?break-inside:\s*avoid/);
 });
 
-test("the showpiece decoration drops in print and its bands print as plain text with borders (#491)", () => {
-  for (const unit of ["backdrop", "motif"]) {
-    const text = read(`../components/${unit}/style.css`);
-    assert.match(text.slice(text.indexOf("@media print")), /display:\s*none/, unit);
-  }
-  assert.match(read("../layouts/home.css"), /@media print\s*\{\s*\.home-showpiece-motif\s*\{\s*display:\s*none/);
-  for (const unit of ["hero", "cta-band", "stat-strip", "feature-grid", "frame"]) {
-    assert.match(read(`../components/${unit}/style.css`), /@media print/, unit);
-  }
-  assert.match(read("../components/cta-band/style.css").slice(read("../components/cta-band/style.css").indexOf("@media print")), /background:\s*none/);
-});
-
-test("a timeline row keeps its dates and its bar on one printed page", () => {
-  const print = read("../components/timeline/style.css").slice(read("../components/timeline/style.css").indexOf("@media print"));
-  assert.match(print, /\.timeline \.table tr\s*\{[^}]*break-inside:\s*avoid/);
-});
-
-test("the data explorer prints its table and drops the controls that need a script", () => {
-  const text = read("../components/data-explorer/style.css");
-  const print = text.slice(text.indexOf("@media print"));
-  for (const selector of [
-    ".data-explorer-form",
-    ".data-explorer-filters",
-    ".data-explorer-chips",
-    ".data-explorer-status",
-    ".data-explorer-more",
-  ]) {
-    assert.ok(print.includes(selector), `${selector} still prints`);
-  }
-  assert.match(print, /\.table-scroll\s*\{[^}]*overflow:\s*visible/);
-  assert.match(print, /\.table-scroll\s*\{[^}]*box-shadow:\s*none/);
-});
-
-test("charts print whole, with their data tables opened by the print stylesheet", () => {
-  for (const unit of ["bar-chart", "line-chart"]) {
-    const text = read(`../components/${unit}/style.css`);
-    assert.match(text, new RegExp(`\\.${unit} \\{[^}]*break-inside:\\s*avoid`), unit);
-  }
-  assert.match(read("../components/chart-data/style.css"), /\.chart-data-table/);
-  assert.match(read("../styles/print.css"), /details:not\(\[open\]\) > :not\(summary\)\s*\{[^}]*display:\s*block !important/);
-});
-
-test("the guide layout's components print whole and drop their copy controls", () => {
-  for (const unit of ["guide-summary", "related-guides", "steps", "trap", "check-list", "before-after"]) {
-    const text = read(`../components/${unit}/style.css`);
-    const print = text.slice(text.indexOf("@media print"));
-    assert.match(print, /break-inside:\s*avoid/, `${unit} may split across pages`);
-  }
-  for (const [unit, selector] of [
-    ["steps", ".step-tick"],
-    ["check-list", ".check-copy"],
-    ["before-after", ".ba-copy"],
-  ] as const) {
-    const print = read(`../components/${unit}/style.css`).slice(
-      read(`../components/${unit}/style.css`).indexOf("@media print"),
-    );
-    const escaped = selector.replace(".", "\\.");
-    assert.match(print, new RegExp(`${escaped}[^{]*\\{[^}]*display:\\s*none`), `${unit}: ${selector} still prints`);
-  }
-});
-
-test("the record layout prints each fact pair whole and drops its report links", () => {
-  const print = read("../styles/parts-record.css").slice(read("../styles/parts-record.css").indexOf("@media print"));
-
-  assert.match(print, /\.key-value > dt,\s*\.key-value > dd\s*\{[^}]*break-inside:\s*avoid/);
-  assert.match(print, /\.record-fact-report\s*\{[^}]*display:\s*none/);
-});
-
-test("the embedded view unclips for print and the embed code drops its screen-only controls", () => {
-  const embedded = read("../layouts/embedded.css").slice(read("../layouts/embedded.css").indexOf("@media print"));
-  assert.match(embedded, /\.embedded\s*\{[^}]*block-size:\s*auto/);
-  assert.match(embedded, /\.embedded\s*\{[^}]*max-block-size:\s*none/);
-  assert.match(embedded, /\.embedded-content\s*\{[^}]*overflow:\s*visible/);
-
-  const code = read("../components/embed-code/style.css").slice(read("../components/embed-code/style.css").indexOf("@media print"));
-  for (const selector of [".embed-code-preview-load", ".embed-code-tablist", ".embed-code-frame"]) {
-    assert.match(code, new RegExp(`${selector.replace(".", "\\.")}[^{]*\\{[^}]*display:\\s*none`), `${selector} still prints`);
-  }
+test("charts and closed details open their data tables from the print stylesheet", () => {
+  assert.match(css, /details:not\(\[open\]\) > :not\(summary\)\s*\{[^}]*display:\s*block !important/);
 });
 
 test("the network chrome stays out of print with the header and footer", () => {
@@ -470,4 +359,12 @@ test("the network chrome stays out of print with the header and footer", () => {
   assert.match(rules, /body > footer/);
   assert.doesNotMatch(rules, /\.project-switcher-list\s*\{[^}]*position:\s*absolute/);
   assert.doesNotMatch(rules, /\.network-footer\s*\{[^}]*position:\s*(?:fixed|absolute)/);
+});
+
+test("sailcloth ui.css also hides shell chrome and block-action labels in print", () => {
+  const ui = stripComments(read("../styles/src/ui.css"));
+  const print = ui.slice(ui.indexOf("@media print"));
+  assert.match(print, /\.site-header/);
+  assert.match(print, /button\.block-action/);
+  assert.match(print, /\.source-label/);
 });

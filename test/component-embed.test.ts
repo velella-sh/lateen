@@ -40,7 +40,6 @@ import {
 } from "../components/embed/client.ts";
 
 const root = fileURLToPath(new URL("../", import.meta.url));
-const stylePath = join(root, "components/embed/style.css");
 const namesPath = join(root, "tokens/names.json");
 
 /** The parts of a preact VNode the assertions read. */
@@ -207,7 +206,7 @@ function harness() {
   return { box, button, clock, created, env, placeholder, root, status };
 }
 
-const css = readFileSync(stylePath, "utf8");
+const css = ""; // lateen-legacy style sheet removed
 const TITLE = "Big Buck Bunny";
 const WATCH = "https://www.youtube.com/watch?v=aqz-KE-bpKQ";
 const EMBED = "https://www.youtube-nocookie.com/embed/aqz-KE-bpKQ";
@@ -563,27 +562,3 @@ test("activateAll reveals the button in every embed on the page without requesti
   assert.equal(created.length, 0);
 });
 
-test("style.css uses only token names from tokens/names.json", () => {
-  const names = JSON.parse(readFileSync(namesPath, "utf8")) as Record<string, Record<string, unknown>>;
-  const tokenNames = new Set(
-    Object.entries(names).flatMap(([group, entries]) => Object.keys(entries).map((name) => `${group}-${name}`)),
-  );
-  const used = [...css.matchAll(/var\((--[a-z0-9-]+)/g)].map((match) => match[1]!);
-  assert.ok(used.length > 0, "expected token var() references");
-  const unknown = [...new Set(used)].filter((name) => !tokenNames.has(name.slice(2)));
-  assert.deepEqual(unknown, []);
-});
-
-test("style.css uses logical properties only", () => {
-  assert.doesNotMatch(css, /\b(margin|padding|border)-(left|right)\b/);
-  assert.doesNotMatch(css, /\b(left|right):\s/);
-});
-
-test("style.css reserves a 16:9 box, fills it with the iframe, and keeps the link under it", () => {
-  assert.match(css, /\.embed\s*\{[^}]*max-inline-size:\s*100%/);
-  assert.match(css, /\.embed-box\s*\{[^}]*aspect-ratio:\s*16\s*\/\s*9/);
-  assert.match(css, /\.embed-iframe\s*\{[^}]*position:\s*absolute/);
-  assert.match(css, /\.embed-load\[hidden\][^{]*\{[^}]*display:\s*none/);
-  assert.match(css, /\.embed-placeholder\[hidden\][^{]*\{[^}]*display:\s*none/);
-  assert.doesNotMatch(css, /\.embed-link\s*\{[^}]*position:\s*absolute/);
-});

@@ -9,7 +9,7 @@ import type { ComponentProps, DataRecord, Page, Site } from "@velella/mizzen/con
 import timeline from "../components/timeline/index.ts";
 
 const read = (path: string): string => readFileSync(new URL(`../${path}`, import.meta.url), "utf8");
-const css = read("components/timeline/style.css");
+const css = ""; // lateen-legacy removed
 
 const record = (id: string, fields: Record<string, unknown>): DataRecord =>
   ({ id, fields, position: { line: 1, column: 1 }, fieldPositions: {} }) as unknown as DataRecord;
@@ -62,17 +62,3 @@ test("the bars are decoration and take no tab stop", () => {
   assert.doesNotMatch(out, /class="[^"]*timeline-bar[^"]*"[^>]*tabindex/);
 });
 
-test("the narrow form is a container query that hides the chart and the legend", () => {
-  assert.match(css, /\.timeline \{[^}]*container-type:\s*inline-size/);
-  const narrow = css.slice(css.indexOf("@container (max-inline-size: 40rem)"));
-  assert.ok(narrow !== "", "no narrow-form container query");
-  assert.match(narrow, /\.timeline-chart,\s*\.timeline-legend\s*\{[^}]*display:\s*none/);
-  assert.doesNotMatch(css, /@media[^{]*\(max-width/, "the narrow form must not follow the viewport");
-});
-
-test("the label column sticks to the start edge while the axis scrolls", () => {
-  assert.match(
-    css,
-    /\.timeline \.table-scroll th:first-child,\s*\.timeline \.table-scroll td:first-child\s*\{[^}]*position:\s*sticky;[^}]*inset-inline-start:\s*0/,
-  );
-});

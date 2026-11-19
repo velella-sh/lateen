@@ -168,7 +168,7 @@ test("a mixed sentence keeps each script in its own face", () => {
 /** A page with the theme's styles, so a regional tag's cascade can be read back. */
 function styled(lang: string) {
   const dom = new JSDOM(`<!DOCTYPE html><html lang="${lang}" dir="rtl"><body><p id="prose">متن</p></body></html>`);
-  for (const path of ["../styles/tokens.css", "../styles/base.css", "../styles/fonts.css", "../styles/rtl.css"]) {
+  for (const path of ["../styles/tokens.css", "../styles/src/ui.css", "../styles/fonts.css", "../styles/rtl.css"]) {
     const style = dom.window.document.createElement("style");
     style.textContent = read(path);
     dom.window.document.head.append(style);

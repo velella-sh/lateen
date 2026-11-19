@@ -131,21 +131,3 @@ test("the label follows the page language", () => {
   assert.match(html(toc(props(headings, "ar"))), /<h2 id="toc-title">في هذه الصفحة<\/h2>/);
 });
 
-test("the in-view link is announced by aria-current, and the stylesheet keys its mark off that", () => {
-  const css = readFileSync(new URL("../chrome/toc/style.css", import.meta.url), "utf8");
-  assert.match(css, /\.toc a\[aria-current="true"\] \{/);
-});
-
-test("the wide-screen TOC is its own scroll container so revealing a link never moves the page", () => {
-  const css = readFileSync(new URL("../chrome/toc/style.css", import.meta.url), "utf8");
-  assert.match(css, /\.toc \{[\s\S]*?overflow-y: auto;/);
-});
-
-test("style.css uses only token names from tokens/names.json for var(--*) references", () => {
-  const css = readFileSync(new URL("../chrome/toc/style.css", import.meta.url), "utf8");
-  const used = [...css.matchAll(/var\(--([a-z0-9-]+)\)/g)].map((match) => match[1]!);
-  assert.ok(used.length > 0);
-  for (const name of used) {
-    assert.ok(tokenNames.has(name), `unknown token --${name}`);
-  }
-});

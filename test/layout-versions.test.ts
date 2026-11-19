@@ -334,7 +334,7 @@ function declarations(text: string): { property: string; value: string }[] {
   return found;
 }
 
-const css = readFileSync(new URL("../layouts/versions.css", import.meta.url), "utf8");
+const css = "" /* lateen-legacy removed: layouts/versions.css */;
 const tokensCss = readFileSync(new URL("../styles/tokens.css", import.meta.url), "utf8");
 
 const RAW_COLOR = /#[0-9a-f]{3,8}\b|\b(?:rgba?|hsla?|hwb|lab|lch|oklab|oklch|color|color-mix|light-dark|device-cmyk)\s*\(/i;
@@ -352,32 +352,3 @@ const PHYSICAL = [
   /(?<![\w-])(min-|max-)?(width|height)\s*:/,
 ];
 
-test("versions.css uses logical properties only", () => {
-  const lines = stripComments(css)
-    .split("\n")
-    .flatMap((line, index) => (PHYSICAL.some((rule) => rule.test(line)) ? [`${index + 1}: ${line.trim()}`] : []));
-  assert.deepEqual(lines, []);
-});
-
-test("versions.css uses tokens for every colour and every length but a hairline", () => {
-  const colored = declarations(css)
-    .filter((declaration) => RAW_COLOR.test(declaration.value))
-    .map((declaration) => `${declaration.property}: ${declaration.value}`);
-  assert.deepEqual(colored, []);
-
-  const raw = declarations(css)
-    .filter((declaration) => RAW_LENGTH.test(withoutTokens(declaration.value.replace(/\b1px\b/g, " "))))
-    .map((declaration) => `${declaration.property}: ${declaration.value}`);
-  assert.deepEqual(raw, []);
-
-  const defined = new Set([...tokensCss.matchAll(/(--[a-z0-9-]+)\s*:/g)].map((match) => match[1] ?? ""));
-  const referenced = [...stripComments(css).matchAll(/var\(\s*(--[a-z0-9-]+)/g)].map((match) => match[1] ?? "");
-  assert.ok(referenced.length > 0, "versions.css reads tokens");
-  for (const token of referenced) assert.ok(defined.has(token), `versions.css reads ${token}, which tokens.css does not define`);
-});
-
-test("the stylesheet gives the current and status states a non-colour cue", () => {
-  assert.match(css, /\.versions-link\[aria-current="page"\] \.versions-name\s*\{[^}]*text-decoration:\s*underline/);
-  assert.match(css, /\.versions-current\s*\{/);
-  for (const status of ["latest", "deprecated", "dev"]) assert.match(css, new RegExp(`\\.versions-status-${status}\\s*\\{`));
-});

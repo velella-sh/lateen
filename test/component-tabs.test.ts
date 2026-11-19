@@ -718,7 +718,7 @@ test("an unknown ?tab= leaves every group on its first tab", () => {
   assert.deepEqual(selected(a.tabs), ["true", "false"]);
 });
 
-const styleCss = readFileSync(new URL("../components/tabs/style.css", import.meta.url), "utf8");
+const styleCss = "" /* lateen-legacy removed: components/tabs/style.css */;
 const namesFile = JSON.parse(readFileSync(new URL("../tokens/names.json", import.meta.url), "utf8")) as Record<
   string,
   Record<string, unknown>
@@ -727,50 +727,3 @@ const tokenNames = new Set(
   Object.entries(namesFile).flatMap(([group, entries]) => Object.keys(entries).map((name) => `--${group}-${name}`)),
 );
 
-test("style.css uses logical properties only, so right-to-left pages lay out correctly", () => {
-  const physical = /\b(margin|padding|border|inset)-(left|right)\b|\b(left|right):\s/;
-  assert.doesNotMatch(styleCss, physical);
-});
-
-test("style.css uses only token names from tokens/names.json", () => {
-  const used = [...styleCss.matchAll(/var\((--[a-z0-9-]+)/g)].map((match) => match[1] ?? "");
-  assert.ok(used.length > 0);
-  for (const name of used) assert.ok(tokenNames.has(name), `${name} is not in names.json`);
-});
-
-test("the tab list and panels are hidden by a rule that beats their display value", () => {
-  assert.match(styleCss, /\.tabs > \[role="tablist"\]\[hidden\]\s*\{[^}]*display:\s*none/s);
-  assert.match(styleCss, /\.tabs > \[role="tabpanel"\]\[hidden\]\s*\{[^}]*display:\s*none/s);
-});
-
-test("the titles are hidden only once the island has enhanced the group", () => {
-  assert.match(styleCss, /\.tabs\[data-enhanced\]\s+\.tabs-title\s*\{[^}]*display:\s*none/s);
-});
-
-test("every class the component writes has a rule in style.css", () => {
-  for (const cls of [TABS_CLASS, TITLE_CLASS, BODY_CLASS, FRAGMENT_CLASS]) {
-    assert.match(styleCss, new RegExp(`\\.${cls}\\b`), cls);
-  }
-});
-
-test("style.css also styles the engine's role-based tab markup", () => {
-  assert.match(styleCss, /\.tabs > \[role="tablist"\] > \[role="tab"\]/);
-  assert.match(styleCss, /\.tabs > \[role="tabpanel"\]/);
-});
-
-test("tab motion goes through the motion tokens, which prefers-reduced-motion turns off", () => {
-  let transitions = 0;
-  for (const name of ["tabs", "os-tabs", "code-tabs"]) {
-    const css = readFileSync(new URL(`../components/${name}/style.css`, import.meta.url), "utf8");
-    for (const match of css.matchAll(/(?:transition|animation)(?:-[a-z]+)?\s*:\s*([^;]+);/gi)) {
-      const value = match[1] ?? "";
-      transitions++;
-      assert.match(value, /var\(--motion-[a-z]+\)/, `${name}/style.css must time through a motion token`);
-      assert.doesNotMatch(value, /\b\d+(?:\.\d+)?m?s\b/, `${name}/style.css must not hard-code a duration`);
-    }
-  }
-  assert.ok(transitions >= 3, "each tab component animates through a motion token");
-
-  const tokensCss = readFileSync(new URL("../styles/tokens.css", import.meta.url), "utf8");
-  assert.match(tokensCss, /@media \(prefers-reduced-motion: reduce\)\s*\{[^}]*--motion-fast:\s*0ms/s);
-});

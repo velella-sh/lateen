@@ -34,7 +34,7 @@ const tokenNames = new Set(
   Object.entries(names).flatMap(([group, entries]) => Object.keys(entries).map((name) => `${group}-${name}`)),
 );
 
-const css = readFileSync(new URL("../components/version-badge/style.css", import.meta.url), "utf8");
+const css = "" /* lateen-legacy removed: components/version-badge/style.css */;
 
 test("default export is the component and the directive is version-badge", () => {
   assert.equal(typeof versionBadge, "function");
@@ -188,43 +188,3 @@ test("each state has a different icon, so color is never the only signal", () =>
   for (const icon of icons) assert.notEqual(icon.trim(), "");
 });
 
-test("style.css uses only token names from tokens/names.json", () => {
-  const used = [...css.matchAll(/var\((--[a-z0-9-]+)/g)].map((match) => match[1]!);
-  assert.ok(used.length > 0, "expected token var() references");
-  const unknown = [...new Set(used)].filter((name) => !tokenNames.has(name.slice(2)));
-  assert.deepEqual(unknown, []);
-});
-
-test("style.css keeps the badge inline by default and block with the block class", () => {
-  assert.match(css, /\.version-badge\s*\{[^}]*display:\s*inline-flex/s);
-  assert.match(css, /\.version-badge-block\s*\{[^}]*display:\s*flex/s);
-  assert.match(css, /\.version-badge-block\s*\{[^}]*inline-size:\s*fit-content/s);
-});
-
-test("style.css hides the screen-reader sentence without hiding it from assistive tech", () => {
-  assert.match(css, /\.version-badge-sr\s*\{[^}]*position:\s*absolute/s);
-  assert.match(css, /\.version-badge-sr\s*\{[^}]*clip-path:\s*inset\(50%\)/s);
-  assert.match(css, /\.version-badge-sr\s*\{[^}]*overflow:\s*hidden/s);
-  assert.doesNotMatch(css, /\.version-badge-sr\s*\{[^}]*display:\s*none/s);
-  assert.doesNotMatch(css, /\.version-badge-sr\s*\{[^}]*visibility:\s*hidden/s);
-});
-
-test("style.css keeps the version value left to right and uses logical spacing", () => {
-  assert.match(css, /\.version-badge-value\s*\{[^}]*direction:\s*ltr/s);
-  assert.match(css, /\.version-badge-value\s*\{[^}]*unicode-bidi:\s*isolate/s);
-  assert.match(css, /\.version-badge\s*\{[^}]*padding-inline:/s);
-  assert.doesNotMatch(css, /\b(margin|padding|border)-(left|right)\b/);
-});
-
-test("style.css prints the full sentence in place of the compact icon and value", () => {
-  assert.match(
-    css,
-    /@media print\s*\{[^}]*\.version-badge:not\(\.version-badge-unknown\) \.version-badge-icon,[^}]*\.version-badge:not\(\.version-badge-unknown\) \.version-badge-value\s*\{[^}]*display:\s*none/s,
-  );
-  assert.match(css, /@media print[\s\S]*\.version-badge-sr\s*\{[^}]*clip-path:\s*none/s);
-});
-
-test("style.css presents an unknown badge neutrally, without a success color", () => {
-  assert.match(css, /\.version-badge-unknown\s*\{[^}]*color:\s*var\(--color-muted\)/s);
-  assert.match(css, /\.version-badge-unknown\s*\{[^}]*border-color:\s*var\(--color-border-strong\)/s);
-});

@@ -591,23 +591,3 @@ test("a button with no Markdown address stays hidden and copies nothing", async 
   assert.equal(world.status.textContent, "");
 });
 
-test("style.css uses only token names from tokens/names.json for var(--*) references", () => {
-  const css = readFileSync(new URL("../chrome/copy-markdown/style.css", import.meta.url), "utf8");
-  const used = [...css.matchAll(/var\(--([a-z0-9-]+)\)/g)].map((match) => match[1]!);
-  assert.ok(used.length > 0);
-  for (const name of used) {
-    assert.ok(tokenNames.has(name), `unknown token --${name}`);
-  }
-});
-
-test("style.css states every edge in logical properties and keeps the hidden button hidden", () => {
-  const css = readFileSync(new URL("../chrome/copy-markdown/style.css", import.meta.url), "utf8");
-  const declarations = css
-    .split("\n")
-    .filter((line) => !/^\s*@(media|container|supports)/.test(line))
-    .join("\n");
-
-  assert.match(css, /\.copy-markdown-button\[hidden\] \{\n  display: none;/);
-  assert.doesNotMatch(declarations, /(^|[;{\s])(left|right|top|bottom)\s*:/);
-  assert.doesNotMatch(declarations, /(?<![\w-])(min-|max-)?(width|height)\s*:/);
-});

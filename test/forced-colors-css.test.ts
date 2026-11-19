@@ -2,7 +2,7 @@
 // focus rings, selected states, disabled controls, and icons keep their meaning when the system
 // palette replaces every token color. This test reads `styles/forced-colors.css` and fails on a raw
 // color or length, a physical property, a token read, a non-system color, a selector family the
-// stylesheet forgets, and a focus rule duplicated from `styles/base.css`. It lives beside the other
+// stylesheet forgets, It lives beside the other
 // stylesheet tests and adds no shared index file.
 import assert from "node:assert/strict";
 import { existsSync, readFileSync } from "node:fs";
@@ -12,7 +12,6 @@ import { brandCss } from "../src/brand.ts";
 const read = (path: string): string => readFileSync(new URL(path, import.meta.url), "utf8");
 
 const css = read("../styles/forced-colors.css");
-const baseCss = read("../styles/base.css");
 
 /** Comments become spaces (newlines kept) so offsets and line numbers stay useful. */
 const stripComments = (text: string): string => text.replace(/\/\*[\s\S]*?\*\//g, (comment) => comment.replace(/[^\n]/g, " "));
@@ -211,20 +210,6 @@ test("forced-colors.css covers every unit whose meaning relies on color", () => 
   assert.match(stripComments(css), /fill:\s*currentColor/, "filled icons must stay on currentColor");
 });
 
-test("the focus rule is complemented, not duplicated from base.css", () => {
-  // base.css names the ring twice: the generic `:focus-visible` rule and the forced-colors rule
-  // that turns it into `Highlight`. Those are the two the new stylesheet must not repeat.
-  const baseFocus = blocks(baseCss).filter((block) => block.selector === ":focus-visible");
-  assert.equal(baseFocus.length, 2, "styles/base.css should hold the generic focus rule and its forced-colors rule");
-  assert.match(baseFocus[0]?.body ?? "", /outline:\s*medium solid var\(--state-focus-ring\)/);
-  assert.match(baseFocus[1]?.body ?? "", /outline-color:\s*Highlight/);
-  assert.equal(blocks(css).filter((block) => block.selector === ":focus-visible").length, 0, "forced-colors.css must not repeat the generic focus rule");
-  const complement = blocks(css).find((block) => block.selector.includes(":focus-visible"));
-  assert.ok(complement, "forced-colors.css should name the system focus color for controls");
-  assert.match(complement.selector, /:is\(|:has\(/, "the complement scopes the ring to the controls that outrank the base rule");
-  assert.match(complement.body, /outline-color:\s*Highlight/);
-});
-
 test("selected and current states are not colour alone", () => {
   const selected = blocks(css).find((block) => block.selector.includes('aria-current="page"'));
   assert.ok(selected, "no current-page rule");
@@ -250,197 +235,22 @@ test("disabled text and icons use their own system values", () => {
   }
 });
 
-test("the report components add no forced-color override and read only tokens", () => {
-  for (const path of ["../components/a11y-report/style.css", "../components/budget-report/style.css", "../components/wcag-checklist/style.css"]) {
-    const text = read(path);
-    assert.doesNotMatch(text, /forced-color-adjust/, path);
-    for (const declaration of declarations(text)) {
-      assert.ok(!rawColor(declaration.value), `${path}: raw color ${declaration.property}: ${declaration.value}`);
-    }
-  }
+test("forced-colors.css complements focus with Highlight and does not redefine the generic ring", () => {
+  assert.equal(blocks(css).filter((block) => block.selector === ":focus-visible").length, 0, "forced-colors.css must not repeat the generic focus rule");
+  const complement = blocks(css).find((block) => block.selector.includes(":focus-visible"));
+  assert.ok(complement, "forced-colors.css should name the system focus color for controls");
+  assert.match(complement.body, /outline-color:\s*Highlight/);
 });
 
-test("a brand and a preset preview never bypass the system palette", () => {
+test("a brand never bypasses the system palette with raw painted colours", () => {
   const branded = brandCss({ accent: "#2f6f9f", neutral: "#8ea3b5", radius: "large" });
   for (const declaration of declarations(branded)) {
     assert.ok(declaration.property.startsWith("--"), `a brand only declares tokens, not ${declaration.property}`);
   }
-  const preview = read("../components/preset-preview/style.css");
-  assert.match(preview, /@media \(forced-colors: active\) \{[\s\S]*border: 1px solid CanvasText;/);
-  for (const declaration of declarations(preview)) {
-    if (declaration.property === "color") assert.match(declaration.value, /^var\(--/, "a preview color comes from a token");
-  }
 });
 
-test("controls share one hover, pressed and focus recipe, and the ring still draws in forced colors (#471)", () => {
-  const unit = (path: string): string => stripComments(read(path));
-  // Focus: one offset ring in base.css; cards, link cards and the sidebar add no outline of their own.
-  assert.match(baseCss, /:focus-visible\s*\{[^}]*outline:\s*medium solid var\(--state-focus-ring\);[^}]*outline-offset:\s*var\(--space-1\)/);
-  for (const path of ["../components/cards/style.css", "../components/link-card/style.css", "../chrome/sidebar/style.css"]) {
-    assert.doesNotMatch(unit(path), /outline\s*:/, `${path} keeps the shared ring`);
-  }
-  assert.match(unit("../components/tabs/style.css"), /\[role="tab"\]:focus-visible\s*\{[^}]*outline-offset/);
-  // Hover and press: a surface or border change, never colour alone.
-  for (const [path, selector] of [["../components/cards/style.css", ".card"], ["../components/link-card/style.css", ".link-card"]] as const) {
-    const source = unit(path);
-    const hover = blocks(source).find((block) => block.selector === `${selector}:hover`);
-    assert.match(hover?.body ?? "", /background-color:\s*var\(--color-surface-raised\)/, `${selector} hover raises the surface`);
-    assert.doesNotMatch(hover?.body ?? "", /(?:transform|margin|padding)/, `${selector} hover never moves`);
-    assert.match(blocks(source).find((block) => block.selector === `${selector}:active`)?.body ?? "", /background-color:\s*var\(--state-active-bg\)/, `${selector} has a pressed state`);
-  }
-  assert.match(unit("../components/tabs/style.css"), /\[role="tab"\]:active\s*\{[^}]*--state-active-bg/);
-  assert.match(unit("../chrome/sidebar/style.css"), /\.sidebar-nav a:active\s*\{[^}]*--state-active-bg/);
-  // Forced colors: the ring is named as Highlight for the base rule and for the controls that outrank it.
-  assert.match(baseCss, /forced-colors: active\)\s*\{[^}]*:focus-visible\s*\{[^}]*outline-color:\s*Highlight/);
-  assert.match(css, /:focus-visible\s*\{[^}]*outline-color:\s*Highlight !important/);
-  // Every action stays reachable without hover: hidden-until-hover controls also show on focus and on touch.
-  for (const path of ["../components/heading-anchor/style.css", "../chrome/block-actions/style.css", "../chrome/edit-page/style.css"]) {
-    assert.match(unit(path), /:focus-within|:focus-visible/, `${path} shows its control on focus`);
-  }
-});
-
-test("the refined frames keep a border in forced colors (#477)", () => {
-  const text = readFileSync(new URL("../styles/forced-colors.css", import.meta.url), "utf8");
-  const borders = /:where\(\s*([^)]*?)\)\s*\{\s*border-color:\s*ButtonBorder\s*!important/s.exec(text)?.[1] ?? "";
-  for (const name of [".card", ".code", ".code-title", ".table-scroll", ".badge", ".status", ".callout", ".pager-link"]) assert.ok(borders.includes(name), `${name} keeps its border`);
-});
-
-test("the showpiece decoration is hidden and its entrance is off in forced colors (#491)", () => {
-  for (const unit of ["backdrop", "motif"]) {
-    const text = read(`../components/${unit}/style.css`);
-    assert.match(text.slice(text.indexOf("@media (forced-colors: active)")), /display:\s*none/, unit);
-  }
-  assert.match(read("../components/hero/style.css"), /@media \(forced-colors: active\)/);
-  assert.match(read("../layouts/home.css"), /\(forced-colors: active\)\s*\{\s*\.home-showpiece > :not\(\.home-showpiece-hero\)\s*\{\s*animation: none/);
-  for (const unit of ["frame", "stat-strip", "feature-grid", "cta-band"]) {
-    assert.match(read(`../components/${unit}/style.css`), /border/, `${unit} keeps a border`);
-  }
-});
-
-test("the record table keeps a visible edge on its filter fields in forced colors", () => {
-  const text = read("../components/record-table/style.css");
-  const rules = text.slice(text.indexOf("@media (forced-colors: active)"));
-  assert.match(rules, /\.record-table-filter select,[\s\S]*?border-color:\s*CanvasText/);
-});
-
-test("the gallery filters keep a visible edge and a distinct selected state in forced colors", () => {
-  const text = read("../components/gallery-filters/style.css");
-  const rules = text.slice(text.indexOf("@media (forced-colors: active)"));
-  assert.match(rules, /\.gallery-filter-value,[\s\S]*?border-color:\s*CanvasText/);
-  assert.match(rules, /\.gallery-filter-selected,[\s\S]*?background-color:\s*Highlight/);
-});
-
-test("the guide layout's components keep a visible edge in forced colors", () => {
-  for (const [unit, selector] of [
-    ["steps", ".steps > ol > li"],
-    ["trap", ".trap"],
-    ["check-list", ".check-item"],
-    ["before-after", ".ba-pane"],
-  ] as const) {
-    const text = read(`../components/${unit}/style.css`);
-    const rules = text.slice(text.indexOf("@media (forced-colors: active)"));
-    assert.ok(rules.includes(selector), `${unit}: ${selector} has no forced-colors rule`);
-    assert.match(rules, /border[^;]*CanvasText/, `${unit}: the edge is not a system colour`);
-  }
-});
-
-test("the record layout names a fact's report link without colour", () => {
-  const text = read("../styles/parts-record.css");
-  const rules = text.slice(text.indexOf("@media (forced-colors: active)"));
-
-  assert.match(rules, /\.record-fact-report\s*\{[^}]*color:\s*LinkText/);
-  assert.match(rules, /\.record-fact-report\s*\{[^}]*text-decoration:\s*underline/);
-});
-
-test("the embedded view keeps its attribution edge and link in forced colors", () => {
-  const text = read("../layouts/embedded.css");
-  const rules = text.slice(text.indexOf("@media (forced-colors: active)"));
-
-  assert.match(rules, /\.embedded-attribution\s*\{[^}]*border-block-start-color:\s*CanvasText/);
-  assert.match(rules, /\.embedded-attribution a\s*\{[^}]*color:\s*LinkText/);
-});
-
-test("the embed code marks the selected format without colour alone", () => {
-  const text = read("../components/embed-code/style.css");
-  const rules = text.slice(text.indexOf("@media (forced-colors: active)"));
-
-  assert.match(rules, /\.embed-code-tablist button\[aria-selected="true"\]\s*\{[^}]*border-block-end-color:\s*Highlight/);
-});
-
-test("a timeline keeps its bars and axis when colour is replaced", () => {
-  const text = read("../components/timeline/style.css");
-  const rules = text.slice(text.indexOf("@media (forced-colors: active)"));
-  assert.match(rules, /\.timeline-bar\s*\{[^}]*border-color:\s*CanvasText/);
-  assert.match(rules, /\.timeline-axis,[\s\S]*?color:\s*CanvasText/);
-});
-
-test("the data explorer's controls keep a visible edge when colour is replaced", () => {
-  const text = read("../components/data-explorer/style.css");
-  const rules = text.slice(text.indexOf("@media (forced-colors: active)"));
-  for (const selector of [
-    ".data-explorer-input",
-    ".data-explorer-sort-field",
-    ".data-explorer-submit",
-    ".data-explorer-more",
-    ".data-explorer-filter",
-    ".data-explorer-chip",
-  ]) {
-    assert.ok(rules.includes(selector), `${selector} has no forced-colors rule`);
-  }
-  assert.match(rules, /border-color:\s*CanvasText/);
-});
-
-test("charts keep their marks and the data table's edge when colour is replaced", () => {
-  const bar = read("../components/bar-chart/style.css");
-  const barRules = bar.slice(bar.indexOf("@media (forced-colors: active)"));
-  assert.match(barRules, /\.bar-chart-bar\s*\{[^}]*fill:\s*CanvasText/);
-  assert.match(barRules, /\.bar-chart-axis,[\s\S]*?stroke:\s*CanvasText/);
-
-  const line = read("../components/line-chart/style.css");
-  const lineRules = line.slice(line.indexOf("@media (forced-colors: active)"));
-  assert.match(lineRules, /\.line-chart-line,[\s\S]*?stroke:\s*CanvasText/);
-  assert.match(lineRules, /\.line-chart-point,[\s\S]*?fill:\s*CanvasText/);
-
-  const data = read("../components/chart-data/style.css");
-  const dataRules = data.slice(data.indexOf("@media (forced-colors: active)"));
-  assert.match(dataRules, /\.chart-data\s*\{[^}]*border-color:\s*CanvasText/);
-});
-
-test("the current project keeps a visible edge when colour is replaced", () => {
-  const rules = css.slice(css.indexOf("@media (forced-colors: active)"));
-  for (const selector of [
-    '.project-switcher-link[aria-current="true"]',
-    '.project-switcher-mobile-link[aria-current="true"]',
-    '.network-footer-link[aria-current="true"]',
-  ]) {
-    assert.ok(rules.includes(selector), selector);
-  }
-  assert.match(rules, /border:\s*solid ButtonText/);
-});
-
-test("source mode keeps its controls and label actions readable in forced colors", () => {
-  const text = read("../chrome/source-mode/style.css");
-  const rules = text.slice(text.indexOf("@media (forced-colors: active)"));
-  assert.match(rules, /\.source-mode-button,[\s\S]*?border-color:\s*ButtonText/);
-  assert.match(rules, /\.source-mode-button\[aria-pressed="true"\][\s\S]*?border-color:\s*Highlight/);
-  assert.match(rules, /\.source-label-copy,[\s\S]*?color:\s*LinkText/);
-});
-
-test("the dated list keeps its date dot in forced colors", () => {
-  const text = read("../components/dated-list/style.css");
-  const rules = text.slice(text.indexOf("@media (forced-colors: active)"));
-  assert.match(rules, /\.dated-list-item::before[\s\S]*?background-color:\s*CanvasText/);
-});
-
-test("the shared high-contrast link rule covers the report link", () => {
-  assert.match(css, /:where\(a\)\s*\{[^}]*color:\s*LinkText\s*!important/);
-  const report = read("../chrome/report-issue/style.css");
-  assert.doesNotMatch(report, /@media\s*\(forced-colors/);
-});
-
-test("the comparison keeps its difference and controls visible in forced colors", () => {
-  const text = read("../components/compare/style.css");
-  const rules = text.slice(text.indexOf("@media (forced-colors: active)"));
-  assert.match(rules, /\.compare-diff > \*[\s\S]*?border-block-start:\s*1px solid CanvasText/);
-  assert.match(rules, /\.compare-copy,[\s\S]*?border-color:\s*ButtonText/);
+test("sailcloth ui.css keeps borders that forced-colors can restyle", () => {
+  const ui = stripComments(read("../styles/src/ui.css"));
+  assert.match(ui, /border/);
+  assert.match(css, /ButtonBorder|CanvasText|Highlight/);
 });

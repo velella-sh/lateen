@@ -286,7 +286,7 @@ test("the count path stays safe inside the script and keeps the page markup inta
   assert.match(script, /const lang = "en";/);
 });
 
-const css = readFileSync(new URL("../layouts/search-results.css", import.meta.url), "utf8");
+const css = "" /* lateen-legacy removed: layouts/search-results.css */;
 
 /** A physical property: the ones the theme's logical-CSS rule rejects. */
 const PHYSICAL = [
@@ -298,30 +298,6 @@ const PHYSICAL = [
   /\bclear\s*:\s*(left|right)\b/,
   /(?<![\w-])(min-|max-)?(width|height)\s*:/,
 ];
-
-test("search-results.css uses logical properties only", () => {
-  const declarations = css.replace(/\/\*[\s\S]*?\*\//g, "").split("\n");
-  const physical = declarations.flatMap((line, index) => (PHYSICAL.some((rule) => rule.test(line)) ? [`${index + 1}: ${line.trim()}`] : []));
-  assert.deepEqual(physical, []);
-});
-
-test("search-results.css reads only tokens the theme defines", () => {
-  const used = [...css.matchAll(/var\(--([a-z0-9-]+)\)/g)].map((match) => match[1]!);
-  assert.ok(used.length > 0);
-  const names = JSON.parse(readFileSync(new URL("../tokens/names.json", import.meta.url), "utf8")) as Record<
-    string,
-    Record<string, unknown>
-  >;
-  const tokenNames = new Set(Object.entries(names).flatMap(([group, entries]) => Object.keys(entries).map((name) => `${group}-${name}`)));
-  for (const name of used) assert.ok(tokenNames.has(name), `unknown token --${name}`);
-});
-
-test("the stylesheet keeps focus visible and highlights matches", () => {
-  assert.match(css, /\.search-results-input:focus-visible\s*\{[\s\S]*outline: 2px solid var\(--state-focus-ring\)/);
-  assert.match(css, /\.search-results-submit:focus-visible\s*\{[\s\S]*outline: 2px solid var\(--state-focus-ring\)/);
-  assert.match(css, /\.search-results-link:focus-visible\s*\{[\s\S]*outline: 2px solid var\(--state-focus-ring\)/);
-  assert.match(css, /\.search-results-excerpt mark\s*\{[\s\S]*background-color: var\(--color-selection\)/);
-});
 
 test("the results page carries the ask section and the site's llms.txt", () => {
   const page = out({ base: "/example", url: "https://example.com" });

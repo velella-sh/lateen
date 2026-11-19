@@ -45,21 +45,6 @@ test("it is decorative: hidden from assistive technology, with no text, image or
   }
 });
 
-test("colours come from theme tokens, so both themes are covered, with no raw colour in the markup", () => {
-  const css = readFileSync(new URL("../components/motif/style.css", import.meta.url), "utf8");
-  assert.match(css, /var\(--color-accent\)/);
-  assert.match(css, /var\(--color-accent-hover\)/);
-  assert.doesNotMatch(css, /#[0-9a-f]{3,8}\b|rgb\(|hsl\(|oklch\(/i);
-  assert.doesNotMatch(css, /url\(/);
-  for (const pattern of PATTERNS) assert.doesNotMatch(render({ seed: "s", pattern }), /fill="|stroke="|style=|#[0-9a-f]{3,6}/i);
-});
-
-test("the stylesheet is print and forced-colors safe and uses no raster", () => {
-  const css = readFileSync(new URL("../components/motif/style.css", import.meta.url), "utf8");
-  assert.match(css, /@media print/);
-  assert.match(css, /forced-colors: active/);
-});
-
 test("the source position is kept as data-src", () => {
   assert.match(render({ seed: "a", src: "1:2" }), /data-src="1:2"/);
 });

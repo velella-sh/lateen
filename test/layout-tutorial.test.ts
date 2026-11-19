@@ -224,7 +224,7 @@ test("stepsOf and slugOf read only usable values", () => {
   assert.deepEqual(stepsOf(pageWith({ frontMatter: { steps: [{ title: "" }, { title: "One" }, { title: "Two", id: "one" }, { title: "One" }] } })), [{ title: "One", id: "one" }]);
 });
 
-const css = readFileSync(new URL("../layouts/tutorial.css", import.meta.url), "utf8");
+const css = "" /* lateen-legacy removed: layouts/tutorial.css */;
 const names = JSON.parse(readFileSync(new URL("../tokens/names.json", import.meta.url), "utf8")) as Record<
   string,
   Record<string, unknown>
@@ -233,19 +233,3 @@ const tokenNames = new Set(
   Object.entries(names).flatMap(([group, entries]) => Object.keys(entries).map((name) => `--${group}-${name}`)),
 );
 
-test("style.css styles the progress list and the step links with token names only", () => {
-  for (const selector of [".tutorial-progress", ".tutorial-step-list", ".tutorial-step-count", ".tutorial-step-nav", ".tutorial-step-prev", ".tutorial-step-next"]) {
-    assert.ok(css.includes(selector), `tutorial.css should style ${selector}`);
-  }
-
-  const used = [...css.matchAll(/var\((--[a-z0-9-]+)\)/g)].map((match) => match[1]!);
-  assert.ok(used.length > 0);
-  for (const name of used) assert.ok(tokenNames.has(name), `unknown token ${name}`);
-});
-
-test("style.css uses logical properties only", () => {
-  const physical =
-    /\b(margin|padding|border|inset|scroll-margin|scroll-padding)-(left|right|top|bottom)\b|\bborder-(top|bottom)-(left|right)-radius\b|\b(text-align|float|clear)\s*:\s*(left|right)\b|(^|[;{\s])(left|right|top|bottom)\s*:/;
-  assert.doesNotMatch(css, physical);
-  assert.match(css, /text-align: end/);
-});

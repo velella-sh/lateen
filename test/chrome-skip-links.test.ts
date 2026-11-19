@@ -166,24 +166,6 @@ test("home and 404 keep every skip link target", () => {
   }
 });
 
-test("style.css keeps the links out of sight until focus, with token values only", () => {
-  const css = readFileSync(new URL("../chrome/skip-links/style.css", import.meta.url), "utf8");
-  const used = [...css.matchAll(/var\(--([a-z0-9-]+)\)/g)].map((match) => match[1]!);
-  assert.ok(used.length > 0);
-  const names = JSON.parse(readFileSync(new URL("../tokens/names.json", import.meta.url), "utf8")) as Record<
-    string,
-    Record<string, unknown>
-  >;
-  const tokenNames = new Set(
-    Object.entries(names).flatMap(([group, entries]) => Object.keys(entries).map((name) => `${group}-${name}`)),
-  );
-  for (const name of used) assert.ok(tokenNames.has(name), `unknown token --${name}`);
-
-  assert.match(css, /\.skip-link \{[\s\S]*transform: translateY\(-200%\);/);
-  assert.match(css, /\.skip-link:focus \{\n {2}transform: none;\n\}/);
-  assert.doesNotMatch(css, /(^|[;{\s])(left|right|top|bottom)\s*:/);
-});
-
 /* The client island: a real page shape with both destinations, as layouts/base.ts writes them. */
 const PAGE = [
   '<!DOCTYPE html><html lang="en" dir="ltr"><body>',
