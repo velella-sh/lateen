@@ -5,7 +5,3 @@ dist/
 coverage/
 test/visual/out/
 test/acceptance/out/
-redesign/styles/generated.css
-redesign/components/performance-chart/chart.umd.min.js
-redesign/dist/
-redesign/site/.mizzen/

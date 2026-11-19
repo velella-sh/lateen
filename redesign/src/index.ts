@@ -1,9 +1,6 @@
 /**
- * Experimental redesign entry. Sailcloth chrome and tokens now live on the main
- * `@velella/lateen` theme; this export keeps the redesign site/demo path while
- * callers migrate off the dual theme name.
+ * Deprecated alias for `@velella/lateen`. Sailcloth is the only theme; import
+ * the package root instead. Kept so existing `--theme redesign` / subpath
+ * callers resolve to the same folders.
  */
-export const theme = {
-  name: "lateen-next",
-  folders: ["layouts", "chrome", "components", "styles"],
-} as const;
+export { theme } from "../../src/index.ts";

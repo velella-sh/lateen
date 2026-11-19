@@ -1,6 +1,6 @@
-# Lateen redesign — sailcloth standard
+# Lateen sailcloth standard
 
-Visual contract for the experimental `redesign/` theme. Matches the Untitled HTML mockups.
+Visual contract for Lateen. Matches the Untitled HTML mockups.
 
 ## Direction
 
