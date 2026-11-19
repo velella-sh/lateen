@@ -951,6 +951,30 @@ test("typing searches the loaded index and renders grouped, highlighted results"
   );
 });
 
+test("superseded queries do not load Pagefind hit data", async () => {
+  const first = Promise.withResolvers<Awaited<ReturnType<PagefindApi["search"]>>>();
+  const { button, input, status, parts } = partsOf();
+  const current = apiOf(records);
+  let staleReads = 0;
+  activate(parts, envWith({ search: (term) => term === "slow" ? first.promise : current.search(term) }));
+  button.click();
+  await tick();
+
+  input.type("slow");
+  input.type("cache");
+  await tick();
+  first.resolve({ results: Array.from({ length: 20 }, () => ({
+    data: async () => {
+      staleReads++;
+      return records[0]!;
+    },
+  })) });
+  await tick();
+
+  assert.equal(staleReads, 0);
+  assert.equal(status.textContent, "2 results.");
+});
+
 test("every draw renumbers the options, so no two rows ever share an id", async () => {
   const { button, input, results, parts } = partsOf();
   activate(parts, envWith(apiOf(records)));
