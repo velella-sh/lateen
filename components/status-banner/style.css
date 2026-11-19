@@ -1,6 +1,4 @@
-/* Status banner: a page-level banner for deprecated, experimental, and old-version pages. The accent
-   sits on the inline start edge, so it moves under RTL. Each status has its own icon and visible
-   label, so colour is never the only signal. Colors come from tokens, so dark mode follows. */
+/* Status banner: sailcloth quiet inset edge; kind color on the label and icon only. */
 
 .status-banner {
   display: flex;
@@ -8,11 +6,12 @@
   gap: var(--space-1) var(--space-3);
   align-items: center;
   margin-block: var(--space-4);
-  padding-block: var(--space-3);
+  padding-block: var(--space-4);
   padding-inline: var(--space-4);
-  border: 1px solid var(--color-border);
-  border-inline-start-width: 4px;
-  border-radius: var(--radius-md);
+  border: 0;
+  border-inline-start: 2px solid transparent;
+  border-radius: var(--radius-lg);
+  background: color-mix(in srgb, var(--color-surface) 72%, var(--color-surface-raised));
   color: var(--color-text);
   font-size: var(--type-size-sm);
   line-height: var(--type-leading-body);
@@ -20,28 +19,28 @@
 
 .status-banner-deprecated {
   border-inline-start-color: var(--color-danger);
-  background-color: color-mix(in srgb, var(--color-danger) 8%, var(--color-canvas));
 }
 
-.status-banner-deprecated .status-banner-icon {
+.status-banner-deprecated .status-banner-icon,
+.status-banner-deprecated .status-banner-label {
   color: var(--color-danger);
 }
 
 .status-banner-experimental {
   border-inline-start-color: var(--color-info);
-  background-color: color-mix(in srgb, var(--color-info) 8%, var(--color-canvas));
 }
 
-.status-banner-experimental .status-banner-icon {
+.status-banner-experimental .status-banner-icon,
+.status-banner-experimental .status-banner-label {
   color: var(--color-info);
 }
 
 .status-banner-old-version {
   border-inline-start-color: var(--color-warning);
-  background-color: color-mix(in srgb, var(--color-warning) 8%, var(--color-canvas));
 }
 
-.status-banner-old-version .status-banner-icon {
+.status-banner-old-version .status-banner-icon,
+.status-banner-old-version .status-banner-label {
   color: var(--color-warning);
 }
 
@@ -52,12 +51,32 @@
 }
 
 .status-banner-label {
-  color: var(--color-heading);
+  font-family: var(--type-font-ui);
+  font-size: var(--type-size-xs);
   font-weight: var(--type-weight-bold);
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
 }
 
 .status-banner-hint {
   color: var(--color-muted);
+}
+
+.status-banner-message {
+  flex: 1 1 12rem;
+  min-inline-size: 0;
+}
+
+.status-banner-message > :first-child {
+  margin-block-start: 0;
+}
+
+.status-banner-message > :last-child {
+  margin-block-end: 0;
+}
+
+.status-banner a {
+  color: var(--color-link);
 }
 
 .status-banner-version,
@@ -95,4 +114,16 @@
 
 .status-banner-replacement-target {
   font-family: var(--type-font-mono);
+}
+
+@media (forced-colors: active) {
+  .status-banner {
+    border-inline-start-color: CanvasText;
+  }
+}
+
+@media print {
+  .status-banner {
+    break-inside: avoid;
+  }
 }

@@ -1,4 +1,4 @@
-/* Badge: a small inline label for a version or status. Variant colors match the callouts (note, tip, important, warning, caution). */
+/* Badge: small inline label. Sailcloth chip — surface fill, hairline, kind color on the text. */
 
 .badge {
   display: inline-block;
@@ -6,37 +6,38 @@
   padding-inline: var(--space-2);
   border: thin solid var(--color-border);
   border-radius: var(--radius-full);
-  background-color: var(--elevation-low-bg);
+  background-color: var(--color-surface);
   color: var(--color-text);
   font-family: var(--type-font-ui);
-  font-size: var(--type-size-sm);
+  font-size: var(--type-size-xs);
   font-weight: var(--type-weight-bold);
+  letter-spacing: 0.04em;
   line-height: var(--type-leading-tight);
   white-space: nowrap;
   vertical-align: baseline;
 }
 
 .badge-note {
-  border-color: var(--color-info);
+  border-color: color-mix(in srgb, var(--color-info) 45%, transparent);
   color: color-mix(in srgb, var(--color-info) 60%, var(--color-text));
 }
 
 .badge-tip {
-  border-color: var(--color-success);
+  border-color: color-mix(in srgb, var(--color-success) 45%, transparent);
   color: color-mix(in srgb, var(--color-success) 60%, var(--color-text));
 }
 
 .badge-important {
-  border-color: var(--color-accent);
+  border-color: color-mix(in srgb, var(--color-accent) 45%, transparent);
   color: color-mix(in srgb, var(--color-accent) 60%, var(--color-text));
 }
 
 .badge-warning {
-  border-color: var(--color-warning);
+  border-color: color-mix(in srgb, var(--color-warning) 45%, transparent);
   color: color-mix(in srgb, var(--color-warning) 60%, var(--color-text));
 }
 
 .badge-caution {
-  border-color: var(--color-danger);
+  border-color: color-mix(in srgb, var(--color-danger) 45%, transparent);
   color: color-mix(in srgb, var(--color-danger) 60%, var(--color-text));
 }

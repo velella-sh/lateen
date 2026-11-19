@@ -499,9 +499,9 @@ test("table header sticks, rows divide with a hairline, numbers align to the end
   assert.match(table, /tbody tr:hover td \{\s*background-color: var\(--state-hover-bg\);\s*\}/);
 });
 
-test("card hover lifts with a shadow, never a move, so there is no layout shift", () => {
+test("card hover raises the surface, never a move, so there is no layout shift", () => {
   const cards = stripComments(read("../components/cards/style.css"));
-  assert.match(cards, /\.card:hover \{[^}]*box-shadow: var\(--elevation-mid-shadow\)/);
+  assert.match(cards, /\.card:hover \{[^}]*background-color: var\(--color-surface-raised\)/);
   assert.doesNotMatch(cards, /\.card:hover \{[^}]*(?:transform|margin|padding)/);
 });
 
