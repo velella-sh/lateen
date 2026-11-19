@@ -189,7 +189,7 @@ test("renders a hidden switch with data-theme-toggle, one named button, and a st
   const out = render();
 
   assert.match(out, /^<span class="theme-toggle" data-theme-toggle hidden>/);
-  assert.match(out, /<button class="theme-toggle-button" type="button" aria-label="Color theme">/);
+  assert.match(out, /<button class="iconbtn theme-toggle-button" type="button" aria-label="Color theme">/);
   assert.match(out, /<span class="theme-toggle-status" role="status"><\/span>/);
   assert.doesNotMatch(out, /<input|<fieldset|checked/);
 });

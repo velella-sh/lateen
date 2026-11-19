@@ -98,6 +98,16 @@ test("every site in this repository writes options the schema lists", () => {
   assert.deepEqual(problems, []);
 });
 
+test("the documentation site configures its light and dark logos in YAML", () => {
+  const config = parse(readFileSync(join(root, "site/mizzen.yml"), "utf8")) as {
+    theme?: { options?: { logo?: { light?: string; dark?: string } } };
+  };
+  assert.deepEqual(config.theme?.options?.logo, {
+    light: "/brand/mark-light.svg",
+    dark: "/brand/mark-dark.svg",
+  });
+});
+
 test("every option path a unit names is in the schema", () => {
   const problems: string[] = [];
   for (const path of ["src", "components", "chrome", "layouts"].flatMap((dir) => files(dir, [".ts", ".tsx"]))) {

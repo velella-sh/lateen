@@ -85,9 +85,23 @@ test("shell renders sailcloth header chrome with search trigger", () => {
     collections: {},
     feeds: {},
   };
-  const site: Site = { config, pages: [page], nav: { main: [{ title: "Start", url: "/" }] }, data: {}, collections: {} };
+  const site: Site = {
+    config,
+    pages: [page],
+    nav: {
+      main: [
+        { title: "Start", children: [{ title: "Overview", url: "/" }] },
+        { title: "Components", children: [{ title: "Component reference", url: "/components/" }] },
+        { title: "Customize", children: [{ title: "Tokens and options", url: "/tokens/" }] },
+      ],
+    },
+    data: {},
+    collections: {},
+  };
   const out = html(shell({ site, page, trail: [], pager: {} }));
   assert.match(out, /data-site-header/);
+  assert.match(out, /<a href="\/components\/">Components<\/a>/);
+  assert.match(out, /<a href="\/tokens\/">Customize<\/a>/);
   assert.match(out, /search-trigger/);
   assert.match(out, /data-search-open/);
   assert.match(out, /data-drawer-open/);

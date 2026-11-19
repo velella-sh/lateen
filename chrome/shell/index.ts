@@ -35,8 +35,8 @@ function brand(config: SiteConfig) {
     { class: "brand", href: `${config.base}/` },
     light || dark
       ? h(Fragment, null,
-          light ? h("img", { class: "brand-logo brand-logo-light", src: light, alt: "", width: 28, height: 28 }) : null,
-          dark ? h("img", { class: "brand-logo brand-logo-dark", src: dark, alt: "", width: 28, height: 28 }) : null,
+          light ? h("img", { class: `brand-logo${dark ? " brand-logo-light" : ""}`, src: light, alt: "", width: 28, height: 28 }) : null,
+          dark ? h("img", { class: `brand-logo${light ? " brand-logo-dark" : ""}`, src: dark, alt: "", width: 28, height: 28 }) : null,
         )
       : h("span", { class: "brand-mark", "aria-hidden": "true" }),
     config.title || "Lateen",
@@ -78,11 +78,13 @@ const shell: Chrome = (props) => {
       ? (projectSwitcher(props) as ComponentChildren)
       : null;
 
-  const fromNav = (site.nav.main ?? []).flatMap((item) =>
-    "url" in item && typeof item.url === "string" && typeof item.title === "string"
-      ? [{ title: item.title, url: item.url }]
-      : [],
-  );
+  const fromNav = (site.nav.main ?? []).flatMap((item) => {
+    if (typeof item.title !== "string") return [];
+    if ("url" in item && typeof item.url === "string") return [{ title: item.title, url: item.url }];
+    if (!("children" in item) || !Array.isArray(item.children)) return [];
+    const first = item.children.find((child) => "url" in child && typeof child.url === "string");
+    return first && "url" in first && typeof first.url === "string" ? [{ title: item.title, url: first.url }] : [];
+  });
   const sections = fromNav.length > 0 ? fromNav : [{ title: "Start", url: `${base}/` }];
   const currentSection = sections.find((item) =>
     item.url === `${base}/` || item.url === `${base}`
