@@ -49,10 +49,6 @@
 }
 
 @media (max-width: 62rem) {
-  .hero-copy h1 {
-    max-inline-size: 13ch;
-  }
-
   .home-preview {
     @apply w-full max-w-xl;
     transform: none;
@@ -74,12 +70,7 @@
     display: none;
   }
 
-  .mobile-nav {
-    display: block;
-  }
-
-  .header-actions .btn,
-  .mobile-nav summary {
+  .header-actions .btn {
     min-inline-size: 2.75rem;
     min-block-size: 2.75rem;
   }
@@ -122,10 +113,6 @@
     gap: 0.25rem;
   }
 
-  .hero-copy h1 {
-    font-size: clamp(2.75rem, 13vw, 4rem);
-  }
-
   .home-lead {
     font-size: 1rem;
   }
@@ -148,7 +135,6 @@
 }
 
 @media (max-width: 24rem) {
-  .header-github,
   .brand-tag {
     display: none;
   }
@@ -221,8 +207,7 @@
   /* print.css reveals tab titles; keep them in flow so RTL absolute chips cannot widen the page. */
   .code-tabs-title,
   .tabs-title,
-  .os-tabs-title,
-  .install-tabs-title {
+  .os-tabs-title {
     position: static !important;
     inset: auto !important;
     inline-size: auto !important;

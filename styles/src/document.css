@@ -90,10 +90,6 @@
     font-weight: 600;
   }
 
-  .toc-nested {
-    padding-inline-start: 0.75rem;
-  }
-
   .toc-fold {
     display: none;
   }
@@ -172,16 +168,6 @@
     @apply m-0 text-xs font-semibold uppercase;
     color: var(--primary);
     letter-spacing: 0.09em;
-  }
-
-  .doc-header {
-    @apply mb-10 border-b pb-8;
-  }
-
-  .doc-header h1 {
-    @apply mb-3 mt-2;
-    font-size: clamp(2.25rem, 5vw, 3.5rem);
-    letter-spacing: -0.045em;
   }
 
   .doc-description {
