@@ -6,12 +6,13 @@ import scrollspy, {
   type TocEntry,
   type TocEnv,
   type TocScroller,
-  type TocViewport,
 } from "../chrome/toc/client.ts";
 
 const LINK_SELECTOR = ".toc a[href^='#'], .toc-fold a[href^='#']";
 const SCROLLER_SELECTOR = ".toc";
+const HEADER_SELECTOR = "[data-site-header]";
 const REDUCED = "(prefers-reduced-motion: reduce)";
+const HEADER_HEIGHT = 68;
 
 class FakeElement implements TocElement {
   id: string;
@@ -33,6 +34,10 @@ class FakeElement implements TocElement {
 
   setAttribute(name: string, value: string): void {
     this.attrs.set(name, value);
+  }
+
+  removeAttribute(name: string): void {
+    this.attrs.delete(name);
   }
 
   getBoundingClientRect(): { top: number; bottom: number; height: number } {
@@ -75,25 +80,25 @@ function linkTo(heading: string): FakeElement {
 
 class FakeDocument implements TocDocument {
   readonly queries: string[] = [];
-  readonly scrollerQueries: string[] = [];
+  readonly singleQueries: string[] = [];
   readonly ids: Map<string, FakeElement>;
   links: FakeElement[];
   scroller: FakeScroller | null;
+  header: FakeScroller | null;
   location: { hash: string };
-  documentElement: { scrollHeight: number };
 
   constructor(
     links: FakeElement[],
     headings: FakeElement[],
     scroller: FakeScroller | null,
+    header: FakeScroller | null,
     hash = "",
-    scrollHeight = 10000,
   ) {
     this.links = links;
     this.ids = new Map(headings.map((heading) => [heading.id, heading]));
     this.scroller = scroller;
+    this.header = header;
     this.location = { hash };
-    this.documentElement = { scrollHeight };
   }
 
   querySelectorAll(selector: string): FakeElement[] {
@@ -102,8 +107,8 @@ class FakeDocument implements TocDocument {
   }
 
   querySelector(selector: string): TocScroller | null {
-    this.scrollerQueries.push(selector);
-    return this.scroller;
+    this.singleQueries.push(selector);
+    return selector === HEADER_SELECTOR ? this.header : this.scroller;
   }
 
   getElementById(id: string): FakeElement | null {
@@ -137,7 +142,12 @@ class FakeObserver {
 
   /** The browser reports a heading's position and whether it is inside the band. */
   see(target: FakeElement, top: number, intersecting: boolean): void {
-    this.callback([{ isIntersecting: intersecting, target, boundingClientRect: { top } }]);
+    this.report([{ isIntersecting: intersecting, target, boundingClientRect: { top } }]);
+  }
+
+  /** One callback may carry a whole fast scroll; browsers do not promise document order. */
+  report(entries: readonly TocEntry[]): void {
+    this.callback(entries);
   }
 }
 
@@ -145,10 +155,9 @@ interface SpyOptions {
   reduced?: boolean;
   hash?: string;
   scroller?: FakeScroller | null;
-  viewport?: TocViewport;
+  /** Header height in pixels; `null` means the page has no sticky header. */
+  header?: number | null;
 }
-
-const LONG_PAGE: TocViewport = { scrollY: 0, innerHeight: 800, scrollHeight: 10000 };
 
 /** A scrollspy over a page with the given headings, each linked from the aside and the fold. */
 function spy(ids: string[], options: SpyOptions = {}) {
@@ -163,19 +172,20 @@ function spy(ids: string[], options: SpyOptions = {}) {
   const links = [...aside, ...fold];
   const scroller = options.scroller === undefined ? new FakeScroller() : options.scroller;
   scroller?.links.push(...aside);
-  const viewport = options.viewport ?? LONG_PAGE;
-  const doc = new FakeDocument(links, headings, scroller, options.hash ?? "", viewport.scrollHeight);
+  const header = options.header === null ? null : new FakeScroller();
+  if (header) header.height = options.header ?? HEADER_HEIGHT;
+  const doc = new FakeDocument(links, headings, scroller, header, options.hash ?? "");
   FakeObserver.instances = [];
   const env: TocEnv = {
     document: doc,
     IntersectionObserver: FakeObserver,
     matchMedia: (query) => ({ matches: query === REDUCED && options.reduced === true }),
-    viewport: () => viewport,
   };
   return {
     doc,
     env,
     scroller,
+    header,
     stop: scrollspy(env),
     links,
     aside,
@@ -186,128 +196,144 @@ function spy(ids: string[], options: SpyOptions = {}) {
   };
 }
 
+/** Exactly the copies of one heading carry `aria-current="true"`; every other link carries none. */
+function assertActive(links: readonly FakeElement[], id: string | null): void {
+  for (const link of links) {
+    const href = link.getAttribute("href")!;
+    const expected = id !== null && href === `#${id}` ? "true" : null;
+    assert.equal(link.getAttribute("aria-current"), expected, `state of ${href}`);
+  }
+}
+
 /** The scrollspy must reveal links by scrolling the column, never by scrolling their ancestors. */
 function assertDocumentUnscrolled(links: readonly FakeElement[]): void {
   for (const link of links) assert.deepEqual(link.documentScrolls, [], `document scrolled for ${link.getAttribute("href")}`);
 }
 
-test("asks the document for both TOC link sets and the scrolling column, then observes each heading once", () => {
+test("asks for both TOC link sets, the scrolling column, and the sticky header, then observes each heading once", () => {
   const { doc, observer } = spy(["pick", "gem", "build"]);
   assert.deepEqual(doc.queries, [LINK_SELECTOR]);
-  assert.deepEqual(doc.scrollerQueries, [SCROLLER_SELECTOR]);
+  assert.deepEqual(doc.singleQueries, [SCROLLER_SELECTOR, HEADER_SELECTOR]);
   assert.deepEqual(
     observer.observed.map((heading) => heading.id),
     ["pick", "gem", "build"],
   );
 });
 
-test("selects the first heading on arrival and marks every copy of its link", () => {
-  const { link } = spy(["pick", "gem"]);
-  for (const l of link("pick")) assert.equal(l.getAttribute("aria-current"), "true");
-  for (const l of link("gem")) assert.equal(l.getAttribute("aria-current"), null);
+test("marks the first heading once it is the one in view", () => {
+  const { observer, heading, links } = spy(["pick", "gem", "build"]);
+  assertActive(links, null);
+
+  observer.see(heading("pick"), HEADER_HEIGHT + 60, true);
+  assertActive(links, "pick");
 });
 
-test("moves the mark as the reader scrolls, keeping the aside and fold copies synchronized", () => {
-  const { observer, heading, link } = spy(["pick", "gem"]);
+test("moves the marker to the middle heading", () => {
+  const { observer, heading, links } = spy(["pick", "gem", "build"]);
 
-  // "pick" reaches the band under the viewport top: marked in both containers.
-  observer.see(heading("pick"), 120, true);
-  for (const l of link("pick")) assert.equal(l.getAttribute("aria-current"), "true");
-  for (const l of link("gem")) assert.equal(l.getAttribute("aria-current"), null);
+  observer.see(heading("pick"), HEADER_HEIGHT + 60, true);
+  observer.see(heading("pick"), -20, false);
+  observer.see(heading("gem"), HEADER_HEIGHT + 50, true);
 
-  // "gem" enters the band while "pick" is still visible: the later heading wins.
-  observer.see(heading("gem"), 110, true);
-  for (const l of link("gem")) assert.equal(l.getAttribute("aria-current"), "true");
-  for (const l of link("pick")) assert.equal(l.getAttribute("aria-current"), "false");
-
-  // Scrolling back up, "pick" comes back and "gem" leaves the band.
-  observer.see(heading("gem"), -50, true);
-  observer.see(heading("pick"), -45, true);
-  observer.see(heading("gem"), 130, false);
-  for (const l of link("pick")) assert.equal(l.getAttribute("aria-current"), "true");
-  for (const l of link("gem")) assert.equal(l.getAttribute("aria-current"), "false");
-
-  // Above the first heading after an update, the first heading stays the deterministic mark.
-  observer.see(heading("pick"), 130, false);
-  for (const l of link("pick")) assert.equal(l.getAttribute("aria-current"), "true");
-  for (const l of link("gem")) assert.equal(l.getAttribute("aria-current"), "false");
+  assertActive(links, "gem");
 });
 
-test("keeps the last heading marked across a gap between long sections", () => {
-  const { observer, heading, link } = spy(["pick", "gem"]);
-  observer.see(heading("pick"), 120, true);
-  observer.see(heading("pick"), -300, false);
-  observer.see(heading("gem"), 900, false);
-  for (const l of link("pick")) assert.equal(l.getAttribute("aria-current"), "true");
-  for (const l of link("gem")) assert.equal(l.getAttribute("aria-current"), null);
+test("marks the last heading when it is the one in view", () => {
+  const { observer, heading, links } = spy(["pick", "gem", "build"]);
+
+  observer.see(heading("build"), HEADER_HEIGHT + 60, true);
+  assertActive(links, "build");
+});
+
+test("clears the marker when no heading is in view", () => {
+  const { observer, heading, links } = spy(["pick", "gem"]);
+
+  observer.see(heading("pick"), HEADER_HEIGHT + 60, true);
+  assertActive(links, "pick");
+
+  observer.see(heading("pick"), -40, false);
+  observer.see(heading("gem"), 700, false);
+  assertActive(links, null);
+});
+
+test("keeps one heading active when several are in the band", () => {
+  const { observer, heading, links } = spy(["pick", "gem", "build"]);
+
+  observer.see(heading("pick"), HEADER_HEIGHT + 20, true);
+  observer.see(heading("gem"), HEADER_HEIGHT + 80, true);
+  assertActive(links, "gem");
+
+  observer.see(heading("gem"), -10, false);
+  assertActive(links, "pick");
+});
+
+test("resolves a fast-scroll batch in document order, not entry order", () => {
+  const { observer, heading, links } = spy(["pick", "gem", "build"]);
+
+  observer.report([
+    { isIntersecting: false, target: heading("pick"), boundingClientRect: { top: -400 } },
+    { isIntersecting: true, target: heading("build"), boundingClientRect: { top: HEADER_HEIGHT + 80 } },
+    { isIntersecting: true, target: heading("gem"), boundingClientRect: { top: HEADER_HEIGHT + 20 } },
+  ]);
+
+  assertActive(links, "build");
+});
+
+test("starts the band below the sticky header", () => {
+  const { observer, heading, links } = spy(["pick", "gem"]);
+  assert.equal(observer.options?.rootMargin, `-${HEADER_HEIGHT}px 0px -70% 0px`);
+
+  // A heading scrolled behind the sticky header is not in view, even though it is inside the viewport.
+  observer.see(heading("pick"), HEADER_HEIGHT - 10, false);
+  assertActive(links, null);
+
+  // The heading just below the header is.
+  observer.see(heading("gem"), HEADER_HEIGHT + 60, true);
+  assertActive(links, "gem");
 });
 
 test("resolves a deep link before the first observation and decodes its fragment", () => {
-  const { link, observer, heading } = spy(["pick", "gem"], { hash: "#gem" });
-  for (const l of link("gem")) assert.equal(l.getAttribute("aria-current"), "true");
-  for (const l of link("pick")) assert.equal(l.getAttribute("aria-current"), null);
+  const { observer, heading, links } = spy(["pick", "gem"], { hash: "#gem" });
+  assertActive(links, "gem");
 
   // The observer still takes over afterwards.
-  observer.see(heading("pick"), 120, true);
-  for (const l of link("pick")) assert.equal(l.getAttribute("aria-current"), "true");
-  for (const l of link("gem")) assert.equal(l.getAttribute("aria-current"), "false");
+  observer.see(heading("pick"), HEADER_HEIGHT + 60, true);
+  assertActive(links, "pick");
 
   const encoded = spy(["café", "tea"], { hash: "#caf%C3%A9" });
-  for (const l of encoded.link("café")) assert.equal(l.getAttribute("aria-current"), "true");
+  assertActive(encoded.links, "café");
 });
 
-test("ignores a fragment that names no TOC entry and falls back to the first heading", () => {
-  const { link } = spy(["pick", "gem"], { hash: "#ghost" });
-  for (const l of link("pick")) assert.equal(l.getAttribute("aria-current"), "true");
-  for (const l of link("gem")) assert.equal(l.getAttribute("aria-current"), null);
-});
-
-test("a short page selects the first heading even when every heading is below the band", () => {
-  const { observer, heading, link } = spy(["pick", "gem"], {
-    viewport: { scrollY: 0, innerHeight: 800, scrollHeight: 600 },
-  });
-  observer.see(heading("pick"), 200, false);
-  observer.see(heading("gem"), 400, false);
-  for (const l of link("pick")) assert.equal(l.getAttribute("aria-current"), "true");
-  for (const l of link("gem")) assert.equal(l.getAttribute("aria-current"), null);
-});
-
-test("the page bottom selects the final heading even when it never reaches the band", () => {
-  const viewport: TocViewport = { scrollY: 0, innerHeight: 800, scrollHeight: 1700 };
-  const { observer, heading, link } = spy(["pick", "gem", "build"], { viewport });
-  observer.see(heading("pick"), 120, true);
-  for (const l of link("pick")) assert.equal(l.getAttribute("aria-current"), "true");
-
-  viewport.scrollY = 900; // the page cannot scroll further
-  observer.see(heading("build"), 350, false);
-  for (const l of link("build")) assert.equal(l.getAttribute("aria-current"), "true");
-  for (const l of link("pick")) assert.equal(l.getAttribute("aria-current"), "false");
+test("ignores a fragment that names no TOC entry and marks nothing", () => {
+  const { links } = spy(["pick", "gem"], { hash: "#ghost" });
+  assertActive(links, null);
 });
 
 test("reveals the active link by scrolling the TOC column only, and only once per activation", () => {
-  const { observer, heading, link, fold, scroller } = spy(["pick", "gem", "build"]);
+  const { observer, heading, link, fold, scroller, links } = spy(["pick", "gem", "build"]);
   const gem = link("gem")[0]!;
   gem.top = 400; // below the 300px column viewport
 
-  observer.see(heading("gem"), 120, true);
+  observer.see(heading("gem"), HEADER_HEIGHT + 60, true);
   assert.deepEqual(scroller!.scrolls, [{ top: 120, behavior: "smooth" }]);
   assert.equal(scroller!.scrollTop, 120);
-  for (const l of link("gem")) assert.equal(l.getAttribute("aria-current"), "true");
+  assertActive(links, "gem");
 
   // Re-observing the active heading does not scroll the column again.
-  observer.see(heading("gem"), 125, true);
+  observer.see(heading("gem"), HEADER_HEIGHT + 65, true);
   assert.equal(scroller!.scrolls.length, 1);
 
-  // Scrolling back up to a link above the column scrolls the column up, still inside it.
-  observer.see(heading("build"), 110, true);
+  // A fast scroll back up to a link above the column scrolls the column up, still inside it.
   const pick = link("pick")[0]!;
   pick.top = -20;
-  observer.see(heading("gem"), 500, false);
-  observer.see(heading("build"), 400, false);
-  const pick2 = link("pick")[0]!;
-  assert.equal(pick2.getAttribute("aria-current"), "true");
-  assert.deepEqual(fold[0]!.documentScrolls, []);
+  observer.report([
+    { isIntersecting: false, target: heading("build"), boundingClientRect: { top: 400 } },
+    { isIntersecting: false, target: heading("gem"), boundingClientRect: { top: 500 } },
+    { isIntersecting: true, target: heading("pick"), boundingClientRect: { top: HEADER_HEIGHT + 60 } },
+  ]);
   assert.deepEqual(scroller!.scrolls.at(-1), { top: 100, behavior: "smooth" });
+  assertActive([...link("pick"), ...link("gem"), ...link("build")], "pick");
+  assert.deepEqual(fold[0]!.documentScrolls, []);
   assertDocumentUnscrolled([...link("pick"), ...link("gem"), ...link("build")]);
 });
 
@@ -315,7 +341,7 @@ test("reduced motion jumps the TOC column instead of smooth scrolling", () => {
   const { observer, heading, link, scroller } = spy(["pick", "gem"], { reduced: true });
   link("gem")[0]!.top = 400;
 
-  observer.see(heading("gem"), 120, true);
+  observer.see(heading("gem"), HEADER_HEIGHT + 60, true);
   assert.deepEqual(scroller!.scrolls, [{ top: 120, behavior: "auto" }]);
   assertDocumentUnscrolled([...link("pick"), ...link("gem")]);
 });
@@ -328,14 +354,15 @@ test("assumes reduced motion when the host has no matchMedia", () => {
   const fold = [linkTo("pick"), linkTo("gem")];
   const scroller = new FakeScroller();
   scroller.links.push(...aside);
-  const doc = new FakeDocument([...aside, ...fold], headings, scroller);
+  const header = new FakeScroller();
+  header.height = HEADER_HEIGHT;
+  const doc = new FakeDocument([...aside, ...fold], headings, scroller, header);
   FakeObserver.instances = [];
   scrollspy({
     document: doc,
     IntersectionObserver: FakeObserver,
-    viewport: () => LONG_PAGE,
   });
-  FakeObserver.instances.at(-1)!.see(headings[1]!, 120, true);
+  FakeObserver.instances.at(-1)!.see(headings[1]!, HEADER_HEIGHT + 60, true);
   assert.deepEqual(scroller.scrolls, [{ top: 120, behavior: "auto" }]);
 });
 
@@ -344,14 +371,14 @@ test("marks without scrolling when the TOC column is hidden or absent", () => {
   hidden.height = 0;
   const hiddenSpy = spy(["pick", "gem"], { scroller: hidden });
   hiddenSpy.link("gem")[0]!.top = 400;
-  hiddenSpy.observer.see(hiddenSpy.heading("gem"), 120, true);
-  for (const l of hiddenSpy.link("gem")) assert.equal(l.getAttribute("aria-current"), "true");
+  hiddenSpy.observer.see(hiddenSpy.heading("gem"), HEADER_HEIGHT + 60, true);
+  assertActive(hiddenSpy.links, "gem");
   assert.deepEqual(hidden.scrolls, []);
 
   const absent = spy(["pick", "gem"], { scroller: null });
   assert.equal(absent.scroller, null);
-  absent.observer.see(absent.heading("gem"), 120, true);
-  for (const l of absent.link("gem")) assert.equal(l.getAttribute("aria-current"), "true");
+  absent.observer.see(absent.heading("gem"), HEADER_HEIGHT + 60, true);
+  assertActive(absent.links, "gem");
   assertDocumentUnscrolled(absent.links);
 });
 
@@ -359,7 +386,7 @@ test("stays inert without IntersectionObserver and leaves the anchors usable", (
   const links = [linkTo("pick")];
   const scroller = new FakeScroller();
   scroller.links.push(links[0]!);
-  const doc = new FakeDocument(links, [new FakeElement("pick")], scroller);
+  const doc = new FakeDocument(links, [new FakeElement("pick")], scroller, new FakeScroller());
   FakeObserver.instances = [];
 
   const noObserver = scrollspy({ document: doc });
@@ -381,7 +408,7 @@ test("stays inert without a document or without TOC links", () => {
   assert.equal(FakeObserver.instances.length, 0);
 
   const empty = scrollspy({
-    document: new FakeDocument([], [], new FakeScroller()),
+    document: new FakeDocument([], [], new FakeScroller(), new FakeScroller()),
     IntersectionObserver: FakeObserver,
   });
   empty();
@@ -390,7 +417,7 @@ test("stays inert without a document or without TOC links", () => {
 
 test("ignores TOC links whose heading is missing from the page", () => {
   const links = [linkTo("ghost")];
-  const doc = new FakeDocument(links, [], new FakeScroller());
+  const doc = new FakeDocument(links, [], new FakeScroller(), new FakeScroller());
   FakeObserver.instances = [];
   scrollspy({ document: doc, IntersectionObserver: FakeObserver });
   assert.equal(FakeObserver.instances.length, 0);
@@ -398,11 +425,13 @@ test("ignores TOC links whose heading is missing from the page", () => {
 });
 
 test("stop disconnects the observer and ignores queued entries", () => {
-  const { observer, heading, link, stop } = spy(["pick", "gem"]);
+  const { observer, heading, links, stop } = spy(["pick", "gem"]);
+  observer.see(heading("pick"), HEADER_HEIGHT + 60, true);
+  assertActive(links, "pick");
+
   stop();
   assert.equal(observer.disconnected, true);
 
-  observer.see(heading("gem"), 120, true);
-  for (const l of link("gem")) assert.equal(l.getAttribute("aria-current"), null);
-  for (const l of link("pick")) assert.equal(l.getAttribute("aria-current"), "true");
+  observer.see(heading("gem"), HEADER_HEIGHT + 60, true);
+  assertActive(links, "pick");
 });
