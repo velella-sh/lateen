@@ -116,6 +116,8 @@ function headNodes(head: Head, site: Site, page: Page, hints: LayoutProps["hints
     links.push(alternate);
     if (hreflang !== undefined) alternates.add(hreflang.toLowerCase());
   }
+  // The other script's face is fetched only when a glyph needs it.
+  hints?.skipFontPreload(page.dir === "rtl" ? "Manrope" : "Vazirmatn");
   return [
     h("meta", { charset: "utf-8" }),
     h("meta", { name: "viewport", content: "width=device-width, initial-scale=1" }),
