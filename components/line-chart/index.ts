@@ -1,6 +1,6 @@
 import { h } from "preact";
 import type { ComponentProps } from "@velella/mizzen/contracts";
-import { calendarDay, calendarYear } from "../../src/dates.ts";
+import { calendarDay, calendarParts, calendarYear } from "../../src/dates.ts";
 import { formatCount as formatNumber } from "../reading-time/index.ts";
 import {
   idBaseOf,
@@ -150,7 +150,7 @@ function round(value: number): number {
 function dateTick(date: string, unit: "year" | "quarter", lang: string): string {
   const year = calendarYear(date, lang) ?? date.split("-")[0] ?? date;
   if (unit === "year") return year;
-  const month = Number(date.split("-")[1] ?? "01");
+  const month = calendarParts(date, lang)?.month ?? 1;
   return `${year} Q${formatNumber(lang, Math.floor((month - 1) / 3) + 1)}`;
 }
 

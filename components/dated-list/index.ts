@@ -2,7 +2,7 @@ import { h } from "preact";
 import type { ComponentChildren } from "preact";
 import type { ComponentProps } from "@velella/mizzen/contracts";
 import { t } from "../../i18n/index.ts";
-import { calendarDate, calendarMonth, calendarYear, type CalendarMonth } from "../../src/dates.ts";
+import { calendarDate, calendarMonth, calendarYear, isoDate, type CalendarMonth } from "../../src/dates.ts";
 import { formatField, isEmpty } from "../../src/fields.ts";
 import { isRecord, parseJson } from "../../src/guards.ts";
 import { selectRecords } from "../../src/records.ts";
@@ -179,9 +179,9 @@ function monthRange(start: string, count: number, lang: string): { iso: string; 
   const day = utcOf(first.datetime);
   let seen = "";
   for (let step = 0; step <= count * 32 && months.length < count; step++) {
-    const iso = day.toISOString().slice(0, 10);
-    const month = calendarMonth(iso, lang);
-    if (month !== undefined && month.key !== seen) {
+    const iso = isoDate(day);
+    const month = iso === undefined ? undefined : calendarMonth(iso, lang);
+    if (iso !== undefined && month !== undefined && month.key !== seen) {
       seen = month.key;
       months.push({ iso, month });
     }

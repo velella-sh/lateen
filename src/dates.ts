@@ -134,6 +134,17 @@ export function calendarDay(iso: string): string | undefined {
   return date?.precision === "day" ? date.iso : undefined;
 }
 
+/**
+ * The ISO calendar day (`YYYY-MM-DD`) an authored value names: a string (`YYYY-MM-DD` or a date-time whose
+ * date part is used), or a `Date` the data parser produced, read in UTC so a time zone cannot move the day.
+ * A value that names only a month or a year, an impossible day, a malformed string, and an invalid `Date`
+ * read as `undefined`, so a missing day is never filled in.
+ */
+export function isoDate(value: unknown): string | undefined {
+  if (value instanceof Date) return Number.isNaN(value.getTime()) ? undefined : calendarDay(value.toISOString());
+  return typeof value === "string" ? calendarDay(value.trim()) : undefined;
+}
+
 /** A day of a page's calendar, as numbers, so boundaries can be found and ordered. */
 export interface CalendarParts {
   /** The year within the calendar. */

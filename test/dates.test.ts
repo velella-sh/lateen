@@ -1,6 +1,6 @@
 import assert from "node:assert/strict";
 import { test } from "node:test";
-import { calendarDate, calendarDay, calendarMonth, calendarParts } from "../src/dates.ts";
+import { calendarDate, calendarDay, calendarMonth, calendarParts, isoDate } from "../src/dates.ts";
 
 const DAY = "2026-11-09";
 
@@ -45,6 +45,23 @@ test("a partial date follows explicit calendar and numbering preferences", () =>
     text: "نوامبر ۲۰۲۶",
   });
   assert.deepEqual(calendarDate("2026", "fa-IR-u-nu-latn"), { datetime: "2026", text: "1404" });
+});
+
+test("isoDate reads a whole day from an authored string or Date, and never invents one", () => {
+  assert.equal(isoDate("2026-03-04"), "2026-03-04");
+  assert.equal(isoDate(" 2026-03-04 "), "2026-03-04");
+  assert.equal(isoDate("2026-03-04T23:30:00-05:00"), "2026-03-04");
+  assert.equal(isoDate(new Date("2026-03-04T23:30:00Z")), "2026-03-04");
+  assert.equal(isoDate(new Date("not a date")), undefined);
+
+  // A month or year alone names no day, so no day is filled in.
+  assert.equal(isoDate("2026-03"), undefined);
+  assert.equal(isoDate("2026"), undefined);
+
+  // The whole value must be a real date: a trailing character, an impossible day, or a non-date is not read as one.
+  for (const value of ["2026-03-04x", "2026-02-30", "2026-13-01", "March 4", "20260304", "", undefined, null, 20260304]) {
+    assert.equal(isoDate(value), undefined, String(value));
+  }
 });
 
 test("a partial date does not pretend to have the part it lacks", () => {
