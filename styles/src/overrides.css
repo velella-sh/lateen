@@ -106,16 +106,19 @@
   position: static;
 }
 
-/* Keep the 24×24 target size above the Tailwind layers for WCAG 2.5.8. */
-button,
-input:not([type="hidden"]),
-select,
-textarea,
-summary,
-[role="button"],
-[role="tab"],
-[role="menuitem"],
-[role="link"],
+/* Keep the 24×24 target size above the Tailwind layers for WCAG 2.5.8. The element and role
+   selectors are scoped to the page-shell roots so they cannot reach an unrelated unit. */
+:where(.site-header, .layout, .site-utilities, .announcement, .footnote-popover, .skip-links) :is(
+  button,
+  input:not([type="hidden"]),
+  select,
+  textarea,
+  summary,
+  [role="button"],
+  [role="tab"],
+  [role="menuitem"],
+  [role="link"]
+),
 .home-btn,
 .home-actions a,
 .copy-markdown-link,
@@ -200,8 +203,7 @@ summary,
 }
 
 .terminal-copy,
-button[data-text-total],
-button[data-block-id] {
+:where(.code, .code-frame) button[data-block-id] {
   color: var(--sail);
   background: var(--night-raised);
 }
@@ -376,8 +378,7 @@ button[data-block-id] {
 .budget-report-table th,
 .a11y-report-table th,
 .line-chart-table th,
-.compare th,
-table th {
+.compare th {
   color: var(--foreground);
   background: color-mix(in srgb, var(--muted) 72%, var(--card));
 }

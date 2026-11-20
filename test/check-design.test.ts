@@ -3,7 +3,7 @@ import { mkdirSync, mkdtempSync, rmSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { test } from "node:test";
-import { allowlistProblems, applyAllowlist, check, cssFiles, root, scanCss, scanDuplicates, type Kind } from "../scripts/check-design.ts";
+import { allowlistProblems, applyAllowlist, check, cssFiles, globalSelectorFindings, root, scanCss, scanDuplicates, unscopedSelectors, type Kind } from "../scripts/check-design.ts";
 
 const kinds = (css: string): Kind[] => scanCss("x.css", css).map((f) => f.kind);
 
@@ -80,3 +80,26 @@ test("the gate fails a fixture checkout with a conflicting declaration", () => {
     rmSync(base, { recursive: true, force: true });
   }
 });
+test("shared sheets own their cascade: a bare element or role is flagged", () => {
+  const flagged = unscopedSelectors("styles/src/overrides.css", `button, [role="tab"] { min-block-size: 1.5rem; }
+.table th { color: var(--foreground); }
+:where(.site-header, .layout) :is(button, [role="tab"]) { min-block-size: 1.5rem; }
+[data-theme="dark"] .home-btn { color: var(--night); }
+@media print { html[data-js] .site-header { display: none; } }`);
+  assert.deepEqual(flagged.map((f) => f.selector), ["button", '[role="tab"]']);
+});
+
+test("a unit stylesheet edit does not change an unrelated unit fixture", () => {
+  const dir = mkdtempSync(join(tmpdir(), "lateen-scope-"));
+  try {
+    mkdirSync(join(dir, "styles/src"), { recursive: true });
+    mkdirSync(join(dir, "layouts"), { recursive: true });
+    writeFileSync(join(dir, "styles/src/overrides.css"), `.unrelated-btn { color: var(--sail); }\nbutton { color: var(--sail); }`);
+    writeFileSync(join(dir, "layouts/unit.css"), `.unit button { color: var(--sail); }`);
+    assert.deepEqual(globalSelectorFindings(dir).map((f) => f.selector), ["button"]);
+    assert.deepEqual(check(dir), ["styles/src/overrides.css:2: unscoped selector `button`; scope it to its unit root"]);
+  } finally {
+    rmSync(dir, { recursive: true, force: true });
+  }
+});
+
