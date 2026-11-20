@@ -34,7 +34,7 @@ interface ActualLanguage {
 }
 
 /** What one configured language means for the page being rendered. */
-interface LanguageEntry {
+export interface LanguageEntry {
   /** The configured language this entry stands for. */
   readonly language: SwitcherLanguage;
   /** `current` is this page, `translated` has its own page, `fallback` opens another language, `missing` has none. */
@@ -283,7 +283,7 @@ function languageEntry(
  * through the i18n fallback); a tag no shipped catalog covers, even by primary subtag, reads English
  * left-to-right, so the stamp always matches the text actually shown.
  */
-function guidanceOf(page: Pick<Page, "lang" | "dir">): { readonly lang: string; readonly dir: Direction } {
+export function guidanceOf(page: Pick<Page, "lang" | "dir">): { readonly lang: string; readonly dir: Direction } {
   const primary = tagKey(page.lang).split("-")[0] ?? "";
   return (shippedCatalogs as readonly string[]).includes(primary)
     ? { lang: page.lang, dir: page.dir }
@@ -367,6 +367,21 @@ export function alternateLinks(site: Site, page: Page): LinkTag[] {
 }
 
 /**
+ * The language entries the switcher shows for a page, in config order. The header control and the
+ * mobile selector read this one model, so both offer exactly the pages the site really builds.
+ */
+export function languageEntries(site: Site, page: Page): readonly LanguageEntry[] {
+  const { current, rest } = pagePaths(site.config, page);
+  const alternates = alternatesOf(site.data);
+  const identity = identityOf(page, rest);
+  const translations = translationsOf(site, identity);
+  const chain = fallbackChain(site.config, site.data);
+  return resolvedLanguages(site.config).map((language) =>
+    languageEntry(site, page, language, current, identity, alternates, translations, chain),
+  );
+}
+
+/**
  * The language switcher: one entry per configured language, each to the page the site really builds
  * in that language. The interface guidance - the landmark, the current word, and the missing-translation
  * text - is read in `page.lang`, the language of the page being read, so a page rendered in another
@@ -381,17 +396,12 @@ export function alternateLinks(site: Site, page: Page): LinkTag[] {
  * languages because every language lives on the same origin and `THEME_KEY` is origin-wide.
  */
 const languageSwitcher: Chrome = ({ site, page }) => {
-  const languages = resolvedLanguages(site.config);
-  if (languages.length < 2) return null;
+  const entries = languageEntries(site, page);
+  if (entries.length < 2) return null;
 
-  const { current, rest } = pagePaths(site.config, page);
   const guidance = guidanceOf(page);
   const label = t(guidance.lang, "language");
   const currentLabel = t(guidance.lang, "language_current");
-  const alternates = alternatesOf(site.data);
-  const identity = identityOf(page, rest);
-  const translations = translationsOf(site, identity);
-  const chain = fallbackChain(site.config, site.data);
   const unavailable = unavailableLabel(guidance.lang);
 
   return h(
@@ -400,8 +410,8 @@ const languageSwitcher: Chrome = ({ site, page }) => {
     h(
       "ul",
       { class: "language-switcher-list" },
-      ...languages.map((language) => {
-        const entry = languageEntry(site, page, language, current, identity, alternates, translations, chain);
+      ...entries.map((entry) => {
+        const language = entry.language;
         const classes = ["language-switcher-item"];
         if (entry.state === "current") classes.push("language-switcher-item--current");
 
