@@ -1,6 +1,5 @@
 // The pure option model behind the search dialog, tested against `chrome/search/options.ts` directly:
-// grouping, positional ids, duplicate-safe keys, keyboard order, and active-row resolution. The
-// client's re-exports must stay the same functions, so its public imports keep working.
+// grouping, positional ids, duplicate-safe keys, keyboard order, and active-row resolution.
 import assert from "node:assert/strict";
 import { test } from "node:test";
 import type { PaletteAction } from "../chrome/command-palette/actions.ts";
@@ -21,7 +20,6 @@ import {
   wordCount,
   type SearchRecord,
 } from "../chrome/search/options.ts";
-import { optionList as clientOptionList, safeHref as clientSafeHref } from "../chrome/search/client.ts";
 
 const record = (url: string, section?: string): SearchRecord => ({
   url,
@@ -30,11 +28,6 @@ const record = (url: string, section?: string): SearchRecord => ({
 });
 
 const action = (id: string): PaletteAction => ({ id, label: id });
-
-test("the client re-exports the extracted model unchanged", () => {
-  assert.equal(clientOptionList, optionList);
-  assert.equal(clientSafeHref, safeHref);
-});
 
 test("ids count from one, for rows and group headings alike", () => {
   assert.equal(optionId(0), "search-option-1");

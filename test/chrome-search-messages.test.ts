@@ -13,25 +13,6 @@ import {
   type MessageSource,
   type SearchMessages,
 } from "../chrome/search/messages.ts";
-import {
-  countMessage as clientCountMessage,
-  emptyMessage as clientEmptyMessage,
-  langFrom as clientLangFrom,
-  MESSAGES as clientMessages,
-  messagesFrom as clientMessagesFrom,
-  PLURAL_CATEGORIES as clientPluralCategories,
-  pluralCategory as clientPluralCategory,
-} from "../chrome/search/client.ts";
-
-test("the client re-exports the extracted messages module unchanged", () => {
-  assert.equal(clientCountMessage, countMessage);
-  assert.equal(clientEmptyMessage, emptyMessage);
-  assert.equal(clientLangFrom, langFrom);
-  assert.equal(clientMessages, MESSAGES);
-  assert.equal(clientMessagesFrom, messagesFrom);
-  assert.equal(clientPluralCategories, PLURAL_CATEGORIES);
-  assert.equal(clientPluralCategory, pluralCategory);
-});
 
 test("English counts take the singular for one and the plural for zero and many", () => {
   assert.equal(countMessage(0), "0 results.");

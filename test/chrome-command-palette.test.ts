@@ -14,33 +14,35 @@ import {
   type PalettePayload,
 } from "../chrome/command-palette/actions.ts";
 import searchDialog, { SEARCH_RESULTS_ID } from "../chrome/search/index.ts";
-import { optionList } from "../chrome/search/client.ts";
+import { ACTIONS_LABEL, optionList, type SearchRecord } from "../chrome/search/options.ts";
 import {
-  ACTIONS_LABEL,
-  activate,
   filterActions as clientFilterActions,
   isPaletteRun,
-  liveHandlers,
   matchesAction as clientMatchesAction,
-  MESSAGES,
   parsePalette,
+} from "../chrome/search/palette.ts";
+import { MESSAGES } from "../chrome/search/messages.ts";
+import type { PagefindApi } from "../chrome/search/loader.ts";
+import {
   renderOptions,
+  type SearchDocument,
+  type SearchElement,
+  type SearchNode,
+  type SearchResults,
+} from "../chrome/search/render.ts";
+import {
+  activate,
+  liveHandlers,
   resolveTheme,
   THEME_KEY,
-  type PagefindApi,
   type SearchButton,
   type SearchClose,
   type SearchDialog,
-  type SearchDocument,
-  type SearchElement,
   type SearchEvent,
   type SearchFocusable,
   type SearchInput,
-  type SearchNode,
   type SearchPaletteSource,
   type SearchParts,
-  type SearchRecord,
-  type SearchResults,
   type SearchStatus,
 } from "../chrome/search/client.ts";
 import { languages, stringsOf, t } from "../i18n/index.ts";

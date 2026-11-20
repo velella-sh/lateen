@@ -15,8 +15,8 @@
  * filters it on the same query as the page results, and runs the chosen action. The module and its
  * client-only helper (`shortcut.ts`) import no server module, so they are safe to serve as an island.
  *
- * Module boundaries, named here so a later split can follow them without moving behavior first.
- * `client.ts` keeps re-exporting whatever moves so its public test imports keep working.
+ * Module boundaries: the pure modules below own their own exports, and callers — tests included —
+ * import them directly. `client.ts` keeps only the activation path and the browser bootstrap.
  *
  * - Option model (pure, `options.ts`): the row types (`OptionKind`, `SearchRecord`, `ResultGroup`,
  *   `OptionRow`, `OptionGroup`, `OptionList`, `OptionLabels`, `AskOption`), grouping (`sectionOf`,
@@ -77,66 +77,6 @@ import {
   type SearchMessages,
 } from "./messages.ts";
 import { createIndexLoader, indexUrl, loadIndex, type PagefindApi } from "./loader.ts";
-
-// The pure option model lives in `options.ts`; these re-exports keep the client's public imports working.
-export {
-  ACTIONS_LABEL,
-  ASK_HEADING,
-  SECTION_FILTER,
-  OTHER_SECTION,
-  OPTION_ID_PREFIX,
-  GROUP_ID_PREFIX,
-  safeHref,
-  sectionOf,
-  groupBySection,
-  optionId,
-  groupId,
-  resultKey,
-  actionKey,
-  askKey,
-  wordCount,
-  optionList,
-  activeIndexOf,
-  type OptionKind,
-  type SearchRecord,
-  type ResultGroup,
-  type OptionRow,
-  type OptionGroup,
-  type OptionList,
-  type OptionLabels,
-  type AskOption,
-} from "./options.ts";
-
-// Palette parsing, validation, and query filtering live in `palette.ts`; re-exported for the same reason.
-export { matchesAction, filterActions, isPaletteRun, parsePalette } from "./palette.ts";
-
-// Messages, plural selection, and language detection live in `messages.ts`; re-exported for the same reason.
-export {
-  PLURAL_CATEGORIES,
-  MESSAGES,
-  pluralCategory,
-  emptyMessage,
-  countMessage,
-  messagesFrom,
-  langFrom,
-  type PluralCategory,
-  type SearchMessages,
-  type MessageSource,
-} from "./messages.ts";
-
-// The lazy index load lives in `loader.ts`; re-exported for the same reason.
-export { indexUrl, createIndexLoader, type PagefindApi, type SearchHit } from "./loader.ts";
-
-// DOM rendering lives in `render.ts`; re-exported for the same reason.
-export {
-  renderOptions,
-  type RenderedOption,
-  type OptionRender,
-  type SearchNode,
-  type SearchElement,
-  type SearchDocument,
-  type SearchResults,
-} from "./render.ts";
 
 /** The path of the dedicated search page the all-results link opens. */
 export const SEARCH_PAGE_PATH = "/search/";

@@ -9,11 +9,6 @@ import {
   type SearchNode,
   type SearchResults,
 } from "../chrome/search/render.ts";
-import { renderOptions as clientRenderOptions } from "../chrome/search/client.ts";
-
-test("the client re-exports the extracted renderer unchanged", () => {
-  assert.equal(clientRenderOptions, renderOptions);
-});
 
 // ---------------------------------------------------------------------------
 // A small DOM, so the renderer can be inspected without a browser.

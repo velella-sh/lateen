@@ -8,40 +8,43 @@ import {
   groupBySection,
   optionList,
   OTHER_SECTION,
-  resultsHref,
   safeHref,
   sectionOf,
   type OptionList,
   type SearchRecord,
-} from "../chrome/search/client.ts";
+} from "../chrome/search/options.ts";
 import { resultHeading } from "../src/search/merge.ts";
 import {
-  activate,
   countMessage,
   emptyMessage,
-  indexUrl,
   langFrom,
   MESSAGES,
   messagesFrom,
   PLURAL_CATEGORIES,
   pluralCategory,
-  renderOptions,
-  trap,
   type MessageSource,
-  type PagefindApi,
+  type SearchMessages,
+} from "../chrome/search/messages.ts";
+import { indexUrl, type PagefindApi } from "../chrome/search/loader.ts";
+import {
+  renderOptions,
+  type SearchDocument,
+  type SearchElement,
+  type SearchNode,
+  type SearchResults,
+} from "../chrome/search/render.ts";
+import {
+  activate,
+  resultsHref,
+  trap,
   type SearchButton,
   type SearchClose,
   type SearchDialog,
-  type SearchDocument,
-  type SearchElement,
   type SearchEnv,
   type SearchEvent,
   type SearchFocusable,
   type SearchInput,
-  type SearchMessages,
-  type SearchNode,
   type SearchParts,
-  type SearchResults,
   type SearchStatus,
 } from "../chrome/search/client.ts";
 import { readUiCss } from "./ui-css-helpers.ts";

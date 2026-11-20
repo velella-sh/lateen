@@ -1,25 +1,11 @@
 // The command palette's payload guards, tested against `chrome/search/palette.ts` directly: malformed
-// JSON, wrong field types, unknown actions, and unsafe URLs each keep their fallback behavior. The
-// client's re-exports must stay the same functions, so its public imports keep working.
+// JSON, wrong field types, unknown actions, and unsafe URLs each keep their fallback behavior.
 import assert from "node:assert/strict";
 import { test } from "node:test";
 import { ACTIONS_LABEL, optionList } from "../chrome/search/options.ts";
 import { filterActions, isPaletteRun, matchesAction, parsePalette } from "../chrome/search/palette.ts";
-import {
-  filterActions as clientFilterActions,
-  isPaletteRun as clientIsPaletteRun,
-  matchesAction as clientMatchesAction,
-  parsePalette as clientParsePalette,
-} from "../chrome/search/client.ts";
 
 const ids = (text: string): readonly string[] => parsePalette(text).actions.map((action) => action.id);
-
-test("the client re-exports the extracted palette module unchanged", () => {
-  assert.equal(clientParsePalette, parsePalette);
-  assert.equal(clientIsPaletteRun, isPaletteRun);
-  assert.equal(clientFilterActions, filterActions);
-  assert.equal(clientMatchesAction, matchesAction);
-});
 
 test("malformed JSON falls back to an empty palette under the fallback label", () => {
   for (const text of ["not json", "{", '{"label":', "[object Object]"]) {

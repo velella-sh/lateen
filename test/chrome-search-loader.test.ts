@@ -5,15 +5,6 @@ import {
   indexUrl,
   type PagefindApi,
 } from "../chrome/search/loader.ts";
-import {
-  createIndexLoader as clientCreateIndexLoader,
-  indexUrl as clientIndexUrl,
-} from "../chrome/search/client.ts";
-
-test("the client re-exports the extracted loader module unchanged", () => {
-  assert.equal(clientIndexUrl, indexUrl);
-  assert.equal(clientCreateIndexLoader, createIndexLoader);
-});
 
 test("the index URL follows the site base, with no double slash at the root", () => {
   assert.equal(indexUrl(""), "/pagefind/pagefind.js");
