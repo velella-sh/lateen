@@ -17,6 +17,9 @@ export const JSON_TYPE = "application/json;charset=utf-8";
 export const FORMATS = ["csv", "json"] as const;
 export type DownloadFormat = (typeof FORMATS)[number];
 
+/** The one media type each published format saves as. */
+export const TYPES: Record<DownloadFormat, string> = { csv: CSV_TYPE, json: JSON_TYPE };
+
 /** One downloadable file: its bytes, the name it saves as, and the link that carries it. */
 export interface ChartDownload {
   readonly format: DownloadFormat;
@@ -93,20 +96,30 @@ export function hrefOf(type: string, contents: string): string {
   return `data:${type},${encodeURIComponent(contents)}`;
 }
 
+/** One format's link, or no link when the file is missing; names and media type come from `format`. */
+export function downloadOf(
+  format: DownloadFormat,
+  id: string,
+  contents: string | undefined,
+): ChartDownload | undefined {
+  if (contents === undefined) return undefined;
+  const type = TYPES[format];
+  return {
+    format,
+    fileName: fileNameOf(id, format),
+    type,
+    href: hrefOf(type, contents),
+    text: `Download ${format.toUpperCase()}`,
+  };
+}
+
 /** The two files, built from the same rows as the table, named from the chart's id. */
 export function downloadsOf(props: ChartDownloadProps): ChartDownload[] {
   const contents: Record<DownloadFormat, string> = {
     csv: csvOf(props.labelHeading, props.columns, props.rows),
     json: jsonOf(props.labelHeading, props.columns, props.rows),
   };
-  const types: Record<DownloadFormat, string> = { csv: CSV_TYPE, json: JSON_TYPE };
-  return FORMATS.map((format) => ({
-    format,
-    fileName: fileNameOf(props.id, format),
-    type: types[format],
-    href: hrefOf(types[format], contents[format]),
-    text: `Download ${format.toUpperCase()}`,
-  }));
+  return FORMATS.flatMap((format) => downloadOf(format, props.id, contents[format]) ?? []);
 }
 
 /**
