@@ -1,4 +1,5 @@
 import assert from "node:assert/strict";
+import { readFileSync } from "node:fs";
 import { test } from "node:test";
 import { decorateLines, HIGHLIGHT_CLASS, isHighlighted, LINE_CLASS } from "../components/code/lines.ts";
 
@@ -63,4 +64,12 @@ test("code text is kept exactly, entities and all", () => {
 
 test("a line without Shiki's wrapper is wrapped too", () => {
   assert.equal(decorateLines("plain"), `<span class="${LINE_CLASS}">plain</span>`);
+});
+
+test("the highlighted line marker is a logical inline border that keeps text in place", () => {
+  const css = readFileSync(new URL("../styles/src/ui.css", import.meta.url), "utf8");
+  const rule = /\.code \.highlighted,[\s\S]{0,120}\{([^}]*)\}/.exec(css)?.[1] ?? "";
+  assert.match(rule, /border-inline-start:\s*2px solid var\(--mist\)/);
+  assert.match(rule, /padding-inline-start:/);
+  assert.doesNotMatch(rule, /border-(left|right)\b/);
 });
