@@ -116,7 +116,8 @@ export function scanCss(file: string, css: string): Finding[] {
   return findings;
 }
 
-/** Every CSS file under the scanned folders, as repo-relative paths, sorted, without the generated token sheet. */
+/** Every CSS file under the scanned folders, as repo-relative paths, sorted, without the generated token sheet.
+    The whole sailcloth source directory (styles/src/, split by #863) may hold raw values, like its entry sheet. */
 export function cssFiles(base: string = root): string[] {
   const out: string[] = [];
   const walk = (dir: string): void => {
@@ -127,7 +128,7 @@ export function cssFiles(base: string = root): string[] {
     }
   };
   for (const dir of SCANNED) if (existsSync(join(base, dir))) walk(join(base, dir));
-  return out.filter((f) => !SKIPPED.has(f)).sort();
+  return out.filter((f) => !SKIPPED.has(f) && !f.startsWith("styles/src/")).sort();
 }
 
 /** The problems with the allowlist itself: bad shape, an unknown kind, an empty reason, a duplicate. */

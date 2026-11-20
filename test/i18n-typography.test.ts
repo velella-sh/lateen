@@ -8,6 +8,7 @@ import { dirname, join } from "node:path";
 import { test } from "node:test";
 import { fileURLToPath } from "node:url";
 import { JSDOM } from "jsdom";
+import { readUiCss } from "./ui-css-helpers.ts";
 
 const read = (path: string): string => readFileSync(new URL(path, import.meta.url), "utf8");
 
@@ -170,7 +171,7 @@ function styled(lang: string) {
   const dom = new JSDOM(`<!DOCTYPE html><html lang="${lang}" dir="rtl"><body><p id="prose">متن</p></body></html>`);
   for (const path of ["../styles/tokens.css", "../styles/src/ui.css", "../styles/fonts.css", "../styles/rtl.css"]) {
     const style = dom.window.document.createElement("style");
-    style.textContent = read(path);
+    style.textContent = path === "../styles/src/ui.css" ? readUiCss() : read(path);
     dom.window.document.head.append(style);
   }
   return dom.window;

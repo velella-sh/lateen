@@ -4,6 +4,7 @@ import { join } from "node:path";
 import { test } from "node:test";
 import { fileURLToPath } from "node:url";
 import cards, { card, CARD_CLASS, GRID_CLASS, hrefOf } from "../components/cards/index.ts";
+import { readUiCss } from "./ui-css-helpers.ts";
 
 const root = fileURLToPath(new URL("../", import.meta.url));
 const namesPath = join(root, "tokens/names.json");
@@ -155,7 +156,7 @@ test("unicode titles are kept and escaped as text, never markup", () => {
 
 
 test("a card's focus ring stays inside a clipping ancestor", () => {
-  const css = readFileSync(join(root, "styles/src/ui.css"), "utf8");
+  const css = readUiCss();
   assert.match(css, /\.card:focus-visible,/);
   assert.match(css, /\.card :focus-visible,/);
   assert.match(css, /outline-offset: -3px/);

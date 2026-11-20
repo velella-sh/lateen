@@ -1,9 +1,9 @@
 import assert from "node:assert/strict";
-import { readFileSync } from "node:fs";
 import { test } from "node:test";
 import { Fragment, h } from "preact";
 import type { Heading, LayoutProps, Page, RepositoryConfig, Site, SiteConfig, SourcePos } from "@velella/mizzen/contracts";
 import doc from "../layouts/doc.ts";
+import { readUiCss } from "./ui-css-helpers.ts";
 
 const pos: SourcePos = { file: "guide/install.md", line: 1, column: 1, endLine: 1, endColumn: 1 };
 
@@ -204,7 +204,7 @@ test("the desktop aside keeps its list and the page carries one disclosure, not 
   assert.equal((page.match(/class="toc-fold"/g) ?? []).length, 1);
   assert.match(page, /<div class="aside"><nav class="toc" aria-labelledby="toc-title">/);
 
-  const css = readFileSync(new URL("../styles/src/ui.css", import.meta.url), "utf8");
+  const css = readUiCss();
   const fold = /\.toc-fold\s*\{([^}]*)\}/.exec(css);
   assert.ok(fold, ".toc-fold is styled");
   assert.match(fold[1] ?? "", /display:\s*none/, "the fold is out of the desktop layout");

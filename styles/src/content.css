@@ -1,0 +1,851 @@
+/* Article components: tables, citations, callouts, tabs, steps, kbd, endpoints,
+   record fields, details, file tree, terminal, timeline, cards, changelog, figures,
+   media embeds, trust panel, tags, lists, swatches, gallery specimens. */
+@layer components {
+  .doc-body table {
+    @apply w-full text-sm;
+    margin: 1.125rem 0 0.625rem;
+    border-collapse: collapse;
+  }
+
+  .doc-body th,
+  .doc-body td {
+    @apply align-top;
+    padding-block: 0.75rem;
+    padding-inline: 0 1rem;
+    border-bottom: 1px solid var(--border);
+    text-align: start;
+  }
+
+  .doc-body th {
+    @apply font-bold uppercase;
+    color: var(--muted-foreground);
+    font-size: 0.6875rem;
+    letter-spacing: 0.06em;
+  }
+
+  /* The island marks the logical edges that hide content; a soft shade appears only there and
+     recedes as the reader reaches either end. It sits behind the grid, so text keeps its contrast,
+     and it is decoration: no pointer target and nothing added to the accessibility tree. */
+  .table-scroll {
+    --table-overflow-ink: color-mix(in srgb, var(--foreground) 12%, transparent);
+    background-image:
+      var(--table-overflow-start, none),
+      var(--table-overflow-end, none);
+    background-position: left top, right top;
+    background-repeat: no-repeat;
+    background-size: 2.5rem 100%, 2.5rem 100%;
+  }
+
+  .table-scroll[data-overflow-start] {
+    --table-overflow-start: linear-gradient(to right, var(--table-overflow-ink), transparent);
+  }
+
+  .table-scroll[data-overflow-end] {
+    --table-overflow-end: linear-gradient(to left, var(--table-overflow-ink), transparent);
+  }
+
+  .table-scroll:dir(rtl) {
+    background-position: right top, left top;
+  }
+
+  .table-scroll:dir(rtl)[data-overflow-start] {
+    --table-overflow-start: linear-gradient(to left, var(--table-overflow-ink), transparent);
+  }
+
+  .table-scroll:dir(rtl)[data-overflow-end] {
+    --table-overflow-end: linear-gradient(to right, var(--table-overflow-ink), transparent);
+  }
+
+  .table caption {
+    @apply text-sm font-semibold;
+    padding-block-end: 0.5rem;
+    color: var(--muted-foreground);
+    text-align: start;
+  }
+
+  .table-description {
+    @apply text-sm;
+    margin-block-start: 0.5rem;
+    max-inline-size: 40em;
+    color: var(--muted-foreground);
+  }
+
+  /* An authored footer is a summary, not another header row: one strong top rule and lined-up figures. */
+  .table tfoot th,
+  .table tfoot td {
+    border-block-start: 2px solid var(--border-strong);
+    font-variant-numeric: tabular-nums;
+  }
+
+  .table tfoot th {
+    background: transparent;
+    color: var(--foreground);
+    font-size: inherit;
+    letter-spacing: normal;
+    text-transform: none;
+  }
+
+  /* The arrow beside a sortable header's label: the glyph says the direction, so it alone carries
+     the visible state. A logical margin keeps it on the far side of the label in RTL. */
+  .record-table-sort {
+    margin-inline-start: 0.4em;
+    padding: 0;
+    color: inherit;
+    background: none;
+    border: 0;
+    cursor: pointer;
+    line-height: 1;
+  }
+
+  .record-table-sort:hover {
+    color: var(--foreground);
+  }
+
+  .citation {
+    margin-block: 1.125rem;
+    padding-inline-start: 1rem;
+    border-inline-start: 2px solid var(--border);
+    color: var(--muted-foreground);
+  }
+
+  .citation-text {
+    overflow-wrap: anywhere;
+  }
+
+  .citation-title {
+    color: var(--foreground);
+    font-weight: 600;
+  }
+
+  .citation-url {
+    color: inherit;
+    text-decoration: underline;
+    direction: ltr;
+    unicode-bidi: isolate;
+  }
+
+  .citation-copy {
+    display: inline-flex;
+    margin-block-start: 0.5rem;
+    padding: 0.25rem 0.5rem;
+    border: 1px solid var(--border);
+    border-radius: 0.375rem;
+    background: var(--card);
+    color: var(--muted-foreground);
+    font-size: 0.75rem;
+    cursor: pointer;
+  }
+
+  .citation-copy:hover {
+    color: var(--foreground);
+  }
+
+  .callout {
+    @apply relative flex gap-3 rounded-xl;
+    margin: 1.125rem 0;
+    padding-block: 0.875rem;
+    padding-inline: 1.125rem 1rem;
+    background: color-mix(in srgb, var(--muted) 70%, var(--card));
+    box-shadow: inset 2px 0 0 color-mix(in srgb, var(--muted-foreground) 28%, transparent);
+    border: 0;
+  }
+
+  .callout-note { --callout-color: var(--muted-foreground); }
+  .callout-tip {
+    /* Mist alone fails contrast on Foam; mix toward Night for the title/icon. */
+    --callout-color: color-mix(in srgb, var(--mist) 42%, var(--night));
+    box-shadow: inset 2px 0 0 color-mix(in srgb, var(--mist) 55%, transparent);
+  }
+
+  [data-theme="dark"] .callout-tip {
+    --callout-color: color-mix(in srgb, var(--mist) 70%, var(--sail));
+  }
+  .callout-important {
+    --callout-color: var(--link);
+    box-shadow: inset 2px 0 0 color-mix(in srgb, var(--link) 55%, transparent);
+  }
+  .callout-warning,
+  .callout-caution {
+    --callout-color: var(--foreground);
+    box-shadow: inset 2px 0 0 color-mix(in srgb, var(--foreground) 35%, transparent);
+  }
+
+  .callout-icon {
+    @apply mt-0.5 size-5;
+    color: var(--callout-color);
+  }
+
+  .callout-title {
+    @apply m-0 mb-1 text-xs font-bold tracking-wide uppercase;
+    color: var(--callout-color);
+  }
+
+  .callout-body {
+    color: var(--muted-foreground);
+    font-size: 0.90625rem;
+    line-height: 1.4375rem;
+  }
+
+  .callout-body > :last-child {
+    margin-block-end: 0;
+  }
+
+  .code-tabs {
+    @apply my-6;
+  }
+
+  .code-tabs-list {
+    @apply flex flex-wrap gap-1.5 mb-0;
+  }
+
+  .code-tabs-tab {
+    @apply rounded-full px-3 py-1.5 text-sm font-medium text-muted-foreground;
+  }
+
+  .code-tabs-tab[aria-selected="true"] {
+    @apply bg-muted text-foreground font-semibold;
+  }
+
+  .code-tabs-title {
+    @apply sr-only;
+  }
+
+  .badge,
+  .pill {
+    @apply inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-bold;
+    background: var(--shell);
+    color: var(--night);
+  }
+
+  .pill.ink,
+  .badge[data-variant="ink"] {
+    background: var(--primary);
+    color: var(--primary-foreground);
+  }
+
+  .steps-ui,
+  .checks {
+    @apply grid gap-2 m-0 p-0 list-none;
+  }
+
+  .steps-ui > div,
+  .steps-ui .step,
+  .checks li {
+    @apply flex items-center gap-2.5 text-sm;
+  }
+
+  .steps-ui .num,
+  .step-number {
+    @apply grid size-5 place-items-center rounded-full text-[0.7rem] font-bold not-italic;
+    background: var(--primary);
+    color: var(--primary-foreground);
+    flex: none;
+    position: relative;
+  }
+
+  /* The client's tick covers the number instead of widening its fixed 20px circle. */
+  .step-tick {
+    position: absolute;
+    inset: 0;
+    display: grid;
+    place-items: center;
+    cursor: pointer;
+  }
+
+  .step-tick input {
+    position: absolute;
+    inline-size: 1px !important;
+    block-size: 1px !important;
+    min-inline-size: 0 !important;
+    min-block-size: 0 !important;
+    margin: 0 !important;
+    padding: 0;
+    border: 0;
+    opacity: 0;
+  }
+
+  /* A step ending in a nested list of links offers each one as a next path. */
+  .steps > ol > li > ul {
+    @apply grid gap-2 m-0 p-0 list-none;
+    grid-template-columns: repeat(auto-fit, minmax(10rem, 1fr));
+    margin-block-start: 0.75rem;
+  }
+
+  .steps > ol > li > ul > li > a {
+    @apply block rounded-lg px-3 py-2 text-sm font-semibold;
+    text-decoration: none;
+    background: color-mix(in srgb, var(--background) 70%, transparent);
+    box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--border) 80%, transparent);
+  }
+
+  .checks li::before {
+    content: "";
+    width: 0.875rem;
+    height: 0.875rem;
+    border-radius: 0.25rem;
+    box-shadow: inset 0 0 0 1.5px var(--link);
+    flex: none;
+  }
+
+  kbd,
+  .kbd {
+    font-family: var(--type-font-mono);
+    font-size: 0.75rem;
+    border: 1px solid var(--border);
+    border-bottom-width: 2px;
+    border-radius: 0.375rem;
+    padding: 0.05rem 0.4rem;
+    background: var(--background);
+  }
+
+  .endpoint {
+    @apply my-4;
+  }
+
+  .endpoint-line {
+    @apply flex items-center gap-2.5;
+    font-family: var(--type-font-mono);
+    font-size: 0.84rem;
+  }
+
+  .endpoint-path {
+    @apply text-sm;
+  }
+
+  .endpoint-param {
+    color: var(--link);
+  }
+
+  .endpoint-params,
+  .kv,
+  .key-value {
+    display: grid;
+    grid-template-columns: 7rem 1fr;
+    gap: 0.4rem 0.75rem;
+    margin-top: 0.65rem;
+    font-size: 0.875rem;
+  }
+
+  .key-value-key,
+  .kv span,
+  .kv dt {
+    color: var(--muted-foreground);
+  }
+
+  .key-value-value,
+  .kv strong,
+  .kv dd {
+    margin: 0;
+    font-weight: 600;
+  }
+
+  .record-history-filters {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--space-2);
+    margin-block-end: var(--space-2);
+    font-size: 0.875rem;
+  }
+
+  .record-history-filter {
+    color: var(--muted-foreground);
+  }
+
+  .record-history-filter[aria-current="true"] {
+    color: var(--foreground);
+    font-weight: 600;
+  }
+
+  .record-history-count {
+    margin-block: 0 var(--space-2);
+    color: var(--muted-foreground);
+    font-size: 0.75rem;
+  }
+
+  .record-fact-group {
+    display: grid;
+    grid-column: 1 / -1;
+    grid-template-columns: 7rem 1fr;
+    gap: 0.4rem 0.75rem;
+  }
+
+  .record-fact-group-label {
+    grid-column: 1 / -1;
+    margin: 0;
+    color: var(--muted-foreground);
+    font-weight: 600;
+  }
+
+  .record-fact-evidence {
+    margin-inline-start: 0.5rem;
+    color: var(--muted-foreground);
+    font-size: 0.75rem;
+  }
+
+  .record-fact-evidence a {
+    color: inherit;
+    text-decoration: underline;
+  }
+
+  .field-language {
+    margin-inline-end: 0.35rem;
+    color: var(--muted-foreground);
+    font-size: 0.72rem;
+    font-weight: 500;
+  }
+
+  :is(.record-fact, .record-table-cell)[data-kind="number"] {
+    font-variant-numeric: tabular-nums;
+    white-space: nowrap;
+  }
+
+  .field-list-more > summary {
+    cursor: pointer;
+    color: var(--muted-foreground);
+  }
+
+  .details,
+  details.soft {
+    background: color-mix(in srgb, var(--background) 80%, transparent);
+    border-radius: 0.75rem;
+    padding: 0.5rem 0.75rem;
+  }
+
+  .details-summary,
+  details.soft summary {
+    cursor: pointer;
+    font-weight: 600;
+  }
+
+  .details-body > :last-child {
+    margin-block-end: 0;
+  }
+
+  .file-tree,
+  .tree {
+    font-family: var(--type-font-mono);
+    font-size: 0.8125rem;
+    line-height: 1.7;
+  }
+
+  .tree .in,
+  .tree-row.in {
+    padding-inline-start: 1rem;
+    color: var(--muted-foreground);
+  }
+
+  .tree-note {
+    margin-inline-start: 0.5rem;
+    color: var(--muted-foreground);
+  }
+
+  .terminal {
+    @apply relative my-6 overflow-hidden rounded-xl;
+    background: var(--night);
+    color: var(--sail);
+  }
+
+  .terminal-body {
+    @apply m-0 overflow-x-auto p-4 text-sm leading-relaxed;
+    font-family: var(--type-font-mono);
+  }
+
+  .terminal-command {
+    color: var(--sail);
+  }
+
+  .terminal-output {
+    color: var(--sail-soft);
+  }
+
+  .terminal-copy {
+    @apply absolute end-3 top-3 rounded-md px-2 py-1 text-xs font-medium;
+    background: var(--night-raised);
+    color: var(--sail);
+  }
+
+  /* Timeline: keep the chart column in the sailcloth doc column (~37rem). Legacy hides it under
+     40rem from a layered sheet; unlayered rules beat that and re-hide only when truly narrow. */
+  .timeline {
+    container-type: inline-size;
+  }
+
+  .timeline-chart {
+    display: table-cell;
+    inline-size: 38%;
+    min-inline-size: 9rem;
+  }
+
+  .timeline-axis {
+    position: relative;
+    block-size: 1rem;
+  }
+
+  .timeline-bar {
+    position: absolute;
+    inset-block-start: 50%;
+    block-size: 0.5rem;
+    translate: 0 -50%;
+  }
+
+  @container (max-inline-size: 28rem) {
+    .timeline-chart,
+    .timeline-legend {
+      display: none;
+    }
+  }
+
+  .mini-cards {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 0.5rem;
+  }
+
+  .mini-cards a,
+  .mini-card,
+  .link-card {
+    text-decoration: none;
+    background: color-mix(in srgb, var(--background) 70%, transparent);
+    border-radius: 0.75rem;
+    padding: 0.65rem 0.75rem;
+    font-size: 0.875rem;
+    font-weight: 600;
+    box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--border) 80%, transparent);
+  }
+
+  .mini-card .card-description,
+  .link-card .card-description,
+  .mini-cards span {
+    display: block;
+    color: var(--muted-foreground);
+    font-weight: 500;
+    font-size: 0.8125rem;
+  }
+
+  .changelog-entry {
+    @apply my-6;
+  }
+
+  .changelog-entry-version {
+    @apply m-0 text-base font-semibold;
+  }
+
+  .changelog-entry-meta {
+    margin: 0.35rem 0 0;
+    color: var(--muted-foreground);
+    font-size: 0.875rem;
+  }
+
+  .figure {
+    @apply my-6;
+  }
+
+  .figure-img {
+    @apply block max-w-full rounded-xl;
+  }
+
+  .figure-images {
+    display: grid;
+    gap: 0.75rem;
+    grid-template-columns: repeat(auto-fit, minmax(14rem, 1fr));
+  }
+
+  .figure-images .figure-img {
+    width: 100%;
+  }
+
+  .figure-pair {
+    display: grid;
+  }
+
+  .figure-img-dark {
+    display: none;
+  }
+
+  [data-theme="dark"] .figure-paired .figure-img-light {
+    display: none;
+  }
+
+  [data-theme="dark"] .figure-paired .figure-img-dark {
+    display: block;
+  }
+
+  .figure-caption {
+    margin-top: 0.65rem;
+    color: var(--muted-foreground);
+    font-size: 0.875rem;
+    overflow-wrap: anywhere;
+  }
+
+  .figure-credit {
+    display: block;
+    margin-top: 0.25rem;
+    color: var(--muted-foreground);
+    font-size: 0.8125rem;
+  }
+
+  .video-box,
+  .embed-box {
+    position: relative;
+    aspect-ratio: 16 / 9;
+    overflow: hidden;
+  }
+
+  .video-poster,
+  .video-frame,
+  .embed-iframe {
+    position: absolute;
+    inset: 0;
+    inline-size: 100%;
+    block-size: 100%;
+  }
+
+  .video-poster-image {
+    inline-size: 100%;
+    block-size: 100%;
+    object-fit: cover;
+  }
+
+  .video-frame,
+  .embed-iframe {
+    border: 0;
+  }
+
+  .video-play {
+    position: absolute;
+    inset-block-start: 50%;
+    inset-inline-start: 50%;
+    transform: translate(-50%, -50%);
+  }
+
+  .embed-placeholder {
+    position: absolute;
+    inset: 0;
+    z-index: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: var(--space-2);
+    padding: var(--space-3);
+  }
+
+  .reading-time,
+  .doc-meta .last-updated {
+    @apply inline-flex items-center gap-1;
+    margin: 0;
+    color: var(--muted-foreground);
+    font-size: 0.8125rem;
+  }
+
+  .trust-panel {
+    margin: 0.75rem 0;
+  }
+
+  /* The tested chip is the article's trust summary: keep its chip shape when it links to the panel. */
+  .tested-chip[data-tested-link] {
+    text-decoration: none;
+  }
+
+  .tested-chip[data-tested-link]:hover,
+  .tested-chip[data-tested-link]:focus-visible {
+    text-decoration: underline;
+  }
+
+  .trust-panel-chip {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.375rem;
+    min-block-size: 1.75rem;
+    padding: 0.25rem 0.625rem;
+    border-radius: 999px;
+    background: color-mix(in srgb, var(--card) 70%, transparent);
+    box-shadow: inset 0 0 0 1px var(--border);
+    color: var(--muted-foreground);
+    cursor: pointer;
+    font-size: 0.75rem;
+    list-style: none;
+  }
+
+  .trust-panel-chip::-webkit-details-marker {
+    display: none;
+  }
+
+  .trust-panel-icon {
+    inline-size: 0.875rem;
+    block-size: 0.875rem;
+  }
+
+  .trust-panel-body {
+    max-inline-size: 40em;
+    margin-block-start: 0.5rem;
+    padding: 0.75rem;
+    border-radius: 0.75rem;
+    background: var(--card);
+  }
+
+  .trust-panel-revision {
+    color: inherit;
+    text-decoration: underline;
+  }
+
+  .trust-panel-revision code {
+    font-size: 0.75rem;
+  }
+
+  .doc-body [data-src] {
+    position: relative;
+  }
+
+  .block-action {
+    position: absolute;
+    inset-block-start: -1.75rem;
+    inset-inline-end: 0.25rem;
+    pointer-events: none;
+    z-index: 2;
+    min-block-size: 1.5rem;
+    padding: 0.25rem 0.5rem;
+    border-radius: 999px;
+    background: var(--muted);
+    color: var(--muted-foreground);
+    font-size: 0.7rem;
+    line-height: 1rem;
+    opacity: 0;
+  }
+
+  [data-src]:hover > .block-action,
+  [data-src]:focus-within > .block-action {
+    opacity: 1;
+    pointer-events: auto;
+  }
+
+  .page-status {
+    @apply flex flex-wrap items-center gap-2 rounded-xl px-3 py-2 my-4 text-sm;
+    background: color-mix(in srgb, var(--card) 70%, transparent);
+    box-shadow: inset 0 0 0 1px var(--border);
+  }
+
+  .page-status-message {
+    color: var(--muted-foreground);
+  }
+
+  .tags {
+    @apply list-none m-0 p-0;
+  }
+
+  .tags li {
+    display: contents;
+  }
+
+  .pills {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+    margin: 0.75rem 0;
+  }
+
+  .list,
+  .item {
+    display: grid;
+  }
+
+  .item,
+  .list a {
+    display: grid;
+    grid-template-columns: minmax(7.5rem, 0.4fr) minmax(0, 1fr);
+    gap: 0.9rem 1.75rem;
+    align-items: baseline;
+    padding: 0.95rem 0;
+    border-bottom: 1px solid var(--border);
+    text-decoration: none;
+  }
+
+  .item strong,
+  .list a strong {
+    font-family: var(--type-font-mono);
+    font-size: 0.8125rem;
+    font-weight: 500;
+    line-height: 1.375rem;
+  }
+
+  .item span,
+  .list a span,
+  .item em,
+  .list a em {
+    color: var(--muted-foreground);
+    font-style: normal;
+    font-size: 0.9375rem;
+    line-height: 1.5rem;
+  }
+
+  .list a:hover strong {
+    color: var(--link);
+  }
+
+  .swatches {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 0.625rem;
+    margin-block: 1.125rem;
+  }
+
+  .swatch {
+    min-block-size: 5.75rem;
+    padding: 0.875rem;
+    border-radius: 0.875rem;
+    box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--night) 8%, transparent);
+    font-size: 0.875rem;
+    font-weight: 600;
+  }
+
+  .swatch span {
+    display: block;
+    margin-block-start: 0.375rem;
+    font-family: var(--type-font-mono);
+    font-size: 0.75rem;
+    font-weight: 400;
+  }
+
+  .n { background: var(--night); color: var(--sail); }
+  .s { background: var(--sail); color: var(--night); }
+  .m { background: var(--mist); color: var(--night); }
+  .f { background: var(--foam); color: var(--night); }
+  .h { background: var(--shell); color: var(--night); }
+  .b { background: var(--blue); color: var(--foam); }
+
+  .gallery {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 0.75rem;
+    margin: 0.65rem 0 1.4rem;
+  }
+
+  .specimen {
+    border-radius: 0.9rem;
+    padding: 1rem;
+    background: color-mix(in srgb, var(--card) 50%, transparent);
+    box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--border) 75%, transparent);
+    transition: background-color 180ms ease, box-shadow 180ms ease;
+  }
+
+  .specimen:hover {
+    background: var(--card);
+    box-shadow: inset 0 0 0 1px var(--border);
+  }
+
+  .specimen h3 {
+    margin: 0 0 0.75rem;
+    font-size: 0.8125rem;
+    font-weight: 700;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+    color: var(--muted-foreground);
+  }
+
+  .specimen p {
+    margin: 0.65rem 0 0;
+    color: var(--muted-foreground);
+    font-size: 0.84rem;
+  }
+}

@@ -1,5 +1,4 @@
 import assert from "node:assert/strict";
-import { readFileSync } from "node:fs";
 import { test } from "node:test";
 import { Fragment } from "preact";
 import type { ChromeProps, NavTree, Page, Site, SiteConfig, SourcePos } from "@velella/mizzen/contracts";
@@ -17,6 +16,7 @@ import {
   type DrawerLink,
   type DrawerTarget,
 } from "../chrome/drawer/client.ts";
+import { readUiCss } from "./ui-css-helpers.ts";
 
 const pos: SourcePos = { file: "docs/guide/install.md", line: 3, column: 1, endLine: 9, endColumn: 1 };
 
@@ -118,7 +118,7 @@ test("renders a closed dialog with the sidebar inside it and a hidden close butt
 
 /** The declarations of one rule in the sailcloth stylesheet. */
 function cssRule(selector: string): string {
-  const css = readFileSync(new URL("../styles/src/ui.css", import.meta.url), "utf8");
+  const css = readUiCss();
   const escaped = selector.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
   const rule = new RegExp(`${escaped}\\s*\\{([^}]*)\\}`).exec(css);
   assert.ok(rule, `${selector} is styled in ui.css`);

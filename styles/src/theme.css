@@ -1,0 +1,114 @@
+/* Tailwind theme bridge and the locked sailcloth tokens (docs/design/sailcloth.md). */
+@source "../../layouts";
+@source "../../chrome";
+@source "../../components";
+
+@theme {
+  --font-sans: "Geist", "Geist Sans", ui-sans-serif, system-ui, sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji";
+  --font-mono: "Geist Mono", ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+  --radius-sm: calc(var(--radius) - 4px);
+  --radius-md: calc(var(--radius) - 2px);
+  --radius-lg: var(--radius);
+  --radius-xl: calc(var(--radius) + 4px);
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --color-card: var(--card);
+  --color-card-foreground: var(--card-foreground);
+  --color-primary: var(--primary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-secondary: var(--secondary);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-muted: var(--muted);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-border: var(--border);
+  --color-ring: var(--ring);
+}
+
+/* Sailcloth tokens — locked Velella brand (see docs/design/sailcloth.md).
+   Bridge aliases keep older class hooks readable while markup migrates to Tailwind. */
+:root {
+  --night: #23212c;
+  --night-raised: #393743;
+  --sail: #dcd7eb;
+  --mist: #8f8cd8;
+  --mist-edge: #8481c7;
+  --foam: #f4f4f9;
+  --foam-sunk: #e7e7ed;
+  --shell: #ede6d8;
+  --blue: #4c6f9a;
+  --blue-lift: #8fb0d4;
+  --ink: #4a4658;
+  --sail-soft: #b7b2c9;
+
+  --background: var(--foam);
+  --foreground: var(--night);
+  --card: #fbfbfd;
+  --card-foreground: var(--foreground);
+  --popover: var(--card);
+  --popover-foreground: var(--foreground);
+  --primary: var(--night);
+  --primary-foreground: var(--sail);
+  --secondary: #ececf3;
+  --secondary-foreground: var(--night);
+  --muted: #ececf3;
+  --muted-foreground: var(--ink);
+  --accent: color-mix(in srgb, var(--mist) 22%, var(--foam));
+  --accent-foreground: var(--night);
+  --border: color-mix(in srgb, var(--mist-edge) 28%, var(--foam));
+  --input: var(--border);
+  --ring: var(--blue);
+  --link: var(--blue);
+  --radius: 0.875rem;
+  --chart-1: var(--blue);
+  --chart-2: var(--mist);
+  --chart-3: var(--blue-lift);
+  --field-a: color-mix(in srgb, var(--sail) 42%, transparent);
+  --field-b: color-mix(in srgb, var(--blue) 10%, transparent);
+  --glow: color-mix(in srgb, var(--sail) 55%, transparent);
+  --space-2: 0.5rem;
+  --space-3: 0.75rem;
+  --space-4: 1rem;
+  --space-6: 1.5rem;
+  --space-8: 2rem;
+  --text-sm: 0.875rem;
+  --text-2xl: 1.5rem;
+  --color-canvas: var(--background);
+  --color-surface: var(--card);
+  --color-surface-raised: var(--card);
+  --color-text: var(--foreground);
+  --color-heading: var(--foreground);
+  --color-muted: var(--muted-foreground);
+  --color-border: var(--border);
+  --color-link: var(--link);
+  --color-accent: var(--mist);
+  --color-on-accent: var(--primary-foreground);
+  color-scheme: light;
+}
+
+[data-theme="dark"] {
+  --background: var(--night);
+  --foreground: var(--sail);
+  --card: color-mix(in srgb, var(--night-raised) 38%, var(--night));
+  --card-foreground: var(--foreground);
+  --popover: var(--card);
+  --popover-foreground: var(--foreground);
+  --primary: var(--sail);
+  --primary-foreground: var(--night);
+  --secondary: var(--night-raised);
+  --secondary-foreground: var(--sail);
+  --muted: var(--night-raised);
+  --muted-foreground: var(--sail-soft);
+  --accent: color-mix(in srgb, var(--mist) 22%, var(--night));
+  --accent-foreground: var(--sail);
+  --border: color-mix(in srgb, var(--mist) 28%, var(--night));
+  --input: var(--border);
+  --ring: var(--blue-lift);
+  --link: var(--blue-lift);
+  --chart-1: var(--blue-lift);
+  --chart-2: var(--mist);
+  --chart-3: var(--sail);
+  --field-a: color-mix(in srgb, var(--mist) 14%, transparent);
+  --field-b: color-mix(in srgb, var(--blue-lift) 10%, transparent);
+  --glow: color-mix(in srgb, var(--mist) 14%, transparent);
+  color-scheme: dark;
+}

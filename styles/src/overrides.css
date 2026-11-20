@@ -1,0 +1,505 @@
+/* Unlayered overrides above the Tailwind layers: diff chips, narrow header,
+   target sizes, highlighted lines, line links, source mode, compare containers,
+   and the print fixes that follow them. */
+/* Screen-reader-only status chips must not extend the scroll width (print gallery overflow). */
+.diff-block-sr,
+.diff-block-status {
+  position: absolute !important;
+  inset-inline-start: 0 !important;
+  inset-block-start: 0 !important;
+  inline-size: 1px !important;
+  block-size: 1px !important;
+  margin: 0 !important;
+  padding: 0 !important;
+  overflow: hidden !important;
+  clip-path: inset(50%) !important;
+  white-space: nowrap !important;
+  border: 0 !important;
+}
+
+/* A long diff wraps inside its own block; the sign column stays put, so mobile never scrolls the page. */
+.diff-block { overflow-x: auto; }
+.diff-block-line { display: block; padding-inline-start: 1.25rem; text-indent: -1.25rem; white-space: pre-wrap; overflow-wrap: anywhere; }
+.diff-block-line::before { display: inline-block; inline-size: 1.25rem; text-indent: 0; }
+.diff-block-added::before { content: "+"; }
+.diff-block-removed::before { content: "−"; }
+/* The pseudo-element draws the sign, so the visible marker span is not painted twice. */
+.diff-block-marker { display: none; }
+
+/* Narrow screens: tools wrap so language/theme never widen the page. */
+@media (max-width: 767.98px) {
+  .site-header .shell-menu:not([hidden]),
+  html[data-js] .site-header .shell-menu[hidden] {
+    display: inline-grid;
+  }
+}
+
+@media (max-width: 48rem) {
+  .site-header .rail,
+  .site-header .header-inner {
+    inline-size: min(100% - 2rem, 72.5rem);
+    gap: var(--space-2);
+  }
+
+  .site-header .search-trigger kbd,
+  .site-header .brand-tag {
+    display: none;
+  }
+
+  .site-header .sections {
+    display: none;
+  }
+
+  .site-header .tools {
+    gap: var(--space-1);
+    min-inline-size: 0;
+  }
+
+  .site-header .search-trigger {
+    inline-size: 2.125rem;
+    min-inline-size: 2.125rem;
+    flex: none;
+    padding: 0;
+    justify-content: center;
+    font-size: 0;
+  }
+
+  .site-header .iconbtn,
+  .site-header .theme-toggle {
+    flex: none;
+  }
+
+  .site-header .header-inner:has(.language-switcher) {
+    flex-wrap: wrap;
+  }
+
+  .site-header .tools:has(.language-switcher) {
+    flex: 1 1 100%;
+    flex-wrap: wrap;
+    justify-content: flex-end;
+  }
+}
+
+@media (max-width: 40rem) {
+  .site-header .language-switcher {
+    flex: 1 1 100%;
+  }
+
+  .site-header .header-repo {
+    display: none;
+  }
+}
+
+
+.site-utilities {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+  gap: var(--space-2);
+  inline-size: min(100% - 3rem, 72.5rem);
+  margin-inline: auto;
+  padding-block-end: var(--space-4);
+}
+
+.site-utilities .shortcuts-open,
+.site-utilities .source-mode-switch {
+  position: static;
+}
+
+/* Keep the 24×24 target size above the Tailwind layers for WCAG 2.5.8. */
+button,
+input:not([type="hidden"]),
+select,
+textarea,
+summary,
+[role="button"],
+[role="tab"],
+[role="menuitem"],
+[role="link"],
+.home-btn,
+.home-actions a,
+.copy-markdown-link,
+.page-agent-menu-view,
+.page-agent-menu-provider,
+.changelog-toc a,
+.changelog-entry-anchor,
+.back-to-top,
+.version-switcher-summary,
+.version-switcher-link,
+.tag a,
+.tags a,
+.search-input,
+.search-close,
+.page-footer-copy,
+.project-switcher-mobile-summary,
+.breadcrumb-item a,
+.compare th[scope="col"],
+.compare-title a,
+.compare-pick,
+.glossary-index a,
+.record-table-filter-text,
+.cta-band-action,
+.chart-data-downloads a,
+.embed-link,
+.embed-code-preview-link,
+.page-status-replacement,
+.status-banner-replacement,
+.symbol-popover-link,
+.video-link {
+  box-sizing: border-box;
+  min-block-size: 1.5rem;
+  min-inline-size: 1.5rem;
+}
+
+/* The mobile selector disclosure and its options keep one 2.75rem target above the 1.5rem floor. */
+.mobile-selector-summary,
+.mobile-selector-link {
+  min-block-size: 2.75rem;
+  min-inline-size: 2.75rem;
+}
+
+.glossary-index a,
+.compare-title a,
+.compare-pick,
+.copy-markdown-link,
+.page-agent-menu-view,
+.page-agent-menu-provider,
+.changelog-toc a,
+.version-switcher-link,
+.tag a,
+.tags a,
+.breadcrumb-item a,
+.code-copy,
+.code-wrap,
+.cta-band-action,
+.chart-data-downloads a,
+.embed-link,
+.embed-code-preview-link,
+.page-status-replacement,
+.status-banner-replacement,
+.symbol-popover-link,
+.video-link {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding-block: 0.25rem;
+  padding-inline: 0.4rem;
+}
+
+/* Let the badge grow with its label. */
+.badge {
+  height: auto;
+  min-block-size: 1.25rem;
+  overflow: visible;
+  line-height: 1.25;
+}
+
+.code-copy {
+  min-block-size: 1.5rem;
+  min-inline-size: 1.5rem;
+}
+
+.terminal-copy,
+button[data-text-total],
+button[data-block-id] {
+  color: var(--sail);
+  background: var(--night-raised);
+}
+
+.breadcrumb-title {
+  color: var(--foreground);
+}
+
+.code .highlighted,
+.code-frame .highlighted {
+  background-color: color-mix(in srgb, var(--sail) 14%, var(--night)) !important;
+  /* A non-colour marker, and a marker-sized inset that keeps the text on the same column. */
+  border-inline-start: 2px solid var(--mist);
+  padding-inline-start: 0.5rem;
+  margin-inline-start: calc(-0.5rem - 2px);
+}
+
+.code .highlighted span,
+.code-frame .highlighted span {
+  color: var(--sail) !important;
+}
+
+.code .highlighted span,
+.code-frame .highlighted span {
+  color: var(--sail) !important;
+}
+
+/* The line a fragment names, and every line of a named range (the island adds `.targeted`). */
+.code .line:target,
+.code .line.targeted,
+.code .line:has(:target),
+.code-frame .line:target,
+.code-frame .line.targeted,
+.code-frame .line:has(:target) {
+  background-color: color-mix(in srgb, var(--link) 12%, var(--night)) !important;
+  border-inline-start: 2px solid var(--link);
+  padding-inline-start: 0.5rem;
+  margin-inline-start: calc(-0.5rem - 2px);
+}
+
+/* The link is zero-width in the text flow: its glyph is generated, and the negative margin keeps the
+   code on its column. Logical properties mirror it in RTL. */
+.code .line-link,
+.code-frame .line-link {
+  display: inline-block;
+  inline-size: 1.5rem;
+  margin-inline-end: -1.5rem;
+  block-size: 1.5rem;
+  margin-block: -0.25rem;
+  vertical-align: middle;
+  color: var(--muted-foreground);
+  text-decoration: none;
+}
+
+.code .line-link::before,
+.code-frame .line-link::before {
+  content: "#";
+  opacity: 0;
+}
+
+.code .line:hover .line-link::before,
+.code .line-link:focus-visible::before,
+.code-frame .line:hover .line-link::before,
+.code-frame .line-link:focus-visible::before {
+  opacity: 1;
+}
+
+.code .line-link:focus-visible,
+.code-frame .line-link:focus-visible {
+  outline: 2px solid var(--focus);
+  outline-offset: 2px;
+}
+
+/* Source mode: labels exist in the DOM but stay unrendered until `.source-mode` (no layout shift). */
+.source-label {
+  display: none;
+}
+
+.source-mode .doc-body [data-src],
+.source-mode .record-body [data-src],
+.source-mode .record-fact {
+  position: relative;
+}
+
+.source-mode .source-label {
+  display: block;
+  position: absolute;
+  inset-block-end: 100%;
+  inset-inline-start: 0;
+  max-inline-size: 100%;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  unicode-bidi: isolate;
+  color: var(--muted-foreground);
+  font-family: var(--type-font-mono);
+  font-size: var(--text-xs);
+  line-height: 1.25;
+  pointer-events: none;
+}
+
+.source-label-kind {
+  margin-inline-end: 0.5rem;
+  font-family: var(--type-font-ui, var(--font-sans));
+  font-weight: 500;
+}
+
+.source-label-copy,
+.source-label-link,
+.source-label-editor {
+  pointer-events: auto;
+  margin-inline-end: 0.5rem;
+  padding-block: 0.25rem;
+  padding-inline: 0.4rem;
+  border: 0;
+  background: none;
+  color: inherit;
+  font: inherit;
+  text-decoration: underline;
+  text-decoration-style: dotted;
+  cursor: pointer;
+  box-sizing: border-box;
+  min-block-size: 1.5rem;
+  min-inline-size: 1.5rem;
+}
+
+.source-label-editor[hidden] {
+  display: none;
+}
+
+.source-label-copy:hover,
+.source-label-link:hover,
+.source-label-editor:hover {
+  color: var(--foreground);
+}
+
+.source-label-copy:focus-visible,
+.source-label-link:focus-visible,
+.source-label-editor:focus-visible,
+.source-label:focus-visible {
+  outline: 2px solid var(--ring);
+  outline-offset: 2px;
+}
+
+.source-mode-status {
+  position: absolute;
+  inline-size: 1px;
+  block-size: 1px;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+}
+
+.source-mode-button {
+  color: var(--foreground);
+  background: var(--card);
+  border-color: var(--border);
+}
+
+.source-mode-button[aria-pressed="true"] {
+  color: var(--primary-foreground);
+  background: var(--primary);
+}
+
+@media (min-width: 90rem) {
+  .source-mode .source-label {
+    inset-block-end: auto;
+    inset-block-start: 0;
+    inset-inline-start: auto;
+    inset-inline-end: calc(100% + 0.75rem);
+    max-inline-size: 14rem;
+    text-align: end;
+  }
+}
+
+.schema-table th,
+.budget-report-table th,
+.a11y-report-table th,
+.line-chart-table th,
+.compare th,
+table th {
+  color: var(--foreground);
+  background: color-mix(in srgb, var(--muted) 72%, var(--card));
+}
+
+.compare-summary {
+  color: var(--muted-foreground);
+  margin-block-end: var(--space-3);
+}
+
+/* The comparison narrows with its column, not the viewport, so it also works in a narrow panel. */
+.compare {
+  container-name: compare;
+  container-type: inline-size;
+}
+
+/* The record title repeated in each value cell is for the narrow row layout only. */
+.compare-record {
+  display: none;
+}
+
+/* Each cell keeps its own evidence, so a comparison never pools the sources of different records. */
+.compare-evidence {
+  display: block;
+  margin-block-start: 0.25rem;
+  color: var(--muted-foreground);
+  font-size: 0.75rem;
+}
+
+.compare-evidence a {
+  color: inherit;
+  text-decoration: underline;
+}
+
+@container compare (max-inline-size: 40rem) {
+  .compare .table-scroll {
+    max-block-size: none;
+    overflow: visible;
+  }
+
+  .compare table,
+  .compare tbody,
+  .compare tr,
+  .compare th {
+    display: block;
+  }
+
+  /* Every record title is repeated in its value cells, so the column headers step aside. */
+  .compare thead {
+    display: none;
+  }
+
+  .compare tbody tr {
+    padding-block: var(--space-3);
+    border-block-end: 1px solid var(--border);
+  }
+
+  .compare tbody tr:first-child {
+    border-block-start: 1px solid var(--border);
+  }
+
+  .compare tbody tr > th {
+    margin-block-end: var(--space-2);
+    text-align: start;
+  }
+
+  /* Each compared record keeps its own row: the title from this cell, the value at the end. */
+  .compare tbody tr > td {
+    display: grid;
+    grid-template-columns: auto minmax(0, 1fr);
+    gap: var(--space-3);
+    padding-block: 0.2rem;
+    text-align: end;
+  }
+
+  .compare .compare-record {
+    display: block;
+    color: var(--muted-foreground);
+    font-size: var(--text-sm);
+    text-align: start;
+    overflow-wrap: anywhere;
+  }
+}
+
+.home-btn-primary,
+a.home-btn-primary,
+.home-actions .home-btn[data-variant="primary"],
+.home-actions a.btn:first-child {
+  color: var(--primary-foreground);
+  background: var(--primary);
+}
+
+[data-theme="dark"] .home-btn-primary,
+[data-theme="dark"] a.home-btn-primary {
+  color: var(--night);
+  background: var(--sail);
+}
+
+.code-tabs [role="tab"][aria-selected="true"],
+.tabs [role="tab"][aria-selected="true"],
+.os-tabs-tab[aria-selected="true"],
+.install-tabs [role="tab"][aria-selected="true"] {
+  color: var(--foreground);
+  background: color-mix(in srgb, var(--card) 70%, var(--muted));
+}
+
+/* The screen rules above own the selectors; these print-only overrides keep paper inside the page. */
+@media print {
+  /* Line-number links are screen-only; their negative margin must not widen the paper. */
+  .code .line-link,
+  .code-frame .line-link {
+    display: none !important;
+  }
+
+  /* The highlight marker keeps its inset without a negative margin that print cannot clip. */
+  .code .highlighted,
+  .code-frame .highlighted {
+    margin-inline-start: 0 !important;
+    padding-inline-start: 0.5rem;
+  }
+}

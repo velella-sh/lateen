@@ -36,6 +36,7 @@ import {
   type TabsGroup,
 } from "../components/tabs/client.ts";
 import { TAB_SELECTOR, type TabsEvent } from "../components/code-tabs/client.ts";
+import { readUiCss } from "./ui-css-helpers.ts";
 
 const pos: SourcePos = { file: "docs/guide/install.md", line: 4, column: 1, endLine: 20, endColumn: 1 };
 
@@ -729,7 +730,7 @@ const tokenNames = new Set(
 
 
 test("a tab's focus ring stays inside its clipping list", () => {
-  const css = readFileSync(new URL("../styles/src/ui.css", import.meta.url), "utf8");
+  const css = readUiCss();
   assert.match(css, /\.tabs \[role="tab"\]:focus-visible/);
   assert.match(css, /outline-offset: -3px/);
 

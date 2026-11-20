@@ -27,6 +27,7 @@ import {
   type CopyEnv,
   type CopyNode,
 } from "../chrome/code-copy/client.ts";
+import { readUiCss } from "./ui-css-helpers.ts";
 
 const FAILED = "Copy failed. Select the text and copy it by hand.";
 const COPIED = "Copied";
@@ -539,7 +540,7 @@ test("the wrap toggle is a focusable native button that keyboard users can press
 });
 
 test("the wrap rule is presentation-only and leaves direction to the RTL sheet", () => {
-  const ui = readFileSync(new URL("../styles/src/ui.css", import.meta.url), "utf8");
+  const ui = readUiCss();
   const code = /\.code\.is-wrapped code \{([^}]*)\}/.exec(ui)?.[1] ?? "";
   assert.match(code, /white-space:\s*pre-wrap/);
   assert.match(code, /overflow-wrap:\s*anywhere/);

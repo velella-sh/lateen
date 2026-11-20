@@ -8,6 +8,7 @@ import assert from "node:assert/strict";
 import { existsSync, readFileSync } from "node:fs";
 import { test } from "node:test";
 import { brandCss } from "../src/brand.ts";
+import { readUiCss } from "./ui-css-helpers.ts";
 
 const read = (path: string): string => readFileSync(new URL(path, import.meta.url), "utf8");
 
@@ -250,7 +251,7 @@ test("a brand never bypasses the system palette with raw painted colours", () =>
 });
 
 test("sailcloth ui.css keeps borders that forced-colors can restyle", () => {
-  const ui = stripComments(read("../styles/src/ui.css"));
+  const ui = stripComments(readUiCss());
   assert.match(ui, /border/);
   assert.match(css, /ButtonBorder|CanvasText|Highlight/);
 });

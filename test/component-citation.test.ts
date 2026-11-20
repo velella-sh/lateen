@@ -1,5 +1,4 @@
 import assert from "node:assert/strict";
-import { readFileSync } from "node:fs";
 import { test } from "node:test";
 import type { ComponentProps, Page, Site } from "@velella/mizzen/contracts";
 import { renderToString } from "preact-render-to-string";
@@ -13,6 +12,7 @@ import citation, {
   type CitationProps,
 } from "../components/citation/index.ts";
 import { activate, BUTTON_CLASS, labelAfterCopy, type CitationDocument, type CitationElement } from "../components/citation/client.ts";
+import { readUiCss } from "./ui-css-helpers.ts";
 
 const baseSite = (overrides: Record<string, unknown> = {}): Site =>
   ({
@@ -95,7 +95,7 @@ test("without JavaScript the citation has no button, and print keeps its address
   assert.ok(!out.includes(`${BUTTON_CLASS}`), "the island adds the control, so SSR has none");
   assert.ok(out.includes("https://example.com/lateen/components/button/"), "the address is visible text");
 
-  const css = readFileSync(new URL("../styles/src/ui.css", import.meta.url), "utf8");
+  const css = readUiCss();
   const print = css.slice(css.indexOf("@media print"));
   assert.ok(print.includes(".citation-copy"));
   assert.ok(print.includes("break-inside: avoid"), "a citation does not split across printed pages");

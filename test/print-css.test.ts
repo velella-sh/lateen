@@ -8,6 +8,7 @@ import assert from "node:assert/strict";
 import { readFileSync } from "node:fs";
 import { test } from "node:test";
 import { brandCss } from "../src/brand.ts";
+import { readUiCss } from "./ui-css-helpers.ts";
 
 const read = (path: string): string => readFileSync(new URL(path, import.meta.url), "utf8");
 
@@ -380,7 +381,7 @@ test("the network chrome stays out of print with the header and footer", () => {
 });
 
 test("sailcloth utility controls stay in flow and configured logos use the brand frame", () => {
-  const ui = read("../styles/src/ui.css");
+  const ui = readUiCss();
   const utilities = rule(ui, ".site-utilities");
   assert.ok(utilities, "no site utilities layout rule");
   assert.match(utilities.body, /display:\s*flex/);
@@ -404,7 +405,7 @@ test("sailcloth utility controls stay in flow and configured logos use the brand
 });
 
 test("sailcloth ui.css also hides shell chrome and block-action labels in print", () => {
-  const ui = stripComments(read("../styles/src/ui.css"));
+  const ui = stripComments(readUiCss());
   const print = ui.slice(ui.indexOf("@media print"));
   assert.match(print, /\.site-header/);
   assert.match(print, /button\.block-action/);

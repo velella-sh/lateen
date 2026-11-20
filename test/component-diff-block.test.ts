@@ -32,6 +32,7 @@ import {
   type CopyEnv,
   type CopyStatus,
 } from "../components/diff-block/client.ts";
+import { readUiCss } from "./ui-css-helpers.ts";
 
 const DIFF = `<pre><code class="language-diff">${[
   "--- a/mizzen.yml",
@@ -357,7 +358,7 @@ test("added and removed lines name themselves for assistive tech, and show a mar
 });
 
 test("a long diff wraps in place, and signs plus text carry the meaning without color", () => {
-  const uiCss = readFileSync(new URL("../styles/src/ui.css", import.meta.url), "utf8");
+  const uiCss = readUiCss();
   assert.match(uiCss, /\.diff-block-line\s*\{[^}]*white-space:\s*pre-wrap/);
   assert.match(uiCss, /\.diff-block-line\s*\{[^}]*overflow-wrap:\s*anywhere/);
   assert.match(uiCss, /\.diff-block-added::before\s*\{\s*content:\s*"\+"/);

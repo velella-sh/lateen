@@ -1,6 +1,7 @@
 import assert from "node:assert/strict";
 import { existsSync, readFileSync } from "node:fs";
 import { test } from "node:test";
+import { readUiCss } from "../../test/ui-css-helpers.ts";
 
 test("the sailcloth stack deps are declared on the package", () => {
   const pkg = JSON.parse(readFileSync(new URL("../../package.json", import.meta.url), "utf8")) as {
@@ -14,7 +15,7 @@ test("the sailcloth stack deps are declared on the package", () => {
 });
 
 test("styles/src/ui.css declares the Tailwind design tokens", () => {
-  const css = readFileSync(new URL("../../styles/src/ui.css", import.meta.url), "utf8");
+  const css = readUiCss();
   assert.match(css, /@import "tailwindcss"/);
   assert.match(css, /@theme\s*\{/);
   assert.match(css, /--foam:\s*#f4f4f9/i);

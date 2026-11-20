@@ -1,5 +1,4 @@
 import assert from "node:assert/strict";
-import { readFileSync } from "node:fs";
 import { test } from "node:test";
 import { Fragment, h } from "preact";
 import type { ChromeProps, Page, Site, SiteConfig, SourcePos } from "@velella/mizzen/contracts";
@@ -45,6 +44,7 @@ import {
   type SearchResults,
   type SearchStatus,
 } from "../chrome/search/client.ts";
+import { readUiCss } from "./ui-css-helpers.ts";
 
 const pos: SourcePos = { file: "guide/install.md", line: 1, column: 1, endLine: 1, endColumn: 1 };
 
@@ -157,7 +157,7 @@ test("the field is a combobox that names and controls the result list", () => {
   );
   assert.match(out, /<input class="search-input"[^>]* dir="auto"/, "the query follows its own script");
 
-  const css = readFileSync(new URL("../styles/src/ui.css", import.meta.url), "utf8");
+  const css = readUiCss();
   const field = /\.search-field input \{([\s\S]*?)\}/.exec(css)?.[1] ?? "";
   assert.match(field, /unicode-bidi: plaintext/);
 
@@ -2166,7 +2166,7 @@ test("choosing the ask row hands the panel the question and the results on scree
 });
 
 test("the dialog keeps its controls and results inside a mobile viewport with a virtual keyboard", () => {
-  const css = readFileSync(new URL("../styles/src/ui.css", import.meta.url), "utf8");
+  const css = readUiCss();
   const dialog = /dialog\.search \{([\s\S]*?)\}/.exec(css)?.[1] ?? "";
   assert.match(dialog, /100dvw/);
   assert.match(dialog, /80dvh/);

@@ -5,6 +5,7 @@ import { Fragment } from "preact";
 import type { ChromeProps, Page, Pager, RepositoryConfig, Site, SiteConfig, SourcePos, Trail } from "@velella/mizzen/contracts";
 import pageFooter from "../chrome/page-footer/index.ts";
 import { activate, copy, RESET_MS, type Clipboard, type CopyButton, type CopyEnv } from "../chrome/page-footer/client.ts";
+import { readUiCss } from "./ui-css-helpers.ts";
 
 const pos: SourcePos = { file: "docs/guide/install.md", line: 3, column: 1, endLine: 9, endColumn: 1 };
 
@@ -208,7 +209,7 @@ test("the back-to-top link is a plain link with no JavaScript gate", () => {
 });
 
 test("the back-to-top styles use logical margin and add no motion", () => {
-  const css = readFileSync(new URL("../styles/src/ui.css", import.meta.url), "utf8");
+  const css = readUiCss();
   const rule = /\.back-to-top\s*\{([^}]*)\}/.exec(css)?.[1] ?? "";
 
   assert.match(rule, /ms-auto/, "the control sits at the inline end in both directions");

@@ -3,6 +3,7 @@ import { readFileSync, rmSync } from "node:fs";
 import { join } from "node:path";
 import { after, before, test } from "node:test";
 import { all, attrs, build, root, textOf, type BuiltSite } from "./integration-helpers.ts";
+import { readUiCss } from "./ui-css-helpers.ts";
 
 const TRUST_LEVELS = new Set(["verified", "partial", "unreviewed", "unknown"]);
 const EXAMPLE_STATES = new Set(["passed", "partial", "unrun", "failed", "none", "invalid", "absent"]);
@@ -121,8 +122,8 @@ test("the evidence surfaces are prepared for forced colors, print, zoom, RTL, an
       assert.match(value, /var\(--motion-/);
     }
   }
-  assert.match(css("styles/src/ui.css"), /@media \(prefers-reduced-motion: reduce\)/);
-  assert.match(css("styles/src/ui.css"), /inset-inline|padding-inline|margin-inline/);
+  assert.match(readUiCss(), /@media \(prefers-reduced-motion: reduce\)/);
+  assert.match(readUiCss(), /inset-inline|padding-inline|margin-inline/);
 });
 
 test("the trust panel's evidence is in the server-rendered page, not created by JavaScript", () => {

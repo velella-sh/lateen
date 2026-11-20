@@ -3,10 +3,11 @@
 import assert from "node:assert/strict";
 import { readFileSync } from "node:fs";
 import { test } from "node:test";
+import { readUiCss } from "./ui-css-helpers.ts";
 
 const read = (path: string): string => readFileSync(new URL(path, import.meta.url), "utf8");
 
-const ui = read("../styles/src/ui.css");
+const ui = readUiCss();
 const tokensCss = read("../styles/tokens.css");
 const rtlCss = read("../styles/rtl.css");
 
