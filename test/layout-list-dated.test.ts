@@ -105,6 +105,27 @@ test("a paginated dated list says the dates continue, and the last page says not
   assert.match(last, /class="pagination"/);
 });
 
+test("a long dated archive gets a table of contents whose links reach every month heading", () => {
+  const long = [
+    record("jan-a", { title: "January one", published: "2026-01-02" }),
+    record("jan-b", { title: "January two", published: "2026-01-19" }),
+    record("feb", { title: "February", published: "2026-02-03" }),
+    record("mar", { title: "March", published: "2026-03-04" }),
+    record("apr", { title: "April", published: "2026-04-05" }),
+  ];
+  const out = render(long);
+  const toc = out.match(/<nav class="dated-list-toc"[^>]*>([\s\S]*?)<\/nav>/)?.[1];
+  assert.ok(toc, "the table of contents is in the HTML");
+  const links = [...toc.matchAll(/<a href="#([^"]+)">([^<]+)<\/a>/g)].map((match) => match[1]!);
+  assert.equal(links.length, 4, "one link per month, not per record");
+  const ids = [...out.matchAll(/<section class="dated-list-group"><h2 id="([^"]+)">/g)].map((match) => match[1]!);
+  assert.deepEqual(links, ids, "every link reaches its own heading, in heading order");
+  assert.equal(new Set(ids).size, ids.length, "no heading id repeats");
+  assert.doesNotMatch(toc, /<script|onclick/, "the table works without JavaScript");
+
+  assert.doesNotMatch(render(POSTS), /dated-list-toc/, "a short archive keeps its list alone");
+});
+
 test("the note follows the page language", () => {
   assert.match(render(POSTS.slice(0, 2), undefined, { page: 1, total: 2, next: "/posts/page/2/" }, "fa"), /تاریخ‌ها در صفحهٔ ۲ ادامه دارند\./);
 });

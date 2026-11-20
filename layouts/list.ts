@@ -19,7 +19,7 @@ import status, { type StatusTone } from "../components/status/index.ts";
 import { Rss } from "lucide";
 import { icon } from "../src/icon.ts";
 import { t } from "../i18n/index.ts";
-import { calendarDate } from "../src/dates.ts";
+import { calendarDate, calendarMonth } from "../src/dates.ts";
 import { formatField, isEmpty } from "../src/fields.ts";
 import { baseOf } from "../src/url.ts";
 
@@ -162,6 +162,20 @@ export function cardsView(props: LayoutProps, records: readonly RecordProps[]): 
   return cards({ children: records.map((record) => cardOf(props, record)) }) as ComponentChildren;
 }
 
+/** A dated archive with more calendar months than this gets a table of contents above it. */
+const TOC_AFTER_MONTHS = 3;
+
+/** The distinct calendar months the dated records span; a date the language cannot read is not one. */
+function monthCountOf(props: LayoutProps, records: readonly RecordProps[], dateField: string): number {
+  const months = new Set<string>();
+  for (const record of records) {
+    const value = record.fields[dateField];
+    const month = typeof value === "string" ? calendarMonth(value, props.page.lang) : undefined;
+    if (month !== undefined) months.add(month.key);
+  }
+  return months.size;
+}
+
 /**
  * The records as a dated list, the view a list asks for with `list.view: dated`: the same records, with
  * `list.date` naming the field the months come from, rendered by the dated-list component.
@@ -180,8 +194,9 @@ export function datedView(props: LayoutProps, records: readonly RecordProps[]): 
     };
   });
   const calendar = props.list?.calendars?.[0]?.url;
+  const toc = monthCountOf(props, records, dateField) > TOC_AFTER_MONTHS;
   return datedList({
-    props: { items, status: "status", ...(calendar === undefined ? {} : { calendar }) },
+    props: { items, status: "status", ...(toc ? { toc: true } : {}), ...(calendar === undefined ? {} : { calendar }) },
     page: props.page,
     site: props.site,
     html: "",
