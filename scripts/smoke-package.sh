@@ -8,12 +8,42 @@ lateen="$(pwd)"
 work="$(mktemp -d)"
 trap 'rm -rf "$work"' EXIT
 
+# The exact installed engine, not the range in package.json: the consumer resolves the same Mizzen
+# version the acceptance gate checks against.
+mizzen="$(node -p "require(\"$lateen/node_modules/@velella/mizzen/package.json\").version")"
+
 mkdir "$work/tar" "$work/project"
 (cd "$lateen" && npm pack --silent --pack-destination "$work/tar" >/dev/null)
 
 cd "$work/project"
 npm init -y >/dev/null
-npm install --silent --no-audit --no-fund "$work"/tar/velella-lateen-*.tgz preact
+npm install --silent --no-audit --no-fund "$work"/tar/velella-lateen-*.tgz preact "@velella/mizzen@$mizzen"
+
+# An empty consumer type checks the package's exported paths by package name, with no import that
+# reaches back into the checkout. `./visual` is loaded at runtime below because its Playwright types
+# belong to an optional peer this consumer deliberately leaves out.
+cat > consumer.ts <<'TS'
+import { theme } from "@velella/lateen";
+import { theme as redesign } from "@velella/lateen/redesign";
+
+if (theme.name !== redesign.name) throw new Error("the redesign alias disagrees with the theme");
+TS
+cat > tsconfig.json <<'JSON'
+{
+  "compilerOptions": {
+    "target": "esnext",
+    "module": "nodenext",
+    "moduleResolution": "nodenext",
+    "strict": true,
+    "noEmit": true,
+    "allowImportingTsExtensions": true,
+    "skipLibCheck": true
+  },
+  "include": ["consumer.ts"]
+}
+JSON
+"$lateen/node_modules/.bin/tsc" -p tsconfig.json
+echo "the consumer type checks @velella/lateen and @velella/lateen/redesign from the tarball"
 
 cp -R "$lateen/site" site
 rm -rf site/.mizzen
@@ -64,6 +94,15 @@ node --input-type=module -e '
       return { format: "module", shortCircuit: true, source: stripTypeScriptTypes(readFileSync(fileURLToPath(url), "utf8"), { mode: "strip" }) };
     },
   });
+  // Every exported package path loads from the installed tarball; `package.json` is data, not a module.
+  const paths = Object.keys(JSON.parse(readFileSync("node_modules/@velella/lateen/package.json", "utf8")).exports);
+  for (const path of paths) {
+    if (path === "./package.json") continue;
+    const spec = path === "." ? "@velella/lateen" : `@velella/lateen/${path.slice(2)}`;
+    const mod = await import(spec);
+    if (Object.keys(mod).length === 0) throw new Error(`${spec} exports nothing`);
+    console.log(`${spec} loads from the tarball`);
+  }
   const { visualCheck } = await import("@velella/lateen/visual");
   if (typeof visualCheck !== "function") throw new Error("the visual export is missing");
   try {
@@ -75,4 +114,4 @@ node --input-type=module -e '
   }
   throw new Error("the visual export ran without Playwright");
 '
-echo "packages build the Lateen site and ship the visual export from node_modules"
+echo "packages build the Lateen site, type check every export and ship the visual export from node_modules"
