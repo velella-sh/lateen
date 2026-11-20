@@ -4,7 +4,6 @@ import type { ComponentProps } from "@velella/mizzen/contracts";
 import { renderToString } from "preact-render-to-string";
 import barChart, { type BarChartProps } from "../components/bar-chart/index.ts";
 import stackedBar, { type StackedBarProps } from "../components/stacked-bar/index.ts";
-import lineChart, { type LineChartProps } from "../components/line-chart/index.ts";
 import { barMark, labelMark, lineMark, svgFrame, textMark } from "../components/chart-data/svg.ts";
 
 const render = (node: unknown): string => renderToString(node as never);
@@ -44,15 +43,6 @@ const ROWS = [
   { id: "b", name: "B", quarter: "Q2", region: "North", month: 2, total: 12 },
 ];
 const SITE = { data: { sales: ROWS }, collections: {} };
-
-test("every chart frames its SVG the same way: an img named by its title", () => {
-  const bar = render(barChart({ props: { from: "sales", category: "name", value: "total", title: "Sales" }, page: { lang: "en" }, site: SITE, html: "" } as unknown as ComponentProps<BarChartProps>));
-  const stacked = render(stackedBar({ props: { from: "sales", category: "quarter", series: "region", value: "total", title: "Sales" }, page: { lang: "en" }, site: SITE, html: "" } as unknown as ComponentProps<StackedBarProps>));
-  const line = render(lineChart({ props: { from: "sales", category: "month", value: "total", title: "Sales" }, page: { lang: "en" }, site: SITE, html: "" } as unknown as ComponentProps<LineChartProps>));
-  for (const [html, id] of [[bar, "bar-chart-sales"], [stacked, "stacked-bar-sales"], [line, "line-chart-sales"]] as const) {
-    assert.match(html, new RegExp(`<svg class="[a-z-]+" viewBox="0 0 \\d+ \\d+" role="img" aria-labelledby="${id}-title" preserveAspectRatio="xMidYMid meet"><title id="${id}-title">Sales</title>`));
-  }
-});
 
 test("a long category label keeps the shared title-and-cut mark in the bar and stacked charts", () => {
   const long = "A category label that is far too long for the axis";

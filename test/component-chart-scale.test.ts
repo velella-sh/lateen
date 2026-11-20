@@ -26,6 +26,7 @@ test("the bar chart's ticks are the shared tick calculation", () => {
 
 test("ticksOf covers zero range, a single value, negatives, and decimals", () => {
   assert.deepEqual(ticksOf(0, 0), [0, 0.2, 0.4, 0.6, 0.8, 1]);
+  assert.deepEqual(ticksOf(0, 40), [0, 10, 20, 30, 40]);
   const single = ticksOf(7, 7);
   assert.equal(single[0], 0);
   assert.ok(single.includes(7));

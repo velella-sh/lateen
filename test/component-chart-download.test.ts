@@ -1,14 +1,8 @@
 import assert from "node:assert/strict";
 import { readFileSync } from "node:fs";
 import { test } from "node:test";
-import type { ComponentProps } from "@velella/mizzen/contracts";
 import { renderToString } from "preact-render-to-string";
-import barChart, { type BarChartProps } from "../components/bar-chart/index.ts";
-import chartData, {
-  NO_VALUE_TEXT,
-  TABLE_CLASS,
-  type ChartDataProps,
-} from "../components/chart-data/index.ts";
+import chartData, { NO_VALUE_TEXT, type ChartDataProps } from "../components/chart-data/index.ts";
 import chartDownloads, {
   CSV_TYPE,
   DOWNLOAD_CLASS,
@@ -19,6 +13,7 @@ import chartDownloads, {
   fileNameOf,
 } from "../components/chart-data/download.ts";
 import { formatNumber } from "../src/report.ts";
+import { fileOf, hrefOf, links, parseCsv, tableOf } from "./support-chart-variants.ts";
 
 const PROPS: ChartDataProps = {
   id: "quarterly-users",
@@ -37,69 +32,6 @@ const PROPS: ChartDataProps = {
 
 function render(overrides: Partial<ChartDataProps> = {}): string {
   return renderToString(chartData({ ...PROPS, ...overrides }) as never);
-}
-
-function links(html: string): string[] {
-  return [...html.matchAll(/<a\b[^>]*>/g)].map((match) => match[0]);
-}
-
-function hrefOf(tag: string): string {
-  const href = tag.match(/href="([^"]*)"/)?.[1];
-  assert.ok(href, `link has no href: ${tag}`);
-  return href;
-}
-
-/** The bytes a link carries, decoded from its data URI. */
-function fileOf(tag: string): string {
-  const href = hrefOf(tag);
-  const comma = href.indexOf(",");
-  assert.ok(comma > 0, `not a data URI: ${href}`);
-  return decodeURIComponent(href.slice(comma + 1));
-}
-
-/** The table as rows of cell text, header included. */
-function tableOf(html: string): string[][] {
-  return [...html.matchAll(/<tr>([\s\S]*?)<\/tr>/g)].map((row) =>
-    [...row[1]!.matchAll(/<t[hd][^>]*>([\s\S]*?)<\/t[hd]>/g)].map((cell) => cell[1]!),
-  );
-}
-
-/** A small RFC 4180 reader, enough to compare the file with the table. */
-function parseCsv(text: string): string[][] {
-  const rows: string[][] = [];
-  let row: string[] = [];
-  let field = "";
-  let quoted = false;
-  for (let index = 0; index < text.length; index++) {
-    const char = text[index];
-    if (quoted) {
-      if (char === '"' && text[index + 1] === '"') {
-        field += '"';
-        index++;
-      } else if (char === '"') {
-        quoted = false;
-      } else {
-        field += char;
-      }
-    } else if (char === '"') {
-      quoted = true;
-    } else if (char === ",") {
-      row.push(field);
-      field = "";
-    } else if (char === "\n") {
-      row.push(field);
-      rows.push(row);
-      row = [];
-      field = "";
-    } else if (char !== "\r") {
-      field += char;
-    }
-  }
-  if (field !== "" || row.length > 0) {
-    row.push(field);
-    rows.push(row);
-  }
-  return rows;
 }
 
 function rawCell(value: string | number | undefined): string {
@@ -192,43 +124,6 @@ test("both files hold several series under the table's headings", () => {
     { Category: "Q1", Users: 1200, Teams: 3 },
     { Category: "Q2", Users: 1, Teams: null },
   ]);
-});
-
-test("the bar chart links its own rows, sorted as the table shows them", () => {
-  const input = {
-    props: { from: "sales", category: "name", value: "total", title: "Sales" },
-    page: { lang: "en" },
-    site: {
-      collections: {},
-      data: {
-        sales: [
-          { id: "alpha", name: "Alpha", total: 30 },
-          { id: "beta", name: "Beta", total: null },
-          { id: "gamma", name: "Gamma", total: 0 },
-          { id: "delta", name: "Delta", total: -5 },
-        ],
-      },
-    },
-    html: "",
-  } as unknown as ComponentProps<BarChartProps>;
-  const html = renderToString(barChart(input) as never);
-
-  assert.match(html, new RegExp(`class="${TABLE_CLASS}"`));
-  assert.match(html, /download="bar-chart-sales.csv"/);
-  assert.match(html, /download="bar-chart-sales.json"/);
-
-  const csv = parseCsv(fileOf(links(html).find((tag) => tag.includes('download="bar-chart-sales.csv"'))!));
-  assert.deepEqual(csv, [
-    ["Category", "Value"],
-    ["Alpha", "30"],
-    ["Beta", ""],
-    ["Gamma", "0"],
-    ["Delta", "-5"],
-  ]);
-  assert.deepEqual(
-    tableOf(html).slice(1).map((row) => row[0]),
-    csv.slice(1).map((row) => row[0]),
-  );
 });
 
 test("a CSV field with a comma, a quote, or a line break is quoted and reads back unchanged", () => {
