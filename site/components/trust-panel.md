@@ -114,8 +114,9 @@ path or an `https` URL, or that asks for provenance the page does not have, is l
 ## Notes
 
 - The chip is a native `<details>` summary, so it opens and closes with Enter, Space, or a click. When
-  JavaScript runs, Escape also closes it and returns focus to the chip; without JavaScript the browser
-  keeps Escape for itself.
+  JavaScript runs, Escape also closes it and returns focus to the chip, and a link to `#trust-panel`
+  opens the panel; without JavaScript the browser keeps Escape for itself, while the panel content
+  stays readable and printable.
 - The examples evidence, its state, and its counts are in the server-rendered row: with no JavaScript
   the reader and any scanner still see `partial`, `unrun`, `invalid`, and `absent` honestly.
 - The text comes from `i18n/*.json` in the page's language, and the panel uses logical properties, so

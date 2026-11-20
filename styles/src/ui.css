@@ -2451,6 +2451,16 @@
     margin: 0.75rem 0;
   }
 
+  /* The tested chip is the article's trust summary: keep its chip shape when it links to the panel. */
+  .tested-chip[data-tested-link] {
+    text-decoration: none;
+  }
+
+  .tested-chip[data-tested-link]:hover,
+  .tested-chip[data-tested-link]:focus-visible {
+    text-decoration: underline;
+  }
+
   .trust-panel-chip {
     display: inline-flex;
     align-items: center;

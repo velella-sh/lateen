@@ -21,6 +21,9 @@ export const COUNT_CLASS = "tested-chip-count";
 /** Class on the visually hidden sentence that carries the last-passed date to assistive tech. */
 export const SR_CLASS = "tested-chip-sr";
 
+/** Attribute on a chip that links to the page's trust explanation. */
+export const LINK_ATTRIBUTE = "data-tested-link";
+
 /**
  * The states a chip reports. A set with no completed examples is `unrun`; a partly run one is
  * `partial`, never rounded up to `passed`. `unavailable` is the neutral state a malformed or
@@ -203,6 +206,18 @@ export const STATE_LABEL_KEYS: Readonly<Record<TestedChipState, string>> = {
   unavailable: "trust_level_unknown",
 };
 
+/** True when the page has an entry the doc layout's trust panel renders. */
+function hasTrustPanel(site: Site | undefined, page: Page | undefined): boolean {
+  const trust = site?.data?.trust;
+  return (
+    typeof trust === "object" &&
+    trust !== null &&
+    !Array.isArray(trust) &&
+    typeof page?.url === "string" &&
+    Object.hasOwn(trust, page.url)
+  );
+}
+
 /** One inline count, such as "2 passed" or "1 failed". */
 function count(counts: TestedCounts, state: TestedChipState, lang: string) {
   const n = state === "passed" ? counts.passed : counts.failed;
@@ -244,11 +259,13 @@ const testedChip: Component<TestedChipProps> = ({ props, page, site }) => {
   const date = counts.lastPassed === undefined ? undefined : calendarDate(counts.lastPassed, lang);
   const tooltip = date === undefined ? undefined : t(lang, "tested_last_passed", { date: date.text });
 
+  const linked = hasTrustPanel(site, page);
+  const tag = linked ? "a" : "span";
   return h(
-    "span",
+    tag,
     {
       class: classNameOf(state),
-      role: "note",
+      ...(linked ? { href: "#trust-panel", [LINK_ATTRIBUTE]: "" } : { role: "note" }),
       ...(unavailable
         ? {}
         : {
@@ -266,6 +283,7 @@ const testedChip: Component<TestedChipProps> = ({ props, page, site }) => {
       ? null
       : h("span", { class: `${COUNT_CLASS} ${COUNT_CLASS}-not-run` }, t(lang, "tested_not_run", { n: notRunOf(counts) })),
     tooltip === undefined ? null : h("span", { class: SR_CLASS }, tooltip),
+    linked ? h("span", { class: SR_CLASS }, t(lang, "trust_reasons")) : null,
   );
 };
 
