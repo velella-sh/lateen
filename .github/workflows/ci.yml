@@ -7,6 +7,13 @@ on:
   pull_request:
   workflow_dispatch:
 
+# One run per pull request (or per ref for pushes and manual runs). Only pull-request runs cancel
+# their superseded predecessors, so the required checks always report for the latest head while
+# main pushes and manual runs queue instead of cancelling each other.
+concurrency:
+  group: ci-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
+
 permissions:
   contents: read
 
