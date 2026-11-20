@@ -46,7 +46,7 @@ The default view draws one table row per record. The columns are the fields the 
 
 ### Dated
 
-`view: dated` draws the records as a dated list, grouped by the month of `date`'s field. The oldest month comes first, a record with that field empty goes to the undated section, and a paginated list names the page where the dates continue. A `status` field shows as a badge.
+`view: dated` draws the records as a dated list, grouped by the month of `date`'s field. The oldest month comes first, a record with that field empty goes to the undated section, and a paginated list names the page where the dates continue. A `status` field shows as a badge. When the archive spans more than three calendar months, the layout puts a table of contents above the list with one link per month. Those links are part of the built HTML, so each one reaches its month's heading without JavaScript.
 
 ### Changes
 
