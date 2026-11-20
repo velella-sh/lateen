@@ -1,8 +1,7 @@
 /// <reference lib="dom" />
 
 import { enhanceChartIsland, type ChartIslandControl, type IslandIntersectionCtor, type IslandMutationCtor } from "../chart-data/island.ts";
-
-type ChartRow = { label: string; value: number };
+import { parseRows } from "./data.ts";
 
 /** The Chart constructor the generated bundle supplies; each instance is destroyed on disposal. */
 interface ChartLike {
@@ -14,7 +13,8 @@ async function draw(root: HTMLElement): Promise<(() => void) | undefined> {
   const canvas = root.querySelector("canvas");
   const data = root.querySelector("[data-chart-data]")?.textContent;
   if (!(canvas instanceof HTMLCanvasElement) || !data) return;
-  const rows = JSON.parse(data) as ChartRow[];
+  const rows = parseRows(data);
+  if (rows.length === 0) return;
   // @ts-expect-error The generated chart bundle has no TypeScript declarations.
   const { default: Chart } = await import("../performance-chart/chart.min.js");
   const context = canvas.getContext("2d");
