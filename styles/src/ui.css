@@ -1818,6 +1818,16 @@
     unicode-bidi: isolate;
   }
 
+  /* A long example opens on demand; the code and its copy stay complete in the DOM. */
+  .code-details {
+    @apply max-w-full;
+  }
+
+  .code-details-summary {
+    @apply cursor-pointer text-sm text-muted-foreground;
+    margin-block-end: var(--space-2);
+  }
+
   /* Scroll inside the block, never the page (was styles/parts-code.css). */
   .code,
   .cli-demo-body,
