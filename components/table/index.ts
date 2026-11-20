@@ -1,5 +1,6 @@
-import { h } from "preact";
+import { Fragment, h } from "preact";
 import type { ComponentChildren } from "preact";
+import { instanceId } from "../../src/page-ids.ts";
 
 /** Scroll region around a Markdown table. */
 export const WRAPPER_CLASS = "table-scroll";
@@ -7,32 +8,56 @@ export const WRAPPER_CLASS = "table-scroll";
 /** Styled table element class. */
 export const TABLE_CLASS = "table";
 
+/** Class on the sentence that describes the table after it. */
+export const DESCRIPTION_CLASS = "table-description";
+
 /** Marks the scroll region for `client.ts`, which drops the tab stop when the table fits. */
 export const REGION_ATTRIBUTE = "data-table-scroll";
 
 export type TableProps = {
   children?: ComponentChildren;
+  /** Visible caption. It names the scroll region when `label` is absent. */
+  caption?: string;
+  /** A sentence shown after the table and referenced by the scroll region. */
+  description?: string;
   /** Accessible name for the scroll region when the table has no caption. */
   label?: string;
+  /** The page the table appears on; it keeps two description ids apart. */
+  page?: { readonly html?: unknown };
 };
 
 /**
  * Render a table inside a keyboard-focusable horizontal scroll region. Without JavaScript the region
  * always keeps its tab stop, so a wide table stays keyboard-scrollable; `client.ts` removes the tab
- * stop and the named region when the table fits. A caption names the region on the rendered page.
+ * stop and the named region when the table fits. A caption names the region on the rendered page, and
+ * a description sits after the table, outside the scroll region, so it stays readable beside a wide table.
  */
-export default function table({ children, label }: TableProps) {
-  const name = typeof label === "string" ? label.trim() : "";
-  return h(
+export default function table({ children, label, caption, description, page }: TableProps) {
+  const title = typeof caption === "string" ? caption.trim() : "";
+  const note = typeof description === "string" ? description.trim() : "";
+  const author = typeof label === "string" ? label.trim() : "";
+  const name = author === "" ? title : author;
+  const descriptionId = note === "" ? "" : `${instanceId(page ?? {}, "table")}-description`;
+
+  const region = h(
     "div",
     {
       class: WRAPPER_CLASS,
       [REGION_ATTRIBUTE]: true,
       tabIndex: 0,
       ...(name === "" ? {} : { role: "region", "aria-label": name, "data-label": name }),
+      ...(descriptionId === "" ? {} : { "aria-describedby": descriptionId }),
     },
-    h("table", { class: TABLE_CLASS }, children),
+    h(
+      "table",
+      { class: TABLE_CLASS },
+      title === "" ? null : h("caption", null, title),
+      children,
+    ),
   );
+
+  if (note === "") return region;
+  return h(Fragment, null, region, h("p", { class: DESCRIPTION_CLASS, id: descriptionId }, note));
 }
 
 /** Minimal hast node the rehype step walks. */

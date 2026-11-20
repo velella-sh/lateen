@@ -22,9 +22,17 @@ There is no directive.
 
 ## Options
 
-None for Markdown. GFM has no caption syntax, so a Markdown table has no region name and is not announced as a landmark; it still gets the focusable scroll region when it overflows. That keeps a page from collecting repeated generic "Table" landmarks.
+Markdown tables take no options. GFM has no caption syntax, so a Markdown table has no region name and is not announced as a landmark; it still gets the focusable scroll region when it overflows. That keeps a page from collecting repeated generic "Table" landmarks.
 
-When a table does have a caption, as produced by a pipeline or a component, the caption names the region. A component that renders a table directly can pass `label` instead. A table with neither stays keyboard-scrollable but unnamed.
+When a component renders the table directly, it can pass:
+
+| Name | Type | Default | Meaning |
+| --- | --- | --- | --- |
+| `caption` | string | none | The visible caption, and the region's name when `label` is absent. |
+| `description` | string | none | A sentence after the table, referenced by the region's `aria-describedby`. |
+| `label` | string | none | The region's accessible name; it wins over `caption`. |
+
+A table with neither a caption nor a label stays keyboard-scrollable but unnamed. Empty strings emit nothing.
 
 ## Example
 
