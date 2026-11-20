@@ -6,6 +6,7 @@
  * first opened. */
 
 import { attachPickers } from "./picker.ts";
+import { withParams } from "../../src/url.ts";
 
 /** The wrapper around a comparison. */
 export const ROOT_SELECTOR = "[data-compare]";
@@ -112,11 +113,7 @@ export function onlyDiff(search: string): boolean {
 
 /** The page query with `?compare=diff` set or removed, keeping every other parameter where it was. */
 export function withDiff(search: string, on: boolean): string {
-  const params = new URLSearchParams(search);
-  if (on) params.set(DIFF_PARAM, DIFF_VALUE);
-  else params.delete(DIFF_PARAM);
-  const query = params.toString();
-  return query === "" ? "" : `?${query}`;
+  return withParams(search, { [DIFF_PARAM]: on ? DIFF_VALUE : null });
 }
 
 /** A count in the page's digits, without pulling the server component's Preact. */

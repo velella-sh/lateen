@@ -4,9 +4,13 @@
  * translated label filters the same way. The sort and filters live in the query string, the address
  * is replaced rather than pushed, and a shared link opens the same view. */
 
-/** The root `index.ts` marks with `data-gallery`. */
-
 import { parseJson } from "../../src/guards.ts";
+import { withParams } from "../../src/url.ts";
+
+/** The shared address serializer, re-exported so this island's public surface stays as it was. */
+export { withParams };
+
+/** The root `index.ts` marks with `data-gallery`. */
 export const ROOT_SELECTOR = "[data-gallery]";
 
 /** One card's wrapper, with its filter values in `data-gallery-values`. */
@@ -125,17 +129,6 @@ export function actionOf(url: string): string {
   if (at === -1) return url;
   const hash = url.indexOf("#", at);
   return url.slice(0, at) + (hash === -1 ? "" : url.slice(hash));
-}
-
-/** A URL with the named parameters set, or removed when the value is `null`; other parameters stay. */
-export function withParams(url: string, changes: Readonly<Record<string, string | null>>): string {
-  const absolute = /^[a-z][a-z0-9+.-]*:\/\//i.test(url);
-  const parsed = new URL(url, "https://gallery.invalid");
-  for (const [name, value] of Object.entries(changes)) {
-    if (value === null) parsed.searchParams.delete(name);
-    else parsed.searchParams.set(name, value);
-  }
-  return absolute ? parsed.toString() : `${parsed.pathname}${parsed.search}${parsed.hash}`;
 }
 
 /** The chosen values, one per filter field, read from the address; repeated or blank values are ignored. */

@@ -14,7 +14,7 @@ import {
   type IndexField,
   type IndexRow,
 } from "./index-loader.ts";
-import { withBase } from "../../src/url.ts";
+import { withBase, withParams, type ParamValue } from "../../src/url.ts";
 import { sortKey, sortRows, type SortDirection } from "../../src/sort.ts";
 
 /** The explorer root the island finds. */
@@ -536,22 +536,20 @@ function attach(root: ExplorerElement, doc: ExplorerDocument, env: ExplorerEnv):
    */
   const write = (): void => {
     if (view === null) return;
-    const url = new URL(view.location.href);
-    for (const key of [...url.searchParams.keys()]) {
-      if (key === QUERY_PARAM || key === SORT_PARAM || key === ORDER_PARAM || key.startsWith(FILTER_PARAM)) {
-        url.searchParams.delete(key);
-      }
-    }
+    const changes: Record<string, ParamValue> = {};
     const text = query.trim();
-    if (text !== "") url.searchParams.set(QUERY_PARAM, text);
+    if (text !== "") changes[QUERY_PARAM] = text;
     for (const facet of facets) {
-      for (const value of chosen(facet)) url.searchParams.append(`${FILTER_PARAM}${facet.field}`, value);
+      const values = chosen(facet);
+      if (values.length > 0) changes[`${FILTER_PARAM}${facet.field}`] = values;
     }
     if (sorting !== undefined) {
-      url.searchParams.set(SORT_PARAM, sorting.field);
-      url.searchParams.set(ORDER_PARAM, sorting.direction === "descending" ? "desc" : "asc");
+      changes[SORT_PARAM] = sorting.field;
+      changes[ORDER_PARAM] = sorting.direction === "descending" ? "desc" : "asc";
     }
-    view.history.replaceState(null, "", url.toString());
+    const own = (key: string): boolean =>
+      key === QUERY_PARAM || key === SORT_PARAM || key === ORDER_PARAM || key.startsWith(FILTER_PARAM);
+    view.history.replaceState(null, "", withParams(view.location.href, changes, own));
   };
 
   /** Checks the boxes the address names, and no others. */
