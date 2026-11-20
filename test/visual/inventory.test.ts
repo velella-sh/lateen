@@ -66,3 +66,75 @@ test("the inventory covers every component, selector, variant and island", () =>
 
   assert.deepEqual(errors, [], errors.join("\n"));
 });
+
+interface Contract {
+  /** Selector that must exist in the server-rendered fixture. */
+  readonly state?: string;
+  /** Selector `styles/print.css` must carry when paper changes the screen behavior. */
+  readonly print?: string;
+  /** Why a component is exempt from the print half of the contract. */
+  readonly reason?: string;
+}
+
+/**
+ * The no-JavaScript and print contract for the components the issue names. A component with a
+ * print rule must also keep its no-JS state in the static fixture; the four exempt components carry
+ * no screen-only state that paper would lose.
+ */
+const CONTRACTS: Readonly<Record<string, Contract>> = {
+  details: { state: "details.details > :not(summary)", print: "details:not([open]) > :not(summary)" },
+  tabs: { state: '.tabs > [role="tabpanel"]', print: '.tabs > [role="tabpanel"][hidden]' },
+  "os-tabs": { state: ".os-tabs-panel", print: ".os-tabs-panel[hidden]" },
+  "code-tabs": { state: ".code-tabs-panel", print: ".code-tabs-panel[hidden]" },
+  "install-tabs": { state: ".install-tabs-panel", print: ".install-tabs-panel[hidden]" },
+  "symbol-popover": { state: ".symbol-popover-panel", print: ".symbol-popover-panel" },
+  term: { state: ".term-panel", print: ".term-panel" },
+  "trust-panel": { state: ".trust-panel-body", print: ".trust-panel-body" },
+  code: { state: "pre.code code", print: ".code code" },
+  terminal: { state: ".terminal-body", print: ".terminal-body" },
+  table: { state: ".table-scroll > .table", print: ".table-scroll > .table" },
+  "schema-table": { state: ".schema-table", print: ".schema-table" },
+  "a11y-report": { state: ".a11y-report-scroll", print: ".a11y-report-scroll" },
+  "budget-report": { state: ".budget-report-scroll", print: ".budget-report-scroll" },
+  "wcag-checklist": { state: ".wcag-checklist-scroll", print: ".wcag-checklist-scroll" },
+  figure: { state: "figure.figure", print: ".figure-credit a[href]" },
+  "link-card": { state: "a.link-card", print: ".link-card" },
+  "diff-block": { reason: "plain code lines with no clipped or hidden content; print.css hides only its copy control" },
+  "output-block": { reason: "plain output text with no clipped or hidden content; print.css hides only its copy control" },
+  video: { reason: "the no-JS fallback is a plain link the global printed-link rule already covers" },
+  mermaid: { reason: "its SVG and source are figure content the global figure break rules cover" },
+};
+
+test("the component fixtures keep their no-JS state and print contract", () => {
+  buildFixture(BUILD);
+  const css = readFileSync(join(ROOT, "styles/print.css"), "utf8").replace(/\/\*[\s\S]*?\*\//g, " ");
+  const errors: string[] = [];
+  const excluded: string[] = [];
+
+  for (const [name, contract] of Object.entries(CONTRACTS)) {
+    if (contract.reason !== undefined) {
+      excluded.push(name);
+      continue;
+    }
+    const page = docFor("/gallery/");
+    assert.ok(contract.state, `${name}: no no-JS selector in the contract`);
+    if (page.querySelector(contract.state) === null) {
+      errors.push(`${name}: the server-rendered fixture has no \`${contract.state}\``);
+    }
+    if (contract.print !== undefined && !css.includes(contract.print)) {
+      errors.push(`${name}: print.css has no rule for \`${contract.print}\``);
+    }
+  }
+
+  const report = {
+    contracts: Object.keys(CONTRACTS).length,
+    checked: Object.keys(CONTRACTS).length - excluded.length,
+    excluded,
+    ok: errors.length === 0,
+    errors,
+  };
+  mkdirSync(join(ROOT, "test/visual/out"), { recursive: true });
+  writeFileSync(join(ROOT, "test/visual/out/component-contracts.json"), `${JSON.stringify(report, null, 2)}\n`);
+
+  assert.deepEqual(errors, [], errors.join("\n"));
+});
