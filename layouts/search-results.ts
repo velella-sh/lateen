@@ -60,6 +60,38 @@ function safeHref(url) {
   return url.startsWith("/") || url.startsWith("./") || url.startsWith("../") || /^https?:\\/\\//i.test(url) ? url : undefined;
 }
 
+/* section-path:start The section path is a self-contained block the layout's tests extract and run
+   against the runtime's real URL parser; it reads only its argument. */
+/** The page's parent directory: /guide/install/ gives /guide/, a root page an empty string. */
+function sectionPath(url) {
+  let pathname;
+  try {
+    pathname = new URL(url, "https://lateen.invalid").pathname;
+  } catch {
+    return "";
+  }
+  const segments = pathname
+    .split("/")
+    .filter((segment) => segment !== "")
+    .map((segment) => {
+      try {
+        return decodeURIComponent(segment);
+      } catch {
+        return segment;
+      }
+    });
+  segments.pop();
+  return segments.length === 0 ? "" : "/" + segments.join("/") + "/";
+}
+
+/** Each result's path, all empty when no result has one or every result shares the same one. */
+function sectionPaths(urls) {
+  const paths = urls.map(sectionPath);
+  const first = paths.length === 0 ? "" : paths[0];
+  return paths.every((path) => path === first) ? paths.map(() => "") : paths;
+}
+/* section-path:end */
+
 /* count-path:start The count path is a self-contained block the layout's tests extract and run
    against the runtime's real Intl data; it reads only the lang and messages declared above.
    Mirrors the search dialog's pluralCategory (issue 108) with locale number formatting. */
@@ -107,11 +139,21 @@ function copyExcerpt(node, target) {
 function render(records) {
   if (!list) return;
   const items = [];
-  for (const record of records) {
+  const paths = sectionPaths(records.map((record) => record.url));
+  for (const [index, record] of records.entries()) {
     const href = safeHref(record.url);
     const link = document.createElement(href === undefined ? "span" : "a");
     link.className = "search-results-link";
     if (href !== undefined) link.setAttribute("href", href);
+    const path = paths[index];
+    if (path !== "") {
+      const breadcrumb = document.createElement("span");
+      breadcrumb.className = "search-results-path";
+      const bdi = document.createElement("bdi");
+      bdi.textContent = path;
+      breadcrumb.append(bdi);
+      link.append(breadcrumb);
+    }
     const title = document.createElement("span");
     title.className = "search-results-title";
     title.textContent = record.meta && record.meta.title ? record.meta.title : record.url;

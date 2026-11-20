@@ -12,6 +12,9 @@ export const PROJECT_CLASS = "search-result-project";
 /** Class on the result's link. */
 export const LINK_CLASS = "search-result-link";
 
+/** Class on the section path that tells two same-titled results apart. */
+export const PATH_CLASS = "search-result-path";
+
 /** Class on the result's title. */
 export const TITLE_CLASS = "search-result-title";
 
@@ -28,6 +31,8 @@ export const RETRY_CLASS = "search-result-retry";
 export interface SearchResultItemProps {
   readonly result: SearchResult;
   readonly network?: SiteNetwork | undefined;
+  /** The result's disambiguating section path, already blank when no result needs one. */
+  readonly path?: string | undefined;
 }
 
 /**
@@ -35,7 +40,7 @@ export interface SearchResultItemProps {
  * the network's `path` so it lands under that project's base. A result from this project gets no
  * label, because the page around it already says where the reader is.
  */
-export function searchResult({ result, network }: SearchResultItemProps) {
+export function searchResult({ result, network, path }: SearchResultItemProps) {
   const label = resultLabel(result, network);
   return h(
     "li",
@@ -44,6 +49,7 @@ export function searchResult({ result, network }: SearchResultItemProps) {
     h(
       "a",
       { class: LINK_CLASS, href: resultHref(result, network) },
+      path === undefined || path === "" ? null : h("span", { class: PATH_CLASS }, h("bdi", null, path)),
       h("span", { class: TITLE_CLASS }, result.title),
       h("span", { class: EXCERPT_CLASS }, result.excerpt),
     ),

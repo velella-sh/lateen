@@ -389,6 +389,80 @@ test("result nodes keep Pagefind's mark emphasis and the group order", () => {
   assert.deepEqual(marks(nodes).map((mark) => textOf(mark)), ["cache", "cache"]);
 });
 
+test("two pages with the same title are told apart by their real section path", () => {
+  const nodes = drawnNodes(
+    optionList(
+      [
+        { url: "/api/install/", excerpt: "The API install.", meta: { title: "Install" }, filters: { section: ["api"] } },
+        { url: "/guide/install/", excerpt: "The guide install.", meta: { title: "Install" }, filters: { section: ["guide"] } },
+      ],
+      [],
+    ),
+  );
+
+  assert.deepEqual(
+    nodes.filter((node) => node.attrs.class === "search-result-path").map(textOf),
+    ["/api/", "/guide/"],
+  );
+  assert.deepEqual(
+    nodes.filter((node) => node.attrs.class === "search-result-title").map(textOf),
+    ["Install", "Install"],
+  );
+  const bdi = nodes.find((node) => node.tag === "bdi");
+  assert.equal(bdi?.children.length, 1, "the path is its own bidi island inside an RTL line");
+});
+
+test("a path that is empty or shared by every result is left out", () => {
+  const root = drawnNodes(optionList([{ url: "/install/", excerpt: "", meta: { title: "Install" } }], []));
+  assert.equal(root.some((node) => node.attrs.class === "search-result-path"), false);
+
+  const shared = drawnNodes(
+    optionList(
+      [
+        { url: "/guide/one/", excerpt: "", meta: { title: "One" } },
+        { url: "/guide/two/", excerpt: "", meta: { title: "Two" } },
+      ],
+      [],
+    ),
+  );
+  assert.equal(shared.some((node) => node.attrs.class === "search-result-path"), false);
+  assert.deepEqual(
+    shared.filter((node) => node.attrs.class === "search-result-title").map(textOf),
+    ["One", "Two"],
+  );
+});
+
+test("an RTL page keeps its path, title, and excerpt in order, with its highlight intact", () => {
+  const nodes = drawnNodes(
+    optionList(
+      [
+        {
+          url: "/راهنما/نصب/",
+          excerpt: "نصب <mark>کش</mark> پس از انتشار.",
+          meta: { title: "نصب" },
+          filters: { section: ["راهنما"] },
+        },
+        {
+          url: "/راهنمای‌کوتاه/نصب/",
+          excerpt: "نسخهٔ کوتاه.",
+          meta: { title: "نصب" },
+          filters: { section: ["راهنمای‌کوتاه"] },
+        },
+      ],
+      [],
+    ),
+  );
+
+  assert.deepEqual(
+    nodes.filter((node) => node.attrs.class === "search-result-path").map(textOf),
+    ["/راهنما/", "/راهنمای‌کوتاه/"],
+  );
+  assert.equal(textOf(findClass(nodes, "search-result-title")!), "نصب");
+  assert.deepEqual(marks(nodes).map((mark) => textOf(mark)), ["کش"]);
+  assert.ok(nodes.find((node) => node.attrs.class === "search-result-path")?.children[0]);
+  assert.equal(nodes.find((node) => node.attrs.class === "search-result-path")?.children[0]?.tag, "bdi");
+});
+
 test("technical paths and hyphenated names keep their order and mark boundaries", () => {
   const nodes = drawnNodes(
     optionList(
