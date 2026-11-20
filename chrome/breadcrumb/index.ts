@@ -29,6 +29,33 @@ function crumb(link: NavLink, current: boolean) {
     : h("a", { href: link.url }, title(link.title));
 }
 
+/** A trail this long keeps only its first and last crumbs on a narrow screen. */
+const COLLAPSED_FROM = 4;
+
+/**
+ * The collapsed middle of a long trail. `<details>` opens without JavaScript, and the wide-screen
+ * rules in `style.css` flatten it back into the row and hide the summary. The middle keeps its own
+ * ordered list, so every ancestor is still a link and every crumb is still an item.
+ */
+function overflow(middle: NavLink[], lang: string) {
+  const items = middle.map((link) => h("li", { class: "breadcrumb-item" }, separator(), crumb(link, false)));
+  return h(
+    "li",
+    { class: "breadcrumb-item breadcrumb-overflow" },
+    h(
+      "details",
+      { class: "breadcrumb-details" },
+      h(
+        "summary",
+        { class: "breadcrumb-summary", "aria-label": t(lang, "breadcrumb_more") },
+        separator(),
+        h("span", { "aria-hidden": "true" }, "…"),
+      ),
+      h("ol", { class: "breadcrumb-list" }, ...items),
+    ),
+  );
+}
+
 /**
  * The trail from the navigation tree above the title, as one ordered list with one item per crumb so
  * assistive technology can count the crumbs and find the current page. Decorative chevrons stay out of
@@ -39,10 +66,16 @@ const breadcrumb: Chrome = ({ page, trail }) => {
   if (trail.length < 2) return null;
 
   const items = [];
-  for (let i = 0; i < trail.length; i += 1) {
-    items.push(
-      h("li", { class: "breadcrumb-item" }, i > 0 ? separator() : null, crumb(trail[i]!, i === trail.length - 1)),
-    );
+  if (trail.length < COLLAPSED_FROM) {
+    for (let i = 0; i < trail.length; i += 1) {
+      items.push(
+        h("li", { class: "breadcrumb-item" }, i > 0 ? separator() : null, crumb(trail[i]!, i === trail.length - 1)),
+      );
+    }
+  } else {
+    items.push(h("li", { class: "breadcrumb-item" }, crumb(trail[0]!, false)));
+    items.push(overflow(trail.slice(1, -1), page.lang));
+    items.push(h("li", { class: "breadcrumb-item" }, separator(), crumb(trail[trail.length - 1]!, true)));
   }
 
   return h(

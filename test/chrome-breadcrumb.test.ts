@@ -45,6 +45,14 @@ const install: NavLink = { title: "Install", url: "/example/guide/install/" };
 const guides: NavLink = { title: "Guides", url: "/example/guide/" };
 const gettingStarted: NavLink = { title: "Getting started", url: "/example/guide/getting-started/" };
 const fullTrail: Trail = [guides, gettingStarted, install];
+const longTrail: Trail = [
+  { title: "Home", url: "/example/" },
+  { title: "Docs", url: "/example/docs/" },
+  guides,
+  { title: "Setup", url: "/example/guide/setup/" },
+  { title: "Linux", url: "/example/guide/setup/linux/" },
+  { title: "Install", url: "/example/guide/setup/linux/install/" },
+];
 
 function props(trail: Trail, lang = "en"): ChromeProps {
   const localized: Page = { ...page, lang, dir: lang === "en" ? "ltr" : "rtl" };
@@ -165,6 +173,73 @@ test("path-shaped titles keep their left-to-right order; prose titles stay in th
   assert.ok(out.includes(`<bdi class="breadcrumb-title"><bdi dir="ltr">${path}</bdi></bdi>`), out);
   assert.ok(out.includes(`<bdi class="breadcrumb-title">${prose}</bdi>`), out);
   assert.ok(out.indexOf(path) < out.indexOf(prose), "the trail keeps the authored crumb order");
+});
+
+test("a short trail renders unchanged, with no compact control", () => {
+  const out = render(fullTrail);
+  assert.doesNotMatch(out, /<details|<summary/);
+  assert.equal(count(out, /<li class="breadcrumb-item">/g), fullTrail.length);
+  assert.equal(count(out, /<a href="/g), fullTrail.length - 1);
+});
+
+test("a long trail keeps its first and last crumb and folds the middle into details", () => {
+  const out = render(longTrail);
+  assert.match(out, /<li class="breadcrumb-item"><a href="\/example\/"><bdi class="breadcrumb-title">Home<\/bdi><\/a><\/li>/);
+  assert.equal(count(out, /<li class="breadcrumb-item breadcrumb-overflow">/g), 1);
+  assert.equal(count(out, /<details class="breadcrumb-details">/g), 1);
+  assert.match(out, /<details class="breadcrumb-details"><summary class="breadcrumb-summary" aria-label="More breadcrumbs">/);
+  assert.doesNotMatch(out, /<details[^>]*\sopen/);
+  assert.match(out, /<span aria-current="page"><bdi class="breadcrumb-title">Install<\/bdi><\/span><\/li><\/ol><\/nav>$/);
+
+  // The middle crumbs live inside the details, between the one summary and the closing tag.
+  const middle = out.slice(out.indexOf("<details"), out.indexOf("</details>"));
+  for (const link of longTrail.slice(1, -1)) {
+    assert.ok(middle.includes(`<a href="${link.url}">`), link.title);
+  }
+  assert.equal(count(out, /<li class="breadcrumb-item">/g), longTrail.length);
+});
+
+test("a long trail keeps every ancestor link, its order, and one aria-current page", () => {
+  const out = render(longTrail);
+  assert.equal(count(out, /<a href="/g), longTrail.length - 1);
+  assert.equal(count(out, /aria-current="page"/g), 1);
+
+  let previous = -1;
+  for (const link of longTrail.slice(0, -1)) {
+    const at = out.indexOf(link.title);
+    assert.ok(at > previous, `${link.title} keeps its place in the trail`);
+    previous = at;
+  }
+  const current = longTrail[longTrail.length - 1]!;
+  assert.ok(out.indexOf(current.title) > previous);
+  assert.doesNotMatch(out, new RegExp(`href="${current.url}"`));
+});
+
+test("the compact control has a localized accessible name", () => {
+  assert.match(render(longTrail, "en"), /<summary class="breadcrumb-summary" aria-label="More breadcrumbs">/);
+  assert.match(render(longTrail, "fa"), /<summary class="breadcrumb-summary" aria-label="مسیرهای بیشتر">/);
+  assert.match(render(longTrail, "ar"), /<summary class="breadcrumb-summary" aria-label="المزيد من مسارات التنقل">/);
+});
+
+test("a right-to-left long trail keeps the authored order and the localized names", () => {
+  const out = render(longTrail, "fa");
+  assert.match(out, /^<nav class="breadcrumb" aria-label="مسیر یابی">/);
+  assert.match(out, /<summary class="breadcrumb-summary" aria-label="مسیرهای بیشتر">/);
+
+  let previous = -1;
+  for (const link of longTrail) {
+    const at = out.indexOf(link.title);
+    assert.ok(at > previous, `${link.title} keeps its place in the right-to-left trail`);
+    previous = at;
+  }
+});
+
+test("wide screens flatten the compact middle back into the row", () => {
+  const ui = readFileSync(new URL("../styles/src/ui.css", import.meta.url), "utf8");
+  const wide = /@media \(min-width: 48rem\) \{([\s\S]*?)\n\}/.exec(ui)?.[1] ?? "";
+  assert.match(wide, /\.breadcrumb-details[\s\S]*display: contents/);
+  assert.match(wide, /\.breadcrumb-details > \.breadcrumb-summary[\s\S]*display: none/);
+  assert.match(wide, /\.breadcrumb-details::details-content[\s\S]*content-visibility: visible !important/);
 });
 
 test("titles are escaped and URLs are left unchanged", () => {

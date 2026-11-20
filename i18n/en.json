@@ -66,6 +66,7 @@
   "blog_archive": "Archive",
   "blog_author_heading": "Posts by {name}",
   "blog_empty": "No posts yet.",
+  "breadcrumb_more": "More breadcrumbs",
   "breadcrumbs": "Breadcrumbs",
   "budget_report_budget": "Budget (gzip)",
   "budget_report_class": "Asset class",
