@@ -3,7 +3,9 @@ import { readFileSync } from "node:fs";
 import { join } from "node:path";
 import { test } from "node:test";
 import { fileURLToPath } from "node:url";
+import { renderToString } from "preact-render-to-string";
 import table, {
+  DESCRIPTION_CLASS,
   REGION_ATTRIBUTE,
   TABLE_CLASS,
   WRAPPER_CLASS,
@@ -196,6 +198,48 @@ test("the component names the region from an author label and omits it without o
   assert.equal(plain.props.role, undefined);
   assert.equal(plain.props["aria-label"], undefined);
   assert.equal(plain.props.tabIndex, 0, "the fallback stays keyboard-scrollable");
+});
+
+test("a caption is the table's first child and names the region when no label is given", () => {
+  const html = renderToString(
+    table({ caption: "Deploy targets", children: [] }) as never,
+  );
+  assert.match(html, /<table class="table"><caption>Deploy targets<\/caption><\/table>/);
+  assert.match(html, /role="region"/);
+  assert.match(html, /aria-label="Deploy targets"/);
+
+  const labelled = renderToString(
+    table({ caption: "Deploy targets", label: "Author label", children: [] }) as never,
+  );
+  assert.match(labelled, /aria-label="Author label"/);
+  assert.match(labelled, /<caption>Deploy targets<\/caption>/);
+});
+
+test("a description follows the table, gets a stable id, and describes the scroll region", () => {
+  const page = {};
+  const html = renderToString(
+    table({ caption: "Deploy targets", description: "The targets a deployment writes.", page, children: [] }) as never,
+  );
+  assert.match(html, /aria-describedby="table-description"/);
+  assert.match(html, new RegExp(`<p class="${DESCRIPTION_CLASS}" id="table-description">The targets a deployment writes\\.</p>`));
+  assert.ok(html.indexOf("</div>") < html.indexOf(`<p class="${DESCRIPTION_CLASS}"`), "the description sits outside the scroll region");
+});
+
+test("empty caption and description emit no empty elements", () => {
+  const plain = table({ caption: "   ", description: "", children: [] }) as never;
+  const html = renderToString(plain);
+  assert.doesNotMatch(html, /<caption>/);
+  assert.doesNotMatch(html, new RegExp(DESCRIPTION_CLASS));
+  assert.doesNotMatch(html, /aria-describedby/);
+  assert.doesNotMatch(html, /role="region"/);
+});
+
+test("two tables with the same caption on one page get different description ids", () => {
+  const page = {};
+  const first = renderToString(table({ caption: "Deploy targets", description: "First.", page, children: [] }) as never);
+  const second = renderToString(table({ caption: "Deploy targets", description: "Second.", page, children: [] }) as never);
+  assert.match(first, /id="table-description"/);
+  assert.match(second, /id="table-2-description"/);
 });
 
 /** A scroll region as the island reads it: attributes, measured widths, and a caption. */

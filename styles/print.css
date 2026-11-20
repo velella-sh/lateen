@@ -221,6 +221,17 @@
     box-shadow: none;
   }
 
+  /* A table's name and description are content: paper keeps both beside the printed grid. */
+  .table caption {
+    display: table-caption;
+    break-inside: avoid;
+  }
+
+  .table-description {
+    display: block;
+    break-inside: avoid;
+  }
+
   /* Refined components print flat: a sticky header, a lift, a blur or a fade is a screen effect. */
   .table-scroll,
   .table-scroll th,

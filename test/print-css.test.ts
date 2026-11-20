@@ -284,6 +284,17 @@ test("printed code wraps instead of clipping and tables fit the page", () => {
   assert.match(table.body, /inline-size:\s*100%/);
 });
 
+test("printed tables keep their caption and description", () => {
+  const caption = rule(printBody(css), ".table caption");
+  assert.ok(caption, "no printed rule for a table caption");
+  assert.match(caption.body, /display:\s*table-caption/);
+  assert.match(caption.body, /break-inside:\s*avoid/);
+  const description = rule(printBody(css), ".table-description");
+  assert.ok(description, "no printed rule for a table description");
+  assert.match(description.body, /display:\s*block/);
+  assert.match(description.body, /break-inside:\s*avoid/);
+});
+
 test("print.css uses only tokens and no raw color", () => {
   assert.deepEqual(problems((declaration) => rawColor(declaration.value)), []);
   const defined = new Set([...tokensCss.matchAll(/(--[a-z0-9-]+)\s*:/g)].map((match) => match[1] ?? ""));

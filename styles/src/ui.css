@@ -1641,6 +1641,20 @@
     letter-spacing: 0.06em;
   }
 
+  .table caption {
+    @apply text-sm font-semibold;
+    padding-block-end: 0.5rem;
+    color: var(--muted-foreground);
+    text-align: start;
+  }
+
+  .table-description {
+    @apply text-sm;
+    margin-block-start: 0.5rem;
+    max-inline-size: 40em;
+    color: var(--muted-foreground);
+  }
+
   .callout {
     @apply relative flex gap-3 rounded-xl;
     margin: 1.125rem 0;
