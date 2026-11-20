@@ -368,6 +368,7 @@
   "schema_missing_schema": "No schema in _data at \"{path}\".",
   "schema_properties": "Properties",
   "search": "Search",
+  "search_all_results": "See all results",
   "search_clear": "Clear search",
   "search_close": "Close search",
   "search_copy_failed": "Copy failed.",

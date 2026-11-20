@@ -18,6 +18,7 @@
 
 import type { PaletteAction, PalettePayload, PaletteRun, ThemeChoice } from "../command-palette/actions.ts";
 import { resultHeading, sectionPaths, type HeadingSource } from "../../src/search/merge.ts";
+import { withBase } from "../../src/url.ts";
 import { activateShortcuts, type ShortcutEvent } from "./shortcut.ts";
 import { activateAskAgent, parseAskConfig, type AskDocument, type AskElement, type AskResult } from "../ask-agent/client.ts";
 import { browserFetch } from "../copy-markdown/island.ts";
@@ -55,6 +56,16 @@ export const OPTION_ID_PREFIX = "search-option-";
 
 /** The id prefix of a group heading, which the group's `aria-labelledby` points at. */
 export const GROUP_ID_PREFIX = "search-group-";
+
+/** The path of the dedicated search page the all-results link opens. */
+export const SEARCH_PAGE_PATH = "/search/";
+
+/** The address of the search page for `query`, carrying the current `scope` when the page has one. */
+export function resultsHref(query: string, scope?: string | null, base = ""): string {
+  const params = new URLSearchParams({ q: query });
+  if (scope !== undefined && scope !== null && scope !== "") params.set("scope", scope);
+  return `${withBase(base, SEARCH_PAGE_PATH)}?${params.toString()}`;
+}
 
 /** The three kinds of row the dialog shows: a page from the index, an action, or the ask-agent row. */
 export type OptionKind = "result" | "action" | "ask";
@@ -352,6 +363,13 @@ export interface SearchAction {
   addEventListener(type: "click", listener: () => void): void;
 }
 
+/** The all-results link: hidden and without an href until the field holds a query. */
+export interface SearchLink {
+  hidden: boolean;
+  setAttribute(name: string, value: string): void;
+  removeAttribute(name: string): void;
+}
+
 /**
  * The query field. It is the combobox, so it carries the popup's state: `aria-expanded` while the
  * dialog is open, and the active option in `aria-activedescendant`. That attribute is removed rather
@@ -448,6 +466,8 @@ export interface SearchParts {
   clear?: SearchAction | undefined;
   /** The retry action; it appears only after an index load failed, and only until one succeeds. */
   retry?: SearchAction | undefined;
+  /** The link to the dedicated search page, which follows the field's query. */
+  all?: SearchLink | undefined;
 }
 
 /** Everything the island reads from the world; tests pass fakes, the browser supplies its own. */
@@ -462,6 +482,8 @@ export interface SearchEnv {
   lang?: string | undefined;
   /** The page language's messages; the island reads them from the dialog's attributes. */
   messages?: SearchMessages | undefined;
+  /** The current `scope` query parameter, kept on the all-results link. */
+  scope?: string | null | undefined;
   /** Opens the ask panel with the question and the results the dialog currently shows. */
   ask?: ((question: string, records: readonly SearchRecord[]) => void) | undefined;
 }
@@ -1016,9 +1038,23 @@ export function activate(parts: SearchParts, env: SearchEnv): void {
     clear.disabled = !filled;
   };
 
+  /** Points the all-results link at the field's query, hiding it while the field is empty. */
+  const syncAll = (): void => {
+    const all = parts.all;
+    if (all === undefined) return;
+    if (input.value.trim() === "") {
+      all.hidden = true;
+      all.removeAttribute("href");
+      return;
+    }
+    all.hidden = false;
+    all.setAttribute("href", resultsHref(input.value, env.scope ?? null, dialog.getAttribute("data-base") ?? ""));
+  };
+
   /** Runs the field's current query: an empty field shows the actions and clears the status. */
   const run = (): void => {
     syncClear();
+    syncAll();
     const query = input.value.trim();
     const matched = filterActions(actions, query);
     const current = ++sequence;
@@ -1314,6 +1350,7 @@ if (typeof document !== "undefined") {
   const input = document.querySelector("[data-search-input]");
   const results = document.querySelector("[data-search-results]");
   const status = document.querySelector("[data-search-status]");
+  const all = document.querySelector("[data-search-all]");
   const palette = document.querySelector("[data-palette-actions]") as SearchPaletteSource | null;
   const askRoot = document.querySelector("[data-ask-agent]");
   const askSource = document.querySelector("[data-ask-agent-config]") as SearchPaletteSource | null;
@@ -1341,6 +1378,7 @@ if (typeof document !== "undefined") {
         status: status as SearchStatus,
         ...(clear === null || clear === undefined ? {} : { clear: clear as NonNullable<SearchParts["clear"]> }),
         ...(retry === null || retry === undefined ? {} : { retry: retry as NonNullable<SearchParts["retry"]> }),
+        ...(all === null || all === undefined ? {} : { all: all as NonNullable<SearchParts["all"]> }),
         ...(palette === null ? {} : { palette }),
       },
       {
@@ -1349,6 +1387,7 @@ if (typeof document !== "undefined") {
         palette: parsePalette(palette?.textContent ?? null, messages.actions),
         lang: langFrom(source),
         messages,
+        scope: new URLSearchParams(location.search).get("scope"),
         ...(askAgent === undefined ? {} : { ask: askAgent.open }),
       },
     );

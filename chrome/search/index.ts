@@ -131,6 +131,16 @@ const search: Chrome = (props) =>
           "data-search-results": "",
         },
       ),
+      // Hidden and without an href until `client.ts` has a query to carry to the results page.
+      h(
+        "p",
+        { class: "search-foot" },
+        h(
+          "a",
+          { class: "search-all", "data-search-all": "", hidden: true },
+          t(props.page.lang, "search_all_results"),
+        ),
+      ),
       commandPalette(props) as ComponentChildren,
       askAgent(props) as ComponentChildren,
     ),
