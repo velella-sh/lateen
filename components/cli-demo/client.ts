@@ -39,6 +39,8 @@ export interface Clipboard {
 
 export interface Env extends PlayEnv {
   clipboard?: Clipboard | undefined;
+  /** Calls `listener` when the reader's reduced-motion preference changes while the page is open. */
+  watchReducedMotion?: ((listener: (reduced: boolean) => void) => void) | undefined;
 }
 
 /** Writes `text` to the clipboard and tells the reader the result on the button and in the status line. */
@@ -65,6 +67,7 @@ export function copy(button: Button, text: string, root: Root, env: Env): Promis
 export function activate(root: Root, env: Env): void {
   const bar = root.querySelector(BAR_SELECTOR);
   let revealed = false;
+  let copiesRevealed = false;
   const reveal = (button: Button | null): void => {
     if (button === null) return;
     button.hidden = false;
@@ -75,6 +78,7 @@ export function activate(root: Root, env: Env): void {
     for (const key of ["commands", "all"] as const) {
       const button = root.querySelector(SELECTORS[key]);
       if (button === null) continue;
+      copiesRevealed = true;
       reveal(button);
       button.addEventListener("click", () => void copy(button, button.dataset.text ?? "", root, env));
     }
@@ -96,6 +100,16 @@ export function activate(root: Root, env: Env): void {
       showAll.addEventListener("click", () => player.showAll());
       sync("idle");
       revealed = true;
+      env.watchReducedMotion?.((reduced) => {
+        if (!reduced) {
+          sync("idle");
+          if (bar !== null) bar.hidden = false;
+          return;
+        }
+        player.showAll();
+        for (const button of [play, pause, showAll]) button.hidden = true;
+        if (!copiesRevealed && bar !== null) bar.hidden = true;
+      });
     }
   }
 
@@ -111,20 +125,32 @@ export function activateAll(doc: Doc, env: Env): void {
   for (const root of doc.querySelectorAll(ROOT_SELECTOR)) activate(root, env);
 }
 
+const REDUCED_MOTION = "(prefers-reduced-motion: reduce)";
+
+interface MediaQuery {
+  readonly matches: boolean;
+  addEventListener(type: "change", listener: () => void): void;
+}
+
 const globals = globalThis as unknown as {
   document?: Doc;
   navigator?: { clipboard?: Clipboard };
-  matchMedia?: (query: string) => { matches: boolean };
+  matchMedia?: (query: string) => MediaQuery;
   setTimeout(callback: () => void, ms: number): unknown;
   clearTimeout(handle: unknown): void;
 };
 
 // The island runs when the browser loads it; nothing happens in a runtime without a document.
 if (globals.document) {
+  const motion = globals.matchMedia?.(REDUCED_MOTION);
   activateAll(globals.document, {
     clipboard: globals.navigator?.clipboard,
     schedule: (callback, ms) => globals.setTimeout(callback, ms),
     cancel: (handle) => globals.clearTimeout(handle),
-    reducedMotion: globals.matchMedia?.("(prefers-reduced-motion: reduce)").matches === true,
+    reducedMotion: motion?.matches === true,
+    watchReducedMotion:
+      motion === undefined
+        ? undefined
+        : (listener) => motion.addEventListener("change", () => listener(motion.matches)),
   });
 }

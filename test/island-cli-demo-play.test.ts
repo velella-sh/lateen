@@ -4,7 +4,7 @@ import { JSDOM } from "jsdom";
 import { renderToString } from "preact-render-to-string";
 import type { ComponentProps } from "@velella/mizzen/contracts";
 import cliDemo from "../components/cli-demo/index.ts";
-import { activateAll } from "../components/cli-demo/client.ts";
+import { activateAll, type Env } from "../components/cli-demo/client.ts";
 import { createPlayer, LINE_MS, type PlayEnv } from "../components/cli-demo/play.ts";
 
 function clock(reducedMotion = false) {
@@ -79,11 +79,11 @@ test("with reduced motion, play does nothing and every line stays shown", () => 
   assert.equal(p.state(), "idle");
 });
 
-function page(reducedMotion: boolean, attrs: Record<string, string> = { play: "" }) {
+function page(reducedMotion: boolean, attrs: Record<string, string> = { play: "" }, watch?: Env["watchReducedMotion"]) {
   const input = { props: attrs, html: "<p>$ a\nb\n$ c\nd</p>", page: { lang: "en", source: { file: "a.md", line: 1 } }, site: {} } as unknown as ComponentProps;
   const dom = new JSDOM(`<body>${renderToString(cliDemo(input as never) as never)}</body>`);
   const c = clock(reducedMotion);
-  activateAll(dom.window.document as never, { ...c.env, clipboard: undefined });
+  activateAll(dom.window.document as never, { ...c.env, clipboard: undefined, watchReducedMotion: watch });
   return { doc: dom.window.document, c };
 }
 
@@ -116,6 +116,25 @@ test("page: reduced motion keeps the controls and the bar hidden", () => {
   const { doc } = page(true);
   assert.equal(doc.querySelector(".cli-demo-bar")?.hasAttribute("hidden"), true);
   assert.deepEqual(shown(doc), [true, true, true, true]);
+});
+
+test("page: reduced motion turning on while playing stops the timer and shows every line", () => {
+  const listeners: ((reduced: boolean) => void)[] = [];
+  const { doc, c } = page(false, { play: "" }, (listener) => listeners.push(listener));
+  q(doc, "play").click();
+  c.tick();
+  assert.deepEqual(shown(doc), [true, true, false, false]);
+  assert.equal(c.pending.size, 1);
+  for (const listener of listeners) listener(true);
+  assert.deepEqual(shown(doc), [true, true, true, true]);
+  assert.equal(c.pending.size, 0);
+  for (const k of ["play", "pause", "show-all"]) assert.equal(q(doc, k).hidden, true);
+  assert.equal(doc.querySelector(".cli-demo-bar")?.hasAttribute("hidden"), true);
+  for (const listener of listeners) listener(false);
+  assert.equal(q(doc, "play").hidden, false);
+  assert.equal(q(doc, "show-all").hidden, true);
+  assert.equal(doc.querySelector(".cli-demo-bar")?.hasAttribute("hidden"), false);
+  assert.equal(c.pending.size, 0);
 });
 
 test("page: a session without play has no playback controls", () => {
