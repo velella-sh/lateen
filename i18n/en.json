@@ -236,6 +236,8 @@
   "guide_copy_before": "Copy the before code",
   "guide_expected": "Expected result",
   "guide_from": "From",
+  "guide_optional": "Optional",
+  "guide_prerequisites": "Prerequisites",
   "guide_progress": "{done} of {total} steps done",
   "guide_risk": "Risk",
   "guide_step": "Step {n}",

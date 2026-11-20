@@ -236,6 +236,8 @@
   "guide_copy_before": "کپی کد قبل",
   "guide_expected": "نتیجهٔ مورد انتظار",
   "guide_from": "از",
+  "guide_optional": "اختیاری",
+  "guide_prerequisites": "پیش‌نیازها",
   "guide_progress": "{done} از {total} گام انجام شد",
   "guide_risk": "ریسک",
   "guide_step": "گام {n}",

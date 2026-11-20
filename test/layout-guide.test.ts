@@ -22,15 +22,15 @@ function pageWith(overrides: Partial<Page> = {}): Page {
   } as Page;
 }
 
-function propsOf(page: Page): LayoutProps {
-  const site = { config, pages: [page], nav: { main: [] }, data: {}, collections: {} } as unknown as Site;
+function propsOf(page: Page, base = ""): LayoutProps {
+  const site = { config: { ...config, base }, pages: [page], nav: { main: [] }, data: {}, collections: {} } as unknown as Site;
   return {
     site, page, trail: [], pager: {},
     head: { title: page.title, meta: [], links: [], jsonLd: [] }, islands: [],
   } as unknown as LayoutProps;
 }
 
-const render = (layout: typeof guide, page: Page): string => renderToString(layout(propsOf(page)) as never);
+const render = (layout: typeof guide, page: Page, base = ""): string => renderToString(layout(propsOf(page, base)) as never);
 
 test("builds a guide frame: article, summary bar, body", () => {
   const html = render(guide, pageWith({ frontMatter: { guide: { from: "v1", to: "v2", time: "10 min", risk: "low" } } }));
@@ -38,6 +38,55 @@ test("builds a guide frame: article, summary bar, body", () => {
   assert.match(html, /<h1>Move to v2<\/h1>/);
   assert.ok(html.indexOf("guide-summary") > html.indexOf("<h1>"));
   assert.ok(html.indexOf("guide-body") > html.indexOf("guide-summary"));
+});
+
+test("renders authored prerequisites before the guide body", () => {
+  const page = pageWith({
+    frontMatter: {
+      prerequisites: ["Lateen installed", { label: "Node 24", href: "/install/", optional: true }],
+    },
+  });
+  const html = render(guide, page);
+  assert.match(html, /<section class="guide-prerequisites" aria-labelledby="guide-prerequisites-title">/);
+  assert.match(html, /<h2 id="guide-prerequisites-title" class="guide-prerequisites-title">Prerequisites<\/h2>/);
+  assert.match(html, /<li class="guide-prerequisites-item"><span>Lateen installed<\/span><\/li>/);
+  assert.match(html, /<a href="\/install\/">Node 24<\/a>/);
+  assert.match(html, /<span class="guide-prerequisites-optional">Optional<\/span>/);
+  assert.ok(html.indexOf("guide-prerequisites") < html.indexOf('class="doc-body guide-body"'));
+});
+
+test("a guide without prerequisites renders no empty section", () => {
+  const html = render(guide, pageWith());
+  assert.doesNotMatch(html, /guide-prerequisites/);
+  assert.doesNotMatch(html, />Prerequisites</);
+});
+
+test("prerequisite links carry the site base", () => {
+  const page = pageWith({ frontMatter: { prerequisites: [{ label: "Install", href: "/install/" }] } });
+  const html = render(guide, page, "/docs");
+  assert.match(html, /<a href="\/docs\/install\/">Install<\/a>/);
+});
+
+test("prerequisites follow the page language and direction", () => {
+  const page = pageWith({
+    lang: "fa",
+    dir: "rtl",
+    frontMatter: { prerequisites: [{ label: "نصب لیتین", href: "/fa/install/", optional: true }] },
+  });
+  const html = render(guide, page);
+  assert.match(html, /^<html lang="fa" dir="rtl"/);
+  assert.match(html, />پیش‌نیازها</);
+  assert.match(html, /<span class="guide-prerequisites-optional">اختیاری<\/span>/);
+});
+
+test("prerequisites are in the server-rendered HTML without JavaScript", () => {
+  const page = pageWith({ frontMatter: { prerequisites: [{ label: "Node 24", href: "/install/" }] } });
+  const html = render(guide, page);
+  const start = html.indexOf('<section class="guide-prerequisites"');
+  const section = html.slice(start, html.indexOf("</section>", start) + "</section>".length);
+  assert.match(section, /Node 24/);
+  assert.match(section, /href="\/install\/"/);
+  assert.doesNotMatch(section, /<script/);
 });
 
 test("reuses the doc layout's navigation and table of contents", () => {
