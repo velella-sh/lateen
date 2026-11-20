@@ -243,7 +243,7 @@ function textOf(value: Exclude<IndexRow[number], null | undefined>, kind: string
 }
 
 /** The count pattern for the page language's plural category. */
-function countText(root: ExplorerElement, lang: string, count: number): string {
+export function countText(root: ExplorerElement, lang: string, count: number): string {
   let category = "other";
   try {
     category = new Intl.PluralRules(lang).select(count);
@@ -252,13 +252,15 @@ function countText(root: ExplorerElement, lang: string, count: number): string {
   }
   const pattern =
     root.getAttribute(`data-explorer-count-${category}`) ?? root.getAttribute("data-explorer-count-other") ?? "";
-  return pattern.replace("{n}", String(count));
+  return pattern.replace("{n}", formatNumber(lang, count));
 }
 
-/** A count in the page's digits. */
+/** A count in the page's digits: Arabic shows Arabic-Indic digits, Persian Persian ones, the rest Latin. */
 function formatNumber(lang: string, value: number): string {
+  const language = lang.toLowerCase();
+  const numberingSystem = language.startsWith("ar") ? "arab" : language.startsWith("fa") ? "arabext" : "latn";
   try {
-    return new Intl.NumberFormat(lang).format(value);
+    return new Intl.NumberFormat(lang, { numberingSystem }).format(value);
   } catch {
     return String(value);
   }

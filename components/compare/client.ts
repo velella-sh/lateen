@@ -112,10 +112,21 @@ export function withDiff(search: string, on: boolean): string {
   return query === "" ? "" : `?${query}`;
 }
 
+/** A count in the page's digits, without pulling the server component's Preact. */
+function formatCount(lang: string, value: number): string {
+  const language = lang.toLowerCase();
+  const numberingSystem = language.startsWith("ar") ? "arab" : language.startsWith("fa") ? "arabext" : "latn";
+  try {
+    return new Intl.NumberFormat(lang, { numberingSystem }).format(value);
+  } catch {
+    return String(value);
+  }
+}
+
 /** The announcement: the localised template with `{count}` and `{total}` filled in. */
-export function rowsShownText(template: string, count: number, total: number): string {
+export function rowsShownText(template: string, count: number, total: number, lang = "en"): string {
   const text = template.trim() === "" ? "{count} of {total} rows shown" : template;
-  return text.replace(/\{count\}/g, String(count)).replace(/\{total\}/g, String(total));
+  return text.replace(/\{count\}/g, formatCount(lang, count)).replace(/\{total\}/g, formatCount(lang, total));
 }
 
 /** An element's text as one line, as a table cell needs it. */
@@ -252,7 +263,8 @@ export function activate(doc: CompareDocument, env: CompareEnv = browserEnv()): 
 
       if (status !== null) {
         const template = status.getAttribute("data-template") ?? "";
-        status.textContent = rowsShownText(template, shown, rows.length);
+        const lang = root.getAttribute("data-lang") ?? "en";
+        status.textContent = rowsShownText(template, shown, rows.length, lang);
       }
     }
   };

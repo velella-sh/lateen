@@ -28,7 +28,9 @@ Every column and sort field must exist in the collection. The table shows the fi
 the island runs, and the button the island reveals continues past them.
 
 Each chosen filter appears as a chip beside the filters. Removing a chip unchecks its filter, moves
-focus to that filter's checkbox instead of losing it, and announces the new result count once.
+focus to that filter's checkbox instead of losing it, and announces the new result count once. The
+count follows the page language's plural rules, and its digits are the page language's own: Persian
+and Arabic pages show Persian and Arabic numerals.
 
 ## Example
 

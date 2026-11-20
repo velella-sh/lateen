@@ -115,5 +115,5 @@ test("a Persian page gets its own toggle wording", () => {
   } as unknown as ComponentProps;
   const out = renderToString(compare(input) as never);
   assert.match(out, /فقط تفاوت‌ها را نشان بده/);
-  assert.match(out, /2 از 2 سطر نمایش داده می‌شود/);
+  assert.match(out, /۲ از ۲ سطر نمایش داده می‌شود/);
 });
