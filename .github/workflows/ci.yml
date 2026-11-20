@@ -246,24 +246,7 @@ jobs:
       - name: Summarize the visual gate
         if: always()
         working-directory: lateen
-        run: |
-          node --input-type=module - <<'EOF'
-          import { existsSync, readFileSync, appendFileSync } from "node:fs";
-          const file = "test/visual/out/report.json";
-          const summary = process.env.GITHUB_STEP_SUMMARY;
-          if (!existsSync(file)) {
-            appendFileSync(summary, "The visual gate wrote no report.\n");
-            process.exit(0);
-          }
-          const rows = JSON.parse(readFileSync(file, "utf8"));
-          const lines = ["| Page | Matrix entry | Changed share | Result |", "| --- | --- | ---: | --- |"];
-          for (const row of rows) {
-            const share = row.share === null ? "—" : `${(row.share * 100).toFixed(3)}%`;
-            const result = row.flaky ? "flaky" : row.status;
-            lines.push(`| ${row.page} | ${row.entry} | ${share} | ${result} |`);
-          }
-          appendFileSync(summary, `${lines.join("\n")}\n`);
-          EOF
+        run: node scripts/visual-summary.ts
       - name: Upload the visual review images
         if: failure()
         uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
