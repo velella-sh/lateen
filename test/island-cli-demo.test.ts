@@ -6,6 +6,7 @@ import { renderToString } from "preact-render-to-string";
 import type { ComponentProps } from "@velella/mizzen/contracts";
 import cliDemo from "../components/cli-demo/index.ts";
 import { activate, activateAll, copy, RESET_MS, type Button, type Env, type Root } from "../components/cli-demo/client.ts";
+import { waitFor } from "./helpers/wait.ts";
 
 class FakeButton implements Button {
   hidden = true;
@@ -107,6 +108,6 @@ test("on a rendered page the island wires the real buttons", async () => {
   assert.equal(doc.querySelector(".cli-demo-bar")?.hasAttribute("hidden"), false);
   (doc.querySelector("[data-cli-demo-copy-commands]") as HTMLElement).click();
   (doc.querySelector("[data-cli-demo-copy-all]") as HTMLElement).click();
-  await new Promise((r) => setTimeout(r, 0));
+  await waitFor(() => written.length === 2);
   assert.deepEqual(written, ["npm ci", "$ npm ci\nadded"]);
 });

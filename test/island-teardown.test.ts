@@ -43,8 +43,7 @@ import { activate as activateCompare, type CompareDocument, type CompareEnv } fr
 import { activate as activateDrawer, type DrawerControl, type DrawerDialog, type DrawerEnv } from "../chrome/drawer/client.ts";
 import { activate as activateCopyMarkdown, type ActivateEnv, type CopyButton, type CopyStatus, type ShortcutHost } from "../chrome/copy-markdown/island.ts";
 import { activate as activateCodeCopy, type CopyDocument } from "../chrome/code-copy/client.ts";
-
-const tick = (): Promise<void> => new Promise((resolve) => setTimeout(resolve, 0));
+import { waitFor } from "./helpers/wait.ts";
 
 /** One abortable island leaves exactly one listener on a remount, and none after its teardown. */
 
@@ -109,14 +108,13 @@ function explorerSetup() {
     run();
   };
 
-  const search = async (text: string): Promise<void> => {
+  const search = async (text: string, rows: number): Promise<void> => {
     const query = document.querySelector(".data-explorer-input") as HTMLInputElement;
     query.focus();
     query.value = text;
     query.dispatchEvent(new dom.window.Event("input"));
     flush();
-    await tick();
-    await tick();
+    await waitFor(() => document.querySelectorAll("tbody tr").length === rows);
   };
 
   return { dom, document, env, fetched, scheduled: () => scheduled, activate: () => activateExplorer(document as unknown as ExplorerDocument, env), search, flush };
@@ -127,7 +125,7 @@ test("a torn-down explorer runs no query and loads no index", async () => {
   const teardown = fixture.activate();
   teardown();
 
-  await fixture.search("book 5");
+  await fixture.search("book 5", 50);
 
   assert.deepEqual(fixture.fetched, [], "the index is never fetched after teardown");
   assert.equal(fixture.scheduled(), 0, "no debounce is scheduled after teardown");
@@ -139,14 +137,14 @@ test("a mount after a teardown leaves exactly one wiring, not a duplicate", asyn
   fixture.activate()();
   fixture.activate();
 
-  await fixture.search("book 5");
+  await fixture.search("book 5", 11);
 
   assert.equal(fixture.scheduled(), 1, "one input event schedules one debounce");
   assert.deepEqual([...new Set(fixture.fetched)], ["/data/books.index.json"], "only the index is read");
   assert.equal(fixture.document.querySelectorAll("tbody tr").length, 11);
 });
 
-test("a query still in the debounce when the explorer is torn down never runs", async () => {
+test("a query still in the debounce when the explorer is torn down never runs", () => {
   const fixture = explorerSetup();
   const teardown = fixture.activate();
   const query = fixture.document.querySelector(".data-explorer-input") as HTMLInputElement;
@@ -156,7 +154,6 @@ test("a query still in the debounce when the explorer is torn down never runs", 
 
   teardown();
   fixture.flush();
-  await tick();
 
   assert.deepEqual(fixture.fetched, [], "the pending query fetches no index after teardown");
   assert.equal(fixture.document.querySelectorAll("tbody tr").length, 50, "the static rows stay as they were");
@@ -402,7 +399,7 @@ test("aborting the drawer's signal detaches every listener at once", () => {
 // chrome/copy-markdown
 // ---------------------------------------------------------------------------
 
-test("aborting the copy island's signal detaches the click and the m key", async () => {
+test("aborting the copy island's signal detaches the click and the m key", () => {
   const controller = new AbortController();
   const buttonTarget = signalTarget();
   const button = {
@@ -434,7 +431,6 @@ test("aborting the copy island's signal detaches the click and the m key", async
   controller.abort();
   button.click();
   keysTarget.fire("keydown", { key: "m", preventDefault() {} });
-  await tick();
 
   assert.deepEqual(fetched, [], "nothing is fetched after the abort");
   assert.equal(status.textContent, "", "nothing is announced after the abort");
@@ -473,7 +469,7 @@ test("tearing down the code-copy island cancels a pending status reset", async (
   const button = page.querySelector(".code-copy") as HTMLButtonElement;
   const status = page.querySelector(".code-copy-status") as HTMLElement;
   button.click();
-  await tick();
+  await waitFor(() => status.textContent === "Copied");
   assert.equal(status.textContent, "Copied", "the result is on screen before the teardown");
   assert.equal(pending.size, 1, "one reset is waiting on the fake clock");
 

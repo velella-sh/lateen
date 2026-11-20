@@ -17,6 +17,7 @@ import { fileURLToPath } from "node:url";
 import { chromium, type Browser, type Page } from "playwright";
 import { CASES, type Expectation } from "../test/acceptance/cases.ts";
 import { gateProblems, ledgerProblems, changelogProblems, type AcceptanceReport, type FeatureLedger } from "../test/acceptance/ledger.ts";
+import { waitFor } from "../test/helpers/wait.ts";
 import { startServer } from "../visual/index.ts";
 import { withCleanup } from "./runner-cleanup.ts";
 
@@ -75,14 +76,18 @@ async function check(page: Page, expectation: Expectation): Promise<string | und
   return undefined;
 }
 
-/** Runs one page check, retrying briefly so an island that settles after the click is seen. */
+/** Waits for the rendered state the expectation names, until the case's bound runs out. */
 async function eventually(page: Page, expectation: Expectation): Promise<string | undefined> {
-  let problem = await check(page, expectation);
-  for (let attempt = 0; problem !== undefined && attempt < 20; attempt += 1) {
-    await new Promise((done) => setTimeout(done, 100));
-    problem = await check(page, expectation);
+  let problem: string | undefined;
+  try {
+    await waitFor(async () => {
+      problem = await check(page, expectation);
+      return problem === undefined;
+    }, { timeout: 2000, interval: 100 });
+  } catch {
+    return problem;
   }
-  return problem;
+  return undefined;
 }
 
 async function run(browser: Browser, base: string): Promise<AcceptanceReport["cases"]> {
