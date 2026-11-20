@@ -10,6 +10,7 @@ import languageSwitcher, {
   hrefFor,
   pagePaths,
   resolvedLanguages,
+  switcherLabels,
 } from "../chrome/language-switcher/index.ts";
 
 const pos: SourcePos = { file: "guide/install.md", line: 1, column: 1, endLine: 1, endColumn: 1 };
@@ -203,6 +204,54 @@ test("a regional page tag reads its catalog by primary subtag, and an unshipped 
   const unshipped = render(configWith(), pageWith({ url: "/docs/ja/guide/install/", lang: "ja-JP", dir: "ltr" }));
   assert.match(unshipped, /aria-label="Language"/);
   assert.match(unshipped, /<span class="language-switcher-current" lang="en" dir="ltr"> \(Current\)<\/span>/);
+});
+
+test("switcherLabels reads every word in the page's language, not the site default's", () => {
+  // The English-default site renders a Persian page: all guidance is Persian, right-to-left.
+  assert.deepEqual(switcherLabels(pageWith()), {
+    lang: "fa",
+    dir: "rtl",
+    label: "زبان",
+    current: "کنونی",
+    unavailable: "این صفحه هنوز ترجمه نشده است. آن را به این زبان بخوانید:",
+  });
+
+  const arabic = switcherLabels(pageAt("/docs/ar/guide/install/", "ar"));
+  assert.deepEqual(arabic, {
+    lang: "ar",
+    dir: "rtl",
+    label: "اللغة",
+    current: "الحالية",
+    unavailable: "لم تُترجم هذه الصفحة بعد. اقرأها باللغة:",
+  });
+});
+
+test("switcherLabels keeps a regional tag whole and stamps an unshipped language as English", () => {
+  // fa-IR keeps its full tag and direction while reading the fa catalog through the i18n fallback.
+  assert.deepEqual(switcherLabels(pageWith({ lang: "fa-IR", dir: "rtl" })), {
+    lang: "fa-IR",
+    dir: "rtl",
+    label: "زبان",
+    current: "کنونی",
+    unavailable: "این صفحه هنوز ترجمه نشده است. آن را به این زبان بخوانید:",
+  });
+
+  // ja-JP has no shipped catalog, even by primary subtag: English left-to-right, so the stamp
+  // always matches the text actually shown.
+  assert.deepEqual(switcherLabels(pageWith({ lang: "ja-JP", dir: "ltr" })), {
+    lang: "en",
+    dir: "ltr",
+    label: "Language",
+    current: "Current",
+    unavailable: "This page hasn't been translated yet. Read it in:",
+  });
+});
+
+test("switcherLabels gives the missing-translation reason in the reader's language, whatever the site default", () => {
+  const english = switcherLabels(pageAt("/docs/guide/install/", "en"));
+  assert.equal(english.lang, "en");
+  assert.equal(english.dir, "ltr");
+  assert.equal(english.unavailable, "This page hasn't been translated yet. Read it in:");
 });
 
 test("escapes language names and marks current by code when the URL is mislabelled", () => {
