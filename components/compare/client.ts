@@ -25,19 +25,11 @@ const TITLE_SELECTOR = ".compare-title";
 /** The hidden text marker on a row that differs. */
 const DIFF_MARKER_SELECTOR = ".compare-diff-marker";
 
-/** The tab row the island fills, and the tabs in it. */
-export const TABS_SELECTOR = "[data-compare-tabs]";
-export const TAB_CLASS = "compare-tab";
+/** The record title repeated in each narrow cell. */
+const RECORD_SELECTOR = ".compare-record";
 
-/** Record headers and cells, each naming its record column. */
-export const COLUMN_SELECTOR = "[data-compare-column]";
+/** Record headers, each naming its record column. */
 export const HEAD_SELECTOR = "thead th[data-compare-column]";
-
-/** The container width, in CSS pixels, below which one record shows at a time. */
-export const NARROW_WIDTH = 640;
-
-/** Present on a comparison that shows one record at a time. */
-export const NARROW_ATTRIBUTE = "data-compare-narrow";
 
 /** Present on a row whose values differ. */
 export const DIFF_ATTR = "data-diff";
@@ -45,12 +37,6 @@ export const DIFF_ATTR = "data-diff";
 /** The query parameter and value that mean "hide the rows without a difference". */
 export const DIFF_PARAM = "compare";
 export const DIFF_VALUE = "diff";
-
-/** The part of a click or key event the tabs read. */
-export interface CompareEvent {
-  readonly key?: string;
-  preventDefault?(): void;
-}
 
 /** The part of an element the island uses. */
 export interface CompareElement {
@@ -61,20 +47,19 @@ export interface CompareElement {
   hasAttribute(name: string): boolean;
   setAttribute(name: string, value: string): void;
   removeAttribute(name: string): void;
-  addEventListener(type: "change" | "click" | "keydown", listener: (event?: CompareEvent) => void): void;
+  addEventListener(type: "change" | "click", listener: () => void): void;
   querySelector(selector: string): CompareElement | null;
   querySelectorAll(selector: string): Iterable<CompareElement>;
   append(...children: CompareElement[]): void;
   replaceChildren(...children: CompareElement[]): void;
+  prepend(...children: CompareElement[]): void;
   focus?(): void;
-  getBoundingClientRect?(): { readonly width: number };
 }
 
 /** The part of the document the island uses. */
 export interface CompareDocument {
   querySelectorAll(selector: string): Iterable<CompareElement>;
   querySelector(selector: string): CompareElement | null;
-  createElement(tag: string): CompareElement;
 }
 
 /** The part of `navigator.clipboard` the island uses. */
@@ -105,25 +90,12 @@ export interface CompareEnv {
   hash(): string;
   /** Replaces the address without reloading the page. */
   replaceUrl(url: string): void;
-  /** The width of a comparison's container; a missing measure keeps the wide table. */
-  width?(root: CompareElement): number;
-  /** Calls `update` when the container's width changes, and returns the stop function. */
-  watch?(root: CompareElement, update: () => void): () => void;
   /** Reads a text file, used by the record pickers; without it the pickers are not drawn. */
   fetchText?(url: string, signal: AbortSignal): Promise<string>;
   /** Writes the copied comparison; without it the copy button stays hidden. */
   clipboard?: Clipboard | undefined;
   /** The page's own address, so copied record links are absolute. */
   url?(): string;
-}
-
-/** One comparison with its record tabs: the buttons, the columns they show, and the chosen record. */
-interface View {
-  readonly root: CompareElement;
-  readonly tabs: CompareElement;
-  readonly columns: readonly CompareElement[];
-  buttons: readonly CompareElement[];
-  selected: number;
 }
 
 /** True when the address asks for the differences only. */
@@ -170,6 +142,13 @@ function labelOf(row: CompareElement): string {
   return marker !== "" && text.endsWith(marker) ? text.slice(0, -marker.length).trim() : text;
 }
 
+/** A cell's value, without the record title repeated for the narrow row layout. */
+function cellTextOf(cell: CompareElement | null): string {
+  const text = oneLine(cell);
+  const record = oneLine(cell?.querySelector(RECORD_SELECTOR) ?? null);
+  return record !== "" && text.startsWith(record) ? text.slice(record.length).trim() : text;
+}
+
 /** A record's address, absolute when the page's own address is known. */
 function addressOf(href: string, pageUrl: string | undefined): string {
   if (pageUrl === undefined || pageUrl === "") return href;
@@ -183,7 +162,7 @@ function addressOf(href: string, pageUrl: string | undefined): string {
 /**
  * The comparison as a Markdown table, with the record pages listed under it. Hidden rows are left
  * out, so a differences-only view copies only the differences; every record column is kept, since
- * the narrow view hides columns only to fit the screen.
+ * the narrow row layout repeats the page's own titles rather than replacing them.
  */
 export function comparisonMarkdown(root: CompareElement, pageUrl?: string): string {
   const heads = [...root.querySelectorAll(HEAD_SELECTOR)];
@@ -194,7 +173,7 @@ export function comparisonMarkdown(root: CompareElement, pageUrl?: string): stri
   for (const row of root.querySelectorAll(ROW_SELECTOR)) {
     if (row.hidden) continue;
     const cells = heads.map((_, at) =>
-      markdownCell(oneLine(row.querySelector(`td[data-compare-column="${at}"]`))),
+      markdownCell(cellTextOf(row.querySelector(`td[data-compare-column="${at}"]`))),
     );
     lines.push(line([markdownCell(labelOf(row)), ...cells]));
   }
@@ -247,80 +226,6 @@ function attachCopy(doc: CompareDocument, root: CompareElement, env: CompareEnv)
 }
 
 /**
- * Shows one record column at a time when the comparison is narrower than `NARROW_WIDTH`, and the
- * whole table otherwise. The tabs stay in the markup hidden on a wide container, so a resize never
- * leaves a record unreachable; the chosen record survives a resize.
- */
-function applyView(view: View, env: CompareEnv): void {
-  const narrow = (env.width?.(view.root) ?? Number.POSITIVE_INFINITY) < NARROW_WIDTH;
-  view.tabs.hidden = !narrow;
-  if (narrow) view.root.setAttribute(NARROW_ATTRIBUTE, "");
-  else view.root.removeAttribute(NARROW_ATTRIBUTE);
-
-  for (const column of view.columns) {
-    const at = Number(column.getAttribute("data-compare-column"));
-    column.hidden = narrow && at !== view.selected;
-  }
-  view.buttons.forEach((button, at) => {
-    const chosen = at === view.selected;
-    button.setAttribute("aria-selected", chosen ? "true" : "false");
-    button.setAttribute("tabindex", chosen ? "0" : "-1");
-  });
-}
-
-/**
- * Builds the tab row for every comparison with two or more records, and returns the views so the
- * caller can apply the width and watch it. A comparison with one record needs no tabs.
- */
-function buildViews(doc: CompareDocument, env: CompareEnv): View[] {
-  const views: View[] = [];
-  for (const root of doc.querySelectorAll(ROOT_SELECTOR)) {
-    const tabs = root.querySelector(TABS_SELECTOR);
-    const heads = [...root.querySelectorAll(HEAD_SELECTOR)];
-    if (tabs === null || heads.length < 2) continue;
-
-    const view: View = {
-      root,
-      tabs,
-      columns: [...root.querySelectorAll(COLUMN_SELECTOR)],
-      buttons: [],
-      selected: 0,
-    };
-    const select = (next: number): void => {
-      view.selected = next;
-      applyView(view, env);
-      view.buttons[next]?.focus?.();
-    };
-    view.buttons = heads.map((head, at) => {
-      const button = doc.createElement("button");
-      button.setAttribute("type", "button");
-      button.setAttribute("role", "tab");
-      button.setAttribute("class", TAB_CLASS);
-      button.textContent = head.textContent?.trim() ?? String(at + 1);
-      button.addEventListener("click", () => select(at));
-      button.addEventListener("keydown", (event) => {
-        const key = event?.key;
-        if (key !== "ArrowRight" && key !== "ArrowLeft" && key !== "Home" && key !== "End") return;
-        event?.preventDefault?.();
-        const next =
-          key === "Home"
-            ? 0
-            : key === "End"
-              ? heads.length - 1
-              : key === "ArrowLeft"
-                ? (at - 1 + heads.length) % heads.length
-                : (at + 1) % heads.length;
-        select(next);
-      });
-      return button;
-    });
-    tabs.replaceChildren(...view.buttons);
-    views.push(view);
-  }
-  return views;
-}
-
-/**
  * Reveals the controls and applies the address's choice. Rows without `data-diff` are hidden, not
  * removed, and the live region says how many of the rows still show. Changing the toggle applies the
  * same choice to every comparison on the page and writes it to the address.
@@ -354,11 +259,6 @@ export function activate(doc: CompareDocument, env: CompareEnv = browserEnv()): 
 
   apply(onlyDiff(env.search()));
 
-  for (const view of buildViews(doc, env)) {
-    applyView(view, env);
-    env.watch?.(view.root, () => applyView(view, env));
-  }
-
   for (const root of roots) {
     attachCopy(doc, root, env);
     const toggle = root.querySelector(TOGGLE_SELECTOR);
@@ -379,7 +279,6 @@ function browserEnv(): CompareEnv {
     location?: { href: string; search: string; hash: string };
     history?: { replaceState(data: unknown, title: string, url?: string | null): void };
     navigator?: { clipboard?: Clipboard };
-    ResizeObserver?: new (callback: () => void) => { observe(target: unknown): void; disconnect(): void };
   };
   return {
     search: () => globals.location?.search ?? "",
@@ -387,13 +286,6 @@ function browserEnv(): CompareEnv {
     replaceUrl: (url) => globals.history?.replaceState(null, "", url),
     clipboard: globals.navigator?.clipboard,
     url: () => globals.location?.href ?? "",
-    width: (root) => root.getBoundingClientRect?.().width ?? Number.POSITIVE_INFINITY,
-    watch: (root, update) => {
-      if (globals.ResizeObserver === undefined) return () => {};
-      const observer = new globals.ResizeObserver(update);
-      observer.observe(root);
-      return () => observer.disconnect();
-    },
     async fetchText(url, signal) {
       const response = await fetch(url, { signal });
       if (!response.ok) throw new Error(`${url}: ${response.status}`);
