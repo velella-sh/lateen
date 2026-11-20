@@ -2514,6 +2514,15 @@
     background: var(--card);
   }
 
+  .trust-panel-revision {
+    color: inherit;
+    text-decoration: underline;
+  }
+
+  .trust-panel-revision code {
+    font-size: 0.75rem;
+  }
+
   .doc-body [data-src] {
     position: relative;
   }

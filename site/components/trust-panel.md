@@ -55,6 +55,10 @@ the page's review date from `site.data.reviewers[url].date`. A valid build id is
 `<time datetime>` values, keeping any written time and offset while the visible text stays localised.
 A malformed or future date is left out, a review dated after its build is left
 out, and a trust entry that names a different build than `site.data.build.id` keeps no build provenance.
+A reviewed commit comes from the entry's `reviewedCommit` or `site.data.reviewers[url].commit`; with a
+GitHub or GitLab repository configured, a valid commit renders as a "Reviewed revision" link to that
+exact revision and as `data-trust-reviewed-commit`. Without a commit, or for another forge, no link and
+no row are written, so a page never links to a revision it does not have.
 None of this changes the level: missing provenance cannot turn a partial, unreviewed, or unknown panel
 into a verified one.
 

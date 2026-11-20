@@ -496,6 +496,7 @@
   "trust_not_recorded": "Not recorded",
   "trust_reasons": "Why this level",
   "trust_reviewed_by": "Reviewed by {reviewer}",
+  "trust_reviewed_commit": "Reviewed revision",
   "trust_reviewer": "Last reviewer",
   "trust_reviewer_none": "No reviewer recorded",
   "trust_suggest_edit": "Suggest an edit",

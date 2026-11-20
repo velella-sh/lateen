@@ -1004,3 +1004,50 @@ test("Escape on a closed panel, and every other key, changes nothing", () => {
   assert.equal(prevented, false);
 });
 
+
+
+test("a reviewed commit links to the exact revision, and no commit leaves no link", () => {
+  const site = siteOf({
+    trust: { "/guide/install/": { ...entry, reviewedCommit: "abcdef1234567890abcdef1234567890abcdef12" } },
+  });
+  (site.config as unknown as { repository: unknown }).repository = {
+    url: "https://github.com/acme/repo",
+    branch: "main",
+  };
+  const withCommit = renderToString(
+    trustPanel({ props: {}, html: "", page: pageOf(), site } as unknown as ComponentProps) as never,
+  );
+  assert.match(withCommit, /data-trust-reviewed-commit="abcdef1234567890abcdef1234567890abcdef12"/);
+  assert.match(
+    withCommit,
+    /<a class="trust-panel-revision" href="https:\/\/github\.com\/acme\/repo\/commit\/abcdef1234567890abcdef1234567890abcdef12"><code>abcdef1<\/code><\/a>/,
+  );
+
+  const plain = render({ trust: { "/guide/install/": entry } });
+  assert.ok(plain);
+  assert.doesNotMatch(plain, /trust-panel-revision|commit\//);
+});
+
+test("a reviewer commit and a GitLab repository shape the same link", () => {
+  const site = siteOf({ trust: { "/guide/install/": entry }, reviewers: { "/guide/install/": { date: "2026-03-04", commit: "0123456789abcdef" } } });
+  (site.config as unknown as { repository: unknown }).repository = { url: "https://gitlab.com/acme/repo" };
+  const out = renderToString(
+    trustPanel({ props: {}, html: "", page: pageOf(), site } as unknown as ComponentProps) as never,
+  );
+  assert.match(out, /href="https:\/\/gitlab\.com\/acme\/repo\/-\/commit\/0123456789abcdef"/);
+  assert.match(out, /<code>0123456<\/code>/);
+});
+
+test("an unsafe commit or an unsupported forge never becomes a link", () => {
+  const unsafe = render({ trust: { "/guide/install/": { ...entry, reviewedCommit: "../etc/passwd" } } });
+  assert.ok(unsafe);
+  assert.doesNotMatch(unsafe, /data-trust-reviewed-commit|trust-panel-revision/);
+
+  const site = siteOf({ trust: { "/guide/install/": { ...entry, reviewedCommit: "abcdef1" } } });
+  (site.config as unknown as { repository: unknown }).repository = { url: "https://example.com/acme/repo" };
+  const otherForge = renderToString(
+    trustPanel({ props: {}, html: "", page: pageOf(), site } as unknown as ComponentProps) as never,
+  );
+  assert.match(otherForge, /data-trust-reviewed-commit="abcdef1"/);
+  assert.doesNotMatch(otherForge, /trust-panel-revision/);
+});
