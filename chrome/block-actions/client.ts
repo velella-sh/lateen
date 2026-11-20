@@ -9,6 +9,7 @@
  */
 
 import { parseSpan, type Span } from "../../src/source-span.ts";
+import { createResultFlash, writeClipboard, type Clipboard, type ResultFlash } from "../clipboard/result.ts";
 
 export { parseSpan, type Span };
 
@@ -124,10 +125,8 @@ export interface ActionTemplate {
   };
 }
 
-/** The part of `navigator.clipboard` the island uses. */
-export interface Clipboard {
-  writeText(text: string): Promise<void>;
-}
+/** The part of `navigator.clipboard` the island uses; the shared clipboard result path defines it. */
+export type { Clipboard };
 
 /** Everything the island reads from the world; tests pass fakes, the browser supplies its own. */
 export interface ActivateEnv {
@@ -135,6 +134,8 @@ export interface ActivateEnv {
   readonly blocks: Iterable<BlockElement>;
   readonly clipboard?: Clipboard | undefined;
   schedule(callback: () => void, ms: number): unknown;
+  /** Cancels a scheduled reset, so a superseded or torn-down result never runs its restore. */
+  cancel?(handle: unknown): void;
 }
 
 /**
@@ -170,39 +171,66 @@ export function topLevel(blocks: Iterable<BlockElement>): BlockElement[] {
 /** The tail of the clipboard write chain, so writes land in click order and a race cannot reorder them. */
 let writes: Promise<void> = Promise.resolve();
 
-/** Writes one prompt after every earlier write settles; a failed write does not stall the chain. */
-function writeText(clipboard: Clipboard, text: string): Promise<void> {
-  const next = writes.then(() => clipboard.writeText(text));
-  writes = next.catch(() => undefined);
-  return next;
-}
-
 /** The latest click on each button, so a slow earlier copy cannot overwrite a later result. */
 const latest = new WeakMap<ActionButton, number>();
 
-/** Shows `text` on the button for `RESET_MS`, then restores `label` if no newer click has taken over. */
-function say(button: ActionButton, text: string, label: string, env: ActivateEnv, current: () => boolean): void {
-  button.textContent = text;
-  env.schedule(() => {
-    if (current()) button.textContent = label;
-  }, RESET_MS);
+/** A button and the resting label the result returns to; one object per button, reused across clicks. */
+interface Report {
+  readonly button: ActionButton;
+  readonly label: string;
+}
+
+const reports = new WeakMap<ActionButton, Report>();
+
+function reportOf(button: ActionButton, label: string): Report {
+  const existing = reports.get(button);
+  if (existing !== undefined) return existing;
+  const created = { button, label };
+  reports.set(button, created);
+  return created;
+}
+
+/**
+ * The result flash per environment: its timers drive the reset, its targets are one button plus the
+ * label it rests with. The success and failure words are the page template's own; the order of
+ * events — show, wait, restore, never letting an earlier result overwrite a newer one — is the shared one.
+ */
+const flashes = new WeakMap<ActivateEnv, ResultFlash<Report>>();
+
+function flashOf(env: ActivateEnv): ResultFlash<Report> {
+  const existing = flashes.get(env);
+  if (existing !== undefined) return existing;
+  const created = createResultFlash<Report>({
+    timers: env,
+    resetMs: RESET_MS,
+    apply({ button, label }, ok) {
+      button.textContent = ok ? (button.dataset.copied ?? label) : (button.dataset.copyFailed ?? label);
+    },
+    reset({ button, label }) {
+      button.textContent = label;
+    },
+  });
+  flashes.set(env, created);
+  return created;
 }
 
 /** Writes the button's prompt to the clipboard and reports the result on the button. */
 export function copy(button: ActionButton, label: string, env: ActivateEnv): Promise<void> {
   const clipboard = env.clipboard;
   if (clipboard === undefined) return Promise.resolve();
+  const report = reportOf(button, label);
   const run = (latest.get(button) ?? 0) + 1;
   latest.set(button, run);
   const current = (): boolean => latest.get(button) === run;
-  return writeText(clipboard, button.dataset.prompt ?? "").then(
-    () => {
-      if (current()) say(button, button.dataset.copied ?? label, label, env, current);
-    },
-    () => {
-      if (current()) say(button, button.dataset.copyFailed ?? label, label, env, current);
-    },
+  // This button's write waits for the chain, but the chain itself never stalls on a failure.
+  const next = writes.then(() => writeClipboard(clipboard, button.dataset.prompt ?? ""));
+  writes = next.then(
+    () => undefined,
+    () => undefined,
   );
+  return next.then((ok) => {
+    if (current()) flashOf(env).show(report, ok);
+  });
 }
 
 /** The span with its language beside it, so a prompt keeps both when it leaves the page. */
@@ -260,6 +288,7 @@ const globals = globalThis as unknown as {
   };
   navigator?: { clipboard?: Clipboard };
   setTimeout(callback: () => void, ms: number): unknown;
+  clearTimeout(handle: unknown): void;
 };
 
 // The island runs when the browser loads it; nothing happens in a runtime without a document.
@@ -271,6 +300,7 @@ if (globals.document !== undefined) {
       blocks: globals.document.querySelectorAll("[data-src]"),
       clipboard: globals.navigator?.clipboard,
       schedule: (callback, ms) => globals.setTimeout(callback, ms),
+      cancel: (handle) => globals.clearTimeout(handle),
     });
   }
 }

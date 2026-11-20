@@ -49,7 +49,7 @@ export interface SortElement {
   getAttribute(name: string): string | null;
   setAttribute(name: string, value: string): void;
   removeAttribute(name: string): void;
-  addEventListener(type: "click" | "input" | "change", listener: () => void): void;
+  addEventListener(type: "click" | "input" | "change", listener: () => void, options?: { signal?: AbortSignal | undefined }): void;
   querySelector(selector: string): SortElement | null;
   querySelectorAll(selector: string): Iterable<SortElement>;
   closest(selector: string): SortElement | null;
@@ -81,7 +81,9 @@ export interface SortHistory {
 export interface SortWindow {
   location: SortLocation;
   history: SortHistory;
-  addEventListener(type: "popstate", listener: () => void): void;
+  addEventListener(type: "popstate", listener: () => void, options?: { signal?: AbortSignal | undefined }): void;
+  /** The window realm's own `AbortController`, so the teardown signal matches the realm the page's nodes live in. */
+  readonly AbortController?: typeof AbortController | undefined;
 }
 
 /** The raw value of one cell, or undefined when the cell is empty or does not parse as its kind. */
@@ -171,6 +173,7 @@ function attachFilters(
   status: SortElement | null,
   prefix: string,
   onChange: () => void,
+  signal?: AbortSignal | undefined,
 ): FilterView | null {
   const form = wrapper.querySelector(FILTERS_SELECTOR);
   if (form === null) return null;
@@ -207,19 +210,19 @@ function attachFilters(
   text?.addEventListener("input", () => {
     apply();
     onChange();
-  });
+  }, { signal });
   for (const select of selects) {
     select.addEventListener("change", () => {
       apply();
       onChange();
-    });
+    }, { signal });
   }
   clear?.addEventListener("click", () => {
     if (text !== null) text.value = "";
     for (const select of selects) select.value = "";
     apply();
     onChange();
-  });
+  }, { signal });
   return {
     text,
     selects,
@@ -233,8 +236,11 @@ function attachFilters(
   };
 }
 
-/** Reveals and wires every sort button and filter control under `wrapper`; returns the restore. */
-function attach(wrapper: SortElement, lang: string, view: SortWindow | null, prefix: string): () => void {
+/**
+ * Reveals and wires every sort button and filter control under `wrapper`; returns the restore. The
+ * wiring carries `signal`, so a host that unmounts the table detaches every listener with one abort.
+ */
+function attach(wrapper: SortElement, lang: string, view: SortWindow | null, prefix: string, signal?: AbortSignal | undefined): () => void {
   const table = wrapper.querySelector("table");
   const body = table?.querySelector("tbody") ?? null;
   if (table === null || body === null) return () => {};
@@ -272,7 +278,7 @@ function attach(wrapper: SortElement, lang: string, view: SortWindow | null, pre
     writeSearch(view, prefix, values);
   };
 
-  filters = attachFilters(wrapper, body, lang, status, prefix, write);
+  filters = attachFilters(wrapper, body, lang, status, prefix, write, signal);
   for (const button of wrapper.querySelectorAll(BUTTON_SELECTOR)) {
     const th = button.closest("th");
     if (th === null) continue;
@@ -293,7 +299,7 @@ function attach(wrapper: SortElement, lang: string, view: SortWindow | null, pre
           : wrapper.getAttribute("data-sort-descending") ?? "";
       if (status !== null) status.textContent = pattern.replace("{column}", label);
       write();
-    });
+    }, { signal });
   }
 
   return () => {
@@ -312,18 +318,24 @@ function attach(wrapper: SortElement, lang: string, view: SortWindow | null, pre
   };
 }
 
-/** Wires every sortable table in the document; a page without one does nothing. */
-export function activate(doc: SortDocument): void {
+/**
+ * Wires every sortable table in the document; a page without one does nothing. The returned teardown
+ * aborts the island's signal, so a host that mounts the tables again starts with no duplicate wiring.
+ */
+export function activate(doc: SortDocument): () => void {
   const lang = doc.documentElement?.getAttribute("lang") ?? "en";
   const view = doc.defaultView ?? null;
+  const lifecycle = new (view?.AbortController ?? AbortController)();
+  const signal = lifecycle.signal;
   const wrappers = [...doc.querySelectorAll(WRAPPER_SELECTOR)];
   const restores = wrappers.map((wrapper, at) =>
-    attach(wrapper, lang, view, wrappers.length > 1 ? `t${at + 1}.` : ""),
+    attach(wrapper, lang, view, wrappers.length > 1 ? `t${at + 1}.` : "", signal),
   );
   for (const restore of restores) restore();
   view?.addEventListener("popstate", () => {
     for (const restore of restores) restore();
-  });
+  }, { signal });
+  return () => lifecycle.abort();
 }
 
 /** The browser environment: the page's document. */

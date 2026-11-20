@@ -4,7 +4,7 @@
 export interface DrawerControl {
   hidden: boolean;
   setAttribute(name: string, value: string): void;
-  addEventListener(type: string, listener: () => void): void;
+  addEventListener(type: string, listener: () => void, options?: { signal?: AbortSignal | undefined }): void;
   focus(): void;
 }
 
@@ -38,7 +38,7 @@ export interface DrawerClickEvent extends DrawerEvent {
 /** A navigation link inside the drawer, as the drawer reads it. `href` is the browser-resolved absolute URL. */
 export interface DrawerLink extends DrawerFocusable {
   readonly href: string;
-  addEventListener(type: "click", listener: (event: DrawerClickEvent) => void): void;
+  addEventListener(type: "click", listener: (event: DrawerClickEvent) => void, options?: { signal?: AbortSignal | undefined }): void;
 }
 
 /** The page element a same-page drawer link leads to. */
@@ -54,7 +54,7 @@ export interface DrawerDialog {
   showModal(): void;
   close(): void;
   querySelectorAll<T = DrawerFocusable>(selector: string): Iterable<T>;
-  addEventListener(type: string, listener: (event: DrawerEvent) => void): void;
+  addEventListener(type: string, listener: (event: DrawerEvent) => void, options?: { signal?: AbortSignal | undefined }): void;
 }
 
 /** The elements the drawer wires together. */
@@ -72,7 +72,7 @@ export const DESKTOP_QUERY = "(min-width: 768px)";
 /** The viewport state the drawer follows: the reader zooming or turning the phone changes it. */
 export interface DrawerViewport {
   readonly matches: boolean;
-  addEventListener(type: "change", listener: () => void): void;
+  addEventListener(type: "change", listener: () => void, options?: { signal?: AbortSignal | undefined }): void;
 }
 
 /** Everything the drawer reads from the world; the browser passes its viewport and page, tests a fake. */
@@ -82,6 +82,11 @@ export interface DrawerEnv {
   readonly location?: { readonly href: string } | undefined;
   /** Finds the element a same-page fragment leads to; the browser looks it up by id. */
   readonly locate?: (fragment: string) => DrawerTarget | undefined;
+  /**
+   * Aborting it detaches every listener `activate` attached, so a host that mounts and unmounts the
+   * drawer tears the wiring down without a custom removal API. Absent, the wiring lives for the page.
+   */
+  readonly signal?: AbortSignal | undefined;
 }
 
 /** What can take keyboard focus inside the drawer. */
@@ -158,8 +163,9 @@ export function trap(dialog: DrawerDialog, event: DrawerEvent): void {
   }
 }
 
-/** Reveals the drawer's controls and wires them: the menu button opens, the close button, Escape, a backdrop press, and an ordinary navigation-link click close, and Tab stays inside. */
+/** Reveals the drawer's controls and wires them: the menu button opens, the close button, Escape, a backdrop press, and an ordinary navigation-link click close, and Tab stays inside. Every attachment carries `env.signal`, so aborting it detaches the wiring. */
 export function activate({ dialog, button, closeButton }: DrawerParts, env: DrawerEnv = {}): void {
+  const signal = env.signal;
   dialog.setAttribute("data-enhanced", "");
   button.hidden = false;
   if (closeButton !== undefined) closeButton.hidden = false;
@@ -178,8 +184,8 @@ export function activate({ dialog, button, closeButton }: DrawerParts, env: Draw
       (current ?? closeButton)?.focus();
     }
     button.setAttribute("aria-expanded", "true");
-  });
-  closeButton?.addEventListener("click", () => dialog.close());
+  }, { signal });
+  closeButton?.addEventListener("click", () => dialog.close(), { signal });
 
   // Closing by any route (close button, Escape, backdrop, navigation link, viewport change) ends here, so the menu
   // button always reports the state and takes focus back while it is on screen.
@@ -187,7 +193,7 @@ export function activate({ dialog, button, closeButton }: DrawerParts, env: Draw
     button.setAttribute("aria-expanded", "false");
     if (returnFocus) button.focus();
     returnFocus = true;
-  });
+  }, { signal });
 
   // A chosen navigation link closes the drawer itself before the destination is revealed; the click is
   // never cancelled, so page, external, download, and modified activations keep the browser's own behavior.
@@ -213,20 +219,20 @@ export function activate({ dialog, button, closeButton }: DrawerParts, env: Draw
       if (event.defaultPrevented === true) return;
       if (event.button !== undefined && event.button !== 0) return;
       closeForNavigation(link);
-    });
+    }, { signal });
   }
 
   // A press on the modal backdrop lands on the dialog itself; a press on the drawer's content does not.
   dialog.addEventListener("click", (event) => {
     if (event.target === dialog) dialog.close();
-  });
+  }, { signal });
 
   const viewport = env.viewport;
   viewport?.addEventListener("change", () => {
     if (viewport.matches !== true || !dialog.open) return;
     returnFocus = false;
     dialog.close();
-  });
+  }, { signal });
 
   dialog.addEventListener("keydown", (event) => {
     if (event.key === "Escape") {
@@ -235,7 +241,7 @@ export function activate({ dialog, button, closeButton }: DrawerParts, env: Draw
       return;
     }
     trap(dialog, event);
-  });
+  }, { signal });
 }
 
 // The island runs when the browser loads it; nothing happens in a runtime without a document.

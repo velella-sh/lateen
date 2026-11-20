@@ -253,13 +253,15 @@ export function trap(dialog: SearchDialog, event: SearchEvent): void {
 }
 
 /**
- * Anything the activation attaches a listener to. Removal is optional: the browser implements it,
- * and a target without it still goes quiet at teardown because every attached listener checks the
- * activation's live flag before it acts. The button, action, and field controls take no event
- * argument; they are cast to this shape at the call sites, and their listeners simply ignore it.
+ * Anything the activation attaches a listener to. Removal is optional: in the browser every
+ * attachment carries the activation's `AbortSignal`, so teardown is the abort, and a target without
+ * `removeEventListener` still goes quiet; the explicit removal below stays as the fallback for hosts
+ * whose listeners ignore options, and every listener also checks the activation's live flag before it
+ * acts. The button, action, and field controls take no event argument; they are cast to this shape at
+ * the call sites, and their listeners simply ignore it.
  */
 interface Listenable {
-  addEventListener(type: string, listener: (event: SearchEvent) => void): void;
+  addEventListener(type: string, listener: (event: SearchEvent) => void, options?: { signal?: AbortSignal }): void;
   removeEventListener?(type: string, listener: (event: SearchEvent) => void): void;
 }
 
@@ -301,6 +303,9 @@ export function activate(parts: SearchParts, env: SearchEnv): () => void {
   // While false, every listener and continuation this activation owns is inert, even on a target
   // that cannot remove listeners; teardown flips it once.
   let live = true;
+  // Teardown aborts this signal, which detaches every attachment the browser honors; the explicit
+  // removals below cover targets that ignore options.
+  const lifecycle = new AbortController();
   const removals: Array<() => void> = [];
 
   /** Attaches one listener that goes quiet at teardown, and remembers how to remove it. */
@@ -308,7 +313,7 @@ export function activate(parts: SearchParts, env: SearchEnv): () => void {
     const guarded = (event: SearchEvent): void => {
       if (live) listener(event);
     };
-    target.addEventListener(type, guarded);
+    target.addEventListener(type, guarded, { signal: lifecycle.signal });
     removals.push(() => target.removeEventListener?.(type, guarded));
   };
 
@@ -591,6 +596,7 @@ export function activate(parts: SearchParts, env: SearchEnv): () => void {
   const teardown = (): void => {
     if (!live) return;
     live = false;
+    lifecycle.abort();
     for (const remove of removals) remove();
     removals.length = 0;
     if (activations.get(dialog) === teardown) activations.delete(dialog);

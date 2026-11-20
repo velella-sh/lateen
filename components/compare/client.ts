@@ -47,7 +47,7 @@ export interface CompareElement {
   hasAttribute(name: string): boolean;
   setAttribute(name: string, value: string): void;
   removeAttribute(name: string): void;
-  addEventListener(type: "change" | "click", listener: () => void): void;
+  addEventListener(type: "change" | "click", listener: () => void, options?: { signal?: AbortSignal | undefined }): void;
   querySelector(selector: string): CompareElement | null;
   querySelectorAll(selector: string): Iterable<CompareElement>;
   append(...children: CompareElement[]): void;
@@ -60,6 +60,8 @@ export interface CompareElement {
 export interface CompareDocument {
   querySelectorAll(selector: string): Iterable<CompareElement>;
   querySelector(selector: string): CompareElement | null;
+  /** The document's window, read only for its realm's `AbortController`; a fake may omit it. */
+  defaultView?: { readonly AbortController?: typeof AbortController | undefined } | null;
 }
 
 /** The part of `navigator.clipboard` the island uses. */
@@ -96,6 +98,11 @@ export interface CompareEnv {
   clipboard?: Clipboard | undefined;
   /** The page's own address, so copied record links are absolute. */
   url?(): string;
+  /**
+   * Aborting it detaches every listener `activate` attached, so a host that mounts and unmounts the
+   * comparison tears the wiring down without a custom removal API. Absent, the wiring lives for the page.
+   */
+  signal?: AbortSignal | undefined;
 }
 
 /** True when the address asks for the differences only. */
@@ -233,7 +240,7 @@ function attachCopy(doc: CompareDocument, root: CompareElement, env: CompareEnv)
         if (status !== null) status.textContent = labels.failed;
       },
     );
-  });
+  }, { signal: env.signal });
 }
 
 /**
@@ -241,9 +248,9 @@ function attachCopy(doc: CompareDocument, root: CompareElement, env: CompareEnv)
  * removed, and the live region says how many of the rows still show. Changing the toggle applies the
  * same choice to every comparison on the page and writes it to the address.
  */
-export function activate(doc: CompareDocument, env: CompareEnv = browserEnv()): void {
+export function activate(doc: CompareDocument, env: CompareEnv = browserEnv()): () => void {
   const roots = [...doc.querySelectorAll(ROOT_SELECTOR)];
-  if (roots.length === 0) return;
+  if (roots.length === 0) return () => {};
 
   const apply = (on: boolean): void => {
     for (const root of roots) {
@@ -269,20 +276,24 @@ export function activate(doc: CompareDocument, env: CompareEnv = browserEnv()): 
     }
   };
 
+  const lifecycle = new (doc.defaultView?.AbortController ?? AbortController)();
+  const signal = env.signal ?? lifecycle.signal;
+
   apply(onlyDiff(env.search()));
 
   for (const root of roots) {
-    attachCopy(doc, root, env);
+    attachCopy(doc, root, { ...env, signal });
     const toggle = root.querySelector(TOGGLE_SELECTOR);
     if (toggle === null) continue;
     toggle.addEventListener("change", () => {
       const on = toggle.checked === true;
       apply(on);
       env.replaceUrl(`${withDiff(env.search(), on)}${env.hash()}`);
-    });
+    }, { signal });
   }
 
-  attachPickers(doc, env);
+  attachPickers(doc, { ...env, signal });
+  return () => lifecycle.abort();
 }
 
 /** The browser environment: the page's address and history. */

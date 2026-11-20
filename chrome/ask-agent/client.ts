@@ -13,7 +13,7 @@ import { buildPrompt, PROMPT_URL_LIMIT, type PromptPage } from "./prompt.ts";
 import { jsonUrl } from "../page-agent-menu/providers.ts";
 import { parseJson, isRecord } from "../../src/guards.ts";
 import { twinUrl } from "../copy-markdown/twin.ts";
-import type { Clipboard } from "../copy-markdown/island.ts";
+import { writeClipboard, type Clipboard } from "../clipboard/result.ts";
 
 /** One search result as the panel needs it: where it is, what the index calls it, and its facets. */
 export interface AskResult {
@@ -246,20 +246,10 @@ function createPanel(env: AskEnv, config: AskConfig, container: AskElement): Pan
 
   /** Copies the prompt; the status region says whether it worked. */
   const copyPrompt = (): void => {
-    const clipboard = env.clipboard;
-    if (clipboard === undefined) {
-      status.textContent = config.messages.copyFailed;
-      return;
-    }
     status.textContent = "";
-    clipboard.writeText(prompt.value ?? "").then(
-      () => {
-        status.textContent = config.messages.copied;
-      },
-      () => {
-        status.textContent = config.messages.copyFailed;
-      },
-    );
+    void writeClipboard(env.clipboard, prompt.value ?? "").then((ok) => {
+      status.textContent = ok ? config.messages.copied : config.messages.copyFailed;
+    });
   };
 
   /** Fetches the Markdown twin of every shown page, in order, until the text limit is reached. */
@@ -300,8 +290,7 @@ function createPanel(env: AskEnv, config: AskConfig, container: AskElement): Pan
       const href = expanded(link.template, prompt.value ?? "");
       if (href.length <= PROMPT_URL_LIMIT) return;
       event.preventDefault();
-      const clipboard = env.clipboard;
-      if (clipboard !== undefined) void clipboard.writeText(prompt.value ?? "").catch(() => undefined);
+      void writeClipboard(env.clipboard, prompt.value ?? "");
       status.textContent = config.messages.urlTooLong;
     });
   }

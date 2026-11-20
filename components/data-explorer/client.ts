@@ -85,7 +85,7 @@ export interface ExplorerElement {
   getAttribute(name: string): string | null;
   setAttribute(name: string, value: string): void;
   removeAttribute(name: string): void;
-  addEventListener(type: string, listener: (event: ExplorerKeyEvent) => void): void;
+  addEventListener(type: string, listener: (event: ExplorerKeyEvent) => void, options?: { signal?: AbortSignal | undefined }): void;
   querySelector(selector: string): ExplorerElement | null;
   querySelectorAll(selector: string): Iterable<ExplorerElement>;
   append(...children: ExplorerElement[]): void;
@@ -119,7 +119,9 @@ export interface ExplorerHistory {
 export interface ExplorerWindow {
   location: ExplorerLocation;
   history: ExplorerHistory;
-  addEventListener(type: "popstate", listener: () => void): void;
+  addEventListener(type: "popstate", listener: () => void, options?: { signal?: AbortSignal | undefined }): void;
+  /** The window realm's own `AbortController`, so the teardown signal matches the realm the page's nodes live in. */
+  readonly AbortController?: typeof AbortController | undefined;
 }
 
 /** The part of the document the island uses. */
@@ -378,12 +380,19 @@ function rowOf(
   return tr;
 }
 
-/** One explorer: the index, the query in hand, and the rows the table currently shows. */
-function attach(root: ExplorerElement, doc: ExplorerDocument, env: ExplorerEnv): void {
+/**
+ * One explorer: the index, the query in hand, and the rows the table currently shows. Every listener
+ * carries the returned teardown's signal, so a host that mounts and unmounts the explorer detaches
+ * the wiring with one abort.
+ */
+function attach(root: ExplorerElement, doc: ExplorerDocument, env: ExplorerEnv): () => void {
+  const view = doc.defaultView ?? null;
+  const lifecycle = new (view?.AbortController ?? AbortController)();
+  const signal = lifecycle.signal;
   const field = root.querySelector(INPUT_SELECTOR);
   const table = root.querySelector(TABLE_SELECTOR);
   const body = table?.querySelector(BODY_SELECTOR) ?? null;
-  if (field === null || body === null) return;
+  if (field === null || body === null) return () => {};
   const status = root.querySelector(STATUS_SELECTOR);
   const empty = root.querySelector(EMPTY_SELECTOR);
   const more = root.querySelector(MORE_SELECTOR);
@@ -408,7 +417,6 @@ function attach(root: ExplorerElement, doc: ExplorerDocument, env: ExplorerEnv):
   const removePattern = root.getAttribute("data-explorer-remove") ?? "{filter}";
   const filterFields = fieldsOf(root.getAttribute("data-filters"));
   const sortables = sortablesOf(root.getAttribute("data-sort"));
-  const view = doc.defaultView ?? null;
 
   // The rows the page was rendered with, so clearing puts them back as they were.
   const original = body.innerHTML;
@@ -657,7 +665,7 @@ function attach(root: ExplorerElement, doc: ExplorerDocument, env: ExplorerEnv):
   };
 
   const loader = createIndexLoader(
-    { field: field as unknown as IndexField, base, collection },
+    { field: field as unknown as IndexField, base, collection, signal },
     { fetchText: env.fetchText },
     {
       ready(loaded) {
@@ -736,7 +744,7 @@ function attach(root: ExplorerElement, doc: ExplorerDocument, env: ExplorerEnv):
     timer = env.schedule(run, DEBOUNCE_MS);
   };
 
-  field.addEventListener("input", typed);
+  field.addEventListener("input", typed, { signal });
 
   // The field owns the keys and the rows never take focus, so Tab keeps the page's own order. Only
   // ArrowDown, ArrowUp, Enter, and Escape are handled; anything else, Tab included, is the browser's.
@@ -773,23 +781,31 @@ function attach(root: ExplorerElement, doc: ExplorerDocument, env: ExplorerEnv):
       field.value = "";
       typed();
     }
-  });
+  }, { signal });
 
-  filtersBox?.addEventListener("change", run);
+  filtersBox?.addEventListener("change", run, { signal });
 
   more?.addEventListener("click", () => {
     limit += ROW_LIMIT;
     drawRows();
-  });
+  }, { signal });
 
   // Back and forward restore the controls without writing the address again.
-  view?.addEventListener("popstate", applyAddress);
+  view?.addEventListener("popstate", applyAddress, { signal });
   applyAddress();
+  return () => lifecycle.abort();
 }
 
-/** Wires every explorer in the document; a page without one does nothing. */
-export function activate(doc: ExplorerDocument, env: ExplorerEnv = browserEnv): void {
-  for (const root of doc.querySelectorAll(ROOT_SELECTOR)) attach(root, doc, env);
+/**
+ * Wires every explorer in the document; a page without one does nothing. The returned teardown
+ * detaches every listener on every explorer this call wired, so a host that mounts the island again
+ * after it starts over with no duplicate wiring left behind.
+ */
+export function activate(doc: ExplorerDocument, env: ExplorerEnv = browserEnv): () => void {
+  const teardowns = [...doc.querySelectorAll(ROOT_SELECTOR)].map((root) => attach(root, doc, env));
+  return () => {
+    for (const teardown of teardowns) teardown();
+  };
 }
 
 /** The browser environment: the page's document. */
