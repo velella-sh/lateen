@@ -77,8 +77,10 @@ export interface MobileSelectorItem {
 export interface MobileSelectorOptions {
   /** Stable hook and data value, such as `projects`. */
   readonly key: string;
-  /** The visible label and the control's accessible name. */
+  /** The visible label; also the control's accessible name unless `accessibleName` says more. */
   readonly label: string;
+  /** The accessible name when the visible label alone would lose the current value. */
+  readonly accessibleName?: string;
   /** The real configured options, in the desktop control's order. */
   readonly items: readonly MobileSelectorItem[];
   /** Extra classes a unit keeps for its own markup. */
@@ -133,7 +135,7 @@ function option(item: MobileSelectorItem, classes: SelectorClasses | undefined) 
  * treatment, target size, marker, and focus order as its neighbours. It works without JavaScript and
  * every option is an anchor (or plain text when the site has no page), never a guessed URL.
  */
-export function mobileSelector({ key, label, items, classes, attrs }: MobileSelectorOptions) {
+export function mobileSelector({ key, label, accessibleName, items, classes, attrs }: MobileSelectorOptions) {
   return h(
     "details",
     {
@@ -143,7 +145,10 @@ export function mobileSelector({ key, label, items, classes, attrs }: MobileSele
     },
     h(
       "summary",
-      { class: withClass([SUMMARY_CLASS], classes?.summary) },
+      {
+        class: withClass([SUMMARY_CLASS], classes?.summary),
+        ...(accessibleName === undefined ? {} : { "aria-label": accessibleName }),
+      },
       h("span", { class: LABEL_CLASS }, label),
       h("span", { class: MARKER_CLASS, "aria-hidden": "true" }, "▾"),
     ),
@@ -182,9 +187,13 @@ export function languageSelector({ site, page }: ChromeProps) {
   const currentLabel = t(guidance.lang, "language_current");
   const unavailable = t(guidance.lang, "translation_missing");
 
+  const current = entries.find((entry) => entry.state === "current");
+  const label = t(guidance.lang, "language");
   return mobileSelector({
     key: "language",
-    label: t(guidance.lang, "language"),
+    label,
+    // The compact control names the language it is showing, not just the kind of control.
+    ...(current === undefined ? {} : { accessibleName: `${label}: ${current.language.name}` }),
     items: entries.map((entry) => ({
       text: entry.language.name,
       lang: entry.language.code,

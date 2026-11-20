@@ -151,6 +151,17 @@ test("all three selectors share one disclosure pattern and list only configured 
   assert.equal(doc.querySelectorAll('[data-mobile-selector="projects"] [aria-current="true"]').length, 1);
   assert.equal(doc.querySelectorAll('[data-mobile-selector="language"] [aria-current="true"]').length, 1);
   assert.equal(doc.querySelectorAll('[data-mobile-selector="versions"] [aria-current="true"]').length, 1);
+
+  const language = doc.querySelector('[data-mobile-selector="language"]')!;
+  assert.equal(language.querySelector("summary")?.getAttribute("aria-label"), "Language: English");
+  const options = [...language.querySelectorAll("li")].map((item) => ({
+    text: item.textContent?.trim() ?? "",
+    lang: item.querySelector("a, span")?.getAttribute("lang"),
+  }));
+  assert.deepEqual(options, [
+    { text: "English (Current)", lang: "en" },
+    { text: "فارسی", lang: "fa" },
+  ]);
 });
 
 test("a selector with fewer than two real options is left out, and a missing translation is not guessed", () => {
