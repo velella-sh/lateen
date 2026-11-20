@@ -318,7 +318,6 @@
   }
 
   .endpoint-params,
-  .kv,
   .key-value {
     display: grid;
     grid-template-columns: 7rem 1fr;
@@ -327,15 +326,11 @@
     font-size: 0.875rem;
   }
 
-  .key-value-key,
-  .kv span,
-  .kv dt {
+  .key-value-key {
     color: var(--muted-foreground);
   }
 
-  .key-value-value,
-  .kv strong,
-  .kv dd {
+  .key-value-value {
     margin: 0;
     font-weight: 600;
   }
