@@ -100,7 +100,7 @@ function documented(heading: string): string[] {
 
 const SAMPLE: Record<string, unknown> = {
   record: {
-    facts: [{ field: "pages", label: "Pages", kind: "number" }],
+    facts: [{ field: "pages", label: "Pages", kind: "number", group: "Details" }],
     summary: "summary",
     status: "status",
     report: true,

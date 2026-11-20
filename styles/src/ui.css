@@ -1937,6 +1937,20 @@
     font-weight: 600;
   }
 
+  .record-fact-group {
+    display: grid;
+    grid-column: 1 / -1;
+    grid-template-columns: 7rem 1fr;
+    gap: 0.4rem 0.75rem;
+  }
+
+  .record-fact-group-label {
+    grid-column: 1 / -1;
+    margin: 0;
+    color: var(--muted-foreground);
+    font-weight: 600;
+  }
+
   :is(.record-fact, .record-table-cell)[data-kind="number"] {
     font-variant-numeric: tabular-nums;
     white-space: nowrap;

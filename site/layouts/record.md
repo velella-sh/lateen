@@ -74,6 +74,7 @@ Each item under `facts` is one row of the panel.
 | `field` | string | The record field to read: the collection's id field, or a field the record has. |
 | `label` | string | The term in the panel; it is also the name in the fact's report link. |
 | `kind` | string | How the value is shown. Absent or unknown values read as text. |
+| `group` | string | Facts with the same group label sit together under it, in the order the group first appears. A group whose facts are all missing is left out. |
 
 An entry with no field, no label, or a field the record does not have is skipped, so a stale template loses one row rather than breaking the page. A field named `derived.<name>` reads the value the collection's derived rules computed.
 

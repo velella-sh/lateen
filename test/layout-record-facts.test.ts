@@ -104,6 +104,46 @@ test("the facts render in the author's order, after the title and before the bod
   assert.match(out, /<dl class="key-value"/);
 });
 
+test("facts with a group gather under its label in the configured order", () => {
+  const out = render(
+    pageWith([
+      { field: "name", label: "Name", group: "About" },
+      { field: "pages", label: "Pages", kind: "number", group: "Specs" },
+      { field: "published", label: "Published", kind: "date", group: "About" },
+    ]),
+  );
+  assert.match(
+    out,
+    /<div class="record-fact-group" role="group" aria-labelledby="record-fact-group-1"><p class="record-fact-group-label" id="record-fact-group-1">About<\/p><dt class="key-value-key">Name<\/dt>/,
+  );
+  const about = out.indexOf(">About</p>");
+  const specs = out.indexOf(">Specs</p>");
+  const name = out.indexOf(">Name</dt>");
+  const pages = out.indexOf(">Pages</dt>");
+  const published = out.indexOf(">Published</dt>");
+  assert.ok(about < name && name < published, "the group keeps the author's fact order");
+  assert.ok(published < specs && specs < pages, "a later group follows the first one, in first-appearance order");
+  assert.match(out, /Specs<\/p><dt class="key-value-key">Pages<\/dt>/);
+});
+
+test("a fact without a group keeps the flat panel", () => {
+  const out = render();
+  assert.ok(!out.includes("record-fact-group"), "no group wrapper without configured groups");
+  assert.match(out, /<dl class="key-value" id="record-facts"><dt class="key-value-key">Name<\/dt>/);
+});
+
+test("a group whose facts are all missing is left out", () => {
+  const out = render(
+    pageWith([
+      { field: "name", label: "Name", group: "About" },
+      { field: "editor", label: "Editor", group: "Gone" },
+    ]),
+  );
+  assert.match(out, />About<\/p>/);
+  assert.ok(!out.includes("Gone"), "a group with no rendered fact has no label");
+  assert.equal(out.match(/record-fact-group-label/g)?.length, 1);
+});
+
 test("every kind goes through the field formatter", () => {
   const out = render();
   assert.match(out, /<dt class="key-value-key">Name<\/dt><dd class="key-value-value record-fact" data-kind="text">Button<\/dd>/);

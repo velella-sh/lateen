@@ -18,11 +18,13 @@ export const FACT_CLASS = "record-fact";
 const isRecord = (value: unknown): value is Record<string, unknown> =>
   value !== null && typeof value === "object" && !Array.isArray(value);
 
-/** One front matter fact: the field to read, the label in the page language, and the value's kind. */
+/** One front matter fact: the field to read, the label in the page language, the value's kind, and its group. */
 interface Fact {
   readonly field: string;
   readonly label: string;
   readonly kind: ReturnType<typeof kindOf>;
+  /** The configured group label this fact belongs to; blank for an ungrouped fact. */
+  readonly group: string;
 }
 
 /** True when the record can answer `field`: its own field, its id, or a value the engine derived. */
@@ -45,8 +47,9 @@ export function factsOf(props: LayoutProps): Fact[] {
     if (!isRecord(entry)) return [];
     const field = typeof entry.field === "string" ? entry.field.trim() : "";
     const label = typeof entry.label === "string" ? entry.label.trim() : "";
+    const group = typeof entry.group === "string" ? entry.group.trim() : "";
     if (field === "" || label === "" || !knowsField(props, field)) return [];
-    return [{ field, label, kind: kindOf(entry.kind) }];
+    return [{ field, label, kind: kindOf(entry.kind), group }];
   });
 }
 
@@ -139,34 +142,59 @@ function factReport(props: LayoutProps, fact: Fact): ComponentChildren {
   );
 }
 
+/** Id prefix of a named fact group's label, which the group's `aria-labelledby` points at. */
+const FACT_GROUP_ID = "record-fact-group";
+
+/** Facts by their configured group, in the order each group first appears; a blank label is the ungrouped set. */
+function groupFacts(facts: readonly Fact[]): { readonly label: string; readonly facts: Fact[] }[] {
+  const groups = new Map<string, Fact[]>();
+  for (const fact of facts) {
+    const group = groups.get(fact.group);
+    if (group === undefined) groups.set(fact.group, [fact]);
+    else group.push(fact);
+  }
+  return [...groups].map(([label, grouped]) => ({ label, facts: grouped }));
+}
+
 /** The key facts panel: labels and values from the page, with no empty row and no panel without facts. */
 export function factsPanel(props: LayoutProps): ComponentChildren {
   const record = props.record;
   const facts = factsOf(props);
   if (record === undefined || facts.length === 0) return null;
+  const row = (fact: Fact): ComponentChildren => {
+    const value = fact.field === "id" ? record.id : fieldValueOf(record, fact.field);
+    const state = valueState(value);
+    return h(
+      Fragment,
+      null,
+      h("dt", { class: KEY_CLASS }, fact.label),
+      h(
+        "dd",
+        {
+          class: `${VALUE_CLASS} ${FACT_CLASS}`,
+          "data-kind": fact.kind,
+          ...(state === undefined ? {} : { "data-state": state }),
+          ...(dataSrcOf(factPosition(props, fact)) === undefined
+            ? {}
+            : { "data-src": dataSrcOf(factPosition(props, fact)) }),
+        },
+        formatField(value, fact.kind, props.page.lang, props.site.config) as ComponentChildren,
+        factReport(props, fact),
+      ),
+    );
+  };
   return h(
     "dl",
     { class: LIST_CLASS, id: FACTS_ID },
-    facts.map((fact) => {
-      const value = fact.field === "id" ? record.id : fieldValueOf(record, fact.field);
-      const state = valueState(value);
+    groupFacts(facts).map((group, index) => {
+      const rows = group.facts.map(row);
+      if (group.label === "") return rows;
+      const id = `${FACT_GROUP_ID}-${index + 1}`;
       return h(
-        Fragment,
-        null,
-        h("dt", { class: KEY_CLASS }, fact.label),
-        h(
-          "dd",
-          {
-            class: `${VALUE_CLASS} ${FACT_CLASS}`,
-            "data-kind": fact.kind,
-            ...(state === undefined ? {} : { "data-state": state }),
-            ...(dataSrcOf(factPosition(props, fact)) === undefined
-              ? {}
-              : { "data-src": dataSrcOf(factPosition(props, fact)) }),
-          },
-          formatField(value, fact.kind, props.page.lang, props.site.config) as ComponentChildren,
-          factReport(props, fact),
-        ),
+        "div",
+        { class: "record-fact-group", role: "group", "aria-labelledby": id },
+        h("p", { class: "record-fact-group-label", id }, group.label),
+        rows,
       );
     }),
   );
