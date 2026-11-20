@@ -92,8 +92,8 @@ function article(props: LayoutProps): ComponentChildren {
 
 /**
  * The docs page: the base shell with the header and the mobile drawer on top, the navigation
- * sidebar, the on-this-page aside, and the article between them. `doc.css` places the three
- * columns; the chrome units keep their own sticky offsets and width breakpoints.
+ * sidebar, the on-this-page aside, and the article between them. `styles/src/ui.css` places the
+ * three columns; the chrome units keep their own sticky offsets and width breakpoints.
  */
 const doc: Layout = (props) =>
   base({

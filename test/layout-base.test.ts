@@ -168,6 +168,12 @@ test("main always renders; page HTML is the default content", () => {
   assert.doesNotMatch(html, /<header|class="sidebar"|class="aside"/);
 });
 
+test("a shell with a sidebar uses the docs grid", () => {
+  const withSidebar = out({ ...layoutProps(), sidebar: h("nav", { "aria-label": "Site navigation" }, "S") });
+  assert.match(withSidebar, /<div class="layout doc-layout"><div class="sidebar"/);
+  assert.match(out(layoutProps()), /<div class="layout"><main/);
+});
+
 test("slots land in their landmarks in document order", () => {
   const html = out({
     ...layoutProps(),

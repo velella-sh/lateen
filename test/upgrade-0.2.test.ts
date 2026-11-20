@@ -109,6 +109,11 @@ function normalize(text: string): { head: string; body: string } {
   for (const difference of INTENDED) {
     for (const element of [...document.querySelectorAll(difference.selector)]) element.remove();
   }
+  // The Sailcloth shell adds style-only class hooks to the existing grid and recovery content.
+  for (const element of [...document.querySelectorAll(".layout")]) element.classList.remove("doc-layout");
+  for (const element of [...document.querySelectorAll(".not-found")]) element.classList.remove("lonely");
+  for (const element of [...document.querySelectorAll(".not-found-code")]) element.classList.remove("code-mark");
+  for (const element of [...document.querySelectorAll(".not-found > .lead")]) element.classList.remove("lead");
   for (const element of [...document.querySelectorAll("[data-search-ask-heading]")]) {
     for (const name of ["data-search-ask-heading", "data-search-ask-label", "data-search-ask-hint"]) {
       element.removeAttribute(name);

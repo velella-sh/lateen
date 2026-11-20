@@ -25,7 +25,7 @@ export { hostOf };
  * change to one belongs in both until the engine exposes the links as site data on every build.
  */
 
-/** Class on the footer block. `style.css` styles it. */
+/** Class on the footer block. `styles/src/ui.css` styles its link target. */
 export const CLASS = "edit-page";
 
 /** Class on the "Edit this page" link. */

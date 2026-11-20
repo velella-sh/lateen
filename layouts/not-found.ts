@@ -61,10 +61,10 @@ function content(props: LayoutProps) {
   const lang = props.page.lang;
   return h(
     "div",
-    { class: "not-found" },
-    h("p", { class: "not-found-code", "aria-hidden": "true" }, "404"),
+    { class: "not-found lonely" },
+    h("p", { class: "not-found-code code-mark", "aria-hidden": "true" }, "404"),
     h("h1", null, t(lang, "not_found_title")),
-    h("p", null, t(lang, "not_found_text")),
+    h("p", { class: "lead" }, t(lang, "not_found_text")),
     searchForm(props.site.config, lang),
     sectionNav(props),
   );

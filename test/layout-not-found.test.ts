@@ -94,7 +94,7 @@ const out = (props: LayoutProps) => html(notFound(props));
 
 test("renders a 404 heading and message inside main", () => {
   const page = out(layoutProps());
-  assert.match(page, /<main id="main" tabindex="-1"><div class="not-found"><p class="not-found-code" aria-hidden="true">404<\/p><h1>Page not found<\/h1>/i);
+  assert.match(page, /<main id="main" tabindex="-1"><div class="not-found lonely"><p class="not-found-code code-mark" aria-hidden="true">404<\/p><h1>Page not found<\/h1><p class="lead">/i);
 });
 
 test("search form is a GET form to the site search page, with a labelled field", () => {

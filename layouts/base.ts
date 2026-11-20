@@ -170,7 +170,7 @@ export default function base(props: BaseProps) {
       header,
       h(
         "div",
-        { class: "layout" },
+        { class: sidebar == null ? "layout" : "layout doc-layout" },
         sidebar == null ? null : h("div", { class: "sidebar", id: NAVIGATION_ID }, sidebar),
         h(
           "main",
