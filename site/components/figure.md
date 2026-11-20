@@ -44,6 +44,7 @@ See [the build pipeline](#pipeline).
 | `caption` | string | the body | The caption text. The body is used when `caption` is absent. |
 | `credit` | string | none | Who made the image, shown under the caption. |
 | `credit_url` | `http` or `https` URL | none | Makes the credit a link. |
+| `href` | `https` URL or same-site path | none | Wraps the image in a keyboard-focusable link to the full-size version. Other addresses are ignored. |
 | `srcset` | string | none | Responsive image candidates for `src`. |
 | `sizes` | string | none | The layout hint for `srcset`. |
 | `width`, `height` | whole number | none | Intrinsic size in pixels, so the layout does not shift when the image loads. |

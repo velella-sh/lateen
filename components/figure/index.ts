@@ -31,6 +31,8 @@ export type FigureProps = {
   credit?: string;
   /** Link for the credit. Only `http` and `https` addresses become links. */
   credit_url?: string;
+  /** Address of the full-size image. An `https` address or a same-site path wraps the image in a link. */
+  href?: string;
   /** Responsive image candidates for `src` (the light image), passed to `srcset`. */
   srcset?: string;
   /** Layout hint for `srcset`, passed to `sizes`. */
@@ -60,6 +62,14 @@ export function creditHref(value: unknown): string | undefined {
   if (typeof value !== "string") return undefined;
   const url = value.trim();
   return /^https?:\/\//i.test(url) ? url : undefined;
+}
+
+/** The full-size image link, or `undefined` unless it is an `https` address or a root-relative same-site path. */
+export function fullSizeHref(base: string, value: unknown): string | undefined {
+  if (typeof value !== "string") return undefined;
+  const url = value.trim();
+  if (/^https:\/\//i.test(url)) return url;
+  return url.startsWith("/") && !url.startsWith("//") ? withBase(base, url) : undefined;
 }
 
 function oneOf<T extends string>(value: unknown, allowed: readonly T[], fallback: T): T {
@@ -109,8 +119,9 @@ function captionOf(props: FigureProps, html: string) {
  * A pair keeps one accessible identity on its wrapper (`role="img"`, `aria-label`), while both images
  * are presentational (`alt=""`, `aria-hidden`), so assistive technology meets the figure exactly once in
  * either theme, with custom CSS, in forced colors, and before the styles load. The caption and credit
- * sit outside the wrapper, so they stay readable and a credit link stays operable. The body arrives
- * already rendered to HTML. An author `id` names the figure for fragment links and is made unique per page.
+ * sit outside the wrapper, so they stay readable and a credit link stays operable. With `href`, the image
+ * alone becomes a link to its full-size version, so the caption and credit stay outside the link too.
+ * The body arrives already rendered to HTML. An author `id` names the figure for fragment links and is made unique per page.
  */
 export default function figure({ props, html, site, page }: ComponentProps<FigureProps>) {
   const authored = text(props.src);
@@ -145,11 +156,13 @@ export default function figure({ props, html, site, page }: ComponentProps<Figur
   const images = paired
     ? h("div", { class: PAIR_CLASS, role: alt === "" ? undefined : "img", "aria-label": alt === "" ? undefined : alt }, light, dark)
     : light;
+  const href = fullSizeHref(base, props.href);
+  const media = href === undefined ? images : h("a", { class: "figure-link", href }, images);
 
   return h(
     "figure",
     { class: paired ? `${FIGURE_CLASS} ${PAIRED_CLASS}` : FIGURE_CLASS, ...(id === undefined ? {} : { id }) },
-    images,
+    media,
     captionOf(props, html),
   );
 }

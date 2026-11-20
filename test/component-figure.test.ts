@@ -12,6 +12,7 @@ import figure, {
   PAIRED_CLASS,
   creditHref,
   dimension,
+  fullSizeHref,
   idBase,
   type FigureProps,
 } from "../components/figure/index.ts";
@@ -272,6 +273,59 @@ test("creditHref accepts only http and https", () => {
   assert.equal(creditHref("//example.com"), undefined);
   assert.equal(creditHref("data:text/html,x"), undefined);
   assert.equal(creditHref(undefined), undefined);
+});
+
+test("with href the image alone is a keyboard-focusable link to the full-size image", () => {
+  const tree = render({
+    src: "/a.png",
+    alt: "A chart",
+    caption: "Figure 1",
+    credit: "Ada",
+    href: "https://cdn.test/a-large.png",
+  }) as Tree;
+  const children = ownChildren(tree);
+  assert.deepEqual(
+    children.map((child) => (child as Tree).type),
+    ["a", "figcaption"],
+  );
+  const anchor = children[0] as Tree;
+  assert.equal(anchor.props.class, "figure-link");
+  assert.equal(anchor.props.href, "https://cdn.test/a-large.png");
+  assert.equal(anchor.props.tabindex, undefined);
+  const [img] = imagesOf(anchor);
+  assert.equal(img?.props.alt, "A chart");
+  assert.equal(elements(anchor).some((element) => element.type === "figcaption"), false);
+  assert.equal(textOf(children[1]), "Figure 1Ada");
+});
+
+test("a same-site href takes the site base", () => {
+  assert.equal(fullSizeHref("/lateen", "/img/a-large.png"), "/lateen/img/a-large.png");
+  const input = {
+    props: { src: "/a.png", alt: "A", href: "/img/a-large.png" },
+    html: "",
+    page: {},
+    site: { config: { base: "/lateen" } },
+  } as unknown as ComponentProps<FigureProps>;
+  assert.match(renderToString(figure(input) as never), /<a class="figure-link" href="\/lateen\/img\/a-large.png"><img/);
+});
+
+test("an unsafe or off-site href is ignored", () => {
+  assert.equal(fullSizeHref("", "javascript:alert(1)"), undefined);
+  assert.equal(fullSizeHref("", "http://cdn.test/a.png"), undefined);
+  assert.equal(fullSizeHref("", "//cdn.test/a.png"), undefined);
+  assert.equal(fullSizeHref("", "img/a.png"), undefined);
+  assert.equal(fullSizeHref("", "  "), undefined);
+  for (const href of ["javascript:alert(1)", "http://cdn.test/a.png", "//cdn.test/a.png", "data:image/png,x"]) {
+    const tree = render({ src: "/a.png", alt: "A chart", href }) as Tree;
+    assert.equal(elements(tree).some((element) => element.type === "a"), false);
+    assert.equal((ownChildren(tree)[0] as Tree).type, "img");
+  }
+});
+
+test("without href the image is not linked", () => {
+  const tree = render({ src: "/a.png", alt: "A chart" }) as Tree;
+  assert.equal(elements(tree).some((element) => element.type === "a"), false);
+  assert.equal((ownChildren(tree)[0] as Tree).type, "img");
 });
 
 /** The figure's own children, flattened and without the empty slots. */
