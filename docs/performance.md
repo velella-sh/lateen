@@ -124,6 +124,9 @@ with its URL, the stylesheet that declares it, and the family, weight, style, `f
 
 Scrolling a loaded record list changes no rows and starts no new index read or filter work. Filtering
 runs only on input, after the typing pause.
+A comparison reads its collection index once, the first time a reader opens a record picker, and
+reuses that parsed model for every later picker change. Selections update the column's cells in
+place, so changing records does not fetch or parse the shared index again.
 
 ### How fonts are counted
 
