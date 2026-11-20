@@ -74,6 +74,8 @@ const search: Chrome = (props) =>
           id: SEARCH_INPUT_ID,
           type: "search",
           name: "q",
+          // The query follows its own script, so a Persian phrase and a Latin identifier both read correctly.
+          dir: "auto",
           placeholder: t(props.page.lang, "search_placeholder"),
           autocomplete: "off",
           // The field is the combobox the list belongs to, closed until `client.ts` opens the dialog.

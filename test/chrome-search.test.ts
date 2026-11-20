@@ -149,12 +149,21 @@ test("the field is a combobox that names and controls the result list", () => {
 
   assert.match(
     out,
-    /<input class="search-input" id="search-input" type="search" name="q" placeholder="Search the docs" autocomplete="off" role="combobox" aria-haspopup="listbox" aria-expanded="false" aria-controls="search-results-list" aria-autocomplete="list" data-search-input="">/,
+    /<input class="search-input" id="search-input" type="search" name="q" dir="auto" placeholder="Search the docs" autocomplete="off" role="combobox" aria-haspopup="listbox" aria-expanded="false" aria-controls="search-results-list" aria-autocomplete="list" data-search-input="">/,
   );
   assert.match(
     out,
     /<div class="search-results" id="search-results-list" role="listbox" aria-label="Search" data-search-results=""><\/div>/,
   );
+  assert.match(out, /<input class="search-input"[^>]* dir="auto"/, "the query follows its own script");
+
+  const css = readFileSync(new URL("../styles/src/ui.css", import.meta.url), "utf8");
+  const field = /\.search-field input \{([\s\S]*?)\}/.exec(css)?.[1] ?? "";
+  assert.match(field, /unicode-bidi: plaintext/);
+
+  const rtl = html(search(props({ lang: "fa" })));
+  assert.match(rtl, /<input class="search-input"[^>]* dir="auto"/, "an RTL page still lets the query choose its direction");
+
   assert.equal(attribute(out, "aria-controls"), SEARCH_RESULTS_ID);
   assert.equal(out.match(new RegExp(`id="${SEARCH_RESULTS_ID}"`, "g"))?.length, 1, "one list for the field to control");
 });
