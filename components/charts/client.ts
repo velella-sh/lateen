@@ -1,10 +1,16 @@
 /// <reference lib="dom" />
 
+import { enhanceChartIsland, type ChartIslandControl, type IslandIntersectionCtor, type IslandMutationCtor } from "../chart-data/island.ts";
+
 type ChartRow = { label: string; value: number };
 
-async function draw(root: HTMLElement): Promise<void> {
-  if (root.dataset.loaded === "true") return;
-  root.dataset.loaded = "true";
+/** The Chart constructor the generated bundle supplies; each instance is destroyed on disposal. */
+interface ChartLike {
+  new (context: CanvasRenderingContext2D, config: unknown): { destroy(): void };
+}
+
+/** Draws one chart and returns the disposal of the instance it created. */
+async function draw(root: HTMLElement): Promise<(() => void) | undefined> {
   const canvas = root.querySelector("canvas");
   const data = root.querySelector("[data-chart-data]")?.textContent;
   if (!(canvas instanceof HTMLCanvasElement) || !data) return;
@@ -20,7 +26,7 @@ async function draw(root: HTMLElement): Promise<void> {
     styles.getPropertyValue("--chart-2").trim() || "#8f8cd8",
     styles.getPropertyValue("--chart-3").trim() || "#8fb0d4",
   ];
-  new Chart(context, {
+  const chart = new (Chart as ChartLike)(context, {
     type,
     data: {
       labels: rows.map((row) => row.label),
@@ -54,19 +60,36 @@ async function draw(root: HTMLElement): Promise<void> {
   });
   canvas.hidden = false;
   root.querySelector(".charts-fallback")?.setAttribute("hidden", "");
+  return () => chart.destroy();
 }
 
-const roots = document.querySelectorAll<HTMLElement>("[data-charts]");
-if (!("IntersectionObserver" in window)) roots.forEach((root) => void draw(root));
-else {
-  const observer = new IntersectionObserver((entries) => {
-    for (const entry of entries) {
-      if (!entry.isIntersecting) continue;
-      observer.unobserve(entry.target);
-      void draw(entry.target as HTMLElement);
-    }
-  }, { rootMargin: "300px" });
-  roots.forEach((root) => observer.observe(root));
+/** Everything the island reads from the browser, so tests can pass fakes instead of the page. */
+export interface ChartsGlobals {
+  document?: { querySelectorAll(selector: string): Iterable<HTMLElement> };
+  IntersectionObserver?: IslandIntersectionCtor;
+  MutationObserver?: IslandMutationCtor;
 }
 
-export {};
+/** The teardown of the enhancement that is running now; re-initializing stops it first. */
+let active: (() => void) | undefined;
+
+/**
+ * Enhances every chart root on the page, replacing any enhancement that is still active: the
+ * previous charts are destroyed and its observers disconnected first, so repeated initialization
+ * does not increase observer, listener, or instance counts. A runtime without a document is a no-op.
+ */
+export function start(globals: ChartsGlobals = globalThis as unknown as ChartsGlobals): () => void {
+  active?.();
+  const control: ChartIslandControl = enhanceChartIsland<HTMLElement>({
+    roots: () => globals.document?.querySelectorAll("[data-charts]") ?? [],
+    draw,
+    Intersection: globals.IntersectionObserver,
+    Mutation: globals.MutationObserver,
+    mutationTarget: globals.document,
+  });
+  active = control.stop;
+  return control.stop;
+}
+
+// The island runs when the browser loads it; nothing happens in a runtime without a document.
+start();

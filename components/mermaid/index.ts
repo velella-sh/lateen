@@ -4,7 +4,7 @@ import { h } from "preact";
 import type { ComponentProps } from "@velella/mizzen/contracts";
 import type { MermaidConfig } from "mermaid";
 import { t } from "../../i18n/index.ts";
-import { diagramCacheDir, MERMAID_CACHE_FORMAT, readDiagramCache, writeDiagramCache } from "./cache.ts";
+import { clearDiagramReadMemo, diagramCacheDir, MERMAID_CACHE_FORMAT, readDiagramCache, writeDiagramCache } from "./cache.ts";
 
 /** Class on the outer `<figure>`; `style.css` styles it. */
 export const MERMAID_CLASS = "mermaid";
@@ -86,6 +86,7 @@ export function diagramRenderCount(): number {
 /** Forgets every cached diagram, as a fresh build process would. */
 export function clearDiagramCache(): void {
   cache.clear();
+  clearDiagramReadMemo();
 }
 
 /** Source normalized for rendering and caching: LF line endings, no trailing whitespace or blank lines. */
