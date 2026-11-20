@@ -34,8 +34,9 @@
  *   `pluralCategory`, `emptyMessage`, `countMessage`, `fillMessage`, `messagesFrom`, `langFrom` —
  *   the page language's strings and CLDR plural rules, read from the dialog's `data-search-*`
  *   attributes.
- * - Loader: `indexUrl`, `loadIndex`, and the `PagefindApi`/`SearchHit` types; `begin` inside
- *   `activate` owns the once-only load and its retry.
+ * - Loader (`loader.ts`): `indexUrl`, `loadIndex`, the `PagefindApi`/`SearchHit` types, and
+ *   `createIndexLoader`, which owns the once-only load, its shared in-flight promise, and its retry;
+ *   `begin` inside `activate` only decides what to announce.
  * - Activation: `activate`, `trap`, `liveHandlers`, `resolveTheme`, the all-results link
  *   (`resultsHref`), and the browser bootstrap at the bottom wire the parts together; this is the
  *   only boundary that touches dialog state, focus, and event listeners.
@@ -69,6 +70,7 @@ import {
   type MessageSource,
   type SearchMessages,
 } from "./messages.ts";
+import { createIndexLoader, indexUrl, loadIndex, type PagefindApi } from "./loader.ts";
 
 // The pure option model lives in `options.ts`; these re-exports keep the client's public imports working.
 export {
@@ -116,6 +118,9 @@ export {
   type MessageSource,
 } from "./messages.ts";
 
+// The lazy index load lives in `loader.ts`; re-exported for the same reason.
+export { indexUrl, createIndexLoader, type PagefindApi, type SearchHit } from "./loader.ts";
+
 /** The path of the dedicated search page the all-results link opens. */
 export const SEARCH_PAGE_PATH = "/search/";
 
@@ -124,16 +129,6 @@ export function resultsHref(query: string, scope?: string | null, base = ""): st
   const params = new URLSearchParams({ q: query });
   if (scope !== undefined && scope !== null && scope !== "") params.set("scope", scope);
   return `${withBase(base, SEARCH_PAGE_PATH)}?${params.toString()}`;
-}
-
-/** One hit in a Pagefind result list. */
-export interface SearchHit {
-  data(): Promise<SearchRecord>;
-}
-
-/** The part of Pagefind's browser API the dialog uses. */
-export interface PagefindApi {
-  search(term: string): Promise<{ readonly results: readonly SearchHit[] }>;
 }
 
 /** localStorage key for the visitor's theme choice; keep in step with `layouts/base.ts`. */
@@ -582,12 +577,6 @@ export function renderOptions(
   return drawn;
 }
 
-/** The index URL for a site `base`: `/pagefind/pagefind.js` at the root, `<base>/pagefind/pagefind.js` below it. */
-export function indexUrl(base: string): string {
-  const root = base.endsWith("/") ? base.slice(0, -1) : base;
-  return `${root}/pagefind/pagefind.js`;
-}
-
 /**
  * Keeps Tab and Shift+Tab inside the dialog: past the last control focus wraps to the first, and before
  * the first it wraps to the last. A focus that has left the dialog returns to its first control.
@@ -625,8 +614,7 @@ export function activate(parts: SearchParts, env: SearchEnv): void {
   const palette = env.palette ?? parsePalette(parts.palette?.textContent ?? null, messages.actions);
   const actions = palette.actions;
   const handlers = env.handlers ?? liveHandlers();
-  let api: PagefindApi | undefined;
-  let loading = false;
+  const index = createIndexLoader(env.load);
   let sequence = 0;
   // A section jump is a move inside the page: the close must not pull focus back to the search button.
   let returnFocus = true;
@@ -763,6 +751,7 @@ export function activate(parts: SearchParts, env: SearchEnv): void {
       status.textContent = "";
       return;
     }
+    const api = index.api;
     if (api === undefined) {
       draw([], matched);
       return;
@@ -801,18 +790,16 @@ export function activate(parts: SearchParts, env: SearchEnv): void {
   };
 
   /**
-   * Loads the index once. `retried` marks the reader's own press, whose result the status announces:
-   * the first load states the failure, a retried one says search is still down or that it is back.
+   * Starts the once-only index load. `retried` marks the reader's own press, whose result the status
+   * announces: the first load states the failure, a retried one says search is still down or that it
+   * is back. The loader itself shares one in-flight promise and forgets a rejection so a retry works.
    */
   const begin = (retried: boolean): void => {
-    if (api !== undefined || loading) return;
-    loading = true;
+    if (index.api !== undefined || index.loading) return;
     offerRetry(false);
     if (input.value.trim() !== "") status.textContent = messages.loading;
-    env.load(indexUrl(dialog.getAttribute("data-base") ?? "")).then(
-      (loaded) => {
-        api = loaded;
-        loading = false;
+    index.load(indexUrl(dialog.getAttribute("data-base") ?? "")).then(
+      () => {
         if (!dialog.open) return;
         if (retried && input.value.trim() === "") {
           status.textContent = messages.ready;
@@ -821,7 +808,6 @@ export function activate(parts: SearchParts, env: SearchEnv): void {
         run();
       },
       () => {
-        loading = false;
         if (!dialog.open) return;
         status.textContent = retried ? messages.retryFailed : messages.failed;
         offerRetry(true);
@@ -839,7 +825,7 @@ export function activate(parts: SearchParts, env: SearchEnv): void {
     // A fresh open starts at the field, not on the row the last query left selected.
     markActive(-1);
     if (input.value.trim() === "") run();
-    if (api !== undefined || loading) {
+    if (index.api !== undefined || index.loading) {
       if (input.value.trim() !== "") run();
       return;
     }
@@ -991,11 +977,6 @@ declare const location: { readonly search: string };
 declare const MutationObserver: new (callback: () => void) => {
   observe(target: unknown, options: { readonly childList: boolean }): void;
 };
-
-/** Imports the Pagefind module from the built index. */
-function loadIndex(url: string): Promise<PagefindApi> {
-  return import(url) as Promise<PagefindApi>;
-}
 
 // The island runs when the browser loads it; nothing happens in a runtime without a document.
 if (typeof document !== "undefined") {

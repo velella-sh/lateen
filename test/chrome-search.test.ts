@@ -1170,6 +1170,29 @@ test("the first open loads the index, shows the dialog, and focuses the field; l
   assert.deepEqual(env.calls, ["/pagefind/pagefind.js"], "the index is loaded once");
 });
 
+test("two opens before the index answers share one load", async () => {
+  const { button, parts } = partsOf();
+  let calls = 0;
+  let settle: ((api: PagefindApi) => void) | undefined;
+  activate(parts, {
+    document: fakeDocument(),
+    load() {
+      calls += 1;
+      return new Promise<PagefindApi>((resolve) => {
+        settle = resolve;
+      });
+    },
+  });
+
+  button.click();
+  button.click();
+  assert.equal(calls, 1, "the second open joins the in-flight load instead of starting another");
+
+  settle?.(apiOf([]));
+  await tick();
+  assert.equal(calls, 1);
+});
+
 test("the index URL includes a site base", async () => {
   const { button, parts } = partsOf({ base: "/example" });
   const env = envWith(apiOf([]));
