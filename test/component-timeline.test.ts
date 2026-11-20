@@ -128,3 +128,70 @@ test("a Persian page formats dates in Persian", () => {
   assert.match(out, /<time datetime="2026-03-01">۱۰ اسفند ۱۴۰۴<\/time>/);
   assert.match(out, /<th scope="col">برچسب<\/th>/);
 });
+
+test("start and end both render in the page calendar for English, Persian and Arabic", () => {
+  const items = JSON.stringify([{ label: "Release", start: "2026-11-09", end: "2026-11-12" }]);
+  const expected = [
+    ["en", "November 9, 2026", "November 12, 2026"],
+    ["fa", "۱۸ آبان ۱۴۰۵", "۲۱ آبان ۱۴۰۵"],
+    ["ar", "٣٠ جمادى الأولى ١٤٤٨ هـ", "٣ جمادى الآخرة ١٤٤٨ هـ"],
+  ] as const;
+  for (const [lang, start, end] of expected) {
+    const out = render({ items }, lang);
+    assert.ok(out.includes(`data-field="start"><time datetime="2026-11-09">${start}</time>`), lang);
+    assert.ok(out.includes(`data-field="end"><time datetime="2026-11-12">${end}</time>`), lang);
+  }
+});
+
+test("month-only, year-only and mixed endpoints keep the precision they were written with", () => {
+  const items = JSON.stringify([
+    { label: "Month", start: "2026-11", end: "2027-01" },
+    { label: "Year", start: "2025", end: "2027" },
+    { label: "Mixed", start: "2026", end: "2026-11-12" },
+  ]);
+  const expected: readonly (readonly [string, readonly string[]])[] = [
+    ["en", ["November 2026", "January 2027", "2025", "2027", "2026", "November 12, 2026"]],
+    ["fa", ["۱۴۰۵ آبان", "۱۴۰۵ دی", "۱۴۰۳", "۱۴۰۵", "۱۴۰۴", "۲۱ آبان ۱۴۰۵"]],
+    ["ar", ["جمادى الأولى ١٤٤٨ هـ", "رجب ١٤٤٨ هـ", "١٤٤٦ هـ", "١٤٤٨ هـ", "١٤٤٧ هـ", "٣ جمادى الآخرة ١٤٤٨ هـ"]],
+  ];
+  for (const [lang, texts] of expected) {
+    const out = render({ items }, lang);
+    const cells = [...out.matchAll(/data-field="(?:start|end)"><time datetime="[^"]+">([^<]+)<\/time>/g)].map(
+      (match) => match[1],
+    );
+    assert.deepEqual(cells, texts, lang);
+  }
+
+  // The machine value is the authored precision too, never the first day of the month or year.
+  const out = render({ items }, "en");
+  assert.ok(out.includes(`<time datetime="2026-11">November 2026</time>`));
+  assert.ok(out.includes(`<time datetime="2025">2025</time>`));
+  assert.ok(out.includes(`<time datetime="2026">2026</time>`));
+});
+
+test("an invalid endpoint keeps its message and the other endpoint still renders", () => {
+  const badStart = render({
+    items: JSON.stringify([{ label: "Bad start", start: "2026-02-30", end: "2027-01" }]),
+  });
+  assert.equal((badStart.match(new RegExp(INVALID_CLASS, "g")) ?? []).length, 1);
+  assert.ok(badStart.includes(`&quot;2026-02-30&quot; in field &quot;start&quot; is not an ISO 8601 date.`));
+  assert.ok(badStart.includes(`data-field="end"><time datetime="2027-01">January 2027</time>`));
+
+  const badEnd = render({
+    items: JSON.stringify([{ label: "Bad end", start: "2026-11-09", end: "2026-02-30" }]),
+  });
+  assert.ok(badEnd.includes(`data-field="start"><time datetime="2026-11-09">November 9, 2026</time>`));
+  assert.ok(badEnd.includes(`&quot;2026-02-30&quot; in field &quot;end&quot; is not an ISO 8601 date.`));
+});
+
+test("a Persian row keeps start before end in the DOM and dates machine-readable", () => {
+  const out = render({ items: JSON.stringify([{ label: "Release", start: "2026-11-09", end: "2026-11-12" }]) }, "fa");
+  const row = out.match(/<tr><td class="timeline-cell" data-field="label">Release<\/td>[\s\S]*?<\/tr>/)?.[0] ?? "";
+  const start = row.indexOf(`data-field="start"`);
+  const end = row.indexOf(`data-field="end"`);
+
+  assert.ok(start >= 0 && end > start, "start cell comes before end cell in DOM order");
+  assert.ok(row.includes(`<time datetime="2026-11-09">۱۸ آبان ۱۴۰۵</time>`));
+  assert.ok(row.includes(`<time datetime="2026-11-12">۲۱ آبان ۱۴۰۵</time>`));
+  assert.ok(!row.includes(`dir="ltr"`), "the row follows the page direction");
+});
