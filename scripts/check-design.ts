@@ -1,5 +1,7 @@
 // The design-token gate. Scans the CSS of layouts/, components/, chrome/ and styles/ for raw values that a
 // design token should carry: colours, font sizes, shadows, transition times and unscaled z-index values.
+// It also reports a declaration written twice in the same rule: a second `property` that overrides an earlier
+// value or changes nothing is debt, named by file, selector and line.
 // The generated styles/tokens.css is skipped. An exception comes from test/design-allowlist.json, and every
 // entry there must carry a written reason; an entry that no longer matches anything is a failure too, so the
 // list only holds reviewed, live exceptions. See docs/design/visual-gates.md (#494, #500).
@@ -102,12 +104,72 @@ function declarationFindings(property: string, rawValue: string): Array<{ kind: 
   return out;
 }
 
+/** One `property: value` declaration, wherever it appears. */
+const DECLARATION = /([-\w]+)\s*:\s*((?:[^;{}()]|\([^)]*(?:\([^)]*\)[^)]*)*\))*)(?=[;}]|$)/g;
+
+/** Yields every rule block, at-rules included, and the blocks nested inside them. */
+function* ruleBlocks(css: string, offset = 0): Generator<{ selector: string; body: string; start: number }> {
+  let start = 0;
+  for (let i = 0; i < css.length; i++) {
+    if (css[i] !== "{") continue;
+    const selector = css.slice(start, i).trim();
+    const bodyStart = i + 1;
+    let depth = 1;
+    let j = bodyStart;
+    for (; j < css.length; j++) {
+      if (css[j] === "{") depth++;
+      else if (css[j] === "}" && --depth === 0) break;
+    }
+    const body = css.slice(bodyStart, j);
+    yield { selector, body, start: offset + bodyStart };
+    yield* ruleBlocks(body, offset + bodyStart);
+    i = j;
+    start = j + 1;
+  }
+}
+
+/** A declaration that repeats an earlier one in the same rule. */
+export interface Repeat {
+  readonly file: string;
+  readonly line: number;
+  readonly selector: string;
+  readonly property: string;
+  /** The repeated value. */
+  readonly value: string;
+  /** The value of the earlier declaration it duplicates, as written. */
+  readonly earlier: string;
+  /** True when the second declaration sets a different value, so the first is overridden. */
+  readonly conflict: boolean;
+}
+
+/** Every declaration written twice in one rule: a second `property` either overrides an earlier value or does nothing. */
+export function scanDuplicates(file: string, css: string): Repeat[] {
+  const text = stripNoise(css);
+  const repeats: Repeat[] = [];
+  for (const { selector, body, start } of ruleBlocks(text)) {
+    if (selector.startsWith("@")) continue;
+    const seen = new Map<string, string>(); // property -> first value
+    for (const m of body.matchAll(DECLARATION)) {
+      const property = (m[1] ?? "").toLowerCase();
+      const value = (m[2] ?? "").trim();
+      const earlier = seen.get(property);
+      if (earlier === undefined) {
+        seen.set(property, value);
+        continue;
+      }
+      const line = text.slice(0, start + (m.index ?? 0)).split("\n").length;
+      const conflict = earlier.replace(/\s+/g, " ") !== value.replace(/\s+/g, " ");
+      repeats.push({ file, line, selector, property, value, earlier, conflict });
+    }
+  }
+  return repeats;
+}
+
 /** Every raw value in one stylesheet's text. */
 export function scanCss(file: string, css: string): Finding[] {
   const text = stripNoise(css);
   const findings: Finding[] = [];
-  const re = /([-\w]+)\s*:\s*((?:[^;{}()]|\([^)]*(?:\([^)]*\)[^)]*)*\))*)(?=[;}]|$)/g;
-  for (const m of text.matchAll(re)) {
+  for (const m of text.matchAll(DECLARATION)) {
     const property = m[1] ?? "";
     const value = m[2] ?? "";
     const line = text.slice(0, m.index).split("\n").length;
@@ -177,9 +239,16 @@ export function check(base: string = root, allowlistPath: string = join(base, "t
   const shape = allowlistProblems(entries);
   if (shape.length > 0) return shape;
 
-  const findings = cssFiles(base).flatMap((file) => scanCss(file, readFileSync(join(base, file), "utf8")));
+  const sheets = cssFiles(base).map((file) => ({ file, css: readFileSync(join(base, file), "utf8") }));
+  const findings = sheets.flatMap(({ file, css }) => scanCss(file, css));
   const { violations, stale } = applyAllowlist(findings, entries as AllowEntry[]);
   for (const v of violations) lines.push(`${v.file}:${v.line}: raw ${v.kind} \`${v.value}\`; use a design token or add a reviewed entry to test/design-allowlist.json`);
+  for (const r of sheets.flatMap(({ file, css }) => scanDuplicates(file, css))) {
+    const what = r.conflict
+      ? `conflicting declaration \`${r.property}: ${r.value}\` overrides \`${r.property}: ${r.earlier}\``
+      : `duplicate declaration \`${r.property}: ${r.value}\` changes nothing`;
+    lines.push(`${r.file}:${r.line}: ${what} in \`${r.selector}\`; keep one`);
+  }
   for (const e of stale) lines.push(`stale allowlist entry: ${e.file} ${e.kind} \`${e.value}\` matches nothing; remove it`);
   return lines;
 }
