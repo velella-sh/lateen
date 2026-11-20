@@ -211,19 +211,6 @@
     @apply sr-only;
   }
 
-  .badge,
-  .pill {
-    @apply inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-bold;
-    background: var(--shell);
-    color: var(--night);
-  }
-
-  .pill.ink,
-  .badge[data-variant="ink"] {
-    background: var(--primary);
-    color: var(--primary-foreground);
-  }
-
   .steps-ui,
   .checks {
     @apply grid gap-2 m-0 p-0 list-none;

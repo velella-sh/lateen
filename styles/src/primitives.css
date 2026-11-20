@@ -43,15 +43,29 @@
     @apply flex flex-col gap-4 overflow-hidden rounded-xl bg-card py-4 text-sm text-card-foreground ring-1 ring-foreground/10;
   }
 
+  /* Badge and pill own their whole look here; no later module or override
+     restates a property. Long labels grow the badge instead of clipping. */
+  .badge,
+  .pill {
+    @apply inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-bold;
+    background: var(--shell);
+    color: var(--night);
+  }
+
   .badge {
-    /* No fixed h-*: clipped-text fails when type is taller than the box. */
-    @apply inline-flex w-fit shrink-0 items-center justify-center whitespace-nowrap focus-visible:border-ring focus-visible:ring-[3px] focus-visible:ring-ring/50 [&>svg]:pointer-events-none;
-    @apply gap-1 rounded-4xl border border-transparent px-2 py-0.5 text-xs font-medium leading-tight;
+    @apply w-fit shrink-0 justify-center gap-1 whitespace-nowrap border border-transparent focus-visible:border-ring focus-visible:ring-[3px] focus-visible:ring-ring/50 [&>svg]:pointer-events-none;
+    line-height: 1.25;
     min-block-size: 1.25rem;
     overflow: visible;
   }
 
   .badge[data-variant='outline'] {
     @apply border-border text-foreground;
+  }
+
+  .pill.ink,
+  .badge[data-variant='ink'] {
+    background: var(--primary);
+    color: var(--primary-foreground);
   }
 }
