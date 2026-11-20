@@ -49,10 +49,10 @@ function setup() {
   const calls: string[] = [];
   let pending: (() => void) | undefined;
   const env: ExplorerEnv = {
-    async fetchText(url) {
+    async fetchJson(url) {
       calls.push(url);
       if (url !== INDEX_URL) throw new Error(`no file at ${url}`);
-      return indexJson;
+      return JSON.parse(indexJson);
     },
     schedule(listener, ms) {
       assert.equal(ms, DEBOUNCE_MS);

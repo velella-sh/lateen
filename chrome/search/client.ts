@@ -48,6 +48,7 @@
 
 import type { PaletteAction, PalettePayload, PaletteRun, ThemeChoice } from "../command-palette/actions.ts";
 import { withBase } from "../../src/url.ts";
+import { fetchText, type Fetcher } from "../../src/fetch.ts";
 import { activateShortcuts, type ShortcutEvent } from "./shortcut.ts";
 import { activateAskAgent, parseAskConfig, type AskDocument, type AskElement, type AskResult } from "../ask-agent/client.ts";
 import { browserFetch } from "../copy-markdown/island.ts";
@@ -661,7 +662,7 @@ interface PaletteGlobals {
   };
   readonly localStorage?: { setItem(key: string, value: string): void };
   readonly navigator?: { readonly clipboard?: { writeText(text: string): Promise<void> } };
-  readonly fetch?: (url: string) => Promise<{ readonly ok: boolean; text(): Promise<string> }>;
+  readonly fetch?: Fetcher;
   readonly matchMedia?: (query: string) => { readonly matches: boolean };
 }
 
@@ -684,11 +685,8 @@ export function liveHandlers(globals: PaletteGlobals = globalThis as unknown as 
     },
     copy(url) {
       const clipboard = globals.navigator?.clipboard;
-      const fetchText = globals.fetch;
-      if (clipboard === undefined || fetchText === undefined) return Promise.resolve();
-      return fetchText(url).then((response) =>
-        response.ok ? response.text() : Promise.reject(new Error("The page's Markdown is unavailable.")),
-      ).then((markdown) => clipboard.writeText(markdown));
+      if (clipboard === undefined) return Promise.resolve();
+      return fetchText(globals.fetch, url).then((markdown) => clipboard.writeText(markdown));
     },
     source() {
       globals.document?.querySelector?.("[data-source-mode] .source-mode-button")?.click?.();

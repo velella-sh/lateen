@@ -10,6 +10,7 @@
 
 import { writeClipboard, type Clipboard } from "../clipboard/result.ts";
 import { shortcutsEnabled, type ShortcutStorage } from "../shortcuts/preference.ts";
+import { fetchText, type Fetcher } from "../../src/fetch.ts";
 
 /** The part of `navigator.clipboard` the island uses; the shared clipboard result path defines it. */
 export type { Clipboard };
@@ -152,14 +153,10 @@ export const globals = globalThis as unknown as {
     addEventListener(type: "keydown", listener: (event: ShortcutEvent) => void): void;
   };
   navigator?: { clipboard?: Clipboard };
-  fetch?: (url: string) => Promise<{ ok: boolean; status: number; text(): Promise<string> }>;
+  fetch?: Fetcher;
 };
 
 /** `fetch` as the island wants it: resolves to the body text, and rejects on an HTTP error. */
 export function browserFetch(url: string): Promise<string> {
-  const fetch = globals.fetch;
-  if (fetch === undefined) return Promise.reject(new Error("fetch is unavailable"));
-  return fetch(url).then((response) =>
-    response.ok ? response.text() : Promise.reject(new Error(`HTTP ${response.status}`)),
-  );
+  return fetchText(globals.fetch, url);
 }

@@ -66,10 +66,10 @@ function setup(url = "https://example.test/books/") {
   const calls: string[] = [];
   let pending: (() => void) | undefined;
   const env: ExplorerEnv = {
-    async fetchText(requested) {
+    async fetchJson(requested) {
       calls.push(requested);
       if (requested !== INDEX_URL) throw new Error(`no file at ${requested}`);
-      return indexJson;
+      return JSON.parse(indexJson);
     },
     schedule(listener, ms) {
       assert.equal(ms, DEBOUNCE_MS);

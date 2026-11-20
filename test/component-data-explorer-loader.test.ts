@@ -33,7 +33,7 @@ function environment(files: Files) {
   let inFlight = 0;
   let peak = 0;
   const env: IndexEnv = {
-    async fetchText(url, signal) {
+    async fetchJson(url, signal) {
       calls.push({ url, signal });
       inFlight += 1;
       peak = Math.max(peak, inFlight);
@@ -41,7 +41,7 @@ function environment(files: Files) {
         await Promise.resolve();
         const body = files[url];
         if (body === undefined) throw new Error(`no file at ${url}`);
-        return body;
+        return JSON.parse(body) as unknown;
       } finally {
         inFlight -= 1;
       }
@@ -141,9 +141,9 @@ test("a failed load reports a retry that starts again from the head", async () =
   let offline = true;
   const body = head("books", ["title", "url"], { rows: [book("Book 1", "/books/b1/")] });
   const env: IndexEnv = {
-    fetchText(url) {
+    fetchJson(url) {
       calls.push(url);
-      return offline ? Promise.reject(new Error("offline")) : Promise.resolve(body);
+      return offline ? Promise.reject(new Error("offline")) : Promise.resolve(JSON.parse(body) as unknown);
     },
   };
   const ready: CollectionIndex[] = [];
@@ -195,13 +195,13 @@ test("a newer load aborts the request in flight and the old rows are ignored", a
   const field = new FakeField();
   interface Pending {
     readonly signal: AbortSignal;
-    readonly resolve: (text: string) => void;
+    readonly resolve: (body: unknown) => void;
     readonly reject: (error: unknown) => void;
   }
   const pending: Pending[] = [];
   const env: IndexEnv = {
-    fetchText(_url, signal) {
-      return new Promise<string>((resolve, reject) => pending.push({ signal, resolve, reject }));
+    fetchJson(_url, signal) {
+      return new Promise<unknown>((resolve, reject) => pending.push({ signal, resolve, reject }));
     },
   };
   const ready: CollectionIndex[] = [];
@@ -222,8 +222,8 @@ test("a newer load aborts the request in flight and the old rows are ignored", a
   assert.equal(first.signal.aborted, true, "the superseded request is aborted");
   assert.equal(second.signal.aborted, false);
 
-  first.resolve(head("books", ["title", "url"], { rows: [book("Old", "/books/old/")] }));
-  second.resolve(head("books", ["title", "url"], { rows: [book("New", "/books/new/")] }));
+  first.resolve(JSON.parse(head("books", ["title", "url"], { rows: [book("Old", "/books/old/")] })));
+  second.resolve(JSON.parse(head("books", ["title", "url"], { rows: [book("New", "/books/new/")] })));
   await secondLoad;
   await tick();
 

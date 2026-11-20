@@ -114,7 +114,7 @@ interface CompareState {
   readonly no: string;
   readonly recordsLabel: string;
   readonly env: CompareEnv;
-  readonly fetchText: (url: string, signal: AbortSignal) => Promise<string>;
+  readonly fetchJson: (url: string, signal: AbortSignal) => Promise<unknown>;
   wanted: readonly string[];
   index?: CollectionIndex;
   selection?: PickerSelection;
@@ -383,7 +383,7 @@ function load(state: CompareState): void {
       base: state.base,
       collection: state.collection,
     },
-    { fetchText: state.fetchText },
+    { fetchJson: state.fetchJson },
     {
       ready: (index) => {
         state.index = index;
@@ -429,8 +429,8 @@ function toggle(state: CompareState, column: ColumnState): void {
 function stateOf(doc: PickDocument, root: CompareElement, env: CompareEnv): CompareState | undefined {
   const collection = attrOf(root, COLLECTION_ATTR);
   const fields = fieldsOf(root.getAttribute(FIELDS_ATTR) ?? "");
-  const fetchText = env.fetchText;
-  if (collection === "" || fields.length === 0 || fetchText === undefined) return undefined;
+  const fetchJson = env.fetchJson;
+  if (collection === "" || fields.length === 0 || fetchJson === undefined) return undefined;
 
   const columns: ColumnState[] = [...root.querySelectorAll(HEAD_SELECTOR)].map((head, at) => {
     const title = doc.createElement("span");
@@ -479,7 +479,7 @@ function stateOf(doc: PickDocument, root: CompareElement, env: CompareEnv): Comp
     no: attrOf(root, FALSE_ATTR),
     recordsLabel: attrOf(root, RECORDS_ATTR),
     env,
-    fetchText,
+    fetchJson,
     wanted: [],
     write: () => {},
   };
@@ -490,7 +490,7 @@ function stateOf(doc: PickDocument, root: CompareElement, env: CompareEnv): Comp
  * reader opens reads the index, and the address's chosen ids are applied once it arrives.
  */
 export function attachPickers(doc: CompareDocument, env: CompareEnv): void {
-  if (env.fetchText === undefined) return;
+  if (env.fetchJson === undefined) return;
   const pickDoc = doc as unknown as PickDocument;
   const states = [...doc.querySelectorAll(ROOT_SELECTOR)].flatMap((root) => {
     const state = stateOf(pickDoc, root, env);
