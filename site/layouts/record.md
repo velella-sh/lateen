@@ -78,6 +78,8 @@ Each item under `facts` is one row of the panel.
 
 An entry with no field, no label, or a field the record does not have is skipped, so a stale template loses one row rather than breaking the page. A field named `derived.<name>` reads the value the collection's derived rules computed.
 
+When the collection names an `evidence` field, a field backed by public claims shows a link per claim beside its value, in the order the claims are written; a field with no claim shows no link.
+
 ## Fact kinds
 
 A field is shown by its kind. The default is `text`; `status` reads the site's status map and keeps the raw value.

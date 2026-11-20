@@ -2253,6 +2253,17 @@
     font-weight: 600;
   }
 
+  .record-fact-evidence {
+    margin-inline-start: 0.5rem;
+    color: var(--muted-foreground);
+    font-size: 0.75rem;
+  }
+
+  .record-fact-evidence a {
+    color: inherit;
+    text-decoration: underline;
+  }
+
   .field-language {
     margin-inline-end: 0.35rem;
     color: var(--muted-foreground);
