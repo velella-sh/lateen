@@ -37,7 +37,20 @@ test("a chosen value is marked and links back to the address without it", () => 
   assert.match(out, /href="\/gallery\/\?filter\.status=draft"[^>]*>draft \(1\)<\/a>/);
 });
 
-test("the clear link removes every filter and keeps the sort", () => {
+test("the reset button appears only while a filter is active", () => {
+  const idle = render({ facets, sorts: [], url: "/gallery/", selected: new Map(), lang: "en" });
+  assert.match(idle, /<button[^>]*data-gallery-clear[^>]*hidden>Clear filters<\/button>/);
+  const active = render({
+    facets,
+    sorts: [],
+    url: "/gallery/?filter.status=done",
+    selected: new Map([["status", "done"]]),
+    lang: "en",
+  });
+  assert.doesNotMatch(active, /<button[^>]*hidden/);
+});
+
+test("the reset is a GET form that clears every filter and keeps the sort without script", () => {
   const out = render({
     facets,
     sorts: ["title"],
@@ -49,11 +62,26 @@ test("the clear link removes every filter and keeps the sort", () => {
     sort: { field: "title", direction: "desc" },
     lang: "en",
   });
-  assert.match(out, /class="gallery-filter-clear" href="\/gallery\/\?sort=title&amp;order=desc"/);
-  assert.match(out, />Clear filters<\/a>/);
+  assert.match(out, /<form class="gallery-filter-reset" method="get" action="\/gallery\/">/);
+  assert.match(out, /<input type="hidden" name="sort" value="title"/);
+  assert.match(out, /<input type="hidden" name="order" value="desc"/);
+  assert.match(out, /<button[^>]*type="submit"[^>]*>Clear filters<\/button>/);
 });
 
-test("a facet with no values renders no group and still offers the clear link", () => {
+test("the reset label reads in the page's language, including right-to-left pages", () => {
+  const active = (lang: string): string =>
+    render({
+      facets,
+      sorts: [],
+      url: "/gallery/?filter.status=done",
+      selected: new Map([["status", "done"]]),
+      lang,
+    });
+  assert.match(active("fa"), />پاک کردن فیلترها<\/button>/);
+  assert.match(active("ar"), />مسح عوامل التصفية<\/button>/);
+});
+
+test("a facet with no values renders no group and still offers the reset when a filter is active", () => {
   const out = render({
     facets: [{ field: "status", values: [] }],
     sorts: [],
@@ -62,7 +90,9 @@ test("a facet with no values renders no group and still offers the clear link", 
     lang: "en",
   });
   assert.doesNotMatch(out, /<fieldset/);
-  assert.match(out, /gallery-filter-clear/);
+  assert.match(out, /<form class="gallery-filter-reset"/);
+  assert.match(out, /<button[^>]*data-gallery-clear[^>]*>Clear filters<\/button>/);
+  assert.doesNotMatch(out, /<button[^>]*hidden/);
 });
 
 test("boolean values read as words and numbers use the page's digits", () => {
