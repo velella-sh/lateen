@@ -31,6 +31,8 @@ export interface SelectedRecord {
   readonly fields: Readonly<Record<string, unknown>>;
   /** The engine's derived values, when the collection declares rules and the record has a date to derive from. */
   readonly derived?: Readonly<Record<string, unknown>>;
+  /** Reference fields resolved to the URL of the record page they point at, as the engine wrote them. */
+  readonly links?: Readonly<Record<string, string>>;
   readonly url?: string;
 }
 

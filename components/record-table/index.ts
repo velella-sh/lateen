@@ -268,8 +268,11 @@ export default function recordTable({ props, page, site }: ComponentProps<Readon
           const cell = has
             ? dataValue(column.field, value, column.kind, formatField(value, column.kind, lang, site?.config) as never)
             : h("span", { class: MISSING_CLASS }, t(lang, "record_table_unknown_field", { name: column.field }));
+          // A reference cell links to the record the engine resolved; the row's own page wins in the first column.
+          const href = record.links?.[column.field];
+          const reference = has && href !== undefined && href !== "" ? h("a", { href }, cell as never) : cell;
           const content =
-            index === 0 && record.url !== undefined ? h("a", { href: record.url }, cell as never) : cell;
+            index === 0 && record.url !== undefined ? h("a", { href: record.url }, cell as never) : reference;
           const state = has ? valueState(value) : undefined;
           return h(
             "td",

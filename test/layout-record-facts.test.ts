@@ -37,6 +37,8 @@ const fields = {
   na: null,
   published: "2026-11-09",
   draft: false,
+  author: "ada",
+  series: "@scope/series",
 };
 
 const facts = JSON.stringify([
@@ -61,7 +63,7 @@ function pageWith(factList: unknown = JSON.parse(facts)): Page {
   } as unknown as Page;
 }
 
-function props(page: Page, id = "button"): LayoutProps {
+function props(page: Page, id = "button", links: Readonly<Record<string, string>> = {}): LayoutProps {
   const site: Site = {
     config,
     pages: [page],
@@ -76,11 +78,12 @@ function props(page: Page, id = "button"): LayoutProps {
     pager: { prev: { title: "Badge", url: "/components/badge/" }, next: { title: "Callout", url: "/components/callout/" } },
     head: { title: `${page.title} · Example`, meta: [], links: [], jsonLd: [] },
     islands: [],
-    record: { collection: "components", id, url: page.url, fields, links: {} },
+    record: { collection: "components", id, url: page.url, fields, links },
   } as unknown as LayoutProps;
 }
 
-const render = (page: Page = pageWith(), id = "button") => renderToString(record(props(page, id)) as never);
+const render = (page: Page = pageWith(), id = "button", links: Readonly<Record<string, string>> = {}) =>
+  renderToString(record(props(page, id, links)) as never);
 
 /** One record of the `books` collection as a table, so facts and cells read the same values. */
 function renderTable(columns: unknown[], lang = "en"): string {
@@ -176,6 +179,45 @@ test("a fact the record lacks is left out, not rendered empty", () => {
 test("the id is a fact a page may ask for", () => {
   const out = render(pageWith([{ field: "id", label: "Identifier" }]));
   assert.match(out, /<dt class="key-value-key">Identifier<\/dt><dd class="key-value-value record-fact" data-kind="text"><bdi dir="ltr">button<\/bdi><\/dd>/);
+});
+
+test("reference facts link to the records the engine resolved, each to its own target", () => {
+  const out = render(
+    pageWith([
+      { field: "author", label: "Author" },
+      { field: "series", label: "Series" },
+    ]),
+    "button",
+    { author: "/people/ada/", series: "/series/@scope/series/" },
+  );
+  assert.match(out, /<dt class="key-value-key">Author<\/dt><dd[^>]*><a href="\/people\/ada\/">ada<\/a><\/dd>/);
+  assert.match(
+    out,
+    /<dt class="key-value-key">Series<\/dt><dd[^>]*><a href="\/series\/@scope\/series\/"><bdi dir="ltr">@scope\/series<\/bdi><\/a><\/dd>/,
+  );
+});
+
+test("a reference fact without a resolved link stays plain text", () => {
+  const out = render(
+    pageWith([
+      { field: "author", label: "Author" },
+      { field: "series", label: "Series" },
+    ]),
+    "button",
+    { author: "/people/ada/" },
+  );
+  assert.match(out, /<dd[^>]*><a href="\/people\/ada\/">ada<\/a><\/dd>/);
+  assert.match(out, /<dt class="key-value-key">Series<\/dt><dd[^>]*><bdi dir="ltr">@scope\/series<\/bdi><\/dd>/);
+  assert.ok(!out.includes("@scope/series</bdi></a>"), "no link without a resolved target");
+});
+
+test("a resolved link keeps the engine's base path on a right-to-left page", () => {
+  const page = { ...pageWith([{ field: "author", label: "نویسنده" }]), lang: "fa", dir: "rtl" } as Page;
+  const out = render(page, "button", { author: "/fa/base/people/ada/" });
+  assert.match(
+    out,
+    /<dt class="key-value-key">نویسنده<\/dt><dd[^>]*><a href="\/fa\/base\/people\/ada\/">ada<\/a><\/dd>/,
+  );
 });
 
 test("package names, slugs, and ids stay left to right on a right-to-left page", () => {
