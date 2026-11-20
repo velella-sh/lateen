@@ -3,6 +3,7 @@ import type { Component } from "@velella/mizzen/contracts";
 import { Check, Info, Minus, OctagonAlert, TriangleAlert } from "lucide";
 import type { IconNode } from "lucide";
 import { icon } from "../../src/icon.ts";
+import { knownOr } from "../../src/guards.ts";
 import { resolveStatus } from "./values.ts";
 
 /** The Markdown directive this component handles: `:status[Done]{tone=positive}`. */
@@ -41,9 +42,7 @@ export type StatusProps = {
 
 /** The tone to render: the given one (trimmed, case-insensitive) when known, otherwise {@link DEFAULT_TONE}. */
 export function toneOf(value: unknown): StatusTone {
-  if (typeof value !== "string") return DEFAULT_TONE;
-  const tone = value.trim().toLowerCase();
-  return (TONES as readonly string[]).includes(tone) ? (tone as StatusTone) : DEFAULT_TONE;
+  return knownOr(TONES, value, DEFAULT_TONE);
 }
 
 /** Class names of a status: `status` plus `status-<tone>`. */

@@ -1,6 +1,7 @@
 import { h } from "preact";
 import type { Component } from "@velella/mizzen/contracts";
 import { t } from "../../i18n/index.ts";
+import { knownOf } from "../../src/guards.ts";
 
 /** The Markdown directive this component handles: `::version-badge{version=0.3}`. */
 export const directive = "version-badge";
@@ -65,7 +66,7 @@ export function variantOf(value: unknown): VersionBadgeState {
   if (typeof value !== "string") return UNKNOWN_VARIANT;
   const variant = value.trim().toLowerCase();
   if (variant === "") return DEFAULT_VARIANT;
-  return (VARIANTS as readonly string[]).includes(variant) ? (variant as VersionBadgeVariant) : UNKNOWN_VARIANT;
+  return knownOf(VARIANTS, variant) ?? UNKNOWN_VARIANT;
 }
 
 /**

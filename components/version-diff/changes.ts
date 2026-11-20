@@ -5,7 +5,7 @@
  * repeated evidence keeps its written order and produces the same states, counts, and ids.
  */
 
-import { isRecord, parseJson as parseJsonText } from "../../src/guards.ts";
+import { isRecord, knownOf, parseJson as parseJsonText } from "../../src/guards.ts";
 import { idChars } from "../../src/slug.ts";
 
 /** The four kinds of section difference, in the order the viewer lists them in data. */
@@ -91,9 +91,7 @@ function textOf(value: unknown): string | undefined {
 
 /** The kind of a change, without case or surrounding spaces; anything else is undefined. */
 export function kindOf(value: unknown): ChangeKind | undefined {
-  if (typeof value !== "string") return undefined;
-  const kind = value.trim().toLowerCase();
-  return (KINDS as readonly string[]).includes(kind) ? (kind as ChangeKind) : undefined;
+  return knownOf(KINDS, value);
 }
 
 /** The JSON value in a directive attribute, or undefined when it is missing, blank, or not JSON. */
