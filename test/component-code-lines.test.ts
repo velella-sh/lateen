@@ -64,6 +64,28 @@ test("code text is kept exactly, entities and all", () => {
   assert.match(decorateLines(html), /a &lt; b &amp;&amp; c<\/span>$/);
 });
 
+test("a long numbered line keeps one number per source line and wraps its code", () => {
+  const long = "const value = " + "a".repeat(200) + ";";
+  const out = decorateLines(`<span class="line">${long}</span>\n<span class="line">next</span>`, { numbers: true });
+  assert.equal((out.match(/class="line-number"/g) ?? []).length, 2);
+  assert.match(out, /<span class="line-number" data-line="1" aria-hidden="true"><\/span><span class="line-code">/);
+  assert.match(out, /<span class="line-number" data-line="2" aria-hidden="true"><\/span><span class="line-code">next<\/span>/);
+  assert.equal(textOf(out), `${long}\nnext`);
+
+  const css = readFileSync(new URL("../styles/src/ui.css", import.meta.url), "utf8");
+  const row = /\.code \.line\[data-line\] \{([^}]*)\}/.exec(css)?.[1] ?? "";
+  assert.match(row, /display:\s*inline-grid/);
+  assert.match(row, /grid-template-columns:[^;]*minmax\(0,\s*1fr\)/);
+  assert.doesNotMatch(row, /\b(?:float|position):/);
+  const number = /\.code \.line-number \{([^}]*)\}/.exec(css)?.[1] ?? "";
+  assert.match(number, /white-space:\s*nowrap/);
+  const code = /\.code \.line-code \{([^}]*)\}/.exec(css)?.[1] ?? "";
+  assert.match(code, /min-inline-size:\s*0/);
+  assert.match(code, /white-space:\s*pre-wrap/);
+  assert.match(code, /overflow-wrap:\s*anywhere/);
+  assert.doesNotMatch(code, /\b(?:left|right)\b/);
+});
+
 test("a line without Shiki's wrapper is wrapped too", () => {
   assert.equal(decorateLines("plain"), `<span class="${LINE_CLASS}">plain</span>`);
 });

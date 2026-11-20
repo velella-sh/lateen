@@ -29,7 +29,7 @@ test("a plain fence with meta renders its title, highlighted and numbered lines"
   assert.equal(textOf(doc.querySelector(".code-title")), "answer.ts");
   assert.equal(all(doc, "pre.code .highlighted").length, 1, "the {3} range highlights one line");
   assert.deepEqual(
-    all(doc, "pre.code [data-line]").map((line) => line.getAttribute("data-line")),
+    all(doc, "pre.code .line[data-line]").map((line) => line.getAttribute("data-line")),
     ["1", "2", "3", "4"],
   );
 });
