@@ -14,6 +14,7 @@ import {
   type Json,
 } from "../chart-data/input.ts";
 import { scale } from "../timeline/scale.ts";
+import { evenTicksOf, extentOf, paddedDomain, percentOf, percentScaleOf, ratioOf } from "../chart-data/scale.ts";
 
 /** The Markdown directive this component handles: `::line-chart{from="growth"}`. */
 export const directive = "line-chart";
@@ -196,22 +197,25 @@ export default function lineChart({ props, site, page }: ComponentProps<LineChar
         const number = numericValue(value);
         return number === undefined ? [] : [number];
       });
-  const numberMin = Math.min(...numbers);
-  const numberMax = Math.max(...numbers);
-  if (!dateMode && numbers.length === 0) {
+  const numberExtent = extentOf(numbers);
+  const numberMin = numberExtent?.low ?? 0;
+  const numberMax = numberExtent?.high ?? 0;
+  if (!dateMode && numberExtent === undefined) {
     return h("p", { class: MISSING_CLASS, role: "note" }, `${DEFAULT_TITLE}: no values in "${from}".`);
   }
 
   const axisStart = axis === undefined ? 0 : Date.parse(axis.from);
   const axisSpan = axis === undefined ? 1 : Date.parse(axis.to) - axisStart;
+  // A single value sits mid-axis; any other value is its percentage of the domain's span.
+  const position = (number: number): number =>
+    numberMin === numberMax ? 50 : percentOf(number, numberMin, numberMax);
   const positionOf = (value: unknown): number | undefined => {
     if (axis !== undefined) {
       const date = dateOf(value);
-      return date === undefined ? undefined : ((Date.parse(date) - axisStart) / axisSpan) * 100;
+      return date === undefined ? undefined : percentOf(Date.parse(date) - axisStart, 0, axisSpan);
     }
     const number = numericValue(value);
-    if (number === undefined) return undefined;
-    return numberMin === numberMax ? 50 : ((number - numberMin) / (numberMax - numberMin)) * 100;
+    return number === undefined ? undefined : position(number);
   };
 
   const series: Series[] = fields.map((field) => ({
@@ -228,7 +232,8 @@ export default function lineChart({ props, site, page }: ComponentProps<LineChar
   const values = series.flatMap((entry) =>
     entry.points.flatMap((point) => (point.value === undefined ? [] : [point.value])),
   );
-  if (values.length === 0) {
+  const valueExtent = extentOf(values);
+  if (valueExtent === undefined) {
     return h("p", { class: MISSING_CLASS, role: "note" }, `${DEFAULT_TITLE}: no values in "${from}".`);
   }
 
@@ -240,7 +245,7 @@ export default function lineChart({ props, site, page }: ComponentProps<LineChar
           return unique
             .filter((_, index) => index % step === 0)
             .map((number) => ({
-              position: numberMin === numberMax ? 50 : ((number - numberMin) / (numberMax - numberMin)) * 100,
+              position: position(number),
               label: formatNumber(lang, number),
             }));
         })()
@@ -260,18 +265,11 @@ export default function lineChart({ props, site, page }: ComponentProps<LineChar
   const bottom = height - 32;
   const plotWidth = right - left;
   const plotHeight = bottom - top;
-  const xPx = (position: number): number => (mirror ? right - (position / 100) * plotWidth : left + (position / 100) * plotWidth);
+  const xPx = percentScaleOf(mirror ? right : left, plotWidth, mirror);
 
-  let low = Math.min(...values);
-  let high = Math.max(...values);
-  if (low === high) {
-    low -= 1;
-    high += 1;
-  }
-  const yPx = (value: number): number => top + (1 - (value - low) / (high - low)) * plotHeight;
-  const yTicks = Array.from({ length: 5 }, (_, index) =>
-    Number((low + ((high - low) * index) / 4).toPrecision(12)),
-  );
+  const { low, high } = paddedDomain(valueExtent.low, valueExtent.high);
+  const yPx = (value: number): number => top + (1 - ratioOf(value, low, high)) * plotHeight;
+  const yTicks = evenTicksOf(low, high);
 
   const marks = [];
   for (const tick of yTicks) {

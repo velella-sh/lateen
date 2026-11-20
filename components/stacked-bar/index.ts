@@ -6,9 +6,9 @@ import {
   NO_VALUE_TEXT,
   rowsOf,
   shortenLabel,
-  ticksOf,
 } from "../bar-chart/index.ts";
 import { MAX_SERIES, idBaseOf, seriesColour, text } from "../chart-data/input.ts";
+import { stackedTotalsOf, ticksOf, xScaleOf } from "../chart-data/scale.ts";
 
 /** The number of series the chart colours: one per categorical token, `chart-cat-1` to `chart-cat-8`. */
 export { MAX_SERIES } from "../chart-data/input.ts";
@@ -168,21 +168,15 @@ function chartOf(rows: readonly StackedRow[], series: readonly string[], lang: s
   let low = 0;
   let high = 0;
   for (const row of rows) {
-    let positive = 0;
-    let negative = 0;
-    for (const segment of row.segments) {
-      if (segment.value === undefined) continue;
-      if (segment.value > 0) positive += segment.value;
-      else negative += segment.value;
-    }
-    high = Math.max(high, positive);
-    low = Math.min(low, negative);
+    const totals = stackedTotalsOf(row.segments);
+    high = Math.max(high, totals.positive);
+    low = Math.min(low, totals.negative);
   }
 
   const ticks = ticksOf(low, high);
   const scaleLow = ticks[0] ?? 0;
   const scaleHigh = ticks[ticks.length - 1] ?? 1;
-  const x = (value: number): number => plotX + ((value - scaleLow) / (scaleHigh - scaleLow || 1)) * plotWidth;
+  const x = xScaleOf(scaleLow, scaleHigh, plotX, plotWidth);
   const marks = [];
 
   for (const tick of ticks) {

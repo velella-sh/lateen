@@ -14,9 +14,13 @@ import {
   text,
   type Json,
 } from "../chart-data/input.ts";
+import { extentOf, ticksOf, xScaleOf, yScaleOf } from "../chart-data/scale.ts";
 
 /** The shared input validation every chart reads through; re-exported for the bar chart's callers. */
 export { labelDir, lookup, numericValue } from "../chart-data/input.ts";
+
+/** The shared tick calculation; re-exported for the bar chart's callers. */
+export { ticksOf } from "../chart-data/scale.ts";
 
 /** The Markdown directive this component handles: `::bar-chart{from="sales"}`. */
 export const directive = "bar-chart";
@@ -141,33 +145,6 @@ export function shortenLabel(label: string, max = MAX_LABEL_LENGTH): string {
   return shorten(label, max);
 }
 
-/** A round step near `span / count`: 1, 2, 5, or 10 times a power of ten. */
-function niceStep(span: number, count: number): number {
-  const rough = span / Math.max(1, count);
-  const power = 10 ** Math.floor(Math.log10(rough));
-  const error = rough / power;
-  const factor = error < 1.5 ? 1 : error < 3 ? 2 : error < 7 ? 5 : 10;
-  return factor * power;
-}
-
-/**
- * The tick values for a data range: round steps that include zero, the range's ends, and no tick
- * nobody asked for. A range with one value still gets a second end, so a single bar reads on a scale.
- */
-export function ticksOf(min: number, max: number, count = 5): number[] {
-  const low = Math.min(0, Number.isFinite(min) ? min : 0);
-  const high = Math.max(0, Number.isFinite(max) ? max : 0);
-  const span = high - low === 0 ? 1 : high - low;
-  const step = niceStep(span, count);
-  const start = Math.floor(low / step) * step;
-  const end = Math.ceil((low + span) / step) * step;
-  const ticks: number[] = [];
-  for (let value = start; value <= end + step / 2; value += step) {
-    ticks.push(Number(value.toPrecision(12)));
-  }
-  return ticks;
-}
-
 /** The direction the directive asked for; an unknown value falls back to horizontal. */
 export function directionOf(raw: unknown): Direction {
   return typeof raw === "string" && (DIRECTIONS as readonly string[]).includes(raw.trim().toLowerCase())
@@ -196,10 +173,7 @@ function horizontalChart(rows: readonly BarRow[], ticks: readonly number[], lang
   const low = ticks[0] ?? 0;
   const high = ticks[ticks.length - 1] ?? 1;
   // On a right-to-left page the axis starts at the right edge, so values grow toward the left.
-  const x = (value: number): number => {
-    const ratio = (value - low) / (high - low || 1);
-    return rtl ? plotX + plotWidth * (1 - ratio) : plotX + plotWidth * ratio;
-  };
+  const x = xScaleOf(low, high, plotX, plotWidth, rtl);
   const marks = [];
 
   for (const tick of ticks) {
@@ -290,7 +264,7 @@ function verticalChart(rows: readonly BarRow[], ticks: readonly number[], lang: 
   const high = ticks[ticks.length - 1] ?? 1;
   const slot = (width - left - right) / Math.max(1, rows.length);
   const barWidth = Math.min(56, Math.max(8, slot * 0.6));
-  const y = (value: number): number => plotTop + ((high - value) / (high - low || 1)) * plotHeight;
+  const y = yScaleOf(low, high, plotTop, plotHeight);
   const marks = [];
 
   for (const tick of ticks) {
@@ -387,7 +361,8 @@ export default function barChart({ props, site, page }: ComponentProps<BarChartP
   const lang = page.lang;
   const rtl = page.dir === "rtl";
   const values = rows.flatMap((row) => (row.value === undefined ? [] : [row.value]));
-  const ticks = ticksOf(Math.min(...values), Math.max(...values));
+  const extent = extentOf(values);
+  const ticks = ticksOf(extent?.low ?? 0, extent?.high ?? 0);
   const chart =
     direction === "vertical" ? verticalChart(rows, ticks, lang, rtl) : horizontalChart(rows, ticks, lang, rtl);
   const description = `Values of ${valueField} by ${category}, ${rows.length} ${rows.length === 1 ? "row" : "rows"}.`;

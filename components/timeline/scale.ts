@@ -1,4 +1,5 @@
 import { calendarDay, calendarParts } from "../../src/dates.ts";
+import { percentOf } from "../chart-data/scale.ts";
 
 /** What the axis counts in: whole years, or quarters when the range is under two years. */
 export type ScaleUnit = "year" | "quarter";
@@ -43,16 +44,17 @@ export type Scale = {
   readonly segments: readonly (ScaleSegment | undefined)[];
 };
 
-const DAY = 86_400_000;
+/** One day in epoch milliseconds, the unit the axis counts in. */
+export const DAY = 86_400_000;
 
 /** A value as a real calendar day, in epoch milliseconds at UTC midnight, or undefined. */
-function dayOf(value: unknown): number | undefined {
+export function dayOf(value: unknown): number | undefined {
   const iso = typeof value === "string" ? calendarDay(value.trim()) : undefined;
   return iso === undefined ? undefined : Date.parse(iso);
 }
 
 /** The ISO date for a day. */
-function iso(day: number): string {
+export function iso(day: number): string {
   return new Date(day).toISOString().slice(0, 10);
 }
 
@@ -181,8 +183,7 @@ export function scale(rows: readonly ScaleRow[], bounds: ScaleBounds = {}, lang 
   const unit: ScaleUnit = monthsBetween(first, last) < 24 ? "quarter" : "year";
   const from = unitStart(first, unit);
   const to = unitNext(last, unit);
-  const span = to - from;
-  const percent = (day: number) => ((day - from) / span) * 100;
+  const percent = (day: number) => percentOf(day, from, to);
 
   const ticks = ticksOf(from, to, unit, lang, percent);
 
