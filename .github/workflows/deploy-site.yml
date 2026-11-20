@@ -63,3 +63,13 @@ jobs:
           include-hidden-files: true
       - id: deploy
         uses: actions/deploy-pages@368f82528645a54fb793d4d04e342629a3f51346 # v5.0.1
+      - name: Smoke-test the deployed site
+        working-directory: lateen
+        run: node scripts/smoke-deployed.ts --base "${{ steps.deploy.outputs.page_url }}" --commit "${{ github.sha }}" --report test/smoke/out/deployed.json
+      - name: Keep the deployed smoke report
+        if: always()
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
+        with:
+          name: deployed-smoke
+          path: lateen/test/smoke/out/deployed.json
+          if-no-files-found: ignore
