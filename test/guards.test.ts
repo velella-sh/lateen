@@ -1,7 +1,20 @@
 import assert from "node:assert/strict";
 import { test } from "node:test";
-import { isRecord, parseJson, textOf } from "../src/guards.ts";
-import { isRecord as entryIsRecord, parseJson as entryParseJson, textOf as entryTextOf, theme } from "../src/index.ts";
+import { isRecord, knownOf, knownOr, parseJson, textOf } from "../src/guards.ts";
+import {
+  isRecord as entryIsRecord,
+  knownOf as entryKnownOf,
+  parseJson as entryParseJson,
+  textOf as entryTextOf,
+  theme,
+} from "../src/index.ts";
+import { DEFAULT_TONE, ICONS as TONE_ICONS, TONES } from "../components/status/index.ts";
+import { statusOf as pageStatusOf } from "../components/page-status/index.ts";
+import { statusOf as bannerStatusOf } from "../components/status-banner/index.ts";
+import { variantOf as versionVariantOf } from "../components/version-badge/index.ts";
+import { kindOf as diffKindOf } from "../components/version-diff/changes.ts";
+import { statusOf as versionStatusOf } from "../layouts/versions.ts";
+import { categoriesOf } from "../components/changelog-entry/index.ts";
 
 test("a plain object passes, including nested and boxed objects", () => {
   assert.equal(isRecord({}), true);
@@ -79,4 +92,45 @@ test("parseJson yields the value as unknown data and never asserts a shape", () 
 test("the entry re-exports parseJson", () => {
   assert.deepEqual(entryParseJson("[true]"), [true]);
   assert.equal(entryParseJson("}"), undefined);
+});
+
+test("knownOf trims, ignores case, and returns the vocabulary's own spelling", () => {
+  assert.equal(knownOf(["added", "removed"], " Added "), "added");
+  assert.equal(knownOf(["added", "removed"], "REMOVED"), "removed");
+  for (const value of [undefined, null, 3, true, {}, [], "", "  ", "extra"]) {
+    assert.equal(knownOf(["added", "removed"], value), undefined);
+  }
+});
+
+test("knownOr keeps the documented fallback for a missing or unknown value", () => {
+  assert.equal(knownOr(TONES, " POSITIVE ", DEFAULT_TONE), "positive");
+  assert.equal(knownOr(TONES, "loud", DEFAULT_TONE), DEFAULT_TONE);
+  assert.equal(knownOr(TONES, undefined, DEFAULT_TONE), DEFAULT_TONE);
+});
+
+test("an unknown tone falls back to one that still carries an icon and text, never colour alone", () => {
+  for (const value of ["loud", "", undefined, 7]) {
+    const tone = knownOr(TONES, value, DEFAULT_TONE);
+    assert.ok(TONES.includes(tone));
+    assert.ok(TONE_ICONS[tone], "every tone, the fallback included, has its own non-colour signal");
+  }
+});
+
+test("the entry re-exports knownOf", () => {
+  assert.equal(entryKnownOf(["added"], " AddEd "), "added");
+  assert.equal(entryKnownOf(["added"], "other"), undefined);
+});
+
+test("each status vocabulary keeps its documented fallback for a missing or unknown value", () => {
+  assert.equal(pageStatusOf("Beta"), "beta");
+  assert.equal(pageStatusOf("bogus"), undefined);
+  assert.equal(bannerStatusOf("Old_Version"), "old-version");
+  assert.equal(bannerStatusOf("bogus"), undefined);
+  assert.equal(versionVariantOf(" Changed "), "changed");
+  assert.equal(versionVariantOf("bogus"), "unknown");
+  assert.equal(diffKindOf("MOVED"), "moved");
+  assert.equal(diffKindOf("bogus"), undefined);
+  assert.equal(versionStatusOf("old"), "deprecated");
+  assert.equal(versionStatusOf("bogus"), undefined);
+  assert.deepEqual(categoriesOf(["Fixed", "bogus"]), ["fixed"]);
 });

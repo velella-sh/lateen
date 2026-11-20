@@ -1,5 +1,5 @@
 import { h } from "preact";
-import { isRecord, textOf as text } from "../src/guards.ts";
+import { isRecord, knownOf, textOf as text } from "../src/guards.ts";
 import type { ComponentChildren } from "preact";
 import type { Layout, LayoutProps, Page, Site } from "@velella/mizzen/contracts";
 import shell, { footer as shellFooter } from "../chrome/shell/index.ts";
@@ -110,8 +110,7 @@ function byCodePoint(a: string, b: string): number {
 export function statusOf(value: unknown): VersionStatus | undefined {
   if (typeof value !== "string") return undefined;
   const status = value.trim().toLowerCase();
-  if (status === "old") return "deprecated";
-  return (STATUSES as readonly string[]).includes(status) ? (status as VersionStatus) : undefined;
+  return knownOf(STATUSES, status === "old" ? "deprecated" : status);
 }
 
 /** One version record, or undefined when it has no usable `version`. */

@@ -4,6 +4,7 @@ import { CircleSlash, Clock, FlaskConical } from "lucide";
 import type { IconNode } from "lucide";
 import { t } from "../../i18n/index.ts";
 import { icon as lucideIcon } from "../../src/icon.ts";
+import { knownOf } from "../../src/guards.ts";
 
 /** The Markdown directive this component handles: `::status-banner{status=deprecated}`. */
 export const directive = "status-banner";
@@ -65,8 +66,7 @@ const SAFE_URL = /^(?:\/(?![/\\])|https:\/\/)[^\s"<>]*$/;
  */
 export function statusOf(value: unknown): StatusBannerStatus | undefined {
   if (typeof value !== "string") return undefined;
-  const status = value.trim().toLowerCase().replace(/[\s_]+/g, "-");
-  return (STATUSES as readonly string[]).includes(status) ? (status as StatusBannerStatus) : undefined;
+  return knownOf(STATUSES, value.trim().toLowerCase().replace(/[\s_]+/g, "-"));
 }
 
 /** Class names of the banner: `status-banner` plus `status-banner-<status>`. */

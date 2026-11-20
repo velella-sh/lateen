@@ -1,6 +1,7 @@
 import { h } from "preact";
 import type { Component } from "@velella/mizzen/contracts";
 import { t } from "../../i18n/index.ts";
+import { knownOf } from "../../src/guards.ts";
 
 /** The statuses that get a banner. */
 export const STATUSES = ["experimental", "beta", "deprecated"] as const;
@@ -36,9 +37,7 @@ const SAFE_URL = /^(?:\/(?![/\\])|https:\/\/)[^\s"<>]*$/;
 
 /** The status to show: one of {@link STATUSES}, matched without case or surrounding spaces; otherwise undefined. */
 export function statusOf(value: unknown): BannerStatus | undefined {
-  if (typeof value !== "string") return undefined;
-  const status = value.trim().toLowerCase();
-  return (STATUSES as readonly string[]).includes(status) ? (status as BannerStatus) : undefined;
+  return knownOf(STATUSES, value);
 }
 
 /** Class names of the banner: `page-status` plus `page-status-<status>`. */
