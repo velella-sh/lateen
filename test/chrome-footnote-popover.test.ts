@@ -3,7 +3,7 @@ import { readFileSync } from "node:fs";
 import { test } from "node:test";
 import { JSDOM } from "jsdom";
 import { Fragment } from "preact";
-import type { ChromeProps, Head, LayoutProps, Page, Site, SiteConfig, SourcePos } from "@velella/mizzen/contracts";
+import type { ChromeProps, Head, LayoutProps, Page, Site, SourcePos } from "@velella/mizzen/contracts";
 import footnotePopover, { hasFootnoteRefs, POPOVER_ID } from "../chrome/footnote-popover/index.ts";
 import {
   activate,
@@ -15,27 +15,11 @@ import {
   type FootnoteTarget,
 } from "../chrome/footnote-popover/client.ts";
 import base from "../layouts/base.ts";
+import { siteConfig } from "./helpers/site.ts";
 
 const pos: SourcePos = { file: "docs/guide/install.md", line: 3, column: 1, endLine: 9, endColumn: 1 };
 
-const config: SiteConfig = {
-  title: "Example",
-  base: "/example",
-  lang: "en",
-  dir: "ltr",
-  languages: [],
-  source: ".",
-  include: [],
-  exclude: [],
-  navigation: "_data/navigation.yml",
-  defaults: [],
-  theme: { options: {} },
-  search: { text: 300 },
-  redirects: {},
-  outputs: {},
-  collections: {},
-  feeds: {},
-};
+const config = siteConfig({ base: "/example" });
 
 /** Markup in the shape remark-gfm writes: a reference in the text, its note at the end, a back-link in the note. */
 const REF =

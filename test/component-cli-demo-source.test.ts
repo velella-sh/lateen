@@ -1,14 +1,15 @@
 import assert from "node:assert/strict";
-import { mkdirSync, mkdtempSync, symlinkSync, writeFileSync } from "node:fs";
-import { tmpdir } from "node:os";
+import { mkdirSync, symlinkSync, writeFileSync } from "node:fs";
 import { join } from "node:path";
 import { test } from "node:test";
 import { renderToString } from "preact-render-to-string";
 import type { ComponentProps } from "@velella/mizzen/contracts";
 import cliDemo from "../components/cli-demo/index.ts";
 import { readSessionFile, siteFolderOf } from "../components/cli-demo/source.ts";
+import { withWorkingDirectory } from "./helpers/globals.ts";
+import { tempDir } from "./integration-helpers.ts";
 
-const root = mkdtempSync(join(tmpdir(), "cli-demo-"));
+const root = tempDir("cli-demo-");
 mkdirSync(join(root, "site/guide"), { recursive: true });
 writeFileSync(join(root, "site/mizzen.yml"), "title: x\n");
 writeFileSync(join(root, "site/session.txt"), "$ npm ci\nadded 1 package\n! warn\n");
@@ -19,14 +20,10 @@ symlinkSync(join(root, "secret.txt"), join(root, "site/link.txt"));
 const PAGE = "site/guide/page.md";
 
 function render(props: Record<string, string>): string {
-  const original = process.cwd();
-  process.chdir(root);
-  try {
+  return withWorkingDirectory(root, () => {
     const input = { props, html: "<p>ignored body</p>", page: { lang: "en", source: { file: PAGE, line: 7 } }, site: {} } as unknown as ComponentProps;
     return renderToString(cliDemo(input as never) as never);
-  } finally {
-    process.chdir(original);
-  }
+  });
 }
 
 test("the site folder is the nearest one with a site config", () => {

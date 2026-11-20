@@ -1,55 +1,30 @@
 import assert from "node:assert/strict";
 import { readFileSync } from "node:fs";
 import { test } from "node:test";
+import { withEnv } from "./helpers/globals.ts";
 import { renderToString } from "preact-render-to-string";
 import type {
   ChromeProps,
   NavLink,
   NavTree,
+  
   Page,
   Pager,
   Site,
-  SiteConfig,
   SourcePos,
   Trail,
 } from "@velella/mizzen/contracts";
 import pager from "../chrome/pager/index.ts";
+import { siteConfig } from "./helpers/site.ts";
+import { pageWith } from "./helpers/page.ts";
 
 const pos: SourcePos = { file: "docs/guide/install.md", line: 3, column: 1, endLine: 9, endColumn: 1 };
 
-const config: SiteConfig = {
-  title: "Example",
-  base: "/example",
-  lang: "en",
-  dir: "ltr",
-  languages: [],
-  source: ".",
-  include: [],
-  exclude: [],
-  navigation: "_data/navigation.yml",
-  defaults: [],
-  theme: { options: {} },
-  search: { text: 300 },
-  redirects: {},
-  outputs: {},
-  collections: {},
-  feeds: {},
-};
+const config = siteConfig({ base: "/example" });
 
 const trail: Trail = [];
 
-const page: Page = {
-  url: "/example/guide/install/",
-  source: pos,
-  frontMatter: { title: "Install" },
-  title: "Install",
-  lang: "en",
-  dir: "ltr",
-  headings: [],
-  html: "",
-  markdown: "",
-  kind: "doc",
-};
+const page = pageWith({ url: "/example/guide/install/", source: pos, frontMatter: { title: "Install" }, title: "Install" });
 
 const prev: NavLink = { title: "Overview", url: "/example/guide/" };
 const next: NavLink = { title: "Configure", url: "/example/guide/configure/" };
@@ -122,9 +97,7 @@ test("shows only the card that exists, in the next column", () => {
 });
 
 test("the landmark and card labels follow the page language, with no missing-message diagnostics", () => {
-  const previous = process.env.NODE_ENV;
-  process.env.NODE_ENV = "development";
-  try {
+  withEnv("NODE_ENV", "development", () => {
     for (const [lang, messages] of Object.entries(MESSAGES)) {
       let out = "";
       assert.deepEqual(
@@ -138,16 +111,11 @@ test("the landmark and card labels follow the page language, with no missing-mes
       assert.ok(out.includes(`</svg>${messages.previous}</span>`), `${lang} previous label`);
       assert.ok(out.includes(`${messages.next}<svg`), `${lang} next label`);
     }
-  } finally {
-    if (previous === undefined) delete process.env.NODE_ENV;
-    else process.env.NODE_ENV = previous;
-  }
+  });
 });
 
 test("a regional page tag reads its primary catalog without a diagnostic", () => {
-  const previous = process.env.NODE_ENV;
-  process.env.NODE_ENV = "development";
-  try {
+  withEnv("NODE_ENV", "development", () => {
     for (const [lang, messages] of [
       ["fa-IR", MESSAGES.fa],
       ["AR-eg", MESSAGES.ar],
@@ -166,10 +134,7 @@ test("a regional page tag reads its primary catalog without a diagnostic", () =>
       assert.ok(out.includes(messages.previous));
       assert.ok(out.includes(messages.next));
     }
-  } finally {
-    if (previous === undefined) delete process.env.NODE_ENV;
-    else process.env.NODE_ENV = previous;
-  }
+  });
 });
 
 test("a mixed-direction title is isolated and does not reorder its own direction label", () => {

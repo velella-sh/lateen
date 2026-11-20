@@ -6,6 +6,7 @@ import { mkdirSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from "nod
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { test } from "node:test";
+import { withGlobal } from "./helpers/globals.ts";
 import { main, missingArtifacts, requiredArtifacts, root } from "../scripts/check-package.ts";
 
 const pkg = JSON.parse(readFileSync(new URL("../package.json", import.meta.url), "utf8")) as {
@@ -71,16 +72,16 @@ test("the working tree holds every required artifact after ui:build", () => {
 test("check-package reports on stderr so npm pack --json stdout stays parseable", () => {
   const out: string[] = [];
   const err: string[] = [];
-  const log = console.log;
-  const error = console.error;
-  console.log = (message: string) => void out.push(message);
-  console.error = (message: string) => void err.push(message);
-  try {
-    main([root]);
-  } finally {
-    console.log = log;
-    console.error = error;
-  }
+  withGlobal(
+    "console",
+    Object.assign(Object.create(console), {
+      log: (message: string) => void out.push(message),
+      error: (message: string) => void err.push(message),
+    }),
+    () => {
+      main([root]);
+    },
+  );
   assert.deepEqual(out, []);
   assert.equal(err.length, 1);
   assert.match(err[0] ?? "", /required theme artifacts are present/);

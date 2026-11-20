@@ -15,9 +15,9 @@ import term, {
   directive,
   labelText,
 } from "../components/term/index.ts";
+import { dataRecord } from "./helpers/record.ts";
 
-const record = (id: string, fields: Record<string, unknown>): DataRecord =>
-  ({ id, fields, position: { line: 1, column: 1 }, fieldPositions: {} }) as unknown as DataRecord;
+const record = (id: string, fields: Record<string, unknown>): DataRecord => dataRecord({ id, fields });
 
 const terms = [
   record("network", { term: "Network", definition: "Two or more computers that talk.", aliases: ["Net"] }),

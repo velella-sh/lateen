@@ -5,11 +5,11 @@ import { renderToString } from "preact-render-to-string";
 import type { ComponentProps, DataRecord, Page, Site } from "@velella/mizzen/contracts";
 import dataExplorer from "../components/data-explorer/index.ts";
 import { activate, DEBOUNCE_MS, type ExplorerDocument, type ExplorerEnv } from "../components/data-explorer/client.ts";
+import { dataRecord } from "./helpers/record.ts";
 
 const INDEX_URL = "/data/books.index.json";
 
-const record = (id: string, fields: Record<string, unknown>): DataRecord =>
-  ({ id, fields, position: { line: 1, column: 1 }, fieldPositions: {} }) as unknown as DataRecord;
+const record = (id: string, fields: Record<string, unknown>): DataRecord => dataRecord({ id, fields });
 
 const books = [
   record("b0", { title: "Book 0", shelf: "fiction", year: 2020, format: "paper" }),

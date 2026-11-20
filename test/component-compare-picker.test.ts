@@ -8,9 +8,9 @@ import type { ComponentProps, DataRecord, Page, Site } from "@velella/mizzen/con
 import compare from "../components/compare/index.ts";
 import { activate, type CompareDocument, type CompareEnv } from "../components/compare/client.ts";
 import { recordsOf, withRecords } from "../components/compare/picker.ts";
+import { dataRecord } from "./helpers/record.ts";
 
-const record = (id: string, fields: Record<string, unknown>): DataRecord =>
-  ({ id, fields, position: { line: 1, column: 1 }, fieldPositions: {} }) as unknown as DataRecord;
+const record = (id: string, fields: Record<string, unknown>): DataRecord => dataRecord({ id, fields });
 
 const books = [
   record("a", { title: "Alpha", pages: 120, published: "2026-11-09" }),

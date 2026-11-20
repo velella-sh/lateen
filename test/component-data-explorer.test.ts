@@ -8,9 +8,9 @@ import dataExplorer, {
   QUERY_ID,
   directive,
 } from "../components/data-explorer/index.ts";
+import { dataRecord } from "./helpers/record.ts";
 
-const record = (id: string, fields: Record<string, unknown>): DataRecord =>
-  ({ id, fields, position: { line: 1, column: 1 }, fieldPositions: {} }) as unknown as DataRecord;
+const record = (id: string, fields: Record<string, unknown>): DataRecord => dataRecord({ id, fields });
 
 const books = Array.from({ length: PAGE_SIZE + 1 }, (_, index) =>
   record(`b${index}`, { title: `Book ${index}`, pages: index }),

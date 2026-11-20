@@ -1,7 +1,7 @@
 import assert from "node:assert/strict";
 import { readFileSync } from "node:fs";
 import { test } from "node:test";
-import type { Page, Site, SiteConfig, SourcePos } from "@velella/mizzen/contracts";
+import type { Page, Site, SourcePos } from "@velella/mizzen/contracts";
 import { languages, stringsOf } from "../i18n/index.ts";
 import changelogEntry, {
   BODY_CLASS,
@@ -20,27 +20,11 @@ import changelogEntry, {
   slugOf,
   type ChangelogEntryProps,
 } from "../components/changelog-entry/index.ts";
+import { siteConfig } from "./helpers/site.ts";
 
 const pos: SourcePos = { file: "docs/changelog.md", line: 1, column: 1, endLine: 9, endColumn: 1 };
 
-const config: SiteConfig = {
-  title: "Example",
-  base: "/example",
-  lang: "en",
-  dir: "ltr",
-  languages: [],
-  source: ".",
-  include: [],
-  exclude: [],
-  navigation: "_data/navigation.yml",
-  defaults: [],
-  theme: { options: {} },
-  search: { text: 300 },
-  redirects: {},
-  outputs: {},
-  collections: {},
-  feeds: {},
-};
+const config = siteConfig({ base: "/example" });
 
 function pageFor(lang = "en"): Page {
   return {

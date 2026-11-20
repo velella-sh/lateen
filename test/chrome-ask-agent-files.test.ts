@@ -3,9 +3,10 @@
 import assert from "node:assert/strict";
 import { test } from "node:test";
 import { JSDOM } from "jsdom";
-import type { ChromeProps, Page, Pager, Site, SiteConfig, SourcePos, Trail } from "@velella/mizzen/contracts";
+import type { ChromeProps, Pager, Site, SiteConfig, SourcePos, Trail } from "@velella/mizzen/contracts";
 import { askConfig } from "../chrome/ask-agent/index.ts";
 import { activateAskAgent, type AskDocument, type AskElement, type AskResult } from "../chrome/ask-agent/client.ts";
+import { pageWith } from "./helpers/page.ts";
 
 const pos: SourcePos = { file: "index.md", line: 1, column: 1, endLine: 1, endColumn: 1 };
 const trail: Trail = [];
@@ -33,18 +34,7 @@ function siteConfig(outputs: Readonly<Record<string, boolean>> = {}): SiteConfig
   };
 }
 
-const page: Page = {
-  url: "/example/guide/install/",
-  source: pos,
-  frontMatter: {},
-  title: "Install",
-  lang: "en",
-  dir: "ltr",
-  headings: [],
-  html: "",
-  markdown: "",
-  kind: "doc",
-};
+const page = pageWith({ url: "/example/guide/install/", source: pos, frontMatter: {}, title: "Install" });
 
 function props(outputs: Readonly<Record<string, boolean>>): ChromeProps {
   const site: Site = { config: siteConfig(outputs), pages: [page], nav: {}, data: {}, collections: {} };

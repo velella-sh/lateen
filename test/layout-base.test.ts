@@ -4,27 +4,11 @@ import { Fragment, h } from "preact";
 import { renderToString } from "preact-render-to-string";
 import type { LanguageConfig, LayoutProps, Page, Site, SiteConfig, SourcePos } from "@velella/mizzen/contracts";
 import base, { MAIN_ID, THEME_KEY, THEME_SCRIPT } from "../layouts/base.ts";
+import { siteConfig } from "./helpers/site.ts";
 
 const pos: SourcePos = { file: "docs/index.md", line: 1, column: 1, endLine: 1, endColumn: 1 };
 
-const config: SiteConfig = {
-  title: "Example",
-  base: "",
-  lang: "en",
-  dir: "ltr",
-  languages: [],
-  source: ".",
-  include: [],
-  exclude: [],
-  navigation: "_data/navigation.yml",
-  defaults: [],
-  theme: { options: {} },
-  search: { text: 300 },
-  redirects: {},
-  outputs: {},
-  collections: {},
-  feeds: {},
-};
+const config = siteConfig();
 
 function layoutProps(overrides: Partial<Page> = {}): LayoutProps {
   const page: Page = {

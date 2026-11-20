@@ -3,8 +3,10 @@ import { readdirSync } from "node:fs";
 import { join } from "node:path";
 import { test } from "node:test";
 import { pathToFileURL } from "node:url";
-import type { Component, Page, Site, SiteConfig, SourcePos } from "@velella/mizzen/contracts";
+import type { Component, Site, SourcePos } from "@velella/mizzen/contracts";
 import { renderToString } from "preact-render-to-string";
+import { siteConfig } from "./helpers/site.ts";
+import { pageWith } from "./helpers/page.ts";
 
 /**
  * The component contract: every directive unit renders from the engine's shape with its optional
@@ -15,37 +17,9 @@ const root = new URL("../", import.meta.url).pathname;
 
 const pos: SourcePos = { file: "index.md", line: 1, column: 1, endLine: 1, endColumn: 1 };
 
-const page: Page = {
-  url: "/",
-  source: pos,
-  frontMatter: { title: "Contract" },
-  title: "Contract",
-  lang: "en",
-  dir: "ltr",
-  headings: [],
-  html: "",
-  markdown: "",
-  kind: "doc",
-};
+const page = pageWith({ url: "/", source: pos, frontMatter: { title: "Contract" }, title: "Contract" });
 
-const config: SiteConfig = {
-  title: "Contract",
-  base: "",
-  lang: "en",
-  dir: "ltr",
-  languages: [],
-  source: ".",
-  include: [],
-  exclude: [],
-  navigation: "",
-  defaults: [],
-  theme: { options: {} },
-  search: { text: 300 },
-  redirects: {},
-  outputs: {},
-  collections: {},
-  feeds: {},
-};
+const config = siteConfig({ title: "Contract", navigation: "" });
 
 /** An empty collection, so a component that reads records receives none rather than failing. */
 const site: Site = {

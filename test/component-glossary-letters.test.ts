@@ -3,9 +3,9 @@ import { test } from "node:test";
 import { renderToString } from "preact-render-to-string";
 import type { ComponentProps, DataRecord, Page, Site } from "@velella/mizzen/contracts";
 import glossary, { GROUP_CLASS, LETTER_CLASS, NAV_CLASS } from "../components/glossary/index.ts";
+import { dataRecord } from "./helpers/record.ts";
 
-const record = (id: string, term: string): DataRecord =>
-  ({ id, fields: { term, definition: `${term} definition.` }, position: { line: 1, column: 1 }, fieldPositions: {} }) as unknown as DataRecord;
+const record = (id: string, term: string): DataRecord => dataRecord({ id, fields: { term, definition: `${term} definition.` } });
 
 function render(terms: readonly DataRecord[], lang = "en"): string {
   const site = {

@@ -2,42 +2,16 @@ import assert from "node:assert/strict";
 import { readFileSync } from "node:fs";
 import { test } from "node:test";
 import { renderToString } from "preact-render-to-string";
-import type { ChromeProps, NetworkProject, Page, Pager, Site, SiteConfig, SiteNetwork, SourcePos, Trail } from "@velella/mizzen/contracts";
+import type { ChromeProps, NetworkProject, Pager, Site, SiteNetwork, SourcePos, Trail } from "@velella/mizzen/contracts";
 import projectSwitcher, { projectLinks } from "../chrome/project-switcher/index.ts";
+import { siteConfig } from "./helpers/site.ts";
+import { pageWith } from "./helpers/page.ts";
 
 const pos: SourcePos = { file: "guide/install.md", line: 1, column: 1, endLine: 1, endColumn: 1 };
 
-const config: SiteConfig = {
-  title: "Alpha",
-  base: "/alpha",
-  lang: "en",
-  dir: "ltr",
-  languages: [],
-  source: ".",
-  include: [],
-  exclude: [],
-  navigation: "_data/navigation.yml",
-  defaults: [],
-  theme: { options: {} },
-  search: { text: 300 },
-  redirects: {},
-  outputs: {},
-  collections: {},
-  feeds: {},
-};
+const config = siteConfig({ title: "Alpha", base: "/alpha" });
 
-const page: Page = {
-  url: "/alpha/guide/install/",
-  source: pos,
-  frontMatter: { title: "Install" },
-  title: "Install",
-  lang: "en",
-  dir: "ltr",
-  headings: [],
-  html: "",
-  markdown: "",
-  kind: "doc",
-};
+const page = pageWith({ url: "/alpha/guide/install/", source: pos, frontMatter: { title: "Install" }, title: "Install" });
 
 const trail: Trail = [];
 const pager: Pager = {};

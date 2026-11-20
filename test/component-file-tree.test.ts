@@ -12,41 +12,15 @@ import {
   type TreeElement,
   type TreeEvent,
 } from "../components/file-tree/client.ts";
-import type { ComponentProps, Page, Site, SourcePos, SiteConfig } from "@velella/mizzen/contracts";
+import type { ComponentProps, Page, Site, SourcePos, } from "@velella/mizzen/contracts";
+import { siteConfig } from "./helpers/site.ts";
+import { pageWith } from "./helpers/page.ts";
 
 const pos: SourcePos = { file: "docs/guide/install.md", line: 3, column: 1, endLine: 9, endColumn: 1 };
 
-const config: SiteConfig = {
-  title: "Example",
-  base: "/example",
-  lang: "en",
-  dir: "ltr",
-  languages: [],
-  source: ".",
-  include: [],
-  exclude: [],
-  navigation: "_data/navigation.yml",
-  defaults: [],
-  theme: { options: {} },
-  search: { text: 300 },
-  redirects: {},
-  outputs: {},
-  collections: {},
-  feeds: {},
-};
+const config = siteConfig({ base: "/example" });
 
-const page: Page = {
-  url: "/example/guide/install/",
-  source: pos,
-  frontMatter: { title: "Install" },
-  title: "Install",
-  lang: "en",
-  dir: "ltr",
-  headings: [],
-  html: "",
-  markdown: "",
-  kind: "doc",
-};
+const page = pageWith({ url: "/example/guide/install/", source: pos, frontMatter: { title: "Install" }, title: "Install" });
 
 const site: Site = { config, pages: [page], nav: {}, data: {}, collections: {} };
 

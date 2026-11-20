@@ -2,9 +2,9 @@ import assert from "node:assert/strict";
 import { test } from "node:test";
 import type { DataRecord, Site } from "@velella/mizzen/contracts";
 import { findTerm, selectTerms } from "../src/terms.ts";
+import { dataRecord } from "./helpers/record.ts";
 
-const record = (id: string, fields: Record<string, unknown>): DataRecord =>
-  ({ id, fields, position: { line: 1, column: 1 }, fieldPositions: {} }) as unknown as DataRecord;
+const record = (id: string, fields: Record<string, unknown>): DataRecord => dataRecord({ id, fields });
 
 const terms = [
   record("network", {

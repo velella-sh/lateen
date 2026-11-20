@@ -1,6 +1,7 @@
 import assert from "node:assert/strict";
 import { readFileSync } from "node:fs";
 import { test } from "node:test";
+import { withEnv } from "./helpers/globals.ts";
 import { renderToString } from "preact-render-to-string";
 import type { ChromeProps, Page, Pager, Site, SiteConfig, SourcePos, Trail } from "@velella/mizzen/contracts";
 import { stringsOf } from "../i18n/index.ts";
@@ -362,16 +363,11 @@ test("the line's text does not depend on the host clock or time zone", () => {
   assert.ok(first);
 
   const zones = ["UTC", "Pacific/Kiritimati", "Pacific/Niue"];
-  const original = process.env.TZ;
-  try {
-    for (const zone of zones) {
-      process.env.TZ = zone;
+  for (const zone of zones) {
+    withEnv("TZ", zone, () => {
       assert.equal(render(page, data), first, zone);
       assert.equal(dateOf(page, props(page, data).site), "2026-03-04", zone);
-    }
-  } finally {
-    if (original === undefined) delete process.env.TZ;
-    else process.env.TZ = original;
+    });
   }
 });
 
@@ -626,15 +622,10 @@ test("displayOf does not depend on the host time zone", () => {
   const first = displayOf(entry, "2026-03-06", "fa");
   assert.ok(first);
 
-  const original = process.env.TZ;
-  try {
-    for (const zone of ["UTC", "Pacific/Kiritimati", "Pacific/Niue"]) {
-      process.env.TZ = zone;
+  for (const zone of ["UTC", "Pacific/Kiritimati", "Pacific/Niue"]) {
+    withEnv("TZ", zone, () => {
       assert.deepEqual(displayOf(entry, "2026-03-06", "fa"), first, zone);
-    }
-  } finally {
-    if (original === undefined) delete process.env.TZ;
-    else process.env.TZ = original;
+    });
   }
 });
 

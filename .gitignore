@@ -5,6 +5,7 @@ components/performance-chart/chart.min.js
 coverage/
 dist/
 node_modules/
+node_modules
 redesign/components/performance-chart/chart.umd.min.js
 redesign/dist/
 redesign/site/.mizzen/

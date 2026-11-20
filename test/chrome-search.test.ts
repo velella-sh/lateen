@@ -48,27 +48,11 @@ import {
   type SearchStatus,
 } from "../chrome/search/client.ts";
 import { readUiCss } from "./ui-css-helpers.ts";
+import { siteConfig } from "./helpers/site.ts";
 
 const pos: SourcePos = { file: "guide/install.md", line: 1, column: 1, endLine: 1, endColumn: 1 };
 
-const config: SiteConfig = {
-  title: "Example",
-  base: "",
-  lang: "en",
-  dir: "ltr",
-  languages: [],
-  source: ".",
-  include: [],
-  exclude: [],
-  navigation: "_data/navigation.yml",
-  defaults: [],
-  theme: { options: {} },
-  search: { text: 300 },
-  redirects: {},
-  outputs: {},
-  collections: {},
-  feeds: {},
-};
+const config = siteConfig();
 
 function pageWith(overrides: Partial<Page> = {}): Page {
   return {

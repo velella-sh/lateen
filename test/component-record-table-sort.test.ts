@@ -5,9 +5,9 @@ import { renderToString } from "preact-render-to-string";
 import type { ComponentProps, DataRecord, Page, Site } from "@velella/mizzen/contracts";
 import recordTable, { SORTABLE_CLASS } from "../components/record-table/index.ts";
 import { activate, type SortDocument } from "../components/record-table/client.ts";
+import { dataRecord } from "./helpers/record.ts";
 
-const record = (id: string, fields: Record<string, unknown>): DataRecord =>
-  ({ id, fields, position: { line: 1, column: 1 }, fieldPositions: {} }) as unknown as DataRecord;
+const record = (id: string, fields: Record<string, unknown>): DataRecord => dataRecord({ id, fields });
 
 const books = [
   record("a", { title: "پای", pages: 120, published: "2026-11-09" }),

@@ -1,6 +1,7 @@
 import assert from "node:assert/strict";
 import { readFileSync } from "node:fs";
 import { test } from "node:test";
+import { withEnv } from "./helpers/globals.ts";
 import { renderToString } from "preact-render-to-string";
 import type { ListPagination, ListProps, Page, Site, SiteConfig, SourcePos } from "@velella/mizzen/contracts";
 import pagination, { paginationLinks } from "../chrome/pagination/index.ts";
@@ -99,9 +100,7 @@ test("a long range keeps the ends and the current page, with gaps that are not l
 });
 
 test("the navigation and page labels read from every shipped catalog without a diagnostic", () => {
-  const previous = process.env.NODE_ENV;
-  process.env.NODE_ENV = "development";
-  try {
+  withEnv("NODE_ENV", "development", () => {
     for (const [lang, messages] of Object.entries(MESSAGES)) {
       let out = "";
       assert.deepEqual(
@@ -116,10 +115,7 @@ test("the navigation and page labels read from every shipped catalog without a d
       assert.ok(out.includes(messages.previous), `${lang} previous label`);
       assert.ok(out.includes(messages.next), `${lang} next label`);
     }
-  } finally {
-    if (previous === undefined) delete process.env.NODE_ENV;
-    else process.env.NODE_ENV = previous;
-  }
+  });
 });
 
 test("escaping keeps URLs as attributes", () => {

@@ -7,12 +7,12 @@ import { test } from "node:test";
 import { renderToString } from "preact-render-to-string";
 import type { ComponentProps, DataRecord, Page, Site } from "@velella/mizzen/contracts";
 import timeline from "../components/timeline/index.ts";
+import { dataRecord } from "./helpers/record.ts";
 
 const read = (path: string): string => readFileSync(new URL(`../${path}`, import.meta.url), "utf8");
 const css = ""; // lateen-legacy removed
 
-const record = (id: string, fields: Record<string, unknown>): DataRecord =>
-  ({ id, fields, position: { line: 1, column: 1 }, fieldPositions: {} }) as unknown as DataRecord;
+const record = (id: string, fields: Record<string, unknown>): DataRecord => dataRecord({ id, fields });
 
 const events = [
   record("a", { label: "Launch", start: "2026-03-01", end: "2026-03-05", status: "done" }),
