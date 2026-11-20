@@ -126,3 +126,14 @@ export function lineUrlOf(repository: RepositoryConfig, file: string, line: numb
   const blob = host === "gitlab" ? "/-/blob" : "/blob";
   return `${webRoot(repository.url)}${blob}/${encodeURIComponent(branch)}/${encodePath(path)}#L${line}`;
 }
+
+
+/** The repository browser's URL for one commit: `/commit/<sha>` on GitHub and `/-/commit/<sha>` on GitLab. */
+export function commitUrlOf(repository: RepositoryConfig, commit: string): string | undefined {
+  const host = hostOf(repository);
+  if (host === undefined) return undefined;
+  const sha = commit.trim().toLowerCase();
+  if (!/^[0-9a-f]{7,64}$/.test(sha)) return undefined;
+  const path = host === "gitlab" ? "/-/commit" : "/commit";
+  return `${webRoot(repository.url)}${path}/${sha}`;
+}

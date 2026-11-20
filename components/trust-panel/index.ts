@@ -1,11 +1,13 @@
 import { h } from "preact";
 import type { Component, Page, Site, SiteConfig } from "@velella/mizzen/contracts";
+import type { ComponentChildren } from "preact";
 import { CircleCheckBig, CircleDashed, CircleQuestionMark, Minus } from "lucide";
 import type { IconNode } from "lucide";
 import { t } from "../../i18n/index.ts";
 import { icon as lucideIcon } from "../../src/icon.ts";
 import { calendarDate } from "../../src/dates.ts";
 import { optionOf } from "../../src/options.ts";
+import { commitUrlOf } from "../../src/repository.ts";
 import { examplesAttrs, examplesClassName, examplesFor, examplesText } from "./examples.ts";
 
 export {
@@ -81,6 +83,8 @@ export type TrustPanelProps = {
   generatedAt?: string;
   /** The page's last review date, for a manual panel that carries one. */
   reviewedAt?: string;
+  /** The reviewed commit, for a manual panel that carries one. */
+  reviewedCommit?: string;
 };
 
 /** One page's trust entry, as `site.data.trust` or the directive writes it. */
@@ -97,6 +101,8 @@ export interface TrustEntry {
   readonly generatedAt?: string;
   /** When a person last reviewed the page. */
   readonly reviewedAt?: string;
+  /** The commit the review covered, when the site records one. */
+  readonly reviewedCommit?: string;
 }
 
 /**
@@ -120,6 +126,8 @@ export interface Provenance {
   readonly generatedAt?: string;
   /** The last human review date, in ISO 8601 form. */
   readonly reviewedAt?: string;
+  /** The reviewed commit, when the entry or the reviewers data names one. */
+  readonly reviewedCommit?: string;
 }
 
 /** The action links a site can configure under `theme.options.trust`. */
@@ -204,6 +212,7 @@ function entryFrom(value: Record<string, unknown>, level: TrustLevel): TrustEntr
   const buildId = textOf(value.buildId);
   const generatedAt = textOf(value.generatedAt);
   const reviewedAt = textOf(value.reviewedAt);
+  const reviewedCommit = textOf(value.reviewedCommit);
   return {
     level,
     reasons: reasonsOf(value.reasons),
@@ -211,6 +220,7 @@ function entryFrom(value: Record<string, unknown>, level: TrustLevel): TrustEntr
     ...(buildId === undefined ? {} : { buildId }),
     ...(generatedAt === undefined ? {} : { generatedAt }),
     ...(reviewedAt === undefined ? {} : { reviewedAt }),
+    ...(reviewedCommit === undefined ? {} : { reviewedCommit }),
   };
 }
 
@@ -291,13 +301,24 @@ function buildOf(site: Site | undefined): Record<string, unknown> | undefined {
   return isRecord(build) ? build : undefined;
 }
 
-/** The page's review date from the documented reviewers shape, keyed by page URL. */
-function reviewDateOf(site: Site | undefined, url: string | undefined): ProvenanceDate | undefined {
+/** One page's review record from the documented reviewers shape, keyed by page URL. */
+function reviewOf(site: Site | undefined, url: string | undefined): Record<string, unknown> | undefined {
   if (url === undefined) return undefined;
   const reviewers = site?.data?.reviewers;
   if (!isRecord(reviewers) || !Object.hasOwn(reviewers, url)) return undefined;
   const review = reviewers[url];
-  return isRecord(review) ? provenanceDate(review.date) : undefined;
+  return isRecord(review) ? review : undefined;
+}
+
+/** The page's review date from the documented reviewers shape, keyed by page URL. */
+function reviewDateOf(site: Site | undefined, url: string | undefined): ProvenanceDate | undefined {
+  return provenanceDate(reviewOf(site, url)?.date);
+}
+
+/** The reviewed commit from the documented reviewers shape, when it parses as a git object id. */
+function reviewCommitOf(site: Site | undefined, url: string | undefined): string | undefined {
+  const commit = textOf(reviewOf(site, url)?.commit);
+  return commit !== undefined && /^[0-9a-f]{7,64}$/i.test(commit) ? commit.toLowerCase() : undefined;
 }
 
 /** The build's as-of date, which anchors what counts as future evidence. No clock is read. */
@@ -334,6 +355,7 @@ export function provenanceOf(site: Site | undefined, url: string | undefined, en
       provenanceDate(build?.date) ??
       provenanceDate(build?.asOf));
   let reviewed = provenanceDate(entry?.reviewedAt) ?? reviewDateOf(site, url);
+  const reviewedCommit = entry?.reviewedCommit ?? reviewCommitOf(site, url);
 
   if (asOf !== undefined) {
     if (generated !== undefined && generated.day > asOf.day) generated = undefined;
@@ -342,10 +364,13 @@ export function provenanceOf(site: Site | undefined, url: string | undefined, en
   if (generated !== undefined && reviewed !== undefined && reviewed.day > generated.day) reviewed = undefined;
 
   const validBuildId = mismatch ? undefined : (entryBuildId ?? buildId);
+  const validCommit =
+    reviewedCommit !== undefined && /^[0-9a-f]{7,64}$/i.test(reviewedCommit) ? reviewedCommit.toLowerCase() : undefined;
   return {
     ...(validBuildId === undefined ? {} : { buildId: validBuildId }),
     ...(generated === undefined ? {} : { generatedAt: generated.iso }),
     ...(reviewed === undefined ? {} : { reviewedAt: reviewed.iso }),
+    ...(validCommit === undefined ? {} : { reviewedCommit: validCommit }),
   };
 }
 
@@ -439,7 +464,7 @@ function chip(level: TrustLevel, lang: string) {
 }
 
 /** One row of the panel: a label and its value, with optional machine-readable attributes on the value. */
-function row(label: string, value: string, className: string, attrs: Record<string, string | number> = {}) {
+function row(label: string, value: ComponentChildren, className: string, attrs: Record<string, string | number> = {}) {
   return [
     h("dt", { class: LABEL_CLASS }, label),
     h("dd", { class: `${VALUE_CLASS} ${className}`, ...attrs }, value),
@@ -515,6 +540,10 @@ const trustPanel: Component<TrustPanelProps> = ({ props, page, site }) => {
   const entry = evidence.entry;
   const reasons = explanationOf(lang, entry.level, entry.reasons);
   const provenance = provenanceOf(site, page.url, entry);
+  const revision =
+    provenance.reviewedCommit === undefined || site.config.repository === undefined
+      ? undefined
+      : commitUrlOf(site.config.repository, provenance.reviewedCommit);
   const evidenceRows = examplesFor(site, page.url);
   const options = trustOptions(site.config);
   const contextPack = actionHrefOf(site.config, page, options?.contextPackUrl, provenance);
@@ -539,6 +568,7 @@ const trustPanel: Component<TrustPanelProps> = ({ props, page, site }) => {
       ...(provenance.buildId === undefined ? {} : { "data-trust-build": provenance.buildId }),
       ...(provenance.generatedAt === undefined ? {} : { "data-trust-generated": provenance.generatedAt }),
       ...(provenance.reviewedAt === undefined ? {} : { "data-trust-reviewed": provenance.reviewedAt }),
+      ...(provenance.reviewedCommit === undefined ? {} : { "data-trust-reviewed-commit": provenance.reviewedCommit }),
     },
     chip(entry.level, lang),
     h(
@@ -556,6 +586,18 @@ const trustPanel: Component<TrustPanelProps> = ({ props, page, site }) => {
         ...row(t(lang, "trust_drift"), driftText(lang, driftFor(site, page.url)), "trust-panel-drift"),
         ...dateRow(t(lang, "updated"), provenance.generatedAt, lang, "trust-panel-generated"),
         ...dateRow(t(lang, "reviewed"), provenance.reviewedAt, lang, "trust-panel-reviewed"),
+        ...(revision === undefined
+          ? []
+          : row(
+              t(lang, "trust_reviewed_commit"),
+              h(
+                "a",
+                { class: "trust-panel-revision", href: revision },
+                h("code", null, (provenance.reviewedCommit ?? "").slice(0, 7)),
+              ),
+              "trust-panel-revision-cell",
+              { title: provenance.reviewedCommit ?? "" },
+            )),
         ...row(t(lang, "trust_reviewer"), reviewerText(lang, entry.lastReviewer), "trust-panel-reviewer"),
       ),
       h("p", { class: REASONS_LABEL_CLASS }, t(lang, "trust_reasons")),

@@ -496,6 +496,7 @@
   "trust_not_recorded": "غير مسجّل",
   "trust_reasons": "سبب هذا المستوى",
   "trust_reviewed_by": "راجعه {reviewer}",
+  "trust_reviewed_commit": "إصدار المراجعة",
   "trust_reviewer": "آخر مراجع",
   "trust_reviewer_none": "لا يوجد مراجع مسجّل",
   "trust_suggest_edit": "اقترح تعديلًا",
