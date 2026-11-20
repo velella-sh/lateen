@@ -345,6 +345,49 @@ export function findingDetailsOf(findings: readonly unknown[], config?: SiteConf
   });
 }
 
+/** The one part of a finding row that carries its evidence link, chosen by what evidence the row has. */
+export type FindingLinkTarget = "reference" | "kind" | "message" | "details";
+
+/**
+ * Which part of a row carries the evidence link, or undefined when the finding has no safe link. The
+ * most specific evidence wins: a validated reference, then the check id, then the message; a finding
+ * with only a link gets a standalone details link instead of an empty control.
+ */
+export function linkTargetOf(detail: FindingDetail): FindingLinkTarget | undefined {
+  if (detail.href === undefined) return undefined;
+  if (detail.reference !== undefined) return "reference";
+  if (detail.kind !== undefined) return "kind";
+  if (detail.message !== undefined) return "message";
+  return "details";
+}
+
+/** Everything the banner shows, selected from the site data before any markup is built. */
+export interface DriftView {
+  /** The page's drift evidence: its state, finding count, and worst severity. */
+  readonly evidence: DriftEvidence;
+  /** The finding rows; absent for the unavailable state, which has no list. */
+  readonly findings?: readonly FindingDetail[];
+  /** The safe details link from `theme.options.drift.detailsUrl`, when the config supplies one. */
+  readonly href?: string;
+}
+
+/**
+ * The banner's view model for one page, or undefined when the banner stays hidden. It selects the
+ * evidence, the finding rows (never for the unavailable state), and the fix-action link, so the
+ * component only renders what this decides.
+ */
+export function viewOf(site: Site, url: string): DriftView | undefined {
+  const evidence = evidenceOf(site, url);
+  if (evidence === undefined) return undefined;
+  const findings = evidence.state === "unavailable" ? undefined : findingsOf(site, url);
+  const href = detailsHrefOf(site.config);
+  return {
+    evidence,
+    ...(findings === undefined ? {} : { findings: findingDetailsOf(findings, site.config) }),
+    ...(href === undefined ? {} : { href }),
+  };
+}
+
 /** The banner's count in the page's language: singular for one finding, plural otherwise. */
 export function messageOf(lang: string, n: number): string {
   return t(lang, n === 1 ? SINGULAR_KEY : PLURAL_KEY, { n });
@@ -361,41 +404,38 @@ function icon(state: DriftState) {
 }
 
 /**
- * One finding: its severity, check id, source span, and message. The reference is the evidence link when
- * the finding supplies a safe `url`; otherwise it is plain text. Machine values stay left to right under
- * RTL, so a path never reverses.
+ * One finding: its severity, check id, source span, and message. {@link linkTargetOf} has already
+ * chosen which part carries the evidence link; every other part is plain text. Machine values stay
+ * left to right under RTL, so a path never reverses.
  */
 function findingRow(detail: FindingDetail, lang: string) {
   const href = detail.href;
   const span = detail.span;
+  const target = linkTargetOf(detail);
 
-  const linked = detail.kind !== undefined && href !== undefined && detail.reference === undefined;
   const kind =
     detail.kind === undefined
       ? null
-      : linked
+      : target === "kind"
         ? h("a", { class: `${FINDING_KIND_CLASS} ${FINDING_LINK_CLASS}`, href, dir: "ltr" }, detail.kind)
         : h("code", { class: FINDING_KIND_CLASS, dir: "ltr" }, detail.kind);
 
   const reference =
     detail.reference === undefined
       ? null
-      : href === undefined
-        ? h("code", { class: FINDING_REFERENCE_CLASS, dir: "ltr" }, detail.reference)
-        : h("a", { class: `${FINDING_REFERENCE_CLASS} ${FINDING_LINK_CLASS}`, href, dir: "ltr" }, detail.reference);
+      : target === "reference"
+        ? h("a", { class: `${FINDING_REFERENCE_CLASS} ${FINDING_LINK_CLASS}`, href, dir: "ltr" }, detail.reference)
+        : h("code", { class: FINDING_REFERENCE_CLASS, dir: "ltr" }, detail.reference);
 
-  const messageLinked = href !== undefined && detail.kind === undefined && detail.reference === undefined;
   const message =
     detail.message === undefined
       ? null
-      : messageLinked
+      : target === "message"
         ? h("a", { class: `${FINDING_MESSAGE_CLASS} ${FINDING_LINK_CLASS}`, href }, detail.message)
         : h("span", { class: FINDING_MESSAGE_CLASS }, detail.message);
 
   const emptyLink =
-    href === undefined || detail.kind !== undefined || detail.reference !== undefined || detail.message !== undefined
-      ? null
-      : h("a", { class: FINDING_LINK_CLASS, href }, t(lang, DETAILS_KEY));
+    target === "details" ? h("a", { class: FINDING_LINK_CLASS, href }, t(lang, DETAILS_KEY)) : null;
 
   return h(
     "li",
@@ -435,11 +475,9 @@ function findingRow(detail: FindingDetail, lang: string) {
  * the page content, so an author does not write a directive.
  */
 const driftBanner: Component = ({ site, page }) => {
-  const evidence = evidenceOf(site, page.url);
-  if (evidence === undefined) return null;
-
-  const findings = evidence.state === "unavailable" ? undefined : findingsOf(site, page.url);
-  const href = detailsHrefOf(site.config);
+  const view = viewOf(site, page.url);
+  if (view === undefined) return null;
+  const { evidence, findings, href } = view;
   const label = t(page.lang, STATE_KEYS[evidence.state]);
 
   return h(
@@ -459,11 +497,7 @@ const driftBanner: Component = ({ site, page }) => {
     h("span", { class: `${CLASS}-what` }, whatOf(page.lang, evidence.state)),
     findings === undefined
       ? null
-      : h(
-          "ul",
-          { class: FINDINGS_CLASS },
-          ...findingDetailsOf(findings, site.config).map((detail) => findingRow(detail, page.lang)),
-        ),
+      : h("ul", { class: FINDINGS_CLASS }, ...findings.map((detail) => findingRow(detail, page.lang))),
     href === undefined ? null : h("a", { class: DETAILS_CLASS, href }, t(page.lang, DETAILS_KEY)),
   );
 };
