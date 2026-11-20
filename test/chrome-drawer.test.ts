@@ -116,6 +116,36 @@ test("renders a closed dialog with the sidebar inside it and a hidden close butt
   assert.match(out, /<\/nav><\/dialog>$/);
 });
 
+/** The declarations of one rule in the sailcloth stylesheet. */
+function cssRule(selector: string): string {
+  const css = readFileSync(new URL("../styles/src/ui.css", import.meta.url), "utf8");
+  const escaped = selector.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+  const rule = new RegExp(`${escaped}\\s*\\{([^}]*)\\}`).exec(css);
+  assert.ok(rule, `${selector} is styled in ui.css`);
+  return rule[1] ?? "";
+}
+
+test("the close control is independent of the scrolling navigation and stays sticky in a long drawer", () => {
+  const out = html(drawer(props(tree, "/home/")));
+  const closeAt = out.indexOf("data-drawer-close");
+  const navAt = out.indexOf("<nav");
+  assert.ok(closeAt !== -1 && closeAt < navAt, "the close control is a sibling before the navigation, not inside it");
+
+  const close = cssRule(".drawer-close");
+  assert.match(close, /position:\s*sticky/);
+  assert.match(close, /inset-block-start:/);
+  assert.match(close, /inset-inline-end:/);
+  assert.match(close, /z-index:/);
+  assert.match(close, /background:/);
+  assert.match(close, /margin-inline-start:\s*auto/);
+  assert.doesNotMatch(close, /\b(top|bottom|left|right):/, "the sticky edges are logical");
+  assert.doesNotMatch(close, /\bmargin-(left|right):/, "the end alignment is logical");
+
+  const nav = cssRule(".drawer .sidebar-nav");
+  assert.match(nav, /position:\s*static/, "the navigation scrolls with the drawer");
+  assert.match(nav, /overflow:\s*visible/);
+});
+
 test("the drawer shows the same sidebar links as the sidebar chrome", () => {
   const out = html(drawer(props(tree, "/home/")));
   assert.match(out, /<a href="\/home\/" aria-current="page">Home<\/a>/);
