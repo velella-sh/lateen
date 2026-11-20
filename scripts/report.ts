@@ -8,6 +8,7 @@ import { mkdirSync, readFileSync, writeFileSync } from "node:fs";
 import { dirname, isAbsolute, join } from "node:path";
 import { fileURLToPath } from "node:url";
 import { validate, type JsonSchema } from "../src/report-schema.ts";
+import type { Identities } from "../test/acceptance/ledger.ts";
 
 export const root = fileURLToPath(new URL("../", import.meta.url));
 
@@ -28,6 +29,21 @@ export function commitOf(): string {
 export function versionOf(packageName: string): string {
   const file = join(dirname(require.resolve(`${packageName}/package.json`)), "package.json");
   return (JSON.parse(readFileSync(file, "utf8")) as { version: string }).version;
+}
+
+/** The exact runtime, declared engine and package identities of this checkout. */
+export function identities(): Identities {
+  const pkg = JSON.parse(readFileSync(join(root, "package.json"), "utf8")) as {
+    name: string;
+    version: string;
+    engines: { node: string };
+  };
+  return {
+    node: process.versions.node,
+    npm: execFileSync("npm", ["--version"], { encoding: "utf8" }).trim(),
+    engines: { node: pkg.engines.node },
+    package: { name: pkg.name, version: pkg.version },
+  };
 }
 
 /** The `--report <file>` value, relative to the repository root; `undefined` when the flag is absent. */

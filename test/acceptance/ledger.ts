@@ -32,14 +32,39 @@ export interface CaseResult {
   readonly error?: string;
 }
 
+/** The exact runtime, declared engine and package a report was produced with. */
+export interface Identities {
+  readonly node: string;
+  readonly npm: string;
+  readonly engines: { readonly node: string };
+  readonly package: { readonly name: string; readonly version: string };
+}
+
 /** What a candidate acceptance run records. */
-export interface AcceptanceReport {
+export interface AcceptanceReport extends Identities {
   readonly commit: string;
   readonly digest: string;
   readonly mizzen: string;
   readonly tarball: string;
   readonly ok: boolean;
   readonly cases: readonly CaseResult[];
+}
+
+/** Why a report does not identify the toolchain and package that produced it. Empty when it does. */
+export function identityProblems(report: AcceptanceReport, expected: Identities): string[] {
+  const problems: string[] = [];
+  if (!report.node) problems.push("the report records no Node version");
+  else if (report.node !== expected.node) problems.push(`the report used Node ${report.node}, not ${expected.node}`);
+  if (!report.npm) problems.push("the report records no npm version");
+  else if (report.npm !== expected.npm) problems.push(`the report used npm ${report.npm}, not ${expected.npm}`);
+  if (report.engines?.node !== expected.engines.node) {
+    problems.push(`the report records engine ${report.engines?.node ?? "none"}, not ${expected.engines.node}`);
+  }
+  if (report.package?.name !== expected.package.name || report.package?.version !== expected.package.version) {
+    const found = report.package ? `${report.package.name}@${report.package.version}` : "none";
+    problems.push(`the report records package ${found}, not ${expected.package.name}@${expected.package.version}`);
+  }
+  return problems;
 }
 
 /** The ledger's own problems: a shipped feature without a case, or a deferred one without a reason. */
@@ -75,7 +100,7 @@ export function changelogProblems(ledger: FeatureLedger, changelog: string): str
 /** Why a release report cannot gate publishing. Empty when it can. */
 export function gateProblems(
   report: AcceptanceReport,
-  expected: { readonly commit: string; readonly digest: string; readonly mizzen: string },
+  expected: { readonly commit: string; readonly digest: string; readonly mizzen: string } & Identities,
   ledger: FeatureLedger,
 ): string[] {
   const problems: string[] = [];
@@ -83,6 +108,7 @@ export function gateProblems(
   if (report.commit !== expected.commit) problems.push(`the report is for commit ${report.commit}, not ${expected.commit}`);
   if (report.digest !== expected.digest) problems.push("the report's tarball digest is not the candidate tarball's digest");
   if (report.mizzen !== expected.mizzen) problems.push(`the report used Mizzen ${report.mizzen}, not ${expected.mizzen}`);
+  problems.push(...identityProblems(report, expected));
   const results = new Map(report.cases.map((item) => [item.name, item]));
   for (const feature of ledger.shipped) {
     const result = results.get(feature.case);
