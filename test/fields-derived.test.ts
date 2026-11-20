@@ -54,15 +54,15 @@ test("a missing derived value is the placeholder, never zero", () => {
   assert.equal(fieldValueOf(withoutDates, "derived.daysLeft"), undefined);
   assert.equal(
     render(fieldValueOf(withoutDates, "derived.daysLeft")),
-    `<span class="${EMPTY_CLASS}">No value</span>`,
+    `<span class="${EMPTY_CLASS}" data-state="missing">No value</span>`,
   );
   assert.equal(
     render(fieldValueOf(withoutDates, "derived.daysLeft"), "fa"),
-    `<span class="${EMPTY_CLASS}">بدون مقدار</span>`,
+    `<span class="${EMPTY_CLASS}" data-state="missing">بدون مقدار</span>`,
   );
   assert.equal(
     render(fieldValueOf(withoutDates, "derived.daysLeft"), "ar"),
-    `<span class="${EMPTY_CLASS}">لا قيمة</span>`,
+    `<span class="${EMPTY_CLASS}" data-state="missing">لا قيمة</span>`,
   );
 });
 
@@ -70,7 +70,7 @@ test("a record without derived values keeps its own fields", () => {
   const record: Pick<RecordProps, "fields" | "derived"> = { fields: { title: "Alpha", daysLeft: 4 } };
   assert.equal(fieldValueOf(record, "daysLeft"), 4);
   assert.equal(fieldValueOf(record, "derived.daysLeft"), undefined);
-  assert.equal(render(fieldValueOf(record, "derived.daysLeft")), `<span class="${EMPTY_CLASS}">No value</span>`);
+  assert.equal(render(fieldValueOf(record, "derived.daysLeft")), `<span class="${EMPTY_CLASS}" data-state="missing">No value</span>`);
 });
 
 test("the derived source reads the engine's value, not a field of the same name", () => {

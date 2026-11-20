@@ -26,7 +26,7 @@ const config = {
   feeds: {},
 } as unknown as SiteConfig;
 
-const fields = { name: "Button", pages: 3, zero: 0, half: 0.5, published: "2026-11-09", draft: false };
+const fields = { name: "Button", pages: 3, zero: 0, half: 0.5, blank: "  ", na: null, published: "2026-11-09", draft: false };
 
 const facts = JSON.stringify([
   { field: "name", label: "Name" },
@@ -70,6 +70,27 @@ function props(page: Page): LayoutProps {
 }
 
 const render = (page: Page = pageWith()) => renderToString(record(props(page)) as never);
+
+/** One record of the `books` collection as a table, so facts and cells read the same values. */
+function renderTable(columns: unknown[], lang = "en"): string {
+  const site = {
+    config,
+    nav: { main: [] },
+    data: {},
+    pages: [],
+    collections: {
+      books: { name: "books", source: "books.yml", records: [{ id: "a", fields, position: pos, fieldPositions: {} }] },
+    },
+  } as unknown as Site;
+  return renderToString(
+    recordTable({
+      props: { from: "books", columns: JSON.stringify(columns) },
+      page: { lang, url: "/books/", frontMatter: {} } as unknown as Page,
+      site,
+      html: "",
+    } as unknown as ComponentProps) as never,
+  );
+}
 
 test("the facts render in the author's order, after the title and before the body", () => {
   const out = render();
@@ -127,38 +148,54 @@ test("zero and decimal numbers keep their value, digits, and data kind on facts 
   assert.match(fa, /<dd class="key-value-value record-fact" data-kind="number">۰<\/dd>/);
   assert.match(fa, /<dd class="key-value-value record-fact" data-kind="number">۰٫۵<\/dd>/);
 
-  const tableSite = {
-    config,
-    nav: { main: [] },
-    data: {},
-    pages: [],
-    collections: {
-      books: {
-        name: "books",
-        source: "books.yml",
-        records: [{ id: "a", fields, position: pos, fieldPositions: {} }],
-      },
-    },
-  } as unknown as Site;
-  const table = (lang: string) =>
-    renderToString(
-      recordTable({
-        props: {
-          from: "books",
-          columns: JSON.stringify([
-            { field: "title", label: "Title" },
-            { field: "zero", label: "Zero", kind: "number" },
-            { field: "half", label: "Half", kind: "number" },
-          ]),
-        },
-        page: { lang, url: "/books/", frontMatter: {} } as unknown as Page,
-        site: tableSite,
-        html: "",
-      } as unknown as ComponentProps) as never,
-    );
+  const columns = [
+    { field: "title", label: "Title" },
+    { field: "zero", label: "Zero", kind: "number" },
+    { field: "half", label: "Half", kind: "number" },
+  ];
+  assert.match(renderTable(columns, "en"), /data-kind="number"[^>]*data-value="0">0<\/td>/);
+  assert.match(renderTable(columns, "en"), /data-kind="number"[^>]*data-value="0\.5">0\.5<\/td>/);
+  assert.match(renderTable(columns, "fa"), /data-kind="number"[^>]*data-value="0">۰<\/td>/);
+  assert.match(renderTable(columns, "fa"), /data-kind="number"[^>]*data-value="0\.5">۰٫۵<\/td>/);
+});
 
-  assert.match(table("en"), /data-kind="number"[^>]*>0<\/td>/);
-  assert.match(table("en"), /data-kind="number"[^>]*>0\.5<\/td>/);
-  assert.match(table("fa"), /data-kind="number"[^>]*>۰<\/td>/);
-  assert.match(table("fa"), /data-kind="number"[^>]*>۰٫۵<\/td>/);
+test("missing, not applicable, and zero read distinctly in facts and table cells", () => {
+  const factList = [
+    { field: "blank", label: "Blank" },
+    { field: "na", label: "Not applicable" },
+    { field: "zero", label: "Zero", kind: "number" },
+  ];
+
+  const facts = render(pageWith(factList));
+  assert.match(facts, /data-kind="text" data-state="missing"><span class="field-empty" data-state="missing">No value<\/span>/);
+  assert.match(
+    facts,
+    /data-kind="text" data-state="not-applicable"><span class="field-na" data-state="not-applicable">Not applicable<\/span>/,
+  );
+  assert.match(facts, /data-kind="number">0<\/dd>/);
+
+  const faFacts = render({ ...pageWith(factList), lang: "fa" } as Page);
+  assert.match(faFacts, /data-state="missing"><span class="field-empty" data-state="missing">بدون مقدار<\/span>/);
+  assert.match(faFacts, /data-state="not-applicable"><span class="field-na" data-state="not-applicable">ناموجود<\/span>/);
+  assert.match(faFacts, /data-kind="number">۰<\/dd>/);
+
+  const columns = [
+    { field: "title", label: "Title" },
+    { field: "blank", label: "Blank" },
+    { field: "na", label: "Not applicable" },
+    { field: "zero", label: "Zero", kind: "number" },
+  ];
+  const table = renderTable(columns);
+  assert.match(table, /data-kind="text" data-state="missing"><span class="field-empty" data-state="missing">No value<\/span>/);
+  assert.match(
+    table,
+    /data-kind="text" data-state="not-applicable"><span class="field-na" data-state="not-applicable">Not applicable<\/span>/,
+  );
+  assert.match(table, /data-kind="number" data-value="0">0<\/td>/);
+
+  const faTable = renderTable(columns, "fa");
+  assert.match(faTable, /data-state="missing"><span class="field-empty" data-state="missing">بدون مقدار<\/span>/);
+  assert.match(faTable, /data-state="not-applicable"><span class="field-na" data-state="not-applicable">ناموجود<\/span>/);
+  assert.match(faTable, /data-kind="number" data-value="0">۰<\/td>/);
+  assert.match(faTable, /data-state="not-applicable"[^>]*><span class="field-na"[^>]*>ناموجود<\/span><\/td>/);
 });

@@ -48,7 +48,7 @@ test("an unmapped value shows as written, neutral, and keeps its raw text", () =
 });
 
 test("empty and markup values never render raw HTML", () => {
-  assert.equal(renderToString(formatField("", "status", "en", config) as never), `<span class="${EMPTY_CLASS}">No value</span>`);
+  assert.equal(renderToString(formatField("", "status", "en", config) as never), `<span class="${EMPTY_CLASS}" data-state="missing">No value</span>`);
   const out = render("<b>", "en");
   assert.ok(!out.includes("<b>"));
   assert.match(out, /data-value="&lt;b>"/);
