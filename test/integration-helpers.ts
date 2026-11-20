@@ -3,21 +3,25 @@ import { cpSync, existsSync, mkdirSync, mkdtempSync, readFileSync, rmSync, write
 import { tmpdir } from "node:os";
 import { dirname, join } from "node:path";
 import { fileURLToPath } from "node:url";
-import { after } from "node:test";
 import { JSDOM } from "jsdom";
 
 /** The repository root, so the installed engine and the theme in this checkout are the ones measured. */
 export const root = fileURLToPath(new URL("../", import.meta.url));
 
-/** Every temporary directory this run made; the file's teardown removes them, pass or fail (#867). */
+/** Every temporary directory this run made; the runner's exit removes them, pass or fail (#867). */
 const temporary: string[] = [];
 let teardownRegistered = false;
 
-/** Registers the once-per-file teardown that removes every tracked directory, when the first is made. */
+/**
+ * Registers the once-per-run cleanup that removes every tracked directory, when the first is made.
+ * Cleanup rides on the process's exit, not a node:test hook: a fixture is often built inside a
+ * `before` hook, where an `after` would fire as soon as that hook ended. The exit handler runs on
+ * every ending, failure included, and `rmSync` is synchronous as an exit handler must be.
+ */
 function registerTeardown(): void {
   if (teardownRegistered) return;
   teardownRegistered = true;
-  after(() => {
+  process.on("exit", () => {
     for (const dir of temporary.splice(0)) rmSync(dir, { recursive: true, force: true });
   });
 }
