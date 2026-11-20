@@ -12,6 +12,7 @@ import {
 } from "../data-explorer/index-loader.ts";
 import { calendarDate } from "../../src/dates.ts";
 import { parseJson } from "../../src/guards.ts";
+import { withParams } from "../../src/url.ts";
 import type { CompareDocument, CompareElement, CompareEnv } from "./client.ts";
 
 /** Class on the button that opens a column's records. */
@@ -131,11 +132,7 @@ export function recordsOf(search: string): string[] {
 
 /** The page query with the chosen ids set or removed, keeping every other parameter where it was. */
 export function withRecords(search: string, ids: readonly string[]): string {
-  const params = new URLSearchParams(search);
-  if (ids.every((id) => id === "")) params.delete(RECORDS_PARAM);
-  else params.set(RECORDS_PARAM, ids.join(","));
-  const query = params.toString();
-  return query === "" ? "" : `?${query}`;
+  return withParams(search, { [RECORDS_PARAM]: ids.every((id) => id === "") ? null : ids.join(",") });
 }
 
 /** A value as a picker cell shows it, in the page's language and calendar. */

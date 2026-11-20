@@ -8,6 +8,7 @@
  * address is replaced, never pushed, and a page with several tables prefixes each table's keys. */
 
 import { compareKeys, sortKey, sortRows, type SortDirection, type SortKey } from "../../src/sort.ts";
+import { withParams, type ParamValue } from "../../src/url.ts";
 
 export { compareKeys, type SortDirection, type SortKey };
 
@@ -155,14 +156,11 @@ function directionOf(raw: string): SortDirection | undefined {
 
 /** Replaces this table's keys in the address, keeping every other parameter and the fragment. */
 function writeSearch(view: SortWindow, prefix: string, values: readonly (readonly [string, string])[]): void {
-  const url = new URL(view.location.href);
-  for (const key of [...url.searchParams.keys()]) {
-    if (key === `${prefix}sort` || key === `${prefix}q` || key.startsWith(`${prefix}filter.`)) {
-      url.searchParams.delete(key);
-    }
-  }
-  for (const [name, value] of values) url.searchParams.set(prefix + name, value);
-  view.history.replaceState(null, "", url.toString());
+  const changes: Record<string, ParamValue> = {};
+  for (const [name, value] of values) changes[prefix + name] = value;
+  const own = (key: string): boolean =>
+    key === `${prefix}sort` || key === `${prefix}q` || key.startsWith(`${prefix}filter.`);
+  view.history.replaceState(null, "", withParams(view.location.href, changes, own));
 }
 
 /** Reveals the filter form, hides the rows that do not match, and announces how many remain. */
