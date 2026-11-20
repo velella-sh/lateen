@@ -83,8 +83,8 @@ function pageWith(overrides: Partial<Page> = {}): Page {
   };
 }
 
-function props(overrides: Partial<SiteConfig> = {}, page: Page = pageWith()): ChromeProps {
-  const site: Site = { config: { ...config, ...overrides }, pages: [page], nav: { main: [] }, data: {}, collections: {} };
+function props(overrides: Partial<SiteConfig> = {}, page: Page = pageWith(), pages: readonly Page[] = [page]): ChromeProps {
+  const site: Site = { config: { ...config, ...overrides }, pages, nav: { main: [] }, data: {}, collections: {} };
   return { site, page, trail: [], pager: {} };
 }
 
@@ -215,11 +215,13 @@ test("the dialog carries the ask panel's data and a hidden slot, with no panel b
 });
 
 test("the dialog carries a hidden all-results link and a scope-change link in the page language", () => {
-  const out = html(search(props()));
+  const page = pageWith();
+  const out = html(search(props({}, page, [page, pageWith({ url: "/search/" })])));
   const link = /<a class="search-all" data-search-all(?:="")?[^>]*>([^<]*)<\/a>/.exec(out);
 
   assert.equal(link?.[1], "See all results");
   assert.match(out, /<a class="search-all" data-search-all(?:="")? href="\/search\/" hidden>See all results<\/a>/);
+  assert.doesNotMatch(html(search(props())), /<a class="search-all" data-search-all(?:="")? href=/, "a site without a search page has no all-results link");
   assert.match(
     out,
     /<a class="search-all" data-search-scope-change(?:="")? href="\/search\/\?scope=all" hidden>All projects<\/a>/,
