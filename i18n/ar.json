@@ -368,6 +368,7 @@
   "schema_missing_schema": "لا يوجد مخطط في _data عند «{path}».",
   "schema_properties": "الخصائص",
   "search": "بحث",
+  "search_all_results": "عرض كل النتائج",
   "search_clear": "مسح البحث",
   "search_close": "إغلاق البحث",
   "search_copy_failed": "تعذّر النسخ.",

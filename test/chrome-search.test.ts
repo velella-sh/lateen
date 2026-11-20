@@ -9,6 +9,7 @@ import {
   groupBySection,
   optionList,
   OTHER_SECTION,
+  resultsHref,
   safeHref,
   sectionOf,
   type OptionList,
@@ -202,6 +203,18 @@ test("the dialog carries the ask panel's data and a hidden slot, with no panel b
   assert.match(out, /<script type="application\/json" data-ask-agent-config(?:="")?[^>]*>/);
   assert.match(out, /<div class="ask-agent" data-ask-agent(?:="")? hidden>/);
   assert.equal(out.includes("ask-agent-panel"), false);
+});
+
+test("the dialog carries a hidden all-results link with no address and the page language's label", () => {
+  const out = html(search(props()));
+  const link = /<p class="search-foot"><a class="search-all" data-search-all(?:="")? hidden>([^<]*)<\/a><\/p>/.exec(out);
+
+  assert.equal(link?.[1], "See all results");
+  assert.doesNotMatch(out, /<a class="search-all"[^>]* href=/);
+
+  const persianPage = pageWith({ lang: "fa", dir: "rtl", url: "/fa/guide/install/" });
+  const persian = html(search(props({ lang: "fa", dir: "rtl" }, persianPage)));
+  assert.match(persian, /<a class="search-all" data-search-all(?:="")? hidden>دیدن همهٔ نتایج<\/a>/);
 });
 
 test("the dialog reads right to left and speaks Persian without JavaScript", () => {
@@ -671,6 +684,23 @@ test("the index URL follows the site base, with no double slash at the root", ()
   assert.equal(indexUrl("/example/"), "/example/pagefind/pagefind.js");
 });
 
+test("the all-results address encodes the phrase once and keeps the scope", () => {
+  for (const query of ["two words", "چند واژه", "salt & pepper", "#anchor", "a+b", `"quoted" and 'single'`]) {
+    const href = resultsHref(query, "all");
+    const url = new URL(href, "https://lateen.invalid");
+
+    assert.equal(url.pathname, "/search/", href);
+    assert.equal(url.searchParams.get("q"), query, "the phrase survives one encode");
+    assert.equal(url.searchParams.get("scope"), "all", "the scope survives");
+    assert.deepEqual([...url.searchParams.keys()], ["q", "scope"], "no parameter is hand-built");
+  }
+
+  assert.equal(resultsHref("two words"), "/search/?q=two+words");
+  assert.equal(resultsHref("two words", "all", "/example"), "/example/search/?q=two+words&scope=all");
+  assert.equal(resultsHref("two words", null), "/search/?q=two+words");
+  assert.equal(resultsHref("two words", ""), "/search/?q=two+words");
+});
+
 test("messages name the query and count results in the singular and plural", () => {
   assert.equal(emptyMessage("cache"), "No results for “cache”.");
   assert.equal(countMessage(1), "1 result.");
@@ -938,6 +968,20 @@ function fakeStatus() {
   return fake;
 }
 
+function fakeAll() {
+  const fake = {
+    hidden: true,
+    attrs: {} as Record<string, string>,
+    setAttribute(key: string, value: string) {
+      fake.attrs[key] = value;
+    },
+    removeAttribute(key: string) {
+      delete fake.attrs[key];
+    },
+  };
+  return fake;
+}
+
 function fakeDialog(options: { base?: string; focusables?: SearchFocusable[] } = {}) {
   const listeners: Record<string, Array<(event: SearchEvent) => void>> = {};
   const fake = {
@@ -1001,6 +1045,7 @@ function partsOf(options: { base?: string; focusables?: SearchFocusable[]; statu
   const close = fakeButton("close");
   const clear = fakeButton("clear");
   const retry = fakeButton("retry");
+  const all = fakeAll();
   const input = fakeInput();
   const results = fakeResults();
   const status = options.status ?? fakeStatus();
@@ -1013,8 +1058,9 @@ function partsOf(options: { base?: string; focusables?: SearchFocusable[]; statu
     status,
     clear: clear as unknown as SearchParts["clear"],
     retry: retry as unknown as SearchParts["retry"],
+    all: all as unknown as SearchParts["all"],
   };
-  return { dialog, button, close, clear, retry, input, results, status, parts };
+  return { dialog, button, close, clear, retry, all, input, results, status, parts };
 }
 
 function apiOf(data: readonly SearchRecord[], terms: string[] = []): PagefindApi {
@@ -1028,13 +1074,19 @@ function apiOf(data: readonly SearchRecord[], terms: string[] = []): PagefindApi
 
 function envWith(
   api: PagefindApi,
-  options: { lang?: string; messages?: SearchMessages; ask?: (question: string, records: readonly SearchRecord[]) => void } = {},
+  options: {
+    lang?: string;
+    messages?: SearchMessages;
+    scope?: string | null;
+    ask?: (question: string, records: readonly SearchRecord[]) => void;
+  } = {},
 ): SearchEnv & { readonly calls: string[] } {
   const env = {
     calls: [] as string[],
     document: fakeDocument(),
     lang: options.lang ?? "en",
     messages: options.messages ?? MESSAGES,
+    scope: options.scope ?? null,
     ...(options.ask === undefined ? {} : { ask: options.ask }),
     load(url: string) {
       env.calls.push(url);
@@ -1475,6 +1527,33 @@ test("the clear button appears only while the field holds text", async () => {
 
   assert.equal(clear.hidden, true);
   assert.equal(clear.disabled, true);
+});
+
+test("the all-results link follows the query, keeps the scope, and hides when the field is empty", async () => {
+  const { button, input, all, parts } = partsOf({ base: "/example" });
+  activate(parts, envWith(apiOf(records), { scope: "all" }));
+  button.click();
+  await tick();
+
+  assert.equal(all.hidden, true, "an empty field offers no search page");
+  assert.equal(all.attrs.href, undefined);
+
+  input.type("a b&c#d+e");
+  await tick();
+
+  assert.equal(all.hidden, false);
+  assert.equal(all.attrs.href, "/example/search/?q=a+b%26c%23d%2Be&scope=all");
+
+  input.type("چند واژه");
+  await tick();
+
+  assert.equal(new URL(all.attrs.href!, "https://lateen.invalid").searchParams.get("q"), "چند واژه");
+
+  input.type("");
+  await tick();
+
+  assert.equal(all.hidden, true, "clearing the field takes the address away");
+  assert.equal(all.attrs.href, undefined);
 });
 
 test("clearing empties the query, results, and status once, then returns focus to the field", async () => {
