@@ -155,6 +155,34 @@ function morePathOf(page: string): MorePath {
   return new Function(`${block[0]}\nreturn { nextBatch, hasMore, focusAfterAppend };`)() as MorePath;
 }
 
+interface ReturnPath {
+  rememberResult(
+    storage: { setItem(key: string, value: string): void } | undefined,
+    query: string,
+    url: string,
+  ): void;
+  rememberedResult(storage: { getItem(key: string): string | null } | undefined, query: string): string | undefined;
+  markResult(
+    list:
+      | {
+          querySelectorAll(selector: string): readonly {
+            getAttribute(name: string): string | null;
+            setAttribute(name: string, value: string): void;
+            focus(): void;
+          }[];
+        }
+      | undefined,
+    url: string | undefined,
+  ): void;
+}
+
+/** The return path, extracted and run against a fake session store and list. */
+function returnPathOf(page: string): ReturnPath {
+  const block = /\/\* return-path:start[\s\S]*?return-path:end \*\//.exec(scriptOf(page));
+  assert.ok(block, "the script keeps the return path in one self-contained block");
+  return new Function(`${block[0]}\nreturn { rememberResult, rememberedResult, markResult };`)() as ReturnPath;
+}
+
 /** Serializing a page whose language has no catalog warns once; tests keep the output clean. */
 function quietOut(config: Partial<SiteConfig> = {}, page: Partial<Page> = {}): string {
   const previous = process.env.NODE_ENV;
@@ -334,7 +362,7 @@ test("the island keeps today's behavior and builds no second section list", () =
   const page = out({}, {}, NAV);
   const script = scriptOf(page);
 
-  assert.doesNotMatch(script, /search-results-sections|sectionLinks|aria-current/);
+  assert.doesNotMatch(script, /search-results-sections|sectionLinks/);
   assert.equal(page.match(/class="search-results-sections"/g)?.length, 1);
   assert.ok(page.indexOf('<nav class="search-results-sections"') > page.indexOf("<noscript>"));
 });
@@ -532,4 +560,43 @@ test("the results page carries the ask section and the site's llms.txt", () => {
 
 test("the ask section stays out when the site publishes no Markdown twins", () => {
   assert.doesNotMatch(out({ outputs: { twins: false } }), /data-ask-agent-section/);
+});
+
+test("returning from a result restores the query and marks the followed result without moving focus", () => {
+  const memory = new Map<string, string>();
+  const storage = {
+    getItem: (key: string) => memory.get(key) ?? null,
+    setItem: (key: string, value: string) => void memory.set(key, value),
+  };
+  const path = returnPathOf(out());
+
+  assert.equal(path.rememberedResult(storage, "install"), undefined);
+  path.rememberResult(storage, "install", "/guide/install/");
+  assert.equal(path.rememberedResult(storage, "install"), "/guide/install/");
+  assert.equal(path.rememberedResult(storage, "upgrade"), undefined, "another query does not restore this result");
+
+  let focused = 0;
+  const link = (href: string) => {
+    const attrs = new Map<string, string>([["href", href]]);
+    return {
+      getAttribute: (name: string) => attrs.get(name) ?? null,
+      setAttribute: (name: string, value: string) => void attrs.set(name, value),
+      focus: () => void (focused += 1),
+    };
+  };
+  const first = link("/guide/start/");
+  const followed = link("/guide/install/");
+  path.markResult({ querySelectorAll: () => [first, followed] }, path.rememberedResult(storage, "install"));
+
+  assert.equal(followed.getAttribute("aria-current"), "true");
+  assert.equal(first.getAttribute("aria-current"), null);
+  assert.equal(focused, 0, "marking does not move focus");
+  assert.equal(path.rememberedResult(undefined, "install"), undefined, "blocked storage does not throw");
+
+  const page = out();
+  assert.match(page, /data-search-results=""/, "the list stays reachable on the page");
+  const script = scriptOf(page);
+  assert.match(script, /new URLSearchParams\(location\.search\)\.get\("q"\)/, "the query comes back from the address");
+  assert.match(script, /list\.addEventListener\("click"/);
+  assert.match(script, /addEventListener\("pageshow"/);
 });
