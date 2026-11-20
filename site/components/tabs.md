@@ -69,5 +69,6 @@ Use the `windows` archive and add its folder to `Path`.
 - Choosing a tab by hand also writes `?tab=<label>` into the address bar, keeping every other query parameter, and does not reload or move the page, so the address can be shared. A link that opens the page with that parameter starts on the same tab.
 - A fragment that points at a panel, or at a heading inside one, opens that panel on load even when a shared `?tab=` would leave it closed. Following a fragment after load — an in-page link, or Back and Forward — opens the owning panel as well. Fragments and `?tab=` labels that no longer match anything are ignored, and a group that stays stacked is never touched.
 - Arrow keys move between tabs, `Home` and `End` go to the ends, and the arrows follow the reading direction in right-to-left pages.
+- At an effective 320px width the tab list and its panels stay inside the viewport. Long labels scroll within the tab list, so the page does not scroll horizontally.
 - Use [OS tabs](../os-tabs/) when the sections are operating systems and the reader's system should win, or [code tabs](../code-tabs/) when the choice is a language or package manager.
 - Component islands are not wired into built pages yet, so a built site shows the no-JavaScript state — every section stacked — until island wiring lands.
