@@ -1,7 +1,7 @@
 import assert from "node:assert/strict";
 import { readFileSync } from "node:fs";
 import { test } from "node:test";
-import type { ComponentProps, Page, Site, SiteConfig, SourcePos } from "@velella/mizzen/contracts";
+import type { ComponentProps, Page, Site, SourcePos } from "@velella/mizzen/contracts";
 import tags, {
   TAGS_CLASS,
   TAG_CLASS,
@@ -13,27 +13,11 @@ import tags, {
   type Tag,
   type TagsProps,
 } from "../components/tags/index.ts";
+import { siteConfig } from "./helpers/site.ts";
 
 const pos: SourcePos = { file: "docs/guide/install.md", line: 3, column: 1, endLine: 5, endColumn: 1 };
 
-const config: SiteConfig = {
-  title: "Example",
-  base: "/example",
-  lang: "en",
-  dir: "ltr",
-  languages: [],
-  source: ".",
-  include: [],
-  exclude: [],
-  navigation: "_data/navigation.yml",
-  defaults: [],
-  theme: { options: {} },
-  search: { text: 300 },
-  redirects: {},
-  outputs: {},
-  collections: {},
-  feeds: {},
-};
+const config = siteConfig({ base: "/example" });
 
 /** A page whose front matter holds the given tags. */
 function pageWith(frontMatter: Record<string, unknown> = {}): Page {

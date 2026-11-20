@@ -2,29 +2,13 @@ import assert from "node:assert/strict";
 import { readFileSync } from "node:fs";
 import { test } from "node:test";
 import { Fragment } from "preact";
-import type { ChromeProps, Heading, Page, Pager, Site, SiteConfig, SourcePos, Trail } from "@velella/mizzen/contracts";
+import type { ChromeProps, Heading, Page, Pager, Site, SourcePos, Trail } from "@velella/mizzen/contracts";
 import toc, { tocFold } from "../chrome/toc/index.ts";
+import { siteConfig } from "./helpers/site.ts";
 
 const pos: SourcePos = { file: "docs/guide/install.md", line: 3, column: 1, endLine: 9, endColumn: 1 };
 
-const config: SiteConfig = {
-  title: "Example",
-  base: "/example",
-  lang: "en",
-  dir: "ltr",
-  languages: [],
-  source: ".",
-  include: [],
-  exclude: [],
-  navigation: "_data/navigation.yml",
-  defaults: [],
-  theme: { options: {} },
-  search: { text: 300 },
-  redirects: {},
-  outputs: {},
-  collections: {},
-  feeds: {},
-};
+const config = siteConfig({ base: "/example" });
 
 const trail: Trail = [];
 const pager: Pager = {};

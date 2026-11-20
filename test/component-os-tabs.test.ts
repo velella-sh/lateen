@@ -1,7 +1,7 @@
 import assert from "node:assert/strict";
 import { readFileSync } from "node:fs";
 import { test } from "node:test";
-import type { Page, Site, SiteConfig, SourcePos } from "@velella/mizzen/contracts";
+import type { Site, SourcePos } from "@velella/mizzen/contracts";
 import osTabs, {
   BODY_CLASS,
   DEFAULT_ID,
@@ -39,40 +39,14 @@ import {
   type TabsEvent,
   type TabsGroup,
 } from "../components/os-tabs/client.ts";
+import { siteConfig } from "./helpers/site.ts";
+import { pageWith } from "./helpers/page.ts";
 
 const pos: SourcePos = { file: "docs/guide/install.md", line: 4, column: 1, endLine: 20, endColumn: 1 };
 
-const config: SiteConfig = {
-  title: "Example",
-  base: "/example",
-  lang: "en",
-  dir: "ltr",
-  languages: [],
-  source: ".",
-  include: [],
-  exclude: [],
-  navigation: "_data/navigation.yml",
-  defaults: [],
-  theme: { options: {} },
-  search: { text: 300 },
-  redirects: {},
-  outputs: {},
-  collections: {},
-  feeds: {},
-};
+const config = siteConfig({ base: "/example" });
 
-const page: Page = {
-  url: "/example/guide/install/",
-  source: pos,
-  frontMatter: { title: "Install" },
-  title: "Install",
-  lang: "en",
-  dir: "ltr",
-  headings: [],
-  html: "",
-  markdown: "",
-  kind: "doc",
-};
+const page = pageWith({ url: "/example/guide/install/", source: pos, frontMatter: { title: "Install" }, title: "Install" });
 
 const site: Site = { config, pages: [page], nav: {}, data: {}, collections: {} };
 

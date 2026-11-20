@@ -3,7 +3,7 @@ import { readFileSync } from "node:fs";
 import { test } from "node:test";
 import { h } from "preact";
 import { renderToString } from "preact-render-to-string";
-import type { ChromeProps, Head, LayoutProps, Page, Pager, Site, SiteConfig, SourcePos, Trail } from "@velella/mizzen/contracts";
+import type { ChromeProps, Head, LayoutProps, Pager, Site, SiteConfig, SourcePos, Trail } from "@velella/mizzen/contracts";
 import announcement, { DEFAULT_ID, TONE_KEYS, TONES, toneOf } from "../chrome/announcement/index.ts";
 import {
   activate,
@@ -16,6 +16,7 @@ import {
 } from "../chrome/announcement/client.ts";
 import base from "../layouts/base.ts";
 import { stringsOf } from "../i18n/index.ts";
+import { pageWith } from "./helpers/page.ts";
 
 const pos: SourcePos = { file: "index.md", line: 1, column: 1, endLine: 1, endColumn: 1 };
 
@@ -40,18 +41,7 @@ function configWith(options: Readonly<Record<string, unknown>>, lang = "en"): Si
   };
 }
 
-const page: Page = {
-  url: "/example/",
-  source: pos,
-  frontMatter: { title: "Home" },
-  title: "Home",
-  lang: "en",
-  dir: "ltr",
-  headings: [],
-  html: "",
-  markdown: "",
-  kind: "doc",
-};
+const page = pageWith({ url: "/example/", source: pos, frontMatter: { title: "Home" }, title: "Home" });
 
 const trail: Trail = [];
 const pager: Pager = {};

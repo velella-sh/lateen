@@ -6,50 +6,24 @@ import type {
   ChromeProps,
   NavLink,
   NavTree,
+  
   Page,
   Pager,
   Site,
-  SiteConfig,
   SourcePos,
   Trail,
 } from "@velella/mizzen/contracts";
 import pager from "../chrome/pager/index.ts";
+import { siteConfig } from "./helpers/site.ts";
+import { pageWith } from "./helpers/page.ts";
 
 const pos: SourcePos = { file: "docs/guide/install.md", line: 3, column: 1, endLine: 9, endColumn: 1 };
 
-const config: SiteConfig = {
-  title: "Example",
-  base: "/example",
-  lang: "en",
-  dir: "ltr",
-  languages: [],
-  source: ".",
-  include: [],
-  exclude: [],
-  navigation: "_data/navigation.yml",
-  defaults: [],
-  theme: { options: {} },
-  search: { text: 300 },
-  redirects: {},
-  outputs: {},
-  collections: {},
-  feeds: {},
-};
+const config = siteConfig({ base: "/example" });
 
 const trail: Trail = [];
 
-const page: Page = {
-  url: "/example/guide/install/",
-  source: pos,
-  frontMatter: { title: "Install" },
-  title: "Install",
-  lang: "en",
-  dir: "ltr",
-  headings: [],
-  html: "",
-  markdown: "",
-  kind: "doc",
-};
+const page = pageWith({ url: "/example/guide/install/", source: pos, frontMatter: { title: "Install" }, title: "Install" });
 
 const prev: NavLink = { title: "Overview", url: "/example/guide/" };
 const next: NavLink = { title: "Configure", url: "/example/guide/configure/" };

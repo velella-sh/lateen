@@ -2,7 +2,7 @@ import assert from "node:assert/strict";
 import { readFileSync } from "node:fs";
 import { beforeEach, test } from "node:test";
 import { Fragment, h } from "preact";
-import type { ChromeProps, Page, Site, SiteConfig, SourcePos } from "@velella/mizzen/contracts";
+import type { ChromeProps, Page, Site, SourcePos } from "@velella/mizzen/contracts";
 import shortcuts, { SHORTCUTS, SHORTCUTS_TITLE_ID, SHORTCUTS_TOGGLE_ID } from "../chrome/shortcuts/index.ts";
 import {
   activate,
@@ -26,29 +26,13 @@ import {
 import { isSearchShortcut } from "../chrome/search/shortcut.ts";
 import { stringsOf } from "../i18n/index.ts";
 import base from "../layouts/base.ts";
+import { siteConfig } from "./helpers/site.ts";
 
 beforeEach(() => resetShortcutsPreference());
 
 const pos: SourcePos = { file: "guide/install.md", line: 1, column: 1, endLine: 1, endColumn: 1 };
 
-const config: SiteConfig = {
-  title: "Example",
-  base: "",
-  lang: "en",
-  dir: "ltr",
-  languages: [],
-  source: ".",
-  include: [],
-  exclude: [],
-  navigation: "_data/navigation.yml",
-  defaults: [],
-  theme: { options: {} },
-  search: { text: 300 },
-  redirects: {},
-  outputs: {},
-  collections: {},
-  feeds: {},
-};
+const config = siteConfig();
 
 function pageWith(overrides: Partial<Page> = {}): Page {
   return {

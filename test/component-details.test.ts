@@ -1,43 +1,17 @@
 import assert from "node:assert/strict";
 import { test } from "node:test";
 import { JSDOM } from "jsdom";
-import type { Page, Site, SiteConfig, SourcePos } from "@velella/mizzen/contracts";
+import type { Site, SourcePos } from "@velella/mizzen/contracts";
 import details, { BODY_CLASS, DEFAULT_SUMMARY, DETAILS_CLASS, SUMMARY_CLASS, type DetailsProps } from "../components/details/index.ts";
 import { reveal, watch, type FragmentDocument, type FragmentWindow } from "../components/details/client.ts";
+import { siteConfig } from "./helpers/site.ts";
+import { pageWith } from "./helpers/page.ts";
 
 const pos: SourcePos = { file: "docs/guide/setup.md", line: 4, column: 1, endLine: 9, endColumn: 1 };
 
-const config: SiteConfig = {
-  title: "Example",
-  base: "/example",
-  lang: "en",
-  dir: "ltr",
-  languages: [],
-  source: ".",
-  include: [],
-  exclude: [],
-  navigation: "_data/navigation.yml",
-  defaults: [],
-  theme: { options: {} },
-  search: { text: 300 },
-  redirects: {},
-  outputs: {},
-  collections: {},
-  feeds: {},
-};
+const config = siteConfig({ base: "/example" });
 
-const page: Page = {
-  url: "/example/guide/setup/",
-  source: pos,
-  frontMatter: { title: "Setup" },
-  title: "Setup",
-  lang: "en",
-  dir: "ltr",
-  headings: [],
-  html: "",
-  markdown: "",
-  kind: "doc",
-};
+const page = pageWith({ url: "/example/guide/setup/", source: pos, frontMatter: { title: "Setup" }, title: "Setup" });
 
 const site: Site = { config, pages: [page], nav: {}, data: {}, collections: {} };
 

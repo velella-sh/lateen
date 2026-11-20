@@ -10,12 +10,12 @@ import {
   type ExplorerDocument,
   type ExplorerEnv,
 } from "../components/data-explorer/client.ts";
+import { dataRecord } from "./helpers/record.ts";
 
 const INDEX_URL = "/data/books.index.json";
 const COUNT = 60;
 
-const record = (id: string, fields: Record<string, unknown>): DataRecord =>
-  ({ id, fields, position: { line: 1, column: 1 }, fieldPositions: {} }) as unknown as DataRecord;
+const record = (id: string, fields: Record<string, unknown>): DataRecord => dataRecord({ id, fields });
 
 const books = Array.from({ length: COUNT }, (_, index) =>
   record(`b${index}`, { title: `Book ${index}`, pages: index }),

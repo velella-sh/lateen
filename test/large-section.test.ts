@@ -1,32 +1,16 @@
 import assert from "node:assert/strict";
 import { readdirSync, readFileSync } from "node:fs";
 import { test } from "node:test";
-import type { ChromeProps, NavTree, Page, Site, SiteConfig, SourcePos } from "@velella/mizzen/contracts";
+import type { ChromeProps, NavTree, Page, Site, SourcePos } from "@velella/mizzen/contracts";
 import sidebar from "../chrome/sidebar/index.ts";
+import { siteConfig } from "./helpers/site.ts";
 
 // The 550 generated rule pages of the docs-site fixture: one folder, one navigation group.
 const rulesDir = new URL("../fixtures/docs-site/rules/", import.meta.url);
 
 const pos: SourcePos = { file: "rules/index.md", line: 1, column: 1, endLine: 1, endColumn: 1 };
 
-const config: SiteConfig = {
-  title: "Beacon",
-  base: "",
-  lang: "en",
-  dir: "ltr",
-  languages: [],
-  source: ".",
-  include: [],
-  exclude: [],
-  navigation: "_data/navigation.yml",
-  defaults: [],
-  theme: { options: {} },
-  search: { text: 300 },
-  redirects: {},
-  outputs: {},
-  collections: {},
-  feeds: {},
-};
+const config = siteConfig({ title: "Beacon" });
 
 function pageAt(url: string): Page {
   return {
