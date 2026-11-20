@@ -1,7 +1,7 @@
-import { h } from "preact";
 import type { ChromeProps } from "@velella/mizzen/contracts";
-import { t } from "../../i18n/index.ts";
+import { mobileSelector } from "../mobile-selectors/index.ts";
 import { isExternalProjectUrl, projectLinks } from "./index.ts";
+import { t } from "../../i18n/index.ts";
 
 /** Class on the mobile group. */
 export const MOBILE_CLASS = "project-switcher-mobile";
@@ -21,47 +21,36 @@ export const MOBILE_LINK_CLASS = "project-switcher-mobile-link";
 /** Class added to the current project's link, beside {@link MOBILE_LINK_CLASS}. */
 export const MOBILE_CURRENT_CLASS = "project-switcher-mobile-current";
 
+/** Extra class hooks the project unit keeps beside the shared mobile-selector classes. */
+const PROJECT_CLASSES = {
+  details: MOBILE_CLASS,
+  summary: MOBILE_SUMMARY_CLASS,
+  list: MOBILE_LIST_CLASS,
+  item: MOBILE_ITEM_CLASS,
+  link: MOBILE_LINK_CLASS,
+  current: MOBILE_CURRENT_CLASS,
+} as const;
+
 /**
- * The "Projects" group at the top of the mobile navigation drawer: a native disclosure with the same
- * projects, in the same order and with the same current mark as the header switcher, because both read
- * {@link projectLinks}. It starts collapsed, so its links are out of the tab order until the reader opens
- * it, and it adds no heading or landmark of its own. A site without a network, or with one project,
- * renders nothing.
+ * The "Projects" group at the top of the mobile navigation drawer: the shared mobile selector with the
+ * same projects, in the same order and with the same current mark as the header switcher, because both
+ * read {@link projectLinks}. It starts collapsed and adds no heading or landmark of its own. A site
+ * without a network, or with one project, renders nothing.
  */
 export function mobileProjects({ site, page }: ChromeProps) {
   const projects = projectLinks(site);
   if (projects.length === 0) return null;
 
-  return h(
-    "details",
-    { class: MOBILE_CLASS, "data-project-switcher-mobile": "" },
-    h(
-      "summary",
-      { class: MOBILE_SUMMARY_CLASS },
-      h("span", null, t(page.lang, "projects")),
-      h("span", { class: "project-switcher-mobile-marker", "aria-hidden": "true" }, "▾"),
-    ),
-    h(
-      "ul",
-      { class: MOBILE_LIST_CLASS },
-      ...projects.map((project) => {
-        const external = isExternalProjectUrl(project.url);
-        return h(
-          "li",
-          { class: MOBILE_ITEM_CLASS },
-          h(
-            "a",
-            {
-              class: project.current ? `${MOBILE_LINK_CLASS} ${MOBILE_CURRENT_CLASS}` : MOBILE_LINK_CLASS,
-              href: project.url,
-              rel: external ? "noopener noreferrer" : undefined,
-              target: external ? "_blank" : undefined,
-              "aria-current": project.current ? "true" : undefined,
-            },
-            h("bdi", null, project.title),
-          ),
-        );
-      }),
-    ),
-  );
+  return mobileSelector({
+    key: "projects",
+    label: t(page.lang, "projects"),
+    items: projects.map((project) => ({
+      text: project.title,
+      href: project.url,
+      current: project.current,
+      external: isExternalProjectUrl(project.url),
+    })),
+    classes: PROJECT_CLASSES,
+    attrs: { "data-project-switcher-mobile": "" },
+  });
 }
