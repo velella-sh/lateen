@@ -26,17 +26,7 @@ jobs:
         with:
           path: lateen
           persist-credentials: false
-      - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
-        with:
-          node-version-file: lateen/.node-version
-          cache: npm
-          cache-dependency-path: lateen/package-lock.json
-      - name: Set up npm
-        working-directory: lateen
-        run: npm install --global "$(node -p "require('./package.json').packageManager")" --no-audit --no-fund
-      - name: Install
-        run: npm ci --no-audit --no-fund
-        working-directory: lateen
+      - uses: ./lateen/.github/actions/setup
       - name: Test
         run: npm test
         working-directory: lateen
@@ -79,19 +69,13 @@ jobs:
           ref: ${{ github.base_ref }}
           path: base
           persist-credentials: false
-      - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
+      - name: Set up the pull request
+        uses: ./head/.github/actions/setup
         with:
-          node-version-file: head/.node-version
-          cache: npm
+          path: head
           cache-dependency-path: |
             head/package-lock.json
             base/package-lock.json
-      - name: Set up npm
-        working-directory: head
-        run: npm install --global "$(node -p "require('./package.json').packageManager")" --no-audit --no-fund
-      - name: Install the pull request
-        run: npm ci --no-audit --no-fund
-        working-directory: head
       - name: Install the base branch
         run: npm ci --no-audit --no-fund
         working-directory: base
@@ -123,17 +107,7 @@ jobs:
         with:
           path: lateen
           persist-credentials: false
-      - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
-        with:
-          node-version-file: lateen/.node-version
-          cache: npm
-          cache-dependency-path: lateen/package-lock.json
-      - name: Set up npm
-        working-directory: lateen
-        run: npm install --global "$(node -p "require('./package.json').packageManager")" --no-audit --no-fund
-      - name: Install
-        run: npm ci --no-audit --no-fund
-        working-directory: lateen
+      - uses: ./lateen/.github/actions/setup
       - name: Cache the Playwright browser
         uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
         with:
@@ -169,17 +143,7 @@ jobs:
         with:
           path: lateen
           persist-credentials: false
-      - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
-        with:
-          node-version-file: lateen/.node-version
-          cache: npm
-          cache-dependency-path: lateen/package-lock.json
-      - name: Set up npm
-        working-directory: lateen
-        run: npm install --global "$(node -p "require('./package.json').packageManager")" --no-audit --no-fund
-      - name: Install
-        run: npm ci --no-audit --no-fund
-        working-directory: lateen
+      - uses: ./lateen/.github/actions/setup
       - name: Cache the Playwright browser
         uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
         with:
@@ -221,17 +185,7 @@ jobs:
         with:
           path: lateen
           persist-credentials: false
-      - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
-        with:
-          node-version-file: lateen/.node-version
-          cache: npm
-          cache-dependency-path: lateen/package-lock.json
-      - name: Set up npm
-        working-directory: lateen
-        run: npm install --global "$(node -p "require('./package.json').packageManager")" --no-audit --no-fund
-      - name: Install
-        run: npm ci --no-audit --no-fund
-        working-directory: lateen
+      - uses: ./lateen/.github/actions/setup
       - name: Cache the Playwright browser
         uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
         with:
@@ -257,17 +211,7 @@ jobs:
           path: lateen
           persist-credentials: false
           fetch-depth: 0
-      - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
-        with:
-          node-version-file: lateen/.node-version
-          cache: npm
-          cache-dependency-path: lateen/package-lock.json
-      - name: Set up npm
-        working-directory: lateen
-        run: npm install --global "$(node -p "require('./package.json').packageManager")" --no-audit --no-fund
-      - name: Install
-        run: npm ci --no-audit --no-fund
-        working-directory: lateen
+      - uses: ./lateen/.github/actions/setup
       - name: Cache the Playwright browser
         uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
         with:
@@ -343,17 +287,7 @@ jobs:
         with:
           path: lateen
           persist-credentials: false
-      - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
-        with:
-          node-version-file: lateen/.node-version
-          cache: npm
-          cache-dependency-path: lateen/package-lock.json
-      - name: Set up npm
-        working-directory: lateen
-        run: npm install --global "$(node -p "require('./package.json').packageManager")" --no-audit --no-fund
-      - name: Install
-        run: npm ci --no-audit --no-fund
-        working-directory: lateen
+      - uses: ./lateen/.github/actions/setup
       - name: Measure coverage
         working-directory: lateen
         run: |
