@@ -1,7 +1,9 @@
 import assert from "node:assert/strict";
 import { readFileSync } from "node:fs";
 import { test } from "node:test";
-import { decorateLines, HIGHLIGHT_CLASS, isHighlighted, LINE_CLASS } from "../components/code/lines.ts";
+import { decorateLines, HIGHLIGHT_CLASS, isHighlighted, LINE_CLASS, LINE_LINK_CLASS, lineAnchorId } from "../components/code/lines.ts";
+import { parseLineFragment, TARGET_CLASS } from "../components/code/line-fragment.ts";
+import { targetLines, type CopyDocument, type CopyLine } from "../chrome/code-copy/client.ts";
 
 /** Shiki's inner HTML for three lines, one `span.line` each, joined by `\n`. */
 const SHIKI = '<span class="line"><span style="color:#111">a</span></span>\n<span class="line">b</span>\n<span class="line"></span>';
@@ -73,3 +75,100 @@ test("the highlighted line marker is a logical inline border that keeps text in 
   assert.match(rule, /padding-inline-start:/);
   assert.doesNotMatch(rule, /border-(left|right)\b/);
 });
+
+const BLOCK = "code-a-md-3";
+
+/** A line element the targeting test can mark and count. */
+function fakeLine(id: string) {
+  const classes = new Set<string>();
+  const line = {
+    id,
+    scrolled: 0,
+    classList: {
+      add: (name: string) => classes.add(name),
+      remove: (name: string) => classes.delete(name),
+      has: (name: string) => classes.has(name),
+    },
+    scrollIntoView: () => {
+      line.scrolled += 1;
+    },
+    getAttribute: () => null,
+    querySelector: () => null,
+    before: () => {},
+  };
+  return line;
+}
+
+/** A document holding numbered lines `L1…Ln` of one block, enough for `targetLines`. */
+function fakeDoc(count: number) {
+  const lines = new Map<string, ReturnType<typeof fakeLine>>();
+  for (let n = 1; n <= count; n += 1) lines.set(lineAnchorId(BLOCK, n), fakeLine(lineAnchorId(BLOCK, n)));
+  const doc = {
+    getElementById: (id: string) => lines.get(id) ?? null,
+    querySelectorAll: (selector: string) =>
+      selector === `.${TARGET_CLASS}` ? [...lines.values()].filter((line) => line.classList.has(TARGET_CLASS)) : [],
+    createElement: () => ({ setAttribute() {}, append() {}, addEventListener() {}, textContent: "" }),
+    createElementNS: () => ({ setAttribute() {}, append() {}, addEventListener() {}, textContent: "" }),
+  } as unknown as CopyDocument;
+  return { doc, lines };
+}
+
+test("a decorated line has a stable id and a keyboard-reachable link that adds no text", () => {
+  const out = decorateLines(SHIKI, { block: BLOCK, lang: "en" });
+  assert.match(out, new RegExp(`<span class="line" id="${BLOCK}-L1">`));
+  assert.match(out, new RegExp(`<span class="line" id="${BLOCK}-L2">`));
+  assert.match(out, new RegExp(`<span class="line" id="${BLOCK}-L3">`));
+  assert.match(out, new RegExp(`<a class="${LINE_LINK_CLASS}" href="#${BLOCK}-L2" aria-label="Link to line 2"></a>`));
+  assert.equal((out.match(new RegExp(`class="${LINE_LINK_CLASS}"`, "g")) ?? []).length, 3);
+});
+
+test("a one-line link targets the line itself and works without JavaScript", () => {
+  const html = decorateLines(SHIKI, { block: BLOCK, lang: "en" });
+  const target = `#${BLOCK}-L3`;
+  assert.match(html, new RegExp(`id="${BLOCK}-L3"`));
+  assert.match(html, new RegExp(`href="${target}"`));
+  assert.doesNotMatch(html, /<script|targeted/);
+});
+
+test("a range link is the block id, then L from and L to", () => {
+  assert.deepEqual(parseLineFragment(`#${BLOCK}-L3-L7`), { block: BLOCK, from: 3, to: 7 });
+  assert.deepEqual(parseLineFragment(`#${BLOCK}-L3`), { block: BLOCK, from: 3, to: 3 });
+  assert.equal(parseLineFragment("#L3"), undefined);
+  assert.equal(parseLineFragment(`#${BLOCK}-L7-L3`), undefined);
+  assert.equal(parseLineFragment(`#${BLOCK}-L0`), undefined);
+});
+
+test("fragment targeting marks a range, clears the last one, and scrolls its first line", () => {
+  const { doc, lines } = fakeDoc(5);
+  const ids = (items: CopyLine[]) => items.map((line) => (line as unknown as { id: string }).id);
+  const marked = targetLines(doc, `#${BLOCK}-L2-L4`);
+  assert.deepEqual(ids(marked), [`${BLOCK}-L2`, `${BLOCK}-L3`, `${BLOCK}-L4`]);
+  assert.equal(lines.get(`${BLOCK}-L2`)!.scrolled, 1);
+  assert.equal(lines.get(`${BLOCK}-L1`)!.scrolled, 0);
+  assert.equal(lines.get(`${BLOCK}-L3`)!.scrolled, 0);
+  const rerun = targetLines(doc, `#${BLOCK}-L5`);
+  assert.deepEqual(ids(rerun), [`${BLOCK}-L5`]);
+  assert.equal(lines.get(`${BLOCK}-L2`)!.classList.has(TARGET_CLASS), false);
+  assert.equal(lines.get(`${BLOCK}-L5`)!.classList.has(TARGET_CLASS), true);
+  // A single line has its own id, so the browser scrolls it; only a range needs the island's help.
+  assert.equal(lines.get(`${BLOCK}-L5`)!.scrolled, 0);
+});
+
+test("the line link is RTL-safe and the target uses a logical edge", () => {
+  const css = readFileSync(new URL("../styles/src/ui.css", import.meta.url), "utf8");
+  const linkRule = /\.code \.line-link,\n\.code-frame \.line-link \{([^}]*)\}/.exec(css)?.[1] ?? "";
+  assert.match(linkRule, /inline-size:/);
+  assert.match(linkRule, /margin-inline-end:/);
+  assert.doesNotMatch(linkRule, /\b(?:left|right|margin-left|margin-right)\b/);
+  const targetRule = /\.code \.line:target,[\s\S]{0,400}?\{([^}]*)\}/.exec(css)?.[1] ?? "";
+  assert.match(targetRule, /border-inline-start:\s*2px solid var\(--link\)/);
+  assert.match(targetRule, /padding-inline-start:/);
+  assert.doesNotMatch(targetRule, /\b(?:border-left|border-right)\b/);
+});
+
+test("the copied text stays the code, with no link or line ids in it", () => {
+  const out = decorateLines(SHIKI, { block: BLOCK, numbers: true, lang: "en" });
+  assert.equal(textOf(out), "a\nb\n");
+  assert.doesNotMatch(textOf(out), /#|line-link/);
+});
+

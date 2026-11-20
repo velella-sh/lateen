@@ -244,10 +244,12 @@ export default function code({ props, html, page, site }: ComponentProps<CodePro
     codeBackgrounds(options),
   );
   const inner = /<code[^>]*>([\s\S]*)<\/code>/.exec(out)?.[1] ?? "";
+  const block = src === undefined ? undefined : blockId(src);
+  const decorated = block === undefined ? inner : decorateLines(inner, { block, lang: page.lang });
   return h(
     "pre",
-    { class: CODE_CLASS, tabindex: 0, "data-lang": lang, ...(src ? { id: blockId(src), "data-src": src } : {}) },
-    h("code", { dangerouslySetInnerHTML: { __html: inner } }),
+    { class: CODE_CLASS, tabindex: 0, "data-lang": lang, ...(block === undefined ? {} : { id: block, "data-src": src }) },
+    h("code", { dangerouslySetInnerHTML: { __html: decorated } }),
   );
 }
 
@@ -303,18 +305,21 @@ export function highlightFences(html: string, backdrops?: CodeBackdrops, lang = 
       const inner = /<code[^>]*>([\s\S]*)<\/code>/.exec(out)?.[1] ?? "";
       const src = attribute(attrs, "data-src");
       const block = blockId(src ?? "");
+      const kept = keptAttributes(attrs);
+      const lineBase = kept.originalId ?? (src === undefined ? undefined : block);
       let decorated = inner;
-      if (meta !== undefined) {
-        const annotations = meta.annotations;
+      if (meta !== undefined || lineBase !== undefined) {
+        const annotations = meta?.annotations ?? [];
         decorated = decorateLines(inner, {
-          highlight: meta.highlight,
-          numbers: meta.showLineNumbers,
+          ...(meta === undefined ? {} : { highlight: meta.highlight, numbers: meta.showLineNumbers }),
+          ...(lineBase === undefined ? {} : { block: lineBase, lang }),
           ...(annotations.length === 0 ? {} : { lineId: annotationLineId(block, annotations) }),
         });
+      }
+      if (meta !== undefined) {
         if (isDiffLang(name) || meta.diff) decorated = stripDiffMarkers(decorated);
         decorated = markDiffLines(decorated, { ins: meta.ins, del: meta.del });
       }
-      const kept = keptAttributes(attrs);
       const id = kept.originalId ?? (src === undefined ? undefined : block);
       const idAttr = id === undefined ? "" : ` id="${id}"`;
       const className = kept.extraClass === "" ? CODE_CLASS : `${CODE_CLASS} ${kept.extraClass}`;

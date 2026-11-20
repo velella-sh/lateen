@@ -169,9 +169,9 @@ test("highlightFences reads data-code after data-src: title, highlight, numbers,
   const out = highlightFences(fence);
   assert.match(out, /^<div class="code-title">.*<span class="code-title-name">src\/a > b\.ts<\/span><\/div><pre /);
   assert.match(out, /<pre class="code" tabindex="0" id="code-a-md-3" data-lang="ts" data-src="a.md:3" data-code="/);
-  assert.match(out, /<span class="line ins" data-line="1">/);
-  assert.match(out, /<span class="line highlighted" data-line="2">/);
-  assert.match(out, /<span class="line del" data-line="3">/);
+  assert.match(out, /<span class="line ins" id="code-a-md-3-L1" data-line="1">/);
+  assert.match(out, /<span class="line highlighted" id="code-a-md-3-L2" data-line="2">/);
+  assert.match(out, /<span class="line del" id="code-a-md-3-L3" data-line="3">/);
   assert.doesNotMatch(out, /<pre[^>]*><code[^>]*>[^<]*const/);
 });
 
@@ -179,9 +179,9 @@ test("a diff fence in data-code strips its marker characters and still marks its
   const meta = dataCode({ raw: "", title: null, highlight: [], ins: [], del: [], diff: true, showLineNumbers: false, annotations: [] });
   const fence = `<pre data-src="a.md:3" data-code="${meta}"><code class="language-diff">-old\n+new\n same\n</code></pre>`;
   const out = highlightFences(fence);
-  assert.match(out, /<span class="line del">[\s\S]*?>old<\/span>/);
-  assert.match(out, /<span class="line ins">[\s\S]*?>new<\/span>/);
-  assert.match(out, /<span class="line">[\s\S]*?>same<\/span>/);
+  assert.match(out, /<span class="line del" id="code-a-md-3-L1">[\s\S]*?>old<\/span>/);
+  assert.match(out, /<span class="line ins" id="code-a-md-3-L2">[\s\S]*?>new<\/span>/);
+  assert.match(out, /<span class="line" id="code-a-md-3-L3">[\s\S]*?>same<\/span>/);
   assert.doesNotMatch(out, />[-+]old</);
 });
 
