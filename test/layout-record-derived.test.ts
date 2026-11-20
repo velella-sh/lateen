@@ -158,7 +158,7 @@ function listProps(): LayoutProps {
 test("a list column reads and sorts a derived value", () => {
   const out = renderToString(list(listProps()) as never);
 
-  assert.match(out, /<th scope="col" data-field="derived\.daysLeft" data-kind="days" data-label="Days left"/);
+  assert.match(out, /<th scope="col"[^>]*data-field="derived\.daysLeft" data-kind="days" data-label="Days left"/);
   assert.match(out, /<td class="record-table-cell" data-kind="days" data-value="10">10 days left<\/td>/);
   assert.match(out, /<td class="record-table-cell" data-kind="days" data-value="-2">2 days ago<\/td>/);
   assert.match(out, /<option value="10">10<\/option>/);

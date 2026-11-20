@@ -43,7 +43,7 @@ test("the directive is record-table", () => {
 
 test("columns keep their order and labels, and every cell uses its kind", () => {
   const out = render({ from: "books", columns });
-  assert.match(out, /<th scope="col"[^>]*>Title<button[^>]*>[^<]*<\/button><\/th><th scope="col"[^>]*>Pages<button[^>]*>[^<]*<\/button><\/th><th scope="col"[^>]*>Published<button[^>]*>[^<]*<\/button><\/th><th scope="col">Draft<\/th>/);
+  assert.match(out, /<th scope="col"[^>]*>Title<button[^>]*>[\s\S]*?<\/button><\/th><th scope="col"[^>]*>Pages<button[^>]*>[\s\S]*?<\/button><\/th><th scope="col"[^>]*>Published<button[^>]*>[\s\S]*?<\/button><\/th><th scope="col">Draft<\/th>/);
   assert.match(out, /<td class="record-table-cell" data-kind="number"[^>]*>120<\/td>/);
   assert.match(out, /<td class="record-table-cell" data-kind="date"[^>]*><time datetime="2026-11-09">November 9, 2026<\/time><\/td>/);
   assert.match(out, /<td class="record-table-cell" data-kind="boolean"[^>]*>No<\/td>/);

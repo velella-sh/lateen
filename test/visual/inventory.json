@@ -34,6 +34,7 @@
     { "name": "gallery-card", "selector": "p" },
     { "name": "gallery-filters", "selector": ".gallery-filters", "page": "/gallery-layout/" },
     { "name": "glossary", "selector": "nav.glossary-index" },
+    { "name": "guide-prerequisites", "selector": ".guide-prerequisites" },
     { "name": "guide-summary", "selector": "dl.guide-summary" },
     { "name": "heading-anchor", "selector": "h3" },
     { "name": "hero", "selector": "section.hero", "variants": ["start", "center", "split"] },

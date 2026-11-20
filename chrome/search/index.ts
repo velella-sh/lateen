@@ -2,6 +2,7 @@ import { h } from "preact";
 import type { ComponentChildren } from "preact";
 import type { Chrome } from "@velella/mizzen/contracts";
 import { patternOf, t } from "../../i18n/index.ts";
+import { withBase } from "../../src/url.ts";
 import askAgent from "../ask-agent/index.ts";
 import commandPalette from "../command-palette/index.ts";
 
@@ -131,13 +132,19 @@ const search: Chrome = (props) =>
           "data-search-results": "",
         },
       ),
-      // Hidden and without an href until `client.ts` has a query to carry to the results page.
+      // Hidden until `client.ts` has a query to carry to the results page; the href keeps the
+      // control a real link even before the island runs.
       h(
         "p",
         { class: "search-foot" },
         h(
           "a",
-          { class: "search-all", "data-search-all": "", hidden: true },
+          {
+            class: "search-all",
+            "data-search-all": "",
+            href: withBase(props.site.config.base, "/search/"),
+            hidden: true,
+          },
           t(props.page.lang, "search_all_results"),
         ),
       ),

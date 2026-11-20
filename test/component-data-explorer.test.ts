@@ -53,7 +53,7 @@ test("the form action follows the site base, and so does the island's base", () 
 
 test("the first 50 records render as a table with the same columns and record links", () => {
   const out = render({ from: "books", columns: "title,pages" });
-  assert.match(out, /<th scope="col"[^>]*>title<button[^>]*>[^<]*<\/button><\/th><th scope="col"[^>]*>pages<button[^>]*>[^<]*<\/button><\/th>/);
+  assert.match(out, /<th scope="col"[^>]*>title<button[^>]*>[\s\S]*?<\/button><\/th><th scope="col"[^>]*>pages<button[^>]*>[\s\S]*?<\/button><\/th>/);
   assert.match(out, /<td class="record-table-cell" data-kind="text"[^>]*><a href="\/books\/b0\/">Book 0<\/a><\/td>/);
   assert.match(out, /<td class="record-table-cell" data-kind="text"[^>]*><a href="\/books\/b49\/">Book 49<\/a><\/td>/);
   assert.ok(!out.includes("Book 50"), "the 51st record waits for the island");
@@ -65,7 +65,7 @@ test("the column array form, with labels and kinds, is accepted too", () => {
     { field: "pages", label: "Pages", kind: "number" },
   ]);
   const out = render({ from: "books", columns });
-  assert.match(out, /<th scope="col"[^>]*>Title<button[^>]*>[^<]*<\/button><\/th><th scope="col"[^>]*>Pages<button[^>]*>[^<]*<\/button><\/th>/);
+  assert.match(out, /<th scope="col"[^>]*>Title<button[^>]*>[\s\S]*?<\/button><\/th><th scope="col"[^>]*>Pages<button[^>]*>[\s\S]*?<\/button><\/th>/);
   assert.match(out, /<td class="record-table-cell" data-kind="number"[^>]*>3<\/td>/);
 });
 

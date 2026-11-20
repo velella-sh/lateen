@@ -134,7 +134,7 @@ function tagKey(tag: string): string {
 
 /** The default language's tag when the page's record says `field` fell back to it, else undefined. */
 function fallbackLang(props: LayoutProps, field: string): string | undefined {
-  if (props.page.record?.fallbacks.includes(field) !== true) return undefined;
+  if (props.page.record?.fallbacks?.includes(field) !== true) return undefined;
   const tag = props.site.config.lang.trim();
   return tag === "" || tagKey(tag) === tagKey(props.page.lang) ? undefined : tag;
 }

@@ -414,8 +414,8 @@ test("the network chrome reads without a script: a disclosure, plain links, and 
   assert.doesNotMatch(switcher, /\shidden[=>]|tabindex="-1"/);
 
   const mobile = renderToString(mobileProjects(props) as never);
-  assert.match(mobile, /<details class="project-switcher-mobile"/);
-  assert.equal([...mobile.matchAll(/class="project-switcher-mobile-link/g)].length, 2);
+  assert.match(mobile, /<details class="[^"]*project-switcher-mobile/);
+  assert.equal([...mobile.matchAll(/class="[^"]*project-switcher-mobile-link/g)].length, 2);
 
   const footer = renderToString(networkFooter(props) as never);
   assert.match(footer, /<p class="network-footer-label">Projects<\/p>/);

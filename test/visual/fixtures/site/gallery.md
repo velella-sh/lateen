@@ -15,6 +15,11 @@ guide:
   to: "0.3"
   time: 20 min
   risk: done
+prerequisites:
+  - label: Install Node 24
+    href: /install/
+  - label: A package manager
+    optional: true
 ---
 
 Every component of the theme in its default state and its variants. The content and the dates are fixed.
@@ -213,6 +218,10 @@ Facet filters, sort links and a count for a gallery, as plain links that work wi
 ## gallery-card
 
 Layout component: the gallery layout draws it from records, so see a gallery page built from data.
+
+## guide-prerequisites
+
+<section class="guide-prerequisites" aria-labelledby="guide-prerequisites-title"><h2 class="guide-prerequisites-title" id="guide-prerequisites-title">Prerequisites</h2><ul class="guide-prerequisites-list"><li class="guide-prerequisites-item"><a href="/install/">Install Node 24</a></li><li class="guide-prerequisites-item">A package manager <span class="guide-prerequisites-optional">optional</span></li></ul></section>
 
 ## guide-summary
 

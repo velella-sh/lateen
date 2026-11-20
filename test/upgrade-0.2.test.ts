@@ -83,6 +83,14 @@ const INTENDED = [
     reason: "0.2.3 can retry a failed search index load.",
   },
   {
+    selector: ".search-foot",
+    reason: "0.2.3 links the dialog's phrase to the all-results page.",
+  },
+  {
+    selector: ".mobile-selectors",
+    reason: "0.2.3 puts the project, language, and version choices at the top of the mobile menu.",
+  },
+  {
     selector: ".toc-fold",
     reason: "0.2.3 exposes the local section list at the start of an article on mobile.",
   },
