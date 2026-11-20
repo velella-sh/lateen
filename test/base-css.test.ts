@@ -63,7 +63,7 @@ test("document typography and metadata follow the Sailcloth prose contract", () 
   assert.match(meta, /flex-wrap:\s*wrap/);
   assert.match(meta, /margin-block-start:\s*0\.75rem/);
   assert.match(bodyOf(ui, /^\.doc-meta \.trust-panel$/), /margin:\s*0/);
-  assert.match(bodyOf(ui, /^\.doc-meta \.last-updated$/), /margin:\s*0/);
+  assert.match(bodyOf(ui, /^\.reading-time,\s*\.doc-meta \.last-updated$/), /margin:\s*0/);
 
   const section = bodyOf(ui, /^\.doc-body h2$/);
   assert.match(section, /font-size:\s*1\.375rem/);

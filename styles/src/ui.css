@@ -1309,12 +1309,6 @@
     margin: 0;
   }
 
-  .doc-meta .last-updated {
-    margin: 0;
-    color: var(--muted-foreground);
-    font-size: 0.8125rem;
-  }
-
   .doc-body h2 {
     position: relative;
     margin: 2.75rem 0 0.75rem;
@@ -1821,7 +1815,8 @@
     margin-top: 0.25rem;
   }
 
-  .reading-time {
+  .reading-time,
+  .doc-meta .last-updated {
     @apply inline-flex items-center gap-1;
     margin: 0;
     color: var(--muted-foreground);
