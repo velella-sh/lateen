@@ -271,6 +271,17 @@ jobs:
           set -euo pipefail
           tarball="$(node scripts/release-tarball.ts --dir ../published --report ../acceptance/report.json)"
           node scripts/acceptance.ts --gate ../acceptance/report.json --tarball "$tarball"
+      # The post-publish report and digest are release evidence too, and a failed verification is
+      # exactly when they matter most. A separate artifact name keeps them from overwriting the
+      # pre-publish acceptance evidence; a missing report fails the upload instead of passing
+      # verification with no evidence.
+      - uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
+        if: always()
+        with:
+          name: acceptance-published
+          path: published
+          if-no-files-found: error
+          retention-days: 14
 
   # A release is only a release once the post-publish acceptance run passed, on a first publish
   # and on a retry alike: a failed case or digest check leaves the GitHub Release uncreated

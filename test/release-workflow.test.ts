@@ -11,7 +11,7 @@ interface Step {
   readonly uses?: string;
   readonly if?: string;
   readonly run?: string;
-  readonly with?: Record<string, string>;
+  readonly with?: Record<string, string | number>;
 }
 
 interface Job {
@@ -116,4 +116,20 @@ test("publish and digest steps select the one tarball the acceptance report name
       assert.doesNotMatch(item.run ?? "", /ls \.\.\/(acceptance|published)\/\*\.tgz/);
     }
   }
+});
+
+test("the post-publish acceptance report is uploaded as release evidence", () => {
+  const upload = job("acceptance-published").steps.find((step) => step.with?.name === "acceptance-published");
+  assert.ok(upload, "acceptance-published uploads its report");
+  assert.equal(upload.with?.path, "published");
+  // A run that never wrote a report fails the upload instead of passing with no evidence.
+  assert.equal(upload.with?.["if-no-files-found"], "error");
+  const retention = Number(upload.with?.["retention-days"]);
+  assert.ok(retention > 0 && retention <= 30, `retention is bounded, got ${retention}`);
+  // Running on failure is what preserves the evidence of a failed verification.
+  assert.match(upload.if ?? "", /always\(\)/);
+  // A distinct artifact name is what keeps it from overwriting the pre-publish evidence.
+  const acceptance = job("acceptance").steps.find((step) => step.with?.name === "acceptance");
+  assert.ok(acceptance);
+  assert.notEqual(upload.with?.name, acceptance.with?.name);
 });
