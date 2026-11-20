@@ -1776,6 +1776,7 @@
   .doc-body p {
     max-inline-size: 40em;
     margin: 0.6875rem 0;
+    overflow-wrap: anywhere;
   }
 
   .doc-body li + li {
