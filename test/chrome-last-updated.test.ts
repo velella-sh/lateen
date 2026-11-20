@@ -613,8 +613,9 @@ test("displayOf keeps the authored precision and never invents a day", () => {
   // A month or year alone never gains a synthetic day on the way in, either.
   assert.equal(isoDate("2026-03"), undefined);
   assert.equal(isoDate("2026"), undefined);
-  // The day is read from the start of a value, as before.
-  assert.equal(isoDate("2026-03-04junk"), "2026-03-04");
+  // A written value must be a whole real date: trailing text is rejected evidence, not a readable day.
+  assert.equal(isoDate("2026-03-04junk"), undefined);
+  assert.equal(isoDate("2026-03-04"), "2026-03-04");
 });
 
 test("displayOf does not depend on the host time zone", () => {

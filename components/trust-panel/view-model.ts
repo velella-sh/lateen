@@ -1,6 +1,6 @@
 import type { Page, Site, SiteConfig } from "@velella/mizzen/contracts";
 import { t } from "../../i18n/index.ts";
-import { calendarDate } from "../../src/dates.ts";
+import { calendarDate, isoDate } from "../../src/dates.ts";
 import { optionOf } from "../../src/options.ts";
 import { commitUrlOf } from "../../src/repository.ts";
 import { isRecord, textOf } from "../../src/guards.ts";
@@ -215,15 +215,16 @@ function provenanceDate(value: unknown): ProvenanceDate | undefined {
   if (value instanceof Date) {
     if (Number.isNaN(value.getTime())) return undefined;
     const iso = value.toISOString();
-    return { iso, day: iso.slice(0, 10) };
+    const day = isoDate(iso);
+    return day === undefined ? undefined : { iso, day };
   }
   const text = textOf(value);
   if (text === undefined) return undefined;
-  const calendar = calendarDate(text, "en");
-  if (calendar === undefined) return undefined;
+  const day = isoDate(text);
+  if (day === undefined) return undefined;
   // A written date-time must parse as ISO too, so a malformed clock or offset cannot reach `datetime`.
-  if (text !== calendar.datetime && Number.isNaN(Date.parse(text))) return undefined;
-  return { iso: text, day: calendar.datetime };
+  if (text !== day && Number.isNaN(Date.parse(text))) return undefined;
+  return { iso: text, day };
 }
 
 /** The `site.data.build` block, or undefined when the site writes none. */

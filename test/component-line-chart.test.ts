@@ -132,6 +132,13 @@ test("a date axis uses the timeline scale, its quarters and its ticks", () => {
   assert.match(html, /<th scope="row">2020-02-10<\/th>/);
 });
 
+test("a date axis labels each tick by its quarter in the page's calendar", () => {
+  // 2020-01-01 falls in the third month of Hijri year 1441, so its quarter is Q2 of that calendar, not Q1.
+  const html = render({ from: "traffic", category: "date", value: "visits", title: "Traffic" }, TRAFFIC, "ar");
+  assert.match(html, /class="line-chart-tick"[^>]*>١٤٤١ هـ Q٢</);
+  assert.match(html, /class="line-chart-tick"[^>]*>١٤٤١ هـ Q٣</);
+});
+
 test("a single point is still drawn and labelled", () => {
   const html = render(
     { from: "one", category: "date", value: "total", title: "One" },

@@ -2,7 +2,7 @@ import { h } from "preact";
 import { isRecord } from "../../src/guards.ts";
 import type { Chrome, Page, Site } from "@velella/mizzen/contracts";
 import { t } from "../../i18n/index.ts";
-import { calendarDate, calendarDay } from "../../src/dates.ts";
+import { calendarDate, calendarDay, isoDate } from "../../src/dates.ts";
 
 /** Class on the line. `style.css` styles it. */
 export const CLASS = "last-updated";
@@ -86,30 +86,10 @@ export function localeOf(lang: string): string {
 }
 
 /**
- * The ISO calendar date (`YYYY-MM-DD`) at the start of a value, which may be a string or a `Date` the
- * front matter parser produced. The day is validated by the same calendar model that formats it
- * ({@link calendarDay}), so an impossible date (`2026-02-30`) reads as no date, not a rolled-over day,
- * and a month or year alone never gains a synthetic day.
+ * The ISO calendar day a value names, re-exported for callers of this chrome. Parsing lives in
+ * `src/dates.ts`, so every component validates an authored date the same way.
  */
-export function isoDate(value: unknown): string | undefined {
-  if (value instanceof Date) return Number.isNaN(value.getTime()) ? undefined : value.toISOString().slice(0, 10);
-  if (typeof value !== "string") return undefined;
-
-  const match = /^\d{4}-\d{2}-\d{2}/.exec(value.trim());
-  return match === null ? undefined : calendarDay(match[0]);
-}
-
-/** The UTC midnight of an ISO date as milliseconds since the epoch, or `undefined` when it is not a real date. */
-function dayOf(iso: string): number | undefined {
-  const match = /^(\d{4})-(\d{2})-(\d{2})$/.exec(iso);
-  if (match === null) return undefined;
-
-  const [year, month, day] = [Number(match[1]), Number(match[2]), Number(match[3])];
-  const time = Date.UTC(year, month - 1, day);
-  const date = new Date(time);
-  if (date.getUTCFullYear() !== year || date.getUTCMonth() !== month - 1 || date.getUTCDate() !== day) return undefined;
-  return time;
-}
+export { isoDate };
 
 /**
  * "2 days ago" for `iso` relative to the build's `asOf` date, in `lang`, through
@@ -118,11 +98,11 @@ function dayOf(iso: string): number | undefined {
  * caller can show the absolute date instead.
  */
 export function relativeDate(iso: string, asOf: string, lang: string): string | undefined {
-  const day = dayOf(iso);
-  const now = dayOf(asOf);
+  const day = calendarDay(iso);
+  const now = calendarDay(asOf);
   if (day === undefined || now === undefined) return undefined;
 
-  const days = Math.round((day - now) / DAY_MS);
+  const days = Math.round((Date.parse(day) - Date.parse(now)) / DAY_MS);
   try {
     return new Intl.RelativeTimeFormat(localeOf(lang), { numeric: "auto" }).format(days, "day");
   } catch {
