@@ -6,11 +6,14 @@ import {
   EMPTY_CLASS,
   FIELD_KINDS,
   LIST_CLASS,
+  NOT_APPLICABLE_CLASS,
   STATUS_CLASS,
   formatField,
   isEmpty,
   kindOf,
+  valueState,
 } from "../src/fields.ts";
+import { sortKey, sortRows } from "../src/sort.ts";
 
 const config = { base: "/docs" } as unknown as SiteConfig;
 
@@ -72,17 +75,47 @@ test("a list is an unordered list, and a value that is not a list reads as text"
   assert.equal(render("one", "list"), "one");
 });
 
-test("an empty value is one placeholder with a text alternative in every language", () => {
-  for (const empty of [null, undefined, "", "   ", []]) {
-    assert.equal(isEmpty(empty), true);
+test("a missing value is one placeholder with a text alternative in every language", () => {
+  for (const missing of [undefined, "", "   ", []]) {
+    assert.equal(valueState(missing), "missing");
+    assert.equal(isEmpty(missing), true);
   }
   for (const kept of [0, false, "0", [0]]) {
+    assert.equal(valueState(kept), undefined);
     assert.equal(isEmpty(kept), false);
   }
-  assert.equal(render(null, "number", "en"), `<span class="${EMPTY_CLASS}">No value</span>`);
-  assert.equal(render(undefined, "date", "fa"), `<span class="${EMPTY_CLASS}">بدون مقدار</span>`);
-  assert.equal(render("", "url", "ar"), `<span class="${EMPTY_CLASS}">لا قيمة</span>`);
-  assert.equal(render([], "list", "en"), `<span class="${EMPTY_CLASS}">No value</span>`);
+  assert.equal(render(undefined, "date", "fa"), `<span class="${EMPTY_CLASS}" data-state="missing">بدون مقدار</span>`);
+  assert.equal(render("", "url", "ar"), `<span class="${EMPTY_CLASS}" data-state="missing">لا قيمة</span>`);
+  assert.equal(render([], "list", "en"), `<span class="${EMPTY_CLASS}" data-state="missing">No value</span>`);
+});
+
+test("an explicit null is not applicable, distinct from missing and from zero", () => {
+  assert.equal(valueState(null), "not-applicable");
+  assert.equal(isEmpty(null), true);
+  assert.equal(
+    render(null, "number", "en"),
+    `<span class="${NOT_APPLICABLE_CLASS}" data-state="not-applicable">Not applicable</span>`,
+  );
+  assert.equal(
+    render(null, "date", "fa"),
+    `<span class="${NOT_APPLICABLE_CLASS}" data-state="not-applicable">ناموجود</span>`,
+  );
+  assert.equal(
+    render(null, "text", "ar"),
+    `<span class="${NOT_APPLICABLE_CLASS}" data-state="not-applicable">لا ينطبق</span>`,
+  );
+  assert.equal(render(0, "number", "en"), "0");
+  assert.equal(render(0, "number", "fa"), "۰");
+  assert.equal(render("0.0", "number", "en"), "0");
+});
+
+test("zero stays a sortable value and empty values stay last", () => {
+  const rows: unknown[] = [2, null, 0, undefined, "0.0"];
+  const key = (value: unknown) => sortKey(value, "number");
+  assert.deepEqual(sortRows(rows, key, "number", "ascending", "en"), [0, "0.0", 2, null, undefined]);
+  assert.deepEqual(sortRows(rows, key, "number", "descending", "en"), [2, 0, "0.0", null, undefined]);
+  assert.equal(sortKey(0, "number"), 0);
+  assert.equal(sortKey(0, "days"), 0);
 });
 
 test("a status value renders through the site's map and keeps the raw value", () => {

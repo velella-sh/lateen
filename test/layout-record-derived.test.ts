@@ -173,6 +173,6 @@ test("a list column reads and sorts a derived value", () => {
 test("a derived column renders a placeholder when one record has no value", () => {
   const out = renderToString(list(listProps()) as never);
 
-  assert.match(out, /<td class="record-table-cell" data-kind="days"><span class="field-empty">No value<\/span><\/td>/);
+  assert.match(out, /<td class="record-table-cell" data-kind="days" data-state="missing"><span class="field-empty" data-state="missing">No value<\/span><\/td>/);
   assert.doesNotMatch(out, /No field named &quot;derived\.daysLeft&quot;/);
 });

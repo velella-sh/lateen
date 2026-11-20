@@ -213,6 +213,7 @@
   "field_days_left_zero": "{n} days left",
   "field_empty": "No value",
   "field_false": "No",
+  "field_not_applicable": "Not applicable",
   "field_today": "Today",
   "field_true": "Yes",
   "gallery_empty": "No records match these filters.",

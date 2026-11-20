@@ -4,7 +4,7 @@ import type { DataRecord, LayoutProps, RecordPos } from "@velella/mizzen/contrac
 import { LINK_CLASS, reportHref } from "../chrome/report-issue/index.ts";
 import { KEY_CLASS, LIST_CLASS, VALUE_CLASS } from "../components/key-value/index.ts";
 import { t } from "../i18n/index.ts";
-import { DERIVED_PREFIX, fieldValueOf, formatField, kindOf } from "./fields.ts";
+import { DERIVED_PREFIX, fieldValueOf, formatField, kindOf, valueState } from "./fields.ts";
 
 /** Id of the facts panel; the record page's table of contents links to it. */
 export const FACTS_ID = "record-facts";
@@ -147,8 +147,10 @@ export function factsPanel(props: LayoutProps): ComponentChildren {
   return h(
     "dl",
     { class: LIST_CLASS, id: FACTS_ID },
-    facts.map((fact) =>
-      h(
+    facts.map((fact) => {
+      const value = fact.field === "id" ? record.id : fieldValueOf(record, fact.field);
+      const state = valueState(value);
+      return h(
         Fragment,
         null,
         h("dt", { class: KEY_CLASS }, fact.label),
@@ -157,19 +159,15 @@ export function factsPanel(props: LayoutProps): ComponentChildren {
           {
             class: `${VALUE_CLASS} ${FACT_CLASS}`,
             "data-kind": fact.kind,
+            ...(state === undefined ? {} : { "data-state": state }),
             ...(dataSrcOf(factPosition(props, fact)) === undefined
               ? {}
               : { "data-src": dataSrcOf(factPosition(props, fact)) }),
           },
-          formatField(
-            fact.field === "id" ? record.id : fieldValueOf(record, fact.field),
-            fact.kind,
-            props.page.lang,
-            props.site.config,
-          ) as ComponentChildren,
+          formatField(value, fact.kind, props.page.lang, props.site.config) as ComponentChildren,
           factReport(props, fact),
         ),
-      ),
-    ),
+      );
+    }),
   );
 }

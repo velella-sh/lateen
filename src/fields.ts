@@ -20,6 +20,9 @@ export type FieldKind = (typeof FIELD_KINDS)[number];
 /** Class on the placeholder a field with no value renders. */
 export const EMPTY_CLASS = "field-empty";
 
+/** Class on the placeholder an explicit `null` renders: the field does not apply to this record. */
+export const NOT_APPLICABLE_CLASS = "field-na";
+
 /** Class on the `<ul>` a list value renders. */
 export const LIST_CLASS = "field-list";
 
@@ -29,11 +32,23 @@ export const STATUS_CLASS = "field-status";
 /** A path on this site (not protocol-relative) or an https link. Anything else is not a link. */
 const SAFE_URL = /^(?:\/(?![/\\])|https:\/\/)[^\s"<>]*$/;
 
-/** True when the value carries nothing: a missing value, a blank string, or an empty list. */
+/**
+ * Why a value shows no content: an explicit `null` says the field does not apply, while a missing
+ * value, a blank string, and an empty list are missing. Anything else is a value, zero included.
+ */
+export type ValueState = "missing" | "not-applicable";
+
+export function valueState(value: unknown): ValueState | undefined {
+  if (value === null) return "not-applicable";
+  if (value === undefined) return "missing";
+  if (typeof value === "string") return value.trim() === "" ? "missing" : undefined;
+  if (Array.isArray(value) && value.length === 0) return "missing";
+  return undefined;
+}
+
+/** True when the value carries nothing, as {@link valueState} tells it. */
 export function isEmpty(value: unknown): boolean {
-  if (value === null || value === undefined) return true;
-  if (typeof value === "string") return value.trim() === "";
-  return Array.isArray(value) && value.length === 0;
+  return valueState(value) !== undefined;
 }
 
 /** The prefix a page writes to read a value the engine derived instead of a field in the record. */
@@ -135,9 +150,9 @@ function statusNode(value: unknown, lang: string, config: SiteConfig | undefined
 }
 
 /**
- * Formats one record field as render nodes for `lang`. The caller names the kind; a value with no
- * value renders {@link EMPTY_CLASS} with a localized text alternative, and a string always renders
- * as text, never as HTML.
+ * Formats one record field as render nodes for `lang`. The caller names the kind; a missing value
+ * renders {@link EMPTY_CLASS}, an explicit `null` renders {@link NOT_APPLICABLE_CLASS}, each with a
+ * localized text alternative, and a string always renders as text, never as HTML.
  */
 export function formatField(
   value: unknown,
@@ -145,7 +160,15 @@ export function formatField(
   lang = "en",
   config?: SiteConfig,
 ): ComponentChildren {
-  if (isEmpty(value)) return h("span", { class: EMPTY_CLASS }, t(lang, "field_empty"));
+  const state = valueState(value);
+  if (state !== undefined) {
+    const notApplicable = state === "not-applicable";
+    return h(
+      "span",
+      { class: notApplicable ? NOT_APPLICABLE_CLASS : EMPTY_CLASS, "data-state": state },
+      t(lang, notApplicable ? "field_not_applicable" : "field_empty"),
+    );
+  }
   switch (kindOf(kind)) {
     case "number":
       return numberNode(value, lang);

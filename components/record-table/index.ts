@@ -1,7 +1,15 @@
 import { h } from "preact";
 import type { ComponentProps } from "@velella/mizzen/contracts";
 import { patternOf, t } from "../../i18n/index.ts";
-import { DERIVED_PREFIX, fieldValueOf, formatField, isEmpty, kindOf, type FieldKind } from "../../src/fields.ts";
+import {
+  DERIVED_PREFIX,
+  fieldValueOf,
+  formatField,
+  isEmpty,
+  kindOf,
+  valueState,
+  type FieldKind,
+} from "../../src/fields.ts";
 import { selectRecords, type SelectedRecord } from "../../src/records.ts";
 import table from "../table/index.ts";
 
@@ -261,11 +269,13 @@ export default function recordTable({ props, page, site }: ComponentProps<Readon
             : h("span", { class: MISSING_CLASS }, t(lang, "record_table_unknown_field", { name: column.field }));
           const content =
             index === 0 && record.url !== undefined ? h("a", { href: record.url }, cell as never) : cell;
+          const state = has ? valueState(value) : undefined;
           return h(
             "td",
             {
               class: "record-table-cell",
               "data-kind": column.kind ?? "text",
+              ...(state === undefined ? {} : { "data-state": state }),
               ...(has && !isEmpty(value) ? { "data-value": String(value) } : {}),
             },
             stack ? h("span", { class: LABEL_CLASS }, column.label ?? column.field) : null,
