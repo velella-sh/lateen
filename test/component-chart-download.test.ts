@@ -9,6 +9,7 @@ import chartDownloads, {
   DOWNLOAD_LABEL,
   JSON_TYPE,
   csvOf,
+  downloadOf,
   downloadsOf,
   fileNameOf,
 } from "../components/chart-data/download.ts";
@@ -99,6 +100,41 @@ test("the JSON link carries one object per table row, with raw values and null f
       );
     });
   });
+});
+
+test("each published format keeps its own media type", () => {
+  const files = downloadsOf({ ...PROPS, id: PROPS.id! });
+  assert.deepEqual(
+    files.map((file) => [file.format, file.type]),
+    [
+      ["csv", CSV_TYPE],
+      ["json", JSON_TYPE],
+    ],
+  );
+  for (const file of files) assert.ok(file.href.startsWith(`data:${file.type},`), file.href);
+});
+
+test("a filename cannot escape the downloads folder", () => {
+  const cases: [string, string][] = [
+    ["../../etc/passwd", "etc-passwd.csv"],
+    ['a"b\\c', "a-b-c.csv"],
+    ["line\nbreak\u0000", "line-break.csv"],
+    ["   ", "chart-data.csv"],
+    ["café/東京", "café-東京.csv"],
+  ];
+  for (const [id, expected] of cases) {
+    const name = fileNameOf(id, "csv");
+    assert.equal(name, expected);
+    assert.ok(!name.includes("/") && !name.includes("\\") && !name.includes('"'), name);
+    assert.doesNotMatch(name, /[\u0000-\u001f\u007f]/, `unsafe name: ${name}`);
+    assert.ok(!name.startsWith("."), `hidden file: ${name}`);
+  }
+});
+
+test("a missing file produces no link", () => {
+  assert.equal(downloadOf("csv", "quarterly-users", undefined), undefined);
+  assert.equal(downloadOf("json", "quarterly-users", undefined), undefined);
+  assert.equal(downloadOf("csv", "quarterly-users", "")?.href, `data:${CSV_TYPE},`);
 });
 
 test("both files hold several series under the table's headings", () => {
