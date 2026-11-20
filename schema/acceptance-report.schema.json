@@ -2,11 +2,38 @@
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "$id": "https://velella.sh/lateen/schema/acceptance-report.schema.json",
   "title": "Lateen acceptance report",
-  "description": "What the public acceptance gate checked on one candidate: the commit, the sha256 of the exact tarball it installed, the exact Mizzen version, and one result per case. The release workflow requires this report before it publishes and rejects a report whose commit, digest or engine does not match the candidate.",
+  "description": "What the public acceptance gate checked on one candidate: the exact Node, npm, engine and package identities it ran with, the commit, the sha256 of the exact tarball it installed, the exact Mizzen version, and one result per case. The release workflow requires this report before it publishes and rejects a report whose identities, commit, digest or engine do not match the candidate.",
   "type": "object",
-  "required": ["commit", "digest", "mizzen", "tarball", "ok", "cases"],
+  "required": ["node", "npm", "engines", "package", "commit", "digest", "mizzen", "tarball", "ok", "cases"],
   "additionalProperties": false,
   "properties": {
+    "node": {
+      "type": "string",
+      "pattern": "^[0-9]+\\.[0-9]+\\.[0-9]+",
+      "description": "The exact Node version that ran the acceptance gate."
+    },
+    "npm": {
+      "type": "string",
+      "pattern": "^[0-9]+\\.[0-9]+\\.[0-9]+",
+      "description": "The exact npm version that packed and installed the candidate."
+    },
+    "engines": {
+      "type": "object",
+      "required": ["node"],
+      "additionalProperties": false,
+      "properties": {
+        "node": { "type": "string", "description": "The tested package's declared Node engine from package.json." }
+      }
+    },
+    "package": {
+      "type": "object",
+      "required": ["name", "version"],
+      "additionalProperties": false,
+      "properties": {
+        "name": { "type": "string" },
+        "version": { "type": "string", "pattern": "^[0-9]+\\.[0-9]+\\.[0-9]+" }
+      }
+    },
     "commit": {
       "type": "string",
       "pattern": "[0-9a-f]{7,40}",

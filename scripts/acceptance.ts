@@ -19,6 +19,7 @@ import { CASES, type Expectation } from "../test/acceptance/cases.ts";
 import { gateProblems, ledgerProblems, changelogProblems, type AcceptanceReport, type FeatureLedger } from "../test/acceptance/ledger.ts";
 import { waitFor } from "../test/helpers/wait.ts";
 import { startServer } from "../visual/index.ts";
+import { identities } from "./report.ts";
 import { withCleanup } from "./runner-cleanup.ts";
 
 const ROOT = fileURLToPath(new URL("../", import.meta.url));
@@ -127,7 +128,7 @@ if (gate !== undefined) {
     console.error("--gate needs --tarball <file> so the report's digest can be checked.");
     process.exit(1);
   }
-  const expected = { commit: argument("--commit") ?? commit(), digest: sha256(tarball), mizzen: mizzenVersion() };
+  const expected = { ...identities(), commit: argument("--commit") ?? commit(), digest: sha256(tarball), mizzen: mizzenVersion() };
   const report = JSON.parse(readFileSync(resolve(gate), "utf8")) as AcceptanceReport;
   const problems = gateProblems(report, expected, LEDGER);
   if (problems.length > 0) {
@@ -168,6 +169,7 @@ await withCleanup(async (cleanup) => {
   cleanup.add(() => browser.close());
   const cases = await run(browser, server.url);
   const report: AcceptanceReport = {
+    ...identities(),
     commit: commit(),
     digest,
     mizzen,
