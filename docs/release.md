@@ -61,7 +61,35 @@ The script refuses a version that is already stored: an archived report is evide
 rewritten. If a release report is wrong, fix the gate and cut the next version; do not edit the
 archive.
 
-## 4. Tag and let the workflow publish
+## 4. Record the release ledger
+
+Once the acceptance run and the post-publish verification have written their reports, record the
+evidence for the version together:
+
+```bash
+node scripts/release-ledger.ts --version <version> \
+  --acceptance .mizzen/release-reports/acceptance.json \
+  --published .mizzen/release-reports/published.json \
+  --tarball .mizzen/release-reports/lateen-<version>.tgz \
+  --a11y .mizzen/release-reports/a11y.json \
+  --performance .mizzen/release-reports/performance.json \
+  --run "$GITHUB_SERVER_URL/$GITHUB_REPOSITORY/actions/runs/$GITHUB_RUN_ID" \
+  --npm "https://www.npmjs.com/package/@velella/lateen/v/<version>"
+```
+
+It writes `site/_data/releases/<version>.json`, validated against
+`schema/release-ledger.schema.json`. The ledger links the release commit, the CI run, the acceptance
+and post-publish runs, the npm page, and the archived accessibility and performance reports. It
+checks that the acceptance and post-publish runs are for the same commit, the same exact Mizzen
+version, and the same tarball digest; that the candidate tarball's SHA-256 is the acceptance
+report's digest; that the archived report hashes match `site/_data/reports/index.yml`; and that both
+run URLs are https.
+
+Any missing or failed evidence is written to `problems` and keeps `complete: false`; the command
+exits 1, so the release is not complete until every link agrees. Commit the ledger with the release
+evidence.
+
+## 5. Tag and let the workflow publish
 
 Push the tag for the release commit. The workflow checks that the tag names the version in
 `package.json` and that the commit is on `main`, packs that commit, and runs the acceptance gate in
@@ -75,7 +103,7 @@ A prerelease version such as `0.3.0-rc.1` goes to the `next` dist-tag and its Gi
 marked as a prerelease. Running the workflow by hand with an existing tag is the retry path: a
 version npm already serves is skipped, and an existing GitHub Release is left alone.
 
-## 5. Trusted publishing (one-time setup)
+## 6. Trusted publishing (one-time setup)
 
 There is no npm token in the repository. npm trusted publishing exchanges the `npm` environment's
 OIDC identity for a short-lived credential, so the package must name this repository and workflow as
