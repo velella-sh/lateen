@@ -120,6 +120,7 @@ path or an `https` URL, or that asks for provenance the page does not have, is l
 - The examples evidence, its state, and its counts are in the server-rendered row: with no JavaScript
   the reader and any scanner still see `partial`, `unrun`, `invalid`, and `absent` honestly.
 - The text comes from `i18n/*.json` in the page's language, and the panel uses logical properties, so
-  it works under RTL.
+  it works under RTL. Unreviewed, unknown, and failed evidence each keep a distinct localised word and
+  icon shape, so the state never depends on colour.
 - Writing `trust.json` per page is a separate issue (N14). Until it lands, the layout's panel stays
   hidden unless the site writes `_data/trust.yml` or a page writes the directive.

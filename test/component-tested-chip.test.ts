@@ -562,3 +562,17 @@ test("the chip stays a plain note without a page panel", () => {
   assert.doesNotMatch(out, new RegExp(LINK_ATTRIBUTE));
   assert.doesNotMatch(out, /href="#trust-panel"/);
 });
+
+
+test("failed, unreviewed, and unknown each read with their own word and icon shape", () => {
+  const failed = render({ passed: 0, failed: 1 });
+  assert.ok(failed);
+  assert.match(failed, /^<span class="tested-chip tested-chip-failed"/);
+  assert.ok(failed.includes(stringsOf("en").tested_failed!.replace("{n}", "1")));
+  assert.ok(failed.includes(iconHtml({ node: ICONS.failed, class: "tested-chip-icon" })));
+  assert.equal(JSON.stringify(ICONS.failed) === JSON.stringify(ICONS.passed), false, "failed is not the passing shape");
+
+  // The trust panel's two non-success states keep the same contract: a localised word and a distinct shape.
+  assert.equal(JSON.stringify(ICONS.unavailable) === JSON.stringify(ICONS.failed), false);
+  assert.notEqual(stringsOf("en").trust_level_unreviewed, stringsOf("en").trust_level_unknown);
+});
