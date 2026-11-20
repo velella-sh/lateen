@@ -53,7 +53,7 @@ A plain fenced block can carry metadata after its language. The engine reads it 
 
 | Meta | What it renders |
 | --- | --- |
-| `title="answer.ts"` | A title bar above the block. |
+| `title="answer.ts"` | A title bar above the block; its visible name also names the code region for assistive technology and never enters the copied text. |
 | `{1,3-5}` | Highlighted lines. |
 | `showLineNumbers` | A line number on every line, kept out of copied text. |
 | `ins={2}` / `del={3-4}` | Added and removed lines, marked with CSS only. |

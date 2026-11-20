@@ -1801,6 +1801,23 @@
     @apply relative max-w-full;
   }
 
+  /* The file name stays outside the code, wraps instead of overflowing, and keeps a technical name
+     readable in a right-to-left page. */
+  .code-title {
+    @apply flex max-w-full items-center gap-2;
+  }
+
+  .code-title-icon {
+    @apply shrink-0;
+  }
+
+  .code-title-name {
+    @apply min-w-0 font-mono text-xs;
+    overflow-wrap: anywhere;
+    direction: ltr;
+    unicode-bidi: isolate;
+  }
+
   /* Scroll inside the block, never the page (was styles/parts-code.css). */
   .code,
   .cli-demo-body,
