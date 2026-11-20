@@ -5,6 +5,7 @@ import { CircleCheck, CircleMinus, CirclePlus, Link, ShieldCheck, SquarePen } fr
 import type { IconNode } from "lucide";
 import { calendarDate } from "../../src/dates.ts";
 import { icon } from "../../src/icon.ts";
+import { parseJson } from "../../src/guards.ts";
 import { t } from "../../i18n/index.ts";
 
 /** The category names a changelog entry can mark. The order here is the order the documentation lists them. */
@@ -152,12 +153,9 @@ export function categoriesOf(value: unknown): Category[] {
   } else if (typeof value === "string") {
     const text = value.trim();
     if (text.startsWith("[")) {
-      try {
-        const parsed: unknown = JSON.parse(text);
-        values = Array.isArray(parsed) ? parsed : [];
-      } catch {
-        values = text.split(",");
-      }
+      const parsed = parseJson(text);
+      if (Array.isArray(parsed)) values = parsed;
+      else if (parsed === undefined) values = text.split(",");
     } else {
       values = text.split(",");
     }

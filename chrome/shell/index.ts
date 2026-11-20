@@ -1,11 +1,12 @@
-import { readFileSync } from "node:fs";
-import { fileURLToPath } from "node:url";
 import { Fragment, h } from "preact";
 import type { ComponentChildren } from "preact";
 import type { Chrome, Site, SiteConfig } from "@velella/mizzen/contracts";
 import { CodeXml } from "lucide";
 import type { IconNode } from "lucide";
+import { readFileSync } from "node:fs";
+import { fileURLToPath } from "node:url";
 import { t } from "../../i18n/index.ts";
+import { textOf as footerText } from "../../src/guards.ts";
 import { icon } from "../../src/icon.ts";
 import { optionOf, resolveNetworkOptions } from "../../src/options.ts";
 import languageSwitcher from "../language-switcher/index.ts";
@@ -179,12 +180,6 @@ type FooterOptions = {
   readonly license?: unknown;
   readonly links?: unknown;
 };
-
-function footerText(value: unknown): string | undefined {
-  if (typeof value !== "string") return undefined;
-  const trimmed = value.trim();
-  return trimmed === "" ? undefined : trimmed;
-}
 
 export function footer({ site }: Pick<Parameters<Chrome>[0], "site">) {
   const footerOptions = optionOf(site.config.theme.options, "footer");

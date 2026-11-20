@@ -2,6 +2,7 @@ import { h } from "preact";
 import type { Chrome, Page, PageRecord, RepositoryConfig, Site, SiteConfig } from "@velella/mizzen/contracts";
 import { t } from "../../i18n/index.ts";
 import { clipTitle, fitUrl, hostOf, lineUrlOf, oneLine, webRoot } from "../../src/repository.ts";
+import { isRecord, textOf as text } from "../../src/guards.ts";
 import { optionOf } from "../../src/options.ts";
 
 /*
@@ -34,18 +35,6 @@ export const REPORT_ISSUE_OPTIONS = [
   "theme.options.reportIssue.titlePrefix",
   "theme.options.reportIssue.url",
 ] as const;
-
-/** True for a plain object, never an array or `null`. */
-function isRecord(value: unknown): value is Record<string, unknown> {
-  return typeof value === "object" && value !== null && !Array.isArray(value);
-}
-
-/** A non-empty string, trimmed; anything else is absent. */
-function text(value: unknown): string | undefined {
-  if (typeof value !== "string") return undefined;
-  const trimmed = value.trim();
-  return trimmed === "" ? undefined : trimmed;
-}
 
 /** The `theme.options.reportIssue` block, read defensively. */
 export interface ReportIssueOptions {

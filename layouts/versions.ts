@@ -1,4 +1,5 @@
 import { h } from "preact";
+import { isRecord, textOf as text } from "../src/guards.ts";
 import type { ComponentChildren } from "preact";
 import type { Layout, LayoutProps, Page, Site } from "@velella/mizzen/contracts";
 import shell, { footer as shellFooter } from "../chrome/shell/index.ts";
@@ -98,17 +99,6 @@ interface PageVersions {
   /** The page key; omitted makes the entry the default when the current page has no entry. */
   readonly page?: string;
   readonly versions: readonly VersionEntry[];
-}
-
-function isRecord(value: unknown): value is Readonly<Record<string, unknown>> {
-  return typeof value === "object" && value !== null && !Array.isArray(value);
-}
-
-/** A non-empty trimmed string, or undefined. */
-function text(value: unknown): string | undefined {
-  if (typeof value !== "string") return undefined;
-  const trimmed = value.trim();
-  return trimmed === "" ? undefined : trimmed;
 }
 
 /** Compares by code point, never by locale. */

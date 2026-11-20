@@ -1,4 +1,5 @@
 import type { SiteConfig } from "@velella/mizzen/contracts";
+import { isRecord } from "../../src/guards.ts";
 import { optionOf } from "../../src/options.ts";
 import { toneOf, type StatusTone } from "./index.ts";
 
@@ -10,9 +11,6 @@ export type StatusValue = { tone?: unknown; label?: unknown; description?: unkno
 
 /** What a rendered status shows for a data value. */
 export type ResolvedStatus = { tone: StatusTone; label: string };
-
-const isRecord = (value: unknown): value is Record<string, unknown> =>
-  value !== null && typeof value === "object" && !Array.isArray(value);
 
 /** The `theme.options.status.values` map as the config wrote it, or undefined when the site has none. */
 export function valuesOf(config: Pick<SiteConfig, "theme"> | undefined): Record<string, unknown> | undefined {

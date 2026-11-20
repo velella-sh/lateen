@@ -8,6 +8,7 @@
  * runs the descriptors that survive validation, so tests need no browser.
  */
 
+import { parseJson } from "../../src/guards.ts";
 import type { PaletteAction, PalettePayload, PaletteRun, ThemeChoice } from "../command-palette/actions.ts";
 import { ACTIONS_LABEL } from "./options.ts";
 
@@ -62,14 +63,10 @@ function isPaletteAction(value: unknown): value is PaletteAction {
  */
 export function parsePalette(text: string | null, fallbackLabel: string = ACTIONS_LABEL): PalettePayload {
   if (text === null || text.trim() === "") return { label: fallbackLabel, actions: [] };
-  try {
-    const value = JSON.parse(text) as unknown;
-    if (value === null || typeof value !== "object") return { label: fallbackLabel, actions: [] };
-    const payload = value as { label?: unknown; actions?: unknown };
-    const label = typeof payload.label === "string" && payload.label !== "" ? payload.label : fallbackLabel;
-    const actions = Array.isArray(payload.actions) ? payload.actions.filter(isPaletteAction) : [];
-    return { label, actions };
-  } catch {
-    return { label: fallbackLabel, actions: [] };
-  }
+  const value = parseJson(text);
+  if (value === null || typeof value !== "object") return { label: fallbackLabel, actions: [] };
+  const payload = value as { label?: unknown; actions?: unknown };
+  const label = typeof payload.label === "string" && payload.label !== "" ? payload.label : fallbackLabel;
+  const actions = Array.isArray(payload.actions) ? payload.actions.filter(isPaletteAction) : [];
+  return { label, actions };
 }

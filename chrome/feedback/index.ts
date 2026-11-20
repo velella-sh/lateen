@@ -1,18 +1,12 @@
 import { h } from "preact";
 import type { Chrome, Page, SiteConfig } from "@velella/mizzen/contracts";
 import { t } from "../../i18n/index.ts";
+import { textOf as text } from "../../src/guards.ts";
 import { optionOf } from "../../src/options.ts";
 
 /** The `theme.options.feedback` block as the config wrote it. */
 interface FeedbackOptions {
   readonly endpoint?: unknown;
-}
-
-/** A non-empty string from the config, trimmed; anything else is not an endpoint. */
-function text(value: unknown): string | undefined {
-  if (typeof value !== "string") return undefined;
-  const trimmed = value.trim();
-  return trimmed === "" ? undefined : trimmed;
 }
 
 /** The configured feedback endpoint, or `undefined` when the site sets none. */

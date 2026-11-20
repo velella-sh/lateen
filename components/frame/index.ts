@@ -1,5 +1,6 @@
 import { h } from "preact";
 import type { ComponentProps } from "@velella/mizzen/contracts";
+import { textOf as trimmed } from "../../src/guards.ts";
 
 /** The Markdown directive this component handles: `:::frame`. */
 export const directive = "frame";
@@ -27,7 +28,7 @@ export type FrameProps = {
 };
 
 function text(value: unknown): string {
-  return typeof value === "string" ? value.trim() : "";
+  return trimmed(value) ?? "";
 }
 
 /**

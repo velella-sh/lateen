@@ -1,3 +1,4 @@
+import { isRecord, textOf } from "../guards.ts";
 import type { SiteNetwork } from "@velella/mizzen/contracts";
 
 /** One heading Pagefind lists for a page, and the id its fragment points at. */
@@ -124,16 +125,6 @@ export interface OtherIndex {
 export interface MergeList {
   /** The public projects other than this one, in the network file's order. */
   readonly others: readonly OtherIndex[];
-}
-
-/** True for a plain object, never an array or `null`. */
-function isRecord(value: unknown): value is Record<string, unknown> {
-  return typeof value === "object" && value !== null && !Array.isArray(value);
-}
-
-/** A non-empty string, or undefined. */
-function textOf(value: unknown): string | undefined {
-  return typeof value === "string" && value.trim() !== "" ? value.trim() : undefined;
 }
 
 /**

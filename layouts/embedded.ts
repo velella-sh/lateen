@@ -1,4 +1,5 @@
 import { Fragment, h } from "preact";
+import { isRecord } from "../src/guards.ts";
 import type { Layout, LayoutProps, LinkTag, MetaTag, Page, SiteConfig } from "@velella/mizzen/contracts";
 import { t } from "../i18n/index.ts";
 import { factsPanel, recordHeader } from "../src/record-parts.ts";
@@ -32,10 +33,6 @@ export interface Embedded {
   readonly height: number;
   /** True when the canvas is transparent. */
   readonly transparent: boolean;
-}
-
-function isRecord(value: unknown): value is Readonly<Record<string, unknown>> {
-  return typeof value === "object" && value !== null && !Array.isArray(value);
 }
 
 /** The `embedded` front matter of a page; a missing or malformed value yields the defaults. */

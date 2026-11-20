@@ -1,4 +1,5 @@
 import { Fragment, h } from "preact";
+import { isRecord } from "../src/guards.ts";
 import type { ComponentChildren } from "preact";
 import type { Layout, LayoutProps } from "@velella/mizzen/contracts";
 import base from "./base.ts";
@@ -31,10 +32,6 @@ interface Example {
   readonly title: string;
   readonly lang: string;
   readonly code: string;
-}
-
-function isRecord(value: unknown): value is Readonly<Record<string, unknown>> {
-  return typeof value === "object" && value !== null && !Array.isArray(value);
 }
 
 function isString(value: unknown): value is string {

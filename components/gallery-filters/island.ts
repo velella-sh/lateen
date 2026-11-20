@@ -5,6 +5,8 @@
  * is replaced rather than pushed, and a shared link opens the same view. */
 
 /** The root `index.ts` marks with `data-gallery`. */
+
+import { parseJson } from "../../src/guards.ts";
 export const ROOT_SELECTOR = "[data-gallery]";
 
 /** One card's wrapper, with its filter values in `data-gallery-values`. */
@@ -185,17 +187,13 @@ export function sortHref(url: string, field: string, direction: SortDirection): 
 
 /** The values a card carries, parsed once; malformed data is treated as no values. */
 function valuesOf(element: GalleryElement): Record<string, readonly string[]> {
-  try {
-    const parsed = JSON.parse(element.getAttribute("data-gallery-values") ?? "{}") as unknown;
-    if (parsed === null || typeof parsed !== "object" || Array.isArray(parsed)) return {};
-    const out: Record<string, readonly string[]> = {};
-    for (const [field, value] of Object.entries(parsed)) {
-      if (Array.isArray(value)) out[field] = value.filter((item): item is string => typeof item === "string");
-    }
-    return out;
-  } catch {
-    return {};
+  const parsed = parseJson(element.getAttribute("data-gallery-values") ?? "{}");
+  if (parsed === null || typeof parsed !== "object" || Array.isArray(parsed)) return {};
+  const out: Record<string, readonly string[]> = {};
+  for (const [field, value] of Object.entries(parsed)) {
+    if (Array.isArray(value)) out[field] = value.filter((item): item is string => typeof item === "string");
   }
+  return out;
 }
 
 /** The first sort value of a card, or an empty string when it has none. */

@@ -1,4 +1,5 @@
 import { Fragment, h } from "preact";
+import { isRecord } from "../src/guards.ts";
 import type { ComponentChildren } from "preact";
 import type { Layout, LayoutProps, Page } from "@velella/mizzen/contracts";
 import { t } from "../i18n/index.ts";
@@ -28,10 +29,6 @@ import versionNotice from "../components/version-notice/index.ts";
 export interface TutorialStep {
   readonly title: string;
   readonly id: string;
-}
-
-function isRecord(value: unknown): value is Readonly<Record<string, unknown>> {
-  return typeof value === "object" && value !== null && !Array.isArray(value);
 }
 
 /** A lower-case anchor id from a title: letters and numbers, runs of other characters become `-`. */

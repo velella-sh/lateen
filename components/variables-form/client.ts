@@ -27,6 +27,7 @@ import {
   RESET_TEXT_ATTRIBUTE,
   TYPE_ATTRIBUTE,
 } from "./group.ts";
+import { parseJson } from "../../src/guards.ts";
 import { isValidValue, validationTypeOf } from "./validation.ts";
 
 /** Attribute on the form root; the island finds forms by it. */
@@ -139,19 +140,15 @@ export function tokenOf(name: string): string {
 /** The names recorded in a code block's `data-placeholders`, in order; malformed JSON gives none. */
 export function namesOf(raw: string | null): string[] {
   if (raw === null || raw.trim() === "") return [];
-  try {
-    const value: unknown = JSON.parse(raw);
-    if (!Array.isArray(value)) return [];
-    return value
-      .map((item) => {
-        if (typeof item !== "object" || item === null) return "";
-        const name = (item as Readonly<Record<string, unknown>>).name;
-        return typeof name === "string" ? name : "";
-      })
-      .filter((name) => name !== "");
-  } catch {
-    return [];
-  }
+  const value = parseJson(raw);
+  if (!Array.isArray(value)) return [];
+  return value
+    .map((item) => {
+      if (typeof item !== "object" || item === null) return "";
+      const name = (item as Readonly<Record<string, unknown>>).name;
+      return typeof name === "string" ? name : "";
+    })
+    .filter((name) => name !== "");
 }
 
 /**

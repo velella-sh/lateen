@@ -7,6 +7,7 @@
  * The module is pure: it reads no page module and touches no DOM of its own, so the island build can
  * carry it and tests pass a fake field, fetch, and handlers. */
 
+import { isRecord, parseJson } from "../../src/guards.ts";
 import { withBase } from "../../src/url.ts";
 
 /** The folder the engine writes collection indexes under. */
@@ -70,11 +71,6 @@ type Head =
   | { readonly columns: string[]; readonly rows: IndexRow[] }
   | { readonly columns: string[]; readonly chunks: string[] };
 
-/** True for a plain object, so a JSON array or `null` is not read as one. */
-function isRecord(value: unknown): value is Record<string, unknown> {
-  return typeof value === "object" && value !== null && !Array.isArray(value);
-}
-
 /** The column names, or undefined when the list is empty or holds something other than a name. */
 function columnsOf(value: unknown): string[] | undefined {
   if (!Array.isArray(value) || value.length === 0) return undefined;
@@ -125,7 +121,7 @@ function chunkPathsOf(value: unknown): string[] {
 
 /** Reads the head file: one collection, its columns, then either the rows or the chunk list. */
 function readHead(text: string, collection: string): Head {
-  const body: unknown = JSON.parse(text);
+  const body = parseJson(text);
   if (!isRecord(body)) throw new Error("the index head is not an object");
   if (body.collection !== collection) throw new Error("the index head names another collection");
   const columns = columnsOf(body.columns);
@@ -141,7 +137,7 @@ function readHead(text: string, collection: string): Head {
 
 /** Reads one chunk: it must name the same collection, carry the same columns, and hold valid rows. */
 function readChunk(text: string, collection: string, columns: readonly string[]): IndexRow[] {
-  const body: unknown = JSON.parse(text);
+  const body = parseJson(text);
   if (!isRecord(body)) throw new Error("an index chunk is not an object");
   if (body.collection !== collection) throw new Error("an index chunk names another collection");
   const chunkColumns = columnsOf(body.columns);

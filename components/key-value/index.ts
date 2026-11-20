@@ -1,4 +1,5 @@
 import { h } from "preact";
+import { parseJson } from "../../src/guards.ts";
 import type { ComponentProps } from "@velella/mizzen/contracts";
 
 /** The Markdown directive this component handles: `:::key-value` with one `key: value` per line. */
@@ -77,11 +78,7 @@ export function parseItems(raw: unknown): KeyValueItem[] {
   let value: unknown = raw;
   if (typeof raw === "string") {
     if (raw.trim() === "") return [];
-    try {
-      value = JSON.parse(raw);
-    } catch {
-      return [];
-    }
+    value = parseJson(raw);
   }
   if (!Array.isArray(value)) return [];
   return value.map(pairOf).filter((item): item is KeyValueItem => item !== undefined);

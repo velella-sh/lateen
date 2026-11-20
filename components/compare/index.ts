@@ -7,6 +7,7 @@ import { selectRecords, type SelectedRecord } from "../../src/records.ts";
 import { baseOf } from "../../src/url.ts";
 import { formatCount } from "../reading-time/index.ts";
 import { columnsOf } from "../record-table/index.ts";
+import { parseJson } from "../../src/guards.ts";
 import table from "../table/index.ts";
 
 /** The Markdown directive this component handles: `::compare{from="books" ids="a,b" fields='[...]'}`. */
@@ -110,18 +111,10 @@ export type CompareProps = {
   fields?: string | readonly unknown[];
 };
 
-/** A JSON string as data, or undefined when it is not valid JSON. */
-function parse(value: string): unknown {
-  try {
-    return JSON.parse(value) as unknown;
-  } catch {
-    return undefined;
-  }
-}
 
 /** The ids as written: a JSON array of strings, or a comma list. */
 export function idsOf(value: unknown): string[] {
-  const parsed = typeof value === "string" ? (value.trim().startsWith("[") ? parse(value) : value.split(",")) : value;
+  const parsed = typeof value === "string" ? (value.trim().startsWith("[") ? parseJson(value) : value.split(",")) : value;
   if (!Array.isArray(parsed)) return [];
   return parsed.flatMap((id) => {
     const text = typeof id === "string" ? id.trim() : "";

@@ -11,6 +11,7 @@
 import type { AskConfig } from "./index.ts";
 import { buildPrompt, PROMPT_URL_LIMIT, type PromptPage } from "./prompt.ts";
 import { jsonUrl } from "../page-agent-menu/providers.ts";
+import { parseJson, isRecord } from "../../src/guards.ts";
 import { twinUrl } from "../copy-markdown/twin.ts";
 import type { Clipboard } from "../copy-markdown/island.ts";
 
@@ -99,44 +100,39 @@ function visibleNumber(lang: string, value: number): string {
  */
 export function parseAskConfig(text: string | null): AskConfig | undefined {
   if (text === null || text.trim() === "") return undefined;
-  try {
-    const value = JSON.parse(text) as Partial<AskConfig>;
-    const messages = value.messages;
-    if (typeof value.site !== "string" || typeof value.markdown !== "boolean") return undefined;
-    if (typeof value.pageJson !== "boolean") return undefined;
-    if (!Array.isArray(value.providers)) return undefined;
-    if (typeof value.limits !== "object" || value.limits === null) return undefined;
-    if (typeof value.limits.pages !== "number" || typeof value.limits.text !== "number") return undefined;
-    if (typeof messages !== "object" || messages === null) return undefined;
-    const strings: Readonly<Record<string, unknown>> = messages as unknown as Readonly<Record<string, unknown>>;
-    for (const key of [
-      "heading",
-      "explain",
-      "copy",
-      "includeText",
-      "size",
-      "openIn",
-      "copied",
-      "copyFailed",
-      "textFailed",
-      "urlTooLong",
-      "sectionText",
-      "llms",
-    ]) {
-      if (typeof strings[key] !== "string") return undefined;
-    }
-    const prompt = strings.prompt;
-    if (typeof prompt !== "object" || prompt === null) return undefined;
-    const promptStrings: Readonly<Record<string, unknown>> = prompt as Readonly<Record<string, unknown>>;
-    for (const key of ["intro", "question", "pages", "markdown", "json", "text", "cutPages", "cutText"]) {
-      if (typeof promptStrings[key] !== "string") return undefined;
-    }
-    if (value.llms !== undefined && typeof value.llms !== "string") return undefined;
-    if (value.origin !== undefined && typeof value.origin !== "string") return undefined;
-    return value as AskConfig;
-  } catch {
-    return undefined;
+  const value = parseJson(text);
+  if (!isRecord(value)) return undefined;
+  const messages = value.messages;
+  const limits = value.limits;
+  if (typeof value.site !== "string" || typeof value.markdown !== "boolean") return undefined;
+  if (typeof value.pageJson !== "boolean") return undefined;
+  if (!Array.isArray(value.providers)) return undefined;
+  if (!isRecord(limits) || typeof limits.pages !== "number" || typeof limits.text !== "number") return undefined;
+  if (!isRecord(messages)) return undefined;
+  for (const key of [
+    "heading",
+    "explain",
+    "copy",
+    "includeText",
+    "size",
+    "openIn",
+    "copied",
+    "copyFailed",
+    "textFailed",
+    "urlTooLong",
+    "sectionText",
+    "llms",
+  ]) {
+    if (typeof messages[key] !== "string") return undefined;
   }
+  const prompt = messages.prompt;
+  if (!isRecord(prompt)) return undefined;
+  for (const key of ["intro", "question", "pages", "markdown", "json", "text", "cutPages", "cutText"]) {
+    if (typeof prompt[key] !== "string") return undefined;
+  }
+  if (value.llms !== undefined && typeof value.llms !== "string") return undefined;
+  if (value.origin !== undefined && typeof value.origin !== "string") return undefined;
+  return value as unknown as AskConfig;
 }
 
 /** The panel's elements, built once per container. */

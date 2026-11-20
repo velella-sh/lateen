@@ -5,6 +5,7 @@
  * reveals the next page. Every word the island says comes from a `data-` attribute in the page
  * language. */
 
+import { isRecord, parseJson } from "../../src/guards.ts";
 import { matchRows, prepareRows, type PreparedRow } from "./match.ts";
 import {
   createIndexLoader,
@@ -158,36 +159,26 @@ interface Column {
 /** The filter fields from the root's `data-filters`, a JSON array. */
 function fieldsOf(text: string | null): string[] {
   if (text === null) return [];
-  try {
-    const parsed: unknown = JSON.parse(text);
-    if (!Array.isArray(parsed)) return [];
-    return parsed.filter((field): field is string => typeof field === "string" && field !== "");
-  } catch {
-    return [];
-  }
+  const parsed = parseJson(text);
+  if (!Array.isArray(parsed)) return [];
+  return parsed.filter((field): field is string => typeof field === "string" && field !== "");
 }
-
-const isRecord = (value: unknown): value is Record<string, unknown> =>
-  value !== null && typeof value === "object" && !Array.isArray(value);
 
 /** The display columns from the root's `data-columns`; the index's own columns when it names none. */
 function columnsOf(text: string | null, index?: CollectionIndex): Column[] {
   if (text !== null) {
-    try {
-      const parsed: unknown = JSON.parse(text);
-      if (Array.isArray(parsed)) {
-        const columns = parsed.flatMap((entry): Column[] => {
-          if (!isRecord(entry) || typeof entry.field !== "string" || entry.field === "") return [];
-          return [{
-            field: entry.field,
-            kind: typeof entry.kind === "string" ? entry.kind : "text",
-            ...(typeof entry.label === "string" ? { label: entry.label } : {}),
-          }];
-        });
-        if (columns.length > 0) return columns;
-      }
-    } catch {
+    const parsed = parseJson(text);
+    if (Array.isArray(parsed)) {
+      const columns = parsed.flatMap((entry): Column[] => {
+        if (!isRecord(entry) || typeof entry.field !== "string" || entry.field === "") return [];
+        return [{
+          field: entry.field,
+          kind: typeof entry.kind === "string" ? entry.kind : "text",
+          ...(typeof entry.label === "string" ? { label: entry.label } : {}),
+        }];
+      });
       // A malformed attribute falls through to the index's columns.
+      if (columns.length > 0) return columns;
     }
   }
   return (index?.columns ?? []).filter((field) => field !== URL_COLUMN).map((field) => ({ field, kind: "text" }));
@@ -203,20 +194,16 @@ interface Sortable {
 /** The sortable fields from the root's `data-sort`, a JSON array. */
 function sortablesOf(text: string | null): Sortable[] {
   if (text === null) return [];
-  try {
-    const parsed: unknown = JSON.parse(text);
-    if (!Array.isArray(parsed)) return [];
-    return parsed.flatMap((entry): Sortable[] => {
-      if (!isRecord(entry) || typeof entry.field !== "string" || entry.field === "") return [];
-      return [{
-        field: entry.field,
-        kind: typeof entry.kind === "string" ? entry.kind : "text",
-        label: typeof entry.label === "string" && entry.label !== "" ? entry.label : entry.field,
-      }];
-    });
-  } catch {
-    return [];
-  }
+  const parsed = parseJson(text);
+  if (!Array.isArray(parsed)) return [];
+  return parsed.flatMap((entry): Sortable[] => {
+    if (!isRecord(entry) || typeof entry.field !== "string" || entry.field === "") return [];
+    return [{
+      field: entry.field,
+      kind: typeof entry.kind === "string" ? entry.kind : "text",
+      label: typeof entry.label === "string" && entry.label !== "" ? entry.label : entry.field,
+    }];
+  });
 }
 
 /** True when a cell carries nothing, as the static table reads it. */
@@ -348,7 +335,6 @@ function buildFacets(
 
   return facets;
 }
-
 
 function rowOf(
   doc: ExplorerDocument,

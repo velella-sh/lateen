@@ -1,4 +1,5 @@
 import { h } from "preact";
+import { parseJson } from "../../src/guards.ts";
 import type { Component } from "@velella/mizzen/contracts";
 import { t } from "../../i18n/index.ts";
 import {
@@ -46,14 +47,10 @@ export function targetsOf(raw: string | undefined): Targets {
   const value = raw?.trim() ?? "";
   if (value === "") return {};
   if (value.startsWith("{")) {
-    try {
-      const parsed: unknown = JSON.parse(value);
-      if (typeof parsed !== "object" || parsed === null) return {};
-      const record = parsed as Record<string, unknown>;
-      return { ...(bytes(record.js) === undefined ? {} : { js: bytes(record.js) }), ...(bytes(record.css) === undefined ? {} : { css: bytes(record.css) }) };
-    } catch {
-      return {};
-    }
+    const parsed = parseJson(value);
+    if (typeof parsed !== "object" || parsed === null) return {};
+    const record = parsed as Record<string, unknown>;
+    return { ...(bytes(record.js) === undefined ? {} : { js: bytes(record.js) }), ...(bytes(record.css) === undefined ? {} : { css: bytes(record.css) }) };
   }
   const targets: { js?: number; css?: number } = {};
   for (const part of value.split(",")) {

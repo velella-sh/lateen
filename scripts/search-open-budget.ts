@@ -7,6 +7,7 @@ import { mkdtempSync, readFileSync, rmSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { isAbsolute, join, relative } from "node:path";
 import { fileURLToPath } from "node:url";
+import { isRecord, parseJson } from "../src/guards.ts";
 import { chromium, type Browser, type Page } from "playwright";
 import { startServer, type StaticServer } from "../visual/index.ts";
 import { commitOf, schemaAt, writeReport } from "./report.ts";
@@ -81,12 +82,11 @@ function build(out: string): void {
 }
 
 function readBaseline(file: string): SearchMeasurement {
-  const parsed: unknown = JSON.parse(readFileSync(file, "utf8"));
-  const baseline = parsed as Partial<SearchMeasurement>;
-  if (typeof baseline.firstMs !== "number" || typeof baseline.repeatMs !== "number") {
+  const parsed = parseJson(readFileSync(file, "utf8"));
+  if (!isRecord(parsed) || typeof parsed.firstMs !== "number" || typeof parsed.repeatMs !== "number") {
     throw new Error(`${file}: expected numeric firstMs and repeatMs`);
   }
-  return { firstMs: baseline.firstMs, repeatMs: baseline.repeatMs };
+  return { firstMs: parsed.firstMs, repeatMs: parsed.repeatMs };
 }
 
 /** One opening, from the click to the visible dialog. */

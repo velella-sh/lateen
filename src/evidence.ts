@@ -1,3 +1,4 @@
+import { isRecord } from "./guards.ts";
 import type { Site } from "@velella/mizzen/contracts";
 
 /** One public claim backing a record field: its stable id, the public title, and a safe URL. */
@@ -9,9 +10,6 @@ export interface EvidenceClaim {
 
 /** A site-relative path that is not protocol-relative, or an `https:` URL with no whitespace or quotes. */
 const SAFE_URL = /^(?:\/(?![/\\])|https:\/\/)[^\s"'<>\\]*$/i;
-
-const isRecord = (value: unknown): value is Record<string, unknown> =>
-  typeof value === "object" && value !== null && !Array.isArray(value);
 
 /** The collection's configured evidence field, trimmed and non-empty; undefined when it names none. */
 export function evidenceFieldOf(site: Site | undefined, collection: string): string | undefined {

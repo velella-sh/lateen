@@ -11,6 +11,7 @@ import {
   valueState,
   type FieldKind,
 } from "../../src/fields.ts";
+import { isRecord, parseJson } from "../../src/guards.ts";
 import { selectRecords, type SelectedRecord } from "../../src/records.ts";
 import table from "../table/index.ts";
 
@@ -81,12 +82,9 @@ export type RecordTableProps = {
   stack?: string;
 };
 
-const isRecord = (value: unknown): value is Record<string, unknown> =>
-  value !== null && typeof value === "object" && !Array.isArray(value);
-
 /** The columns as written: a JSON string, or the array a page's front matter already holds. */
 export function columnsOf(value: unknown): RecordColumn[] {
-  const parsed = typeof value === "string" ? parse(value) : value;
+  const parsed = typeof value === "string" ? parseJson(value) : value;
   if (!Array.isArray(parsed)) return [];
   return parsed.flatMap((entry) => {
     if (!isRecord(entry) || typeof entry.field !== "string" || entry.field.trim() === "") return [];
@@ -101,14 +99,6 @@ export function columnsOf(value: unknown): RecordColumn[] {
   });
 }
 
-/** A JSON string as data, or undefined when it is not valid JSON. */
-function parse(value: string): unknown {
-  try {
-    return JSON.parse(value) as unknown;
-  } catch {
-    return undefined;
-  }
-}
 
 /** True when `record` carries `field`: the id, its own field, or a value the engine derived. */
 function knows(record: SelectedRecord, field: string): boolean {

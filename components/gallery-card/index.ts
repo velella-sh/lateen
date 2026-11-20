@@ -1,5 +1,6 @@
 import { h } from "preact";
 import type { ComponentChildren } from "preact";
+import { textOf } from "../../src/guards.ts";
 import { hrefOf } from "../cards/index.ts";
 import tile from "./tile.ts";
 
@@ -23,13 +24,6 @@ export const STATUS_CLASS = "gallery-card-status";
 
 /** The cards in the desktop grid's first row; four fills one row, so they load eagerly. */
 export const FIRST_ROW = 4;
-
-/** Text trimmed, or undefined when it is missing, blank, or not a string. */
-function textOf(value: unknown): string | undefined {
-  if (typeof value !== "string") return undefined;
-  const text = value.trim();
-  return text === "" ? undefined : text;
-}
 
 /** A positive whole pixel size, or undefined so the theme's 16:9 cover ratio reserves the space. */
 function pixels(value: unknown): number | undefined {

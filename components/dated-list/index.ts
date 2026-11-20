@@ -4,6 +4,7 @@ import type { ComponentProps } from "@velella/mizzen/contracts";
 import { t } from "../../i18n/index.ts";
 import { calendarDate, calendarMonth, calendarYear, type CalendarMonth } from "../../src/dates.ts";
 import { formatField, isEmpty } from "../../src/fields.ts";
+import { isRecord, parseJson } from "../../src/guards.ts";
 import { selectRecords } from "../../src/records.ts";
 import { Rss } from "lucide";
 import { icon } from "../../src/icon.ts";
@@ -129,17 +130,6 @@ interface YearGroup {
 
 type HeadingLevel = 2 | 3 | 4 | 5 | 6;
 
-const isRecord = (value: unknown): value is Record<string, unknown> =>
-  value !== null && typeof value === "object" && !Array.isArray(value);
-
-/** A JSON string as data, or undefined when it is not valid JSON. */
-function parse(value: string): unknown {
-  try {
-    return JSON.parse(value) as unknown;
-  } catch {
-    return undefined;
-  }
-}
 
 /** A path on this site or an https link, as a field's `url` kind accepts. */
 const SAFE_URL = /^(?:\/(?![/\\])|https:\/\/)[^\s"<>]*$/;
@@ -304,7 +294,7 @@ export function datedListModel(
       ...(statusField === "" || !Object.hasOwn(record.fields, statusField) ? {} : { status: record.fields[statusField] }),
     }));
   } else {
-    const parsed = typeof input.items === "string" ? parse(input.items.trim()) : input.items;
+    const parsed = typeof input.items === "string" ? parseJson(input.items.trim()) : input.items;
     rows = Array.isArray(parsed) ? parsed.filter(isRecord) : undefined;
   }
 

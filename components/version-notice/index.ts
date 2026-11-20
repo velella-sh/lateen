@@ -1,4 +1,5 @@
 import { h } from "preact";
+import { isRecord, textOf } from "../../src/guards.ts";
 import type { Component, Page, Site } from "@velella/mizzen/contracts";
 import { t } from "../../i18n/index.ts";
 
@@ -34,18 +35,6 @@ interface Settings {
   readonly default: string;
   /** Releases the default replaced, in file order, without duplicates or the default. */
   readonly old: readonly string[];
-}
-
-/** True for a plain object, never an array or `null`. */
-function isRecord(value: unknown): value is Readonly<Record<string, unknown>> {
-  return typeof value === "object" && value !== null && !Array.isArray(value);
-}
-
-/** A non-empty trimmed string, or undefined. */
-function textOf(value: unknown): string | undefined {
-  if (typeof value !== "string") return undefined;
-  const text = value.trim();
-  return text === "" ? undefined : text;
 }
 
 /**

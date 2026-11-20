@@ -4,6 +4,7 @@ import type { ComponentProps, SiteConfig } from "@velella/mizzen/contracts";
 import { t } from "../../i18n/index.ts";
 import { calendarDate } from "../../src/dates.ts";
 import { formatField, isEmpty } from "../../src/fields.ts";
+import { isRecord, parseJson } from "../../src/guards.ts";
 import { selectRecords } from "../../src/records.ts";
 import { DEFAULT_TONE, type StatusTone } from "../status/index.ts";
 import { resolveStatus } from "../status/values.ts";
@@ -115,17 +116,6 @@ interface Row {
   readonly url?: string;
 }
 
-const isRecord = (value: unknown): value is Record<string, unknown> =>
-  value !== null && typeof value === "object" && !Array.isArray(value);
-
-/** A JSON string as data, or undefined when it is not valid JSON. */
-function parse(value: string): unknown {
-  try {
-    return JSON.parse(value) as unknown;
-  } catch {
-    return undefined;
-  }
-}
 
 /** A field name from the directive, or its default when absent or blank. */
 function fieldName(value: unknown, fallback: string): string {
@@ -134,7 +124,7 @@ function fieldName(value: unknown, fallback: string): string {
 
 /** Rows from a JSON array, or undefined when `items` is not an array of objects. */
 function rowsOf(items: string): Row[] | undefined {
-  const parsed = parse(items);
+  const parsed = parseJson(items);
   if (!Array.isArray(parsed)) return undefined;
   return parsed.filter(isRecord).map((fields) => ({ fields }));
 }

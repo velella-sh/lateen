@@ -6,6 +6,7 @@
  */
 
 import type { Page, SiteConfig } from "@velella/mizzen/contracts";
+import { textOf as text } from "../../src/guards.ts";
 import { optionOf } from "../../src/options.ts";
 
 /** A provider the reader can open in: a title and a URL template. */
@@ -31,13 +32,6 @@ export const DEFAULT_PROVIDERS: readonly Provider[] = [
 
 /** Only these schemes are linked; a config value cannot inject `javascript:` or `data:`. */
 export const SAFE_SCHEME = /^(?:https?|cursor|claude|codex|vscode):/i;
-
-/** A non-empty string from the config, trimmed; anything else is not shown. */
-function text(value: unknown): string | undefined {
-  if (typeof value !== "string") return undefined;
-  const trimmed = value.trim();
-  return trimmed === "" ? undefined : trimmed;
-}
 
 /** The configured providers, or the three defaults when the site sets none. */
 export function providersOf(config: SiteConfig): readonly Provider[] {

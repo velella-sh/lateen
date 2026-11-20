@@ -1,5 +1,6 @@
 import { calendarParts, calendarYear } from "../../src/dates.ts";
 import { isEmpty } from "../../src/fields.ts";
+import { isRecord } from "../../src/guards.ts";
 import { percentOf } from "../chart-data/scale.ts";
 import { DAY, dayOf, iso } from "./scale.ts";
 
@@ -31,9 +32,6 @@ export function spanOf(row: DateRow, fields: DateFields): Span | undefined {
   const to = end ?? start;
   return from === undefined || to === undefined ? undefined : { from, to };
 }
-
-const isRecord = (value: unknown): value is Record<string, unknown> =>
-  value !== null && typeof value === "object" && !Array.isArray(value);
 
 /** The phases a row lists in its phases field; anything that is not a list of objects is ignored. */
 export function phasesOf(row: DateRow, field: string): DateRow[] {

@@ -9,6 +9,7 @@ import { resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 import { ASSET_CLASSES, type AssetClass } from "./performance-budget.ts";
 import { reportPath, schemaAt, writeReport } from "./report.ts";
+import { isRecord, parseJson } from "../src/guards.ts";
 
 export const MANIFEST_TOOL = "lateen/asset-manifest";
 export const REPORT_TOOL = "lateen/performance-compare";
@@ -65,9 +66,6 @@ export interface ManifestComparison {
 type MutableTotals = { css: number; javascript: number; font: number; total: number };
 
 const emptyTotals = (): MutableTotals => ({ css: 0, javascript: 0, font: 0, total: 0 });
-
-const isRecord = (value: unknown): value is Record<string, unknown> =>
-  typeof value === "object" && value !== null && !Array.isArray(value);
 
 const isClass = (value: unknown): value is AssetClass =>
   typeof value === "string" && (ASSET_CLASSES as readonly string[]).includes(value);
@@ -292,7 +290,7 @@ function toleranceOf(argv: readonly string[]): number {
 }
 
 function readManifest(file: string): unknown {
-  return JSON.parse(readFileSync(resolve(file), "utf8")) as unknown;
+  return parseJson(readFileSync(resolve(file), "utf8"));
 }
 
 /** The reviewed new-dependency log; a checkout without the file reviews nothing. */
@@ -302,7 +300,7 @@ function reviewedOf(argv: readonly string[]): readonly string[] {
   const file = argv[index + 1];
   if (file === undefined || file.trim() === "") throw new Error("--reviewed needs a file path");
   if (!existsSync(resolve(file))) return [];
-  const parsed = JSON.parse(readFileSync(resolve(file), "utf8")) as unknown;
+  const parsed = parseJson(readFileSync(resolve(file), "utf8"));
   if (!isRecord(parsed) || !Array.isArray(parsed.reviewed) || !parsed.reviewed.every((path) => typeof path === "string")) {
     throw new Error("--reviewed needs a JSON object with a reviewed list of asset paths");
   }

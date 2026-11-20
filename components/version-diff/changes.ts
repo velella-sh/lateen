@@ -5,6 +5,8 @@
  * repeated evidence keeps its written order and produces the same states, counts, and ids.
  */
 
+import { isRecord, parseJson as parseJsonText } from "../../src/guards.ts";
+
 /** The four kinds of section difference, in the order the viewer lists them in data. */
 export const KINDS = ["added", "removed", "changed", "moved"] as const;
 
@@ -76,10 +78,6 @@ export type VersionDiffProps = {
   id?: string;
 };
 
-function isRecord(value: unknown): value is Readonly<Record<string, unknown>> {
-  return typeof value === "object" && value !== null && !Array.isArray(value);
-}
-
 /** A non-empty trimmed string, or a finite number as text; everything else is undefined. */
 function textOf(value: unknown): string | undefined {
   if (typeof value === "string") {
@@ -100,11 +98,7 @@ export function kindOf(value: unknown): ChangeKind | undefined {
 /** The JSON value in a directive attribute, or undefined when it is missing, blank, or not JSON. */
 export function parseJson(raw: unknown): unknown {
   if (typeof raw !== "string" || raw.trim() === "") return undefined;
-  try {
-    return JSON.parse(raw) as unknown;
-  } catch {
-    return undefined;
-  }
+  return parseJsonText(raw);
 }
 
 /** One change from a record, or undefined when it has no known kind or no section title. */

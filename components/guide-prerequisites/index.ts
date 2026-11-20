@@ -1,4 +1,5 @@
 import { h } from "preact";
+import { isRecord } from "../../src/guards.ts";
 import type { Component } from "@velella/mizzen/contracts";
 import { t } from "../../i18n/index.ts";
 import { withBase } from "../../src/url.ts";
@@ -17,10 +18,6 @@ export interface Prerequisite {
   readonly label: string;
   readonly href?: string;
   readonly optional?: true;
-}
-
-function isRecord(value: unknown): value is Readonly<Record<string, unknown>> {
-  return typeof value === "object" && value !== null && !Array.isArray(value);
 }
 
 /** The valid prerequisites from `page.frontMatter.prerequisites`, in order. */

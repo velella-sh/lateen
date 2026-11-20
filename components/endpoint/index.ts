@@ -1,4 +1,5 @@
 import { h } from "preact";
+import { parseJson } from "../../src/guards.ts";
 import type { ComponentProps } from "@velella/mizzen/contracts";
 import { t } from "../../i18n/index.ts";
 
@@ -136,11 +137,7 @@ export function parseParameters(raw: unknown): Map<string, EndpointParameter> {
   let value: unknown = raw;
   if (typeof raw === "string") {
     if (raw.trim() === "") return new Map();
-    try {
-      value = JSON.parse(raw);
-    } catch {
-      return new Map();
-    }
+    value = parseJson(raw);
   }
   if (!Array.isArray(value)) return new Map();
   const parameters = new Map<string, EndpointParameter>();

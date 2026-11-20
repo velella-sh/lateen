@@ -1,4 +1,5 @@
 import { Fragment, h } from "preact";
+import { isRecord } from "../src/guards.ts";
 import type { ComponentChildren } from "preact";
 import type { Layout, LayoutProps } from "@velella/mizzen/contracts";
 import base from "./base.ts";
@@ -176,10 +177,6 @@ export interface OperationView {
 
 type MediaDepth = 3 | 4;
 type ExamplesDepth = 4 | 5;
-
-function isRecord(value: unknown): value is Readonly<Record<string, unknown>> {
-  return typeof value === "object" && value !== null && !Array.isArray(value);
-}
 
 /** The operation from front matter, or undefined when the page is not an engine-built operation. */
 function operationOf(frontMatter: LayoutProps["page"]["frontMatter"]): ApiOperation | undefined {
