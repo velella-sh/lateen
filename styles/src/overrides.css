@@ -224,11 +224,6 @@ button[data-block-id] {
   color: var(--sail) !important;
 }
 
-.code .highlighted span,
-.code-frame .highlighted span {
-  color: var(--sail) !important;
-}
-
 /* The line a fragment names, and every line of a named range (the island adds `.targeted`). */
 .code .line:target,
 .code .line.targeted,
