@@ -81,6 +81,30 @@ export function resolveNetworkOptions(options: unknown): NetworkOptions {
   };
 }
 
+/** What the sidebar reads from `theme.options.navigation`. */
+export interface NavigationOptions {
+  /** Whether the current page's local sibling pages render under its group. */
+  readonly siblings: boolean;
+}
+
+/** The navigation options a site gets when it sets no `theme.options.navigation`. */
+export const DEFAULT_NAVIGATION_OPTIONS: NavigationOptions = {
+  siblings: false,
+};
+
+/**
+ * Reads `theme.options.navigation`: `siblings` lists the current page's local sibling pages under
+ * its group. A missing block, or a missing member, keeps its default; anything else throws.
+ */
+export function resolveNavigationOptions(options: unknown): NavigationOptions {
+  const navigation = optionOf(options, "navigation");
+  if (navigation === undefined) return DEFAULT_NAVIGATION_OPTIONS;
+  if (!isRecord(navigation)) reject("theme.options.navigation", "must be an object", navigation);
+  return {
+    siblings: flag(navigation.siblings, "theme.options.navigation.siblings", DEFAULT_NAVIGATION_OPTIONS.siblings),
+  };
+}
+
 /** Every option path the page documents, so the documentation test and the reader see one list. */
 export const NETWORK_OPTION_PATHS = [
   "theme.options.network.switcher",

@@ -1,6 +1,7 @@
 import { h, type ComponentChildren } from "preact";
-import type { Chrome, NavGroup, NavItem, NavLink, NavTree } from "@velella/mizzen/contracts";
+import type { Chrome, NavGroup, NavItem, NavLink, NavTree, Site } from "@velella/mizzen/contracts";
 import { t } from "../../i18n/index.ts";
+import { resolveNavigationOptions } from "../../src/options.ts";
 
 /** A group with more pages under it than this renders as one link, not every child. */
 const MAX_LISTED = 20;
@@ -47,6 +48,35 @@ function marks(item: NavItem, url: string): boolean {
   if (isGroup(item)) return item.children.some((child) => marks(child, url));
   if (item.url === url) return true;
   return item.match !== undefined && under(url, item.match);
+}
+
+/** The folder a page URL lives in, with the site base kept on the root page. */
+function parentUrl(url: string, base: string): string {
+  const trimmed = url.endsWith("/") ? url.slice(0, -1) : url;
+  const cut = trimmed.lastIndexOf("/");
+  const parent = cut <= 0 ? "/" : trimmed.slice(0, cut + 1);
+  return parent === "/" && base !== "" ? `${base}/` : parent;
+}
+
+/** True when no nested group also holds `url`, so only the closest branch gets the sibling list. */
+function ownsCurrent(group: NavGroup, url: string): boolean {
+  return marks(group, url) && !group.children.some((child) => isGroup(child) && marks(child, url));
+}
+
+/**
+ * Pages in the current page's folder that its group's navigation does not already list. Titles and
+ * URLs come from the engine's page list, whose URLs already carry the site base.
+ */
+function siblingPages(site: Site, group: NavGroup, url: string): NavLink[] {
+  const seen = new Set([...leaves(group.children).map((link) => link.url), url]);
+  const folder = parentUrl(url, site.config.base);
+  const siblings: NavLink[] = [];
+  for (const page of site.pages) {
+    if (seen.has(page.url) || parentUrl(page.url, site.config.base) !== folder) continue;
+    seen.add(page.url);
+    siblings.push({ title: page.title, url: page.url });
+  }
+  return siblings;
 }
 
 /**
@@ -107,6 +137,8 @@ function collapsedNode(group: NavGroup, pages: readonly NavLink[], url: string) 
  * A group as a native `<details>`, so it opens and closes without JavaScript. The group that holds the
  * page is open; the others start closed. `data-sidebar-group` is the stable key the client remembers the
  * state under; `data-sidebar-legacy` is the title-based key older versions used, read once for migration.
+ * With `theme.options.navigation.siblings`, the group closest to the page also lists pages from its
+ * folder that the navigation omits, leaving every existing link where it was.
  */
 function groupNode(
   group: NavGroup,
@@ -114,17 +146,23 @@ function groupNode(
   legacy: string,
   url: string,
   depth: number,
-  site: string,
+  site: Site,
   path: string,
 ) {
   const current = marks(group, url);
+  const siblings =
+    current &&
+    ownsCurrent(group, url) &&
+    resolveNavigationOptions(site.config.theme.options).siblings
+      ? siblingPages(site, group, url)
+      : [];
   return h(
     "details",
     {
       class: "sidebar-group",
       "data-sidebar-group": key,
       "data-sidebar-legacy": legacy,
-      "data-sidebar-site": site,
+      "data-sidebar-site": site.config.base,
       ...(current ? { "data-current": "true", open: true } : {}),
     },
     h(
@@ -133,6 +171,13 @@ function groupNode(
       h(`h${Math.min(depth, 6)}`, current ? { "aria-current": "true" } : {}, group.title),
     ),
     h("ul", null, entries(group.children, url, depth + 1, legacy, site, path)),
+    siblings.length === 0
+      ? null
+      : h(
+          "ul",
+          { class: "sidebar-siblings" },
+          siblings.map((link) => h("li", null, linkNode(link, url))),
+        ),
   );
 }
 
@@ -142,7 +187,7 @@ function entries(
   url: string,
   depth: number,
   parentLegacy: string | undefined,
-  site: string,
+  site: Site,
   parentPath: string,
 ): ComponentChildren[] {
   const nodes = [];
@@ -165,7 +210,7 @@ function entries(
 }
 
 /** The blocks of the top level: the leading links first, then each group as a disclosure with its list. */
-function blocks(items: readonly NavItem[], url: string, site: string): ComponentChildren[] {
+function blocks(items: readonly NavItem[], url: string, site: Site): ComponentChildren[] {
   const out = [];
   let leading = [];
   for (const [index, item] of items.entries()) {
@@ -198,7 +243,7 @@ const sidebar: Chrome = ({ site, page }) => {
   return h(
     "nav",
     { class: "sidebar-nav", "aria-label": t(page.lang, "site_navigation") },
-    blocks(items, page.url, site.config.base),
+    blocks(items, page.url, site),
   );
 };
 

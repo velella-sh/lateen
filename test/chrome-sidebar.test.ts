@@ -255,3 +255,78 @@ test("groups without pages are left out", () => {
   assert.doesNotMatch(out, /data-sidebar-legacy="Empty"/);
 });
 
+function titled(url: string, title: string): Page {
+  return { ...pageAt(url), title, frontMatter: { title } };
+}
+
+function siteProps(nav: NavTree, url: string, pages: Page[], options: Record<string, unknown> = {}): ChromeProps {
+  const page = pages.find((item) => item.url === url) ?? pageAt(url);
+  const site: Site = { config: { ...config, theme: { options } }, pages, nav, data: {}, collections: {} };
+  return { site, page, trail: [], pager: {} };
+}
+
+const siblingNav: NavTree = {
+  main: [
+    {
+      title: "Guide",
+      children: [
+        { title: "Install", url: "/example/guide/install/" },
+        { title: "Quickstart", url: "/example/guide/quickstart/" },
+      ],
+    },
+  ],
+};
+
+const siblingPages = [
+  titled("/example/guide/install/", "Install"),
+  titled("/example/guide/quickstart/", "Quickstart"),
+  titled("/example/guide/advanced/", "Advanced"),
+];
+
+const siblingsOn = { navigation: { siblings: true } };
+
+test("navigation.siblings lists real pages the navigation omits, once", () => {
+  const out = html(sidebar(siteProps(siblingNav, "/example/guide/install/", siblingPages, siblingsOn)));
+
+  assert.match(
+    out,
+    /<ul class="sidebar-siblings"><li><a href="\/example\/guide\/advanced\/">Advanced<\/a><\/li><\/ul>/,
+  );
+  assert.equal((out.match(/href="\/example\/guide\/advanced\/"/g) ?? []).length, 1);
+});
+
+test("navigation.siblings is off by default", () => {
+  const out = html(sidebar(siteProps(siblingNav, "/example/guide/install/", siblingPages)));
+
+  assert.doesNotMatch(out, /sidebar-siblings/);
+  assert.doesNotMatch(out, /advanced/);
+});
+
+test("the current page keeps aria-current=page while siblings render", () => {
+  const out = html(sidebar(siteProps(siblingNav, "/example/guide/install/", siblingPages, siblingsOn)));
+
+  assert.match(out, /<a href="\/example\/guide\/install\/" aria-current="page">Install<\/a>/);
+  assert.doesNotMatch(out, /href="\/example\/guide\/advanced\/" aria-current/);
+});
+
+test("a page without siblings adds no sibling list", () => {
+  const nav: NavTree = { main: [{ title: "Solo", children: [{ title: "Solo", url: "/example/solo/" }] }] };
+  const out = html(sidebar(siteProps(nav, "/example/solo/", [titled("/example/solo/", "Solo")], siblingsOn)));
+
+  assert.doesNotMatch(out, /sidebar-siblings/);
+});
+
+test("siblings keep the engine order and base for an RTL page", () => {
+  const install = { ...titled("/example/fa/guide/install/", "نصب"), lang: "fa", dir: "rtl" as const };
+  const pages = [install, titled("/example/fa/guide/second/", "دوم"), titled("/example/fa/guide/first/", "اول")];
+  const nav: NavTree = {
+    main: [{ title: "راهنما", children: [{ title: "نصب", url: "/example/fa/guide/install/" }] }],
+  };
+  const out = html(sidebar(siteProps(nav, install.url, pages, siblingsOn)));
+
+  assert.equal(install.dir, "rtl");
+  const second = out.indexOf('href="/example/fa/guide/second/"');
+  const first = out.indexOf('href="/example/fa/guide/first/"');
+  assert.ok(second > 0 && first > second, "siblings follow the page list order, not reversed for RTL");
+});
+

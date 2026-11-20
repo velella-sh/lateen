@@ -250,6 +250,18 @@
         "dark": { "type": "string", "minLength": 1 }
       }
     },
+    "navigation": {
+      "description": "The sidebar navigation.",
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "siblings": {
+          "description": "Lists the current page's local sibling pages under its group in the sidebar.",
+          "type": "boolean",
+          "default": false
+        }
+      }
+    },
     "network": {
       "description": "The network chrome: project switcher and network footer.",
       "type": "object",
