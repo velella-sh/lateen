@@ -7,16 +7,19 @@ name: release
 #                  Playwright cases. The report and the tarball are the only artifact publishing
 #                  may use.
 #   2. publish     publishes that same tarball with provenance. It holds the only credential in the
-#                  workflow (an OIDC token) and never runs repository scripts.
+#                  workflow (an OIDC token) and runs only the report gate and tarball selection,
+#                  never a repository build.
 #   3. acceptance-published  installs the version npm now serves and runs the cases again.
-#   4. github-release         writes the GitHub Release for the tag.
+#   4. github-release         writes the GitHub Release for the tag, only after the post-publish
+#                             acceptance run passed.
 #
 # There is no npm token anywhere: npm trusted publishing exchanges the job's OIDC identity for a
 # short-lived publish credential. One-time setup on npmjs.com is in docs/release.md.
 #
 # A release whose version has a prerelease suffix (0.3.0-rc.1) goes to the `next` dist-tag; any
 # other goes to `latest`. To retry a failed publish, run this workflow by hand with the tag; an
-# already-published version is skipped, so a retry is safe.
+# already-published version skips npm publish but is accepted and verified again, so a retry is
+# safe and never marks an unverified package as accepted.
 # Tags without .node-version use Node 24 and its bundled npm for the older acceptance script.
 on:
   push:
@@ -98,20 +101,18 @@ jobs:
             echo "published=$published"
           } >> "$GITHUB_OUTPUT"
           echo "Releasing $name@$version to the \`$dist_tag\` dist-tag (already on npm: $published)" | tee -a "$GITHUB_STEP_SUMMARY"
+      # The gate runs on a retry too: an already-published version still needs fresh acceptance
+      # evidence from the tagged commit before the published package can be verified against it.
       - name: Install
-        if: steps.meta.outputs.published != 'true'
         run: npm ci --no-audit --no-fund
         working-directory: lateen
       - name: Install Chromium
-        if: steps.meta.outputs.published != 'true'
         run: npx playwright install chromium
         working-directory: lateen
       - name: Acceptance gate
-        if: steps.meta.outputs.published != 'true'
         run: npm run test:acceptance -- --report ../acceptance/report.json
         working-directory: lateen
       - uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
-        if: steps.meta.outputs.published != 'true'
         with:
           name: acceptance
           path: acceptance
@@ -160,7 +161,7 @@ jobs:
         working-directory: lateen
         run: |
           set -euo pipefail
-          tarball="$(ls ../acceptance/*.tgz)"
+          tarball="$(node scripts/release-tarball.ts --dir ../acceptance --report ../acceptance/report.json)"
           node scripts/acceptance.ts --gate ../acceptance/report.json --tarball "$tarball"
       - name: Publish the tested tarball with provenance
         working-directory: lateen
@@ -168,17 +169,19 @@ jobs:
           DIST_TAG: ${{ needs.acceptance.outputs.dist-tag }}
         run: |
           set -euo pipefail
-          tarball="$(ls ../acceptance/*.tgz)"
+          tarball="$(node scripts/release-tarball.ts --dir ../acceptance --report ../acceptance/report.json)"
           npm publish "$tarball" --access public --provenance --tag "$DIST_TAG"
           echo "Published ${{ needs.acceptance.outputs.version }} to \`$DIST_TAG\` from $(basename "$tarball")" >> "$GITHUB_STEP_SUMMARY"
 
   # Installs the exact version npm now serves and runs the same cases again. A failure fails the
   # release run, so the release epic stays open until a post-publish run passes. The digest check
-  # proves publishing shipped the bytes the acceptance gate tested.
+  # proves publishing shipped the bytes the acceptance gate tested. On a retry (published=true)
+  # npm publish is skipped, but this job still installs the published version and proves its
+  # digest against the acceptance evidence from the tagged commit.
   acceptance-published:
     name: acceptance published
     needs: [acceptance, publish]
-    if: needs.acceptance.outputs.published != 'true' && needs.publish.result == 'success'
+    if: always() && needs.acceptance.result == 'success' && (needs.acceptance.outputs.published == 'true' || needs.publish.result == 'success')
     runs-on: ubuntu-latest
     timeout-minutes: 25
     permissions:
@@ -218,13 +221,16 @@ jobs:
         working-directory: lateen
         run: |
           set -euo pipefail
-          tarball="$(ls ../published/*.tgz)"
+          tarball="$(node scripts/release-tarball.ts --dir ../published --report ../acceptance/report.json)"
           node scripts/acceptance.ts --gate ../acceptance/report.json --tarball "$tarball"
 
+  # A release is only a release once the post-publish acceptance run passed, on a first publish
+  # and on a retry alike: a failed case or digest check leaves the GitHub Release uncreated
+  # instead of announcing a broken version.
   github-release:
     name: github release
-    needs: [acceptance, publish]
-    if: always() && needs.acceptance.result == 'success' && (needs.acceptance.outputs.published == 'true' || needs.publish.result == 'success')
+    needs: [acceptance, publish, acceptance-published]
+    if: always() && needs.acceptance.result == 'success' && needs['acceptance-published'].result == 'success'
     runs-on: ubuntu-latest
     permissions:
       contents: write
