@@ -5,6 +5,7 @@ import {
   ENHANCED_ATTR,
   LANG_PARAM,
   STORAGE_KEY,
+  TAB_GROUP_ATTR,
   choose,
   hashId,
   readChoice,
@@ -51,7 +52,10 @@ class FakeTab implements SyncTab {
 }
 
 /** A group with `labels` tabs; pass `enhanced: false` for one whose blocks still sit stacked. */
-function fakeGroup(labels: string[], { enhanced = true }: { enhanced?: boolean } = {}) {
+function fakeGroup(
+  labels: string[],
+  { enhanced = true, syncGroup }: { enhanced?: boolean; syncGroup?: string } = {},
+) {
   const tabs = labels.map((label, i) => new FakeTab(`t${i + 1}`, label));
   const panels = labels.map((_, i) => new FakeTab(`p${i + 1}`));
   // An enhanced group has already had its first panel shown; a stacked one shows every block.
@@ -68,6 +72,7 @@ function fakeGroup(labels: string[], { enhanced = true }: { enhanced?: boolean }
     },
   } as SyncGroup & { attrs: Map<string, string> };
   if (enhanced) group.attrs.set(ENHANCED_ATTR, "");
+  if (syncGroup !== undefined) group.attrs.set(TAB_GROUP_ATTR, syncGroup);
   return { group, tabs, panels };
 }
 
@@ -252,6 +257,47 @@ test("sync() rewires a label after another group has caught up", () => {
   assert.deepEqual(selected(b.tabs), ["false", "true"]);
   b.tabs[0]!.click(); // pnpm: a follows back
   assert.deepEqual(selected(a.tabs), ["false", "true"]);
+});
+
+test("sync() switches only groups that share an explicit group name", () => {
+  const a = fakeGroup(["npm", "pnpm"], { syncGroup: "install" });
+  const b = fakeGroup(["npm", "pnpm"], { syncGroup: "install" });
+  const other = fakeGroup(["npm", "pnpm"], { syncGroup: "deploy" });
+  const { env, written } = fakeEnv([a, b, other]);
+  sync(env);
+  a.tabs[1]!.click();
+  assert.deepEqual(selected(b.tabs), ["false", "true"], "the same group follows the label");
+  assert.deepEqual(selected(other.tabs), ["true", "false"], "another group stays independent");
+  assert.deepEqual([...written], [], "a grouped choice is not remembered across pages");
+});
+
+test("sync() leaves ungrouped groups on their page-wide behavior, apart from grouped ones", () => {
+  const a = fakeGroup(["npm", "pnpm"]);
+  const b = fakeGroup(["npm", "pnpm"]);
+  const grouped = fakeGroup(["npm", "pnpm"], { syncGroup: "install" });
+  const { env } = fakeEnv([a, b, grouped]);
+  sync(env);
+  a.tabs[1]!.click();
+  assert.deepEqual(selected(b.tabs), ["false", "true"], "ungrouped groups still follow each other");
+  assert.deepEqual(selected(grouped.tabs), ["true", "false"], "an ungrouped choice leaves a grouped group alone");
+});
+
+test("sync() starts a grouped group on its first tab even when a label is remembered", () => {
+  const grouped = fakeGroup(["npm", "pnpm"], { syncGroup: "install" });
+  const plain = fakeGroup(["npm", "pnpm"]);
+  const { env } = fakeEnv([grouped, plain], { stored: { [STORAGE_KEY]: "pnpm" } });
+  sync(env);
+  assert.deepEqual(selected(grouped.tabs), ["true", "false"], "a grouped choice stays on its page");
+  assert.deepEqual(selected(plain.tabs), ["false", "true"], "an ungrouped group keeps the remembered label");
+});
+
+test("sync() treats a missing or blank group name as ungrouped", () => {
+  const missing = fakeGroup(["npm", "pnpm"]);
+  const blank = fakeGroup(["npm", "pnpm"], { syncGroup: "  " });
+  const { env } = fakeEnv([missing, blank]);
+  assert.doesNotThrow(() => sync(env));
+  missing.tabs[1]!.click();
+  assert.deepEqual(selected(blank.tabs), ["false", "true"], "a blank name is no group at all");
 });
 
 test("sync() wires nothing for a page with no group", () => {

@@ -27,6 +27,11 @@ export type CodeTabsProps = {
   id?: string;
   /** JSON array of tab labels, one per code block in order: `["npm","pnpm"]`. A missing label reads as its position. */
   labels?: string;
+  /**
+   * Sync key: groups on the page with the same value switch together, and only within this page.
+   * `sync.ts` reads it from `data-tab-group`. Ungrouped groups keep their page-wide, remembered behavior.
+   */
+  group?: string;
 };
 
 /** Each `<pre>` block in the rendered body, as its own HTML string, in order. */
@@ -52,20 +57,26 @@ export function idBase(raw: string | undefined): string {
   return clean || DEFAULT_ID;
 }
 
+/** The sync group name, trimmed; a missing or blank value means the group is not grouped. */
+export function groupName(raw: string | undefined): string | undefined {
+  const name = (raw ?? "").trim();
+  return name || undefined;
+}
+
 /**
  * A group of code blocks as tabs. Without JavaScript every block shows stacked under its title. The island
  * (`client.ts`) turns the titles into a WAI-ARIA tab list and shows one block at a time. A body with no code
  * block is kept whole, with no tabs, so nothing is dropped.
  */
 export default function codeTabs({ props, html }: ComponentProps<CodeTabsProps>) {
-  const base = idBase(props.id);
+  const group = groupName(props.group);
+  // A named group also prefixes ids, so a group-only directive keeps its ids apart from other groups.
+  const base = idBase(props.id ?? group);
+  // `data-tab-group` is the sync key `sync.ts` reads; an ungrouped root has no attribute at all.
+  const root = { class: CODE_TABS_CLASS, "data-code-tabs": "", ...(group ? { "data-tab-group": group } : {}) };
   const bodies = blocks(html);
   if (bodies.length === 0) {
-    return h(
-      "div",
-      { class: CODE_TABS_CLASS, "data-code-tabs": "" },
-      h("div", { class: BODY_CLASS, dangerouslySetInnerHTML: { __html: html } }),
-    );
+    return h("div", root, h("div", { class: BODY_CLASS, dangerouslySetInnerHTML: { __html: html } }));
   }
 
   const labels = parseLabels(props.labels);
@@ -98,7 +109,7 @@ export default function codeTabs({ props, html }: ComponentProps<CodeTabsProps>)
 
   return h(
     "div",
-    { class: CODE_TABS_CLASS, "data-code-tabs": "" },
+    root,
     h("div", { class: TABLIST_CLASS, role: "tablist", hidden: true }, tabs),
     panels,
   );
