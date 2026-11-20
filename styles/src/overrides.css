@@ -212,7 +212,7 @@ button[data-block-id] {
 
 .code .highlighted,
 .code-frame .highlighted {
-  background-color: color-mix(in srgb, var(--sail) 14%, var(--night)) !important;
+  background-color: color-mix(in srgb, var(--sail) 14%, var(--night));
   /* A non-colour marker, and a marker-sized inset that keeps the text on the same column. */
   border-inline-start: 2px solid var(--mist);
   padding-inline-start: 0.5rem;
@@ -221,7 +221,7 @@ button[data-block-id] {
 
 .code .highlighted span,
 .code-frame .highlighted span {
-  color: var(--sail) !important;
+  color: var(--sail);
 }
 
 /* The line a fragment names, and every line of a named range (the island adds `.targeted`). */
@@ -231,7 +231,7 @@ button[data-block-id] {
 .code-frame .line:target,
 .code-frame .line.targeted,
 .code-frame .line:has(:target) {
-  background-color: color-mix(in srgb, var(--link) 12%, var(--night)) !important;
+  background-color: color-mix(in srgb, var(--link) 12%, var(--night));
   border-inline-start: 2px solid var(--link);
   padding-inline-start: 0.5rem;
   margin-inline-start: calc(-0.5rem - 2px);

@@ -5,6 +5,7 @@
     background: var(--night);
     color: var(--sail);
     line-height: 1.7;
+    padding-block-start: 2.75rem;
     tab-size: 2;
     box-shadow: inset 0 0 0 1px color-mix(in srgb, #fff 6%, transparent);
   }
@@ -145,39 +146,32 @@
   }
 
   /* Inverse code / terminal: night panel + dark-theme Shiki tokens (light theme pages included).
-     Paint the night surface on the pre, code, and each line so axe samples the dark bg, not the page. */
+     Paint the night surface on the pre, code, and each line so axe samples the dark bg, not the page.
+     Highlighted and targeted rows live unlayered in overrides.css, so they win by layer order and
+     neither side needs !important. */
   .code,
-  .code-frame > .code,
   .terminal-body,
   .cli-demo-body,
-  .ba-code,
-  .ba-before .code,
-  .ba-after .code,
+  .ba-code {
+    background-color: var(--night);
+    color: var(--sail);
+  }
+
   .code code,
   .terminal-body code,
   .cli-demo-body code,
   .code .line,
   .terminal-body .line,
   .cli-demo-body .line {
-    background-color: var(--night) !important;
+    background-color: var(--night);
     color: var(--sail);
   }
 
-  .code .shiki span,
-  .code-frame .shiki span,
-  .code .line > span,
-  .code .line-code > span,
-  .terminal .shiki span,
-  .terminal-body .shiki span,
-  .terminal-body .line > span,
-  .cli-demo-body .shiki span,
-  .cli-demo-body .line > span,
-  .ba-before .shiki span,
-  .ba-after .shiki span,
-  .ba-code .shiki span,
-  .ba-before .line > span,
-  .ba-after .line > span {
-    color: var(--shiki-dark, var(--sail)) !important;
+  .code :is(.line, .shiki) span,
+  .terminal-body :is(.line, .shiki) span,
+  .cli-demo-body :is(.line, .shiki) span,
+  .ba-code :is(.line, .shiki) span {
+    color: var(--shiki-dark, var(--sail));
     background-color: transparent;
   }
 }
