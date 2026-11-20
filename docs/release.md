@@ -11,19 +11,25 @@ is created**, so the archived report names the commit that ships and cannot be r
 
 ## 1. Prepare and check the release commit
 
+Move the changelog fragments and bump the version first. Then, on the exact commit that will be tagged,
+from a clean checkout:
+
 ```bash
 npm ci
-npm run typecheck
-npm test
-npm run test:performance
-npm run test:a11y
-npm run test:acceptance
-node node_modules/@velella/mizzen/bin/mizzen.js check site --theme .
+npm run release:candidate
 ```
 
-Move the changelog fragments and bump the version, then rerun `npm test`,
-`npm run test:acceptance` and `node node_modules/@velella/mizzen/bin/mizzen.js check site --theme .`
-on the final commit.
+`release:candidate` refuses a working tree with any change, checks out `HEAD` into a detached
+worktree, runs `npm ci` there, installs Chromium, and runs every gate in order: typecheck, unit and
+documentation tests (including the design and token checks), accessibility, performance, visual, the
+public acceptance gate, and `mizzen check site`. Generated files in your own checkout are never
+used. It writes `.mizzen/release-candidate.json`, validated against
+`schema/release-candidate.schema.json`, naming the commit, the package version, the exact installed
+Mizzen version, and every gate's result.
+
+The recorded commit is the one to tag. A failed, skipped, or missing gate fails the command and
+leaves `status: "failed"` in the report; do not tag that commit, fix the failure and rerun the
+candidate. The report is reproducible: two runs on one commit write the same bytes.
 
 ## 2. Write the two reports for that commit
 

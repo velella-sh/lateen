@@ -59,7 +59,9 @@
     "check:design": "node scripts/check-design.ts",
     "check:starters": "node scripts/check-starters.ts",
     "typecheck": "tsc --noEmit -p tsconfig.json",
-    "check:inventory": "node --test test/visual/inventory.test.ts"
+    "check:inventory": "node --test test/visual/inventory.test.ts",
+    "test:release": "node --test test/release-candidate.test.ts",
+    "release:candidate": "node scripts/release-candidate.ts"
   },
   "dependencies": {
     "@velella/mizzen": "^0.2.5",
