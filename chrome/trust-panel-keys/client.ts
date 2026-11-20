@@ -10,6 +10,9 @@ export const PANEL_SELECTOR = "[data-trust-panel]";
 /** Selector of the chip inside a panel, which takes focus back when Escape closes it. */
 export const SUMMARY_SELECTOR = "summary";
 
+/** The fragment the article's tested chip uses; it names the page's one automatic panel. */
+export const PANEL_HASH = "#trust-panel";
+
 /** The chip as the island touches it. */
 export interface TrustSummary {
   focus(): void;
@@ -44,11 +47,39 @@ export function activate(panel: TrustPanelNode): void {
   panel.addEventListener("keydown", (event) => closeOnEscape(panel, event));
 }
 
-declare const document: { querySelectorAll(selector: string): Iterable<unknown> } | undefined;
+/** Opens the panel when the address names it, so the tested chip's link reveals its explanation. */
+export function openForHash(panels: Iterable<TrustPanelNode>, hash: string): void {
+  if (hash !== PANEL_HASH) return;
+  for (const panel of panels) panel.open = true;
+}
+
+/** A window as the island reads it: its address and its hash-change event. */
+export interface TrustWindow {
+  readonly location: { readonly hash: string };
+  addEventListener(type: "hashchange", listener: () => void): void;
+}
+
+/** Opens the panel for the current address and for every later hash change. */
+export function followHash(panels: readonly TrustPanelNode[], win: TrustWindow): void {
+  const apply = (): void => openForHash(panels, win.location.hash);
+  win.addEventListener("hashchange", apply);
+  apply();
+}
+
+const globals = globalThis as unknown as {
+  document?: { querySelectorAll(selector: string): Iterable<TrustPanelNode> };
+  addEventListener?: (type: "hashchange", listener: () => void) => void;
+  location?: { readonly hash: string };
+};
 
 // The island runs when the browser loads it; importing it in a build or a test without a document does nothing.
-if (typeof document !== "undefined") {
-  for (const element of document.querySelectorAll(PANEL_SELECTOR)) {
-    activate(element as TrustPanelNode);
+if (globals.document !== undefined) {
+  const panels = [...globals.document.querySelectorAll(PANEL_SELECTOR)];
+  for (const panel of panels) activate(panel);
+  if (globals.location !== undefined && globals.addEventListener !== undefined) {
+    followHash(panels, {
+      location: globals.location,
+      addEventListener: (type, listener) => globals.addEventListener?.(type, listener),
+    });
   }
 }

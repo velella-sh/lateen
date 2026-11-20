@@ -141,7 +141,7 @@ test("a present but unreadable entry renders unknown invalid evidence instead of
     assert.ok(out, JSON.stringify(malformed));
     assert.match(
       out,
-      /^<details class="trust-panel trust-panel-unknown" data-trust-panel data-trust-level="unknown" data-trust-evidence="invalid">/,
+      /^<details id="trust-panel" class="trust-panel trust-panel-unknown" data-trust-panel data-trust-level="unknown" data-trust-evidence="invalid">/,
       JSON.stringify(malformed),
     );
     assert.ok(out.includes(`<span class="trust-panel-level">Trust: ${stringsOf("en").trust_level_unknown}</span>`));
@@ -243,7 +243,7 @@ test("the invalid-evidence explanation is localised and non-claiming in every la
 test("the chip shows the level, its icon, and the native disclosure controls", () => {
   const out = render({ trust: { "/guide/install/": entry } });
   assert.ok(out);
-  assert.match(out, /^<details class="trust-panel trust-panel-verified" data-trust-panel data-trust-level="verified">/);
+  assert.match(out, /^<details id="trust-panel" class="trust-panel trust-panel-verified" data-trust-panel data-trust-level="verified">/);
   assert.match(out, /<summary class="trust-panel-chip"><svg class="trust-panel-icon"/);
   assert.match(out, /<span class="trust-panel-level">Trust: Verified<\/span>/);
   assert.match(out, /<div class="trust-panel-body">/);
@@ -716,7 +716,7 @@ test("the trust entry's build, generation, and review evidence are exposed with 
     },
   });
   assert.ok(out);
-  assert.match(out, /^<details class="trust-panel trust-panel-verified" data-trust-panel data-trust-level="verified"/);
+  assert.match(out, /^<details id="trust-panel" class="trust-panel trust-panel-verified" data-trust-panel data-trust-level="verified"/);
   assert.match(out, /data-trust-build="build-42"/);
   assert.match(out, /data-trust-generated="2026-03-06"/);
   assert.match(out, /data-trust-reviewed="2026-03-04"/);

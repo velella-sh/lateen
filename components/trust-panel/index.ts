@@ -31,6 +31,9 @@ export type TrustLevel = (typeof LEVELS)[number];
 /** Class on the disclosure root; `style.css` styles it. */
 export const CLASS = "trust-panel";
 
+/** The page has one automatic panel; its id is the fragment the article's tested chip links to. */
+export const PANEL_ID = "trust-panel";
+
 /** Class on the visible chip, the `<summary>` of the disclosure. */
 export const CHIP_CLASS = "trust-panel-chip";
 
@@ -493,6 +496,7 @@ const trustPanel: Component<TrustPanelProps> = ({ props, page, site }) => {
     return h(
       "details",
       {
+        id: PANEL_ID,
         class: `${CLASS} ${CLASS}-unknown`,
         "data-trust-panel": "",
         "data-trust-level": "unknown",
@@ -528,6 +532,7 @@ const trustPanel: Component<TrustPanelProps> = ({ props, page, site }) => {
   return h(
     "details",
     {
+      id: PANEL_ID,
       class: `${CLASS} ${CLASS}-${entry.level}`,
       "data-trust-panel": "",
       "data-trust-level": entry.level,

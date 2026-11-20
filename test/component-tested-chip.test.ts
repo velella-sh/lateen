@@ -7,6 +7,7 @@ import { iconHtml } from "../src/icon.ts";
 import { stringsOf } from "../i18n/index.ts";
 import testedChip, {
   CHIP_CLASS,
+  LINK_ATTRIBUTE,
   COUNT_CLASS,
   ICONS,
   LABEL_CLASS,
@@ -543,3 +544,21 @@ test("stateOf and notRunOf keep unavailable neutral and preserve the other state
   assert.equal(classNameOf("unavailable"), `${CHIP_CLASS} ${CHIP_CLASS}-unavailable`);
 });
 
+
+
+test("the article chip links to its trust explanation when the page has a panel", () => {
+  const site = { data: { trust: { "/guide/": { level: "verified", reasons: "All examples passed." } } } };
+  const out = render({ passed: 2, failed: 0 }, { site, url: "/guide/" });
+  assert.ok(out);
+  assert.match(out, /^<a class="tested-chip tested-chip-passed" href="#trust-panel" data-tested-link/);
+  assert.ok(out.includes(`<span class="${SR_CLASS}">${stringsOf("en").trust_reasons}</span>`));
+  assert.doesNotMatch(out, /role="note"/, "a link is not also a note");
+});
+
+test("the chip stays a plain note without a page panel", () => {
+  const out = render({ passed: 2, failed: 0 }, { url: "/guide/" });
+  assert.ok(out);
+  assert.match(out, /^<span class="tested-chip tested-chip-passed" role="note"/);
+  assert.doesNotMatch(out, new RegExp(LINK_ATTRIBUTE));
+  assert.doesNotMatch(out, /href="#trust-panel"/);
+});
