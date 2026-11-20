@@ -2871,6 +2871,11 @@ table th {
   background: color-mix(in srgb, var(--muted) 72%, var(--card));
 }
 
+.compare-summary {
+  color: var(--muted-foreground);
+  margin-block-end: var(--space-3);
+}
+
 .home-btn-primary,
 a.home-btn-primary,
 .home-actions .home-btn[data-variant="primary"],

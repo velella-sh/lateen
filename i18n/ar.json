@@ -137,6 +137,8 @@
   "compare_retry": "أعد المحاولة",
   "compare_rows_shown": "يُعرض {count} من {total} صفوف",
   "compare_show_only_diff": "اعرض الاختلافات فقط",
+  "compare_summary": "{same} متطابق · {different} مختلف · {missing} مفقود",
+  "compare_summary_changed": "المتغيّر: {fields}",
   "compare_unknown_collection": "لا يحتوي الموقع على مجموعة باسم \"{name}\".",
   "compare_unknown_record": "لا يوجد سجل بالمعرّف \"{name}\".",
   "contributors_label": "المساهمون:",

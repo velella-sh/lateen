@@ -2,7 +2,15 @@ import assert from "node:assert/strict";
 import { test } from "node:test";
 import { renderToString } from "preact-render-to-string";
 import type { ComponentProps, DataRecord, Page, Site } from "@velella/mizzen/contracts";
-import compare, { CELL_CLASS, ERROR_CLASS, MISSING_CLASS, directive, idsOf } from "../components/compare/index.ts";
+import compare, {
+  CELL_CLASS,
+  ERROR_CLASS,
+  MISSING_CLASS,
+  SUMMARY_CHANGED_CLASS,
+  SUMMARY_CLASS,
+  directive,
+  idsOf,
+} from "../components/compare/index.ts";
 
 const record = (id: string, fields: Record<string, unknown>): DataRecord =>
   ({ id, fields, position: { line: 1, column: 1 }, fieldPositions: {} }) as unknown as DataRecord;
@@ -25,9 +33,38 @@ const site = {
 
 const page = { lang: "en", url: "/books/", frontMatter: {} } as unknown as Page;
 
-function render(props: Record<string, unknown>, lang = "en"): string {
-  const input = { props, page: { ...page, lang }, site, html: "" } as unknown as ComponentProps;
+const specs = [
+  record("one", { title: "One", price: 0, note: "same", color: "red", format: "print" }),
+  record("two", { title: "Two", price: 0, note: "same", color: "blue" }),
+  record("five", { title: "Five", price: 5, note: "same", color: "blue", format: "print" }),
+];
+
+const specsSite = {
+  ...site,
+  pages: [],
+  collections: { specs: { name: "specs", source: "specs.yml", records: specs } },
+} as unknown as Site;
+
+function render(props: Record<string, unknown>, lang = "en", source: Site = site): string {
+  const input = { props, page: { ...page, lang }, site: source, html: "" } as unknown as ComponentProps;
   return renderToString(compare(input) as never);
+}
+
+/** The summary paragraph, from its opening tag to its close. */
+function summaryOf(out: string): string {
+  const start = out.indexOf(`<p class="${SUMMARY_CLASS}">`);
+  assert.notEqual(start, -1, "no summary");
+  return out.slice(start, out.indexOf("</p>", start));
+}
+
+function specsFields(...names: string[]): string {
+  return JSON.stringify(
+    names.map((field) => ({
+      field,
+      label: field.charAt(0).toUpperCase() + field.slice(1),
+      kind: field === "price" ? "number" : "text",
+    })),
+  );
 }
 
 const fields = JSON.stringify([
@@ -97,4 +134,69 @@ test("an unknown collection or a missing setup shows a note instead of a table",
   for (const props of [{ fields }, { from: "books", fields }, { from: "books", ids: "a" }]) {
     assert.match(render(props), /compare needs a collection/);
   }
+});
+
+test("the summary counts same, different, and missing fields, and names the changed fields", () => {
+  const out = render(
+    { from: "specs", ids: "one,two", fields: specsFields("price", "note", "color", "format") },
+    "en",
+    specsSite,
+  );
+  const summary = summaryOf(out);
+  assert.match(summary, />2 same · 1 different · 1 missing/);
+  assert.match(summary, /Changed: Color, Format/);
+  assert.ok(!summary.includes("Price"), "a same field is not listed as changed");
+  assert.ok(!summary.includes("Note"), "a same field is not listed as changed");
+  assert.ok(out.indexOf(summary) < out.indexOf("<table"), "the summary comes before the table");
+});
+
+test("identical records count every field as the same and name no change", () => {
+  const out = render(
+    { from: "specs", ids: "one,two", fields: specsFields("price", "note") },
+    "en",
+    specsSite,
+  );
+  const summary = summaryOf(out);
+  assert.match(summary, />2 same · 0 different · 0 missing/);
+  assert.ok(!summary.includes(SUMMARY_CHANGED_CLASS), "there is nothing to name as changed");
+});
+
+test("a value one record lacks counts as missing and names its field", () => {
+  const out = render(
+    { from: "specs", ids: "one,two", fields: specsFields("format") },
+    "en",
+    specsSite,
+  );
+  const summary = summaryOf(out);
+  assert.match(summary, />0 same · 0 different · 1 missing/);
+  assert.match(summary, /Changed: Format/);
+});
+
+test("a zero is a value: equal zeros are the same, and a zero against five differs", () => {
+  const equal = render(
+    { from: "specs", ids: "one,two", fields: specsFields("price") },
+    "en",
+    specsSite,
+  );
+  assert.match(summaryOf(equal), />1 same · 0 different · 0 missing/);
+  assert.match(equal, /<td class="compare-cell" data-kind="number" data-compare-column="0">0<\/td>/);
+
+  const differs = render(
+    { from: "specs", ids: "one,five", fields: specsFields("price") },
+    "en",
+    specsSite,
+  );
+  assert.match(summaryOf(differs), />0 same · 1 different · 0 missing/);
+});
+
+test("the summary reads in the page language with its digits", () => {
+  const out = render(
+    { from: "specs", ids: "one,two", fields: specsFields("price", "note", "color", "format") },
+    "fa",
+    specsSite,
+  );
+  const summary = summaryOf(out);
+  assert.match(summary, /۲ یکسان · ۱ متفاوت · ۱ ناموجود/);
+  assert.match(summary, /تغییر یافته:/);
+  assert.match(summary, /Color، Format/);
 });

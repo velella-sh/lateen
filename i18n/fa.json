@@ -137,6 +137,8 @@
   "compare_retry": "دوباره تلاش کنید",
   "compare_rows_shown": "{count} از {total} سطر نمایش داده می‌شود",
   "compare_show_only_diff": "فقط تفاوت‌ها را نشان بده",
+  "compare_summary": "{same} یکسان · {different} متفاوت · {missing} ناموجود",
+  "compare_summary_changed": "تغییر یافته: {fields}",
   "compare_unknown_collection": "سایت مجموعه‌ای به نام «{name}» ندارد.",
   "compare_unknown_record": "رکوردی با شناسه‌ی «{name}» نیست.",
   "contributors_label": "مشارکت‌کنندگان:",
