@@ -147,6 +147,10 @@ once. `test/island-assets-fixture.test.ts` builds the packaged performance fixtu
 on real pages: a simple article such as `/alpha/` requests no component island, while `/alpha/compare/`
 requests its own island exactly once and another route never downloads it.
 
+No content page statically references the Pagefind index. The search dialog fetches it on first open, and
+the search results page starts it on load; `test/search-deferral-fixture.test.ts` holds both to that, so a
+reader who never searches downloads no index.
+
 ## Adjustment policy
 
 1. Run `node scripts/performance-budget.ts`. Treat a failure as a question, not a formality: find what
