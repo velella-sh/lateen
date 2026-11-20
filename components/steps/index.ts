@@ -1,6 +1,7 @@
 import { h } from "preact";
 import type { Component } from "@velella/mizzen/contracts";
 import { t } from "../../i18n/index.ts";
+import { headingSlug } from "../../src/slug.ts";
 
 /** The Markdown directive this component handles: `:::steps`. */
 export const directive = "steps";
@@ -90,15 +91,6 @@ function itemsOf(html: string): Item[] {
   return items;
 }
 
-/** A lower-case anchor from a title: letters and numbers, runs of other characters become `-`. */
-function slugOf(text: string): string {
-  return text
-    .normalize("NFKD")
-    .toLowerCase()
-    .replace(/[^\p{L}\p{N}]+/gu, "-")
-    .replace(/^-+|-+$/gu, "");
-}
-
 /** One step's markup details, for tests and for agents. */
 export interface Step {
   readonly number: number;
@@ -118,7 +110,7 @@ function planOf(html: string): Planned[] {
   return itemsOf(html).map((item, index) => {
     const number = index + 1;
     const title = titleOf(html.slice(item.tagEnd, item.close));
-    const slug = slugOf(title);
+    const slug = headingSlug(title);
     const base = slug === "" ? `step-${String(number)}` : `step-${slug}`;
     let id = base;
     for (let suffix = 2; used.has(id); suffix += 1) id = `${base}-${String(suffix)}`;

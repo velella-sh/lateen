@@ -1,13 +1,10 @@
 /** Pure id and path helpers: deterministic anchors that keep every row and column unique. No DOM. */
 
+import { idChars } from "../../src/slug.ts";
+
 /** A value reduced to letters, digits, `-` and `_`, so it can go in an id. */
 function slugOf(value: string): string {
-  return value
-    .trim()
-    .toLowerCase()
-    .replace(/[^\p{L}\p{N}_-]+/gu, "-")
-    .replace(/-+/g, "-")
-    .replace(/^-+|-+$/g, "");
+  return idChars(value.trim().toLowerCase()).replace(/-+/g, "-").replace(/^-+|-+$/g, "");
 }
 
 /** The id prefix of the table: the `id` prop, or the schema's `_data` path. */

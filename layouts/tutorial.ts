@@ -1,5 +1,6 @@
 import { Fragment, h } from "preact";
 import { isRecord } from "../src/guards.ts";
+import { headingSlug } from "../src/slug.ts";
 import type { ComponentChildren } from "preact";
 import type { Layout, LayoutProps, Page } from "@velella/mizzen/contracts";
 import { t } from "../i18n/index.ts";
@@ -32,13 +33,7 @@ export interface TutorialStep {
 }
 
 /** A lower-case anchor id from a title: letters and numbers, runs of other characters become `-`. */
-export function slugOf(text: string): string {
-  return text
-    .normalize("NFKD")
-    .toLowerCase()
-    .replace(/[^\p{L}\p{N}]+/gu, "-")
-    .replace(/^-+|-+$/gu, "");
-}
+export const slugOf = headingSlug;
 
 /** The valid entries of a front-matter `steps` list, in order, with duplicate ids dropped. */
 function stepsFromFrontMatter(value: unknown): TutorialStep[] {

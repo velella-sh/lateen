@@ -6,6 +6,7 @@
  */
 
 import { isRecord, parseJson as parseJsonText } from "../../src/guards.ts";
+import { idChars } from "../../src/slug.ts";
 
 /** The four kinds of section difference, in the order the viewer lists them in data. */
 export const KINDS = ["added", "removed", "changed", "moved"] as const;
@@ -249,6 +250,6 @@ export function versionDiffFor(
 
 /** The id prefix, reduced to letters, digits, `-` and `_` so a prop cannot break the markup. */
 export function idBase(raw: unknown): string {
-  const clean = textOf(raw)?.replace(/[^\p{L}\p{N}_-]+/gu, "-").replace(/^-+|-+$/g, "") ?? "";
+  const clean = idChars(textOf(raw) ?? "").replace(/^-+|-+$/g, "");
   return clean === "" ? DEFAULT_ID : clean;
 }
