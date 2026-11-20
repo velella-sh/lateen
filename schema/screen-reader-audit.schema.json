@@ -1,0 +1,52 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://velella.sh/lateen/schema/screen-reader-audit.schema.json",
+  "title": "Lateen screen-reader path audit",
+  "description": "The accessibility tree a screen reader navigates for the search dialog, the compare table, and the code-copy path at desktop and mobile widths. Spoken output is not captured; the finding at each location says so. Cases are ordered by path and viewport, and no wall-clock time is recorded, so the same commit writes the same file.",
+  "type": "object",
+  "required": ["tool", "version", "commit", "cases", "findings"],
+  "additionalProperties": false,
+  "properties": {
+    "tool": { "type": "string", "enum": ["lateen/screen-reader-audit"] },
+    "version": { "type": "integer", "enum": [1] },
+    "commit": {
+      "type": "string",
+      "pattern": "[0-9a-f]{7,40}",
+      "description": "The commit whose accessibility tree was recorded. It identifies the run instead of a timestamp."
+    },
+    "cases": {
+      "type": "array",
+      "minItems": 6,
+      "items": {
+        "type": "object",
+        "required": ["name", "path", "viewport", "snapshot"],
+        "additionalProperties": false,
+        "properties": {
+          "name": { "type": "string", "enum": ["search", "compare", "code copy"] },
+          "path": { "type": "string" },
+          "viewport": { "type": "string", "enum": ["desktop", "mobile"] },
+          "snapshot": {
+            "type": "string",
+            "description": "Playwright's ARIA snapshot of the element a reader meets on this path."
+          },
+          "finding": { "type": "string" }
+        }
+      }
+    },
+    "findings": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["location", "note"],
+        "additionalProperties": false,
+        "properties": {
+          "location": {
+            "type": "string",
+            "description": "A path and viewport that reproduces the finding."
+          },
+          "note": { "type": "string" }
+        }
+      }
+    }
+  }
+}
