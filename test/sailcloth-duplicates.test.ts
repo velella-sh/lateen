@@ -50,10 +50,10 @@ test("no sailcloth rule repeats its exact declarations in the same cascade conte
   assert.deepEqual(duplicates, []);
 });
 
-test("the highlighted-line span colour is declared once", () => {
+test("the highlighted-line span colour is declared once, without !important", () => {
   const hits = rules(readUiCss()).filter(
     (rule) => rule.selector === ".code .highlighted span, .code-frame .highlighted span",
   );
   assert.equal(hits.length, 1);
-  assert.match(hits[0]?.body ?? "", /color: var\(--sail\) !important/);
+  assert.equal(hits[0]?.body, "color: var(--sail)");
 });
