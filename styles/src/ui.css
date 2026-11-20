@@ -3433,6 +3433,19 @@ table th {
   display: none;
 }
 
+/* Each cell keeps its own evidence, so a comparison never pools the sources of different records. */
+.compare-evidence {
+  display: block;
+  margin-block-start: 0.25rem;
+  color: var(--muted-foreground);
+  font-size: 0.75rem;
+}
+
+.compare-evidence a {
+  color: inherit;
+  text-decoration: underline;
+}
+
 @container compare (max-inline-size: 40rem) {
   .compare .table-scroll {
     max-block-size: none;

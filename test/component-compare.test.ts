@@ -4,6 +4,7 @@ import { renderToString } from "preact-render-to-string";
 import type { ComponentProps, DataRecord, Page, Site } from "@velella/mizzen/contracts";
 import compare, {
   CELL_CLASS,
+  CELL_EVIDENCE_CLASS,
   ERROR_CLASS,
   MISSING_CLASS,
   RECORD_CLASS,
@@ -275,4 +276,34 @@ test("without JavaScript the narrow rows already hold every record title and val
   assert.match(out, /class="compare-controls" hidden/);
   assert.equal((out.match(new RegExp(`class="${RECORD_CLASS}"`, "g")) ?? []).length, 6);
   assert.match(out, /<table/);
+});
+
+
+test("each value carries its own evidence links, only when its record has a public claim", () => {
+  const evidenced = [
+    record("a", {
+      title: "Alpha",
+      pages: 120,
+      evidence: {
+        pages: [
+          { id: "spec", title: "Spec sheet", url: "https://example.com/spec", note: "private" },
+          { id: "internal", title: "Internal", url: "javascript:alert(1)" },
+        ],
+      },
+    }),
+    record("b", { title: "Beta", pages: 80 }),
+  ];
+  const evidencedSite = {
+    ...site,
+    config: { base: "", collections: { books: { evidence: "evidence" } } },
+    collections: { books: { name: "books", source: "books.yml", records: evidenced } },
+  } as unknown as Site;
+  const out = render({ from: "books", ids: "a,b", fields: JSON.stringify([{ field: "pages", label: "Pages", kind: "number" }]) }, "en", evidencedSite);
+  const cells = [...out.matchAll(new RegExp(`<td class="${CELL_CLASS}"[\\s\\S]*?</td>`, "g"))].map((match) => match[0]);
+
+  assert.equal(cells.length, 2);
+  assert.match(cells[0]!, new RegExp(`<span class="${CELL_EVIDENCE_CLASS}">`));
+  assert.match(cells[0]!, /<a href="https:\/\/example\.com\/spec">Spec sheet<\/a>/);
+  assert.doesNotMatch(cells[0]!, /Internal|javascript:|private/);
+  assert.doesNotMatch(cells[1]!, new RegExp(CELL_EVIDENCE_CLASS));
 });

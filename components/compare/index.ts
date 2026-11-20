@@ -1,7 +1,8 @@
-import { h } from "preact";
+import { Fragment, h } from "preact";
 import type { ComponentProps } from "@velella/mizzen/contracts";
 import { patternOf, t } from "../../i18n/index.ts";
 import { dataValue, formatField, isEmpty, kindOf } from "../../src/fields.ts";
+import { claimsOf } from "../../src/evidence.ts";
 import { selectRecords, type SelectedRecord } from "../../src/records.ts";
 import { formatNumber } from "../../src/report.ts";
 import { baseOf } from "../../src/url.ts";
@@ -25,6 +26,9 @@ export const MISSING_CLASS = "compare-missing";
 
 /** Class on one value cell. */
 export const CELL_CLASS = "compare-cell";
+
+/** Class on a cell's own evidence links. */
+export const CELL_EVIDENCE_CLASS = "compare-evidence";
 
 /** Class on a row whose raw values are not all equal. */
 export const DIFF_CLASS = "compare-diff";
@@ -234,14 +238,22 @@ export default function compare({ props, page, site }: ComponentProps<Readonly<R
           field.label ?? field.field,
           differs ? h("span", { class: DIFF_MARKER_CLASS }, ` ${t(lang, "compare_differs")}`) : null,
         ),
-        records.map((record, index) =>
-          h(
+        records.map((record, index) => {
+          const claims = claimsOf(site, from, record.id, field.field);
+          return h(
             "td",
             { class: CELL_CLASS, "data-kind": field.kind ?? "text", [COLUMN_ATTRIBUTE]: String(index) },
             h("span", { class: RECORD_CLASS }, recordHeading(record, lang) as never),
             dataValue(field.field, values[index], field.kind, formatField(values[index], field.kind, lang, site?.config) as never),
-          ),
-        ),
+            claims.length === 0
+              ? null
+              : h(
+                  "span",
+                  { class: CELL_EVIDENCE_CLASS },
+                  claims.map((claim, at) => h(Fragment, null, at === 0 ? null : ", ", h("a", { href: claim.url }, claim.title))),
+                ),
+          );
+        }),
       ),
     ),
   );
