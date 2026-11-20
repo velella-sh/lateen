@@ -172,6 +172,10 @@ reader who never searches downloads no index.
    correct. A budget update without that explanation should not be merged.
 4. A decrease is recorded the same way. The budget ratchets down so the saving is not lost later.
 
+Each route is compared only with its own baseline, so a data page's cost cannot raise the budget of a simple
+article, or the other way round. Separation skips no checks: a route the budget lists but the fixture no
+longer builds, and a route the fixture builds with no budget entry, both still fail.
+
 The check allows each class `256` bytes of gzip headroom, the `TOLERANCE_BYTES` constant in
 `scripts/performance-budget.ts`. It absorbs small differences in gzip output between zlib builds, so a
 clean checkout on another Node release does not fail for a byte; it is not a growth allowance.
