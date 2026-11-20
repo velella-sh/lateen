@@ -104,7 +104,7 @@ const versionBadge: Component<VersionBadgeProps> = ({ props, page }) => {
     h("span", { class: "version-badge-icon", "aria-hidden": "true" }, ICONS[state]),
     // With no sentence to announce, the authored version itself stays in the accessibility tree.
     h(
-      "span",
+      "bdi",
       { class: "version-badge-value", ...(labelKey === undefined ? {} : { "aria-hidden": "true" }), dir: "ltr" },
       `v${version}`,
     ),

@@ -119,11 +119,11 @@ test("the header names the base and target versions in text, not only in the sen
   assert.ok(out);
   assert.match(
     out,
-    /<span class="version-diff-version version-diff-base" data-version="v1"><span class="version-diff-version-label">Base version <\/span><span class="version-diff-version-value" dir="ltr">v1<\/span><\/span>/,
+    /<span class="version-diff-version version-diff-base" data-version="v1"><span class="version-diff-version-label">Base version <\/span><bdi class="version-diff-version-value" dir="ltr">v1<\/bdi><\/span>/,
   );
   assert.match(
     out,
-    /<span class="version-diff-version version-diff-target" data-version="v2"><span class="version-diff-version-label">Target version <\/span><span class="version-diff-version-value" dir="ltr">v2<\/span><\/span>/,
+    /<span class="version-diff-version version-diff-target" data-version="v2"><span class="version-diff-version-label">Target version <\/span><bdi class="version-diff-version-value" dir="ltr">v2<\/bdi><\/span>/,
   );
   assert.match(out, /data-version-from="v1"/);
   assert.match(out, /data-version-to="v2"/);
@@ -135,6 +135,22 @@ test("the base and target labels follow the page language", () => {
     assert.ok(out, `${lang} renders`);
     assert.ok(out.includes(`>${stringsOf(lang).version_diff_base!} <`), `${lang} base label`);
     assert.ok(out.includes(`>${stringsOf(lang).version_diff_target!} <`), `${lang} target label`);
+  }
+});
+
+test("prerelease and range versions keep their dots and hyphens, isolated in both page directions", () => {
+  const from = ">=1.2.0 <2.0.0";
+  const to = "1.2.0-beta.1";
+  for (const lang of ["en", "fa"]) {
+    const out = render({ data: dataOf([], from, to) }, lang);
+    assert.ok(out, `${lang} renders`);
+    assert.ok(
+      out.includes(`<bdi class="version-diff-version-value" dir="ltr">>=1.2.0 &lt;2.0.0</bdi>`),
+      `${lang} range`,
+    );
+    assert.ok(out.includes(`<bdi class="version-diff-version-value" dir="ltr">${to}</bdi>`), `${lang} prerelease`);
+    assert.ok(out.includes(`data-version-from=">=1.2.0 &lt;2.0.0"`), `${lang} from attribute`);
+    assert.ok(out.includes(`data-version-to="${to}"`), `${lang} to attribute`);
   }
 });
 

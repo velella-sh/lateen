@@ -61,7 +61,7 @@ test("a screen reader hears the full sentence while the visible value is hidden 
   assert.ok(out);
   assert.match(out, /<span class="version-badge-sr">Added in version 0\.3<\/span>/);
   assert.match(out, /class="version-badge-icon" aria-hidden="true"/);
-  assert.match(out, /class="version-badge-value" aria-hidden="true" dir="ltr"/);
+  assert.match(out, /<bdi class="version-badge-value" aria-hidden="true" dir="ltr"/);
 });
 
 test("the screen-reader sentence follows the page language", () => {
@@ -145,7 +145,7 @@ test("an unknown variant announces the version without inventing a change", () =
   assert.ok(out);
   assert.doesNotMatch(out, /version-badge-sr/);
   assert.doesNotMatch(out, /Added in version|version_added/);
-  assert.match(out, /class="version-badge-value" dir="ltr">v0\.3</);
+  assert.match(out, /<bdi class="version-badge-value" dir="ltr">v0\.3</);
   assert.doesNotMatch(out, /class="version-badge-value" aria-hidden/);
   assert.match(out, /data-version="0\.3"/);
   assert.match(out, /data-variant="unknown"/);
@@ -157,7 +157,17 @@ test("Unicode versions keep their exact text in the value and the attribute", ()
   assert.ok(out);
   assert.ok(out.includes(`>v${version}<`));
   assert.ok(out.includes(`data-version="${version}"`));
-  assert.match(out, /class="version-badge-value"[^>]*dir="ltr"/);
+  assert.match(out, /<bdi class="version-badge-value"[^>]*dir="ltr"/);
+});
+
+test("a prerelease version keeps its dots and hyphens, isolated in both page directions", () => {
+  const version = "1.2.0-beta.1";
+  for (const lang of ["en", "fa", "ar"]) {
+    const out = render({ version }, lang);
+    assert.ok(out, `${lang} renders`);
+    assert.ok(out.includes(`<bdi class="version-badge-value" aria-hidden="true" dir="ltr">v${version}</bdi>`), lang);
+    assert.ok(out.includes(`data-version="${version}"`), lang);
+  }
 });
 
 test("an unknown variant keeps the version escaped, in RTL and LTR pages alike", () => {

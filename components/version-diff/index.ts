@@ -313,7 +313,7 @@ function versionLabel(side: "base" | "target", label: string, version: string) {
     "span",
     { class: `version-diff-version version-diff-${side}`, "data-version": version },
     h("span", { class: "version-diff-version-label" }, label, " "),
-    h("span", { class: "version-diff-version-value", dir: "ltr" }, version),
+    h("bdi", { class: "version-diff-version-value", dir: "ltr" }, version),
   );
 }
 
