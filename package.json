@@ -115,12 +115,9 @@
     "skills",
     "starters",
     "!redesign/dist",
-    "!redesign/styles/generated.css",
-    "!redesign/components/performance-chart/chart.umd.min.js",
     "!skills/*-workspace",
     "!skills/**/evals",
     "CHANGELOG.md",
-    "!components/performance-chart/chart.umd.min.js",
     "components/performance-chart/chart.min.js",
     "styles/generated.css"
   ],
