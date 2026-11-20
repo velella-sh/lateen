@@ -34,6 +34,14 @@ test("headings leave room for the sticky header", () => {
   assert.match(ui, /scroll-margin-block-start:/);
 });
 
+test("the docs shell styles use the classes the layouts render", () => {
+  for (const selector of [".doc-layout main > article > h1", ".breadcrumb-list", ".toc-fold", ".block-action", ".site-header .shell-menu", ".not-found-search", ".not-found-sections", ".edit-page-link"]) {
+    assert.match(ui, new RegExp(`\\${selector}(?![\\w-])`), selector);
+  }
+  assert.match(ui, /\.site-header \.shell-menu\s*\{\s*display:\s*none/);
+  assert.match(ui, /@media \(max-width: 48rem\)[\s\S]*?\.sidebar\s*\{[^}]*display:\s*none/);
+});
+
 test("the color and length helpers still catch raw values", () => {
   const RAW_COLOR = /#[0-9a-f]{3,8}\b|\b(?:rgba?|hsla?|hwb|lab|lch|oklab|oklch|color|color-mix|light-dark|device-cmyk)\s*\(/i;
   const RAW_LENGTH = /(?:^|[^\w-])-?(?:\d+(?:\.\d+)?|\.\d+)(?:px|rem|em|ex|ch|vw|vh|vmin|vmax|pt|pc|cm|mm|in|q|fr)\b/i;
