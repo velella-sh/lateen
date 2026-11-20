@@ -1,10 +1,9 @@
 import assert from "node:assert/strict";
-import { existsSync, mkdtempSync, readFileSync, rmSync, statSync, writeFileSync } from "node:fs";
-import { tmpdir } from "node:os";
+import { existsSync, readFileSync, statSync, writeFileSync } from "node:fs";
 import { join } from "node:path";
 import { test } from "node:test";
 import { chromium, type Browser } from "playwright";
-import { startServer } from "../../visual/index.ts";
+import { serve, tempDir } from "../integration-helpers.ts";
 import {
   captureStates,
   disableControl,
@@ -60,12 +59,13 @@ button:disabled { opacity: 0.5; }
 </style>
 <button id="b">Press</button>`;
 
+const dir = tempDir("visual-states-");
+writeFileSync(join(dir, "index.html"), PAGE);
+const server = await serve(dir);
+
 test("each state is put on the page with real pointer, keyboard or element state", { skip }, async () => {
-  const dir = mkdtempSync(join(tmpdir(), "visual-states-"));
-  writeFileSync(join(dir, "index.html"), PAGE);
-  const server = await startServer(dir, "");
+  const context = await browser!.newContext({ viewport: { width: 640, height: 480 } });
   try {
-    const context = await browser!.newContext({ viewport: { width: 640, height: 480 } });
     const page = await context.newPage();
     await page.goto(`${server.url}/`, { waitUntil: "load" });
 
@@ -85,20 +85,15 @@ test("each state is put on the page with real pointer, keyboard or element state
 
     await disableControl(page, "#b");
     assert.equal(await page.evaluate(() => (globalThis as unknown as { document: { querySelector(s: string): { disabled: boolean } } }).document.querySelector("#b").disabled), true);
-    await context.close();
   } finally {
-    await server.close();
-    rmSync(dir, { recursive: true, force: true });
+    await context.close();
   }
 });
 
 test("a state file produces one shot per state, and a missing component fails", { skip }, async () => {
-  const dir = mkdtempSync(join(tmpdir(), "visual-states-"));
-  writeFileSync(join(dir, "index.html"), PAGE);
-  const server = await startServer(dir, "");
   const states: StatesFile = { version: 1, components: [{ name: "button", selector: "#b", states: STATES }] };
+  const context = await browser!.newContext({ viewport: { width: 640, height: 480 } });
   try {
-    const context = await browser!.newContext({ viewport: { width: 640, height: 480 } });
     const page = await context.newPage();
     const out = join(dir, "out");
     const files = await captureStates(page, `${server.url}/`, states, out, []);
@@ -107,10 +102,8 @@ test("a state file produces one shot per state, and a missing component fails", 
     assert.match(readFileSync(files[0] as string).subarray(1, 4).toString(), /PNG/);
 
     await assert.rejects(() => captureStates(page, `${server.url}/`, states, out, ["ghost"]), /no entry for ghost/);
-    await context.close();
   } finally {
-    await server.close();
-    rmSync(dir, { recursive: true, force: true });
+    await context.close();
   }
 });
 

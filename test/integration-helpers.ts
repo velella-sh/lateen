@@ -1,9 +1,11 @@
 import { spawnSync } from "node:child_process";
 import { cpSync, existsSync, mkdirSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
-import { dirname, join } from "node:path";
+import { dirname, join, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
+import { after } from "node:test";
 import { JSDOM } from "jsdom";
+import { startServer, type StaticServer } from "../visual/index.ts";
 
 /** The repository root, so the installed engine and the theme in this checkout are the ones measured. */
 export const root = fileURLToPath(new URL("../", import.meta.url));
@@ -36,6 +38,29 @@ export function tempDir(prefix: string): string {
   temporary.push(dir);
   return dir;
 }
+
+/** Every server this run started, by fixture root, closed by the single teardown below (#870). */
+const servers = new Map<string, Promise<StaticServer>>();
+
+/**
+ * One server per immutable fixture root, shared by every case in a test file. The server listens on
+ * a free loopback port, so parallel test jobs cannot collide on it.
+ */
+export function serve(root: string): Promise<StaticServer> {
+  const key = resolve(root);
+  let server = servers.get(key);
+  if (server === undefined) {
+    server = startServer(key, "");
+    servers.set(key, server);
+  }
+  return server;
+}
+
+after(async () => {
+  const open = [...servers.values()];
+  servers.clear();
+  await Promise.all(open.map((pending) => pending.then((server) => server.close(), () => {})));
+});
 
 /** The installed engine. `npm ci` provides it; no sibling checkout is needed. */
 const MIZZEN = join(root, "node_modules/@velella/mizzen/bin/mizzen.js");
