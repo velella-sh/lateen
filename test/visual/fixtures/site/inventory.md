@@ -52,6 +52,10 @@ fixture and checked by `test/visual/inventory.test.ts`; it is not part of the sc
 
 ::figure{src="/assets/gallery.svg" alt="A blue circle and a rectangle"}
 
+## quote
+
+::quote{name="A reviewer" text="The text wraps inside the column instead of being clipped on a narrow screen." source="https://example.com/guide/"}
+
 ## hero
 
 :::hero{align=split eyebrow="Feature" title="Component inventory" lead="The states the fixture inventory checks."}

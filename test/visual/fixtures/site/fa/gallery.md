@@ -322,6 +322,14 @@ A page outside the default version states its version and links to the equivalen
 
 ::preset-preview{preset=graphite}
 
+## quote
+
+:::quote{name="یک بازبین" source="https://example.com/guide/"}
+متن در ستون می‌پیچد و در صفحهٔ باریک بریده نمی‌شود.
+:::
+
+::quote{text="یک نقل‌قول بدون ارجاع."}
+
 ## reading-time
 
 ::reading-time{minutes=3 words=600 showWords}

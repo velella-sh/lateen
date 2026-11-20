@@ -52,6 +52,7 @@
     { "name": "page-tool", "selector": "p" },
     { "name": "performance-chart", "selector": "figure.performance-chart" },
     { "name": "preset-preview", "selector": ".preset-preview" },
+    { "name": "quote", "selector": "figure.quote" },
     { "name": "reading-time", "selector": ".reading-time" },
     { "name": "record-history", "selector": ".record-history", "page": "/inventory/" },
     { "name": "record-table", "selector": "div.record-table-sortable" },

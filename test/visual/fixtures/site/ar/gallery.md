@@ -322,6 +322,14 @@ A page outside the default version states its version and links to the equivalen
 
 ::preset-preview{preset=graphite}
 
+## quote
+
+:::quote{name="مراجع" source="https://example.com/guide/"}
+يلتف النص داخل العمود بدلًا من أن يُقطع على شاشة ضيقة.
+:::
+
+::quote{text="اقتباس بلا إسناد يبقى كتلة اقتباس عادية."}
+
 ## reading-time
 
 ::reading-time{minutes=3 words=600 showWords}
