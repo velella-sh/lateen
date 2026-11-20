@@ -3,10 +3,35 @@ import { cpSync, existsSync, mkdirSync, mkdtempSync, readFileSync, rmSync, write
 import { tmpdir } from "node:os";
 import { dirname, join } from "node:path";
 import { fileURLToPath } from "node:url";
+import { after } from "node:test";
 import { JSDOM } from "jsdom";
 
 /** The repository root, so the installed engine and the theme in this checkout are the ones measured. */
 export const root = fileURLToPath(new URL("../", import.meta.url));
+
+/** Every temporary directory this run made; the file's teardown removes them, pass or fail (#867). */
+const temporary: string[] = [];
+let teardownRegistered = false;
+
+/** Registers the once-per-file teardown that removes every tracked directory, when the first is made. */
+function registerTeardown(): void {
+  if (teardownRegistered) return;
+  teardownRegistered = true;
+  after(() => {
+    for (const dir of temporary.splice(0)) rmSync(dir, { recursive: true, force: true });
+  });
+}
+
+/**
+ * An isolated temporary directory, removed by the test file's teardown on pass and on failure, so
+ * repeated runs leave no fixture output behind and two tests never share a working folder (#867).
+ */
+export function tempDir(prefix: string): string {
+  const dir = mkdtempSync(join(tmpdir(), prefix));
+  registerTeardown();
+  temporary.push(dir);
+  return dir;
+}
 
 /** The installed engine. `npm ci` provides it; no sibling checkout is needed. */
 const MIZZEN = join(root, "node_modules/@velella/mizzen/bin/mizzen.js");
@@ -39,9 +64,9 @@ export function build(
   files: Readonly<Record<string, string>> = {},
 ): BuiltSite {
   if (!existsSync(MIZZEN)) throw new Error(`${MIZZEN} is missing; run \`npm ci\` before the integration tests`);
-  const out = mkdtempSync(join(tmpdir(), `lateen-${name}-`));
+  const out = tempDir(`lateen-${name}-`);
   // Build from a copy so the engine's own `.mizzen` cache in the fixture never makes a run stale.
-  const source = mkdtempSync(join(tmpdir(), `lateen-${name}-source-`));
+  const source = tempDir(`lateen-${name}-source-`);
   cpSync(join(root, "fixtures", name), source, {
     recursive: true,
     filter: (path) => !path.includes(`${join("fixtures", name, ".mizzen")}`),

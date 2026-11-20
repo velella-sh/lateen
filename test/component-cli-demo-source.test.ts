@@ -1,14 +1,14 @@
 import assert from "node:assert/strict";
-import { mkdirSync, mkdtempSync, symlinkSync, writeFileSync } from "node:fs";
-import { tmpdir } from "node:os";
+import { mkdirSync, symlinkSync, writeFileSync } from "node:fs";
 import { join } from "node:path";
 import { test } from "node:test";
 import { renderToString } from "preact-render-to-string";
 import type { ComponentProps } from "@velella/mizzen/contracts";
 import cliDemo from "../components/cli-demo/index.ts";
 import { readSessionFile, siteFolderOf } from "../components/cli-demo/source.ts";
+import { tempDir } from "./integration-helpers.ts";
 
-const root = mkdtempSync(join(tmpdir(), "cli-demo-"));
+const root = tempDir("cli-demo-");
 mkdirSync(join(root, "site/guide"), { recursive: true });
 writeFileSync(join(root, "site/mizzen.yml"), "title: x\n");
 writeFileSync(join(root, "site/session.txt"), "$ npm ci\nadded 1 package\n! warn\n");
