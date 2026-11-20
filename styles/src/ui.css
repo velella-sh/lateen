@@ -2199,6 +2199,28 @@
     background: var(--primary);
     color: var(--primary-foreground);
     flex: none;
+    position: relative;
+  }
+
+  /* The client's tick covers the number instead of widening its fixed 20px circle. */
+  .step-tick {
+    position: absolute;
+    inset: 0;
+    display: grid;
+    place-items: center;
+    cursor: pointer;
+  }
+
+  .step-tick input {
+    position: absolute;
+    inline-size: 1px !important;
+    block-size: 1px !important;
+    min-inline-size: 0 !important;
+    min-block-size: 0 !important;
+    margin: 0 !important;
+    padding: 0;
+    border: 0;
+    opacity: 0;
   }
 
   /* A step ending in a nested list of links offers each one as a next path. */
@@ -3297,6 +3319,7 @@ summary,
 .page-agent-menu-provider,
 .changelog-toc a,
 .changelog-entry-anchor,
+.back-to-top,
 .version-switcher-summary,
 .version-switcher-link,
 .tag a,
@@ -3420,10 +3443,11 @@ button[data-block-id] {
 .code .line-link,
 .code-frame .line-link {
   display: inline-block;
-  inline-size: 1rem;
-  margin-inline-end: -1rem;
-  block-size: 1em;
-  vertical-align: -0.125em;
+  inline-size: 1.5rem;
+  margin-inline-end: -1.5rem;
+  block-size: 1.5rem;
+  margin-block: -0.25rem;
+  vertical-align: middle;
   color: var(--muted-foreground);
   text-decoration: none;
 }
@@ -3658,4 +3682,20 @@ a.home-btn-primary,
 .install-tabs [role="tab"][aria-selected="true"] {
   color: var(--foreground);
   background: color-mix(in srgb, var(--card) 70%, var(--muted));
+}
+
+/* The screen rules above own the selectors; these print-only overrides keep paper inside the page. */
+@media print {
+  /* Line-number links are screen-only; their negative margin must not widen the paper. */
+  .code .line-link,
+  .code-frame .line-link {
+    display: none !important;
+  }
+
+  /* The highlight marker keeps its inset without a negative margin that print cannot clip. */
+  .code .highlighted,
+  .code-frame .highlighted {
+    margin-inline-start: 0 !important;
+    padding-inline-start: 0.5rem;
+  }
 }

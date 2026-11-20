@@ -119,7 +119,7 @@ async function measure(): Promise<SearchMeasurement> {
     });
     try {
       const page = await context.newPage();
-      await page.goto(`${server.url}/`, { waitUntil: "load" });
+      await page.goto(`${server.url}/guide/install/`, { waitUntil: "load" });
       await page.locator("[data-search-open]").waitFor({ state: "visible" });
       const firstMs = await openOnce(page);
       await closeOnce(page);

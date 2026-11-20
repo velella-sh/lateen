@@ -135,7 +135,7 @@ const search: Chrome = (props) =>
         },
       ),
       // Hidden until `client.ts` has a query to carry to the results page; the href keeps the
-      // control a real link even before the island runs.
+      // control a real link before the island runs, but only when the site builds that page.
       h(
         "p",
         { class: "search-foot" },
@@ -144,7 +144,9 @@ const search: Chrome = (props) =>
           {
             class: "search-all",
             "data-search-all": "",
-            href: withBase(props.site.config.base, "/search/"),
+            ...(props.site.pages.some((page) => page.url === "/search/")
+              ? { href: withBase(props.site.config.base, "/search/") }
+              : {}),
             hidden: true,
           },
           t(props.page.lang, "search_all_results"),

@@ -71,7 +71,7 @@
     { "name": "tags", "selector": "ul.tags" },
     { "name": "term", "selector": ".term" },
     { "name": "terminal", "selector": ".terminal" },
-    { "name": "tested-chip", "selector": "span.tested-chip", "variants": ["passed", "partial", "unrun", "failed", "unavailable"] },
+    { "name": "tested-chip", "selector": ".tested-chip", "variants": ["passed", "partial", "unrun", "failed", "unavailable"] },
     { "name": "timeline", "selector": ".timeline" },
     { "name": "trap", "selector": ".trap" },
     { "name": "trust-panel", "selector": "details.trust-panel", "variants": ["verified", "partial", "unreviewed", "unknown"] },

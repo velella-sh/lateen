@@ -454,9 +454,13 @@ test("the committed budget covers every fixture route and asset class", () => {
     "/alpha/status/",
     "/alpha/timeline/",
   ]);
-  // Only the shared `src/popover.ts`, `src/source-span.ts`, `src/repository.ts` and `src/options.ts`
-  // modules; no component island.
-  assert.equal(budget.routes["/alpha/reports/"]?.["js/components"].count, 4, "the report page ships no component island, only the shared readers");
+  // The shared modules every page's islands import; the report page adds no component island.
+  const sharedComponents = Math.min(
+    ...Object.entries(budget.routes)
+      .filter(([route]) => !route.endsWith("/embed/"))
+      .map(([, route]) => route["js/components"].count),
+  );
+  assert.equal(budget.routes["/alpha/reports/"]?.["js/components"].count, sharedComponents, "the report page ships no component island, only the shared modules");
   for (const [route, classes] of Object.entries(budget.routes)) {
     for (const assetClass of ASSET_CLASSES) assert.ok(classes[assetClass], `${route} has no ${assetClass} baseline`);
     assert.ok(classes["css/base"].gzip > 0, `${route} should load the base stylesheet`);

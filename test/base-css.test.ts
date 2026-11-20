@@ -158,3 +158,8 @@ test("the line-length limits and page padding stay token-driven (#469)", () => {
 test("changelog entry styles live in sailcloth ui.css", () => {
   assert.match(ui, /\.changelog-entry\b/);
 });
+
+test("the back-to-top link keeps the 24px target size", () => {
+  const rules = blocks(ui).filter((block) => block.selector.split(",").map((part) => part.trim()).includes(".back-to-top"));
+  assert.ok(rules.some((rule) => /min-block-size:\s*1\.5rem/.test(rule.body) && /min-inline-size:\s*1\.5rem/.test(rule.body)), "the shared target-size rule names .back-to-top");
+});

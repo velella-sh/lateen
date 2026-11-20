@@ -220,6 +220,10 @@ Facet filters, sort links and a count for a gallery, as plain links that work wi
 
 مؤلفهٔ چیدمان: چیدمان گالری آن را از رکوردها می‌سازد، پس صفحهٔ گالری ساخته‌شده از داده را ببینید.
 
+## guide-prerequisites
+
+<section class="guide-prerequisites" aria-labelledby="guide-prerequisites-title"><h2 class="guide-prerequisites-title" id="guide-prerequisites-title">پیش‌نیازها</h2><ul class="guide-prerequisites-list"><li class="guide-prerequisites-item"><a href="/install/">نصب Node 24</a></li><li class="guide-prerequisites-item">یک مدیر بسته <span class="guide-prerequisites-optional">اختیاری</span></li></ul></section>
+
 ## guide-summary
 
 ::guide-summary

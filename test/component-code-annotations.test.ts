@@ -40,7 +40,7 @@ test("a full block gets a title bar, highlighted numbered lines, and readable no
     ],
   });
   const out = highlightFences(fence("const a = 1;\nconst b = 2;\nconst c = 3;\n", meta));
-  assert.match(out, /^<div class="code-title">.*<span class="code-title-name">src\/a\.ts<\/span><\/div><pre /);
+  assert.match(out, /^<div class="code-title">.*<span class="code-title-name"(?: id="[^"]*")?>src\/a\.ts<\/span><\/div><pre /);
   assert.match(out, /class="line" id="code-a-md-3-L1" data-line="1"><a class="line-link" href="#code-a-md-3-L1"[^>]*><\/a><span id="code-a-md-3-line-1"><\/span>/);
   assert.match(out, /class="line highlighted" id="code-a-md-3-L2" data-line="2"><a class="line-link" href="#code-a-md-3-L2"[^>]*><\/a><span id="code-a-md-3-line-2"><\/span>/);
   assert.match(out, /class="line" id="code-a-md-3-L3" data-line="3"><a class="line-link" href="#code-a-md-3-L3"[^>]*><\/a><span id="code-a-md-3-line-3"><\/span>/);
@@ -104,7 +104,7 @@ test("annotation text and its line label are escaped, and never enter the code",
   // `data-code` carries the source text and is not markup; everywhere else the tags must be escaped.
   const rendered = out.replace(/\sdata-code="[^"]*"/, "");
   assert.doesNotMatch(rendered, /<script|<img/);
-  assert.match(out, /<span class="code-title-name">&lt;img src=x onerror=&quot;alert\(1\)&quot;><\/span>/);
+  assert.match(out, /<span class="code-title-name"(?: id="[^"]*")?>&lt;img src=x onerror=&quot;alert\(1\)&quot;><\/span>/);
   assert.match(out, /<span class="code-annotations-text">&lt;script>alert\(&quot;x&quot;\)&lt;\/script> &amp; more<\/span>/);
   assert.doesNotMatch(preOf(out), /alert|more/);
 });
