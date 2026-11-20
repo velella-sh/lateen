@@ -153,3 +153,14 @@ test("unicode titles are kept and escaped as text, never markup", () => {
   assert.match(out, /日本語 &amp; ©/);
 });
 
+
+test("a card's focus ring stays inside a clipping ancestor", () => {
+  const css = readFileSync(join(root, "styles/src/ui.css"), "utf8");
+  assert.match(css, /\.card:focus-visible,/);
+  assert.match(css, /\.card :focus-visible,/);
+  assert.match(css, /outline-offset: -3px/);
+
+  const forced = readFileSync(join(root, "styles/forced-colors.css"), "utf8");
+  assert.match(forced, /\[role="button"\][^{]*:focus-visible/);
+  assert.match(forced, /outline-color: Highlight !important/);
+});

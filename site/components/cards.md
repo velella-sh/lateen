@@ -54,3 +54,5 @@ Use the home layout with `sections` in front matter, or a Markdown list of links
 - Without an icon the card keeps the same layout; the icon is optional.
 - For a section overview inside a normal doc page, a list of links reads well and needs no front matter.
 - Valid cards show the standard focus ring across the whole card when tabbed to by keyboard.
+  The ring is painted inside the card, so a card inside a clipping container never loses part of
+  its outline. In forced-colors mode the ring uses the system highlight color.
