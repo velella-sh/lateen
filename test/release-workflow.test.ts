@@ -11,16 +11,20 @@ interface Step {
   readonly uses?: string;
   readonly if?: string;
   readonly run?: string;
-  readonly with?: Record<string, string | number>;
+  readonly with?: Record<string, unknown>;
+  readonly env?: Record<string, unknown>;
 }
 
 interface Job {
   readonly needs?: string | readonly string[];
   readonly if?: string;
+  readonly environment?: { readonly name?: string } | string;
+  readonly permissions?: Record<string, string>;
   readonly steps: readonly Step[];
 }
 
 const workflow = parse(readFileSync(new URL("../.github/workflows/release.yml", import.meta.url), "utf8")) as {
+  permissions?: Record<string, string>;
   jobs: Record<string, Job>;
 };
 
@@ -132,4 +136,96 @@ test("the post-publish acceptance report is uploaded as release evidence", () =>
   const acceptance = job("acceptance").steps.find((step) => step.with?.name === "acceptance");
   assert.ok(acceptance);
   assert.notEqual(upload.with?.name, acceptance.with?.name);
+});
+
+// Permissions and credentials are least privilege too: a release job that gains a write scope or a
+// usable token by accident must fail here, not on the tag.
+const permissionsOf = (name: string): Record<string, string> => job(name).permissions ?? {};
+
+const jobsWith = (scope: string, level: string): readonly string[] =>
+  Object.keys(workflow.jobs).filter((name) => permissionsOf(name)[scope] === level);
+
+const stepLabel = (jobName: string, step: Step): string => `${jobName}/${step.name ?? step.uses ?? "step"}`;
+
+test("no job inherits the repository default permissions", () => {
+  assert.deepEqual(workflow.permissions, {});
+  for (const name of Object.keys(workflow.jobs)) {
+    assert.ok(job(name).permissions, `${name} declares its own permissions`);
+  }
+});
+
+test("only the publish job receives an OIDC token", () => {
+  assert.deepEqual(jobsWith("id-token", "write"), ["publish"]);
+  assert.deepEqual(permissionsOf("publish"), { contents: "read", "id-token": "write" });
+});
+
+test("only the GitHub Release job may write repository contents", () => {
+  assert.deepEqual(jobsWith("contents", "write"), ["github-release"]);
+  assert.deepEqual(permissionsOf("github-release"), { contents: "write" });
+  for (const name of ["acceptance", "acceptance-published"]) {
+    assert.deepEqual(permissionsOf(name), { contents: "read" });
+  }
+});
+
+test("checkout never leaves the job token in the repository", () => {
+  for (const name of Object.keys(workflow.jobs)) {
+    for (const step of job(name).steps) {
+      if (!step.uses?.startsWith("actions/checkout@")) continue;
+      assert.equal(step.with?.["persist-credentials"], false, `${stepLabel(name, step)} persists credentials`);
+    }
+  }
+});
+
+test("the job token reaches only the GitHub Release step", () => {
+  const holders: string[] = [];
+  for (const name of Object.keys(workflow.jobs)) {
+    for (const step of job(name).steps) {
+      for (const [key, value] of Object.entries(step.env ?? {})) {
+        if (!/TOKEN/.test(key)) continue;
+        holders.push(stepLabel(name, step));
+        // The workflow token, never a stored secret: trusted publishing needs no npm token.
+        assert.equal(value, "${{ github.token }}", `${stepLabel(name, step)} receives ${key}`);
+      }
+    }
+  }
+  assert.deepEqual(holders, ["github-release/Create GitHub Release"]);
+});
+
+test("no step prints a credential or interpolates a secret", () => {
+  for (const name of Object.keys(workflow.jobs)) {
+    for (const step of job(name).steps) {
+      const run = step.run ?? "";
+      assert.doesNotMatch(run, /(echo|printf|cat|tee)[^\n]*(GH_TOKEN|GITHUB_TOKEN|NODE_AUTH_TOKEN|ACTIONS_ID_TOKEN)/, `${stepLabel(name, step)} prints a credential`);
+      assert.doesNotMatch(run, /\$\{\{\s*secrets\./, `${stepLabel(name, step)} interpolates a secret`);
+    }
+  }
+});
+
+test("the publish job runs no repository script with its OIDC token", () => {
+  for (const step of job("publish").steps) {
+    assert.doesNotMatch(step.run ?? "", /npm run\s/, `${stepLabel("publish", step)} runs a repository script`);
+  }
+  for (const name of Object.keys(workflow.jobs)) {
+    for (const step of job(name).steps) {
+      if (/npm publish\b/.test(step.run ?? "") ) {
+        assert.equal(name, "publish", `${stepLabel(name, step)} publishes`);
+      }
+    }
+  }
+  // Publishes the tarball the acceptance job packed, never the repository itself.
+  const publish = job("publish").steps.find((step) => step.name === "Publish the tested tarball with provenance");
+  assert.ok(publish?.run, "the publish step exists");
+  assert.match(publish.run, /npm publish "\$tarball" --access public --provenance/);
+  assert.doesNotMatch(publish.run, /npm publish\s*(--|$)/m);
+});
+
+test("the publish job is gated on acceptance evidence and the npm environment", () => {
+  assert.ok(needsOf("publish").includes("acceptance"));
+  assert.match(ifOf("publish"), /needs\.acceptance\.outputs\.published != 'true'/);
+  const environment = job("publish").environment;
+  assert.equal(typeof environment === "string" ? environment : environment?.name, "npm");
+  const names = job("publish").steps.map((step) => step.name ?? step.uses ?? "");
+  const gate = names.indexOf("Require the acceptance report to pass");
+  assert.ok(gate >= 0, "the publish job runs the acceptance report gate");
+  assert.ok(gate < names.indexOf("Publish the tested tarball with provenance"));
 });
