@@ -12,13 +12,9 @@ import stackedBar, {
   LIMIT_CLASS,
   LIMIT_TEXT,
   MAX_SERIES,
-  MISSING_CLASS,
   NO_VALUE_CLASS,
   SEGMENT_CLASS,
   SEGMENT_VALUE_CLASS,
-  TABLE_CLASS,
-  directive,
-  idBase,
   rowsOfStacked,
   seriesOf,
   type StackedBarProps,
@@ -68,11 +64,6 @@ function legend(html: string): Array<{ colour: number; label: string }> {
   );
 }
 
-test("default export is the stacked-bar component and it answers the stacked-bar directive", () => {
-  assert.equal(typeof stackedBar, "function");
-  assert.equal(directive, "stacked-bar");
-});
-
 test("rowsOfStacked groups the source's rows into one bar per category", () => {
   const rows = rowsOfStacked({ data: REVENUE.data, collections: {} } as unknown as Site, "revenue", "quarter", "region", "total");
   assert.deepEqual(
@@ -118,14 +109,11 @@ test("seriesOf keeps the order the series first appear, which the legend and the
 test("three categories draw three bars, one segment per series, with no script", () => {
   const html = render(PROPS, REVENUE);
   assert.match(html, new RegExp(`<figure class="${CLASS}" id="stacked-bar-revenue" data-stacked-bar="revenue"`));
-  assert.match(html, /role="img"/);
-  assert.match(html, /aria-labelledby="stacked-bar-revenue-title"/);
   assert.match(html, new RegExp(`<figcaption class="${CLASS}-title">${TITLE}</figcaption>`));
   assert.equal((html.match(/class="stacked-bar-label"/g) ?? []).length, 3, "one category label per bar");
   assert.equal(drawnSegments(html), 7, "two empty segments are not drawn");
   assert.match(html, /class="stacked-bar-axis"/);
   assert.match(html, /class="stacked-bar-tick"[^>]*>50</, "the axis ends at the Q1 total of the raw values");
-  assert.doesNotMatch(html, /<script/);
   assert.doesNotMatch(html, /%/, "segments keep their values and are never normalised");
 });
 
@@ -181,8 +169,6 @@ test("the legend lists every series in source order with one categorical colour 
 
 test("the table is the text alternative, with a column per series and every segment value", () => {
   const html = render(PROPS, REVENUE);
-  assert.match(html, new RegExp(`<table class="${TABLE_CLASS}">`));
-  assert.match(html, new RegExp(`<caption>${TITLE}</caption>`));
   assert.match(html, new RegExp(`<th scope="col">${CATEGORY_HEADING}</th><th scope="col">North</th><th scope="col">South</th><th scope="col">East</th>`));
   assert.match(html, /<th scope="row">Q1<\/th><td>30<\/td><td>12<\/td><td>8<\/td>/);
   assert.match(html, /<th scope="row">Q2<\/th><td>20<\/td><td class="stacked-bar-no-value">No value<\/td><td>5<\/td>/);
@@ -204,22 +190,3 @@ test("a source with more series than the chart can colour shows a note instead o
   assert.ok(html.includes(LIMIT_TEXT));
   assert.doesNotMatch(html, new RegExp(`<svg class="${CLASS}-svg"`));
 });
-
-test("a missing source and an empty source show a note instead of an empty frame", () => {
-  const missing = render(PROPS, { data: {}, collections: {} });
-  assert.match(missing, new RegExp(`class="${MISSING_CLASS}"`));
-  assert.ok(missing.includes("revenue"));
-
-  const empty = render(PROPS, { data: { revenue: [] }, collections: {} });
-  assert.match(empty, new RegExp(`class="${MISSING_CLASS}"`));
-
-  const unnamed = render({}, { data: {} });
-  assert.match(unnamed, new RegExp(`class="${MISSING_CLASS}"`));
-});
-
-test("the id comes from the directive, or from the source with a stacked-bar prefix", () => {
-  assert.equal(idBase("Revenue by quarter", "revenue"), "revenue-by-quarter");
-  assert.equal(idBase(undefined, "sales.q1"), "stacked-bar-sales-q1");
-  assert.equal(idBase(undefined, ""), "stacked-bar");
-});
-

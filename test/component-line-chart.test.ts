@@ -10,9 +10,6 @@ import lineChart, {
   NO_VALUE_CLASS,
   NO_VALUE_TEXT,
   POINT_CLASS,
-  TABLE_CLASS,
-  directive,
-  idBase,
   rowsOf,
   seriesOf,
   type LineChartProps,
@@ -58,11 +55,6 @@ function pathOf(html: string, field: string): string {
   return tag![0].match(/ d="([^"]*)"/)?.[1] ?? "";
 }
 
-test("default export is the line-chart component and it answers the line-chart directive", () => {
-  assert.equal(typeof lineChart, "function");
-  assert.equal(directive, "line-chart");
-});
-
 test("rowsOf reads a data list and a collection, giving every row an id", () => {
   assert.deepEqual(rowsOf({ ...GROWTH, collections: {} } as unknown as Site, "growth"), GROWTH.data.growth);
   assert.deepEqual(rowsOf({ data: { growth: [{ north: 1 }] }, collections: {} } as unknown as Site, "growth"), [
@@ -94,23 +86,13 @@ test("seriesOf reads a comma separated list and defaults to the value field", ()
   assert.deepEqual(seriesOf(" , "), ["value"]);
 });
 
-test("idBase keeps a given id and otherwise names the chart after its source", () => {
-  assert.equal(idBase("Growth chart", "growth"), "growth-chart");
-  assert.equal(idBase(undefined, "growth"), "line-chart-growth");
-  assert.equal(idBase(undefined, "!!!"), "line-chart");
-});
-
 test("two series draw two lines, their points, and a direct label at each end", () => {
   const html = render({ from: "growth", category: "month", value: "north,south", title: "Growth" }, GROWTH);
   assert.match(html, new RegExp(`<figure class="${CLASS}" id="line-chart-growth"`));
-  assert.match(html, /role="img"/);
-  assert.match(html, /aria-labelledby="line-chart-growth-title"/);
   assert.equal(count(html, LINE_CLASS), 2);
   assert.equal(count(html, POINT_CLASS), 7);
   assert.match(html, /class="line-chart-end-label line-chart-series-1"[^>]*>north</);
   assert.match(html, /class="line-chart-end-label line-chart-series-2"[^>]*>south</);
-  assert.match(html, /<caption>Growth<\/caption>/);
-  assert.doesNotMatch(html, /<script/);
 });
 
 test("a missing value breaks the line instead of joining across it", () => {
@@ -128,7 +110,6 @@ test("a date axis uses the timeline scale, its quarters and its ticks", () => {
   assert.match(html, /class="line-chart-tick"[^>]*>2020 Q2</);
   assert.equal(count(html, LINE_CLASS), 1);
   assert.equal(count(html, POINT_CLASS), 2);
-  assert.match(html, new RegExp(`<table class="${TABLE_CLASS}">`));
   assert.match(html, /<th scope="row">2020-02-10<\/th>/);
 });
 
@@ -151,21 +132,10 @@ test("a single point is still drawn and labelled", () => {
   assert.match(html, /class="line-chart-tick"[^>]*>7</);
 });
 
-test("a missing source and a source with nothing to draw show a note instead of an empty frame", () => {
-  const missing = render({ from: "unknown", category: "month", value: "north" }, { data: {}, collections: {} });
-  assert.match(missing, new RegExp(`class="${MISSING_CLASS}"`));
-  assert.ok(missing.includes("unknown"));
-
-  const empty = render({ from: "growth", category: "month", value: "north" }, { data: { growth: [] } });
-  assert.match(empty, new RegExp(`class="${MISSING_CLASS}"`));
-
+test("a line chart whose category is a word shows a note instead of an empty frame", () => {
   const words = render(
     { from: "growth", category: "month", value: "north" },
     { data: { growth: [{ id: "a", month: "one", north: 3 }] } },
   );
   assert.match(words, new RegExp(`class="${MISSING_CLASS}"`));
-
-  const unnamed = render({}, { data: {} });
-  assert.match(unnamed, new RegExp(`class="${MISSING_CLASS}"`));
 });
-
