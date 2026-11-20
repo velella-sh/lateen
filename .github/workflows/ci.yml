@@ -22,6 +22,8 @@ jobs:
       - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
         with:
           node-version-file: lateen/.node-version
+          cache: npm
+          cache-dependency-path: lateen/package-lock.json
       - name: Set up npm
         working-directory: lateen
         run: npm install --global "$(node -p "require('./package.json').packageManager")" --no-audit --no-fund
@@ -73,6 +75,10 @@ jobs:
       - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
         with:
           node-version-file: head/.node-version
+          cache: npm
+          cache-dependency-path: |
+            head/package-lock.json
+            base/package-lock.json
       - name: Set up npm
         working-directory: head
         run: npm install --global "$(node -p "require('./package.json').packageManager")" --no-audit --no-fund
@@ -113,6 +119,8 @@ jobs:
       - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
         with:
           node-version-file: lateen/.node-version
+          cache: npm
+          cache-dependency-path: lateen/package-lock.json
       - name: Set up npm
         working-directory: lateen
         run: npm install --global "$(node -p "require('./package.json').packageManager")" --no-audit --no-fund
@@ -152,6 +160,8 @@ jobs:
       - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
         with:
           node-version-file: lateen/.node-version
+          cache: npm
+          cache-dependency-path: lateen/package-lock.json
       - name: Set up npm
         working-directory: lateen
         run: npm install --global "$(node -p "require('./package.json').packageManager")" --no-audit --no-fund
@@ -197,6 +207,8 @@ jobs:
       - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
         with:
           node-version-file: lateen/.node-version
+          cache: npm
+          cache-dependency-path: lateen/package-lock.json
       - name: Set up npm
         working-directory: lateen
         run: npm install --global "$(node -p "require('./package.json').packageManager")" --no-audit --no-fund
@@ -226,6 +238,8 @@ jobs:
       - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
         with:
           node-version-file: lateen/.node-version
+          cache: npm
+          cache-dependency-path: lateen/package-lock.json
       - name: Set up npm
         working-directory: lateen
         run: npm install --global "$(node -p "require('./package.json').packageManager")" --no-audit --no-fund
@@ -311,6 +325,8 @@ jobs:
       - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
         with:
           node-version-file: lateen/.node-version
+          cache: npm
+          cache-dependency-path: lateen/package-lock.json
       - name: Set up npm
         working-directory: lateen
         run: npm install --global "$(node -p "require('./package.json').packageManager")" --no-audit --no-fund
