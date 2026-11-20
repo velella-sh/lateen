@@ -421,6 +421,12 @@ export interface SearchParts {
   status: SearchStatus;
   /** The command palette's JSON script, when the page carries one. */
   palette?: SearchPaletteSource | undefined;
+  /** The field's clear button; it appears only while the field holds text. */
+  clear?: {
+    hidden: boolean;
+    disabled: boolean;
+    addEventListener(type: "click", listener: () => void): void;
+  } | undefined;
 }
 
 /** Everything the island reads from the world; tests pass fakes, the browser supplies its own. */
@@ -957,8 +963,18 @@ export function activate(parts: SearchParts, env: SearchEnv): void {
     markActive(key === undefined ? -1 : options.findIndex((option) => option.key === key));
   };
 
+  /** Shows the clear button only while the field holds text, so an empty field offers nothing to press. */
+  const syncClear = (): void => {
+    const clear = parts.clear;
+    if (clear === undefined) return;
+    const filled = input.value !== "";
+    clear.hidden = !filled;
+    clear.disabled = !filled;
+  };
+
   /** Runs the field's current query: an empty field shows the actions and clears the status. */
   const run = (): void => {
+    syncClear();
     const query = input.value.trim();
     const matched = filterActions(actions, query);
     const current = ++sequence;
@@ -1029,6 +1045,12 @@ export function activate(parts: SearchParts, env: SearchEnv): void {
 
   button.addEventListener("click", show);
   close.addEventListener("click", () => dialog.close());
+  parts.clear?.addEventListener("click", () => {
+    input.value = "";
+    // One empty query redraws the palette's base rows and clears the status once; the dialog stays open.
+    run();
+    input.focus();
+  });
   input.addEventListener("input", run);
   // A press on the modal backdrop lands on the dialog itself; a press on the panel or a row does not.
   dialog.addEventListener("click", (event) => {
@@ -1213,6 +1235,7 @@ if (typeof document !== "undefined") {
   const dialog = document.querySelector("[data-search]");
   const button = document.querySelector("[data-search-open]");
   const close = document.querySelector("[data-search-close]");
+  const clear = document.querySelector("[data-search-clear]");
   const input = document.querySelector("[data-search-input]");
   const results = document.querySelector("[data-search-results]");
   const status = document.querySelector("[data-search-status]");
@@ -1241,6 +1264,7 @@ if (typeof document !== "undefined") {
         input: input as SearchInput,
         results: results as SearchResults,
         status: status as SearchStatus,
+        ...(clear === null || clear === undefined ? {} : { clear: clear as NonNullable<SearchParts["clear"]> }),
         ...(palette === null ? {} : { palette }),
       },
       {

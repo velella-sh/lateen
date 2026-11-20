@@ -360,6 +360,7 @@
   "schema_missing_schema": "هیچ طرح‌واره‌ای در _data در «{path}» نیست.",
   "schema_properties": "ویژگی‌ها",
   "search": "جست‌وجو",
+  "search_clear": "پاک کردن جست‌وجو",
   "search_close": "بستن جست‌وجو",
   "search_copy_failed": "کپی نشد.",
   "search_count": "{n} نتیجه",
