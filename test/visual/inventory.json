@@ -14,6 +14,7 @@
     { "name": "chart-data", "selector": ".chart-data" },
     { "name": "charts", "selector": "figure.charts" },
     { "name": "check-list", "selector": "ol.check-list" },
+    { "name": "citation", "selector": ".citation" },
     { "name": "cli-demo", "selector": ".cli-demo" },
     { "name": "code", "selector": "pre.code" },
     { "name": "code-tabs", "selector": ".code-tabs" },
