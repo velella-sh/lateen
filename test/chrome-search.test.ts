@@ -1730,6 +1730,87 @@ test("a late answer cannot redraw the list or move the active option", async () 
   assert.equal(input.active, "search-option-1", "and leaves the active option where the reader left it");
 });
 
+test("only the newest answer is rendered and announced when two queries resolve in reverse", async () => {
+  const slow = Promise.withResolvers<Awaited<ReturnType<PagefindApi["search"]>>>();
+  const quick = apiOf([{ url: "/quick/", excerpt: "Quick.", meta: { title: "Quick" } }]);
+  const { button, input, results, status, parts } = partsOf();
+  activate(parts, envWith({ search: (term) => term === "slow" ? slow.promise : quick.search(term) }));
+  button.click();
+  await tick();
+
+  input.type("slow");
+  input.type("quick");
+  assert.equal(status.textContent, MESSAGES.searching, "the newest query owns the loading status");
+  await tick();
+  assert.equal(status.textContent, "1 result.");
+
+  slow.resolve({
+    results: [{ url: "/slow/", excerpt: "Slow.", meta: { title: "Slow" } }].map((record) => ({
+      data: () => Promise.resolve(record),
+    })),
+  });
+  await tick();
+
+  assert.deepEqual(rowsOf(results).map((row) => textOf(row)), ["QuickQuick."]);
+  assert.equal(status.textContent, "1 result.", "the late answer leaves the newest count announced");
+});
+
+test("repeating a query keeps the last answer when an earlier copy resolves later", async () => {
+  const first = Promise.withResolvers<Awaited<ReturnType<PagefindApi["search"]>>>();
+  let calls = 0;
+  const api: PagefindApi = {
+    search() {
+      calls += 1;
+      return calls === 1
+        ? first.promise
+        : Promise.resolve({
+            results: [{ url: "/new/", excerpt: "New.", meta: { title: "New" } }].map((record) => ({
+              data: () => Promise.resolve(record),
+            })),
+          });
+    },
+  };
+  const { button, input, results, status, parts } = partsOf();
+  activate(parts, envWith(api));
+  button.click();
+  await tick();
+
+  input.type("cache");
+  input.type("cache");
+  await tick();
+  assert.deepEqual(rowsOf(results).map((row) => textOf(row)), ["NewNew."]);
+  assert.equal(status.textContent, "1 result.");
+
+  first.resolve({
+    results: [{ url: "/old/", excerpt: "Old.", meta: { title: "Old" } }].map((record) => ({
+      data: () => Promise.resolve(record),
+    })),
+  });
+  await tick();
+
+  assert.deepEqual(rowsOf(results).map((row) => textOf(row)), ["NewNew."], "the earlier copy's answer is dropped");
+  assert.equal(status.textContent, "1 result.", "and its announcement never replaces the current one");
+});
+
+test("a failure from a superseded query leaves the newest result and count in place", async () => {
+  const slow = Promise.withResolvers<Awaited<ReturnType<PagefindApi["search"]>>>();
+  const quick = apiOf([{ url: "/quick/", excerpt: "Quick.", meta: { title: "Quick" } }]);
+  const { button, input, results, status, parts } = partsOf();
+  activate(parts, envWith({ search: (term) => term === "slow" ? slow.promise : quick.search(term) }));
+  button.click();
+  await tick();
+
+  input.type("slow");
+  input.type("quick");
+  await tick();
+
+  slow.reject(new Error("late failure"));
+  await tick();
+
+  assert.deepEqual(rowsOf(results).map((row) => textOf(row)), ["QuickQuick."]);
+  assert.equal(status.textContent, "1 result.", "the stale failure is not announced");
+});
+
 test("closing clears the active option and restores focus to the search button", async () => {
   const { button, dialog, input, results, parts } = partsOf();
   activate(parts, envWith(apiOf(records)));
