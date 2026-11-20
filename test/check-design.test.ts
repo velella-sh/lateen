@@ -3,7 +3,7 @@ import { mkdirSync, mkdtempSync, rmSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { test } from "node:test";
-import { allowlistProblems, applyAllowlist, check, cssFiles, root, scanCss, type Kind } from "../scripts/check-design.ts";
+import { allowlistProblems, applyAllowlist, check, cssFiles, root, scanCss, scanDuplicates, type Kind } from "../scripts/check-design.ts";
 
 const kinds = (css: string): Kind[] => scanCss("x.css", css).map((f) => f.kind);
 
@@ -52,4 +52,31 @@ test("an entry without a reason is rejected", () => {
 
 test("main passes with the committed allowlist", () => {
   assert.deepEqual(check(root), []);
+});
+
+test("a declaration written twice in one rule is reported with file, selector and line", () => {
+  const css = `.a {\n  color: red;\n  color: red;\n}\n@media (min-width: 40rem) {\n  .b {\n    color: blue;\n    color: var(--color-text);\n  }\n}`;
+  const found = scanDuplicates("a.css", css).map(({ file, line, selector, property, value, conflict }) => ({ file, line, selector, property, value, conflict }));
+  assert.deepEqual(found, [
+    { file: "a.css", line: 3, selector: ".a", property: "color", value: "red", conflict: false },
+    { file: "a.css", line: 8, selector: ".b", property: "color", value: "var(--color-text)", conflict: true },
+  ]);
+  assert.equal(scanDuplicates("a.css", css)[1]?.earlier, "blue");
+});
+
+test("the same property in different rules is not a repeat", () => {
+  assert.deepEqual(scanDuplicates("a.css", ".a { color: red; } .b { color: blue; } @media print { .a { color: black; } }"), []);
+});
+
+test("the gate fails a fixture checkout with a conflicting declaration", () => {
+  const base = mkdtempSync(join(tmpdir(), "lateen-design-"));
+  try {
+    mkdirSync(join(base, "components"), { recursive: true });
+    writeFileSync(join(base, "components/card.css"), ".card {\n  color: var(--a);\n  color: var(--b);\n}\n");
+    assert.deepEqual(check(base), [
+      "components/card.css:3: conflicting declaration `color: var(--b)` overrides `color: var(--a)` in `.card`; keep one",
+    ]);
+  } finally {
+    rmSync(base, { recursive: true, force: true });
+  }
 });
