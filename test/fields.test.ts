@@ -6,6 +6,7 @@ import {
   EMPTY_CLASS,
   FIELD_KINDS,
   LIST_CLASS,
+  LIST_MORE_CLASS,
   NOT_APPLICABLE_CLASS,
   STATUS_CLASS,
   formatField,
@@ -74,6 +75,40 @@ test("a list is an unordered list, and a value that is not a list reads as text"
   assert.equal(render([1, 2], "list"), `<ul class="${LIST_CLASS}"><li>1</li><li>2</li></ul>`);
   assert.equal(render("one", "list"), "one");
 });
+
+test("a short list has no disclosure, and a long one keeps its order in a native disclosure", () => {
+  assert.equal(
+    render(["one", "two", "three"], "list"),
+    `<ul class="${LIST_CLASS}"><li>one</li><li>two</li><li>three</li></ul>`,
+  );
+
+  const values = ["one", "two", "three", "four", "five", "six"];
+  const out = render(values, "list");
+  assert.match(
+    out,
+    new RegExp(
+      `^<ul class="${LIST_CLASS}"><li>one</li><li>two</li><li>three</li></ul>` +
+        `<details class="${LIST_MORE_CLASS}"><summary>Show all</summary><ul class="${LIST_CLASS}">` +
+        `<li>four</li><li>five</li><li>six</li></ul></details>$`,
+    ),
+  );
+  assert.equal((out.match(/<li>/g) ?? []).length, values.length);
+  assert.deepEqual(
+    [...out.matchAll(/<li>([^<]+)<\/li>/g)].map((match) => match[1]),
+    values,
+  );
+  assert.ok(!/<details[^>]*\bopen\b/.test(out), "the disclosure is closed in the no-JS markup");
+});
+
+test("the disclosure label follows the page language and direction", () => {
+  const values = ["one", "two", "three", "four"];
+  assert.match(render(values, "list", "fa"), /<summary>نمایش همه<\/summary>/);
+  assert.match(render(values, "list", "ar"), /<summary>إظهار الكل<\/summary>/);
+  const english = render(values, "list");
+  const persian = render(values, "list", "fa");
+  assert.equal(persian.replace("نمایش همه", "Show all"), english, "direction does not change the list markup");
+});
+
 
 test("a missing value is one placeholder with a text alternative in every language", () => {
   for (const missing of [undefined, "", "   ", []]) {

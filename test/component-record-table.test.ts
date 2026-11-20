@@ -8,7 +8,7 @@ const record = (id: string, fields: Record<string, unknown>): DataRecord =>
   ({ id, fields, position: { line: 1, column: 1 }, fieldPositions: {} }) as unknown as DataRecord;
 
 const books = [
-  record("a", { title: "Alpha", pages: 120, published: "2026-11-09", draft: false }),
+  record("a", { title: "Alpha", pages: 120, published: "2026-11-09", draft: false, tags: ["one", "two", "three", "four"] }),
   record("b", { title: "Beta", pages: 80, published: "2026-02-30", draft: true }),
 ];
 
@@ -61,6 +61,15 @@ test("the caption is rendered and names the scroll region", () => {
   const out = render({ from: "books", columns, caption: "Every book" });
   assert.match(out, /<div class="table-scroll" data-table-scroll="true" tabindex="0" role="region" aria-label="Every book" data-label="Every book">/);
   assert.match(out, /<caption>Every book<\/caption>/);
+});
+
+test("a long list cell keeps every value, its order, and its data-value", () => {
+  const out = render({ from: "books", columns: JSON.stringify([{ field: "title" }, { field: "tags", label: "Tags", kind: "list" }]) });
+  assert.match(out, /<td class="record-table-cell" data-kind="list" data-value="one,two,three,four">/);
+  assert.match(
+    out,
+    /<ul class="field-list"><li>one<\/li><li>two<\/li><li>three<\/li><\/ul><details class="field-list-more"><summary>Show all<\/summary><ul class="field-list"><li>four<\/li><\/ul><\/details>/,
+  );
 });
 
 test("an unknown field is a visible message in its cells, not an empty cell", () => {
