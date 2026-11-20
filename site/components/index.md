@@ -29,6 +29,26 @@ Source mode, the `file:line` view of every block, is described on [Source mode](
 
 The theme's own look is set with the [Brand options](/brand-options/); the shipped starting points are on [Presets](/presets/).
 
+## Code tabs
+
+Run the docs locally with your preferred package manager:
+
+:::code-tabs{labels='["npm","pnpm","yarn"]'}
+```bash
+npx mizzen dev .
+```
+
+```bash
+pnpm exec mizzen dev .
+```
+
+```bash
+yarn mizzen dev .
+```
+:::
+
+## In the library
+
 | Component | Use it for |
 | --- | --- |
 | [Add to calendar](./add-to-calendar/) | A download link for a record's `.ics` file and a subscribe link for its calendar. |
