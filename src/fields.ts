@@ -1,4 +1,4 @@
-import { h } from "preact";
+import { Fragment, h } from "preact";
 import type { ComponentChildren } from "preact";
 import type { Page, RecordProps, SiteConfig } from "@velella/mizzen/contracts";
 import { formatCount, pluralCategory } from "../components/reading-time/index.ts";
@@ -25,6 +25,12 @@ export const NOT_APPLICABLE_CLASS = "field-na";
 
 /** Class on the `<ul>` a list value renders. */
 export const LIST_CLASS = "field-list";
+
+/** Class on the disclosure that holds a long list's values after the first {@link LIST_PREVIEW}. */
+export const LIST_MORE_CLASS = "field-list-more";
+
+/** How many list values stay visible before the rest move into a disclosure. */
+export const LIST_PREVIEW = 3;
 
 /** Class on the wrapper a status value renders, which keeps the raw value in `data-value`. */
 export const STATUS_CLASS = "field-status";
@@ -119,13 +125,26 @@ function urlNode(value: unknown, lang: string, config: SiteConfig | undefined): 
   return h("a", { href: withBase(config?.base ?? "", url) }, url);
 }
 
-/** A list as an unordered list of formatted values; a value that is not a list reads as text. */
+/**
+ * A list as an unordered list of formatted values; a value that is not a list reads as text. A long
+ * list keeps its first {@link LIST_PREVIEW} values visible and puts the rest, in order, in a native
+ * disclosure so the whole list stays in the document and opens without JavaScript.
+ */
 function listNode(value: unknown, lang: string, config: SiteConfig | undefined): ComponentChildren {
   if (!Array.isArray(value)) return textOf(value);
+  const items = value.map((item) => h("li", null, formatField(item, "text", lang, config)));
+  const visible = h("ul", { class: LIST_CLASS }, items.slice(0, LIST_PREVIEW));
+  if (items.length <= LIST_PREVIEW) return visible;
   return h(
-    "ul",
-    { class: LIST_CLASS },
-    value.map((item) => h("li", null, formatField(item, "text", lang, config))),
+    Fragment,
+    null,
+    visible,
+    h(
+      "details",
+      { class: LIST_MORE_CLASS },
+      h("summary", null, t(lang, "field_show_all")),
+      h("ul", { class: LIST_CLASS }, items.slice(LIST_PREVIEW)),
+    ),
   );
 }
 

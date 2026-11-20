@@ -2042,6 +2042,11 @@
     white-space: nowrap;
   }
 
+  .field-list-more > summary {
+    cursor: pointer;
+    color: var(--muted-foreground);
+  }
+
   .details,
   details.soft {
     background: color-mix(in srgb, var(--background) 80%, transparent);
