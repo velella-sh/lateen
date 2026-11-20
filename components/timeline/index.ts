@@ -2,7 +2,7 @@ import { h } from "preact";
 import type { ComponentChildren } from "preact";
 import type { ComponentProps, SiteConfig } from "@velella/mizzen/contracts";
 import { t } from "../../i18n/index.ts";
-import { calendarDate, calendarParts, calendarYear } from "../../src/dates.ts";
+import { calendarDate, calendarDay, calendarParts, calendarYear } from "../../src/dates.ts";
 import { formatField, isEmpty } from "../../src/fields.ts";
 import { selectRecords } from "../../src/records.ts";
 import { DEFAULT_TONE, type StatusTone } from "../status/index.ts";
@@ -158,9 +158,9 @@ type Fields = {
 
 const DAY = 86_400_000;
 
-/** A value as epoch milliseconds at UTC midnight, or undefined when it is not an ISO 8601 date. */
+/** A value as epoch milliseconds at UTC midnight, or undefined when it is not a complete ISO 8601 date. */
 function dayOf(value: unknown): number | undefined {
-  const iso = typeof value === "string" ? calendarDate(value.trim(), "en")?.datetime : undefined;
+  const iso = typeof value === "string" ? calendarDay(value.trim()) : undefined;
   return iso === undefined ? undefined : Date.parse(iso);
 }
 

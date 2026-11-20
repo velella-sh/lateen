@@ -1,6 +1,6 @@
 import assert from "node:assert/strict";
 import { test } from "node:test";
-import { calendarDate } from "../src/dates.ts";
+import { calendarDate, calendarDay, calendarMonth, calendarParts } from "../src/dates.ts";
 
 const DAY = "2026-11-09";
 
@@ -14,6 +14,47 @@ test("an Arabic page shows the Hijri calendar in Arabic-Indic numerals", () => {
 
 test("an English page shows the Gregorian calendar", () => {
   assert.deepEqual(calendarDate(DAY, "en"), { datetime: DAY, text: "November 9, 2026" });
+});
+
+test("a year-only date keeps year precision in each calendar", () => {
+  assert.deepEqual(calendarDate("2026", "en"), { datetime: "2026", text: "2026" });
+  assert.deepEqual(calendarDate("2026", "fa"), { datetime: "2026", text: "۱۴۰۴" });
+  assert.deepEqual(calendarDate("2026", "ar"), { datetime: "2026", text: "١٤٤٧ هـ" });
+});
+
+test("a month-only date keeps month precision in each calendar", () => {
+  assert.deepEqual(calendarDate("2026-11", "en"), { datetime: "2026-11", text: "November 2026" });
+  assert.deepEqual(calendarDate("2026-11", "fa"), { datetime: "2026-11", text: "۱۴۰۵ آبان" });
+  assert.deepEqual(calendarDate("2026-11", "ar"), { datetime: "2026-11", text: "جمادى الأولى ١٤٤٨ هـ" });
+});
+
+test("a full date keeps its day", () => {
+  assert.deepEqual(calendarDate(DAY, "en"), { datetime: DAY, text: "November 9, 2026" });
+});
+
+test("a partial date never widens to a day", () => {
+  for (const lang of ["en", "fa", "ar"]) {
+    assert.notEqual(calendarDate("2026-11", lang)?.text, calendarDate("2026-11-01", lang)?.text, lang);
+    assert.notEqual(calendarDate("2026", lang)?.text, calendarDate("2026-01-01", lang)?.text, lang);
+  }
+});
+
+test("a partial date follows explicit calendar and numbering preferences", () => {
+  assert.deepEqual(calendarDate("2026-11", "fa-IR-u-ca-gregory"), {
+    datetime: "2026-11",
+    text: "نوامبر ۲۰۲۶",
+  });
+  assert.deepEqual(calendarDate("2026", "fa-IR-u-nu-latn"), { datetime: "2026", text: "1404" });
+});
+
+test("a partial date does not pretend to have the part it lacks", () => {
+  assert.equal(calendarMonth("2026", "en"), undefined);
+  assert.equal(calendarParts("2026-11", "en"), undefined);
+  assert.equal(calendarDay("2026-11"), undefined);
+  assert.equal(calendarDay("2026"), undefined);
+  assert.deepEqual(calendarMonth("2026-11", "en"), { key: "11/2026", text: "November 2026" });
+  assert.deepEqual(calendarParts(DAY, "en"), { year: 2026, month: 11, day: 9 });
+  assert.equal(calendarDay(DAY), DAY);
 });
 
 test("a regional language tag uses its primary language's calendar", () => {
@@ -113,6 +154,12 @@ test("values that are not real calendar dates format to nothing", () => {
     "2026-11-9",
     "11/09/2026",
     "2026-11-09x",
+    "2026-13",
+    "2026-00",
+    "2026-1",
+    "26-11",
+    "2026-11x",
+    "2026-11T12:00:00Z",
   ]) {
     assert.equal(calendarDate(value, "en"), undefined, value);
     assert.equal(calendarDate(value, "fa"), undefined, value);
