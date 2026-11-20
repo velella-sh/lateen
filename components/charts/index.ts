@@ -1,38 +1,16 @@
 import { h } from "preact";
 import type { ComponentProps } from "@velella/mizzen/contracts";
+import { parseRows, type ChartRow } from "./data.ts";
 
 export const directive = "charts";
 
-export type ChartRow = { readonly label: string; readonly value: number };
+export { parseRows, type ChartRow };
+
 export type ChartsProps = {
   title?: string;
   rows?: string;
   type?: string;
 };
-
-export function parseRows(raw: unknown): ChartRow[] {
-  let value: unknown = raw;
-  if (typeof raw === "string") {
-    if (raw.trim() === "") return [];
-    try {
-      value = JSON.parse(raw);
-    } catch {
-      return [];
-    }
-  }
-  if (!Array.isArray(value)) return [];
-  return value.flatMap((entry) => {
-    if (typeof entry !== "object" || entry === null || Array.isArray(entry)) return [];
-    const record = entry as Readonly<Record<string, unknown>>;
-    const label = typeof record.label === "string" ? record.label.trim() : "";
-    const number = typeof record.value === "number"
-      ? record.value
-      : typeof record.value === "string"
-        ? Number(record.value)
-        : Number.NaN;
-    return label && Number.isFinite(number) ? [{ label, value: number }] : [];
-  });
-}
 
 const DEFAULT_ROWS: readonly ChartRow[] = [
   { label: "Install", value: 12 },
