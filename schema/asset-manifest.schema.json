@@ -1,0 +1,54 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://velella.sh/lateen/schema/asset-manifest.schema.json",
+  "title": "Lateen asset manifest",
+  "description": "What each route of the performance fixture loads on one commit: one row per stylesheet, island module, inline script, and font file, with raw and gzip bytes. Routes are ordered by URL and each route's assets by path; a path appears at most once per route by convention, which a schema cannot enforce and the test checks. No clock is recorded, so two runs on the same commit write the same file.",
+  "type": "object",
+  "required": ["tool", "version", "commit", "mizzen", "routes"],
+  "additionalProperties": false,
+  "properties": {
+    "tool": { "type": "string", "enum": ["lateen/asset-manifest"] },
+    "version": { "type": "integer", "enum": [1] },
+    "commit": {
+      "type": "string",
+      "pattern": "[0-9a-f]{7,40}",
+      "description": "The commit the manifest describes. It identifies the run instead of a timestamp."
+    },
+    "mizzen": {
+      "type": "string",
+      "description": "The @velella/mizzen version that built the fixture."
+    },
+    "routes": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "type": "object",
+        "required": ["route", "assets"],
+        "additionalProperties": false,
+        "properties": {
+          "route": { "type": "string" },
+          "assets": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "required": ["path", "class", "raw", "gzip"],
+              "additionalProperties": false,
+              "properties": {
+                "path": {
+                  "type": "string",
+                  "description": "A path from the output folder, or inline:<n> for an inline script."
+                },
+                "class": {
+                  "type": "string",
+                  "enum": ["css/base", "css/page", "js/chrome", "js/components", "js/inline", "font/self-hosted"]
+                },
+                "raw": { "type": "integer", "minimum": 0 },
+                "gzip": { "type": "integer", "minimum": 0 }
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}
