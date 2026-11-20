@@ -42,6 +42,7 @@ import { activate as activateTable, type SortDocument } from "../components/reco
 import { activate as activateCompare, type CompareDocument, type CompareEnv } from "../components/compare/client.ts";
 import { activate as activateDrawer, type DrawerControl, type DrawerDialog, type DrawerEnv } from "../chrome/drawer/client.ts";
 import { activate as activateCopyMarkdown, type ActivateEnv, type CopyButton, type CopyStatus, type ShortcutHost } from "../chrome/copy-markdown/island.ts";
+import { activate as activateCodeCopy, type CopyDocument } from "../chrome/code-copy/client.ts";
 
 const tick = (): Promise<void> => new Promise((resolve) => setTimeout(resolve, 0));
 
@@ -118,7 +119,7 @@ function explorerSetup() {
     await tick();
   };
 
-  return { dom, document, env, fetched, scheduled: () => scheduled, activate: () => activateExplorer(document as unknown as ExplorerDocument, env), search };
+  return { dom, document, env, fetched, scheduled: () => scheduled, activate: () => activateExplorer(document as unknown as ExplorerDocument, env), search, flush };
 }
 
 test("a torn-down explorer runs no query and loads no index", async () => {
@@ -143,6 +144,22 @@ test("a mount after a teardown leaves exactly one wiring, not a duplicate", asyn
   assert.equal(fixture.scheduled(), 1, "one input event schedules one debounce");
   assert.deepEqual([...new Set(fixture.fetched)], ["/data/books.index.json"], "only the index is read");
   assert.equal(fixture.document.querySelectorAll("tbody tr").length, 11);
+});
+
+test("a query still in the debounce when the explorer is torn down never runs", async () => {
+  const fixture = explorerSetup();
+  const teardown = fixture.activate();
+  const query = fixture.document.querySelector(".data-explorer-input") as HTMLInputElement;
+  query.value = "book 5";
+  query.dispatchEvent(new fixture.dom.window.Event("input"));
+  assert.equal(fixture.scheduled(), 1, "the input is waiting in the debounce");
+
+  teardown();
+  fixture.flush();
+  await tick();
+
+  assert.deepEqual(fixture.fetched, [], "the pending query fetches no index after teardown");
+  assert.equal(fixture.document.querySelectorAll("tbody tr").length, 50, "the static rows stay as they were");
 });
 
 // ---------------------------------------------------------------------------
@@ -423,4 +440,47 @@ test("aborting the copy island's signal detaches the click and the m key", async
   assert.equal(status.textContent, "", "nothing is announced after the abort");
   assert.equal(buttonTarget.count("click"), 0);
   assert.equal(keysTarget.count("keydown"), 0);
+});
+
+// ---------------------------------------------------------------------------
+// chrome/code-copy
+// ---------------------------------------------------------------------------
+
+test("tearing down the code-copy island cancels a pending status reset", async () => {
+  const dom = new JSDOM('<html lang="en"><body><pre class="code" data-lang="ts"><code>const a = 1;</code></pre></body></html>');
+  const page = dom.window.document;
+  const document = page as unknown as CopyDocument;
+
+  let runs = 0;
+  const pending = new Set<{ callback: () => void }>();
+  const teardown = activateCodeCopy(document, {
+    clipboard: { writeText: () => Promise.resolve() },
+    schedule(callback) {
+      const handle = {
+        callback: () => {
+          runs += 1;
+          callback();
+        },
+      };
+      pending.add(handle);
+      return handle;
+    },
+    cancel(handle) {
+      pending.delete(handle as { callback: () => void });
+    },
+  });
+
+  const button = page.querySelector(".code-copy") as HTMLButtonElement;
+  const status = page.querySelector(".code-copy-status") as HTMLElement;
+  button.click();
+  await tick();
+  assert.equal(status.textContent, "Copied", "the result is on screen before the teardown");
+  assert.equal(pending.size, 1, "one reset is waiting on the fake clock");
+
+  teardown();
+  for (const handle of [...pending]) handle.callback();
+
+  assert.equal(pending.size, 0, "the teardown cancelled the pending reset");
+  assert.equal(runs, 0, "no reset callback runs after the teardown");
+  assert.equal(status.textContent, "", "the control is back at rest");
 });

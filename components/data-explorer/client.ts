@@ -791,7 +791,13 @@ function attach(root: ExplorerElement, doc: ExplorerDocument, env: ExplorerEnv):
   // Back and forward restore the controls without writing the address again.
   view?.addEventListener("popstate", applyAddress, { signal });
   applyAddress();
-  return () => lifecycle.abort();
+  // A query typed just before teardown still waits in the debounce; drop it with the listeners so
+  // nothing renders after the host has detached the explorer.
+  return () => {
+    lifecycle.abort();
+    if (timer !== undefined) env.cancel(timer);
+    timer = undefined;
+  };
 }
 
 /**
