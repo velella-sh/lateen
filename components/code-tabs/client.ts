@@ -25,6 +25,8 @@ export interface TabsElement {
   getAttribute?(name: string): string | null;
   setAttribute(name: string, value: string): void;
   focus(): void;
+  /** Whether `node` is this element or inside it; a real DOM element answers with `contains`. */
+  contains?(node: unknown): boolean;
   addEventListener(type: string, listener: (event: TabsEvent) => void): void;
 }
 
@@ -43,7 +45,7 @@ export interface TabsGroup {
 }
 
 // The theme's tsconfig has no DOM lib; these are the browser globals the island needs, no more.
-declare const document: { querySelectorAll(selector: string): Iterable<unknown> };
+declare const document: { querySelectorAll(selector: string): Iterable<unknown>; activeElement: unknown };
 declare function getComputedStyle(element: unknown): { direction: string };
 
 /**
@@ -68,8 +70,16 @@ export function step(key: string, index: number, count: number, rtl: boolean): n
   }
 }
 
-/** Shows the panel at `index`, hides the others, and makes that tab the one in the tab order. */
+/**
+ * Shows the panel at `index`, hides the others, and makes that tab the one in the tab order. If the
+ * panel being hidden held focus, focus moves to the selected tab rather than falling to the body.
+ */
 export function select(tabs: readonly TabsElement[], panels: readonly TabsElement[], index: number): void {
+  const active = typeof document === "undefined" ? undefined : document.activeElement;
+  const holdsFocus =
+    active !== undefined &&
+    panels.some((panel, i) => i !== index && !panel.hidden && panel.contains?.(active) === true);
+
   tabs.forEach((tab, i) => {
     const on = i === index;
     tab.setAttribute("aria-selected", on ? "true" : "false");
@@ -78,6 +88,7 @@ export function select(tabs: readonly TabsElement[], panels: readonly TabsElemen
   panels.forEach((panel, i) => {
     panel.hidden = i !== index;
   });
+  if (holdsFocus) tabs[index]?.focus();
 }
 
 /**

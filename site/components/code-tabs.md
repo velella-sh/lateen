@@ -50,6 +50,8 @@ pnpm add mizzen
 ## Notes
 
 - The tab list starts `hidden`; without JavaScript the panels stack, each under its label.
+- An annotated example keeps its notes inside its own panel; a hidden panel's notes stay out of the
+  accessibility tree, and selecting a tab whose panel held focus moves focus to that tab.
 - Arrow keys move between tabs, `Home` and `End` go to the ends, and the arrows follow the reading direction in right-to-left pages.
 - Groups with the same `group` value switch together on the page. Different groups, and groups with no `group`, stay independent of them.
 - Choosing a label in an ungrouped group switches every ungrouped group on the page that offers it, and the choice is remembered on later pages. A grouped choice is not remembered and does not move ungrouped groups.
