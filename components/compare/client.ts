@@ -6,6 +6,7 @@
  * first opened. */
 
 import { attachPickers } from "./picker.ts";
+import { fetchJson, type Fetcher } from "../../src/fetch.ts";
 import { withParams } from "../../src/url.ts";
 
 /** The wrapper around a comparison. */
@@ -93,8 +94,8 @@ export interface CompareEnv {
   hash(): string;
   /** Replaces the address without reloading the page. */
   replaceUrl(url: string): void;
-  /** Reads a text file, used by the record pickers; without it the pickers are not drawn. */
-  fetchText?(url: string, signal: AbortSignal): Promise<string>;
+  /** Reads one index file as parsed JSON, used by the record pickers; without it the pickers are not drawn. */
+  fetchJson?(url: string, signal: AbortSignal): Promise<unknown>;
   /** Writes the copied comparison; without it the copy button stays hidden. */
   clipboard?: Clipboard | undefined;
   /** The page's own address, so copied record links are absolute. */
@@ -293,6 +294,9 @@ export function activate(doc: CompareDocument, env: CompareEnv = browserEnv()): 
   return () => lifecycle.abort();
 }
 
+/** The browser's `fetch`, absent in a test runtime. */
+const browserFetch = (globalThis as unknown as { fetch?: Fetcher }).fetch;
+
 /** The browser environment: the page's address and history. */
 function browserEnv(): CompareEnv {
   const globals = globalThis as unknown as {
@@ -306,11 +310,7 @@ function browserEnv(): CompareEnv {
     replaceUrl: (url) => globals.history?.replaceState(null, "", url),
     clipboard: globals.navigator?.clipboard,
     url: () => globals.location?.href ?? "",
-    async fetchText(url, signal) {
-      const response = await fetch(url, { signal });
-      if (!response.ok) throw new Error(`${url}: ${response.status}`);
-      return response.text();
-    },
+    fetchJson: (url, signal) => fetchJson(browserFetch, url, signal),
   };
 }
 

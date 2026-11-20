@@ -7,7 +7,7 @@
  * The module is pure: it reads no page module and touches no DOM of its own, so the island build can
  * carry it and tests pass a fake field, fetch, and handlers. */
 
-import { isRecord, parseJson } from "../../src/guards.ts";
+import { isRecord } from "../../src/guards.ts";
 import { withBase } from "../../src/url.ts";
 
 /** The folder the engine writes collection indexes under. */
@@ -40,7 +40,8 @@ export interface IndexField {
 
 /** Everything the loader reads from the world; tests pass fakes, the browser supplies `fetch`. */
 export interface IndexEnv {
-  fetchText(url: string, signal: AbortSignal): Promise<string>;
+  /** Reads one index file as parsed JSON; a malformed file rejects. */
+  fetchJson(url: string, signal: AbortSignal): Promise<unknown>;
 }
 
 /** Where the rows go, or the retry that starts the load again from the head. */
@@ -125,8 +126,7 @@ function chunkPathsOf(value: unknown): string[] {
 }
 
 /** Reads the head file: one collection, its columns, then either the rows or the chunk list. */
-function readHead(text: string, collection: string): Head {
-  const body = parseJson(text);
+function readHead(body: unknown, collection: string): Head {
   if (!isRecord(body)) throw new Error("the index head is not an object");
   if (body.collection !== collection) throw new Error("the index head names another collection");
   const columns = columnsOf(body.columns);
@@ -141,8 +141,7 @@ function readHead(text: string, collection: string): Head {
 }
 
 /** Reads one chunk: it must name the same collection, carry the same columns, and hold valid rows. */
-function readChunk(text: string, collection: string, columns: readonly string[]): IndexRow[] {
-  const body = parseJson(text);
+function readChunk(body: unknown, collection: string, columns: readonly string[]): IndexRow[] {
   if (!isRecord(body)) throw new Error("an index chunk is not an object");
   if (body.collection !== collection) throw new Error("an index chunk names another collection");
   const chunkColumns = columnsOf(body.columns);
@@ -172,7 +171,7 @@ export function createIndexLoader(input: IndexInput, env: IndexEnv, handlers: In
 
   /** Reads the head and, when it lists them, every chunk; undefined when a newer load superseded this one. */
   async function fetchIndex(signal: AbortSignal, stale: () => boolean): Promise<CollectionIndex | undefined> {
-    const head = readHead(await env.fetchText(headUrl(), signal), input.collection);
+    const head = readHead(await env.fetchJson(headUrl(), signal), input.collection);
     if (stale()) return undefined;
     if ("rows" in head) return { columns: head.columns, rows: head.rows };
 
@@ -181,10 +180,10 @@ export function createIndexLoader(input: IndexInput, env: IndexEnv, handlers: In
     const rows: IndexRow[] = [];
     for (let at = 0; at < head.chunks.length; at += CHUNK_CONCURRENCY) {
       const batch = head.chunks.slice(at, at + CHUNK_CONCURRENCY);
-      const texts = await Promise.all(batch.map((path) => env.fetchText(chunkUrl(path), signal)));
+      const bodies = await Promise.all(batch.map((path) => env.fetchJson(chunkUrl(path), signal)));
       if (stale()) return undefined;
-      for (const text of texts) {
-        for (const row of readChunk(text, input.collection, head.columns)) rows.push(row);
+      for (const body of bodies) {
+        for (const row of readChunk(body, input.collection, head.columns)) rows.push(row);
       }
     }
     return { columns: head.columns, rows };

@@ -80,10 +80,10 @@ function harness(ids = "a,c", search = "", index = INDEX, options: HarnessOption
     search: () => search,
     hash: () => "#records",
     replaceUrl: (url) => urls.push(url),
-    fetchText: async (url, signal) => {
+    fetchJson: async (url, signal) => {
       fetches.push(url);
       assert.equal(signal.aborted, false);
-      return index;
+      return JSON.parse(index);
     },
   };
   activate(document as unknown as CompareDocument, env);
@@ -199,10 +199,10 @@ test("a failed fetch shows a message and a retry that reads the index again", as
     search: () => "",
     hash: () => "",
     replaceUrl: () => {},
-    fetchText: async () => {
+    fetchJson: async () => {
       attempts++;
       if (attempts === 1) throw new Error("offline");
-      return INDEX;
+      return JSON.parse(INDEX);
     },
   });
 

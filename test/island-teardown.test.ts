@@ -86,10 +86,10 @@ function explorerSetup() {
   let scheduled = 0;
   const fetched: string[] = [];
   const env: ExplorerEnv = {
-    async fetchText(url) {
+    async fetchJson(url) {
       fetched.push(url);
       if (url !== "/data/books.index.json") throw new Error(`no file at ${url}`);
-      return indexJson;
+      return JSON.parse(indexJson);
     },
     schedule(listener, ms) {
       assert.equal(ms, DEBOUNCE_MS);

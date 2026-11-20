@@ -6,6 +6,7 @@
  * language. */
 
 import { isRecord, parseJson } from "../../src/guards.ts";
+import { fetchJson, type Fetcher } from "../../src/fetch.ts";
 import { matchRows, prepareRows, type PreparedRow } from "./match.ts";
 import {
   createIndexLoader,
@@ -135,18 +136,18 @@ export interface ExplorerDocument {
 
 /** What the island reads from the world; tests pass a fake fetch and clock. */
 export interface ExplorerEnv {
-  fetchText(url: string, signal: AbortSignal): Promise<string>;
+  /** Reads one index file as parsed JSON. */
+  fetchJson(url: string, signal: AbortSignal): Promise<unknown>;
   schedule(listener: () => void, ms: number): unknown;
   cancel(handle: unknown): void;
 }
 
+/** The browser's `fetch`, absent in a test runtime. */
+const browserFetch = (globalThis as unknown as { fetch?: Fetcher }).fetch;
+
 /** The browser environment: `fetch`, and the document's timers. */
 export const browserEnv: ExplorerEnv = {
-  async fetchText(url, signal) {
-    const response = await fetch(url, { signal });
-    if (!response.ok) throw new Error(`${url}: ${response.status}`);
-    return response.text();
-  },
+  fetchJson: (url, signal) => fetchJson(browserFetch, url, signal),
   schedule: (listener, ms) => setTimeout(listener, ms),
   cancel: (handle) => clearTimeout(handle as ReturnType<typeof setTimeout>),
 };
@@ -664,7 +665,7 @@ function attach(root: ExplorerElement, doc: ExplorerDocument, env: ExplorerEnv):
 
   const loader = createIndexLoader(
     { field: field as unknown as IndexField, base, collection, signal },
-    { fetchText: env.fetchText },
+    { fetchJson: env.fetchJson },
     {
       ready(loaded) {
         index = loaded;

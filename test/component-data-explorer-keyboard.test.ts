@@ -56,9 +56,9 @@ function setup() {
 
   let pending: (() => void) | undefined;
   const env: ExplorerEnv = {
-    async fetchText(url) {
+    async fetchJson(url) {
       if (url !== INDEX_URL) throw new Error(`no file at ${url}`);
-      return indexJson;
+      return JSON.parse(indexJson);
     },
     schedule(listener, ms) {
       assert.equal(ms, DEBOUNCE_MS);
