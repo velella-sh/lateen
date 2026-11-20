@@ -13,6 +13,7 @@ import {
   capture,
   isLocalRequest,
   newVisualContext,
+  settle,
 } from "../../scripts/test-visual.ts";
 
 test("the fixed settings are the ones of the design note", () => {
@@ -57,6 +58,38 @@ body { margin: 0; font: 20px Slow, sans-serif; }
 document.getElementById("info").textContent = new Date(0).toString() + " " + navigator.language + " " +
   matchMedia("(prefers-reduced-motion: reduce)").matches;
 </script>`;
+
+test("every page settles through the same helper: fonts ready, animation and motion off", { skip }, async () => {
+  const dir = mkdtempSync(join(tmpdir(), "visual-settle-"));
+  writeFileSync(join(dir, "index.html"), PAGE);
+  writeFileSync(join(dir, "slow.woff2"), "not a font");
+  const server = await startServer(dir, "");
+  try {
+    const context = await newVisualContext(browser as Browser, server.url);
+    const page = await context.newPage();
+    await settle(page, `${server.url}/`);
+    const state = await page.evaluate(() => {
+      const g = globalThis as unknown as {
+        document: { fonts: { status: string }; getElementById(id: string): unknown; documentElement: { getAttribute(name: string): string | null } };
+        getComputedStyle(e: unknown): Record<string, string>;
+        matchMedia(query: string): { matches: boolean };
+      };
+      const blink = g.getComputedStyle(g.document.getElementById("blink"));
+      return {
+        fonts: g.document.fonts.status,
+        animation: blink.animationName,
+        transition: blink.transitionDuration,
+        motion: g.matchMedia("(prefers-reduced-motion: reduce)").matches,
+        theme: g.document.documentElement.getAttribute("data-theme"),
+      };
+    });
+    assert.deepEqual(state, { fonts: "loaded", animation: "none", transition: "0s", motion: true, theme: "light" });
+    await context.close();
+  } finally {
+    await server.close();
+    rmSync(dir, { recursive: true, force: true });
+  }
+});
 
 test("a shot waits for fonts, fixes the settings, blocks the network and is byte-identical across runs", { skip }, async () => {
   const dir = mkdtempSync(join(tmpdir(), "visual-runner-"));
