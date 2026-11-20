@@ -63,6 +63,7 @@
   "ask_agent_size": "{n} characters",
   "ask_agent_text_failed": "The page text could not be loaded.",
   "ask_agent_url_too_long": "This link would be too long, so the prompt was copied instead.",
+  "back_to_top": "Back to top",
   "blog_archive": "Archive",
   "blog_author_heading": "Posts by {name}",
   "blog_empty": "No posts yet.",

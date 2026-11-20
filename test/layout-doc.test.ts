@@ -153,6 +153,17 @@ test("the copy-Markdown control follows the page footer and stays before the pag
   );
 });
 
+test("the back-to-top link closes the article's page footer before the copy control and pager", () => {
+  const page = out(pageWith());
+  const article = /<article class="doc"[^>]*>(.*?)<\/article>/s.exec(page);
+  assert.ok(article, "article present");
+  assert.match(
+    article[1] ?? "",
+    /<div class="page-footer">[\s\S]*<a class="back-to-top" href="#main">[\s\S]*<\/a><\/div><div class="copy-markdown"/,
+  );
+  assert.ok((article[1] ?? "").indexOf('class="back-to-top"') < (article[1] ?? "").indexOf('<nav class="pager"'));
+});
+
 test("the breadcrumb leads the article and repeats the trail, end at the current page", () => {
   const trail = [
     { title: "Guides", url: "/guide/" },
