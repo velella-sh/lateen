@@ -43,6 +43,8 @@ const search: Chrome = (props) =>
       "data-search-searching": t(props.page.lang, "search_results_loading"),
       "data-search-failed": t(props.page.lang, "search_results_failed"),
       "data-search-empty": patternOf(props.page.lang, "search_results_empty"),
+      "data-search-ready": t(props.page.lang, "search_ready"),
+      "data-search-retry-failed": t(props.page.lang, "search_retry_failed"),
       "data-search-count-zero": patternOf(props.page.lang, "search_count_zero"),
       "data-search-count-one": patternOf(props.page.lang, "search_count_one"),
       "data-search-count-two": patternOf(props.page.lang, "search_count_two"),
@@ -106,6 +108,18 @@ const search: Chrome = (props) =>
         ),
       ),
       h("p", { class: "search-status", role: "status", "data-search-status": "" }, ""),
+      // Hidden and disabled until `client.ts` records a failed index load, so no-JS sees no dead control.
+      h(
+        "button",
+        {
+          type: "button",
+          class: "search-retry",
+          "data-search-retry": "",
+          hidden: true,
+          disabled: true,
+        },
+        t(props.page.lang, "search_retry"),
+      ),
       h("div", { class: "ask-agent", "data-ask-agent": "", hidden: true }),
       h(
         "div",

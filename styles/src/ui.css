@@ -782,6 +782,36 @@
     -webkit-appearance: none;
   }
 
+  /* The retry action appears under the status line only after a failed index load. */
+  .search-retry {
+    display: inline-flex;
+    align-items: center;
+    min-block-size: 1.5rem;
+    margin-block: 0.25rem 0.5rem;
+    margin-inline: 0.75rem;
+    padding: 0 0.6rem;
+    border: 1px solid var(--border);
+    border-radius: 0.5rem;
+    background: transparent;
+    color: var(--foreground);
+    font: inherit;
+    font-size: 0.8rem;
+    cursor: pointer;
+  }
+
+  .search-retry[hidden] {
+    display: none;
+  }
+
+  .search-retry:hover {
+    background: var(--muted);
+  }
+
+  .search-retry:focus-visible {
+    outline: 2px solid var(--state-focus-ring);
+    outline-offset: 2px;
+  }
+
   .search-results {
     max-height: 21rem;
     overflow: auto;
