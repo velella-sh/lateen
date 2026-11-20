@@ -17,6 +17,7 @@
  */
 
 import type { PaletteAction, PalettePayload, PaletteRun, ThemeChoice } from "../command-palette/actions.ts";
+import { sectionPaths } from "../../src/search/merge.ts";
 import { activateShortcuts, type ShortcutEvent } from "./shortcut.ts";
 import { activateAskAgent, parseAskConfig, type AskDocument, type AskElement, type AskResult } from "../ask-agent/client.ts";
 import { browserFetch } from "../copy-markdown/island.ts";
@@ -93,6 +94,8 @@ export interface OptionRow {
   readonly href?: string | undefined;
   /** The Pagefind record behind a result row. */
   readonly record?: SearchRecord | undefined;
+  /** The section path that tells this result apart; absent when no result needs one. */
+  readonly path?: string | undefined;
   /** The action behind an action row. */
   readonly action?: PaletteAction | undefined;
   /** The ask option behind the ask row. */
@@ -212,6 +215,9 @@ export function optionList(
 
   const groups: { id: string; kind: OptionKind; heading: string; rows: OptionRow[] }[] = [];
   const rows: OptionRow[] = [];
+  // One list-level decision, so a path every result shares is not repeated on every row.
+  const paths = sectionPaths(records.map((record) => record.url));
+  const pathOf = new Map(records.map((record, index) => [record.url, paths[index] ?? ""]));
 
   /** Opens the next group, whether it holds results or actions. */
   const open = (kind: OptionKind, heading: string): void => {
@@ -234,6 +240,7 @@ export function optionList(
         kind: "result",
         href: safeHref(record.url),
         record,
+        path: pathOf.get(record.url),
       });
     }
   }
@@ -524,6 +531,16 @@ function excerptNode(excerpt: string, doc: SearchDocument): SearchElement {
   return span;
 }
 
+/** A result's section path, kept in its own bidi island so an RTL line does not reorder it. */
+function pathNode(path: string, doc: SearchDocument): SearchElement {
+  const span = doc.createElement("span");
+  span.setAttribute("class", "search-result-path");
+  const bdi = doc.createElement("bdi");
+  bdi.append(doc.createTextNode(path));
+  span.append(bdi);
+  return span;
+}
+
 /** A result's title: the index's own, or the page URL when the index carries none. */
 function titleNode(record: SearchRecord, doc: SearchDocument): SearchElement {
   const title = record.meta?.title?.trim();
@@ -553,6 +570,7 @@ function resultContent(row: OptionRow, record: SearchRecord, doc: SearchDocument
   if (row.href !== undefined) link.setAttribute("href", row.href);
   // The control is the option, so a pointer, a keyboard, and assistive tech all meet the same element.
   optionAttributes(link, row);
+  if (row.path !== undefined && row.path !== "") link.append(pathNode(row.path, doc));
   link.append(titleNode(record, doc), excerptNode(record.excerpt, doc));
   return link;
 }

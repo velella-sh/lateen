@@ -113,6 +113,18 @@ function countPathOf(page: string): CountPath {
   return new Function(`${setup[0]}\n${block[0]}\nreturn { pluralCategory, visibleNumber, countMessage };`)() as CountPath;
 }
 
+/** The section path the script carries, extracted and run against the runtime's real URL parser. */
+interface SectionPath {
+  sectionPath(url: string): string;
+  sectionPaths(urls: readonly string[]): readonly string[];
+}
+
+function sectionPathOf(page: string): SectionPath {
+  const block = /\/\* section-path:start[\s\S]*?section-path:end \*\//.exec(scriptOf(page));
+  assert.ok(block, "the script keeps the section path in one self-contained block");
+  return new Function(`${block[0]}\nreturn { sectionPath, sectionPaths };`)() as SectionPath;
+}
+
 /** Serializing a page whose language has no catalog warns once; tests keep the output clean. */
 function quietOut(config: Partial<SiteConfig> = {}, page: Partial<Page> = {}): string {
   const previous = process.env.NODE_ENV;
@@ -210,6 +222,16 @@ test("every message comes from the i18n table", () => {
 
   const persian = scriptOf(out({ lang: "fa" }, { lang: "fa", dir: "rtl" }));
   assert.match(persian, /"one":"۱ نتیجه"/);
+});
+
+test("the results page tells same-titled pages apart by their real section path", () => {
+  const paths = sectionPathOf(out());
+
+  assert.equal(paths.sectionPath("/guide/install/"), "/guide/");
+  assert.equal(paths.sectionPath("/install/"), "", "a page at the root has no section path");
+  assert.deepEqual(paths.sectionPaths(["/api/install/", "/guide/install/"]), ["/api/", "/guide/"]);
+  assert.deepEqual(paths.sectionPaths(["/guide/one/", "/guide/two/"]), ["", ""], "a shared path is omitted");
+  assert.match(scriptOf(out()), /search-results-path/);
 });
 
 const PLURAL_CATEGORIES = ["zero", "one", "two", "few", "many", "other"] as const;

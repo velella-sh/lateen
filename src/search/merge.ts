@@ -16,6 +16,43 @@ export interface SearchResult {
   readonly score: number;
 }
 
+/**
+ * The section path a result's URL sits under: its parent directory, without the page's own segment.
+ * `/guide/install/` gives `/guide/`; a page at the root gives an empty string. The URL is the index's
+ * own metadata, so the path is never a guessed label.
+ */
+export function sectionPath(url: string): string {
+  let pathname: string;
+  try {
+    pathname = new URL(url, "https://lateen.invalid").pathname;
+  } catch {
+    return "";
+  }
+  const segments = pathname
+    .split("/")
+    .filter((segment) => segment !== "")
+    .map((segment) => {
+      try {
+        return decodeURIComponent(segment);
+      } catch {
+        return segment;
+      }
+    });
+  // The last segment is the page itself; what is left is the section it sits in.
+  segments.pop();
+  return segments.length === 0 ? "" : `/${segments.join("/")}/`;
+}
+
+/**
+ * Each result's section path, in the order given. Every path reads empty when no result has one or
+ * when all results share the same one: the path is only there to tell results apart.
+ */
+export function sectionPaths(urls: readonly string[]): readonly string[] {
+  const paths = urls.map(sectionPath);
+  const first = paths[0] ?? "";
+  return paths.every((path) => path === first) ? paths.map(() => "") : paths;
+}
+
 /** One other public project whose index the merge file lists. */
 export interface OtherIndex {
   /** The project's id in the network file. */

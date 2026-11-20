@@ -841,6 +841,14 @@
     background: var(--muted);
   }
 
+  .search-result-path,
+  .search-results-path {
+    color: var(--muted-foreground);
+    font-size: 0.72rem;
+    line-height: 1.4;
+    unicode-bidi: isolate;
+  }
+
   .search-result-title {
     color: var(--foreground);
     font-size: 0.9rem;
