@@ -3,20 +3,40 @@
  * first focus, never on page load, and a query is matched once the reader pauses (see `DEBOUNCE_MS`),
  * so a fast typist matches once. At most `ROW_LIMIT` rows show; the button `index.ts` writes hidden
  * reveals the next page. Every word the island says comes from a `data-` attribute in the page
- * language. */
+ * language.
+ *
+ * Filtering, sorting, pagination, the address, and the active-row transitions live in `state.ts`;
+ * this module reads the controls and applies that state to the DOM. */
 
-import { isRecord, parseJson } from "../../src/guards.ts";
 import { fetchJson, type Fetcher } from "../../src/fetch.ts";
-import { matchRows, prepareRows, type PreparedRow } from "./match.ts";
+import { createIndexLoader, URL_COLUMN, type IndexField, type IndexRow } from "./index-loader.ts";
 import {
-  createIndexLoader,
-  URL_COLUMN,
-  type CollectionIndex,
-  type IndexField,
-  type IndexRow,
-} from "./index-loader.ts";
-import { withBase, withParams, type ParamValue } from "../../src/url.ts";
-import { sortKey, sortRows, type SortDirection } from "../../src/sort.ts";
+  columnsOf,
+  createModel,
+  enterTarget,
+  facetCounts,
+  fieldsOf,
+  formatNumber,
+  hasMore,
+  hasState,
+  isEmptyCell,
+  matchingRows,
+  nextActive,
+  pageRows,
+  readAddress,
+  sortablesOf,
+  sortOf,
+  sortValue,
+  textOf,
+  writeAddress,
+  type Column,
+  type ExplorerModel,
+  type Facet,
+  type Selection,
+} from "./state.ts";
+import { withBase } from "../../src/url.ts";
+
+export { FILTER_PARAM, ORDER_PARAM, QUERY_PARAM, SORT_PARAM } from "./state.ts";
 
 /** The explorer root the island finds. */
 export const ROOT_SELECTOR = "[data-explorer]";
@@ -68,12 +88,6 @@ export const DEBOUNCE_MS = 150;
 
 /** Rows one page shows; the same number `index.ts` renders as the static table. */
 export const ROW_LIMIT = 50;
-
-/** The search results contract's parameter names, so an explorer address and the no-script form agree. */
-export const QUERY_PARAM = "q";
-export const FILTER_PARAM = "filter.";
-export const SORT_PARAM = "sort";
-export const ORDER_PARAM = "order";
 
 /** A key press as the island reads it. */
 export interface ExplorerKeyEvent {
@@ -152,86 +166,6 @@ export const browserEnv: ExplorerEnv = {
   cancel: (handle) => clearTimeout(handle as ReturnType<typeof setTimeout>),
 };
 
-/** One column the table shows, from the directive's array. */
-interface Column {
-  readonly field: string;
-  readonly kind: string;
-  readonly label?: string;
-}
-
-/** The filter fields from the root's `data-filters`, a JSON array. */
-function fieldsOf(text: string | null): string[] {
-  if (text === null) return [];
-  const parsed = parseJson(text);
-  if (!Array.isArray(parsed)) return [];
-  return parsed.filter((field): field is string => typeof field === "string" && field !== "");
-}
-
-/** The display columns from the root's `data-columns`; the index's own columns when it names none. */
-function columnsOf(text: string | null, index?: CollectionIndex): Column[] {
-  if (text !== null) {
-    const parsed = parseJson(text);
-    if (Array.isArray(parsed)) {
-      const columns = parsed.flatMap((entry): Column[] => {
-        if (!isRecord(entry) || typeof entry.field !== "string" || entry.field === "") return [];
-        return [{
-          field: entry.field,
-          kind: typeof entry.kind === "string" ? entry.kind : "text",
-          ...(typeof entry.label === "string" ? { label: entry.label } : {}),
-        }];
-      });
-      // A malformed attribute falls through to the index's columns.
-      if (columns.length > 0) return columns;
-    }
-  }
-  return (index?.columns ?? []).filter((field) => field !== URL_COLUMN).map((field) => ({ field, kind: "text" }));
-}
-
-/** One field the page offers as a sort choice, from the root's `data-sort`. */
-interface Sortable {
-  readonly field: string;
-  readonly kind: string;
-  readonly label: string;
-}
-
-/** The sortable fields from the root's `data-sort`, a JSON array. */
-function sortablesOf(text: string | null): Sortable[] {
-  if (text === null) return [];
-  const parsed = parseJson(text);
-  if (!Array.isArray(parsed)) return [];
-  return parsed.flatMap((entry): Sortable[] => {
-    if (!isRecord(entry) || typeof entry.field !== "string" || entry.field === "") return [];
-    return [{
-      field: entry.field,
-      kind: typeof entry.kind === "string" ? entry.kind : "text",
-      label: typeof entry.label === "string" && entry.label !== "" ? entry.label : entry.field,
-    }];
-  });
-}
-
-/** True when a cell carries nothing, as the static table reads it. */
-function isEmptyCell(value: IndexRow[number] | undefined): boolean {
-  if (value === null || value === undefined) return true;
-  if (typeof value === "string") return value.trim() === "";
-  return Array.isArray(value) && value.length === 0;
-}
-
-/** A cell as text in the page language: a list joins with commas, a number takes its digits. */
-function textOf(value: Exclude<IndexRow[number], null | undefined>, kind: string, lang: string): string {
-  if (Array.isArray(value)) return value.map((item) => String(item)).join(", ");
-  if (kind === "number" && typeof value !== "boolean") {
-    const number = typeof value === "number" ? value : Number(value);
-    if (Number.isFinite(number)) {
-      try {
-        return new Intl.NumberFormat(lang).format(number);
-      } catch {
-        return String(number);
-      }
-    }
-  }
-  return String(value);
-}
-
 /** The count pattern for the page language's plural category. */
 export function countText(root: ExplorerElement, lang: string, count: number): string {
   let category = "other";
@@ -245,105 +179,60 @@ export function countText(root: ExplorerElement, lang: string, count: number): s
   return pattern.replace("{n}", formatNumber(lang, count));
 }
 
-/** A count in the page's digits: Arabic shows Arabic-Indic digits, Persian Persian ones, the rest Latin. */
-function formatNumber(lang: string, value: number): string {
-  const language = lang.toLowerCase();
-  const numberingSystem = language.startsWith("ar") ? "arab" : language.startsWith("fa") ? "arabext" : "latn";
-  try {
-    return new Intl.NumberFormat(lang, { numberingSystem }).format(value);
-  } catch {
-    return String(value);
-  }
-}
-
-/** A cell as the text the filters compare it by; an empty cell matches no value. */
-function cellText(row: IndexRow, at: number, kind: string, lang: string): string {
-  const value = row[at];
-  if (value === null || value === undefined) return "";
-  return textOf(value, kind, lang);
-}
-
-/** One value of a filter field, with the checkbox and the count it shows. */
-interface FacetValue {
+/** One drawn filter value: the checkbox and the count it shows. */
+interface FacetWidget {
+  readonly field: string;
+  readonly label: string;
   readonly raw: string;
   readonly input: ExplorerElement;
   readonly count: ExplorerElement;
 }
 
-/** One filter field: its values in the index's order, and its fieldset in the page. */
-interface Facet {
-  readonly field: string;
-  readonly label: string;
-  readonly kind: string;
-  readonly values: readonly FacetValue[];
-}
-
-/**
- * Fills the filter box with one checkbox per value of every named field that holds two or more
- * values, and returns the fields it drew. The counts start as the index's own counts; `render`
- * keeps them in step with the query and the other fields.
- */
-function buildFacets(
-  root: ExplorerElement,
+/** Fills the filter box with one checkbox per value of every facet, and returns the controls it drew. */
+function drawFacets(
   doc: ExplorerDocument,
   box: ExplorerElement,
-  index: CollectionIndex,
-  columns: readonly Column[],
-  fields: readonly string[],
+  facets: readonly Facet[],
+  pattern: string,
   lang: string,
-): Facet[] {
-  const pattern = root.getAttribute("data-explorer-filter-column") ?? "{column}";
-  const facets: Facet[] = [];
-
-  for (const field of fields) {
-    const at = index.columns.indexOf(field);
-    if (at < 0) continue;
-    const column = columns.find((entry) => entry.field === field);
-    const kind = column?.kind ?? "text";
-    const seen = new Map<string, number>();
-    for (const row of index.rows) {
-      const text = cellText(row, at, kind, lang);
-      if (text !== "") seen.set(text, (seen.get(text) ?? 0) + 1);
-    }
-    if (seen.size < 2) continue;
-
+): FacetWidget[] {
+  const widgets: FacetWidget[] = [];
+  for (const facet of facets) {
     const fieldset = doc.createElement("fieldset");
     fieldset.setAttribute("class", "data-explorer-filter");
     const legend = doc.createElement("legend");
     legend.setAttribute("class", "data-explorer-filter-label");
-    legend.textContent = pattern.replace("{column}", column?.label ?? field);
+    legend.textContent = pattern.replace("{column}", facet.label);
     fieldset.append(legend);
 
-    const values: FacetValue[] = [];
-    for (const [text, count] of seen) {
+    for (const value of facet.values) {
       const option = doc.createElement("label");
       option.setAttribute("class", "data-explorer-filter-option");
       const input = doc.createElement("input");
       input.setAttribute("type", "checkbox");
-      input.setAttribute("value", text);
+      input.setAttribute("value", value.raw);
       input.checked = false;
       const name = doc.createElement("span");
       name.setAttribute("class", "data-explorer-filter-value");
-      name.textContent = text;
+      name.textContent = value.raw;
       const tally = doc.createElement("span");
       tally.setAttribute("class", "data-explorer-filter-count");
-      tally.textContent = `(${formatNumber(lang, count)})`;
+      tally.textContent = `(${formatNumber(lang, value.count)})`;
       option.append(input, name, tally);
       fieldset.append(option);
-      values.push({ raw: text, input, count: tally });
+      widgets.push({ field: facet.field, label: facet.label, raw: value.raw, input, count: tally });
     }
     box.append(fieldset);
-    facets.push({ field, label: column?.label ?? field, kind, values });
   }
-
-  return facets;
+  return widgets;
 }
 
+/** One body row for one index row, in the display columns' order. */
 function rowOf(
   doc: ExplorerDocument,
   row: IndexRow,
   columns: readonly Column[],
-  index: CollectionIndex,
+  index: ExplorerModel["index"],
   base: string,
   lang: string,
   noValue: string,
@@ -382,9 +271,9 @@ function rowOf(
 }
 
 /**
- * One explorer: the index, the query in hand, and the rows the table currently shows. Every listener
- * carries the returned teardown's signal, so a host that mounts and unmounts the explorer detaches
- * the wiring with one abort.
+ * One explorer: the index, the selection in hand, and the rows the table currently shows. Every
+ * listener carries the returned teardown's signal, so a host that mounts and unmounts the explorer
+ * detaches the wiring with one abort.
  */
 function attach(root: ExplorerElement, doc: ExplorerDocument, env: ExplorerEnv): () => void {
   const view = doc.defaultView ?? null;
@@ -415,6 +304,7 @@ function attach(root: ExplorerElement, doc: ExplorerDocument, env: ExplorerEnv):
   const failedText = root.getAttribute("data-explorer-failed") ?? "";
   const emptyPattern = root.getAttribute("data-explorer-empty") ?? "";
   const filterEmpty = root.getAttribute("data-explorer-filter-empty") ?? "";
+  const filterPattern = root.getAttribute("data-explorer-filter-column") ?? "{column}";
   const removePattern = root.getAttribute("data-explorer-remove") ?? "{filter}";
   const filterFields = fieldsOf(root.getAttribute("data-filters"));
   const sortables = sortablesOf(root.getAttribute("data-sort"));
@@ -423,20 +313,18 @@ function attach(root: ExplorerElement, doc: ExplorerDocument, env: ExplorerEnv):
   const original = body.innerHTML;
 
   let columns = columnsOf(root.getAttribute("data-columns"));
-  let index: CollectionIndex | undefined;
-  let prepared: PreparedRow[] | undefined;
-  let facets: Facet[] = [];
+  let model: ExplorerModel | undefined;
+  let selection: Selection = { query: "", filters: new Map(), sort: undefined };
+  let widgets: FacetWidget[] = [];
   let matches: readonly IndexRow[] = [];
-  let query = "";
-  let sorting: { readonly field: string; readonly kind: string; readonly direction: SortDirection } | undefined;
-  // Filters the address names before the index arrives and the facets exist.
-  let pendingFilters = new Map<string, string[]>();
   let limit = ROW_LIMIT;
   let timer: unknown;
   let failed = false;
   // The rows on screen, and which of them the field names. `-1` is no active row.
   let drawn: ExplorerElement[] = [];
   let active = -1;
+
+  const facets = (): readonly Facet[] => model?.facets ?? [];
 
   /**
    * Makes the row at `index` the active one, or clears the mark when `index` has no row. The class is
@@ -470,7 +358,7 @@ function attach(root: ExplorerElement, doc: ExplorerDocument, env: ExplorerEnv):
     body.innerHTML = original;
     matches = [];
     limit = ROW_LIMIT;
-    sorting = undefined;
+    selection = { query: selection.query, filters: new Map(), sort: undefined };
     field.setAttribute("aria-expanded", "false");
     if (sortSelect !== null) sortSelect.value = "";
     if (table !== null) table.hidden = false;
@@ -487,49 +375,39 @@ function attach(root: ExplorerElement, doc: ExplorerDocument, env: ExplorerEnv):
   };
 
   const drawRows = (): void => {
+    if (model === undefined) return;
     // The rows are replaced, so the mark goes with them and the field names nothing until a key
     // moves it again.
     markActive(-1);
-    drawn = matches
-      .slice(0, limit)
-      .map((row, at) => {
-        const tr = rowOf(doc, row, columns, index as CollectionIndex, base, lang, noValue);
-        tr.setAttribute("id", optionId(at));
-        return tr;
-      });
+    drawn = pageRows(matches, limit).map((row, at) => {
+      const tr = rowOf(doc, row, columns, model!.index, base, lang, noValue);
+      tr.setAttribute("id", optionId(at));
+      return tr;
+    });
     body.replaceChildren(...drawn);
     // Expanded only while there is a list to move through: with no matches the table is hidden.
     field.setAttribute("aria-expanded", matches.length > 0 ? "true" : "false");
     if (table !== null) table.hidden = matches.length === 0;
-    if (more !== null) more.hidden = matches.length <= limit;
+    if (more !== null) more.hidden = !hasMore(matches, limit);
   };
 
-  const chosen = (facet: Facet): string[] =>
-    facet.values.filter((value) => value.input.checked === true).map((value) => value.raw);
-
-  const filtering = (): boolean => facets.some((facet) => chosen(facet).length > 0);
-
-  const passes = (row: IndexRow, facet: Facet): boolean => {
-    const values = chosen(facet);
-    if (values.length === 0) return true;
-    const at = index?.columns.indexOf(facet.field) ?? -1;
-    return at < 0 || values.includes(cellText(row, at, facet.kind, lang));
-  };
-
-  /** The chosen sort, when the page offers the field and the direction names one. */
-  const chooseSort = (field: string, direction: SortDirection | undefined): void => {
-    const sortable = sortables.find((entry) => entry.field === field);
-    if (sortable === undefined || direction === undefined) {
-      sorting = undefined;
-      if (sortSelect !== null) sortSelect.value = "";
-      return;
+  /** The filters the drawn checkboxes name, in facet order. */
+  const checkedFilters = (): Map<string, string[]> => {
+    const filters = new Map<string, string[]>();
+    for (const widget of widgets) {
+      if (widget.input.checked !== true) continue;
+      filters.set(widget.field, [...(filters.get(widget.field) ?? []), widget.raw]);
     }
-    sorting = { field: sortable.field, kind: sortable.kind, direction };
-    if (sortSelect !== null) sortSelect.value = `${sortable.field}:${direction}`;
+    return filters;
   };
 
-  /** True while the table shows a result the address should keep. */
-  const hasState = (): boolean => query.trim() !== "" || filtering() || sorting !== undefined;
+  /** Checks the boxes the selection names, and no others. */
+  const applyFilters = (): void => {
+    for (const widget of widgets) {
+      widget.input.checked = selection.filters.get(widget.field)?.includes(widget.raw) ?? false;
+    }
+    if (sortSelect !== null) sortSelect.value = sortValue(selection.sort);
+  };
 
   /**
    * Replaces this explorer's keys in the address, keeping every other parameter and the fragment.
@@ -537,95 +415,52 @@ function attach(root: ExplorerElement, doc: ExplorerDocument, env: ExplorerEnv):
    */
   const write = (): void => {
     if (view === null) return;
-    const changes: Record<string, ParamValue> = {};
-    const text = query.trim();
-    if (text !== "") changes[QUERY_PARAM] = text;
-    for (const facet of facets) {
-      const values = chosen(facet);
-      if (values.length > 0) changes[`${FILTER_PARAM}${facet.field}`] = values;
-    }
-    if (sorting !== undefined) {
-      changes[SORT_PARAM] = sorting.field;
-      changes[ORDER_PARAM] = sorting.direction === "descending" ? "desc" : "asc";
-    }
-    const own = (key: string): boolean =>
-      key === QUERY_PARAM || key === SORT_PARAM || key === ORDER_PARAM || key.startsWith(FILTER_PARAM);
-    view.history.replaceState(null, "", withParams(view.location.href, changes, own));
-  };
-
-  /** Checks the boxes the address names, and no others. */
-  const checkFilters = (saved: ReadonlyMap<string, readonly string[]>): void => {
-    for (const facet of facets) {
-      const values = saved.get(facet.field) ?? [];
-      for (const value of facet.values) value.input.checked = values.includes(value.raw);
-    }
+    view.history.replaceState(null, "", writeAddress(view.location.href, selection, facets()));
   };
 
   const drawChips = (): void => {
     if (chips === null) return;
     const buttons: ExplorerElement[] = [];
-    for (const facet of facets) {
-      for (const value of facet.values) {
-        if (value.input.checked !== true) continue;
-        const text = `${facet.label}: ${value.raw}`;
-        const button = doc.createElement("button");
-        button.setAttribute("class", "data-explorer-chip");
-        button.setAttribute("type", "button");
-        button.setAttribute("aria-label", removePattern.replace("{filter}", text));
-        button.textContent = `${text} ×`;
-        button.addEventListener("click", () => {
-          value.input.checked = false;
-          run();
-          // The chip is gone, so focus moves to the checkbox that replaced it rather than the body.
-          value.input.focus?.();
-        });
-        buttons.push(button);
-      }
+    for (const widget of widgets) {
+      if (selection.filters.get(widget.field)?.includes(widget.raw) !== true) continue;
+      const text = `${widget.label}: ${widget.raw}`;
+      const button = doc.createElement("button");
+      button.setAttribute("class", "data-explorer-chip");
+      button.setAttribute("type", "button");
+      button.setAttribute("aria-label", removePattern.replace("{filter}", text));
+      button.textContent = `${text} ×`;
+      button.addEventListener("click", () => {
+        widget.input.checked = false;
+        selection = { ...selection, filters: checkedFilters() };
+        run();
+        // The chip is gone, so focus moves to the checkbox that replaced it rather than the body.
+        widget.input.focus?.();
+      }, { signal });
+      buttons.push(button);
     }
     chips.replaceChildren(...buttons);
     chips.hidden = buttons.length === 0;
   };
 
-  // Every value says how many rows the query and the other fields leave; its own field is ignored,
-  // so an unchosen value stays reachable.
-  const updateCounts = (text: string): void => {
-    if (prepared === undefined) return;
-    const textRows = new Set(matchRows(prepared, text));
-    for (const facet of facets) {
-      const at = index?.columns.indexOf(facet.field) ?? -1;
-      if (at < 0) continue;
-      for (const value of facet.values) {
-        let count = 0;
-        for (const entry of prepared) {
-          if (!textRows.has(entry.row)) continue;
-          if (facets.some((other) => other !== facet && !passes(entry.row, other))) continue;
-          if (cellText(entry.row, at, facet.kind, lang) === value.raw) count += 1;
-        }
-        value.count.textContent = `(${formatNumber(lang, count)})`;
-      }
-    }
-  };
-
-  const render = (text: string): void => {
-    if (prepared === undefined) return;
-    let selected = matchRows(prepared, text).filter((row) => facets.every((facet) => passes(row, facet)));
-    const active = sorting;
-    if (active !== undefined) {
-      const at = index?.columns.indexOf(active.field) ?? -1;
-      if (at >= 0) {
-        selected = sortRows(selected, (row) => sortKey(row[at], active.kind), active.kind, active.direction, lang);
-      }
-    }
-    matches = selected;
+  const render = (): void => {
+    if (model === undefined) return;
+    matches = matchingRows(model, selection);
     limit = ROW_LIMIT;
     drawRows();
     if (status !== null) status.textContent = countText(root, lang, matches.length);
     if (empty !== null) {
       const none = matches.length === 0;
+      const text = selection.query.trim();
       empty.hidden = !none;
       empty.textContent = none ? (text === "" ? filterEmpty : emptyPattern.replace("{query}", text)) : "";
     }
-    updateCounts(text);
+    // Every value says how many rows the query and the other fields leave; its own field is ignored.
+    for (const facet of facetCounts(model, selection)) {
+      for (const value of facet.values) {
+        const widget = widgets.find((entry) => entry.field === facet.field && entry.raw === value.raw);
+        if (widget !== undefined) widget.count.textContent = `(${formatNumber(lang, value.count)})`;
+      }
+    }
     drawChips();
   };
 
@@ -647,19 +482,15 @@ function attach(root: ExplorerElement, doc: ExplorerDocument, env: ExplorerEnv):
         sortSelect.append(option);
       }
     }
-    sortSelect.value = sorting === undefined ? "" : `${sorting.field}:${sorting.direction}`;
+    sortSelect.value = sortValue(selection.sort);
     sortSelect.addEventListener("change", () => {
-      const [field = "", direction] = (sortSelect.value ?? "").split(":");
-      chooseSort(
-        field,
-        direction === "descending" ? "descending" : direction === "ascending" ? "ascending" : undefined,
-      );
-      if (prepared !== undefined) {
-        if (hasState()) render(query.trim());
+      selection = { ...selection, sort: sortOf(sortSelect.value ?? "", sortables) };
+      if (model !== undefined) {
+        if (hasState(selection, model.facets)) render();
         else restore();
       }
       write();
-    });
+    }, { signal });
     sortBox.hidden = false;
   };
 
@@ -668,16 +499,14 @@ function attach(root: ExplorerElement, doc: ExplorerDocument, env: ExplorerEnv):
     { fetchJson: env.fetchJson },
     {
       ready(loaded) {
-        index = loaded;
         if (columns.length === 0) columns = columnsOf(null, loaded);
-        prepared = prepareRows(loaded, columns.map((column) => column.field));
-        facets =
-          filtersBox === null ? [] : buildFacets(root, doc, filtersBox, loaded, columns, filterFields, lang);
-        if (filtersBox !== null) filtersBox.hidden = facets.length === 0;
-        checkFilters(pendingFilters);
-        pendingFilters = new Map();
+        model = createModel(loaded, columns, filterFields, lang);
+        widgets =
+          filtersBox === null ? [] : drawFacets(doc, filtersBox, model.facets, filterPattern, lang);
+        if (filtersBox !== null) filtersBox.hidden = model.facets.length === 0;
+        applyFilters();
         drawSort();
-        if (hasState()) render(query.trim());
+        if (hasState(selection, model.facets)) render();
       },
       failed() {
         failed = true;
@@ -688,37 +517,24 @@ function attach(root: ExplorerElement, doc: ExplorerDocument, env: ExplorerEnv):
 
   /** Puts the address's query, filters and sort into the controls and the table. */
   const applyAddress = (): void => {
-    const params = new URLSearchParams(view?.location.search ?? "");
-    query = params.get(QUERY_PARAM) ?? "";
-    field.value = query;
+    selection = readAddress(view?.location.search ?? "", sortables);
+    field.value = selection.query;
+    applyFilters();
 
-    const saved = new Map<string, string[]>();
-    for (const [key, value] of params) {
-      if (!key.startsWith(FILTER_PARAM)) continue;
-      const name = key.slice(FILTER_PARAM.length);
-      if (name === "" || name === "collection") continue;
-      saved.set(name, [...(saved.get(name) ?? []), value]);
-    }
-    pendingFilters = saved;
-    if (facets.length > 0) checkFilters(saved);
-    const order = params.get(ORDER_PARAM);
-    chooseSort(params.get(SORT_PARAM) ?? "", order === "asc" ? "ascending" : order === "desc" ? "descending" : undefined);
-
-    if (prepared === undefined) {
-      if (hasState()) void loader.load();
+    if (model === undefined) {
+      if (hasState(selection, [])) void loader.load();
       return;
     }
-    if (hasState()) render(query.trim());
+    if (hasState(selection, model.facets)) render();
     else restore();
   };
 
   function run(): void {
     timer = undefined;
-    const text = query.trim();
-    if (!hasState()) {
+    if (!hasState(selection, facets())) {
       restore();
-    } else if (prepared !== undefined) {
-      render(text);
+    } else if (model !== undefined) {
+      render();
     } else {
       if (status !== null) status.textContent = loadingText;
       if (failed) {
@@ -731,12 +547,11 @@ function attach(root: ExplorerElement, doc: ExplorerDocument, env: ExplorerEnv):
 
   /** Reads the field, resets the sort, and runs the query once typing rests. */
   const typed = (): void => {
-    query = field.value ?? "";
-    sorting = undefined;
+    selection = { query: field.value ?? "", filters: selection.filters, sort: undefined };
     if (sortSelect !== null) sortSelect.value = "";
     if (timer !== undefined) env.cancel(timer);
     timer = undefined;
-    if (query.trim() === "") {
+    if (selection.query.trim() === "") {
       run();
       return;
     }
@@ -751,21 +566,13 @@ function attach(root: ExplorerElement, doc: ExplorerDocument, env: ExplorerEnv):
     if (event.key === "ArrowDown" || event.key === "ArrowUp") {
       if (drawn.length === 0) return;
       event.preventDefault();
-      markActive(
-        event.key === "ArrowDown"
-          ? active + 1 >= drawn.length
-            ? 0
-            : active + 1
-          : active <= 0
-            ? drawn.length - 1
-            : active - 1,
-      );
+      markActive(nextActive(active, drawn.length, event.key));
       return;
     }
 
     if (event.key === "Enter") {
       // No drawn row keeps the form's own Enter, which submits to the search results page.
-      const row = drawn[active >= 0 ? active : 0];
+      const row = drawn[enterTarget(active, drawn.length)];
       const link = row?.querySelector("a");
       if (link === undefined || link === null) return;
       event.preventDefault();
@@ -782,7 +589,10 @@ function attach(root: ExplorerElement, doc: ExplorerDocument, env: ExplorerEnv):
     }
   }, { signal });
 
-  filtersBox?.addEventListener("change", run, { signal });
+  filtersBox?.addEventListener("change", () => {
+    selection = { ...selection, filters: checkedFilters() };
+    run();
+  }, { signal });
 
   more?.addEventListener("click", () => {
     limit += ROW_LIMIT;
