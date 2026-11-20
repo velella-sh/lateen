@@ -179,7 +179,7 @@ test("a redraw keeps the keys the active option is re-resolved by, and drops a r
   assert.equal(activeIndexOf(narrowed, key), -1);
 });
 
-test("an action's click runs its descriptor, and an action without one is still a reachable option", () => {
+test("an action's click runs its descriptor once, and an action without one is still a reachable option", () => {
   const ran: PaletteRun[] = [];
   const results = fakeResults();
   const list = optionList([], [
@@ -192,10 +192,10 @@ test("an action's click runs its descriptor, and an action without one is still 
   const buttons = nodes.filter((node) => node.tag === "button");
   assert.deepEqual(buttons.map((node) => node.attrs["data-palette-action"]), ["theme-dark", "inert"]);
   assert.equal(textOf(findClass(nodes, "search-action-hint")!), "Switch theme");
+  assert.deepEqual(buttons[0]!.listeners["click"], undefined, "the row carries no click listener of its own");
 
   drawn[0]!.activate();
-  assert.deepEqual(ran, [{ kind: "theme", choice: "dark" }]);
-  assert.equal(buttons[0]!.clicks, 1);
+  assert.deepEqual(ran, [{ kind: "theme", choice: "dark" }], "the model runs the action once");
   assert.equal(buttons[0]!.scrolls, 1, "activating brings the option into view");
 
   drawn[1]!.activate();
@@ -221,15 +221,16 @@ test("the ask row hands its question to the panel, and stays inert without one",
   assert.deepEqual(asked, ["how does search work"], "and pressing it asks nothing");
 });
 
-test("a pointer entering a row names its option by position", () => {
-  const hovered: number[] = [];
+test("a row carries its position and no listener of its own", () => {
   const results = fakeResults();
   renderOptions(results as unknown as SearchResults, optionList([record("/a/", "one"), record("/b/", "two")], []), {
     doc: fakeDocument(),
     run: () => {},
-    hover: (index) => hovered.push(index),
   });
   const rows = walkAll(results.nodes).filter((node) => node.tag === "li");
-  for (const listener of rows[1]!.listeners["pointerenter"] ?? []) listener();
-  assert.deepEqual(hovered, [1]);
+  assert.deepEqual(rows.map((row) => row.attrs["data-search-row"]), ["0", "1"]);
+  assert.ok(
+    rows.every((row) => Object.keys(row.listeners).length === 0),
+    "the list's delegation root owns the pointer, so no row registers a listener",
+  );
 });

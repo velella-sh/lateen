@@ -23,8 +23,6 @@ export interface SearchNode {}
 export interface SearchElement extends SearchNode {
   setAttribute(name: string, value: string): void;
   append(...nodes: SearchNode[]): void;
-  /** A row listens for a pointer entering it; its own control listens for a click. */
-  addEventListener?(type: string, listener: () => void): void;
   /** Follows a result link or presses an action button, as the browser would. */
   click?(): void;
   /** Brings a row into view, so the active option is visible wherever the list is scrolled. */
@@ -154,21 +152,12 @@ function resultContent(row: OptionRow, record: SearchRecord, doc: SearchDocument
 }
 
 /** An action's option: its label and hint, its descriptor, and the click that runs it. */
-function actionContent(
-  row: OptionRow,
-  action: PaletteAction,
-  doc: SearchDocument,
-  run: (run: PaletteRun) => void,
-): SearchElement {
+function actionContent(row: OptionRow, action: PaletteAction, doc: SearchDocument): SearchElement {
   const button = doc.createElement("button");
   button.setAttribute("type", "button");
   button.setAttribute("class", "search-action-button");
   button.setAttribute("data-palette-action", action.id);
   optionAttributes(button, row);
-  if (action.run !== undefined) {
-    const command = action.run;
-    button.addEventListener?.("click", () => run(command));
-  }
 
   const label = doc.createElement("span");
   label.setAttribute("class", "search-action-label");
@@ -185,13 +174,12 @@ function actionContent(
 }
 
 /** The ask row's option: its question as the label, the hint that says what happens, and the click. */
-function askContent(row: OptionRow, ask: AskOption, doc: SearchDocument, open: (question: string) => void): SearchElement {
+function askContent(row: OptionRow, ask: AskOption, doc: SearchDocument): SearchElement {
   const button = doc.createElement("button");
   button.setAttribute("type", "button");
   button.setAttribute("class", "search-ask-button");
   button.setAttribute("data-ask-agent-open", "");
   optionAttributes(button, row);
-  button.addEventListener?.("click", () => open(ask.question));
 
   const label = doc.createElement("span");
   label.setAttribute("class", "search-action-label");
@@ -215,21 +203,19 @@ interface DrawnRow {
 
 /**
  * One row, of any kind. The `li` is the list's shape rather than a choice of its own, so it carries
- * no role: a row is never counted twice, and a pointer entering anywhere in it names its option.
+ * no role: a row is never counted twice, and its position lets the list's one pointer listener name
+ * the option a pointer entered.
  */
 function optionNode(row: OptionRow, index: number, render: OptionRender): DrawnRow {
   const item = render.doc.createElement("li");
   item.setAttribute("class", row.kind === "action" ? "search-result search-action" : "search-result");
-  item.addEventListener?.("pointerenter", () => render.hover?.(index));
+  item.setAttribute("data-search-row", String(index));
 
   let option: SearchElement | undefined;
   const action = row.action;
-  if (row.kind === "action" && action !== undefined) option = actionContent(row, action, render.doc, render.run);
+  if (row.kind === "action" && action !== undefined) option = actionContent(row, action, render.doc);
   const ask = row.ask;
-  if (row.kind === "ask" && ask !== undefined && render.ask !== undefined) {
-    const open = render.ask;
-    option = askContent(row, ask, render.doc, open);
-  }
+  if (row.kind === "ask" && ask !== undefined && render.ask !== undefined) option = askContent(row, ask, render.doc);
   const record = row.record;
   if (record !== undefined) option = resultContent(row, record, render.doc);
   if (option === undefined) {
@@ -254,18 +240,18 @@ export interface RenderedOption {
   readonly key: string;
   /** The option element itself: the row's link or button, which is what a reader chooses. */
   readonly element: SearchElement;
+  /** Runs the option as a pointer click on it would, without moving the list. */
+  press(): void;
   /** Runs the option as a pointer click on it would; one with no safe target does nothing. */
   activate(): void;
 }
 
-/** What drawing the list needs: a document, how to run an action, and how to follow a pointer. */
+/** What drawing the list needs: a document, how to run an action, and how to open the ask panel. */
 export interface OptionRender {
   readonly doc: SearchDocument;
   readonly run: (run: PaletteRun) => void;
   /** Called with the ask row's question; absent leaves the ask row inert. */
   readonly ask?: ((question: string) => void) | undefined;
-  /** Called with the row's position when a pointer enters it, so the active option follows. */
-  readonly hover?: ((index: number) => void) | undefined;
 }
 
 /**
@@ -306,12 +292,28 @@ export function renderOptions(
       const drawnRow = optionNode(row, index, render);
       rows.append(drawnRow.item);
       const option = drawnRow.option;
+      // Every row's action lives in the model, not in a listener of its own: the list's one click
+      // handler and the field's Enter both arrive here, so a row can only act once.
+      const press = (): void => {
+        const action = row.action;
+        if (row.kind === "action" && action?.run !== undefined) {
+          render.run(action.run);
+          return;
+        }
+        const ask = row.ask;
+        if (row.kind === "ask" && ask !== undefined) {
+          render.ask?.(ask.question);
+          return;
+        }
+        option.click?.();
+      };
       drawn.push({
         id: row.id,
         key: row.key,
         element: option,
+        press,
         activate() {
-          option.click?.();
+          press();
           option.scrollIntoView?.({ block: "nearest" });
         },
       });

@@ -80,6 +80,8 @@ export interface GalleryElement {
 /** A click, as the island reads it: a modified click keeps the browser's own meaning. */
 export interface GalleryEvent {
   preventDefault(): void;
+  /** The node the click landed in; a delegated listener reads the link it belongs to. */
+  readonly target?: unknown;
   metaKey?: boolean;
   ctrlKey?: boolean;
   shiftKey?: boolean;
@@ -352,32 +354,27 @@ export function activate(doc: GalleryDocument): () => void {
   };
 
   for (const root of roots) {
-    for (const link of root.querySelectorAll(FILTER_LINK_SELECTOR)) {
-      link.addEventListener("click", (event) => {
+    // One click listener per gallery: the filter links, the sort links, and the clear button share it,
+    // so a page with many filter values registers one listener instead of one per value.
+    root.addEventListener("click", (event) => {
+      const target = event.target as { closest?(selector: string): GalleryElement | null } | undefined;
+      const filter = target?.closest?.(FILTER_LINK_SELECTOR) ?? null;
+      if (filter !== null) {
         if (modified(event)) return;
         event.preventDefault();
-        const field = link.getAttribute("data-gallery-filter") ?? "";
-        const value = link.getAttribute("data-gallery-value") ?? "";
+        const field = filter.getAttribute("data-gallery-filter") ?? "";
+        const value = filter.getAttribute("data-gallery-value") ?? "";
         const next = filterHref(view?.location.href ?? "", field, value);
         view?.history.replaceState(null, "", next);
         applyAll("results");
-      }, { signal });
-    }
+        return;
+      }
 
-    const clear = root.querySelector(CLEAR_SELECTOR);
-    clear?.addEventListener("click", (event) => {
-      if (modified(event)) return;
-      event.preventDefault();
-      const next = clearHref(view?.location.href ?? "");
-      view?.history.replaceState(null, "", next);
-      applyAll("filters");
-    }, { signal });
-
-    for (const link of root.querySelectorAll(SORT_LINK_SELECTOR)) {
-      link.addEventListener("click", (event) => {
+      const sortLink = target?.closest?.(SORT_LINK_SELECTOR) ?? null;
+      if (sortLink !== null) {
         if (modified(event)) return;
         event.preventDefault();
-        const field = link.getAttribute("data-gallery-sort") ?? "";
+        const field = sortLink.getAttribute("data-gallery-sort") ?? "";
         const fields = [...root.querySelectorAll(SORT_LINK_SELECTOR)].map(
           (entry) => entry.getAttribute("data-gallery-sort") ?? "",
         );
@@ -385,8 +382,16 @@ export function activate(doc: GalleryDocument): () => void {
         const direction: SortDirection = sort?.field === field && sort.direction === "asc" ? "desc" : "asc";
         view?.history.replaceState(null, "", sortHref(view?.location.href ?? "", field, direction));
         applyAll(null);
-      }, { signal });
-    }
+        return;
+      }
+
+      if (target?.closest?.(CLEAR_SELECTOR) == null) return;
+      if (modified(event)) return;
+      event.preventDefault();
+      const next = clearHref(view?.location.href ?? "");
+      view?.history.replaceState(null, "", next);
+      applyAll("filters");
+    }, { signal });
   }
 
   view?.addEventListener("popstate", () => applyAll("count"), { signal });

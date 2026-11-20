@@ -45,12 +45,22 @@ export const EMPTY_FILTERS_SELECTOR = ".record-table-empty";
 /** The button that clears every filter. */
 export const CLEAR_FILTERS_SELECTOR = ".record-table-clear";
 
+/** A click or field event, as the table's delegated listeners read it. */
+export interface SortEvent {
+  /** The node the event landed in; the listener reads the control it belongs to. */
+  readonly target?: unknown;
+}
+
 /** The part of an element the island uses. */
 export interface SortElement {
   getAttribute(name: string): string | null;
   setAttribute(name: string, value: string): void;
   removeAttribute(name: string): void;
-  addEventListener(type: "click" | "input" | "change", listener: () => void, options?: { signal?: AbortSignal | undefined }): void;
+  addEventListener(
+    type: "click" | "input" | "change",
+    listener: (event: SortEvent) => void,
+    options?: { signal?: AbortSignal | undefined },
+  ): void;
   querySelector(selector: string): SortElement | null;
   querySelectorAll(selector: string): Iterable<SortElement>;
   closest(selector: string): SortElement | null;
@@ -205,16 +215,22 @@ function attachFilters(
   };
 
   form.hidden = false;
-  text?.addEventListener("input", () => {
+  // One listener per event type for the whole form: the text filter and every select share it, so a
+  // table with many columns registers no listener per control.
+  const controlIn = (event: SortEvent, selector: string): SortElement | null => {
+    const target = event.target as { closest?(selector: string): SortElement | null } | undefined;
+    return target?.closest?.(selector) ?? null;
+  };
+  form.addEventListener("input", (event) => {
+    if (controlIn(event, TEXT_FILTER_SELECTOR) === null) return;
     apply();
     onChange();
   }, { signal });
-  for (const select of selects) {
-    select.addEventListener("change", () => {
-      apply();
-      onChange();
-    }, { signal });
-  }
+  form.addEventListener("change", (event) => {
+    if (controlIn(event, SELECT_FILTER_SELECTOR) === null) return;
+    apply();
+    onChange();
+  }, { signal });
   clear?.addEventListener("click", () => {
     if (text !== null) text.value = "";
     for (const select of selects) select.value = "";
@@ -287,18 +303,26 @@ function attach(wrapper: SortElement, lang: string, view: SortWindow | null, pre
     if (index === -1 || field === null || label === "") continue;
     sortable.set(field, { th, index, kind });
     button.hidden = false;
-    button.addEventListener("click", () => {
-      const direction: SortDirection =
-        th.getAttribute("aria-sort") === "ascending" ? "descending" : "ascending";
-      sortBy(th, index, kind, direction);
-      const pattern =
-        direction === "ascending"
-          ? wrapper.getAttribute("data-sort-ascending") ?? ""
-          : wrapper.getAttribute("data-sort-descending") ?? "";
-      if (status !== null) status.textContent = pattern.replace("{column}", label);
-      write();
-    }, { signal });
   }
+  // One click listener for every header: a click lands on a button, and the column it belongs to
+  // decides the sort, so a wide table registers no listener per column.
+  wrapper.addEventListener("click", (event) => {
+    const target = event.target as { closest?(selector: string): SortElement | null } | undefined;
+    const button = target?.closest?.(BUTTON_SELECTOR) ?? null;
+    if (button === null) return;
+    const th = button.closest("th");
+    const entry = th === null ? undefined : sortable.get(th.getAttribute("data-field") ?? "");
+    if (entry === undefined) return;
+    const direction: SortDirection =
+      entry.th.getAttribute("aria-sort") === "ascending" ? "descending" : "ascending";
+    sortBy(entry.th, entry.index, entry.kind, direction);
+    const pattern =
+      direction === "ascending"
+        ? wrapper.getAttribute("data-sort-ascending") ?? ""
+        : wrapper.getAttribute("data-sort-descending") ?? "";
+    if (status !== null) status.textContent = pattern.replace("{column}", labelOf(entry.th));
+    write();
+  }, { signal });
 
   return () => {
     const params = new URLSearchParams(view?.location.search ?? "");

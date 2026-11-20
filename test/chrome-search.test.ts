@@ -785,6 +785,7 @@ interface FakeNode {
   attrs: Record<string, string>;
   children: FakeNode[];
   listeners: Record<string, Array<() => void>>;
+  parent?: FakeNode;
   focused: number;
   clicks: number;
   scrolls: number;
@@ -792,11 +793,24 @@ interface FakeNode {
   getAttribute(name: string): string | null;
   append(...nodes: SearchNode[]): void;
   addEventListener(type: string, listener: () => void): void;
+  closest(selector: string): FakeNode | null;
   click(): void;
   focus(): void;
   scrollIntoView(options: { readonly block: "nearest" }): void;
   /** Runs every listener of `type`, as a browser dispatching that event would. */
   fire(type: string): void;
+}
+
+/** True when `node` matches one part of a simple selector list the islands use. */
+function matchesPart(node: FakeNode, selector: string): boolean {
+  if (selector.startsWith("[") && selector.endsWith("]")) return selector.slice(1, -1) in node.attrs;
+  if (selector.startsWith(".")) return (node.attrs.class ?? "").split(/\s+/).includes(selector.slice(1));
+  return node.tag === selector;
+}
+
+/** The dashed attribute selectors and classes the list's delegated listeners read. */
+function matchesSelector(node: FakeNode, selector: string): boolean {
+  return selector.split(",").some((part) => matchesPart(node, part.trim()));
 }
 
 /** A tiny document for the option renderer, so tests can inspect the tree without a browser. */
@@ -818,10 +832,22 @@ function fakeDocument(): SearchDocument {
         return node.attrs[name] ?? null;
       },
       append(...nodes: SearchNode[]) {
-        for (const child of nodes) node.children.push(child as unknown as FakeNode);
+        for (const child of nodes) {
+          const fake = child as unknown as FakeNode;
+          fake.parent = node;
+          node.children.push(fake);
+        }
       },
       addEventListener(type: string, listener: () => void) {
         (node.listeners[type] ??= []).push(listener);
+      },
+      closest(selector: string) {
+        let current: FakeNode | undefined = node;
+        while (current !== undefined) {
+          if (matchesSelector(current, selector)) return current;
+          current = current.parent;
+        }
+        return null;
       },
       click() {
         node.clicks += 1;
@@ -884,10 +910,28 @@ function marks(nodes: readonly FakeNode[]): FakeNode[] {
 }
 
 function fakeResults() {
+  const listeners: Array<{ type: string; listener: (event: SearchEvent) => void; signal?: AbortSignal | undefined; removed: boolean }> = [];
   const fake = {
     nodes: [] as SearchNode[],
+    listeners,
     replaceChildren(...nodes: SearchNode[]) {
       fake.nodes = nodes;
+    },
+    addEventListener(type: string, listener: (event: SearchEvent) => void, options?: { signal?: AbortSignal | undefined }) {
+      listeners.push({ type, listener, signal: options?.signal, removed: false });
+    },
+    removeEventListener(type: string, listener: (event: SearchEvent) => void) {
+      for (const entry of listeners) if (entry.type === type && entry.listener === listener) entry.removed = true;
+    },
+    /** Dispatches `type` at `target`, as a browser bubbling it to the list would. */
+    dispatch(type: string, target: FakeNode) {
+      for (const entry of [...listeners]) {
+        if (entry.type !== type || entry.removed || entry.signal?.aborted === true) continue;
+        entry.listener({ target } as SearchEvent);
+      }
+    },
+    count(type: string) {
+      return listeners.filter((entry) => entry.type === type && !entry.removed).length;
     },
   };
   return fake;
@@ -1273,7 +1317,7 @@ test("teardown removes every listener and leaves the dialog inert", async () => 
   assert.deepEqual(terms, ["cache"], "the field no longer runs queries");
   dialog.fire("keydown", key("ArrowDown", input));
   assert.equal(input.active, active, "the arrow keys no longer move the active option");
-  options[0]?.fire("pointerenter");
+  results.dispatch("pointerover", options[0]!);
   assert.equal(input.active, active, "a stale row's pointer no longer moves the active option");
   dialog.fire("close", { target: dialog, preventDefault() {} });
   assert.equal(button.focused, focused, "a close event no longer moves focus");
@@ -1884,7 +1928,7 @@ test("a pointer entering a row makes its option the active one", async () => {
   const options = rowsOf(results);
   const rows = wrappersOf(results);
   assert.equal(rows[1]?.attrs.role, "presentation", "the row a pointer enters is not itself a choice");
-  rows[1]?.fire("pointerenter");
+  results.dispatch("pointerover", rows[1]!);
 
   assert.equal(options[1]?.attrs["aria-selected"], "true");
   assert.equal(input.active, options[1]?.attrs.id);
@@ -1948,27 +1992,45 @@ test("a row with no safe target presses nothing", () => {
   assert.deepEqual(runs, [{ kind: "theme", choice: "dark" }], "and a safe option still runs its own action");
 });
 
-test("a pointer click on an option runs it, and entering its row names it", () => {
-  const runs: unknown[] = [];
-  let hovered = -1;
-  const results = fakeResults();
-  const list = optionList([], [{ id: "copy-markdown", label: "Copy", hint: "Markdown", run: { kind: "copy", url: "/x.md" } }]);
-  renderOptions(results as unknown as SearchResults, list, {
+test("a large list registers one pointer and one click listener at the root, and a click runs once", async () => {
+  // 200 drawn rows: the renderer adds no listener to any row, however many rows there are.
+  const drawnResults = fakeResults();
+  const big = Array.from({ length: 200 }, (_, at): SearchRecord => ({
+    url: `/page-${at}/`,
+    excerpt: `Page ${at}`,
+    meta: { title: `Page ${at}` },
+  }));
+  const drawn = renderOptions(drawnResults as unknown as SearchResults, optionList(big, []), {
     doc: fakeDocument(),
-    run: (run) => runs.push(run),
-    hover: (index) => {
-      hovered = index;
-    },
+    run: () => {},
   });
+  assert.equal(drawn.length, 200);
+  assert.ok(
+    walkAll(drawnResults.nodes).every((node) => Object.keys(node.listeners).length === 0),
+    "no element of the rendered list registers a listener",
+  );
 
-  const nodes = walkAll(results.nodes);
-  const row = nodes.find((node) => node.tag === "li")!;
-  const option = optionsOf(nodes)[0]!;
-  row.fire("pointerenter");
-  option.click();
+  // The island wires the list once, whatever it holds, and one click runs the action once.
+  const themes: string[] = [];
+  const { button, results, parts } = partsOf();
+  activate(parts, {
+    ...envWith(apiOf(records)),
+    palette: {
+      label: "Actions",
+      actions: [{ id: "theme-dark", label: "Dark", hint: "Switch theme", run: { kind: "theme", choice: "dark" } }],
+    },
+    handlers: { theme: (choice: string) => themes.push(choice) },
+  } as unknown as SearchEnv);
+  button.click();
+  await tick();
 
-  assert.equal(hovered, 0, "the pointer reports the row it entered, wherever in it it was");
-  assert.deepEqual(runs, [{ kind: "copy", url: "/x.md" }], "and the option still runs on click");
+  assert.equal(results.count("pointerover"), 1, "one pointer listener for the whole list");
+  assert.equal(results.count("click"), 1, "one click listener for the whole list");
+
+  const action = walkAll(results.nodes).find((node) => node.attrs["data-palette-action"] === "theme-dark");
+  assert.ok(action !== undefined);
+  results.dispatch("click", action);
+  assert.deepEqual(themes, ["dark"], "one click activates once");
 });
 
 test("keys an option list has nothing to do with are left to the browser", async () => {
@@ -2360,7 +2422,7 @@ test("choosing the ask row hands the panel the question and the results on scree
   input.type("cache rules");
   await tick();
 
-  rowsOf(results).at(-1)?.click();
+  results.dispatch("click", rowsOf(results).at(-1)!);
   assert.deepEqual(calls, [{ question: "cache rules", urls: records.map((record) => record.url) }]);
 });
 

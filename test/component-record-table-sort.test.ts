@@ -182,7 +182,7 @@ test("the sort control is a real button, reachable and operable from the keyboar
   assert.equal(document.activeElement, button);
 
   // A native button turns Enter and Space into a click; dispatching it is the keyboard path.
-  button.dispatchEvent(new (document.defaultView as Window & typeof globalThis).Event("click"));
+  button.dispatchEvent(new (document.defaultView as Window & typeof globalThis).Event("click", { bubbles: true }));
   assert.equal(headers(document)[0]!.getAttribute("aria-sort"), "ascending");
 });
 
