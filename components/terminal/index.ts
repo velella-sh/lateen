@@ -18,6 +18,16 @@ export const COPY_CLASS = "terminal-copy";
 /** The prompt a command line starts with. Lines that do not start with it are output. */
 export const PROMPT = "$";
 
+/** The other prompt the parser accepts; it needs its space so output like `100% done` stays output. */
+export const PERCENT_PROMPT = "%";
+
+/** The prompt that opens this line, or `undefined` when the line is output. */
+export function promptOf(line: string): string | undefined {
+  if (line.startsWith(PROMPT)) return PROMPT;
+  if (line.startsWith(`${PERCENT_PROMPT} `)) return PERCENT_PROMPT;
+  return undefined;
+}
+
 /** Class on the live region that reports a blocked copy. `client.ts` and the variables island use it. */
 export const STATUS_CLASS = "terminal-status";
 
@@ -43,6 +53,8 @@ export type TerminalLine = {
   readonly command: number | null;
   /** True for command input after the prompt line: a backslash continuation or a heredoc line. */
   readonly continuation: boolean;
+  /** The prompt that opened the command; absent when it is the default `$`. */
+  readonly prompt?: string;
 };
 
 /** One complete command and the output recorded after it: the record agents read. */
@@ -128,10 +140,10 @@ export function bodyText(html: string): string {
 }
 
 /**
- * Splits session text into lines and follows the command input. A line that starts with `$` opens a
- * command: the prompt and one space after it are removed. A command also keeps the lines its trailing
- * backslash continues and the bodies of the heredocs it opens, so no input line becomes output. Every
- * other line is output, kept as written. Nothing is executed or expanded.
+ * Splits session text into lines and follows the command input. A line that starts with `$`, or with
+ * `% `, opens a command: the prompt and one space after it are removed. A command also keeps the lines
+ * its trailing backslash continues and the bodies of the heredocs it opens, so no input line becomes
+ * output. Every other line is output, kept as written. Nothing is executed or expanded.
  */
 export function parseLines(text: string): TerminalLine[] {
   if (text === "") return [];
@@ -142,7 +154,8 @@ export function parseLines(text: string): TerminalLine[] {
 
   while (index < raw.length) {
     const line = raw[index]!;
-    if (!line.startsWith(PROMPT)) {
+    const prompt = promptOf(line);
+    if (prompt === undefined) {
       lines.push({ kind: "output", text: line, command: command < 0 ? null : command, continuation: false });
       index += 1;
       continue;
@@ -150,8 +163,14 @@ export function parseLines(text: string): TerminalLine[] {
 
     command += 1;
     const own = command;
-    const input = line.slice(PROMPT.length).replace(/^ /, "");
-    lines.push({ kind: "command", text: input, command: own, continuation: false });
+    const input = line.slice(prompt.length).replace(/^ /, "");
+    lines.push({
+      kind: "command",
+      text: input,
+      command: own,
+      continuation: false,
+      ...(prompt === PROMPT ? {} : { prompt }),
+    });
     index += 1;
 
     // Read every backslash continuation first, so a heredoc opened on a later line joins the queue
@@ -209,14 +228,17 @@ export function commandsOf(lines: readonly TerminalLine[]): string {
 export function commandRecords(lines: readonly TerminalLine[]): TerminalCommand[] {
   const inputs: string[][] = [];
   const outputs: string[][] = [];
+  const prompts: string[] = [];
   for (const line of lines) {
     if (line.command === null) continue;
-    if (line.kind === "command") (inputs[line.command] ??= []).push(line.text);
-    else (outputs[line.command] ??= []).push(line.text);
+    if (line.kind === "command") {
+      (inputs[line.command] ??= []).push(line.text);
+      (prompts[line.command] ??= line.prompt ?? PROMPT);
+    } else (outputs[line.command] ??= []).push(line.text);
   }
 
   return inputs.map((parts, index) => ({
-    prompt: PROMPT,
+    prompt: prompts[index] ?? PROMPT,
     input: parts.join("\n"),
     output: outputs[index] ?? [],
   }));
@@ -249,7 +271,7 @@ function lineElement(line: TerminalLine) {
   return h(
     "span",
     { class: "terminal-line terminal-command", ...attributes },
-    h("span", { class: "terminal-prompt", "aria-hidden": "true" }, `${PROMPT} `),
+    h("span", { class: "terminal-prompt", "aria-hidden": "true" }, `${line.prompt ?? PROMPT} `),
     text,
   );
 }
