@@ -1,10 +1,14 @@
 #!/usr/bin/env bash
 # Packs Lateen, installs it with the published Mizzen into an empty project, and builds the Lateen docs site with the
 # installed `mizzen` command. It proves the published packages work from node_modules, not from a checkout.
-# Usage: scripts/smoke-package.sh   (run from the repository root)
+# Usage: scripts/smoke-package.sh   (runs from any directory)
 set -euo pipefail
 
-lateen="$(pwd)"
+# Resolve the checkout from this script, not the caller's working directory, so a space or a foreign
+# cwd cannot change what gets packed. Every later command runs from an explicit directory.
+lateen="$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")/.." && pwd)"
+test -f "$lateen/package.json" || { echo "not in the Lateen checkout: $lateen" >&2; exit 1; }
+cd -- "$lateen"
 work="$(mktemp -d)"
 trap 'rm -rf "$work"' EXIT
 
