@@ -5,6 +5,7 @@ import { join } from "node:path";
 import { test } from "node:test";
 import { chromium, type Browser } from "playwright";
 import { startServer } from "../../scripts/test-a11y.ts";
+import { serve, tempDir } from "../integration-helpers.ts";
 import {
   CONTEXT_OPTIONS,
   DEFAULT_VIEWPORT,
@@ -91,13 +92,14 @@ test("every page settles through the same helper: fonts ready, animation and mot
   }
 });
 
+const dir = tempDir("visual-runner-");
+writeFileSync(join(dir, "index.html"), PAGE);
+writeFileSync(join(dir, "slow.woff2"), "not a font");
+const server = await serve(dir);
+
 test("a shot waits for fonts, fixes the settings, blocks the network and is byte-identical across runs", { skip }, async () => {
-  const dir = mkdtempSync(join(tmpdir(), "visual-runner-"));
-  writeFileSync(join(dir, "index.html"), PAGE);
-  writeFileSync(join(dir, "slow.woff2"), "not a font");
-  const server = await startServer(dir, "");
+  const context = await newVisualContext(browser as Browser, server.url);
   try {
-    const context = await newVisualContext(browser as Browser, server.url);
     const page = await context.newPage();
     const requested: string[] = [];
     page.on("requestfailed", (r) => requested.push(r.url()));
@@ -121,20 +123,14 @@ test("a shot waits for fonts, fixes the settings, blocks the network and is byte
     const png = readFileSync(join(dir, "a.png"));
     assert.equal(png.readUInt32BE(16), DEFAULT_VIEWPORT.width);
     assert.equal(png.readUInt32BE(20), MAX_HEIGHT, "a taller page is cropped to the cap");
-    await context.close();
   } finally {
-    await server.close();
-    rmSync(dir, { recursive: true, force: true });
+    await context.close();
   }
 });
 
 test("a shot takes the theme, print and forced-colors emulation of its matrix entry", { skip }, async () => {
-  const dir = mkdtempSync(join(tmpdir(), "visual-runner-"));
-  writeFileSync(join(dir, "index.html"), PAGE);
-  writeFileSync(join(dir, "slow.woff2"), "not a font");
-  const server = await startServer(dir, "");
+  const context = await newVisualContext(browser as Browser, server.url, { width: 375, height: 844 });
   try {
-    const context = await newVisualContext(browser as Browser, server.url, { width: 375, height: 844 });
     const page = await context.newPage();
     await capture(page, `${server.url}/`, join(dir, "dark-print-forced.png"), { theme: "dark", media: "print", forcedColors: true });
     const state = await page.evaluate(() => {
@@ -151,10 +147,8 @@ test("a shot takes the theme, print and forced-colors emulation of its matrix en
     assert.deepEqual(state, { theme: "dark", print: true, forced: true });
     const png = readFileSync(join(dir, "dark-print-forced.png"));
     assert.equal(png.readUInt32BE(16), 375);
-    await context.close();
   } finally {
-    await server.close();
-    rmSync(dir, { recursive: true, force: true });
+    await context.close();
   }
 });
 

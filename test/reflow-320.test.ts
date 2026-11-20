@@ -1,9 +1,7 @@
 import assert from "node:assert/strict";
-import { rmSync } from "node:fs";
 import { test } from "node:test";
 import { chromium, type Browser } from "playwright";
-import { startServer } from "../visual/index.ts";
-import { build } from "./integration-helpers.ts";
+import { build, serve } from "./integration-helpers.ts";
 
 let browser: Browser | undefined;
 try {
@@ -15,7 +13,7 @@ const skip = browser === undefined ? "Chromium is not installed (npx playwright 
 
 test("an article stays inside 320px and scrolls code and tables in place", { skip }, async () => {
   const site = build("integration");
-  const server = await startServer(site.out, "");
+  const server = await serve(site.out);
   try {
     const context = await (browser as Browser).newContext({ viewport: { width: 320, height: 800 } });
     try {
@@ -41,8 +39,6 @@ test("an article stays inside 320px and scrolls code and tables in place", { ski
       await context.close();
     }
   } finally {
-    await server.close();
-    rmSync(site.out, { recursive: true, force: true });
     await browser?.close();
   }
 });

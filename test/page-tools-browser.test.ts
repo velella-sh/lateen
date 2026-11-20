@@ -3,8 +3,7 @@ import { existsSync } from "node:fs";
 import { join } from "node:path";
 import { after, test } from "node:test";
 import { chromium, type Browser } from "playwright";
-import { startServer } from "../visual/index.ts";
-import { build } from "./integration-helpers.ts";
+import { build, serve } from "./integration-helpers.ts";
 
 const site = build("page-tools");
 
@@ -32,7 +31,7 @@ after(async () => {
 });
 
 test("the tool fills its slot and local input sends nothing over the network", { skip }, async () => {
-  const server = await startServer(site.out, "");
+  const server = await serve(site.out);
   const context = await (browser as Browser).newContext();
   try {
     const page = await context.newPage();
@@ -55,6 +54,5 @@ test("the tool fills its slot and local input sends nothing over the network", {
     assert.deepEqual(plainRequests.filter((url) => url.includes("tool.js")), [], "a page without tool: loads no tool");
   } finally {
     await context.close();
-    await server.close();
   }
 });
