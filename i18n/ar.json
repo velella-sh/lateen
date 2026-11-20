@@ -236,6 +236,8 @@
   "guide_copy_before": "نسخ الشيفرة قبل",
   "guide_expected": "النتيجة المتوقعة",
   "guide_from": "من",
+  "guide_optional": "اختياري",
+  "guide_prerequisites": "المتطلبات المسبقة",
   "guide_progress": "اكتملت {done} من {total} خطوات",
   "guide_risk": "المخاطرة",
   "guide_step": "الخطوة {n}",
