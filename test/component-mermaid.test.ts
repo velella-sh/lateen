@@ -15,6 +15,7 @@ import mermaid, {
   diagramKey,
   diagramRenderCount,
   normalizeSource,
+  parseDiagramProps,
   RENDER_OPTIONS,
   renderDiagram,
   type MermaidProps,
@@ -22,6 +23,7 @@ import mermaid, {
 } from "../components/mermaid/index.ts";
 import {
   CACHE_DIR_ENV,
+  cacheEntrySvg,
   diagramCacheDir,
   diagramCachePath,
   MAX_ENTRY_BYTES,
@@ -160,6 +162,71 @@ test("normalization gives equivalent sources one cache key", () => {
   assert.equal(diagramKey(FLOWCHART), diagramKey("\r\nflowchart TD \r\n  A[Start] --> B[End]\r\n"));
   assert.notEqual(diagramKey(FLOWCHART), diagramKey("flowchart TD\n  A[Start] --> B[Done]"));
   assert.notEqual(diagramKey(FLOWCHART), diagramKey(FLOWCHART, { ...RENDER_OPTIONS, theme: "dark" }));
+});
+
+test("source parsing resolves normalization, alt origin, and position without rendering", () => {
+  const renders = diagramRenderCount();
+  assert.equal(parseDiagramProps({}), null);
+  assert.equal(parseDiagramProps({ source: "  \r\n\t " }), null);
+
+  const parsed = parseDiagramProps({ source: `\r\n${FLOWCHART}  \r\n\r\n`, src: " docs/flow.md:3:1-6:3 " });
+  assert.deepEqual(parsed, {
+    source: FLOWCHART,
+    alt: { text: "", origin: "none" },
+    src: "docs/flow.md:3:1-6:3",
+  });
+
+  const authored = parseDiagramProps({ source: `%% alt: Ignored\n${FLOWCHART}`, alt: " Authored " });
+  assert.deepEqual(authored?.alt, { text: "Authored", origin: "prop" });
+  const derived = parseDiagramProps({ source: `%% alt: A tiny flow\n${FLOWCHART}` });
+  assert.deepEqual(derived?.alt, { text: "A tiny flow", origin: "comment" });
+  assert.equal(parseDiagramProps({ source: FLOWCHART, src: "  " })?.src, null);
+
+  // Unsafe source is parsed verbatim: sanitization belongs to output, not to parsing.
+  const unsafe = 'flowchart TD\n  A["</script><script>alert(1)</script>"] -->';
+  assert.equal(parseDiagramProps({ source: unsafe })?.source, unsafe);
+  assert.equal(diagramRenderCount(), renders, "parsing never starts a render");
+});
+
+test("the cache entry decision is pure: only a current, matching, non-empty SVG is a hit", () => {
+  const key = diagramKey(FLOWCHART);
+  const svg = "<svg>ok</svg>";
+  assert.equal(cacheEntrySvg({ format: MERMAID_CACHE_FORMAT, key, svg }, key), svg);
+  assert.equal(cacheEntrySvg({ format: MERMAID_CACHE_FORMAT - 1, key, svg }, key), null);
+  assert.equal(cacheEntrySvg({ format: MERMAID_CACHE_FORMAT, key: "other-key", svg }, key), null);
+  assert.equal(cacheEntrySvg({ format: MERMAID_CACHE_FORMAT, key, svg: 42 }, key), null);
+  assert.equal(cacheEntrySvg({ format: MERMAID_CACHE_FORMAT, key, svg: "" }, key), null);
+  assert.equal(cacheEntrySvg({ format: MERMAID_CACHE_FORMAT, key }, key), null);
+  assert.equal(cacheEntrySvg(null, key), null);
+  assert.equal(cacheEntrySvg("not an entry", key), null);
+});
+
+test("a failed render is a memory hit but is never persisted", () => {
+  const { dir, clean } = tempCacheDir();
+  const source = "flowchart TD\n  Persist -->";
+  try {
+    withCacheDir(dir, () => {
+      clearDiagramCache();
+      const renders = diagramRenderCount();
+      const failed = renderDiagram(source);
+      assert.equal(failed.ok, false);
+      assert.equal(diagramRenderCount(), renders + 1);
+      const key = diagramKey(source);
+      assert.equal(readDiagramCache(dir, key), null);
+      assert.equal(existsSync(diagramCachePath(dir, key)), false, "a failure is not page output for the next build");
+
+      // The failure is still cached in memory: no second child render for the same source.
+      assert.deepEqual(renderDiagram(source), failed);
+      assert.equal(diagramRenderCount(), renders + 1);
+    });
+
+    // A fresh process finds no persisted failure and renders again instead of trusting one.
+    const probe = renderInFreshProcess(dir, source);
+    assert.equal(probe.renders, 1);
+    assert.equal(probe.result.ok, false);
+  } finally {
+    clean();
+  }
 });
 
 test("an unchanged diagram is not rendered twice", () => {

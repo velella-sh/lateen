@@ -31,16 +31,24 @@ interface CacheEntry {
   readonly svg: string;
 }
 
+/**
+ * The cache decision for one parsed entry, without any file access: the SVG it holds for `key`, or `null`
+ * when the entry is an older format, another key's, partial, or corrupt. Only a current, matching,
+ * non-empty SVG is a hit; anything else is a miss, never page output.
+ */
+export function cacheEntrySvg(parsed: unknown, key: string): string | null {
+  if (typeof parsed !== "object" || parsed === null) return null;
+  const entry = parsed as Partial<CacheEntry>;
+  if (entry.format !== MERMAID_CACHE_FORMAT || entry.key !== key) return null;
+  return typeof entry.svg === "string" && entry.svg !== "" ? entry.svg : null;
+}
+
 /** The SVG stored for a key, or `null` for a miss, an older format, a partial write, or a corrupt entry. */
 export function readDiagramCache(dir: string, key: string): string | null {
   const path = diagramCachePath(dir, key);
   try {
     if (statSync(path).size > MAX_ENTRY_BYTES) return null;
-    const parsed: unknown = JSON.parse(readFileSync(path, "utf8"));
-    if (typeof parsed !== "object" || parsed === null) return null;
-    const entry = parsed as Partial<CacheEntry>;
-    if (entry.format !== MERMAID_CACHE_FORMAT || entry.key !== key) return null;
-    return typeof entry.svg === "string" && entry.svg !== "" ? entry.svg : null;
+    return cacheEntrySvg(JSON.parse(readFileSync(path, "utf8")), key);
   } catch {
     return null;
   }
