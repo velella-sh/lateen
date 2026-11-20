@@ -41,7 +41,7 @@ test("the commit comes from the flag or CI and is always 7-40 lowercase hex", ()
   assert.equal(isCommit("abc1234"), true);
   assert.equal(isCommit("ABC1234"), false);
   assert.equal(isCommit("abc123"), false);
-  assert.throws(() => commitFrom([]), /--commit/);
+  assert.throws(() => commitFrom([], {}), /--commit/);
   assert.throws(() => commitFrom(["--commit"]), /needs a sha/);
   assert.throws(() => commitFrom(["--commit", "ABC1234"]), /lowercase hex/);
 });
