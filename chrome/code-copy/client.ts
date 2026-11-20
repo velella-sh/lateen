@@ -1,6 +1,9 @@
 /* Code block copy and wrap controls: copies a block's code without diff markers or shell prompts,
  * confirms with a short text change and a live message, and wraps long lines on demand. The controls
- * are made here, so a visitor without JavaScript gets no control that would do nothing. */
+ * are made here, so a visitor without JavaScript gets no control that would do nothing. It also marks
+ * the lines a `#<block>-L3-L7` fragment names, a range no `:target` rule can select on its own. */
+
+import { parseLineFragment, TARGET_CLASS } from "../../components/code/line-fragment.ts";
 
 /** Class on the copy button. */
 export const BUTTON_CLASS = "code-copy";
@@ -91,9 +94,15 @@ export interface CopyNode {
 /** A code block as the island reads it. */
 export interface CopyBlock {
   getAttribute(name: string): string | null;
-  classList: { toggle(name: string, force?: boolean): unknown };
+  classList: { toggle?(name: string, force?: boolean): unknown; add?(name: string): void; remove?(name: string): void };
   querySelector(selector: string): { textContent: string | null } | null;
   before(node: CopyNode): void;
+}
+
+/** A line the fragment names. */
+export interface CopyLine extends CopyBlock {
+  classList: { add(name: string): void; remove(name: string): void };
+  scrollIntoView?(options?: { block?: "center" }): void;
 }
 
 /** The part of the document the island uses. */
@@ -101,6 +110,7 @@ export interface CopyDocument {
   createElement(tag: string): CopyNode;
   createElementNS(namespace: string, tag: string): CopyNode;
   querySelectorAll(selector: string): Iterable<CopyBlock>;
+  getElementById?(id: string): CopyLine | null;
   /** The hidden label template; an absent one keeps the English fallback. */
   querySelector?(selector: string): { getAttribute(name: string): string | null } | null;
 }
@@ -229,6 +239,26 @@ export function activate(doc: CopyDocument, env: CopyEnv): void {
   }
 }
 
+/**
+ * Marks the lines a fragment names: one line or a range in one block. Older marks are cleared first, so
+ * a hash change never leaves two ranges lit. A range scrolls its first line here, because the browser
+ * has no element with the range's own id.
+ */
+export function targetLines(doc: CopyDocument, hash: string): CopyLine[] {
+  for (const line of doc.querySelectorAll(`.${TARGET_CLASS}`)) line.classList.remove?.(TARGET_CLASS);
+  const fragment = parseLineFragment(hash);
+  if (fragment === undefined) return [];
+  const lines: CopyLine[] = [];
+  for (let number = fragment.from; number <= fragment.to; number += 1) {
+    const line = doc.getElementById?.(`${fragment.block}-L${number}`) ?? null;
+    if (line === null) break;
+    line.classList.add(TARGET_CLASS);
+    lines.push(line);
+  }
+  if (fragment.from !== fragment.to) lines[0]?.scrollIntoView?.({ block: "center" });
+  return lines;
+}
+
 /** The template's words for this page, falling back to English when it has none. */
 export function labelsOf(doc: CopyDocument): CopyLabels {
   const template = doc.querySelector?.(TEMPLATE_SELECTOR) ?? null;
@@ -299,7 +329,7 @@ function attach(doc: CopyDocument, block: CopyBlock, env: CopyEnv, labels: CopyL
   wrap.addEventListener("click", () => {
     wrapped = !wrapped;
     wrap.setAttribute("aria-pressed", wrapped ? "true" : "false");
-    block.classList.toggle(WRAPPED_CLASS, wrapped);
+    block.classList.toggle?.(WRAPPED_CLASS, wrapped);
   });
 
   bar.append(button, status, wrap);
@@ -322,6 +352,8 @@ function attach(doc: CopyDocument, block: CopyBlock, env: CopyEnv, labels: CopyL
 const globals = globalThis as unknown as {
   document?: CopyDocument;
   navigator?: { clipboard?: Clipboard };
+  location?: { readonly hash: string };
+  addEventListener?(type: "hashchange", listener: () => void): void;
   setTimeout(callback: () => void, ms: number): unknown;
 };
 
@@ -331,4 +363,9 @@ if (globals.document) {
     clipboard: globals.navigator?.clipboard,
     schedule: (callback, ms) => globals.setTimeout(callback, ms),
   });
+  const mark = (): void => {
+    targetLines(globals.document!, globals.location?.hash ?? "");
+  };
+  mark();
+  globals.addEventListener?.("hashchange", mark);
 }

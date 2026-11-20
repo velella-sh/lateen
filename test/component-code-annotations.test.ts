@@ -41,9 +41,9 @@ test("a full block gets a title bar, highlighted numbered lines, and readable no
   });
   const out = highlightFences(fence("const a = 1;\nconst b = 2;\nconst c = 3;\n", meta));
   assert.match(out, /^<div class="code-title">.*<span class="code-title-name">src\/a\.ts<\/span><\/div><pre /);
-  assert.match(out, /class="line" id="code-a-md-3-line-1" data-line="1"/);
-  assert.match(out, /class="line highlighted" id="code-a-md-3-line-2" data-line="2"/);
-  assert.match(out, /id="code-a-md-3-line-3" data-line="3"/);
+  assert.match(out, /class="line" id="code-a-md-3-L1" data-line="1"><a class="line-link" href="#code-a-md-3-L1"[^>]*><\/a><span id="code-a-md-3-line-1"><\/span>/);
+  assert.match(out, /class="line highlighted" id="code-a-md-3-L2" data-line="2"><a class="line-link" href="#code-a-md-3-L2"[^>]*><\/a><span id="code-a-md-3-line-2"><\/span>/);
+  assert.match(out, /class="line" id="code-a-md-3-L3" data-line="3"><a class="line-link" href="#code-a-md-3-L3"[^>]*><\/a><span id="code-a-md-3-line-3"><\/span>/);
   assert.match(out, /<\/pre><details class="code-annotations">/);
   assert.match(out, /<summary class="code-annotations-summary">Annotations \(2\)<\/summary>/);
   assert.match(
@@ -57,7 +57,7 @@ test("a minimal block keeps its plain fence markup and adds no notes", () => {
   const out = highlightFences(fence("const a = 1;\n", dataCode({})));
   assert.match(out, /^<pre class="code" tabindex="0" id="code-a-md-3" data-lang="ts" data-src="a.md:3"/);
   assert.doesNotMatch(out, /code-title|code-annotations|data-line|highlighted/);
-  assert.match(out, /<span class="line">/);
+  assert.match(out, /<span class="line" id="code-a-md-3-L1">/);
 });
 
 test("a range note names the range, links its first line, and ids every covered line", () => {
@@ -65,8 +65,8 @@ test("a range note names the range, links its first line, and ids every covered 
     fence("a\nb\nc\n", dataCode({ annotations: [{ from: 2, to: 3, text: "Both lines" }] })),
   );
   assert.match(out, /href="#code-a-md-3-line-2">Lines 2–3<\/a>/);
-  assert.match(out, /class="line" id="code-a-md-3-line-2"/);
-  assert.match(out, /class="line" id="code-a-md-3-line-3"/);
+  assert.match(out, /class="line" id="code-a-md-3-L2"><a class="line-link"[^>]*><\/a><span id="code-a-md-3-line-2"><\/span>/);
+  assert.match(out, /class="line" id="code-a-md-3-L3"><a class="line-link"[^>]*><\/a><span id="code-a-md-3-line-3"><\/span>/);
   assert.doesNotMatch(out, /code-a-md-3-line-1/);
   assert.match(out, /<span class="code-annotations-text">Both lines<\/span>/);
 });
