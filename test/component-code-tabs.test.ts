@@ -262,6 +262,9 @@ class FakeEl implements TabsElement {
   focus(): void {
     this.focused = true;
   }
+  contains(node: unknown): boolean {
+    return node === this;
+  }
   addEventListener(type: string, listener: (event: TabsEvent) => void): void {
     this.listeners.set(type, [...(this.listeners.get(type) ?? []), listener]);
   }
@@ -295,6 +298,21 @@ function fakeGroup(count: number, { panels = count }: { panels?: number } = {}) 
   } satisfies TabsGroup & { attrs: Map<string, string> };
   return { group, list, tabs, panels: panelEls };
 }
+
+test("select() moves focus to the selected tab when the focused panel hides", () => {
+  const { tabs, panels } = fakeGroup(2);
+  if (panels[0] !== undefined) panels[0].hidden = false;
+  const scope = globalThis as { document?: { activeElement: unknown } };
+  scope.document = { activeElement: panels[0] };
+  try {
+    select(tabs, panels, 1);
+    assert.equal(panels[0]?.hidden, true);
+    assert.equal(panels[1]?.hidden, false);
+    assert.equal(tabs[1]?.focused, true, "focus returns to the tab instead of falling to the body");
+  } finally {
+    delete scope.document;
+  }
+});
 
 test("select() shows one panel, hides the rest, and marks the tab in the tab order", () => {
   const { tabs, panels } = fakeGroup(3);
