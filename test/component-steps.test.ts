@@ -67,6 +67,17 @@ test("Persian and Arabic pages number with their own digits", () => {
   assert.match(render(ORDERED_LIST, "ar").props.dangerouslySetInnerHTML.__html, /الخطوة ٣/);
 });
 
+test("a step can end with two linked next paths, kept in order without an island", () => {
+  const paths = '<ul><li><a href="/install/">Install the theme</a></li><li><a href="/add-component/">Add a component</a></li></ul>';
+  const list = `<ol><li><p>Install the package.</p></li><li><p>Choose a next path.</p>${paths}</li></ol>`;
+  const node = render(list);
+  const html = node.props.dangerouslySetInnerHTML.__html;
+  assert.ok(html.includes(paths), "both links stay in the step");
+  assert.ok(html.indexOf('href="/install/"') < html.indexOf('href="/add-component/"'), "the links keep their order");
+  assert.equal(stepsOf(list)[1]?.title, "Choose a next path.", "the title stops before the link list");
+  assert.doesNotMatch(html, /<script/, "the links need no island");
+});
+
 test("a list without items is passed through", () => {
   assert.equal(render("<p>None</p>").props.dangerouslySetInnerHTML.__html, "<p>None</p>");
 });

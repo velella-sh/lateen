@@ -1757,6 +1757,20 @@
     flex: none;
   }
 
+  /* A step ending in a nested list of links offers each one as a next path. */
+  .steps > ol > li > ul {
+    @apply grid gap-2 m-0 p-0 list-none;
+    grid-template-columns: repeat(auto-fit, minmax(10rem, 1fr));
+    margin-block-start: 0.75rem;
+  }
+
+  .steps > ol > li > ul > li > a {
+    @apply block rounded-lg px-3 py-2 text-sm font-semibold;
+    text-decoration: none;
+    background: color-mix(in srgb, var(--background) 70%, transparent);
+    box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--border) 80%, transparent);
+  }
+
   .checks li::before {
     content: "";
     width: 0.875rem;
