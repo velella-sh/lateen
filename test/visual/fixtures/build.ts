@@ -41,6 +41,9 @@ export function stageFixture(dir: string): string {
   link(join(A11Y_SITE, "gallery-layout.md"), join(dir, "gallery-layout.md"));
   // The subscribe panel's copy button lives on a list page with a calendar.
   link(join(A11Y_SITE, "data-time.md"), join(dir, "data-time.md"));
+  // The inventory page holds states that would change the screenshot matrix, and the stale notice.
+  link(join(GALLERY_SITE, "inventory.md"), join(dir, "inventory.md"));
+  link(join(A11Y_SITE, "stale.md"), join(dir, "stale.md"));
   for (const entry of readdirSync(GALLERY_SITE, { withFileTypes: true })) {
     if (entry.isDirectory() && GALLERY_FOLDERS.includes(entry.name)) link(join(GALLERY_SITE, entry.name), join(dir, entry.name));
   }
