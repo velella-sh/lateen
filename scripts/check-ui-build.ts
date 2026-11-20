@@ -47,6 +47,7 @@ export function problems(repo: string = root): string[] {
   const second = mkdtempSync(join(tmpdir(), "ui-build-b-"));
   try {
     const expected = buildAssets(first);
+    buildAssets(second);
     return [
       ...staleAssets(expected, second).map((path) => `${path} changes between clean builds`),
       ...staleAssets(expected, repo).map((path) => `${path} is missing, empty, or stale: run npm run ui:build`),
