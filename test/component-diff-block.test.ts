@@ -356,6 +356,18 @@ test("added and removed lines name themselves for assistive tech, and show a mar
   );
 });
 
+test("a long diff wraps in place, and signs plus text carry the meaning without color", () => {
+  const uiCss = readFileSync(new URL("../styles/src/ui.css", import.meta.url), "utf8");
+  assert.match(uiCss, /\.diff-block-line\s*\{[^}]*white-space:\s*pre-wrap/);
+  assert.match(uiCss, /\.diff-block-line\s*\{[^}]*overflow-wrap:\s*anywhere/);
+  assert.match(uiCss, /\.diff-block-added::before\s*\{\s*content:\s*"\+"/);
+  assert.match(uiCss, /\.diff-block-removed::before\s*\{\s*content:\s*"−"/);
+
+  const out = render();
+  assert.match(out, new RegExp(`<span class="${SR_CLASS}">Added: </span>`));
+  assert.match(out, new RegExp(`<span class="${SR_CLASS}">Removed: </span>`));
+});
+
 test("context lines have no kind prefix", () => {
   const out = render();
   assert.match(

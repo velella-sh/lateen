@@ -77,6 +77,7 @@ The notes are ordinary HTML: a `<details>` element with a summary and an ordered
 - The wrap toggle beside the copy button changes only presentation: long lines break in the view, while the copied text keeps the original line breaks. Without JavaScript the toggle stays absent and the block scrolls as before.
 - A `console`, `shellsession`, or `terminal` fence is read as a recorded session: the copy takes only the `$`/`%` command lines and their `>` continuations, never the output. A `bash` fence is a script, so every line is copied with any prompt taken off.
 - A `diff` fence keeps its `+` and `−` lines. Use it to show a change to a file.
+- A long diff wraps inside its block on narrow screens, so the page never scrolls sideways. The `+` and `−` signs plus the added/removed text carry the meaning, so color is never the only signal.
 - Metadata is rendered by the doc and guide layouts for ordinary fences; a block written through the `:::code` directive keeps the directive's own output.
 - The block keeps its source span, so the page footer can edit the exact block with an agent.
 - A language outside the default set is imported when a fence asks for it. Each grammar is imported once per build and shared by overlapping callers; an import that fails is retried on the next call instead of being remembered as loaded.
