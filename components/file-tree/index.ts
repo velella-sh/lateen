@@ -3,6 +3,7 @@ import type { ComponentChildren } from "preact";
 import type { Component, Page } from "@velella/mizzen/contracts";
 import { File, Folder } from "lucide";
 import { icon as lucideIcon } from "../../src/icon.ts";
+import { escapeHtml } from "../code/escape.ts";
 
 /** Markdown directive that turns the nested list in its body into a file tree. */
 export const directive = "file-tree";
@@ -125,6 +126,20 @@ export function plainText(html: string): string {
     .trim();
 }
 
+/** Inline formatting tags a rendered label may keep. None carries attributes, so none can run anything. */
+const INLINE_TAG = /^<\/?(?:strong|b|em|i|mark|code|kbd|s|del|sub|sup|small|br)\/?>$/i;
+
+/**
+ * A rendered name or note made safe for raw HTML: the engine's own inline formatting survives, and any
+ * other tag an author writes is escaped, so a file name or note can never become markup.
+ */
+export function labelHtml(html: string): string {
+  return html
+    .split(/(<[^>]*>)/)
+    .map((part) => (INLINE_TAG.test(part) ? part : part.startsWith("<") ? escapeHtml(part) : part.replace(/</g, "&lt;")))
+    .join("");
+}
+
 /** A path segment without its folder slash: `dist/` becomes `dist`. */
 export function entryPath(prefix: string, name: string): string {
   const segment = plainText(name).replace(/\/+$/, "");
@@ -232,9 +247,9 @@ function item(
       "div",
       { class: "file-tree-row" },
       icon(folder),
-      h("span", { class: "file-tree-name", id: nameId, dangerouslySetInnerHTML: { __html: entry.name } }),
+      h("span", { class: "file-tree-name", id: nameId, dangerouslySetInnerHTML: { __html: labelHtml(entry.name) } }),
       entry.note !== ""
-        ? h("span", { class: "file-tree-note", id: noteId, dangerouslySetInnerHTML: { __html: entry.note } })
+        ? h("span", { class: "file-tree-note", id: noteId, dangerouslySetInnerHTML: { __html: labelHtml(entry.note) } })
         : null,
     ),
     hasChildren ? group(entry.children, level + 1, base, path, undefined, used) : null,
