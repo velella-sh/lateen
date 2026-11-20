@@ -20,6 +20,31 @@ export function textOf(value: unknown): string | undefined {
 }
 
 /**
+ * The value from a fixed vocabulary of state names, matched without case or surrounding spaces, or
+ * `undefined` when it is missing, not a string, or names none. A caller that reads another spelling
+ * (a legacy alias, or `_` and spaces for `-`) normalizes it first and passes the result, so every
+ * accepted spelling is still one the caller names: an unknown value never gets a state of its own.
+ */
+export function knownOf<const T extends readonly string[]>(vocabulary: T, value: unknown): T[number] | undefined {
+  if (typeof value !== "string") return undefined;
+  const name = value.trim().toLowerCase();
+  return (vocabulary as readonly string[]).includes(name) ? (name as T[number]) : undefined;
+}
+
+/**
+ * {@link knownOf}, or the documented fallback when the value is missing or unknown. The fallback is
+ * one of the vocabulary's own names, so an unknown value reads as a neutral known state rather than
+ * as a colour or a class the stylesheet never defined.
+ */
+export function knownOr<const T extends readonly string[]>(
+  vocabulary: T,
+  value: unknown,
+  fallback: T[number],
+): T[number] {
+  return knownOf(vocabulary, value) ?? fallback;
+}
+
+/**
  * The JSON `text` as unknown data, or `undefined` when it does not parse. A parse failure is the only
  * thing `undefined` can mean here (JSON has no undefined value), and nothing about the shape is
  * trusted at this boundary: callers narrow the value with their own contract afterwards.

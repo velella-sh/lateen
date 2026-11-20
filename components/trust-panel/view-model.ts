@@ -3,7 +3,7 @@ import { t } from "../../i18n/index.ts";
 import { calendarDate, isoDate } from "../../src/dates.ts";
 import { optionOf } from "../../src/options.ts";
 import { commitUrlOf } from "../../src/repository.ts";
-import { isRecord, textOf } from "../../src/guards.ts";
+import { isRecord, knownOf, textOf } from "../../src/guards.ts";
 import { examplesAttrs, examplesClassName, examplesFor, examplesText } from "./examples.ts";
 
 /**
@@ -122,7 +122,7 @@ export function levelOf(value: unknown): TrustLevel | undefined {
   const text = textOf(value);
   if (text === undefined) return undefined;
   const level = text.toLowerCase().replace(/[\s_]+/g, "-");
-  return (LEVELS as readonly string[]).includes(level) ? (level as TrustLevel) : ALIASES[level];
+  return knownOf(LEVELS, level) ?? ALIASES[level];
 }
 
 /** A list of reasons from an array or a string split on line breaks or `|`. Blank entries are dropped. */
