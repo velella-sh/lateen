@@ -55,7 +55,7 @@ A plain fenced block can carry metadata after its language. The engine reads it 
 | --- | --- |
 | `title="answer.ts"` | A title bar above the block; its visible name also names the code region for assistive technology and never enters the copied text. |
 | `{1,3-5}` | Highlighted lines. |
-| `showLineNumbers` | A line number on every line, kept out of copied text. |
+| `showLineNumbers` | A line number on every line, kept out of copied text. A numbered line is a two-column row, so the number never wraps or repeats and later numbers stay aligned. Long code wraps beside the number instead of scrolling under it. |
 | `ins={2}` / `del={3-4}` | Added and removed lines, marked with CSS only. |
 | `diff` | Strips the diff marker from the code and styles the lines. |
 | `annotations={2: a note \| 3-4: another note}` | A disclosure of notes below the block, each linked to its line. |

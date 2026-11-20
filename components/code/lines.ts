@@ -79,7 +79,11 @@ export function decorateLines(innerHtml: string, options: LinesOptions = {}): st
               t(options.lang ?? "en", "code_line_link", { line: number }),
             )}"></a>`;
       const numberAttr = options.numbers ? ` data-line="${number}"` : "";
-      return `<span class="${classes}"${idAttr}${numberAttr}>${link}${target}${unwrapLine(line)}</span>`;
+      const content = `${link}${target}${unwrapLine(line)}`;
+      const cell = options.numbers
+        ? `<span class="line-number" data-line="${number}" aria-hidden="true"></span><span class="line-code">${content}</span>`
+        : content;
+      return `<span class="${classes}"${idAttr}${numberAttr}>${cell}</span>`;
     })
     .join("\n");
 }

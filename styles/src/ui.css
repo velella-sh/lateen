@@ -1911,6 +1911,31 @@
     overflow-wrap: anywhere;
   }
 
+  /* A numbered line is two columns: the number never wraps or repeats, and the code wraps beside it,
+     so every source line keeps one number and later numbers stay aligned with their code. */
+  .code .line[data-line] {
+    display: inline-grid;
+    grid-template-columns: 4ch minmax(0, 1fr);
+    column-gap: 1ch;
+    inline-size: 100%;
+    vertical-align: top;
+  }
+
+  .code .line-number {
+    white-space: nowrap;
+    user-select: none;
+  }
+
+  .code .line-number::before {
+    content: attr(data-line);
+  }
+
+  .code .line-code {
+    min-inline-size: 0;
+    white-space: pre-wrap;
+    overflow-wrap: anywhere;
+  }
+
   .code-copy svg {
     inline-size: 0.875rem;
     block-size: 0.875rem;
@@ -1954,6 +1979,7 @@
   .code .shiki span,
   .code-frame .shiki span,
   .code .line > span,
+  .code .line-code > span,
   .terminal .shiki span,
   .terminal-body .shiki span,
   .terminal-body .line > span,
