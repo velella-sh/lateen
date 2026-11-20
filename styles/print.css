@@ -256,7 +256,17 @@
     content: none;
   }
 
-  .code .highlighted,
+  /* A configured line keeps a light tint and the same edge marker on paper, where colour alone may not print. */
+  .code .highlighted {
+    background: var(--code-line-highlight) !important;
+    border-inline-start: thin solid var(--color-border-strong);
+  }
+
+  /* On the light printed tint the screen's light code text would disappear. */
+  .code .highlighted span {
+    color: var(--color-text) !important;
+  }
+
   .code .ins,
   .code .del {
     background: none;

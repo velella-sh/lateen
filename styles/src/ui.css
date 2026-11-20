@@ -2684,6 +2684,10 @@ button[data-block-id] {
 .code .highlighted,
 .code-frame .highlighted {
   background-color: color-mix(in srgb, var(--sail) 14%, var(--night)) !important;
+  /* A non-colour marker, and a marker-sized inset that keeps the text on the same column. */
+  border-inline-start: 2px solid var(--mist);
+  padding-inline-start: 0.5rem;
+  margin-inline-start: calc(-0.5rem - 2px);
 }
 
 .code .highlighted span,
