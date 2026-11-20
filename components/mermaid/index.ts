@@ -93,6 +93,37 @@ export function normalizeSource(source: string): string {
   return source.replace(/\r\n?/g, "\n").replace(/[ \t]+$/gm, "").replace(/^\n+|\n+$/g, "");
 }
 
+/** A block's props after source parsing: the normalized source, its text alternative and origin, and the source position. */
+export type ParsedDiagram = {
+  readonly source: string;
+  readonly alt: {
+    readonly text: string;
+    readonly origin: MermaidAltOrigin;
+  };
+  readonly src: string | null;
+};
+
+/**
+ * Source parsing, before any rendering or output: normalizes the source, resolves the text alternative
+ * (an authored `alt` wins over a leading `%% alt:` comment), and reads the source position. Returns `null`
+ * when there is no diagram to render. Unsafe source is kept verbatim here; sanitization belongs to output.
+ */
+export function parseDiagramProps(props: MermaidProps): ParsedDiagram | null {
+  const source = normalizeSource(text(props.source));
+  if (source === "") return null;
+  const authoredAlt = text(props.alt);
+  const derivedAlt = authoredAlt === "" ? altFromSource(source) : "";
+  const src = text(props.src);
+  return {
+    source,
+    alt: {
+      text: authoredAlt === "" ? derivedAlt : authoredAlt,
+      origin: authoredAlt !== "" ? "prop" : derivedAlt !== "" ? "comment" : "none",
+    },
+    src: src === "" ? null : src,
+  };
+}
+
 /** Stable key for a source and its render options: equal keys mean the same diagram, and so the same SVG. */
 export function diagramKey(source: string, options: RenderOptions = RENDER_OPTIONS): string {
   return createHash("sha1")
@@ -182,20 +213,23 @@ export function renderDiagram(source: string, options: RenderOptions = RENDER_OP
   const key = diagramKey(normalized, options);
   const cached = cache.get(key);
   if (cached !== undefined) return cached;
+  const result = renderUncached(normalized, key, options);
+  cache.set(key, result);
+  return result;
+}
 
-  // The persistent cache is opt-in and best-effort: a miss or a corrupt entry is just a normal render.
+/**
+ * A memory-cache miss: the persistent cache may still hold the SVG, and only a true miss renders.
+ * The persistent cache is opt-in and best-effort: a miss or a corrupt entry is just a normal render,
+ * and only a successful render is worth storing.
+ */
+function renderUncached(source: string, key: string, options: RenderOptions): RenderResult {
   const dir = diagramCacheDir();
   if (dir !== null) {
     const stored = readDiagramCache(dir, key);
-    if (stored !== null) {
-      const result: RenderResult = { ok: true, svg: stored };
-      cache.set(key, result);
-      return result;
-    }
+    if (stored !== null) return { ok: true, svg: stored };
   }
-
-  const result = runRenderer(normalized, options);
-  cache.set(key, result);
+  const result = runRenderer(source, options);
   if (dir !== null && result.ok) writeDiagramCache(dir, key, result.svg);
   return result;
 }
@@ -231,21 +265,16 @@ function runRenderer(source: string, options: RenderOptions): RenderResult {
 
 /** The diagram and its source. The SVG is rendered at build time; the page never loads Mermaid. */
 export default function mermaid({ props, page }: ComponentProps<MermaidProps>) {
-  const source = normalizeSource(text(props.source));
-  if (source === "") return null;
-
-  const authoredAlt = text(props.alt);
-  const derivedAlt = authoredAlt === "" ? altFromSource(source) : "";
-  const alt = authoredAlt === "" ? derivedAlt : authoredAlt;
-  const altOrigin: MermaidAltOrigin = authoredAlt !== "" ? "prop" : derivedAlt !== "" ? "comment" : "none";
-  const src = text(props.src);
+  const parsed = parseDiagramProps(props);
+  if (parsed === null) return null;
+  const { source, alt, src } = parsed;
   const result = renderDiagram(source);
   const record: MermaidRecord = {
     component: "mermaid",
     version: 1,
     source,
-    alt: { text: alt, origin: altOrigin },
-    src: src === "" ? null : src,
+    alt,
+    src,
     render: result.ok ? "rendered" : "failed",
   };
 
@@ -253,7 +282,7 @@ export default function mermaid({ props, page }: ComponentProps<MermaidProps>) {
     result.ok
       ? h("div", {
           class: DIAGRAM_CLASS,
-          dangerouslySetInnerHTML: { __html: accessibleSvg(result.svg, alt) },
+          dangerouslySetInnerHTML: { __html: accessibleSvg(result.svg, alt.text) },
         })
       : h(
           "div",
@@ -263,7 +292,7 @@ export default function mermaid({ props, page }: ComponentProps<MermaidProps>) {
 
   return h(
     "figure",
-    { class: MERMAID_CLASS, ...(src === "" ? {} : { "data-src": src }) },
+    { class: MERMAID_CLASS, ...(src === null ? {} : { "data-src": src }) },
     diagram,
     h(
       "details",

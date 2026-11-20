@@ -2,13 +2,26 @@ import { h } from "preact";
 import type { ComponentChildren } from "preact";
 import type { ComponentProps, SiteConfig } from "@velella/mizzen/contracts";
 import { t } from "../../i18n/index.ts";
-import { calendarDate, calendarDay, calendarParts, calendarYear } from "../../src/dates.ts";
+import { calendarDate } from "../../src/dates.ts";
 import { formatField, isEmpty } from "../../src/fields.ts";
 import { selectRecords } from "../../src/records.ts";
 import { DEFAULT_TONE, type StatusTone } from "../status/index.ts";
 import { resolveStatus } from "../status/values.ts";
 import table from "../table/index.ts";
+import {
+  type Axis,
+  type Segment,
+  overlaps,
+  phasesOf,
+  rangeOf,
+  segmentOf,
+  segmentsOf,
+  tickLabel,
+} from "./ranges.ts";
 import { scale } from "./scale.ts";
+
+// The tick label is part of this component's public surface; the calculation lives in ranges.ts.
+export { tickLabel } from "./ranges.ts";
 
 /** The Markdown directive this component handles: `::timeline{from="events"}`. */
 export const directive = "timeline";
@@ -131,15 +144,6 @@ function pct(value: number): string {
   return `${Math.round(value * 100) / 100}%`;
 }
 
-/** A tick's label: the year, or the year and quarter, in the page's calendar and digits. */
-export function tickLabel(date: string, unit: "year" | "quarter", lang: string): string {
-  const year = calendarYear(date, lang) ?? date.split("-")[0] ?? date;
-  if (unit === "year") return year;
-  const month = calendarParts(date, lang)?.month ?? 1;
-  const quarter = new Intl.NumberFormat(lang, { useGrouping: false }).format(Math.floor((month - 1) / 3) + 1);
-  return `${year} Q${quarter}`;
-}
-
 /** The tone of a row's status value, neutral when the row has none or the site maps none. */
 function toneOfRow(row: Row, field: string, lang: string, config: SiteConfig | undefined): StatusTone {
   const value = row.fields[field];
@@ -156,110 +160,10 @@ type Fields = {
   readonly phases: string;
 };
 
-const DAY = 86_400_000;
-
-/** A value as epoch milliseconds at UTC midnight, or undefined when it is not a complete ISO 8601 date. */
-function dayOf(value: unknown): number | undefined {
-  const iso = typeof value === "string" ? calendarDay(value.trim()) : undefined;
-  return iso === undefined ? undefined : Date.parse(iso);
-}
-
-/** The ISO date for a day. */
-function iso(day: number): string {
-  return new Date(day).toISOString().slice(0, 10);
-}
-
-/** A row's or a phase's dates as epoch days; a missing end runs to its start, and a bad date is ignored. */
-function spanOf(row: Row, fields: Fields): { readonly from: number; readonly to: number } | undefined {
-  const start = dayOf(row.fields[fields.start]);
-  const end = dayOf(row.fields[fields.end]);
-  const from = start ?? end;
-  const to = end ?? start;
-  return from === undefined || to === undefined ? undefined : { from, to };
-}
-
-/** The phases a row lists in its phases field; anything that is not a list of objects is ignored. */
-function phasesOf(row: Row, field: string): Row[] {
-  const value = row.fields[field];
-  return Array.isArray(value) ? value.filter(isRecord).map((fields) => ({ fields })) : [];
-}
-
-/** One row's dates widened to its phases, so a phase never draws past the axis. */
-function rangeOf(row: Row, phases: readonly Row[], fields: Fields): { start: string; end: string } | undefined {
-  const spans = [spanOf(row, fields), ...phases.map((phase) => spanOf(phase, fields))].filter(
-    (span): span is { readonly from: number; readonly to: number } => span !== undefined,
-  );
-  if (spans.length === 0) return undefined;
-  return {
-    start: iso(Math.min(...spans.map((span) => span.from))),
-    end: iso(Math.max(...spans.map((span) => span.to))),
-  };
-}
-
-/** A bar on the axis, with the ends that no date closes left open. */
-type Segment = {
-  readonly start: number;
-  readonly length: number;
-  readonly openStart: boolean;
-  readonly openEnd: boolean;
-};
-
-/**
- * A row's or a phase's dates as a bar on the axis. An empty date leaves its end open and runs it to
- * the edge of the axis; no end date is ever made up. A field the row does not have stays a visible
- * message, so a mistyped field name is never read as ongoing.
- */
-function segmentOf(
-  row: Row,
-  fields: Fields,
-  axis: { readonly from: number; readonly span: number },
-): Segment | undefined {
-  const span = spanOf(row, fields);
-  if (span === undefined) return undefined;
-  const openStart = Object.hasOwn(row.fields, fields.start) && isEmpty(row.fields[fields.start]);
-  const openEnd = Object.hasOwn(row.fields, fields.end) && isEmpty(row.fields[fields.end]);
-  const from = openStart ? axis.from : span.from;
-  const to = openEnd ? axis.from + axis.span : span.to + DAY;
-  return {
-    start: ((from - axis.from) / axis.span) * 100,
-    length: ((to - from) / axis.span) * 100,
-    openStart,
-    openEnd,
-  };
-}
-
-/** Each phase's bar on the axis; a phase without a real date has none. */
-function segmentsOf(
-  phases: readonly Row[],
-  fields: Fields,
-  axis: { readonly from: number; readonly span: number },
-): (Segment | undefined)[] {
-  return phases.map((phase) => segmentOf(phase, fields, axis));
-}
-
 /** A phase's name in the legend and the overlap message. */
 function nameOf(phase: Row, fields: Fields, lang: string): string {
   const label = phase.fields[fields.label];
   return isEmpty(label) ? t(lang, "timeline_phase") : String(label);
-}
-
-/** The phases of one row that share a day with another phase in the same row. */
-function overlaps(phases: readonly Row[], fields: Fields): Row[] {
-  const spans = phases
-    .map((phase) => ({ phase, span: spanOf(phase, fields) }))
-    .filter(
-      (item): item is { phase: Row; span: { readonly from: number; readonly to: number } } => item.span !== undefined,
-    );
-  const hit = new Set<Row>();
-  for (const [index, a] of spans.entries()) {
-    for (const b of spans.slice(index + 1)) {
-      if (a.span.from <= b.span.to && b.span.from <= a.span.to) {
-        hit.add(a.phase);
-        hit.add(b.phase);
-      }
-    }
-  }
-  return phases.filter((phase) => hit.has(phase));
 }
 
 /** One legend entry: a phase's name and the tone its status resolves to. */
@@ -374,7 +278,7 @@ export default function timeline({ props, page, site }: ComponentProps<Readonly<
   const config = site?.config;
   const phaseRows = rows.map((row) => phasesOf(row, fields.phases));
   const scaled = scale(rows.map((row, index) => rangeOf(row, phaseRows[index] ?? [], fields) ?? {}), {}, lang);
-  const axis =
+  const axis: Axis | undefined =
     scaled === undefined
       ? undefined
       : { from: Date.parse(scaled.from), span: Date.parse(scaled.to) - Date.parse(scaled.from) };

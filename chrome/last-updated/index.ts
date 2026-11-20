@@ -1,7 +1,7 @@
 import { h } from "preact";
 import type { Chrome, Page, Site } from "@velella/mizzen/contracts";
 import { t } from "../../i18n/index.ts";
-import { calendarDate } from "../../src/dates.ts";
+import { calendarDate, calendarDay } from "../../src/dates.ts";
 
 /** Class on the line. `style.css` styles it. */
 export const CLASS = "last-updated";
@@ -91,15 +91,16 @@ export function localeOf(lang: string): string {
 
 /**
  * The ISO calendar date (`YYYY-MM-DD`) at the start of a value, which may be a string or a `Date` the
- * front matter parser produced. An impossible date (`2026-02-30`) reads as no date, not a rolled-over day.
+ * front matter parser produced. The day is validated by the same calendar model that formats it
+ * ({@link calendarDay}), so an impossible date (`2026-02-30`) reads as no date, not a rolled-over day,
+ * and a month or year alone never gains a synthetic day.
  */
 export function isoDate(value: unknown): string | undefined {
   if (value instanceof Date) return Number.isNaN(value.getTime()) ? undefined : value.toISOString().slice(0, 10);
   if (typeof value !== "string") return undefined;
 
-  const match = /^(\d{4})-(\d{2})-(\d{2})/.exec(value.trim());
-  if (match === null) return undefined;
-  return dayOf(`${match[1]}-${match[2]}-${match[3]}`) === undefined ? undefined : `${match[1]}-${match[2]}-${match[3]}`;
+  const match = /^\d{4}-\d{2}-\d{2}/.exec(value.trim());
+  return match === null ? undefined : calendarDay(match[0]);
 }
 
 /** The UTC midnight of an ISO date as milliseconds since the epoch, or `undefined` when it is not a real date. */
@@ -242,43 +243,98 @@ export function contributorsOf(site: Site, url: string): string[] {
 }
 
 /**
- * One date part. Readable evidence gets its label, then "2 days ago" when the build has an as-of date,
- * else the absolute date; a date after the as-of date is bad data, so it stays absolute rather than
- * reading as impending. The absolute date always fills the `<time>` element's `title` and `aria-label`.
+ * What the line says for one piece of evidence, chosen without any markup: which words are visible,
+ * which label precedes them, and which exact value machine readers and assistive technology get.
+ * `undefined` for a value the calendar cannot format at all, so the caller shows nothing for it.
+ */
+export interface DateDisplay {
+  /** `date` for readable evidence with its label and exact value; `unavailable` for rejected evidence. */
+  readonly kind: "date" | "unavailable";
+  /** Whether the evidence records a source change or a review. */
+  readonly source: DateSource;
+  /** What the evidence says, carried through from {@link PageDate}. */
+  readonly status: DateStatus;
+  /** The visible text: relative when vouched for, else absolute, else the neutral wording. */
+  readonly text: string;
+  /** The localized "Updated" or "Reviewed" label, or `undefined` for rejected evidence. */
+  readonly label: string | undefined;
+  /** The ISO date for the `datetime` attribute, or `undefined` when no provenance is claimed. */
+  readonly datetime: string | undefined;
+  /** The exact absolute date for `title` and `aria-label`, or `undefined` likewise. */
+  readonly exact: string | undefined;
+}
+
+/**
+ * The display choice for one piece of evidence, as a pure function of the evidence, the build's as-of
+ * date, and the page's language — no markup and no clock. Readable evidence gets its label, then
+ * "2 days ago" when the build has an as-of date, else the absolute date; a date after the as-of date is
+ * bad data, so it stays absolute rather than reading as impending. The absolute date, in the page's
+ * calendar and at the authored precision, always fills `datetime` and `exact`.
  *
- * Rejected evidence gets the opposite treatment: a neutral, non-claiming word and no `<time>` element,
- * no `datetime`, and no "Updated" or "Reviewed" label, so a date the build could not read never becomes
- * a freshness claim, a review claim, or machine-readable provenance. `data-date-source` and
- * `data-date-status` say which kind of evidence was rejected.
+ * Rejected evidence gets the opposite treatment: the neutral, non-claiming word and no label, no
+ * `datetime`, and no exact value, so a date the build could not read never becomes a freshness claim,
+ * a review claim, or machine-readable provenance. The same model serves the markup and the tests.
+ */
+export function displayOf(entry: PageDate, asOf: string | undefined, lang: string): DateDisplay | undefined {
+  if (entry.date === undefined) {
+    return {
+      kind: "unavailable",
+      source: entry.source,
+      status: entry.status,
+      text: t(lang, UNAVAILABLE_LABEL),
+      label: undefined,
+      datetime: undefined,
+      exact: undefined,
+    };
+  }
+
+  const absolute = calendarDate(entry.date, lang);
+  if (absolute === undefined) return undefined;
+
+  // ISO calendar dates compare correctly as strings, so a later day sorts after the build's as-of day.
+  const relative = asOf === undefined || entry.status === "future" ? undefined : relativeDate(entry.date, asOf, lang);
+  return {
+    kind: "date",
+    source: entry.source,
+    status: entry.status,
+    text: relative ?? absolute.text,
+    label: t(lang, LABELS[entry.source]),
+    datetime: absolute.datetime,
+    exact: absolute.text,
+  };
+}
+
+/**
+ * One date part: the markup for {@link displayOf}'s choice. Readable evidence is a labelled `<time>`
+ * whose `title` and `aria-label` carry the exact date; rejected evidence is a neutral span marked with
+ * `data-date-source` and `data-date-status`, and never a `<time>` element.
  */
 function datePart(entry: PageDate, asOf: string | undefined, lang: string) {
-  if (entry.date === undefined) {
+  const display = displayOf(entry, asOf, lang);
+  if (display === undefined) return null;
+
+  if (display.kind === "unavailable") {
     return h(
       "span",
       {
         class: `${DATE_CLASS} ${UNAVAILABLE_CLASS}`,
-        "data-date-source": entry.source,
-        "data-date-status": entry.status,
+        "data-date-source": display.source,
+        "data-date-status": display.status,
       },
-      t(lang, UNAVAILABLE_LABEL),
+      display.text,
     );
   }
 
-  const absolute = calendarDate(entry.date, lang);
-  if (absolute === undefined) return null;
-
-  // ISO calendar dates compare correctly as strings, so a later day sorts after the build's as-of day.
-  const text = asOf === undefined || entry.status === "future" ? undefined : relativeDate(entry.date, asOf, lang);
   return h(
     "span",
-    { class: DATE_CLASS, "data-date-source": entry.source, "data-date-status": entry.status },
-    t(lang, LABELS[entry.source]),
+    { class: DATE_CLASS, "data-date-source": display.source, "data-date-status": display.status },
+    display.label,
     " ",
     h(
       "time",
-      { datetime: absolute.datetime, title: absolute.text, "aria-label": absolute.text },
+      { datetime: display.datetime, title: display.exact, "aria-label": display.exact },
       // Isolated so a Latin date inside an RTL sentence, or vice versa, keeps its own direction.
-      h("bdi", {}, text ?? absolute.text),
+      h("bdi", {}, display.text),
     ),
   );
 }
@@ -312,7 +368,8 @@ const lastUpdated: Chrome = ({ site, page }) => {
 
   if (dates.length === 0 && names.length === 0) return null;
 
-  const dateNodes = dates.map((entry) => datePart(entry, asOfOf(site), page.lang)).filter((node) => node !== null);
+  const asOf = asOfOf(site);
+  const dateNodes = dates.map((entry) => datePart(entry, asOf, page.lang)).filter((node) => node !== null);
   if (dateNodes.length === 0 && names.length === 0) return null;
 
   return h(

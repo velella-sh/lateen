@@ -1,14 +1,11 @@
 import { h } from "preact";
-import type { Component, Page, Site, SiteConfig } from "@velella/mizzen/contracts";
+import type { Component } from "@velella/mizzen/contracts";
 import type { ComponentChildren } from "preact";
 import { CircleCheckBig, CircleDashed, CircleQuestionMark, Minus } from "lucide";
 import type { IconNode } from "lucide";
-import { t } from "../../i18n/index.ts";
 import { icon as lucideIcon } from "../../src/icon.ts";
-import { calendarDate } from "../../src/dates.ts";
-import { optionOf } from "../../src/options.ts";
-import { commitUrlOf } from "../../src/repository.ts";
-import { examplesAttrs, examplesClassName, examplesFor, examplesText } from "./examples.ts";
+import { trustPanelViewOf } from "./view-model.ts";
+import type { DateRowView, TrustLevel, TrustPanelProps } from "./view-model.ts";
 
 export {
   EXAMPLES_CLASS,
@@ -22,13 +19,34 @@ export {
   type ExampleState,
 } from "./examples.ts";
 
-/**
- * The trust states the panel understands, strongest first. `verified` means all evidence is recorded
- * and clean; `partial`, `unreviewed`, and `unknown` name what is missing instead of rounding it up.
- */
-export const LEVELS = ["verified", "partial", "unreviewed", "unknown"] as const;
-
-export type TrustLevel = (typeof LEVELS)[number];
+export {
+  LEVELS,
+  actionHrefOf,
+  driftFor,
+  driftText,
+  entryFor,
+  entryOf,
+  explanationOf,
+  levelOf,
+  pagesOf,
+  provenanceOf,
+  reasonsOf,
+  reviewerText,
+  trustEvidenceFor,
+  trustEvidenceOf,
+  trustPanelViewOf,
+  type ActionView,
+  type DateRowView,
+  type ExamplesRowView,
+  type Provenance,
+  type RevisionRowView,
+  type TextRowView,
+  type TrustEntry,
+  type TrustEvidence,
+  type TrustLevel,
+  type TrustPanelProps,
+  type TrustPanelView,
+} from "./view-model.ts";
 
 /** Class on the disclosure root; `style.css` styles it. */
 export const CLASS = "trust-panel";
@@ -69,75 +87,6 @@ export const ACTIONS_CLASS = "trust-panel-actions";
 /** Class on an action link. */
 export const ACTION_CLASS = "trust-panel-action";
 
-/** Props from the directive, for a manual panel: `::trust-panel{level=verified reasons="…" lastReviewer="…"}`. */
-export type TrustPanelProps = {
-  /** `verified`, `partial`, `unreviewed`, or `unknown`; a present level this does not know renders unknown invalid evidence. */
-  level?: string;
-  /** Why the page has this state. A string is split on line breaks or `|`. */
-  reasons?: string;
-  /** Who reviewed the page last. */
-  lastReviewer?: string;
-  /** The build that produced the evidence, for a manual panel that carries one. */
-  buildId?: string;
-  /** The build's generation date, for a manual panel that carries one. */
-  generatedAt?: string;
-  /** The page's last review date, for a manual panel that carries one. */
-  reviewedAt?: string;
-  /** The reviewed commit, for a manual panel that carries one. */
-  reviewedCommit?: string;
-};
-
-/** One page's trust entry, as `site.data.trust` or the directive writes it. */
-export interface TrustEntry {
-  /** The page's trust state. */
-  readonly level: TrustLevel;
-  /** Why the page has this state, in display order. */
-  readonly reasons: readonly string[];
-  /** Who reviewed the page last, when the site records one. */
-  readonly lastReviewer?: string;
-  /** The build that produced this evidence, when the site records it. */
-  readonly buildId?: string;
-  /** When the build that produced this evidence ran. */
-  readonly generatedAt?: string;
-  /** When a person last reviewed the page. */
-  readonly reviewedAt?: string;
-  /** The commit the review covered, when the site records one. */
-  readonly reviewedCommit?: string;
-}
-
-/**
- * What a page's trust data says: `absent` when no entry was written, `invalid` when one is present
- * but cannot be read (it is not a record, or it has no known level), and `valid` when it names one.
- * Invalid evidence carries no entry at all, so none of the written fields can arrive as a claim.
- */
-export type TrustEvidence =
-  | { readonly state: "absent" }
-  | { readonly state: "invalid" }
-  | { readonly state: "valid"; readonly entry: TrustEntry };
-
-/**
- * Valid same-build provenance for one panel. Every member is optional: a site that records none gets no
- * attribute, no date row, and no filled action placeholder, so missing evidence stays unknown.
- */
-export interface Provenance {
-  /** The build the evidence came from. */
-  readonly buildId?: string;
-  /** The build's generation date, in ISO 8601 form. */
-  readonly generatedAt?: string;
-  /** The last human review date, in ISO 8601 form. */
-  readonly reviewedAt?: string;
-  /** The reviewed commit, when the entry or the reviewers data names one. */
-  readonly reviewedCommit?: string;
-}
-
-/** The action links a site can configure under `theme.options.trust`. */
-interface TrustOptions {
-  /** A link that copies or opens the page's context pack. */
-  readonly contextPackUrl?: unknown;
-  /** A link that opens the host's edit or new-issue form for the page. */
-  readonly suggestEditUrl?: unknown;
-}
-
 /** Lucide icons for each state. The shapes differ, so colour is never the only signal. */
 export const ICONS: Readonly<Record<TrustLevel, IconNode>> = {
   verified: CircleCheckBig,
@@ -146,321 +95,14 @@ export const ICONS: Readonly<Record<TrustLevel, IconNode>> = {
   unknown: CircleQuestionMark,
 };
 
-/** The i18n key of each state's label. */
-const LEVEL_KEYS: Readonly<Record<TrustLevel, string>> = {
-  verified: "trust_level_verified",
-  partial: "trust_level_partial",
-  unreviewed: "trust_level_unreviewed",
-  unknown: "trust_level_unknown",
-};
-
-/** The i18n key of the explanation a state shows when the entry records no reasons of its own. */
-const WHY_KEYS: Readonly<Record<TrustLevel, string>> = {
-  verified: "trust_why_verified",
-  partial: "trust_why_partial",
-  unreviewed: "trust_why_unreviewed",
-  unknown: "trust_why_unknown",
-};
-
-/**
- * The names the first trust score wrote for the states it had. They read as the nearest state in
- * this vocabulary, so existing `_data/trust.yml` files keep their meaning.
- */
-const ALIASES: Readonly<Record<string, TrustLevel>> = {
-  "review-due": "unreviewed",
-  "at-risk": "partial",
-};
-
-/** A path on this site (not protocol-relative `//host`) or an https link. Anything else is not a link. */
-const SAFE_URL = /^(?:\/(?![/\\])|https:\/\/)[^\s"<>]*$/;
-
-/** True for a plain object, never an array or `null`. */
-function isRecord(value: unknown): value is Record<string, unknown> {
-  return typeof value === "object" && value !== null && !Array.isArray(value);
-}
-
-/** A trimmed, non-empty string, or undefined. */
-function textOf(value: unknown): string | undefined {
-  if (typeof value !== "string") return undefined;
-  const text = value.trim();
-  return text === "" ? undefined : text;
-}
-
-/** The level a value names, matched without case or surrounding spaces and with spaces or `_` as `-`. */
-export function levelOf(value: unknown): TrustLevel | undefined {
-  const text = textOf(value);
-  if (text === undefined) return undefined;
-  const level = text.toLowerCase().replace(/[\s_]+/g, "-");
-  return (LEVELS as readonly string[]).includes(level) ? (level as TrustLevel) : ALIASES[level];
-}
-
-/** A list of reasons from an array or a string split on line breaks or `|`. Blank entries are dropped. */
-export function reasonsOf(value: unknown): string[] {
-  if (typeof value === "string") {
-    return value
-      .split(/\r?\n|\s*\|\s*/)
-      .map((reason) => reason.trim())
-      .filter((reason) => reason !== "");
-  }
-  if (!Array.isArray(value)) return [];
-  return value.map(textOf).filter((reason): reason is string => reason !== undefined);
-}
-
-/** The readable entry in a record whose level is already known. */
-function entryFrom(value: Record<string, unknown>, level: TrustLevel): TrustEntry {
-  const lastReviewer = textOf(value.lastReviewer);
-  const buildId = textOf(value.buildId);
-  const generatedAt = textOf(value.generatedAt);
-  const reviewedAt = textOf(value.reviewedAt);
-  const reviewedCommit = textOf(value.reviewedCommit);
-  return {
-    level,
-    reasons: reasonsOf(value.reasons),
-    ...(lastReviewer === undefined ? {} : { lastReviewer }),
-    ...(buildId === undefined ? {} : { buildId }),
-    ...(generatedAt === undefined ? {} : { generatedAt }),
-    ...(reviewedAt === undefined ? {} : { reviewedAt }),
-    ...(reviewedCommit === undefined ? {} : { reviewedCommit }),
-  };
-}
-
-/** The evidence one value carries. Only `undefined` is absent; anything written but unreadable is invalid. */
-export function trustEvidenceOf(value: unknown): TrustEvidence {
-  if (value === undefined) return { state: "absent" };
-  if (!isRecord(value)) return { state: "invalid" };
-  const level = levelOf(value.level);
-  if (level === undefined) return { state: "invalid" };
-  return { state: "valid", entry: entryFrom(value, level) };
-}
-
-/** The entry on one value, or undefined when it is absent or unreadable. */
-export function entryOf(value: unknown): TrustEntry | undefined {
-  const evidence = trustEvidenceOf(value);
-  return evidence.state === "valid" ? evidence.entry : undefined;
-}
-
-/**
- * The URL-to-entry map inside `site.data.trust`. The future `trust.json` output may write either
- * `{ "/page/": { … } }` or `{ pages: { "/page/": { … } } }`; both are accepted, and the nested form
- * wins when its `pages` member is an object.
- */
-export function pagesOf(trust: unknown): Record<string, unknown> | undefined {
-  if (!isRecord(trust)) return undefined;
-  const nested = trust.pages;
-  return isRecord(nested) ? nested : trust;
-}
-
-/** The page's trust evidence from `site.data.trust`, keyed by its exact URL including `base`. */
-export function trustEvidenceFor(site: Site | undefined, url: string | undefined): TrustEvidence {
-  if (url === undefined) return { state: "absent" };
-  const pages = pagesOf(site?.data?.trust);
-  if (pages === undefined || !Object.hasOwn(pages, url)) return { state: "absent" };
-  return trustEvidenceOf(pages[url]);
-}
-
-/** The page's trust entry from `site.data.trust`, keyed by its exact URL including `base`. */
-export function entryFor(site: Site | undefined, url: string | undefined): TrustEntry | undefined {
-  const evidence = trustEvidenceFor(site, url);
-  return evidence.state === "valid" ? evidence.entry : undefined;
-}
-
-/** The number of drift findings the page has in `site.data.drift`, or undefined when the site records none. */
-export function driftFor(site: Site | undefined, url: string | undefined): number | undefined {
-  if (url === undefined) return undefined;
-  const pages = pagesOf(site?.data?.drift);
-  if (pages === undefined || !Object.hasOwn(pages, url)) return undefined;
-  const value = pages[url];
-  return Array.isArray(value) ? value.length : undefined;
-}
-
-/** One valid ISO date: the written value for `<time datetime>` and its calendar day for comparisons. */
-interface ProvenanceDate {
-  readonly iso: string;
-  readonly day: string;
-}
-
-/** A real ISO calendar date from a string or a `Date`, or undefined when it is impossible or malformed. */
-function provenanceDate(value: unknown): ProvenanceDate | undefined {
-  if (value instanceof Date) {
-    if (Number.isNaN(value.getTime())) return undefined;
-    const iso = value.toISOString();
-    return { iso, day: iso.slice(0, 10) };
-  }
-  const text = textOf(value);
-  if (text === undefined) return undefined;
-  const calendar = calendarDate(text, "en");
-  if (calendar === undefined) return undefined;
-  // A written date-time must parse as ISO too, so a malformed clock or offset cannot reach `datetime`.
-  if (text !== calendar.datetime && Number.isNaN(Date.parse(text))) return undefined;
-  return { iso: text, day: calendar.datetime };
-}
-
-/** The `site.data.build` block, or undefined when the site writes none. */
-function buildOf(site: Site | undefined): Record<string, unknown> | undefined {
-  const build = site?.data?.build;
-  return isRecord(build) ? build : undefined;
-}
-
-/** One page's review record from the documented reviewers shape, keyed by page URL. */
-function reviewOf(site: Site | undefined, url: string | undefined): Record<string, unknown> | undefined {
-  if (url === undefined) return undefined;
-  const reviewers = site?.data?.reviewers;
-  if (!isRecord(reviewers) || !Object.hasOwn(reviewers, url)) return undefined;
-  const review = reviewers[url];
-  return isRecord(review) ? review : undefined;
-}
-
-/** The page's review date from the documented reviewers shape, keyed by page URL. */
-function reviewDateOf(site: Site | undefined, url: string | undefined): ProvenanceDate | undefined {
-  return provenanceDate(reviewOf(site, url)?.date);
-}
-
-/** The reviewed commit from the documented reviewers shape, when it parses as a git object id. */
-function reviewCommitOf(site: Site | undefined, url: string | undefined): string | undefined {
-  const commit = textOf(reviewOf(site, url)?.commit);
-  return commit !== undefined && /^[0-9a-f]{7,64}$/i.test(commit) ? commit.toLowerCase() : undefined;
-}
-
-/** The build's as-of date, which anchors what counts as future evidence. No clock is read. */
-function buildAsOf(contents: Record<string, unknown> | undefined, site: Site | undefined): ProvenanceDate | undefined {
-  const fromBuild = provenanceDate(contents?.asOf) ?? provenanceDate(contents?.date);
-  if (fromBuild !== undefined) return fromBuild;
-  const reviewers = site?.data?.reviewers;
-  return isRecord(reviewers) ? provenanceDate(reviewers.asOf) : undefined;
-}
-
-/**
- * The panel's valid provenance, from the trust entry first, then the documented build and reviewer shapes.
- *
- * - `buildId` is the entry's `buildId`, else `site.data.build.id`.
- * - `generatedAt` is the entry's `generatedAt`, else `site.data.build.generatedAt`, `date`, or `asOf`.
- * - `reviewedAt` is the entry's `reviewedAt`, else the page's `site.data.reviewers[url].date`.
- *
- * A malformed date is omitted. A date after the build's as-of day is future evidence and is omitted too,
- * as is a review dated after the generation it claims to describe. When the entry names a build and the
- * current build names another, the entry's build provenance is stale and is left out entirely. Provenance
- * never changes the level: it only says which build and review the recorded evidence describes.
- */
-export function provenanceOf(site: Site | undefined, url: string | undefined, entry?: TrustEntry): Provenance {
-  const build = buildOf(site);
-  const buildId = textOf(build?.id);
-  const entryBuildId = entry?.buildId;
-  const mismatch = entryBuildId !== undefined && buildId !== undefined && entryBuildId !== buildId;
-  const asOf = buildAsOf(build, site);
-
-  let generated = mismatch
-    ? undefined
-    : (provenanceDate(entry?.generatedAt) ??
-      provenanceDate(build?.generatedAt) ??
-      provenanceDate(build?.date) ??
-      provenanceDate(build?.asOf));
-  let reviewed = provenanceDate(entry?.reviewedAt) ?? reviewDateOf(site, url);
-  const reviewedCommit = entry?.reviewedCommit ?? reviewCommitOf(site, url);
-
-  if (asOf !== undefined) {
-    if (generated !== undefined && generated.day > asOf.day) generated = undefined;
-    if (reviewed !== undefined && reviewed.day > asOf.day) reviewed = undefined;
-  }
-  if (generated !== undefined && reviewed !== undefined && reviewed.day > generated.day) reviewed = undefined;
-
-  const validBuildId = mismatch ? undefined : (entryBuildId ?? buildId);
-  const validCommit =
-    reviewedCommit !== undefined && /^[0-9a-f]{7,64}$/i.test(reviewedCommit) ? reviewedCommit.toLowerCase() : undefined;
-  return {
-    ...(validBuildId === undefined ? {} : { buildId: validBuildId }),
-    ...(generated === undefined ? {} : { generatedAt: generated.iso }),
-    ...(reviewed === undefined ? {} : { reviewedAt: reviewed.iso }),
-    ...(validCommit === undefined ? {} : { reviewedCommit: validCommit }),
-  };
-}
-
-/** The drift row's text in the page's language. */
-export function driftText(lang: string, findings: number | undefined): string {
-  if (findings === undefined) return t(lang, "trust_not_recorded");
-  if (findings === 0) return t(lang, "trust_drift_none");
-  return t(lang, findings === 1 ? "drift_finding" : "drift_findings", { n: findings });
-}
-
-/** The reviewer row's text in the page's language. */
-export function reviewerText(lang: string, reviewer: string | undefined): string {
-  return reviewer === undefined ? t(lang, "trust_reviewer_none") : t(lang, "trust_reviewed_by", { reviewer });
-}
-
-/**
- * Why the page has its state, in the page's language: the entry's own reasons, or what the state
- * means when the site recorded none. The panel always explains itself, so a state is never just a
- * badge.
- */
-export function explanationOf(lang: string, state: TrustLevel, reasons: readonly string[]): readonly string[] {
-  return reasons.length > 0 ? reasons : [t(lang, WHY_KEYS[state])];
-}
-
-/** The `theme.options.trust` block, or undefined when the site has none. */
-function trustOptions(config: SiteConfig | undefined): TrustOptions | undefined {
-  const options = optionOf(config?.theme?.options, "trust");
-  return isRecord(options) ? (options as TrustOptions) : undefined;
-}
-
-/**
- * Fills `{url}`, `{title}`, `{source}`, `{build}`, `{generated}`, and `{reviewed}` in a configured action
- * URL for this page. Provenance placeholders with no valid evidence return undefined, so the link is left
- * out rather than losing the build context it promises.
- */
-function fill(value: string, page: Page, provenance: Provenance): string | undefined {
-  const source = page.source.file
-    .split("/")
-    .map((part) => encodeURIComponent(part))
-    .join("/");
-  const values: Readonly<Record<string, string | undefined>> = {
-    url: page.url,
-    title: encodeURIComponent(page.title),
-    source,
-    build: provenance.buildId === undefined ? undefined : encodeURIComponent(provenance.buildId),
-    generated: provenance.generatedAt === undefined ? undefined : encodeURIComponent(provenance.generatedAt),
-    reviewed: provenance.reviewedAt === undefined ? undefined : encodeURIComponent(provenance.reviewedAt),
-  };
-
-  let filled = value;
-  for (const [name, resolved] of Object.entries(values)) {
-    if (resolved === undefined) {
-      if (filled.includes(`{${name}}`)) return undefined;
-      continue;
-    }
-    filled = filled.replaceAll(`{${name}}`, resolved);
-  }
-  return filled;
-}
-
-/**
- * An action link from `theme.options.trust`, with `base` in front of a site path. Returns undefined
- * when the value is missing, unsafe, not a string, or asks for provenance the page does not have.
- */
-export function actionHrefOf(
-  config: SiteConfig | undefined,
-  page: Page,
-  value: unknown,
-  provenance: Provenance = {},
-): string | undefined {
-  const text = textOf(value);
-  if (text === undefined) return undefined;
-  const filled = fill(text, page, provenance);
-  if (filled === undefined || !SAFE_URL.test(filled)) return undefined;
-  return filled.startsWith("/") ? `${config?.base ?? ""}${filled}` : filled;
-}
-
 /** The chip's icon; it is decorative, so the level text carries the meaning. */
 function icon(level: TrustLevel) {
   return lucideIcon({ node: ICONS[level], class: ICON_CLASS });
 }
 
 /** The disclosure's summary: the decorative icon and the localised level text. */
-function chip(level: TrustLevel, lang: string) {
-  return h(
-    "summary",
-    { class: CHIP_CLASS },
-    icon(level),
-    h("span", { class: LEVEL_CLASS }, t(lang, "trust_chip", { level: t(lang, LEVEL_KEYS[level]) })),
-  );
+function chip(level: TrustLevel, text: string) {
+  return h("summary", { class: CHIP_CLASS }, icon(level), h("span", { class: LEVEL_CLASS }, text));
 }
 
 /** One row of the panel: a label and its value, with optional machine-readable attributes on the value. */
@@ -471,19 +113,14 @@ function row(label: string, value: ComponentChildren, className: string, attrs: 
   ];
 }
 
-/** One provenance row: its existing translated label, the full ISO value, and the page's calendar text. */
-function dateRow(label: string, iso: string | undefined, lang: string, className: string) {
-  if (iso === undefined) return [];
-  const date = calendarDate(iso, lang);
-  if (date === undefined) return [];
-  // The visible text stays localised; `datetime` and the tooltip keep every part of the written timestamp.
-  const exact = iso === date.datetime ? date.text : iso;
+/** One provenance date row: its label, the full ISO value, and the page's calendar text. */
+function dateRow(date: DateRowView, className: string) {
   return [
-    h("dt", { class: LABEL_CLASS }, label),
+    h("dt", { class: LABEL_CLASS }, date.label),
     h(
       "dd",
       { class: `${VALUE_CLASS} ${className}` },
-      h("time", { datetime: iso, title: exact, "aria-label": exact }, date.text),
+      h("time", { datetime: date.iso, title: date.exact, "aria-label": date.exact }, date.text),
     ),
   ];
 }
@@ -493,6 +130,8 @@ function dateRow(label: string, iso: string | undefined, lang: string, className
  * drift, last reviewer, and why it has its level. The chip and the panel work without JavaScript; the
  * island only adds Escape-to-close and returns focus to the summary.
  *
+ * Every selection — evidence, provenance dates, drift, reviewer, and actions — is made by the pure
+ * view model (`view-model.ts`); this file only draws its result and never reads the site contracts.
  * The entry comes from `site.data.trust`, keyed by `page.url`, or from the directive's props for a manual
  * panel. A page with no entry renders nothing, so missing evidence never becomes a `verified` claim. An
  * entry that is present but unreadable (not a record, or no known level) renders `unknown` with
@@ -510,14 +149,10 @@ function dateRow(label: string, iso: string | undefined, lang: string, className
  * and the panel stays hidden unless a site writes `_data/trust.yml`.
  */
 const trustPanel: Component<TrustPanelProps> = ({ props, page, site }) => {
-  const evidence = props.level === undefined ? trustEvidenceFor(site, page.url) : trustEvidenceOf(props);
-  if (evidence.state === "absent") return null;
+  const view = trustPanelViewOf(props, page, site);
+  if (view.state === "absent") return null;
 
-  const lang = page.lang;
-
-  // A present entry that cannot be read still reports itself: unknown, marked invalid, and with no
-  // evidence rows, provenance, or actions from the unreadable record or its siblings.
-  if (evidence.state === "invalid") {
+  if (view.state === "invalid") {
     return h(
       "details",
       {
@@ -527,82 +162,63 @@ const trustPanel: Component<TrustPanelProps> = ({ props, page, site }) => {
         "data-trust-level": "unknown",
         "data-trust-evidence": "invalid",
       },
-      chip("unknown", lang),
+      chip("unknown", view.chip),
       h(
         "div",
         { class: BODY_CLASS },
-        h("p", { class: REASONS_LABEL_CLASS }, t(lang, "trust_reasons")),
-        h("ul", { class: REASONS_CLASS }, explanationOf(lang, "unknown", []).map((reason) => h("li", null, reason))),
+        h("p", { class: REASONS_LABEL_CLASS }, view.reasonsLabel),
+        h("ul", { class: REASONS_CLASS }, view.reasons.map((reason) => h("li", null, reason))),
       ),
     );
   }
 
-  const entry = evidence.entry;
-  const reasons = explanationOf(lang, entry.level, entry.reasons);
-  const provenance = provenanceOf(site, page.url, entry);
-  const revision =
-    provenance.reviewedCommit === undefined || site.config.repository === undefined
-      ? undefined
-      : commitUrlOf(site.config.repository, provenance.reviewedCommit);
-  const evidenceRows = examplesFor(site, page.url);
-  const options = trustOptions(site.config);
-  const contextPack = actionHrefOf(site.config, page, options?.contextPackUrl, provenance);
-  const suggestEdit = actionHrefOf(site.config, page, options?.suggestEditUrl, provenance);
-
-  const links = [
-    ...(contextPack === undefined
-      ? []
-      : [h("a", { class: ACTION_CLASS, href: contextPack }, t(lang, "trust_context_pack"))]),
-    ...(suggestEdit === undefined
-      ? []
-      : [h("a", { class: ACTION_CLASS, href: suggestEdit }, t(lang, "trust_suggest_edit"))]),
-  ];
-
+  const provenance = view.provenance;
   return h(
     "details",
     {
       id: PANEL_ID,
-      class: `${CLASS} ${CLASS}-${entry.level}`,
+      class: `${CLASS} ${CLASS}-${view.level}`,
       "data-trust-panel": "",
-      "data-trust-level": entry.level,
+      "data-trust-level": view.level,
       ...(provenance.buildId === undefined ? {} : { "data-trust-build": provenance.buildId }),
       ...(provenance.generatedAt === undefined ? {} : { "data-trust-generated": provenance.generatedAt }),
       ...(provenance.reviewedAt === undefined ? {} : { "data-trust-reviewed": provenance.reviewedAt }),
       ...(provenance.reviewedCommit === undefined ? {} : { "data-trust-reviewed-commit": provenance.reviewedCommit }),
     },
-    chip(entry.level, lang),
+    chip(view.level, view.chip),
     h(
       "div",
       { class: BODY_CLASS },
       h(
         "dl",
         { class: ROWS_CLASS },
-        ...row(
-          t(lang, "trust_examples"),
-          examplesText(lang, evidenceRows),
-          examplesClassName(evidenceRows.state),
-          examplesAttrs(evidenceRows),
-        ),
-        ...row(t(lang, "trust_drift"), driftText(lang, driftFor(site, page.url)), "trust-panel-drift"),
-        ...dateRow(t(lang, "updated"), provenance.generatedAt, lang, "trust-panel-generated"),
-        ...dateRow(t(lang, "reviewed"), provenance.reviewedAt, lang, "trust-panel-reviewed"),
-        ...(revision === undefined
+        ...row(view.examples.label, view.examples.text, view.examples.className, view.examples.attrs),
+        ...row(view.drift.label, view.drift.text, "trust-panel-drift"),
+        ...(view.generated === undefined ? [] : dateRow(view.generated, "trust-panel-generated")),
+        ...(view.reviewed === undefined ? [] : dateRow(view.reviewed, "trust-panel-reviewed")),
+        ...(view.revision === undefined
           ? []
           : row(
-              t(lang, "trust_reviewed_commit"),
+              view.revision.label,
               h(
                 "a",
-                { class: "trust-panel-revision", href: revision },
-                h("code", null, (provenance.reviewedCommit ?? "").slice(0, 7)),
+                { class: "trust-panel-revision", href: view.revision.href },
+                h("code", null, view.revision.commit.slice(0, 7)),
               ),
               "trust-panel-revision-cell",
-              { title: provenance.reviewedCommit ?? "" },
+              { title: view.revision.commit },
             )),
-        ...row(t(lang, "trust_reviewer"), reviewerText(lang, entry.lastReviewer), "trust-panel-reviewer"),
+        ...row(view.reviewer.label, view.reviewer.text, "trust-panel-reviewer"),
       ),
-      h("p", { class: REASONS_LABEL_CLASS }, t(lang, "trust_reasons")),
-      h("ul", { class: REASONS_CLASS }, reasons.map((reason) => h("li", null, reason))),
-      links.length === 0 ? null : h("div", { class: ACTIONS_CLASS }, ...links),
+      h("p", { class: REASONS_LABEL_CLASS }, view.reasonsLabel),
+      h("ul", { class: REASONS_CLASS }, view.reasons.map((reason) => h("li", null, reason))),
+      view.actions.length === 0
+        ? null
+        : h(
+            "div",
+            { class: ACTIONS_CLASS },
+            ...view.actions.map((action) => h("a", { class: ACTION_CLASS, href: action.href }, action.label)),
+          ),
     ),
   );
 };

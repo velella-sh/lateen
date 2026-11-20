@@ -235,18 +235,52 @@ function contents(months: readonly MonthGroup[], years: readonly YearGroup[]): C
   );
 }
 
+/** A row whose date is missing or not a real calendar date, with the date as written for the note. */
+interface InvalidRow {
+  readonly written: string;
+  readonly row: Row;
+}
+
 /**
- * Records of one collection, or the given rows, as a list grouped by month: each month a section
- * with a heading and an ordered list, each row a day, its label and an optional status. The newest
- * group comes first with `order=desc`; `group=year` adds a year heading above each year's months;
- * `toc` puts the groups in a table of contents above the list, and `level` sets the outline without
- * skipping a level. A row whose date is missing or not a real calendar date goes to a trailing
- * section with a visible note, so a broken date is never dropped silently. With `start` and
- * `months`, a fixed range of months is listed, empty months say so, and records outside it are
- * left out with a count. Nothing is read from the clock, and an empty list renders nothing.
+ * Everything the markup needs, decided without rendering: the groups in list order, the outline
+ * levels, the rows with broken dates, the count outside a range, and the safe feed and calendar
+ * addresses. `error` names the collection problem to translate; `none` means the list renders
+ * nothing at all.
  */
-export default function datedList({ props, page, site }: ComponentProps<Readonly<Record<string, unknown>>>) {
-  const input = props as DatedListProps;
+export type DatedListViewModel =
+  | {
+      readonly kind: "error";
+      readonly lang: string;
+      readonly key: "record_table_unknown_collection" | "record_table_unknown_field";
+      readonly name: string;
+    }
+  | { readonly kind: "none" }
+  | {
+      readonly kind: "list";
+      readonly lang: string;
+      readonly months: readonly MonthGroup[];
+      readonly years: readonly YearGroup[];
+      readonly toc: boolean;
+      readonly level: HeadingLevel;
+      readonly monthLevel: HeadingLevel;
+      readonly invalid: readonly InvalidRow[];
+      readonly outside: number;
+      readonly feedUrl: string;
+      readonly calendarUrl: string;
+      readonly config: Parameters<typeof formatField>[3];
+    };
+
+/**
+ * The dated list's decisions as pure data: which rows a collection or `items` gives, how they
+ * group by month and year in the page's calendar, which months a `start`/`months` range covers,
+ * what falls outside it, which dates are broken, and whether the feed and calendar addresses are
+ * safe to link. Nothing here reads the clock or renders markup, so the same inputs always give
+ * the same model and the component below only turns it into nodes.
+ */
+export function datedListModel(
+  input: DatedListProps,
+  { page, site }: Pick<ComponentProps<Readonly<Record<string, unknown>>>, "page" | "site">,
+): DatedListViewModel {
   const lang = page?.lang ?? "en";
   const dateField = typeof input.date === "string" && input.date.trim() !== "" ? input.date.trim() : "date";
   const statusField = typeof input.status === "string" ? input.status.trim() : "";
@@ -261,7 +295,7 @@ export default function datedList({ props, page, site }: ComponentProps<Readonly
     if (!selection.ok) {
       const key =
         selection.error.code === "unknown-collection" ? "record_table_unknown_collection" : "record_table_unknown_field";
-      return h("p", { class: ERROR_CLASS, role: "note" }, t(lang, key, { name: selection.error.name }));
+      return { kind: "error", lang, key, name: selection.error.name };
     }
     rows = selection.records.map((record) => ({
       date: record.fields[dateField],
@@ -274,7 +308,7 @@ export default function datedList({ props, page, site }: ComponentProps<Readonly
     rows = Array.isArray(parsed) ? parsed.filter(isRecord) : undefined;
   }
 
-  if (rows === undefined) return null;
+  if (rows === undefined) return { kind: "none" };
 
   const start = typeof input.start === "string" ? input.start.trim() : "";
   const monthCount = typeof input.months === "number" ? input.months : Number(textOf(input.months));
@@ -282,12 +316,15 @@ export default function datedList({ props, page, site }: ComponentProps<Readonly
   const inRange = range.length === 0 ? undefined : new Set(range.map(({ month }) => month.key));
 
   let dated: Entry[] = [];
-  const invalid: Row[] = [];
+  const invalid: InvalidRow[] = [];
   for (const row of rows) {
     const date = typeof row.date === "string" ? calendarDate(row.date, lang) : undefined;
     const month = date === undefined ? undefined : calendarMonth(date.datetime, lang);
-    if (date === undefined || month === undefined) invalid.push(row);
-    else dated.push({ iso: date.datetime, month, row });
+    if (date === undefined || month === undefined) {
+      const written =
+        typeof row.date === "string" ? row.date.trim() : typeof row.date === "number" ? String(row.date) : "";
+      invalid.push({ written, row });
+    } else dated.push({ iso: date.datetime, month, row });
   }
   const outside = inRange === undefined ? 0 : dated.filter((entry) => !inRange.has(entry.month.key)).length;
   if (inRange !== undefined) dated = dated.filter((entry) => inRange.has(entry.month.key));
@@ -334,25 +371,11 @@ export default function datedList({ props, page, site }: ComponentProps<Readonly
     }
   }
 
-  const wantToc = months.length > 0 && (input.toc === true || input.toc === "" || textOf(input.toc) === "true");
+  const toc = months.length > 0 && (input.toc === true || input.toc === "" || textOf(input.toc) === "true");
 
   const withYear = textOf(input.group) === "year";
   const level = headingLevel(input.level, withYear);
   const monthLevel = (withYear ? level + 1 : level) as HeadingLevel;
-  const dayFormat = new Intl.DateTimeFormat(lang, { day: "numeric", timeZone: "UTC" });
-  const config = site?.config;
-
-  const monthsOf = (groups: readonly MonthGroup[]): ComponentChildren =>
-    groups.map((month) =>
-      h(
-        "section",
-        { class: GROUP_CLASS },
-        h(`h${monthLevel}`, wantToc ? { id: month.id } : null, month.text),
-        month.entries.length === 0
-          ? h("p", { class: `dated-list-note ${EMPTY_CLASS}` }, t(lang, "dated_list_nothing"))
-          : items(month.entries, dayFormat, lang, config),
-      ),
-    );
 
   const years: YearGroup[] = [];
   if (withYear) {
@@ -365,19 +388,74 @@ export default function datedList({ props, page, site }: ComponentProps<Readonly
     }
   }
 
-  const sections = withYear
-    ? years.map((year) =>
-        h(
-          "section",
-          { class: YEAR_CLASS },
-          h(`h${level}`, wantToc ? { id: year.id } : null, year.text),
-          monthsOf(year.months),
-        ),
-      )
-    : monthsOf(months);
+  // No groups, no broken dates and nothing outside the range means there is nothing to render,
+  // even when a feed or calendar address was given.
+  if (months.length === 0 && outside === 0 && invalid.length === 0) return { kind: "none" };
+
+  return {
+    kind: "list",
+    lang,
+    months,
+    years,
+    toc,
+    level,
+    monthLevel,
+    invalid,
+    outside,
+    feedUrl,
+    calendarUrl,
+    config: site?.config,
+  };
+}
+
+/**
+ * Records of one collection, or the given rows, as a list grouped by month: each month a section
+ * with a heading and an ordered list, each row a day, its label and an optional status. The newest
+ * group comes first with `order=desc`; `group=year` adds a year heading above each year's months;
+ * `toc` puts the groups in a table of contents above the list, and `level` sets the outline without
+ * skipping a level. A row whose date is missing or not a real calendar date goes to a trailing
+ * section with a visible note, so a broken date is never dropped silently. With `start` and
+ * `months`, a fixed range of months is listed, empty months say so, and records outside it are
+ * left out with a count. Nothing is read from the clock, and an empty list renders nothing.
+ * The decisions live in {@link datedListModel}; this only turns its model into markup.
+ */
+export default function datedList({ props, page, site }: ComponentProps<Readonly<Record<string, unknown>>>) {
+  const model = datedListModel(props as DatedListProps, { page, site });
+  if (model.kind === "error") {
+    return h("p", { class: ERROR_CLASS, role: "note" }, t(model.lang, model.key, { name: model.name }));
+  }
+  if (model.kind === "none") return null;
+
+  const { lang, months, years, toc, level, monthLevel, invalid, outside, feedUrl, calendarUrl, config } = model;
+  const dayFormat = new Intl.DateTimeFormat(lang, { day: "numeric", timeZone: "UTC" });
+
+  const monthsOf = (groups: readonly MonthGroup[]): ComponentChildren =>
+    groups.map((month) =>
+      h(
+        "section",
+        { class: GROUP_CLASS },
+        h(`h${monthLevel}`, toc ? { id: month.id } : null, month.text),
+        month.entries.length === 0
+          ? h("p", { class: `dated-list-note ${EMPTY_CLASS}` }, t(lang, "dated_list_nothing"))
+          : items(month.entries, dayFormat, lang, config),
+      ),
+    );
+
+  // Years are only present when the model grouped by year; otherwise the months stand alone.
+  const sections =
+    years.length > 0
+      ? years.map((year) =>
+          h(
+            "section",
+            { class: YEAR_CLASS },
+            h(`h${level}`, toc ? { id: year.id } : null, year.text),
+            monthsOf(year.months),
+          ),
+        )
+      : monthsOf(months);
 
   const output: ComponentChildren[] = [];
-  if (wantToc) {
+  if (toc) {
     output.push(h("nav", { class: TOC_CLASS, "aria-label": t(lang, "on_this_page") }, contents(months, years)));
   }
   output.push(...(sections as ComponentChildren[]));
@@ -395,16 +473,14 @@ export default function datedList({ props, page, site }: ComponentProps<Readonly
         h(
           "ul",
           { class: ITEMS_CLASS },
-          invalid.map((row) => {
-            const written =
-              typeof row.date === "string" ? row.date.trim() : typeof row.date === "number" ? String(row.date) : "";
-            return h(
+          invalid.map(({ written, row }) =>
+            h(
               "li",
               { class: "dated-list-item" },
               written === "" ? null : h("span", { class: "dated-list-day" }, written),
               labelNode(row, lang),
-            );
-          }),
+            ),
+          ),
         ),
       ),
     );
@@ -425,7 +501,6 @@ export default function datedList({ props, page, site }: ComponentProps<Readonly
     actions.push(h("a", { class: "dated-list-action", href: calendarUrl }, t(lang, "dated_list_calendar")));
   }
 
-  if (output.length === 0) return null;
   return h(
     "div",
     { class: LIST_CLASS, [LIST_ATTRIBUTE]: "", "data-lang": lang },

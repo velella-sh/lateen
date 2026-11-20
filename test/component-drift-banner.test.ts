@@ -25,10 +25,12 @@ import driftBanner, {
   evidenceOf,
   findingDetailsOf,
   findingsOf,
+  linkTargetOf,
   messageOf,
   pagesOf,
   referenceOf,
   spanOf,
+  viewOf,
   whatOf,
 } from "../components/drift-banner/index.ts";
 
@@ -482,5 +484,67 @@ test("an unavailable page shows no finding list", () => {
   assert.ok(out);
   assert.doesNotMatch(out, new RegExp(FINDINGS_CLASS));
   assert.doesNotMatch(out, new RegExp(FINDING_CLASS));
+});
+
+test("the link target picks the most specific evidence, and no link means no target", () => {
+  const targetOf = (finding: unknown) => linkTargetOf(findingDetailsOf([finding], siteOf({}).config)[0]!);
+  const url = "/evidence/12";
+  assert.equal(targetOf({ kind: "drift.x", reference: "src/app.ts:12", message: "gone", url }), "reference");
+  assert.equal(targetOf({ kind: "drift.x", message: "gone", url }), "kind");
+  assert.equal(targetOf({ message: "gone", url }), "message");
+  assert.equal(targetOf({ url }), "details", "a link-only finding gets the labelled fallback, not an empty control");
+  assert.equal(targetOf({ kind: "drift.x", reference: "src/app.ts:12", message: "gone" }), undefined);
+  assert.equal(targetOf({}), undefined);
+  assert.equal(targetOf("not a finding"), undefined);
+  for (const unsafe of ["javascript:alert(1)", "//evil.example/path", "relative/path", " http://example.com/ "]) {
+    assert.equal(targetOf({ kind: "drift.x", reference: "src/app.ts:12", url: unsafe }), undefined, `${unsafe} never links`);
+  }
+});
+
+test("the view model selects evidence, finding rows, and the fix-action link before markup", () => {
+  const findings = [
+    { kind: "drift.missing-symbol", reference: "src/app.ts:12", severity: "error", url: "/evidence/1" },
+    { message: "The option was renamed." },
+  ];
+  const site = siteOf({ drift: { "/guide/": findings } }, { drift: { detailsUrl: "/drift/" } }, "/evergreen");
+  const view = viewOf(site, "/guide/")!;
+  assert.deepEqual(view.evidence, { state: "drifting", count: 2, severity: "error" });
+  assert.deepEqual(view.findings, findingDetailsOf(findings, site.config));
+  assert.equal(view.href, "/evergreen/drift/");
+
+  const stale = viewOf(siteOf({ drift: { "/guide/": [{ message: "x" }] } }), "/guide/")!;
+  assert.equal(stale.evidence.state, "stale");
+  assert.equal(stale.findings!.length, 1);
+  assert.equal(Object.hasOwn(stale, "href"), false, "no details link without a safe detailsUrl");
+
+  for (const marker of [null, { unavailable: true }]) {
+    const unchecked = viewOf(siteOf({ drift: { "/guide/": marker } }, { drift: { detailsUrl: "/drift/" } }), "/guide/")!;
+    assert.equal(unchecked.evidence.state, "unavailable");
+    assert.equal(Object.hasOwn(unchecked, "findings"), false, "the unavailable state selects no finding rows");
+    assert.equal(unchecked.href, "/drift/", "the fix-action link stays available");
+  }
+
+  const unsafe = viewOf(siteOf({ drift: { "/guide/": findings } }, { drift: { detailsUrl: "javascript:alert(1)" } }), "/guide/")!;
+  assert.equal(Object.hasOwn(unsafe, "href"), false, "an unsafe details URL never becomes a control");
+
+  assert.equal(viewOf(siteOf({}), "/guide/"), undefined);
+  assert.equal(viewOf(siteOf({ drift: { "/guide/": [] } }), "/guide/"), undefined);
+  assert.equal(viewOf(siteOf({ drift: { "/other/": [{}] } }), "/guide/"), undefined);
+});
+
+test("partial evidence links exactly one part of a row, never an empty or broken control", () => {
+  const cases: ReadonlyArray<readonly [Record<string, unknown>, RegExp]> = [
+    [{ kind: "drift.x", reference: "src/app.ts:12", message: "gone", url: "/evidence/" }, new RegExp(`<a class="${FINDING_REFERENCE_CLASS} ${FINDING_LINK_CLASS}"`)],
+    [{ kind: "drift.x", message: "gone", url: "/evidence/" }, new RegExp(`<a class="${FINDING_KIND_CLASS} ${FINDING_LINK_CLASS}"`)],
+    [{ message: "gone", url: "/evidence/" }, new RegExp(`<a class="${FINDING_MESSAGE_CLASS} ${FINDING_LINK_CLASS}"`)],
+    [{ url: "/evidence/" }, new RegExp(`<a class="${FINDING_LINK_CLASS}" href="/evidence/">View drift details</a>`)],
+  ];
+  for (const [finding, linked] of cases) {
+    const out = render({ drift: { "/guide/": [finding] } })!;
+    assert.match(out, linked);
+    assert.equal((out.match(/<a /g) ?? []).length, 1, "exactly one link in the row");
+    assert.doesNotMatch(out, /<a[^>]*><\/a>/, "no empty anchor");
+    assert.doesNotMatch(out, /href="(?:javascript:|\/\/)/, "no broken scheme");
+  }
 });
 

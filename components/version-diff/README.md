@@ -27,6 +27,9 @@ front matter) the viewer renders nothing.
   It accepts the diff from the directive's `data` or `from`/`to`/`changes` attributes, then from the
   page's `versionDiff` front matter. It also reads the engine's `diff/<version>/<page>.json` shape,
   where the four kinds are four lists, so that output can be handed in unchanged.
+- `changes.ts` is the pure normalization: JSON parsing, change-kind guards, evidence selection,
+  version pairing, and the id prefix. It has no markup dependencies; `index.ts` re-exports it, so
+  imports from `index.ts` keep working.
 - `client.ts` is the island. It reveals Previous and Next buttons and a change count, and wires the
   keyboard: ArrowDown and ArrowUp move one change, ArrowRight and ArrowLeft follow the reading
   direction, Home and End jump to the ends, and the keys wrap. One change is in the tab order at a
