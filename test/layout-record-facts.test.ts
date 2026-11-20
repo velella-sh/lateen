@@ -63,9 +63,14 @@ function pageWith(factList: unknown = JSON.parse(facts)): Page {
   } as unknown as Page;
 }
 
-function props(page: Page, id = "button", links: Readonly<Record<string, string>> = {}): LayoutProps {
+function props(
+  page: Page,
+  id = "button",
+  links: Readonly<Record<string, string>> = {},
+  defaultLang = config.lang,
+): LayoutProps {
   const site: Site = {
-    config,
+    config: { ...config, lang: defaultLang } as SiteConfig,
     pages: [page],
     nav: { main: [{ title: "Components", url: "/components/" }] },
     data: {},
@@ -82,8 +87,16 @@ function props(page: Page, id = "button", links: Readonly<Record<string, string>
   } as unknown as LayoutProps;
 }
 
-const render = (page: Page = pageWith(), id = "button", links: Readonly<Record<string, string>> = {}) =>
-  renderToString(record(props(page, id, links)) as never);
+const render = (page: Page = pageWith(), id = "button", links: Readonly<Record<string, string>> = {}, defaultLang = config.lang) =>
+  renderToString(record(props(page, id, links, defaultLang)) as never);
+
+/** The same page with the engine's list of fields whose value fell back to the default language. */
+function withFallbacks(page: Page, fallbacks: string[]): Page {
+  return {
+    ...page,
+    record: { collection: "components", id: "button", position: pos, template: "record.md", templateLine: 1, fallbacks },
+  } as unknown as Page;
+}
 
 /** One record of the `books` collection as a table, so facts and cells read the same values. */
 function renderTable(columns: unknown[], lang = "en"): string {
@@ -232,6 +245,42 @@ test("package names, slugs, and ids stay left to right on a right-to-left page",
   assert.match(out, /<dt class="key-value-key">Slug<\/dt><dd[^>]*><bdi dir="ltr">@scope\/pkg\/guide<\/bdi><\/dd>/);
   assert.match(out, /<dt class="key-value-key">Identifier<\/dt><dd[^>]*><bdi dir="ltr">@scope\/pkg\/guide<\/bdi><\/dd>/);
   assert.doesNotMatch(out, /<bdi[^>]*>Package<\/bdi>/);
+});
+
+test("a field in the page's own language gets no language label", () => {
+  const out = render(withFallbacks(pageWith([{ field: "name", label: "Name" }]), ["name"]));
+  assert.doesNotMatch(out, /field-language/);
+  assert.match(out, /<dt class="key-value-key">Name<\/dt><dd class="key-value-value record-fact" data-kind="text">Button<\/dd>/);
+});
+
+test("a fallback field names the default language before its value, and a normal field stays unchanged", () => {
+  const facts = [
+    { field: "name", label: "Name" },
+    { field: "pages", label: "Pages", kind: "number" },
+  ];
+  const out = render(withFallbacks(pageWith(facts), ["name"]), "button", {}, "de");
+  assert.match(
+    out,
+    /<dt class="key-value-key">Name<\/dt><dd class="key-value-value record-fact" data-kind="text"><span class="field-language"><bdi lang="de">German<\/bdi><\/span>Button<\/dd>/,
+  );
+  assert.match(out, /<dt class="key-value-key">Pages<\/dt><dd class="key-value-value record-fact" data-kind="number">3<\/dd>/);
+});
+
+test("a fallback language with no display name falls back to its tag", () => {
+  const out = render(withFallbacks(pageWith([{ field: "name", label: "Name" }]), ["name"]), "button", {}, "zz");
+  assert.match(
+    out,
+    /<dd class="key-value-value record-fact" data-kind="text"><span class="field-language"><bdi lang="zz">zz<\/bdi><\/span>Button<\/dd>/,
+  );
+});
+
+test("in a right-to-left page the fallback language is named in the page language and isolated", () => {
+  const page = { ...withFallbacks(pageWith([{ field: "name", label: "Name" }]), ["name"]), lang: "fa", dir: "rtl" } as Page;
+  const out = render(page, "button", {}, "de");
+  assert.match(
+    out,
+    /<dd class="key-value-value record-fact" data-kind="text"><span class="field-language"><bdi lang="de">آلمانی<\/bdi><\/span>Button<\/dd>/,
+  );
 });
 
 test("a page without facts renders no panel", () => {

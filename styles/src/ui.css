@@ -2194,6 +2194,13 @@
     font-weight: 600;
   }
 
+  .field-language {
+    margin-inline-end: 0.35rem;
+    color: var(--muted-foreground);
+    font-size: 0.72rem;
+    font-weight: 500;
+  }
+
   :is(.record-fact, .record-table-cell)[data-kind="number"] {
     font-variant-numeric: tabular-nums;
     white-space: nowrap;
