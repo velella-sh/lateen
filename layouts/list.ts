@@ -35,12 +35,13 @@ const SORT_ISLAND = "assets/theme/islands/components/record-table/client.js";
 /** The island that reveals the subscribe panel's copy buttons; a list with no calendar never loads it. */
 const SUBSCRIBE_ISLAND = "assets/theme/islands/components/add-to-calendar/client.js";
 
-/** A group as the page shows it: the engine's key, its heading anchor, and its records. */
+/** A group as the page shows it: the engine's key, its heading anchor, its page, and its records. */
 interface ListGroupView {
   key: string;
   id: string;
   count: number;
   records: readonly RecordProps[];
+  url?: string;
 }
 
 /** True when the body already supplies the page's `h1`, by the same rule as `doc` and `record`. */
@@ -65,6 +66,7 @@ export function groupsOf(props: LayoutProps): ListGroupView[] {
     id: groupId(group.key, used),
     count: group.count ?? group.records.length,
     records: group.records,
+    ...(group.url === undefined || group.url === "" ? {} : { url: group.url }),
   }));
 }
 
@@ -202,6 +204,33 @@ function summaryOf(props: LayoutProps, count: number): ComponentChildren {
         total: formatCount(props.page.lang, pagination.total),
       }));
   return h("p", { class: "list-summary" }, h("span", { class: "list-count" }, countOf(props, count)), page);
+}
+
+/** The groups as links before the records: each group's page when it has one, else its section anchor. */
+function groupSummary(props: LayoutProps): ComponentChildren {
+  const groups = groupsOf(props).filter((group) => group.count > 0);
+  if (groups.length === 0 || isChanges(props)) return null;
+  return h(
+    "nav",
+    { class: "list-group-summary" },
+    h(
+      "ul",
+      null,
+      groups.map((group) =>
+        h(
+          "li",
+          null,
+          h(
+            "a",
+            { href: group.url ?? `#${group.id}` },
+            group.key,
+            " ",
+            h("span", { class: "list-group-count" }, String(group.count)),
+          ),
+        ),
+      ),
+    ),
+  );
 }
 
 /** The records in the view the page asks for: a table by default, cards or a dated list when `list.view` names it. */
@@ -408,6 +437,7 @@ function article(props: LayoutProps): ComponentChildren {
         )
       : null,
     list !== undefined && count === 0 ? h("p", { class: "list-empty" }, t(props.page.lang, "list_empty")) : null,
+    groupSummary(props),
     records,
     list === undefined
       ? null

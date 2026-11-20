@@ -60,9 +60,9 @@ function groups(list: readonly ListGroup[]): ListProps {
   return { collection: "books", records, groups: list, pagination: { page: 1, total: 1 } };
 }
 
-function props(page: Page, list?: ListProps): LayoutProps {
+function props(page: Page, list?: ListProps, base = ""): LayoutProps {
   const site: Site = {
-    config,
+    config: { ...config, base },
     pages: [page],
     nav: { main: [{ title: "Books", url: "/books/" }] },
     data: {},
@@ -79,7 +79,13 @@ function props(page: Page, list?: ListProps): LayoutProps {
   } as unknown as LayoutProps;
 }
 
-const render = (page: Page, list: ListProps) => renderToString(listLayout(props(page, list)) as never);
+const render = (page: Page, list: ListProps, base = "") => renderToString(listLayout(props(page, list, base)) as never);
+
+const summaryOf = (html: string) => html.match(/<nav class="list-group-summary">([\s\S]*?)<\/nav>/)?.[1];
+const summaryLinks = (html: string) =>
+  [...(summaryOf(html) ?? "").matchAll(/<a href="([^"]*)">([^<]*) <span class="list-group-count">([^<]*)<\/span><\/a>/g)].map(
+    (match) => ({ href: match[1]!, name: match[2]!, count: match[3]! }),
+  );
 
 const grouped = groups([
   { key: "Fiction", records: [fiction] },
@@ -142,4 +148,60 @@ test("the outline is the page h1 then one h2 per group", () => {
   const article = out.slice(out.indexOf('<article class="list"'), out.indexOf("</article>") + "</article>".length);
   const outline = [...article.matchAll(/<(h[1-6])(?: id="([^"]*)")?[^>]*>([^<]*)/g)].map((match) => `${match[1]}:${match[2] ?? ""}:${match[3]!.trim()}`);
   assert.deepEqual(outline, ["h1::Books", "h2:fiction:Fiction", "h2:poetry:Poetry"]);
+});
+
+test("groups with their own pages render linked summaries before the records, in the engine's order", () => {
+  const out = render(pageWith(), groups([
+    { key: "Fiction", records: [fiction], count: 4, url: "/books/fiction/" },
+    { key: "Poetry", records: [poetry, drama], count: 9, url: "/books/poetry/" },
+  ]));
+  assert.deepEqual(summaryLinks(out), [
+    { href: "/books/fiction/", name: "Fiction", count: "4" },
+    { href: "/books/poetry/", name: "Poetry", count: "9" },
+  ]);
+  assert.ok(out.indexOf('<nav class="list-group-summary">') < out.indexOf("<table"), "the summaries come first");
+});
+
+test("groups without a page link to their own section anchor", () => {
+  const out = render(pageWith(), grouped);
+  assert.deepEqual(summaryLinks(out), [
+    { href: "#fiction", name: "Fiction", count: "1" },
+    { href: "#poetry", name: "Poetry", count: "9" },
+  ]);
+});
+
+test("an empty group is left out of the summaries, and no summaries are drawn when every group is empty", () => {
+  const partlyEmpty = render(pageWith(), groups([
+    { key: "Empty", records: [], count: 0 },
+    { key: "Fiction", records: [fiction] },
+  ]));
+  assert.deepEqual(summaryLinks(partlyEmpty), [{ href: "#fiction", name: "Fiction", count: "1" }]);
+
+  const allEmpty = render(pageWith(), groups([{ key: "Empty", records: [], count: 0 }]));
+  assert.equal(summaryOf(allEmpty), undefined);
+});
+
+test("the summaries keep the site base and the page's right-to-left direction", () => {
+  const out = render(
+    pageWith({ lang: "fa", dir: "rtl", title: "کتاب‌ها" }),
+    groups([
+      { key: "داستان", records: [fiction], count: 4, url: "/example/books/fiction/" },
+      { key: "شعر", records: [poetry], count: 9, url: "/example/books/poetry/" },
+    ]),
+    "/example",
+  );
+  assert.deepEqual(summaryLinks(out).map((link) => link.name), ["داستان", "شعر"], "the summaries keep the engine's order");
+  assert.match(out, /href="\/example\/books\/fiction\/"/);
+  assert.doesNotMatch(out, /\/example\/example\//, "a URL that already carries the base is not prefixed twice");
+  assert.match(out, /<html lang="fa" dir="rtl"/);
+  assert.doesNotMatch(summaryOf(out)!, /dir="ltr"/, "the summary adds no direction of its own");
+});
+
+test("the summaries are ordinary server-rendered links that work without JavaScript", () => {
+  const out = render(pageWith(), grouped);
+  const summary = summaryOf(out);
+  assert.ok(summary, "the summaries are in the HTML");
+  assert.match(summary, /<a href="#fiction">Fiction <span class="list-group-count">1<\/span><\/a>/);
+  assert.match(summary, /<a href="#poetry">Poetry <span class="list-group-count">9<\/span><\/a>/);
+  assert.doesNotMatch(summary, /<script|onclick|data-island/, "no client code is needed");
 });
