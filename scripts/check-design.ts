@@ -193,6 +193,72 @@ export function cssFiles(base: string = root): string[] {
   return out.filter((f) => !SKIPPED.has(f) && !f.startsWith("styles/src/")).sort();
 }
 
+/** Shared sheets whose selectors must name their cascade owner; a bare element here reaches every unit. */
+export const SCOPED_SHEETS = ["styles/src/overrides.css", "styles/src/primitives.css"];
+
+/** One selector in a shared sheet that does not name its root. */
+export interface UnscopedSelector {
+  readonly file: string;
+  readonly line: number;
+  readonly selector: string;
+}
+
+/** A selector owns its cascade when its leftmost compound is a class, an id, or a data attribute. */
+function rootScoped(selector: string): boolean {
+  const s = selector.trim();
+  if (s === "") return false;
+  if (/^(?:html|body|:root)\b/.test(s)) return true; // the document root, not a unit
+  if (/^[.#]/.test(s)) return true;
+  if (/^\[data-[\w-]+/.test(s)) return true;
+  if (/^[\w*-]+[.#]/.test(s)) return true; // a type-qualified class, like `a.home-btn`
+  const fn = /^:(?:where|is)\(([^)]*)\)/.exec(s);
+  return fn?.[1] !== undefined && fn[1].split(",").every(rootScoped);
+}
+
+/** Selectors at the top level of one prelude, keeping commas inside :is()/:where()/:not() together. */
+function selectorsOf(prelude: string): string[] {
+  const out: string[] = [];
+  let depth = 0;
+  let start = 0;
+  for (let i = 0; i < prelude.length; i += 1) {
+    const ch = prelude[i];
+    if (ch === "(") depth += 1;
+    else if (ch === ")") depth = Math.max(0, depth - 1);
+    else if (ch === "," && depth === 0) {
+      out.push(prelude.slice(start, i));
+      start = i + 1;
+    }
+  }
+  out.push(prelude.slice(start));
+  return out.map((s) => s.trim()).filter((s) => s !== "");
+}
+
+/** The selectors in one shared sheet that do not name their unit root. */
+export function unscopedSelectors(file: string, css: string): UnscopedSelector[] {
+  const text = stripNoise(css);
+  const found: UnscopedSelector[] = [];
+  for (const m of text.matchAll(/([^{}]+)\{/g)) {
+    const prelude = (m[1] ?? "").trim();
+    if (prelude.startsWith("@")) continue;
+    if (/^(?:from|to|-?\d*\.?\d+%)$/i.test(prelude)) continue; // keyframe steps
+    const lead = (m[1] ?? "").indexOf(prelude);
+    const rawPrelude = css.slice(m.index + lead, m.index + lead + prelude.length);
+    const clean = selectorsOf(prelude);
+    const line = text.slice(0, m.index + lead).split("\n").length;
+    selectorsOf(rawPrelude).forEach((selector, i) => {
+      if (!rootScoped(clean[i] ?? selector)) found.push({ file, line, selector });
+    });
+  }
+  return found;
+}
+
+/** Every unscoped selector in the shared sheets of a checkout. */
+export function globalSelectorFindings(base: string = root): UnscopedSelector[] {
+  return SCOPED_SHEETS.flatMap((file) =>
+    existsSync(join(base, file)) ? unscopedSelectors(file, readFileSync(join(base, file), "utf8")) : [],
+  );
+}
+
 /** The problems with the allowlist itself: bad shape, an unknown kind, an empty reason, a duplicate. */
 export function allowlistProblems(entries: unknown): string[] {
   if (!Array.isArray(entries)) return ["the allowlist must be a JSON array"];
@@ -250,6 +316,7 @@ export function check(base: string = root, allowlistPath: string = join(base, "t
     lines.push(`${r.file}:${r.line}: ${what} in \`${r.selector}\`; keep one`);
   }
   for (const e of stale) lines.push(`stale allowlist entry: ${e.file} ${e.kind} \`${e.value}\` matches nothing; remove it`);
+  for (const s of globalSelectorFindings(base)) lines.push(`${s.file}:${s.line}: unscoped selector \`${s.selector}\`; scope it to its unit root`);
   return lines;
 }
 
