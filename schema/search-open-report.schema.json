@@ -1,0 +1,32 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://velella.sh/lateen/schema/search-open-report.schema.json",
+  "title": "Lateen mobile search opening report",
+  "description": "What the search opening budget measured on one commit in mobile Chromium: the first opening, which loads the search index, and the median of the repeat openings, both in whole milliseconds, next to the checked-in ceilings they were compared with. The commit identifies the run instead of a timestamp.",
+  "type": "object",
+  "required": ["tool", "version", "commit", "viewport", "firstMs", "repeatMs", "baseline", "ok"],
+  "additionalProperties": false,
+  "properties": {
+    "tool": { "type": "string", "enum": ["lateen/search-open-report"] },
+    "version": { "type": "integer", "enum": [1] },
+    "commit": {
+      "type": "string",
+      "pattern": "[0-9a-f]{7,40}",
+      "description": "The commit the measurement ran on. It identifies the run instead of a timestamp."
+    },
+    "viewport": { "type": "string", "enum": ["mobile"] },
+    "firstMs": { "type": "integer", "minimum": 0, "description": "The first opening: click to visible dialog, index load included." },
+    "repeatMs": { "type": "integer", "minimum": 0, "description": "The median of five further openings, each after the dialog was closed again." },
+    "baseline": {
+      "type": "object",
+      "required": ["firstMs", "repeatMs"],
+      "additionalProperties": false,
+      "description": "The checked-in CI ceilings the two measurements were compared with.",
+      "properties": {
+        "firstMs": { "type": "integer", "minimum": 0 },
+        "repeatMs": { "type": "integer", "minimum": 0 }
+      }
+    },
+    "ok": { "type": "boolean", "description": "True when neither measurement is over its baseline." }
+  }
+}

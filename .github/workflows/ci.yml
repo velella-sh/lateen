@@ -154,6 +154,16 @@ jobs:
       - name: Browser smoke gate
         run: npm run test:smoke
         working-directory: lateen
+      - name: Mobile search opening budget
+        run: npm run ui:build && node scripts/search-open-budget.ts --report test/smoke/out/search-open.json
+        working-directory: lateen
+      - name: Upload the search opening report
+        if: always()
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
+        with:
+          name: search-open-report
+          path: lateen/test/smoke/out/search-open.json
+          retention-days: 7
       - name: Upload the smoke report
         if: always()
         uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2

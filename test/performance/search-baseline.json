@@ -1,0 +1,7 @@
+{
+  "tool": "lateen/search-open-baseline",
+  "version": 1,
+  "viewport": "mobile",
+  "firstMs": 2000,
+  "repeatMs": 1000
+}
