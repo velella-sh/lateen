@@ -80,7 +80,40 @@ test("a right-to-left page keeps its path isolated and its title and excerpt int
 
   assert.match(out, /<span class="search-result-path"><bdi>\/راهنما\/<\/bdi><\/span>/);
   assert.match(out, /<span class="search-result-title">نصب<\/span>/);
-  assert.match(out, /<span class="search-result-excerpt">نصب &lt;mark>کش&lt;\/mark> پس از انتشار\.<\/span>/);
+  assert.match(out, /<span class="search-result-excerpt">نصب <mark>کش<\/mark> پس از انتشار\.<\/span>/);
+});
+
+test("a result in the page's language carries no language label", () => {
+  const out = renderToString(searchResult({ result: result({ lang: "en" }), lang: "en" }) as never);
+  assert.doesNotMatch(out, /search-result-language/);
+});
+
+test("a result in another language carries that language's real name in a muted label", () => {
+  const out = renderToString(searchResult({ result: result({ lang: "de" }), lang: "en" }) as never);
+  assert.match(out, /<span class="search-result-language"><bdi>German<\/bdi><\/span>/);
+});
+
+test("a result from another site version carries that version; the same version is silent", () => {
+  const other = renderToString(searchResult({ result: result({ version: "v1" }), version: "v2" }) as never);
+  assert.match(other, /<span class="search-result-version"><bdi>v1<\/bdi><\/span>/);
+
+  const same = renderToString(searchResult({ result: result({ version: "v2" }), version: "v2" }) as never);
+  assert.doesNotMatch(same, /search-result-version/);
+});
+
+test("in an RTL page the language and version names are isolated and localized", () => {
+  const out = renderToString(
+    searchResult({ result: result({ lang: "de", version: "v1" }), lang: "fa", version: "v2" }) as never,
+  );
+  assert.match(out, /<span class="search-result-language"><bdi>آلمانی<\/bdi><\/span>/);
+  assert.match(out, /<span class="search-result-version"><bdi>v1<\/bdi><\/span>/);
+});
+
+test("an excerpt keeps Pagefind's mark around the match and reads its entities", () => {
+  const out = renderToString(
+    searchResult({ result: result({ excerpt: "Install <mark>Lateen &amp; Co</mark> now" }) }) as never,
+  );
+  assert.match(out, /<span class="search-result-excerpt">Install <mark>Lateen &amp; Co<\/mark> now<\/span>/);
 });
 
 test("a failed index shows a clear message and a retry link, in all three languages", () => {

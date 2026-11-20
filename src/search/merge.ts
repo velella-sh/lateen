@@ -12,6 +12,10 @@ export interface SearchResult {
   readonly url: string;
   /** The excerpt the index returned. */
   readonly excerpt: string;
+  /** The result's language tag, when the index carries one. */
+  readonly lang?: string;
+  /** The site version the result belongs to, when the index carries one. */
+  readonly version?: string;
   /** The index's score; higher ranks first. */
   readonly score: number;
 }
