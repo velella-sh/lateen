@@ -122,6 +122,7 @@
   "code_annotation_line": "السطر {line}",
   "code_annotation_lines": "الأسطر {from}–{to}",
   "code_annotations": "الشروح ({count})",
+  "code_wrap": "التفاف الأسطر",
   "comma": "،",
   "command_actions": "الإجراءات",
   "command_copy_markdown": "نسخ كماركداون",

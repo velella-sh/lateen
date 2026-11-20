@@ -1,19 +1,26 @@
 import assert from "node:assert/strict";
+import { readFileSync } from "node:fs";
 import { test } from "node:test";
+import { JSDOM } from "jsdom";
 import { renderToString } from "preact-render-to-string";
 import { Check, Copy } from "lucide";
-import type { ComponentProps } from "@velella/mizzen/contracts";
+import type { ChromeProps, ComponentProps } from "@velella/mizzen/contracts";
 import code from "../components/code/index.ts";
+import codeCopy from "../chrome/code-copy/index.ts";
+import { t } from "../i18n/index.ts";
 import {
   activate,
   BAR_CLASS,
   BLOCK_SELECTOR,
   BUTTON_CLASS,
+  DEFAULT_LABELS,
   FRAME_CLASS,
   copyText,
   RESET_MS,
   STATUS_CLASS,
   TEMPLATE_SELECTOR,
+  WRAPPED_CLASS,
+  WRAP_BUTTON_CLASS,
   type Clipboard,
   type CopyBlock,
   type CopyDocument,
@@ -73,6 +80,15 @@ class FakeNode implements CopyNode {
 class FakeBlock implements CopyBlock {
   readonly code: FakeNode | null;
   readonly inserted: FakeNode[] = [];
+  readonly classes = new Set<string>();
+  readonly classList = {
+    toggle: (name: string, force?: boolean): boolean => {
+      const on = force ?? !this.classes.has(name);
+      if (on) this.classes.add(name);
+      else this.classes.delete(name);
+      return on;
+    },
+  };
   private readonly attrs: Record<string, string>;
 
   constructor(attrs: Record<string, string>, text: string | null, hasCode = true) {
@@ -265,10 +281,11 @@ test("copyText takes the Python prompts off and keeps the code", () => {
   assert.equal(copyText(">>> x = 1\n... y = 2\nprint(x)", "python"), "x = 1\ny = 2\nprint(x)");
 });
 
-test("the server output has no copy control: it appears only when the island runs", () => {
+test("the server output has no copy or wrap control: they appear only when the island runs", () => {
   const input = { props: { lang: "ts" }, html: "const a = 1;", page: {}, site: {} };
   const out = renderToString(code(input as unknown as ComponentProps<never>) as never);
   assert.doesNotMatch(out, /code-copy/);
+  assert.doesNotMatch(out, /code-wrap|is-wrapped|aria-pressed/);
   assert.doesNotMatch(out, /<button/);
 });
 
@@ -423,4 +440,77 @@ test("the control's words come from the page template", () => {
 
   const button = (block.inserted[0]!.children[0] as FakeNode).children[0] as FakeNode;
   assert.equal(button.attrs["aria-label"], "کپی");
+});
+
+test("the wrap toggle adds the wrapping class and reports its pressed state", () => {
+  const { block, bar } = page("const a = 1;", "ts", clipboard());
+  const wrap = bar.children[2] as FakeNode;
+
+  assert.equal(wrap.tag, "button");
+  assert.equal(wrap.attrs.type, "button");
+  assert.equal(wrap.attrs.class, WRAP_BUTTON_CLASS);
+  assert.equal(wrap.attrs["aria-pressed"], "false");
+  assert.equal(wrap.textContent, DEFAULT_LABELS.wrap);
+  assert.equal(block.classes.has(WRAPPED_CLASS), false);
+
+  wrap.click();
+  assert.equal(wrap.attrs["aria-pressed"], "true");
+  assert.equal(block.classes.has(WRAPPED_CLASS), true);
+
+  wrap.click();
+  assert.equal(wrap.attrs["aria-pressed"], "false");
+  assert.equal(block.classes.has(WRAPPED_CLASS), false);
+});
+
+test("wrapping a block never changes the text a copy takes", async () => {
+  const clip = clipboard();
+  const text = "const message = 'a very long line that wraps in the view';\n\treturn message;";
+  const { block, bar, button } = page(text, "ts", clip);
+
+  (bar.children[2] as FakeNode).click();
+  assert.equal(block.classes.has(WRAPPED_CLASS), true);
+
+  button.click();
+  await flush();
+  assert.deepEqual(clip.written, [text]);
+});
+
+test("the wrap label comes from the page language", () => {
+  const template = (lang: string): string =>
+    renderToString(codeCopy({ page: { lang } } as unknown as ChromeProps) as never);
+
+  assert.match(template("en"), /data-wrap="Wrap lines"/);
+  assert.match(template("fa"), new RegExp(`data-wrap="${t("fa", "code_wrap")}"`));
+  assert.match(template("ar"), new RegExp(`data-wrap="${t("ar", "code_wrap")}"`));
+  assert.notEqual(t("fa", "code_wrap"), t("en", "code_wrap"));
+  assert.notEqual(t("ar", "code_wrap"), t("en", "code_wrap"));
+});
+
+test("the wrap toggle is a focusable native button that keyboard users can press", () => {
+  const dom = new JSDOM('<pre class="code" data-lang="ts"><code>const a = 1;</code></pre>');
+  const document = dom.window.document;
+  activate(document as unknown as CopyDocument, { clipboard: clipboard(), schedule: timers().schedule });
+
+  const wrap = document.querySelector<HTMLButtonElement>(`.${WRAP_BUTTON_CLASS}`);
+  assert.ok(wrap);
+  assert.equal(wrap.getAttribute("type"), "button");
+  assert.equal(wrap.tabIndex, 0);
+  wrap.focus();
+  assert.equal(document.activeElement, wrap);
+
+  wrap.click();
+  assert.equal(wrap.getAttribute("aria-pressed"), "true");
+  assert.ok(document.querySelector("pre.code")?.classList.contains(WRAPPED_CLASS));
+});
+
+test("the wrap rule is presentation-only and leaves direction to the RTL sheet", () => {
+  const ui = readFileSync(new URL("../styles/src/ui.css", import.meta.url), "utf8");
+  const code = /\.code\.is-wrapped code \{([^}]*)\}/.exec(ui)?.[1] ?? "";
+  assert.match(code, /white-space:\s*pre-wrap/);
+  assert.match(code, /overflow-wrap:\s*anywhere/);
+  assert.doesNotMatch(code, /direction|unicode-bidi|text-align|(?:margin|padding|border)-(?:left|right)/);
+  assert.match(ui, /\.code\.is-wrapped \{[^}]*overflow-x:\s*hidden/);
+
+  const rtl = readFileSync(new URL("../styles/rtl.css", import.meta.url), "utf8");
+  assert.match(rtl, /\[dir="rtl"\] :where\(pre, code, kbd, samp, var\):not\(\[dir\]\) \{[^}]*direction:\s*ltr/);
 });
