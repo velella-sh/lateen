@@ -1,4 +1,4 @@
-/* Sidebar groups: each group is a native <details>. The group that holds the page stays open; the rest remember their open or closed state in localStorage. */
+/* Sidebar groups: each group is a native <details>. The group that holds the page stays open and its current link is scrolled into the column; the rest remember their open or closed state in localStorage. */
 
 /** Legacy origin-wide key; newer states are namespaced by the published site base under it. */
 export const STORAGE_KEY = "lateen-sidebar";
@@ -9,6 +9,10 @@ export const MAX_ENTRIES = 200;
 const MAX_KEY_LENGTH = 300;
 const MAX_SITE_LENGTH = 512;
 const GROUP_SELECTOR = "details[data-sidebar-group]";
+/* The sticky column that scrolls independently of the article. */
+const SIDEBAR_SELECTOR = ".sidebar-nav";
+/* The current page, or the section that covers it in a collapsed group. */
+const CURRENT_SELECTOR = "a[aria-current]";
 
 /** Open (`true`) or closed (`false`) per group key. */
 export type GroupState = Map<string, boolean>;
@@ -27,9 +31,28 @@ export interface SidebarGroup {
   addEventListener(type: "toggle", listener: () => void): void;
 }
 
+/** A rectangle in viewport coordinates. */
+export interface SidebarRect {
+  top: number;
+  bottom: number;
+  height: number;
+}
+
+/** The current link, as the sidebar renders it. */
+export interface SidebarLink {
+  getBoundingClientRect(): SidebarRect;
+}
+
+/** The scrolling sidebar column; revealing the current link scrolls this element, never the document. */
+export interface SidebarScroller {
+  scrollTop: number;
+  getBoundingClientRect(): SidebarRect;
+  querySelector(selector: string): SidebarLink | null;
+}
+
 /** The root the groups are found in: the document in a browser. */
 export interface SidebarRoot {
-  querySelectorAll(selector: string): Iterable<SidebarGroup>;
+  querySelectorAll<T>(selector: string): Iterable<T>;
 }
 
 /** A `storage` event as cross-tab updates deliver it. */
@@ -148,9 +171,22 @@ function forKeys(state: GroupState, keys: ReadonlySet<string>): GroupState {
   return state;
 }
 
+/** Scrolls a sidebar column just enough to show its current link; the document never moves. */
+export function reveal(scroller: SidebarScroller): void {
+  const box = scroller.getBoundingClientRect();
+  if (box.bottom <= box.top) return; // hidden drawer or empty column
+  const link = scroller.querySelector(CURRENT_SELECTOR);
+  if (link === null) return;
+  const rect = link.getBoundingClientRect();
+  let delta = 0;
+  if (rect.top < box.top) delta = rect.top - box.top;
+  else if (rect.bottom > box.bottom) delta = rect.bottom - box.bottom;
+  if (delta !== 0) scroller.scrollTop += delta;
+}
+
 /** Restore the saved states, remember every later toggle, and follow changes from other tabs. */
 export function activate(env: SidebarEnv): void {
-  const groups = [...env.root.querySelectorAll(GROUP_SELECTOR)];
+  const groups = [...env.root.querySelectorAll<SidebarGroup>(GROUP_SELECTOR)];
   const site = siteOf(groups);
   const keys = new Set<string>();
   for (const group of groups) {
@@ -164,6 +200,7 @@ export function activate(env: SidebarEnv): void {
     if (state.size > 0) save(env.storage, state, site);
   }
   restore(groups, state);
+  for (const scroller of env.root.querySelectorAll<SidebarScroller>(SIDEBAR_SELECTOR)) reveal(scroller);
 
   for (const group of groups) {
     group.addEventListener("toggle", () => {

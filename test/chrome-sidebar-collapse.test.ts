@@ -12,7 +12,9 @@ import {
   storageKey,
   type SidebarEvents,
   type SidebarGroup,
+  type SidebarLink,
   type SidebarRoot,
+  type SidebarScroller,
   type SidebarStorage,
   type StorageEventLike,
 } from "../chrome/sidebar/client.ts";
@@ -169,9 +171,50 @@ class FakeGroup implements SidebarGroup {
   }
 }
 
-/** The sidebar's root: the groups as the document would list them. */
-function rootOf(groups: SidebarGroup[]): SidebarRoot {
-  return { querySelectorAll: () => groups };
+/** A link in the sidebar column, with the rectangle `reveal` compares. */
+class FakeLink implements SidebarLink {
+  readonly documentScrolls: unknown[] = [];
+  top: number;
+  height: number;
+
+  constructor(top: number, height = 20) {
+    this.top = top;
+    this.height = height;
+  }
+
+  getBoundingClientRect(): { top: number; bottom: number; height: number } {
+    return { top: this.top, bottom: this.top + this.height, height: this.height };
+  }
+
+  /** An alternative reveal would scroll the document through this; the sidebar must not call it. */
+  scrollIntoView(options?: unknown): void {
+    this.documentScrolls.push(options);
+  }
+}
+
+/** The sticky sidebar column: it has its own scroll offset and never relays a scroll to the document. */
+class FakeScroller implements SidebarScroller {
+  scrollTop = 0;
+  top = 0;
+  height = 300;
+  link: SidebarLink | null = null;
+
+  getBoundingClientRect(): { top: number; bottom: number; height: number } {
+    return { top: this.top, bottom: this.top + this.height, height: this.height };
+  }
+
+  querySelector(_selector: string): SidebarLink | null {
+    return this.link;
+  }
+}
+
+/** The sidebar's root: the groups and columns as the document would list them. */
+function rootOf(groups: SidebarGroup[], scrollers: SidebarScroller[] = []): SidebarRoot {
+  return {
+    querySelectorAll<T>(selector: string): Iterable<T> {
+      return (selector === ".sidebar-nav" ? scrollers : groups) as Iterable<T>;
+    },
+  };
 }
 
 /** A window that records storage listeners for the test to fire. */
@@ -322,6 +365,41 @@ test("activate restores the saved states and remembers every later toggle", () =
 
   reference.toggle(false);
   assert.equal(storage.data.get(storageKey(SITE)), '{"Reference":false}');
+});
+
+test("navigation scrolls the sidebar column just enough to show the current link, never the document", () => {
+  const link = new FakeLink(400);
+  const scroller = new FakeScroller();
+  scroller.link = link;
+
+  activate({ root: rootOf([new FakeGroup("Guide", false, true)], [scroller]) });
+
+  assert.equal(scroller.scrollTop, 120);
+  assert.deepEqual(link.documentScrolls, []);
+});
+
+test("a current link already inside the sidebar column changes nothing", () => {
+  const link = new FakeLink(40);
+  const scroller = new FakeScroller();
+  scroller.scrollTop = 42;
+  scroller.link = link;
+
+  activate({ root: rootOf([new FakeGroup("Guide", false, true)], [scroller]) });
+
+  assert.equal(scroller.scrollTop, 42);
+  assert.deepEqual(link.documentScrolls, []);
+});
+
+test("a closed drawer's hidden sidebar column is skipped", () => {
+  const link = new FakeLink(400);
+  const scroller = new FakeScroller();
+  scroller.height = 0;
+  scroller.link = link;
+
+  activate({ root: rootOf([new FakeGroup("Guide", false, true)], [scroller]) });
+
+  assert.equal(scroller.scrollTop, 0);
+  assert.deepEqual(link.documentScrolls, []);
 });
 
 test("activate still opens the page's group when storage is refused", () => {
