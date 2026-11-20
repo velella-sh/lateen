@@ -93,6 +93,15 @@
       ]
     },
     {
+      "name": "details",
+      "selector": "details.details summary",
+      "states": [
+        "hover",
+        "focus",
+        "pressed"
+      ]
+    },
+    {
       "name": "diff-block",
       "selector": "[data-diff-copy]",
       "states": [

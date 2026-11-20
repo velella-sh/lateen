@@ -5,7 +5,7 @@ layout: doc
 permalink: /components/details/
 ---
 
-A details block hides a passage behind a summary line. It is the native `<details>` element, so it opens and closes without JavaScript, and the browser can open it when the reader follows an anchor inside it.
+A details block hides a passage behind a summary line. It is the native `<details>` element, so it opens and closes without JavaScript, and the browser can open it when the reader follows an anchor inside it. The island also opens a closed target's disclosures, including closed ancestors, on load and on a hash change, then focuses and scrolls to the target; other disclosures stay as they were.
 
 ## Syntax
 
