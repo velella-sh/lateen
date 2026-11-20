@@ -146,6 +146,46 @@ test("the reader reports an unsupported schema keyword instead of passing it", (
   assert.match(validate({ oneOf: [] } as unknown as JsonSchema, "x").join("\n"), /unsupported keyword "oneOf"/);
 });
 
+test("a type list accepts either kind and reports the kind it got", () => {
+  assert.deepEqual(validate({ type: ["string", "number"] }, 3), []);
+  assert.deepEqual(validate({ type: ["string", "number"] }, "x"), []);
+  assert.match(validate({ type: ["string", "number"] }, true).join("\n"), /expected string or number, got boolean/);
+});
+
+test("the reader checks every scalar and array bound", () => {
+  assert.deepEqual(validate({ type: "number" }, 1.5), []);
+  assert.deepEqual(validate({ type: "integer" }, 2), []);
+  assert.match(validate({ type: "integer" }, 1.5).join("\n"), /expected integer, got number/);
+  assert.match(validate({ type: "number", minimum: 5 }, 3).join("\n"), /3 is below the minimum 5/);
+  assert.deepEqual(validate({ type: "number", minimum: 5 }, 5), []);
+  assert.match(validate({ type: "string", pattern: "^a+$" }, "bbb").join("\n"), /does not match/);
+  assert.deepEqual(validate({ type: "string", pattern: "^a+$" }, "aaa"), []);
+  assert.deepEqual(validate({ type: "object" }, {}), []);
+  assert.match(validate({ type: "array", minItems: 2 }, [1]).join("\n"), /1 items, wants at least 2/);
+  assert.match(validate({ type: "array", maxItems: 1 }, [1, 2]).join("\n"), /2 items, wants at most 1/);
+});
+
+test("a schema-valued additionalProperties validates undocumented fields", () => {
+  const schema: JsonSchema = {
+    type: "object",
+    properties: { name: { type: "string" } },
+    additionalProperties: { type: "string" },
+  };
+  assert.deepEqual(validate(schema, { name: "ok", note: "also ok" }), []);
+  assert.match(validate(schema, { name: "ok", note: 3 }).join("\n"), /note: expected string, got integer/);
+  const nested: JsonSchema = {
+    type: "object",
+    properties: { nested: { type: "object", properties: {}, additionalProperties: { type: "string" } } },
+  };
+  assert.match(validate(nested, { nested: { note: 3 } }).join("\n"), /nested.note: expected string, got integer/);
+});
+
+test("boolean, null, and unrecognized values keep their own kind", () => {
+  assert.deepEqual(validate({ type: "boolean" }, false), []);
+  assert.deepEqual(validate({ type: "null" }, null), []);
+  assert.match(validate({ type: "boolean" }, undefined).join("\n"), /got null/);
+});
+
 test("the checklist covers every WCAG 2.2 A and AA criterion once, at its own level and principle", () => {
   assert.deepEqual(
     wcag.criteria.map((item) => [item.id, item.level]),

@@ -3,6 +3,7 @@ import { test } from "node:test";
 import { renderToString } from "preact-render-to-string";
 import type { LayoutProps, Page, Site, SiteConfig } from "@velella/mizzen/contracts";
 import record from "../layouts/record.ts";
+import { claimsOf, evidenceFieldOf } from "../src/evidence.ts";
 
 const pos = { file: "components/button.md", line: 1, column: 1, endLine: 1, endColumn: 1 };
 
@@ -156,4 +157,55 @@ test("private keys on a claim are never rendered", () => {
   assert.match(out, /<a href="\/public\/">Public<\/a>/);
   assert.ok(!out.includes("internal note"));
   assert.ok(!out.includes("secret"));
+});
+
+test("evidenceFieldOf ignores an absent site, an absent collection, and a blank or non-string field", () => {
+  assert.equal(evidenceFieldOf(undefined, "components"), undefined);
+  assert.equal(evidenceFieldOf({} as Site, "components"), undefined);
+  assert.equal(evidenceFieldOf(siteWith({ evidenceField: 3 as never }), "components"), undefined);
+  assert.equal(evidenceFieldOf(siteWith({ evidenceField: "   " }), "components"), undefined);
+  assert.equal(evidenceFieldOf(siteWith({ evidenceField: null }), "components"), undefined);
+  assert.equal(evidenceFieldOf(siteWith({ evidenceField: " sources " }), "components"), "sources");
+});
+
+test("claimsOf returns nothing for a missing record, collection, field, or shaped value", () => {
+  const site = siteWith({ evidence: { name: [] } });
+  assert.deepEqual(claimsOf(site, "components", "missing", "name"), []);
+  assert.deepEqual(claimsOf(site, "missing", "button", "name"), []);
+  assert.deepEqual(claimsOf(siteWith({ evidenceField: null }), "components", "button", "name"), []);
+  assert.deepEqual(claimsOf(siteWith({ evidenceField: "  " }), "components", "button", "name"), []);
+  assert.deepEqual(claimsOf(siteWith({ evidence: "not a record" }), "components", "button", "name"), []);
+  assert.deepEqual(claimsOf(siteWith({ evidence: { name: "not a list" } }), "components", "button", "name"), []);
+  assert.deepEqual(claimsOf(siteWith({ evidence: { name: undefined } }), "components", "button", "name"), []);
+});
+
+test("claimsOf skips malformed claims and keeps only safe, titled ones in order", () => {
+  const claims = claimsOf(
+    siteWith({
+      evidence: {
+        name: [
+          null,
+          7,
+          {},
+          { id: "", title: "No id", url: "/x/" },
+          { id: "num-title", title: 7, url: "/x/" },
+          { id: "blank", title: "   ", url: "/x/" },
+          { id: "no-url", title: "No url" },
+          { id: "num-url", title: "Number url", url: 7 },
+          { id: "js", title: "Script", url: "javascript:alert(1)" },
+          { id: "proto", title: "Protocol relative", url: "//evil.example/x" },
+          { id: "backslash", title: "Backslash", url: "/\\evil.example" },
+          { id: "first", title: "  First  ", url: "/sources/first/" },
+          { id: "second", title: "Second", url: "https://example.org/second" },
+        ],
+      },
+    }),
+    "components",
+    "button",
+    "name",
+  );
+  assert.deepEqual(claims, [
+    { id: "first", title: "First", url: "/sources/first/" },
+    { id: "second", title: "Second", url: "https://example.org/second" },
+  ]);
 });

@@ -4,7 +4,7 @@
 
 import assert from "node:assert/strict";
 import { test } from "node:test";
-import { basePath, safeHref, withBase, withParams } from "../src/url.ts";
+import { baseOf, basePath, safeHref, srcsetWithBase, withBase, withParams } from "../src/url.ts";
 
 test("other parameters and the fragment stay, in place", () => {
   assert.equal(
@@ -76,6 +76,23 @@ test("withBase leaves external, protocol-relative, fragment, and data URLs alone
   assert.equal(withBase("/docs", "//example.com/a"), "//example.com/a");
   assert.equal(withBase("/docs", "#section"), "#section");
   assert.equal(withBase("/docs", "data:text/html,x"), "data:text/html,x");
+});
+
+test("baseOf reads an optional site config and never invents a base", () => {
+  assert.equal(baseOf(undefined), "");
+  assert.equal(baseOf({}), "");
+  assert.equal(baseOf({ config: {} }), "");
+  assert.equal(baseOf({ config: { base: "/docs" } }), "/docs");
+});
+
+test("srcsetWithBase prefixes every root-relative candidate and keeps each descriptor", () => {
+  assert.equal(
+    srcsetWithBase("/docs", "/small.png 1x, /large.png 2x"),
+    "/docs/small.png 1x, /docs/large.png 2x",
+  );
+  assert.equal(srcsetWithBase("/docs", "/only.png"), "/docs/only.png");
+  assert.equal(srcsetWithBase("", " /a.png 480w , //cdn.example/b.png 2x "), "/a.png 480w, //cdn.example/b.png 2x");
+  assert.equal(srcsetWithBase("/docs", ""), "");
 });
 
 test("basePath joins paths with one slash and reads the root as empty", () => {
