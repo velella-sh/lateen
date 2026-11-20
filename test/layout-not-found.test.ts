@@ -106,6 +106,16 @@ test("404 offers base-aware home and search actions without JavaScript", () => {
   assert.ok(!page.includes("not-found-sections"));
 });
 
+test("recovery actions keep a non-root base exactly once, with or without a trailing slash", () => {
+  for (const base of ["/lateen", "/lateen/"]) {
+    const page = out(layoutProps({ base }));
+    const actions = page.match(/<div class="not-found-actions actions">.*?<\/div>/s)?.[0] ?? "";
+    assert.match(actions, /href="\/lateen\/"/, `${base} keeps the home action under the base`);
+    assert.match(actions, /href="\/lateen\/search\/"/, `${base} keeps the search action under the base`);
+    assert.ok(!actions.includes("//"), `${base} joins the base exactly once`);
+  }
+});
+
 test("404 content sits in the base shell, so the document keeps lang, dir, and the skip link", () => {
   const page = out(layoutProps());
   assert.match(page, /^<html lang="en" dir="ltr"/);
