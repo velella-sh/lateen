@@ -26,6 +26,8 @@ form and the page are readable before any script runs.
 - `test/component-variables-form.test.ts`: labels, defaults, the empty case, the data fallback, every
   language, escaping, input types, the reset button, validation, stale output, the island's placeholder
   updates, and the stylesheet rules.
+- `test/component-variables-form-state.test.ts`: the island's group state, typed validation, staleness, and
+  reset decisions, checked without a browser.
 
 ## Data
 

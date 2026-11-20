@@ -333,7 +333,7 @@ export function markStale(root: PlaceholderRoot, name: string): number {
 }
 
 /** What one group remembers about its variables' recorded values, current values, and rejected inputs. */
-interface GroupState {
+export interface GroupState {
   /** Each variable's server-rendered default, i.e. the value the documented output was produced with. */
   readonly baselines: Map<string, string>;
   /** Each variable's last value a form applied, after validation. */
@@ -344,6 +344,53 @@ interface GroupState {
   blocked: boolean;
 }
 
+/** A group state with nothing recorded and nothing rejected. */
+export function createGroupState(): GroupState {
+  return { baselines: new Map(), currents: new Map(), invalid: new Set(), blocked: false };
+}
+
+/** Records one value and whether its declared type accepts it; the group's rejected names follow it. */
+export function recordValue(state: GroupState, name: string, value: string, valid: boolean): void {
+  state.currents.set(name, value);
+  if (valid) state.invalid.delete(name);
+  else state.invalid.add(name);
+}
+
+/** True while the group rejects a value, which blocks its terminals and marks its outputs stale. */
+export function isBlocked(state: GroupState): boolean {
+  return state.invalid.size > 0;
+}
+
+/** Several group states as one view: the earliest baseline, the latest current value, and any rejection. */
+export function mergeStates(states: readonly GroupState[]): GroupState {
+  const merged = createGroupState();
+  for (const state of states) {
+    for (const [name, value] of state.baselines) if (!merged.baselines.has(name)) merged.baselines.set(name, value);
+    for (const [name, value] of state.currents) merged.currents.set(name, value);
+    for (const name of state.invalid) merged.invalid.add(name);
+  }
+  return merged;
+}
+
+/** Whether a recorded output is older than its inputs, matches them, or cannot be checked for want of a baseline. */
+export type Staleness = "stale" | "fresh" | "unknown";
+
+/** The decision for one output's dependencies: any rejection or changed value is stale, a missing one is unknown. */
+export function stalenessOf(state: GroupState, names: readonly string[]): Staleness {
+  if (isBlocked(state)) return "stale";
+  let unknown = false;
+  for (const name of names) {
+    const baseline = state.baselines.get(name);
+    const current = state.currents.get(name);
+    if (baseline === undefined || current === undefined) {
+      unknown = true;
+      continue;
+    }
+    if (baseline !== current) return "stale";
+  }
+  return unknown ? "unknown" : "fresh";
+}
+
 const freshness = new WeakMap<PlaceholderRoot, Map<string, GroupState>>();
 
 /** The state for one form's group, created empty on first sight. */
@@ -352,7 +399,7 @@ function stateOf(root: PlaceholderRoot, group: string): GroupState {
   freshness.set(root, states);
   const existing = states.get(group);
   if (existing !== undefined) return existing;
-  const created: GroupState = { baselines: new Map(), currents: new Map(), invalid: new Set(), blocked: false };
+  const created = createGroupState();
   states.set(group, created);
   return created;
 }
@@ -375,40 +422,15 @@ function statesOf(root: PlaceholderRoot): GroupState[] {
 export function recomputeStaleness(root: PlaceholderRoot, scope?: GroupScope): void {
   const states = scope === undefined ? statesOf(root) : [stateOf(root, scope.group)];
   if (states.length === 0) return;
-
-  const baselines = new Map<string, string>();
-  const currents = new Map<string, string>();
-  let invalid = false;
-  for (const state of states) {
-    for (const [name, value] of state.baselines) if (!baselines.has(name)) baselines.set(name, value);
-    for (const [name, value] of state.currents) currents.set(name, value);
-    invalid = invalid || state.invalid.size > 0;
-  }
+  const state = mergeStates(states);
 
   for (const block of root.querySelectorAll(OUTPUT_DEPENDENCY_SELECTOR)) {
     if (scope !== undefined && !appliesTo(block, scope)) continue;
     const names = namesOf(block.getAttribute("data-output-deps"));
     if (names.length === 0) continue;
-    if (invalid) {
-      markBlock(block);
-      continue;
-    }
-    let differs = false;
-    let untrustworthy = false;
-    for (const name of names) {
-      const baseline = baselines.get(name);
-      const current = currents.get(name);
-      if (baseline === undefined || current === undefined) {
-        untrustworthy = true;
-        continue;
-      }
-      if (baseline !== current) {
-        differs = true;
-        break;
-      }
-    }
-    if (differs) markBlock(block);
-    else if (!untrustworthy) clearBlock(block);
+    const staleness = stalenessOf(state, names);
+    if (staleness === "stale") markBlock(block);
+    else if (staleness === "fresh") clearBlock(block);
   }
 }
 
@@ -428,6 +450,41 @@ export function isValid(input: VariableInput): boolean {
   const type = validationTypeOf(input.getAttribute(TYPE_ATTRIBUTE));
   if (type === "string") return input.validity?.valid !== false;
   return isValidValue(type, input.value);
+}
+
+/** One value a reset puts back: the input, its variable name, and the declared default. */
+export interface ResetStep {
+  readonly input: VariableInput;
+  readonly name: string;
+  readonly value: string;
+}
+
+/** The declared defaults a reset restores, in form order; the click handler only writes and revalidates them. */
+export function defaultsOf(form: VariableForm): ResetStep[] {
+  const steps: ResetStep[] = [];
+  for (const node of form.querySelectorAll(INPUT_SELECTOR)) {
+    const input = node as VariableInput;
+    const name = input.getAttribute("data-var");
+    if (name === null || name === "") continue;
+    steps.push({ input, name, value: input.getAttribute("data-default") ?? "" });
+  }
+  return steps;
+}
+
+/** Validates one input, records the outcome, shows its message, and copies it only when it is accepted. */
+function commitInput(
+  root: PlaceholderRoot,
+  form: VariableForm,
+  scope: GroupScope,
+  state: GroupState,
+  input: VariableInput,
+  name: string,
+): boolean {
+  const valid = isValid(input);
+  recordValue(state, name, input.value, valid);
+  showValidity(form, input, name, valid);
+  if (valid) applyValue(root, name, input.value, scope);
+  return valid;
 }
 
 /** Shows or hides the server-rendered message for one variable and sets its input's invalid state. */
@@ -453,7 +510,7 @@ interface CopyButton {
  * sentence. The output block keeps its copy button: its text is the author's, not derived from the inputs.
  */
 function syncTerminals(root: PlaceholderRoot, form: VariableForm, scope: GroupScope, state: GroupState): void {
-  const blocked = state.invalid.size > 0;
+  const blocked = isBlocked(state);
   if (blocked) form.setAttribute?.(INVALID_ATTRIBUTE, "true");
   else form.removeAttribute?.(INVALID_ATTRIBUTE);
   if (state.blocked === blocked) return;
@@ -497,21 +554,10 @@ export function activate(root: PlaceholderRoot, form: VariableForm): string[] {
     names.push(name);
     const baseline = input.getAttribute("data-default") ?? input.value;
     if (!state.baselines.has(name)) state.baselines.set(name, baseline);
-    state.currents.set(name, input.value);
-
-    const valid = isValid(input);
-    if (valid) state.invalid.delete(name);
-    else state.invalid.add(name);
-    showValidity(form, input, name, valid);
-    if (valid) applyValue(root, name, input.value, scope);
+    commitInput(root, form, scope, state, input, name);
 
     input.addEventListener("input", () => {
-      state.currents.set(name, input.value);
-      const valid = isValid(input);
-      if (valid) state.invalid.delete(name);
-      else state.invalid.add(name);
-      showValidity(form, input, name, valid);
-      if (valid) applyValue(root, name, input.value, scope);
+      commitInput(root, form, scope, state, input, name);
       syncTerminals(root, form, scope, state);
       recomputeStaleness(root, scope);
     });
@@ -524,17 +570,9 @@ export function activate(root: PlaceholderRoot, form: VariableForm): string[] {
   if (reset !== null && reset !== undefined) {
     reset.hidden = false;
     reset.addEventListener("click", () => {
-      for (const node of form.querySelectorAll(INPUT_SELECTOR)) {
-        const input = node as VariableInput;
-        const name = input.getAttribute("data-var");
-        if (name === null || name === "") continue;
-        input.value = input.getAttribute("data-default") ?? "";
-        state.currents.set(name, input.value);
-        const valid = isValid(input);
-        if (valid) state.invalid.delete(name);
-        else state.invalid.add(name);
-        showValidity(form, input, name, valid);
-        if (valid) applyValue(root, name, input.value, scope);
+      for (const step of defaultsOf(form)) {
+        step.input.value = step.value;
+        commitInput(root, form, scope, state, step.input, step.name);
       }
       syncTerminals(root, form, scope, state);
       recomputeStaleness(root, scope);
