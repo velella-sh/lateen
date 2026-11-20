@@ -206,6 +206,7 @@ test("renders a labelled GET search form, a status region, and a results contain
   );
   assert.match(page, /<button class="search-results-submit" type="submit">Search<\/button>/);
   assert.match(page, /<p class="search-results-status" role="status" data-search-status=""><\/p>/);
+  assert.match(page, /<a class="search-results-scope-change" data-search-scope-change="" hidden><\/a>/);
   assert.match(page, /<ol class="search-results-list" data-search-results=""><\/ol>/);
   assert.match(
     page,
@@ -242,7 +243,8 @@ test("the module prints the count and renders links with Pagefind excerpts", () 
   const script = scriptOf(out());
 
   assert.match(script, /status\.textContent = messages\.loading;/);
-  assert.match(script, /messages\.empty\.replace\("\{query\}"/);
+  assert.match(script, /messages\.emptyScope\n\s+\.replace\("\{query\}"/);
+  assert.match(script, /messages\.emptyScope[\s\S]*?\.replace\("\{scope\}", \(\) => \(scope === "all" \? messages\.scopeAll : messages\.scopeProject\)\)/);
   assert.match(script, /status\.textContent = messages\.failed;/);
   assert.match(script, /hits\.length === 1\n\s+\? messages\.one\n\s+: countMessage\(hits\.length\);/);
   assert.match(script, /link\.setAttribute\("href", href\)/);
@@ -379,6 +381,9 @@ test("values written into the script are escaped so a base cannot close the tag"
 test("every message comes from the i18n table", () => {
   const english = scriptOf(out());
   assert.match(english, /"empty":"No results for “\{query\}”\."/);
+  assert.match(english, /"emptyScope":"No results for “\{query\}” in \{scope\}\."/);
+  assert.match(english, /"scopeProject":"This project"/);
+  assert.match(english, /"scopeAll":"All projects"/);
   assert.match(english, /"one":"1 result"/);
   assert.match(english, /"counts":\{"zero":/);
 
@@ -444,12 +449,13 @@ test("focus moves to the first new result, with the control as the fallback", ()
   assert.match(scriptOf(out()), /focusAfterAppend\(items, remaining \? more : undefined\)/);
 });
 
-test("the next batch keeps the same query and scope without navigating", () => {
+test("show more keeps the same query and scope without navigating", () => {
   const script = scriptOf(out());
 
   assert.equal(script.match(/api\.search\(query\)/g)?.length, 1);
   assert.match(script, /new URLSearchParams\(location\.search\)\.get\("q"\)/);
-  assert.doesNotMatch(script, /history\.|location\.(href|search|assign|replace)\s*=|\.submit\(|scope/i);
+  assert.doesNotMatch(script, /history\.|location\.(href|search|assign|replace)\s*=|\.submit\(/);
+  assert.match(script, /scopeLink\.setAttribute\("href", url\.pathname \+ url\.search\)/);
   assert.match(out(), /data-search-more="" hidden/);
 });
 
@@ -477,6 +483,9 @@ test("the script serializes all six search_count plural-category messages of eve
       assert.equal(counts[category], patternOf(lang, key), `${lang}.${key} is serialized intact`);
     }
     assert.equal(messages.empty, patternOf(lang, "search_results_empty"));
+    assert.equal(messages.emptyScope, patternOf(lang, "search_results_empty_scope"));
+    assert.equal(messages.scopeProject, t(lang, "search_scope_project"));
+    assert.equal(messages.scopeAll, t(lang, "search_scope_all"));
     assert.equal(messages.loading, t(lang, "search_results_loading"));
     assert.equal(messages.failed, t(lang, "search_results_failed"));
     assert.equal(messages.one, t(lang, "search_results_one"));

@@ -89,9 +89,6 @@ Following an agent link hands the prompt to that agent's site, the same as typin
 
 ## Notes
 
-- An empty search names the scope it searched: **This project** or **All projects**.
-- The empty state links to the same query in the other scope, so a reader can widen or narrow it without
-  retyping.
 - The feature uses the search dialog the theme already ships; there is no second dialog.
 - The row appears only for a question of two words or more, so an ordinary one-word lookup stays a
   lookup.

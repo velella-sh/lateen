@@ -83,8 +83,8 @@ function pageWith(overrides: Partial<Page> = {}): Page {
   };
 }
 
-function props(overrides: Partial<SiteConfig> = {}, page: Page = pageWith(), pages: readonly Page[] = [page]): ChromeProps {
-  const site: Site = { config: { ...config, ...overrides }, pages, nav: { main: [] }, data: {}, collections: {} };
+function props(overrides: Partial<SiteConfig> = {}, page: Page = pageWith()): ChromeProps {
+  const site: Site = { config: { ...config, ...overrides }, pages: [page], nav: { main: [] }, data: {}, collections: {} };
   return { site, page, trail: [], pager: {} };
 }
 
@@ -214,22 +214,16 @@ test("the dialog carries the ask panel's data and a hidden slot, with no panel b
   assert.equal(out.includes("ask-agent-panel"), false);
 });
 
-test("the dialog carries a hidden all-results link and a scope-change link in the page language", () => {
-  const page = pageWith();
-  const out = html(search(props({}, page, [page, pageWith({ url: "/search/" })])));
-  const link = /<a class="search-all" data-search-all(?:="")?[^>]*>([^<]*)<\/a>/.exec(out);
+test("the dialog carries a hidden all-results link with no address and the page language's label", () => {
+  const out = html(search(props()));
+  const link = /<p class="search-foot"><a class="search-all" data-search-all(?:="")? hidden>([^<]*)<\/a><\/p>/.exec(out);
 
   assert.equal(link?.[1], "See all results");
-  assert.match(out, /<a class="search-all" data-search-all(?:="")? href="\/search\/" hidden>See all results<\/a>/);
-  assert.doesNotMatch(html(search(props())), /<a class="search-all" data-search-all(?:="")? href=/, "a site without a search page has no all-results link");
-  assert.match(
-    out,
-    /<a class="search-all" data-search-scope-change(?:="")? href="\/search\/\?scope=all" hidden>All projects<\/a>/,
-  );
+  assert.doesNotMatch(out, /<a class="search-all"[^>]* href=/);
 
   const persianPage = pageWith({ lang: "fa", dir: "rtl", url: "/fa/guide/install/" });
   const persian = html(search(props({ lang: "fa", dir: "rtl" }, persianPage)));
-  assert.match(persian, /<a class="search-all" data-search-all(?:="")?[^>]*>دیدن همهٔ نتایج<\/a>/);
+  assert.match(persian, /<a class="search-all" data-search-all(?:="")? hidden>دیدن همهٔ نتایج<\/a>/);
 });
 
 test("the dialog reads right to left and speaks Persian without JavaScript", () => {
@@ -717,8 +711,7 @@ test("the all-results address encodes the phrase once and keeps the scope", () =
 });
 
 test("messages name the query and count results in the singular and plural", () => {
-  assert.equal(emptyMessage("cache"), "No results for “cache” in This project.");
-  assert.equal(emptyMessage("cache", MESSAGES, "all"), "No results for “cache” in All projects.");
+  assert.equal(emptyMessage("cache"), "No results for “cache”.");
   assert.equal(countMessage(1), "1 result.");
   assert.equal(countMessage(3), "3 results.");
   assert.equal(countMessage(0), "0 results.");
@@ -987,7 +980,6 @@ function fakeStatus() {
 function fakeAll() {
   const fake = {
     hidden: true,
-    textContent: "",
     attrs: {} as Record<string, string>,
     setAttribute(key: string, value: string) {
       fake.attrs[key] = value;
@@ -1063,7 +1055,6 @@ function partsOf(options: { base?: string; focusables?: SearchFocusable[]; statu
   const clear = fakeButton("clear");
   const retry = fakeButton("retry");
   const all = fakeAll();
-  const scope = fakeAll();
   const input = fakeInput();
   const results = fakeResults();
   const status = options.status ?? fakeStatus();
@@ -1077,9 +1068,8 @@ function partsOf(options: { base?: string; focusables?: SearchFocusable[]; statu
     clear: clear as unknown as SearchParts["clear"],
     retry: retry as unknown as SearchParts["retry"],
     all: all as unknown as SearchParts["all"],
-    scope: scope as unknown as SearchParts["scope"],
   };
-  return { dialog, button, close, clear, retry, all, scope, input, results, status, parts };
+  return { dialog, button, close, clear, retry, all, input, results, status, parts };
 }
 
 function apiOf(data: readonly SearchRecord[], terms: string[] = []): PagefindApi {
@@ -1125,9 +1115,6 @@ function messagesFor(lang: "fa" | "ar"): SearchMessages {
     copied: text.copied ?? "",
     copyFailed: text.search_copy_failed ?? "",
     empty: text.search_results_empty ?? "",
-    emptyScope: text.search_results_empty_scope ?? "",
-    scopeProject: text.search_scope_project ?? "",
-    scopeAll: text.search_scope_all ?? "",
     ready: text.search_ready ?? "",
     retryFailed: text.search_retry_failed ?? "",
     otherSection: text.search_other_section ?? "",
@@ -1480,7 +1467,7 @@ test("activate announces results and groups in the page language", async () => {
   input.type("nothing");
   await tick();
 
-  assert.equal(status.textContent, "لا نتائج لـ «nothing» في هذا المشروع.");
+  assert.equal(status.textContent, "لا نتائج لـ «nothing».");
   assert.equal(status.textContent, emptyMessage("nothing", messages));
 });
 
@@ -1620,36 +1607,6 @@ test("a query with no hits announces it in words", async () => {
   await tick();
 
   assert.equal(status.textContent, emptyMessage("nothing"));
-});
-
-test("an empty search names its scope and links to the other one", async () => {
-  const project = partsOf();
-  activate(project.parts, envWith(apiOf([]), { scope: "project" }));
-  project.button.click();
-  await tick();
-
-  project.input.type("nothing");
-  await tick();
-
-  assert.equal(project.status.textContent, emptyMessage("nothing", MESSAGES, "project"));
-  assert.match(project.status.textContent ?? "", /This project/);
-  assert.equal(project.scope.hidden, false);
-  assert.equal(project.scope.textContent, "All projects");
-  assert.equal(project.scope.attrs.href, "/search/?q=nothing&scope=all");
-
-  const network = partsOf();
-  activate(network.parts, envWith(apiOf([]), { scope: "all" }));
-  network.button.click();
-  await tick();
-
-  network.input.type("nothing");
-  await tick();
-
-  assert.equal(network.status.textContent, emptyMessage("nothing", MESSAGES, "all"));
-  assert.match(network.status.textContent ?? "", /All projects/);
-  assert.equal(network.scope.hidden, false);
-  assert.equal(network.scope.textContent, "This project");
-  assert.equal(network.scope.attrs.href, "/search/?q=nothing&scope=project");
 });
 
 test("the arrow keys move the active option and the field names it", async () => {

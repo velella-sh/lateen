@@ -48,7 +48,7 @@ theme:
 | `api-reference` | One operation of a pinned OpenAPI document: method, path, parameters, request body, responses, schemas, and examples. [API reference layout](/layouts/api-reference/) explains the generated front matter. |
 | `api-reference-index` | The generated reference index: the document title, version, description, and grouped operation links. |
 | `versions` | The versions index: a page's versions from `site.data.docsVersions` or the `versions` front matter key, each row linked to the same page when it exists and marked with Latest, Deprecated, or Dev in text. |
-| `search-results` | Search results, plus the [ask your agent](/ask-agent/) section, which hands a question from search to the reader's own agent. |
+| `search-results` | Search results, naming the active scope in an empty state and linking the same query in the other scope, plus the [ask your agent](/ask-agent/) section, which hands a question from search to the reader's own agent. |
 | `not-found` | The 404 page, with base-aware home and documentation-search links that work without JavaScript. |
 
 The `home` layout can also build a showpiece page from a hero, a stat strip, a feature grid, a framed demo, and a closing call to action. [Showpiece home](/showpiece/) is a live example, with every front-matter key and an adoption checklist.
