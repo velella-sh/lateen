@@ -189,14 +189,6 @@
   padding-inline: 0.4rem;
 }
 
-/* Let the badge grow with its label. */
-.badge {
-  height: auto;
-  min-block-size: 1.25rem;
-  overflow: visible;
-  line-height: 1.25;
-}
-
 .code-copy {
   min-block-size: 1.5rem;
   min-inline-size: 1.5rem;
