@@ -4,7 +4,7 @@ import assert from "node:assert/strict";
 import { test } from "node:test";
 import { JSDOM } from "jsdom";
 import { renderToString } from "preact-render-to-string";
-import type { ComponentProps, Page, PageStale, Site } from "@velella/mizzen/contracts";
+import type { ComponentProps, Page, PageStale, Site, RepositoryConfig } from "@velella/mizzen/contracts";
 import staleNotice, {
   CLASS,
   DEFAULT_MAX_FILES,
@@ -19,11 +19,27 @@ const files: PageStale["files"] = [
   { path: "src/new.ts", change: "added" },
 ];
 
-function render(stale: PageStale | undefined, lang = "en", options: Record<string, unknown> = {}): string {
+function render(
+  stale: PageStale | undefined,
+  lang = "en",
+  options: Record<string, unknown> = {},
+  repository?: RepositoryConfig,
+): string {
   const page = { lang, title: "Install", frontMatter: {} } as unknown as Page;
-  const site = { config: { base: "", theme: { options } }, nav: {}, data: {}, pages: [], collections: {} } as unknown as Site;
+  const site = {
+    config: { base: "", repository, theme: { options } },
+    nav: {},
+    data: {},
+    pages: [],
+    collections: {},
+  } as unknown as Site;
   return renderToString(
-    staleNotice({ props: stale === undefined ? {} : { stale }, page, site, html: "" } as unknown as ComponentProps) as never,
+    staleNotice({
+      props: stale === undefined ? {} : { stale, ...(repository === undefined ? {} : { repository }) },
+      page,
+      site,
+      html: "",
+    } as unknown as ComponentProps) as never,
   );
 }
 
@@ -48,6 +64,59 @@ test("the notice names the review date and every change", () => {
   assert.equal(page.querySelector('[role="alert"]'), null);
   assert.equal(page.querySelector("[aria-live]"), null);
   assert.equal(html.includes("<script"), false);
+});
+
+test("a GitHub repository links a changed file to the repository browser", () => {
+  const page = document(render({ files }, "en", {}, { url: "https://github.com/acme/repo" }));
+  const items = [...page.querySelectorAll(`.${FILES_CLASS} li`)];
+  const links = items.map((item) => item.querySelector("code a")!);
+  assert.deepEqual(
+    links.map((link) => link.getAttribute("href")),
+    files.map((file) => `https://github.com/acme/repo/blob/main/${file.path}`),
+  );
+  assert.deepEqual(items.map((item) => item.getAttribute("data-change")), ["changed", "removed", "added"]);
+  assert.match(items[0]!.textContent!, /changed/);
+  assert.deepEqual(items.map((item) => item.querySelector("code")!.textContent), files.map((file) => file.path));
+
+  const branch = document(
+    render({ files }, "en", {}, { url: "https://github.com/acme/repo", branch: "dev" }),
+  );
+  assert.equal(
+    branch.querySelector("code a")!.getAttribute("href"),
+    "https://github.com/acme/repo/blob/dev/src/router.ts",
+  );
+});
+
+test("a GitLab repository links a changed file with its blob path", () => {
+  const page = document(render({ files }, "en", {}, { url: "https://gitlab.com/acme/repo" }));
+  assert.equal(
+    page.querySelector("code a")!.getAttribute("href"),
+    "https://gitlab.com/acme/repo/-/blob/main/src/router.ts",
+  );
+});
+
+test("an unsupported forge or unsafe path stays plain text", () => {
+  const unsafe: PageStale["files"] = [
+    { path: "", change: "changed" },
+    { path: "../secret", change: "removed" },
+  ];
+  const pages = [
+    document(render({ files }, "en", {}, { url: "https://git.example.org/acme/repo" })),
+    document(render({ files: unsafe }, "en", {}, { url: "https://github.com/acme/repo" })),
+  ];
+  for (const page of pages) {
+    assert.equal(page.querySelector("code a"), null);
+  }
+  assert.deepEqual(
+    [...pages[1]!.querySelectorAll("li")].map((item) => item.querySelector("code")!.textContent),
+    ["", "../secret"],
+  );
+});
+
+test("a file without a repository prop stays plain text", () => {
+  const page = document(render({ files }));
+  assert.equal(page.querySelector("code a"), null);
+  assert.equal(page.querySelector("code")!.textContent, "src/router.ts");
 });
 
 test("a long file list keeps the first files in view and the rest in a disclosure", () => {

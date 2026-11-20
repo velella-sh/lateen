@@ -47,6 +47,7 @@ export function staleSlot(props: LayoutProps): ComponentChildren {
   return staleNotice({
     props: {
       stale: props.page.stale,
+      ...(props.site.config.repository === undefined ? {} : { repository: props.site.config.repository }),
       ...(editUrl === undefined ? {} : { editUrl }),
       ...(agentUrl === undefined ? {} : { agentUrl }),
     },

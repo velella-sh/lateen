@@ -22,6 +22,9 @@ files match the review lock, renders nothing extra.
 - **Ask an agent**, when the site configures a page-agent provider that takes a `{prompt}`, opens it
   with the page, its address, and the changed files filled in.
 
+When the site names a repository, each changed file links to that file in the repository browser. An
+unsupported forge or an unsafe path stays plain text, and long paths wrap on mobile and in RTL.
+
 ## Options
 
 Two keys under `theme.options.stale`:

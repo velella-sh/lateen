@@ -98,6 +98,22 @@ export function fitUrl(root: string, host: Host, title: string, body: string, ex
 }
 
 /**
+ * The repository browser's URL for one file, or undefined for another forge, an empty path, or a path with
+ * a `.`/`..`/empty segment.
+ */
+export function fileUrlOf(repository: RepositoryConfig, file: string): string | undefined {
+  const host = hostOf(repository);
+  if (host === undefined) return undefined;
+  const path = sourcePath(file);
+  if (path.trim() === "") return undefined;
+  const segments = path.split("/");
+  if (segments.some((segment) => segment === "" || segment === "." || segment === "..")) return undefined;
+  const branch = repository.branch ?? DEFAULT_BRANCH;
+  const blob = host === "gitlab" ? "/-/blob" : "/blob";
+  return `${webRoot(repository.url)}${blob}/${encodeURIComponent(branch)}/${encodePath(path)}`;
+}
+
+/**
  * The repository browser's URL for one line of a file: `${root}/blob/${branch}/${path}#L${line}` on GitHub and
  * `${root}/-/blob/${branch}/${path}#L${line}` on GitLab. `undefined` for any other forge or an empty path.
  */

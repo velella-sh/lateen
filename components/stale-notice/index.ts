@@ -1,8 +1,9 @@
 import { h } from "preact";
 import type { ComponentChildren } from "preact";
-import type { Component, PageStale, PageStaleFile } from "@velella/mizzen/contracts";
+import type { Component, PageStale, PageStaleFile, RepositoryConfig } from "@velella/mizzen/contracts";
 import { TriangleAlert } from "lucide";
 import { icon } from "../../src/icon.ts";
+import { fileUrlOf } from "../../src/repository.ts";
 import { t } from "../../i18n/index.ts";
 import { calendarDate } from "../../src/dates.ts";
 import { optionOf } from "../../src/options.ts";
@@ -52,6 +53,8 @@ export type StaleNoticeProps = {
   readonly editUrl?: string;
   /** An agent that takes a prompt, filled with the changed files. */
   readonly agentUrl?: string;
+  /** The site repository, so a changed file can link to it. */
+  readonly repository?: RepositoryConfig;
 };
 
 /** The change word of a file's change. */
@@ -73,17 +76,22 @@ function staleOptions(site: SiteOptions): { show: boolean; maxFiles: number } {
   };
 }
 
-function fileNode(file: PageStaleFile, lang: string): ComponentChildren {
+function fileNode(file: PageStaleFile, lang: string, repository: RepositoryConfig | undefined): ComponentChildren {
+  const href = repository === undefined ? undefined : fileUrlOf(repository, file.path);
   return h(
     "li",
     { class: FILE_CLASS, "data-change": file.change },
-    h("code", null, file.path),
+    h("code", null, href === undefined ? file.path : h("a", { class: "stale-notice-file-link", href }, file.path)),
     h("span", { class: CHANGE_CLASS }, t(lang, CHANGE_KEYS[file.change])),
   );
 }
 
-function listOf(files: readonly PageStaleFile[], lang: string): ComponentChildren {
-  return h("ul", { class: FILES_CLASS }, files.map((file) => fileNode(file, lang)));
+function listOf(
+  files: readonly PageStaleFile[],
+  lang: string,
+  repository: RepositoryConfig | undefined,
+): ComponentChildren {
+  return h("ul", { class: FILES_CLASS }, files.map((file) => fileNode(file, lang, repository)));
 }
 
 const staleNotice: Component<StaleNoticeProps> = ({ props, page, site }) => {
@@ -114,14 +122,14 @@ const staleNotice: Component<StaleNoticeProps> = ({ props, page, site }) => {
           t(lang, "stale_reviewed", { date: reviewed.text }),
         ),
     h("p", null, t(lang, "stale_files")),
-    listOf(head, lang),
+    listOf(head, lang, props.repository),
     rest.length === 0
       ? null
       : h(
           "details",
           { class: MORE_CLASS },
           h("summary", null, t(lang, "stale_more", { count: rest.length })),
-          listOf(rest, lang),
+          listOf(rest, lang, props.repository),
         ),
     props.editUrl === undefined && props.agentUrl === undefined
       ? null
