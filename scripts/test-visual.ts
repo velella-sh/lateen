@@ -10,7 +10,7 @@
 import { existsSync, mkdirSync, readFileSync, readdirSync, rmSync, writeFileSync } from "node:fs";
 import { join, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
-import type { Browser, Page } from "playwright";
+import type { Page } from "playwright";
 import { buildFixture } from "../test/visual/fixtures/build.ts";
 import {
   DEFAULT_VIEWPORT,
@@ -25,6 +25,7 @@ import {
 } from "../visual/index.ts";
 import { checkPage, formatFinding, type PageFinding } from "./visual-checks.ts";
 import { formatReview, reviewShots, type CaseReport } from "./visual-review.ts";
+import { withCleanup } from "./runner-cleanup.ts";
 // The runner and the matrix live in the export a site uses (visual/index.ts); re-exported for the tests.
 export {
   CONTEXT_OPTIONS,
@@ -229,22 +230,25 @@ export async function runVisual(options: RunOptions = {}): Promise<string[]> {
   const entries = expandMatrix(options.matrix ?? loadMatrix()).filter((entry) => options.only === undefined || entry.case.includes(options.only));
   const viewports = [...new Map(entries.map((entry) => [`${entry.width}x${entry.height}`, { width: entry.width, height: entry.height }])).values()];
 
-  const server = await startServer(site, "");
-  let browser: Browser | undefined;
-  const written: string[] = [];
-  const shoot = async (page: Page, entry: ReturnType<typeof expandMatrix>[number]): Promise<void> => {
-    const file = join(out, `${entry.case}.png`);
-    await capture(page, `${server.url}${entry.path}`, file, {
-      theme: entry.theme,
-      media: entry.section === "print" ? "print" : "screen",
-      forcedColors: entry.section === "forced-colors",
-      ...(entry.maxHeight === undefined ? {} : { maxHeight: entry.maxHeight }),
-    });
-    written.push(file);
-    options.findings?.push(...(await checkPage(page, entry.name, entry.case)));
-  };
-  try {
-    browser = await launchChromium();
+  // The server and the browser are released on success, failure and interruption; the shots and
+  // the review images in `out` are the failure evidence and are deliberately kept.
+  return withCleanup(async (cleanup) => {
+    const server = await startServer(site, "");
+    cleanup.add(() => server.close());
+    const browser = await launchChromium();
+    cleanup.add(() => browser.close());
+    const written: string[] = [];
+    const shoot = async (page: Page, entry: ReturnType<typeof expandMatrix>[number]): Promise<void> => {
+      const file = join(out, `${entry.case}.png`);
+      await capture(page, `${server.url}${entry.path}`, file, {
+        theme: entry.theme,
+        media: entry.section === "print" ? "print" : "screen",
+        forcedColors: entry.section === "forced-colors",
+        ...(entry.maxHeight === undefined ? {} : { maxHeight: entry.maxHeight }),
+      });
+      written.push(file);
+      options.findings?.push(...(await checkPage(page, entry.name, entry.case)));
+    };
     for (const viewport of viewports) {
       const context = await newVisualContext(browser, server.url, viewport);
       try {
@@ -290,11 +294,8 @@ export async function runVisual(options: RunOptions = {}): Promise<string[]> {
         await context.close();
       }
     }
-  } finally {
-    await browser?.close();
-    await server.close();
-  }
-  return written;
+    return written;
+  });
 }
 
 /** One row of the report CI turns into the pull request's step summary. */
