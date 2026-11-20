@@ -14,6 +14,10 @@ Chromium must be installed (`npx playwright install chromium`). The run writes
 `test/acceptance/out/report.json` and the tested tarball beside it, validated by
 `schema/acceptance-report.schema.json`.
 
+The component contract gate is `node --test test/contracts-optional.test.ts`: every directive unit
+renders with its optional fields missing, an empty collection, and unknown values, and fails on a
+throw or invented text.
+
 ## The ledger
 
 `test/acceptance/features.json` lists every feature in the release scope as `shipped` or `deferred`:

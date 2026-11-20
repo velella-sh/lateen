@@ -225,11 +225,11 @@ export type CodeProps = {
  * highlighting runs in the browser.
  */
 export default function code({ props, html, page, site }: ComponentProps<CodeProps>) {
-  const lang = props.lang?.trim() || langFromBody(html) || "text";
+  const lang = (typeof props.lang === "string" ? props.lang.trim() : "") || langFromBody(html) || "text";
   const text = sourceText(html);
   // No page-start fallback: the engine stamps the directive's own span on the root, so each block
   // keeps a precise, unique source identity instead of all blocks sharing the page's first line.
-  const src = props.src;
+  const src = typeof props.src === "string" ? props.src : undefined;
   // A fence marked `mermaid` is a diagram, not text; `mermaidComponents` in the engine sends fences
   // straight to the mermaid component, and this keeps `:::code{lang=mermaid}` working too.
   if (lang === "mermaid") {

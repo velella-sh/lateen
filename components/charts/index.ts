@@ -44,7 +44,7 @@ const DEFAULT_ROWS: readonly ChartRow[] = [
 export default function charts({ props }: ComponentProps<ChartsProps>) {
   const rows = parseRows(props.rows);
   const data = rows.length > 0 ? rows : DEFAULT_ROWS;
-  const title = props.title?.trim() || "Chart";
+  const title = (typeof props.title === "string" ? props.title.trim() : "") || "Chart";
   const type = props.type === "line" ? "line" : "bar";
   const max = Math.max(...data.map((row) => row.value), 1);
 
