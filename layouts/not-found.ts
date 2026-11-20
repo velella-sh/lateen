@@ -4,7 +4,13 @@ import type { Layout, LayoutProps, SiteConfig } from "@velella/mizzen/contracts"
 import { hrefFor, resolvedLanguages } from "../chrome/language-switcher/index.ts";
 import shell, { footer } from "../chrome/shell/index.ts";
 import { t } from "../i18n/index.ts";
+import { baseOf, withBase } from "../src/url.ts";
 import base from "./base.ts";
+
+/** The configured site base without trailing slashes, so joining a root path never doubles one. */
+function siteBase(config: SiteConfig): string {
+  return baseOf({ config }).replace(/\/+$/, "");
+}
 
 /** A language tag in the matching form: trimmed, lower case, `_` read as `-`. */
 function tagKey(tag: string): string {
@@ -18,13 +24,14 @@ function tagKey(tag: string): string {
  * is the site home.
  */
 export function homeHref(config: SiteConfig, lang: string): string {
+  const base = siteBase(config);
   const languages = resolvedLanguages(config);
   const wanted = tagKey(lang);
   const wantedPrimary = wanted.split("-")[0] ?? "";
   const match =
     languages.find((language) => tagKey(language.code) === wanted) ??
     languages.find((language) => (tagKey(language.code).split("-")[0] ?? "") === wantedPrimary);
-  return match === undefined ? `${config.base}/` : hrefFor(config, match, "/");
+  return match === undefined ? withBase(base, "/") : hrefFor({ ...config, base }, match, "/");
 }
 
 /** The 404 content, in the page's own language: a code, a message, and home/search actions. */
@@ -40,7 +47,11 @@ function content(props: LayoutProps) {
       "div",
       { class: "not-found-actions actions" },
       h("a", { class: "btn home-btn-primary", href: homeHref(props.site.config, lang) }, t(lang, "home")),
-      h("a", { class: "btn home-btn-quiet", href: `${props.site.config.base}/search/` }, t(lang, "search_placeholder")),
+      h(
+        "a",
+        { class: "btn home-btn-quiet", href: withBase(siteBase(props.site.config), "/search/") },
+        t(lang, "search_placeholder"),
+      ),
     ),
   );
 }
