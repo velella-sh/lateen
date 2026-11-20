@@ -52,3 +52,12 @@ curl -H "Authorization: Bearer {{api_key}}" {{host}}/v1/status
 :::
 
 The identifier `widget_id` and the date 2026-03-05 stay left to right. See the [English page](/guide/install/).
+
+## گزینه‌ها
+
+| گزینه | پیش‌فرض |
+| --- | --- |
+| `theme` | `auto` |
+| `locale` | `fa` |
+
+::dated-list{items='[{"date":"2026-03-05","label":"انتشار نسخهٔ دوم","url":"/fa/guide/install/"}]' calendar="/fa/install.ics"}

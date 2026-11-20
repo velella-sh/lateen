@@ -106,6 +106,9 @@ at `/compare/`, and the code path records the copy control at `/guide/install/`.
 Spoken output was not captured in this environment, so the manual screen-reader pass stays open at
 those three locations. Each recorded case names that finding and its viewport.
 
+Directional arrows mirror on a right-to-left page so they point the way the text reads.
+Neutral icons, such as the theme toggle and the copy and check marks, keep their orientation.
+
 ## Report a problem
 
 If something on a Lateen site is hard to use, open an issue in the [repository](https://github.com/velella-sh/lateen/issues).
