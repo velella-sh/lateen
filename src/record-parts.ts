@@ -4,6 +4,7 @@ import type { DataRecord, LayoutProps, RecordPos } from "@velella/mizzen/contrac
 import { LINK_CLASS, reportHref } from "../chrome/report-issue/index.ts";
 import { KEY_CLASS, LIST_CLASS, VALUE_CLASS } from "../components/key-value/index.ts";
 import { t } from "../i18n/index.ts";
+import { claimsOf } from "./evidence.ts";
 import { DERIVED_PREFIX, dataValue, fieldValueOf, formatField, kindOf, valueState } from "./fields.ts";
 import { languageName } from "./language.ts";
 
@@ -12,6 +13,9 @@ export const FACTS_ID = "record-facts";
 
 /** Class on a fact's report link; `record.css` styles it. */
 const FACT_REPORT_CLASS = "record-fact-report";
+
+/** Class on a fact's public evidence links; `record.css` styles it. */
+export const FACT_EVIDENCE_CLASS = "record-fact-evidence";
 
 /** Class on a fact's value, the block source mode labels with the field's data position. */
 export const FACT_CLASS = "record-fact";
@@ -187,6 +191,7 @@ export function factsPanel(props: LayoutProps): ComponentChildren {
     const value = fact.field === "id" ? record.id : fieldValueOf(record, fact.field);
     const state = valueState(value);
     const fallback = fallbackLang(props, fact.field);
+    const claims = claimsOf(props.site, record.collection, record.id, fact.field);
     return h(
       Fragment,
       null,
@@ -218,6 +223,17 @@ export function factsPanel(props: LayoutProps): ComponentChildren {
             formatField(value, fact.kind, props.page.lang, props.site.config) as ComponentChildren,
           ),
         ),
+        ...(claims.length === 0
+          ? []
+          : [
+              h(
+                "span",
+                { class: FACT_EVIDENCE_CLASS },
+                claims.map((claim, at) =>
+                  h(Fragment, null, at === 0 ? null : ", ", h("a", { href: claim.url }, claim.title)),
+                ),
+              ),
+            ]),
         factReport(props, fact),
       ),
     );
