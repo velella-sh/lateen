@@ -1784,6 +1784,16 @@
     min-block-size: 1.5rem;
   }
 
+  .stale-notice-file code {
+    overflow-wrap: anywhere;
+    word-break: break-word;
+  }
+
+  .stale-notice-file-link {
+    direction: ltr;
+    unicode-bidi: isolate;
+  }
+
   .code-block {
     @apply relative my-6 max-w-full overflow-auto rounded-xl p-5 text-sm;
     background: var(--night);
