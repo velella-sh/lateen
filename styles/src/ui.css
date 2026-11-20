@@ -1399,7 +1399,6 @@
     font-weight: 600;
     line-height: 1.12;
     letter-spacing: -0.03em;
-    scroll-margin-block-start: 6.75rem;
   }
 
   .breadcrumb {
@@ -1472,12 +1471,21 @@
     font-weight: 600;
     line-height: 1.875rem;
     letter-spacing: -0.018em;
-    scroll-margin-block-start: 6.75rem;
   }
 
   .doc-body h3 {
     @apply mb-3 mt-8 text-xl;
-    scroll-margin-block-start: 6rem;
+  }
+
+  /* Fragment targets clear the sticky header on desktop and mobile. */
+  .prose :is(h1, h2, h3, h4, h5, h6)[id],
+  .doc-body :is(h1, h2, h3, h4, h5, h6)[id],
+  .code-tabs-panel[id],
+  .os-tabs-panel[id],
+  .tabs > [role="tabpanel"][id],
+  .embed-code-panel[id],
+  details[id] {
+    scroll-margin-block-start: 6.75rem;
   }
 
   .doc-body a {

@@ -34,6 +34,23 @@ test("headings leave room for the sticky header", () => {
   assert.match(ui, /scroll-margin-block-start:/);
 });
 
+test("headings and tab panels share the sticky-safe scroll margin", () => {
+  const shared = blocks(ui).find((block) => block.selector.includes(".code-tabs-panel[id]") && block.selector.includes("details[id]"));
+  assert.ok(shared, "fragment targets share one scroll-margin rule");
+  for (const target of [
+    ".prose :is(h1, h2, h3, h4, h5, h6)[id]",
+    ".doc-body :is(h1, h2, h3, h4, h5, h6)[id]",
+    ".code-tabs-panel[id]",
+    ".os-tabs-panel[id]",
+    '.tabs > [role="tabpanel"][id]',
+    ".embed-code-panel[id]",
+    "details[id]",
+  ]) {
+    assert.ok(shared.selector.includes(target), target);
+  }
+  assert.match(shared.body, /scroll-margin-block-start:\s*6\.75rem/);
+});
+
 test("the docs shell styles use the classes the layouts render", () => {
   for (const selector of [".doc-layout main > article > h1", ".breadcrumb-list", ".toc-fold", ".block-action", ".site-header .shell-menu", ".not-found-actions", ".edit-page-link"]) {
     assert.match(ui, new RegExp(`\\${selector}(?![\\w-])`), selector);
