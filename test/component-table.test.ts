@@ -3,6 +3,7 @@ import { readFileSync } from "node:fs";
 import { join } from "node:path";
 import { test } from "node:test";
 import { fileURLToPath } from "node:url";
+import { h } from "preact";
 import { renderToString } from "preact-render-to-string";
 import table, {
   DESCRIPTION_CLASS,
@@ -118,6 +119,58 @@ function texts(node: HastNode): string[] {
   return (node.children ?? []).flatMap(texts);
 }
 
+/** A table with two header rows and headers that span rows and columns, as hast sees it. */
+function semanticTableTree(): HastNode {
+  const th = (scope: string, text: string, span: Record<string, unknown> = {}): HastNode => ({
+    type: "element",
+    tagName: "th",
+    properties: { scope, ...span },
+    children: [{ type: "text", value: text }],
+  });
+  const td = (text: string): HastNode => ({
+    type: "element",
+    tagName: "td",
+    children: [{ type: "text", value: text }],
+  });
+  const row = (...cells: HastNode[]): HastNode => ({ type: "element", tagName: "tr", children: cells });
+
+  return {
+    type: "element",
+    tagName: "table",
+    properties: {},
+    children: [
+      {
+        type: "element",
+        tagName: "thead",
+        children: [
+          row(
+            th("col", "Environment", { rowspan: 2 }),
+            th("col", "Item", { rowspan: 2 }),
+            th("colgroup", "Target", { colspan: 2 }),
+            th("col", "Hooks", { rowspan: 2 }),
+          ),
+          row(th("col", "Bucket"), th("col", "Prefix")),
+        ],
+      },
+      {
+        type: "element",
+        tagName: "tbody",
+        children: [
+          row(
+            th("rowgroup", "Staging", { rowspan: 3 }),
+            th("row", "primary"),
+            td("s3://beacon-staging"),
+            td("/app"),
+            td("none"),
+          ),
+          row(th("row", "canary"), td("s3://beacon-canary"), td("/canary"), td("after")),
+          row(th("row", "cold"), td("s3://beacon-cold"), td("/cold"), td("none")),
+        ],
+      },
+    ],
+  };
+}
+
 test("rehype wraps a bare table in a focusable scroll region without an unnamed landmark", () => {
   const { tree, table: tableNode } = tableTree();
 
@@ -182,6 +235,83 @@ test("rehype keeps RTL direction and every cell when it wraps a right-to-left ta
   assert.equal(wrapper?.properties?.ariaLabel, "أهداف النشر");
   assert.ok(texts(tree).includes("staging"), "cell content survives the wrapper");
   assert.ok(texts(tree).includes("s3://beacon-staging"));
+});
+
+test("rehype keeps a multi-row thead, scopes, and spans when it wraps a table", () => {
+  const tableNode = semanticTableTree();
+  const children = structuredClone(tableNode.children);
+  const tree: HastNode = { type: "root", children: [tableNode] };
+
+  rehype()(tree);
+
+  const wrapper = tree.children?.[0];
+  assert.equal(wrapper?.tagName, "div");
+  assert.equal(wrapper?.children?.[0], tableNode, "the table node itself is kept");
+  assert.deepEqual(tableNode.children, children, "no header row, scope, or span is flattened or rewritten");
+
+  const thead = tableNode.children?.[0];
+  assert.equal(thead?.children?.length, 2, "both header rows remain");
+  assert.deepEqual(thead?.children?.[0]?.children?.[2]?.properties, { scope: "colgroup", colspan: 2 });
+  assert.deepEqual(thead?.children?.[1]?.children?.[0]?.properties, { scope: "col" });
+});
+
+test("rehype keeps body row and row-group headers with their scope", () => {
+  const tableNode = semanticTableTree();
+  const tree: HastNode = { type: "root", children: [tableNode] };
+
+  rehype()(tree);
+
+  const firstRow = tableNode.children?.[1]?.children?.[0];
+  assert.equal(firstRow?.children?.[0]?.tagName, "th", "a body row group header stays a th");
+  assert.deepEqual(firstRow?.children?.[0]?.properties, { scope: "rowgroup", rowspan: 3 });
+  assert.deepEqual(firstRow?.children?.[1]?.properties, { scope: "row" });
+  assert.ok(texts(tree).includes("canary"), "the row header content survives");
+});
+
+test("the component keeps multi-level header structure and scopes in its scroll region", () => {
+  const children = [
+    h(
+      "thead",
+      null,
+      h(
+        "tr",
+        null,
+        h("th", { scope: "col", rowspan: 2 }, "Environment"),
+        h("th", { scope: "col", rowspan: 2 }, "Item"),
+        h("th", { scope: "colgroup", colspan: 2 }, "Target"),
+        h("th", { scope: "col", rowspan: 2 }, "Hooks"),
+      ),
+      h("tr", null, h("th", { scope: "col" }, "Bucket"), h("th", { scope: "col" }, "Prefix")),
+    ),
+    h(
+      "tbody",
+      null,
+      h(
+        "tr",
+        null,
+        h("th", { scope: "rowgroup", rowspan: 2 }, "Staging"),
+        h("th", { scope: "row" }, "primary"),
+        h("td", null, "s3://beacon-staging"),
+        h("td", null, "/app"),
+        h("td", null, "none"),
+      ),
+      h(
+        "tr",
+        null,
+        h("th", { scope: "row" }, "canary"),
+        h("td", null, "s3://beacon-canary"),
+        h("td", null, "/canary"),
+        h("td", null, "after"),
+      ),
+    ),
+  ];
+
+  const html = renderToString(table({ caption: "Deploy targets", children }) as never);
+
+  assert.match(html, /<thead><tr><th scope="col" rowspan="2">Environment<\/th>/);
+  assert.match(html, /<th scope="colgroup" colspan="2">Target<\/th>/);
+  assert.match(html, /<th scope="rowgroup" rowspan="2">Staging<\/th><th scope="row">primary<\/th>/);
+  assert.match(html, /<th scope="row">canary<\/th>/);
 });
 
 test("the component names the region from an author label and omits it without one", () => {
