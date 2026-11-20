@@ -8,6 +8,7 @@
 import type { Page, SiteConfig } from "@velella/mizzen/contracts";
 import { textOf as text } from "../../src/guards.ts";
 import { optionOf } from "../../src/options.ts";
+import { safeHref } from "../../src/url.ts";
 
 /** A provider the reader can open in: a title and a URL template. */
 export interface Provider {
@@ -30,8 +31,13 @@ export const DEFAULT_PROVIDERS: readonly Provider[] = [
   { title: "Cursor", url: "https://cursor.com/link/prompt?text=Read+{markdown}" },
 ];
 
-/** Only these schemes are linked; a config value cannot inject `javascript:` or `data:`. */
-export const SAFE_SCHEME = /^(?:https?|cursor|claude|codex|vscode):/i;
+/** Only these protocols are linked; a config value cannot inject `javascript:` or `data:`. */
+const AGENT_PROTOCOLS = ["http:", "https:", "cursor:", "claude:", "codex:", "vscode:"] as const;
+
+/** A provider template safe to put in an `href`, or `undefined` for any other protocol. */
+export function safeAgentHref(value: unknown): string | undefined {
+  return safeHref(value, AGENT_PROTOCOLS);
+}
 
 /** The configured providers, or the three defaults when the site sets none. */
 export function providersOf(config: SiteConfig): readonly Provider[] {

@@ -17,6 +17,7 @@
 
 import type { PaletteAction } from "../command-palette/actions.ts";
 import { resultHeading, sectionPaths, type HeadingSource } from "../../src/search/merge.ts";
+import { safeHref as safeUrl } from "../../src/url.ts";
 
 /** The group heading when the server sends no label. */
 export const ACTIONS_LABEL = "Actions";
@@ -106,11 +107,12 @@ export interface AskOption {
   readonly hint?: string | undefined;
 }
 
-/** Only links the browser can follow: a `javascript:` or `data:` URL from the index is never a link. */
+/**
+ * Only links the browser can follow: a root-relative path, a Pagefind-style `./` or `../` path, or
+ * `http`/`https`. A `javascript:` or `data:` URL from the index is never a link.
+ */
 export function safeHref(url: string): string | undefined {
-  return url.startsWith("/") || url.startsWith("./") || url.startsWith("../") || /^https?:\/\//i.test(url)
-    ? url
-    : undefined;
+  return safeUrl(url, undefined, true);
 }
 
 /** The section a result belongs to, from the engine's `section` filter; a missing filter reads as `Other`. */

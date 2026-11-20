@@ -1,5 +1,6 @@
 import type { Direction, LanguageConfig, LinkTag, Page, Site, SiteConfig } from "@velella/mizzen/contracts";
 import { languages as shippedCatalogs, t } from "../../i18n/index.ts";
+import { safeHref as safeUrl, withBase } from "../../src/url.ts";
 
 /** A language as the switcher reads it: a normalised root-relative prefix (`""` or `/fa`). */
 export interface SwitcherLanguage {
@@ -215,10 +216,8 @@ function entryFor(entry: unknown, code: string): string | undefined {
  * gets `base`, like the header logo. Anything else is refused, so a YAML value cannot inject a script.
  */
 function safeHref(base: string, value: string): string | undefined {
-  const url = value.trim();
-  if (/^https?:\/\//i.test(url)) return url;
-  if (/^\/(?!\/)/.test(url)) return `${base}${url}`;
-  return undefined;
+  const href = safeUrl(value);
+  return href === undefined ? undefined : withBase(base, href);
 }
 
 /** The alternate map's URL for `identity` and `language`, when it gives a safe one. */

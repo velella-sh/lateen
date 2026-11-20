@@ -1,5 +1,6 @@
 import { h } from "preact";
 import type { ComponentProps } from "@velella/mizzen/contracts";
+import { safeHref } from "../../src/url.ts";
 
 /** Class on the embed: the 16:9 box plus the fallback link under it. */
 export const EMBED_CLASS = "embed";
@@ -60,10 +61,10 @@ export function youtubeId(url: URL): string | undefined {
 
 /** The address a text link opens: an `https` URL, or `undefined` when the value is anything else. */
 export function httpsHref(value: unknown): string | undefined {
-  if (typeof value !== "string") return undefined;
+  const href = safeHref(value, ["https:"]);
+  if (href === undefined) return undefined;
   try {
-    const url = new URL(value.trim());
-    return url.protocol === "https:" ? url.href : undefined;
+    return new URL(href).href;
   } catch {
     return undefined;
   }

@@ -12,7 +12,7 @@
 import { h } from "preact";
 import type { Chrome, ChromeProps, SiteConfig } from "@velella/mizzen/contracts";
 import { patternOf, t } from "../../i18n/index.ts";
-import { providersOf, originOf, SAFE_SCHEME, type Provider } from "../page-agent-menu/providers.ts";
+import { providersOf, originOf, safeAgentHref, type Provider } from "../page-agent-menu/providers.ts";
 import { PAGE_LIMIT, TEXT_LIMIT, type PromptStrings } from "./prompt.ts";
 
 /** Marks the inert JSON inside the search dialog; the panel island reads it once. */
@@ -69,7 +69,10 @@ function publishes(config: SiteConfig, name: string): boolean {
 /** The configured providers that can take a prompt and nothing else. */
 function promptProviders(config: SiteConfig): readonly Provider[] {
   return providersOf(config).filter(
-    (provider) => provider.url.includes(PROMPT_PLACEHOLDER) && !OTHER_PLACEHOLDER.test(provider.url) && SAFE_SCHEME.test(provider.url),
+    (provider) =>
+      provider.url.includes(PROMPT_PLACEHOLDER) &&
+      !OTHER_PLACEHOLDER.test(provider.url) &&
+      safeAgentHref(provider.url) !== undefined,
   );
 }
 

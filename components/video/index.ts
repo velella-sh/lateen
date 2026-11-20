@@ -2,7 +2,7 @@ import { h } from "preact";
 import type { ComponentProps } from "@velella/mizzen/contracts";
 import { t } from "../../i18n/index.ts";
 import { textOf as trimmed } from "../../src/guards.ts";
-import { baseOf, withBase } from "../../src/url.ts";
+import { baseOf, safeHref, withBase } from "../../src/url.ts";
 import { embedSrc, httpsHref, providerOf } from "../embed/index.ts";
 
 /** The Markdown directive this component handles: `::video`. */
@@ -60,25 +60,15 @@ export type VideoProps = {
   transcript_label?: string;
 };
 
-/** A root-relative path: one slash, no backslash or whitespace, so browsers cannot read it as another host. */
-const LOCAL_PATH = /^\/(?![/\\])[^\s\\]*$/;
-
-/** A root-relative path, or `undefined` for anything else. Protocol-relative addresses are remote. */
-function localPath(value: string): string | undefined {
-  return LOCAL_PATH.test(value) ? value : undefined;
-}
-
 /** The poster image: a local root-relative path, or `undefined` for any remote address. */
 export function posterSrc(value: unknown): string | undefined {
-  if (typeof value !== "string") return undefined;
-  return localPath(value.trim());
+  const href = safeHref(value);
+  return href !== undefined && href.startsWith("/") ? href : undefined;
 }
 
 /** A linked file: an `https` address or a root-relative path, or `undefined` for anything else. */
 export function mediaHref(value: unknown): string | undefined {
-  if (typeof value !== "string") return undefined;
-  const raw = value.trim();
-  return localPath(raw) ?? httpsHref(raw);
+  return safeHref(value, ["https:"]);
 }
 
 function text(value: unknown): string {
