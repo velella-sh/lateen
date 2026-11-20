@@ -1,6 +1,7 @@
 // Builds the visual fixture site. The pages of the accessibility fixture are linked into a staging
 // folder, not copied, next to the gallery pages of this folder, so there is one copy of each page.
 import { spawnSync } from "node:child_process";
+import { randomUUID } from "node:crypto";
 import { linkSync, mkdirSync, readdirSync, rmSync, statSync } from "node:fs";
 import { createRequire } from "node:module";
 import { dirname, join } from "node:path";
@@ -51,13 +52,17 @@ export function stageFixture(dir: string): string {
 }
 
 /** Builds the fixture into `out` with the theme of this checkout. Throws when the build fails. */
-export function buildFixture(out: string, staging = join(ROOT, ".mizzen/visual/fixture-src")): void {
+export function buildFixture(out: string, staging = join(ROOT, `.mizzen/visual/fixture-src-${randomUUID()}`)): void {
   stageFixture(staging);
-  const bin = join(dirname(createRequire(import.meta.url).resolve("@velella/mizzen/package.json")), "bin/mizzen.js");
-  const result = spawnSync(process.execPath, [bin, "build", staging, "--theme", ROOT, "--out", out], {
-    cwd: ROOT,
-    encoding: "utf8",
-  });
-  if (result.error !== undefined) throw result.error;
-  if (result.status !== 0) throw new Error(`mizzen build failed\n${result.stdout}\n${result.stderr}`);
+  try {
+    const bin = join(dirname(createRequire(import.meta.url).resolve("@velella/mizzen/package.json")), "bin/mizzen.js");
+    const result = spawnSync(process.execPath, [bin, "build", staging, "--theme", ROOT, "--out", out], {
+      cwd: ROOT,
+      encoding: "utf8",
+    });
+    if (result.error !== undefined) throw result.error;
+    if (result.status !== 0) throw new Error(`mizzen build failed\n${result.stdout}\n${result.stderr}`);
+  } finally {
+    rmSync(staging, { recursive: true, force: true });
+  }
 }

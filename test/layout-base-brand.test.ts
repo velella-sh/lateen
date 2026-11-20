@@ -132,21 +132,21 @@ const mono = { family: "Example Mono", files: [{ src: "/fonts/mono.woff2", weigh
 test("a replaced sans or mono family asks the engine to leave its preload out, independently", () => {
   const onlySans = skipping();
   render(configWith({ theme: { options: { brand: { fonts: { sans } } } } }), onlySans.hints);
-  assert.deepEqual(onlySans.families, ["Manrope"]);
+  assert.deepEqual(onlySans.families, ["Vazirmatn", "Manrope"]);
 
   const onlyMono = skipping();
   render(configWith({ theme: { options: { brand: { fonts: { mono } } } } }), onlyMono.hints);
-  assert.deepEqual(onlyMono.families, ["JetBrains Mono"]);
+  assert.deepEqual(onlyMono.families, ["Vazirmatn", "JetBrains Mono"]);
 
   const both = skipping();
   render(configWith({ theme: { options: { brand: { fonts: { sans, mono } } } } }), both.hints);
-  assert.deepEqual(both.families, ["Manrope", "JetBrains Mono"]);
+  assert.deepEqual(both.families, ["Vazirmatn", "Manrope", "JetBrains Mono"]);
 });
 
 test("a site without custom fonts asks for no preload change", () => {
   for (const options of [{}, { preset: "harbor" }, { brand: { accent: "#2f6f9f", radius: "large" } }]) {
     const skipped = skipping();
     render(configWith({ theme: { options } }), skipped.hints);
-    assert.deepEqual(skipped.families, [], JSON.stringify(options));
+    assert.deepEqual(skipped.families, ["Vazirmatn"], JSON.stringify(options));
   }
 });

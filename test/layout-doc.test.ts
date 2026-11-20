@@ -288,7 +288,7 @@ test("the metadata group keeps trust, freshness, and reading time under the titl
   const rendered = html(doc(layoutProps(page, [], [], data)));
   assert.match(
     rendered,
-    /<h1>Install<\/h1><div class="doc-meta"><details class="trust-panel trust-panel-verified"[\s\S]*?<\/details><p class="last-updated">[\s\S]*?<\/p><p class="reading-time"/,
+    /<h1>Install<\/h1><div class="doc-meta"><details id="trust-panel" class="trust-panel trust-panel-verified"[\s\S]*?<\/details><p class="last-updated">[\s\S]*?<\/p><p class="reading-time"/,
   );
   assert.doesNotMatch(html(doc(layoutProps(pageWith()))), /class="trust-panel"/);
 });

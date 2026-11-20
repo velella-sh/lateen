@@ -292,6 +292,15 @@
         "pressed",
         "disabled"
       ]
+    },
+    {
+      "name": "record-history",
+      "selector": ".record-history-filter",
+      "page": "/inventory/",
+      "states": [
+        "hover",
+        "focus"
+      ]
     }
   ]
 }

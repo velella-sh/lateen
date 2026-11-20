@@ -25,6 +25,7 @@ const INTENDED = [
   { selector: ".steps", reason: "Steps number each item and keep a progress state in 0.2.3." },
   { selector: ".output-block", reason: "Output blocks share the code highlighter's markup in 0.2.3." },
   { selector: ".terminal", reason: "Terminal bodies share the code block markup in 0.2.3." },
+  { selector: ".tested-chip", reason: "0.2.3 links the tested chip to the page's trust panel." },
   { selector: ".shortcut", reason: "The shortcut list gained the source-mode key in 0.2.3." },
   { selector: ".shortcuts-open,.shortcuts", reason: "Sailcloth moves the shortcut trigger and dialog into the footer's utility group." },
   { selector: "script", reason: "The theme script set grows with the new islands and their data." },
@@ -152,6 +153,10 @@ function normalize(text: string): { head: string; body: string } {
   for (const element of [...document.querySelectorAll("[data-tab-fragment]")]) {
     element.removeAttribute("data-tab-fragment");
   }
+  // The search field gains its own direction so a mixed-script query reads correctly.
+  for (const element of [...document.querySelectorAll('.search-input[dir="auto"]')]) element.removeAttribute("dir");
+  // The trust panel gained an id so the tested chip can link to it.
+  for (const element of [...document.querySelectorAll("details.trust-panel#trust-panel")]) element.removeAttribute("id");
   // The Sailcloth shell adds style-only class hooks to the existing grid and recovery content.
   for (const element of [...document.querySelectorAll(".layout")]) element.classList.remove("doc-layout");
   for (const element of [...document.querySelectorAll(".not-found")]) element.classList.remove("lonely");

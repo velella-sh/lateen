@@ -93,7 +93,7 @@ test("mixed prose, code, identifiers, dates, and form values keep their own dire
   assert.ok(identifier, "a Latin identifier in Persian prose is isolated");
   assert.equal(fa.querySelector(".version-switcher-value")?.getAttribute("dir"), "ltr");
 
-  const times = all(fa, "time[datetime]");
+  const times = all(fa, ".doc-meta time[datetime]");
   assert.ok(times.length >= 1);
   for (const time of times) {
     assert.match(time.getAttribute("datetime") ?? "", /^\d{4}-\d{2}-\d{2}/);

@@ -130,6 +130,7 @@ fixture and checked by `test/visual/inventory.test.ts`; it is not part of the sc
 
 <section class="record-history" data-fixture="record-history">
   <h2>Record history</h2>
+  <nav class="record-history-filters" aria-label="Filter by field"><a class="record-history-filter" href="?history-field=" data-history-link data-history-value="">All fields</a><a class="record-history-filter" href="?history-field=pages" data-history-link data-history-value="pages">pages</a></nav>
   <ol class="record-history-events">
     <li class="record-history-event">
       <time class="record-history-date" datetime="2026-11-09">November 9, 2026</time>

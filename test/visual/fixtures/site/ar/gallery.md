@@ -220,6 +220,10 @@ Facet filters, sort links and a count for a gallery, as plain links that work wi
 
 مكوّن تخطيط: يبنيه تخطيط المعرض من السجلات، فراجع صفحة معرض مبنية من البيانات.
 
+## guide-prerequisites
+
+<section class="guide-prerequisites" aria-labelledby="guide-prerequisites-title"><h2 class="guide-prerequisites-title" id="guide-prerequisites-title">المتطلبات</h2><ul class="guide-prerequisites-list"><li class="guide-prerequisites-item"><a href="/install/">ثبّت Node 24</a></li><li class="guide-prerequisites-item">مدير حزم <span class="guide-prerequisites-optional">اختياري</span></li></ul></section>
+
 ## guide-summary
 
 ::guide-summary
