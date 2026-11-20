@@ -14,7 +14,7 @@ import { shortcutsEnabled, type ShortcutStorage } from "../shortcuts/preference.
 export interface CopyButton {
   hidden: boolean;
   dataset: { markdown?: string; copied?: string; copyFailed?: string };
-  addEventListener(type: "click", listener: () => void): void;
+  addEventListener(type: "click", listener: () => void, options?: { signal?: AbortSignal | undefined }): void;
   /** The button's own click path, so the shortcut takes exactly the pointer's route. */
   click(): void;
 }
@@ -51,7 +51,7 @@ export interface ShortcutEvent {
 
 /** Where the `m` shortcut listens; the browser passes `document`, tests a fake. */
 export interface ShortcutHost {
-  addEventListener(type: "keydown", listener: (event: ShortcutEvent) => void): void;
+  addEventListener(type: "keydown", listener: (event: ShortcutEvent) => void, options?: { signal?: AbortSignal | undefined }): void;
 }
 
 /** The environment `activate` needs: the copy APIs, the status region, and a key listener host. */
@@ -59,6 +59,11 @@ export interface ActivateEnv extends CopyEnv {
   keys?: ShortcutHost | undefined;
   /** The preference storage; absent reads the browser's own, and an unreadable one reads as on. */
   storage?: ShortcutStorage | undefined;
+  /**
+   * Aborting it detaches the click and the `m` shortcut, so a host that mounts and unmounts the
+   * control tears the wiring down without a custom removal API. Absent, the wiring lives for the page.
+   */
+  signal?: AbortSignal | undefined;
 }
 
 /** Elements that take typed text, where `m` must stay an ordinary letter. */
@@ -127,17 +132,18 @@ export function copy(button: CopyButton, env: CopyEnv): Promise<void> {
 export function activate(button: CopyButton, env: ActivateEnv): void {
   if (env.clipboard === undefined || env.fetchText === undefined) return;
   if (button.dataset.markdown === undefined || button.dataset.markdown === "") return;
+  const signal = env.signal;
   button.hidden = false;
   button.addEventListener("click", () => {
     void copy(button, env);
-  });
+  }, { signal });
   env.keys?.addEventListener("keydown", (event) => {
     if (!isCopyShortcut(event)) return;
     if (isTypingTarget(event.target)) return;
     if (!shortcutsEnabled(env.storage)) return;
     event.preventDefault();
     button.click();
-  });
+  }, { signal });
 }
 
 /** The browser environment: the page's clipboard, `fetch`, and an element query. */

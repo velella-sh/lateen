@@ -472,7 +472,7 @@ function load(state: CompareState): void {
           button.addEventListener("click", () => {
             showNote(state.doc, column, state.loading || "Loading records…");
             retry();
-          });
+          }, { signal: state.env.signal });
           showNote(state.doc, column, state.failed || "Could not load the records.", button);
         }
       },
@@ -581,7 +581,7 @@ export function attachPickers(doc: CompareDocument, env: CompareEnv): void {
       env.replaceUrl(`${withRecords(env.search(), ids)}${env.hash()}`);
     };
     for (const column of state.columns) {
-      column.button.addEventListener("click", () => toggle(state, column));
+      column.button.addEventListener("click", () => toggle(state, column), { signal: env.signal });
     }
   }
 }

@@ -61,6 +61,7 @@ export interface GalleryElement {
   addEventListener(
     type: "click" | "popstate",
     listener: (event: GalleryEvent) => void,
+    options?: { signal?: AbortSignal | undefined },
   ): void;
   querySelector(selector: string): GalleryElement | null;
   querySelectorAll(selector: string): Iterable<GalleryElement>;
@@ -97,7 +98,9 @@ export interface GalleryHistory {
 export interface GalleryWindow {
   location: GalleryLocation;
   history: GalleryHistory;
-  addEventListener(type: "popstate", listener: () => void): void;
+  addEventListener(type: "popstate", listener: () => void, options?: { signal?: AbortSignal | undefined }): void;
+  /** The window realm's own `AbortController`, so the teardown signal matches the realm the page's nodes live in. */
+  readonly AbortController?: typeof AbortController | undefined;
 }
 
 /** The part of the document the island uses. */
@@ -339,11 +342,17 @@ export function apply(
   if (focus === "count") count?.focus();
 }
 
-/** Wires every gallery in the document, and reads the address the browser opened. */
-export function activate(doc: GalleryDocument): void {
+/**
+ * Wires every gallery in the document, and reads the address the browser opened. Every listener
+ * carries the returned teardown's signal, so a host that mounts and unmounts the gallery detaches
+ * the wiring with one abort and a remount starts with no duplicate listener.
+ */
+export function activate(doc: GalleryDocument): () => void {
   const roots = [...doc.querySelectorAll(ROOT_SELECTOR)];
-  if (roots.length === 0) return;
+  if (roots.length === 0) return () => {};
   const view = doc.defaultView ?? null;
+  const lifecycle = new (view?.AbortController ?? AbortController)();
+  const signal = lifecycle.signal;
 
   const applyAll = (focus: "results" | "filters" | "count" | null): void => {
     for (const root of roots) apply(doc, root, view?.location.href ?? "", focus);
@@ -359,7 +368,7 @@ export function activate(doc: GalleryDocument): void {
         const next = filterHref(view?.location.href ?? "", field, value);
         view?.history.replaceState(null, "", next);
         applyAll("results");
-      });
+      }, { signal });
     }
 
     const clear = root.querySelector(CLEAR_SELECTOR);
@@ -369,7 +378,7 @@ export function activate(doc: GalleryDocument): void {
       const next = clearHref(view?.location.href ?? "");
       view?.history.replaceState(null, "", next);
       applyAll("filters");
-    });
+    }, { signal });
 
     for (const link of root.querySelectorAll(SORT_LINK_SELECTOR)) {
       link.addEventListener("click", (event) => {
@@ -383,10 +392,11 @@ export function activate(doc: GalleryDocument): void {
         const direction: SortDirection = sort?.field === field && sort.direction === "asc" ? "desc" : "asc";
         view?.history.replaceState(null, "", sortHref(view?.location.href ?? "", field, direction));
         applyAll(null);
-      });
+      }, { signal });
     }
   }
 
-  view?.addEventListener("popstate", () => applyAll("count"));
+  view?.addEventListener("popstate", () => applyAll("count"), { signal });
   applyAll(null);
+  return () => lifecycle.abort();
 }

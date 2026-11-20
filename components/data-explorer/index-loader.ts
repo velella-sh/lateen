@@ -33,7 +33,7 @@ export interface CollectionIndex {
 
 /** The query field; its first focus starts the load. */
 export interface IndexField {
-  addEventListener(type: "focus", listener: () => void): void;
+  addEventListener(type: "focus", listener: () => void, options?: { signal?: AbortSignal | undefined }): void;
   /** The document, so a field that already has focus when the loader starts loads at once. */
   readonly ownerDocument?: { readonly activeElement?: unknown } | null;
 }
@@ -64,6 +64,11 @@ export interface IndexInput {
   readonly base: string;
   /** The collection to read, from the explorer root's `data-collection`. */
   readonly collection: string;
+  /**
+   * Aborting it detaches the focus listener that starts the load, so a host that tears the explorer
+   * down also stops its index from loading. Absent, the load waits for the field's first focus as usual.
+   */
+  readonly signal?: AbortSignal | undefined;
 }
 
 /** A head file's two shapes: the whole index, or the list of chunks that together are the index. */
@@ -215,7 +220,7 @@ export function createIndexLoader(input: IndexInput, env: IndexEnv, handlers: In
   const startOnFocus = (): void => {
     if (index === undefined && current === undefined) void load();
   };
-  input.field.addEventListener("focus", startOnFocus);
+  input.field.addEventListener("focus", startOnFocus, { signal: input.signal });
   if (input.field.ownerDocument?.activeElement === input.field) startOnFocus();
 
   return {
