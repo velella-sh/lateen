@@ -3,7 +3,7 @@ import { test } from "node:test";
 import { renderToString } from "preact-render-to-string";
 import type { NetworkProject, SiteNetwork } from "@velella/mizzen/contracts";
 import { searchFailure, searchResult } from "../components/search-result/index.ts";
-import { resultHref, resultLabel, sectionPaths, type SearchResult } from "../src/search/merge.ts";
+import { resultHeading, resultHref, resultLabel, sectionPaths, type SearchResult } from "../src/search/merge.ts";
 
 function project(id: string, title: string, current = false): NetworkProject {
   return { id, path: id, title, current };
@@ -114,6 +114,59 @@ test("an excerpt keeps Pagefind's mark around the match and reads its entities",
     searchResult({ result: result({ excerpt: "Install <mark>Lateen &amp; Co</mark> now" }) }) as never,
   );
   assert.match(out, /<span class="search-result-excerpt">Install <mark>Lateen &amp; Co<\/mark> now<\/span>/);
+});
+
+test("a result keeps its heading fragment and shows Pagefind's real heading text", () => {
+  const item = result({
+    url: "/guide/install/#deploy",
+    sub_results: [
+      { url: "/guide/install/", title: "Install" },
+      { url: "/guide/install/#deploy", title: "Deploy" },
+    ],
+  });
+  const out = renderToString(searchResult({ result: item, network }) as never);
+
+  assert.match(out, /href="\/beta\/guide\/install\/#deploy"/);
+  assert.match(out, /<span class="search-result-title">Install<\/span><span class="search-result-heading"><bdi>Deploy<\/bdi><\/span>/);
+  assert.equal(resultHeading(item.url, item), "Deploy");
+});
+
+test("a result without a fragment gets no heading, even when Pagefind lists subsections", () => {
+  const item = result({ sub_results: [{ url: "/guide/install/#deploy", title: "Deploy" }] });
+  const out = renderToString(searchResult({ result: item, network }) as never);
+
+  assert.match(out, /href="\/beta\/guide\/install\/"/);
+  assert.doesNotMatch(out, /search-result-heading/);
+  assert.equal(resultHeading(item.url, item), undefined, "a fragment is never invented");
+});
+
+test("the heading follows the URL's own anchor, not the first Pagefind lists", () => {
+  const item = result({
+    url: "/reference/#errors",
+    anchors: [
+      { id: "install", text: "Install" },
+      { id: "errors", text: "Errors" },
+    ],
+  });
+  const out = renderToString(searchResult({ result: item, network }) as never);
+
+  assert.match(out, /href="\/beta\/reference\/#errors"/);
+  assert.match(out, /<span class="search-result-heading"><bdi>Errors<\/bdi><\/span>/);
+  assert.equal(resultHeading("/reference/#missing", item), undefined);
+});
+
+test("a localized right-to-left heading stays its own bidi island", () => {
+  const item = result({
+    title: "نصب",
+    url: "/راهنما/نصب/#نشر",
+    excerpt: "پیش از <mark>نشر</mark> بازبینی کنید.",
+    anchors: [{ id: "نشر", text: "انتشار" }],
+  });
+  const out = renderToString(searchResult({ result: item, network }) as never);
+
+  assert.match(out, /<span class="search-result-heading"><bdi>انتشار<\/bdi><\/span>/);
+  assert.match(out, /<span class="search-result-title">نصب<\/span>/);
+  assert.match(out, /<span class="search-result-excerpt">پیش از <mark>نشر<\/mark> بازبینی کنید\.<\/span>/);
 });
 
 test("a failed index shows a clear message and a retry link, in all three languages", () => {

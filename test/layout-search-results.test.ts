@@ -125,6 +125,22 @@ function sectionPathOf(page: string): SectionPath {
   return new Function(`${block[0]}\nreturn { sectionPath, sectionPaths };`)() as SectionPath;
 }
 
+interface HeadingPath {
+  fragmentOf(url: string): string | undefined;
+  resultHeading(record: {
+    url: string;
+    sub_results?: readonly { url?: string; title?: string }[];
+    anchors?: readonly { id?: string; text?: string }[];
+  }): string | undefined;
+}
+
+/** The heading lookup block, extracted and run against real Pagefind record shapes. */
+function headingPathOf(page: string): HeadingPath {
+  const block = /\/\* heading-path:start[\s\S]*?heading-path:end \*\//.exec(scriptOf(page));
+  assert.ok(block, "the script keeps the heading lookup in one self-contained block");
+  return new Function(`${block[0]}\nreturn { fragmentOf, resultHeading };`)() as HeadingPath;
+}
+
 /** Serializing a page whose language has no catalog warns once; tests keep the output clean. */
 function quietOut(config: Partial<SiteConfig> = {}, page: Partial<Page> = {}): string {
   const previous = process.env.NODE_ENV;
@@ -195,6 +211,45 @@ test("result links are ordinary anchors, so the keyboard reaches them", () => {
   assert.match(script, /document\.createElement\(href === undefined \? "span" : "a"\)/);
   assert.doesNotMatch(script, /tabIndex|tabindex/);
   assert.match(script, /safeHref\(record\.url\)/);
+});
+
+test("the module reads the heading a result's fragment names, and invents none", () => {
+  const path = headingPathOf(out());
+  const subsections = [
+    { url: "/guide/install/", title: "Install" },
+    { url: "/guide/install/#deploy", title: "Deploy" },
+  ];
+
+  assert.equal(path.resultHeading({ url: "/guide/install/#deploy", sub_results: subsections }), "Deploy");
+  assert.equal(path.resultHeading({ url: "/guide/install/", sub_results: subsections }), undefined);
+  assert.equal(path.resultHeading({ url: "/guide/install/#missing", sub_results: subsections }), undefined);
+  assert.equal(
+    path.resultHeading({
+      url: "/reference/#errors",
+      anchors: [
+        { id: "install", text: "Install" },
+        { id: "errors", text: "Errors" },
+      ],
+    }),
+    "Errors",
+  );
+
+  const script = scriptOf(out());
+  assert.match(script, /className = "search-results-heading"/);
+  assert.match(script, /createElement\("bdi"\)/);
+  assert.match(script, /const headingText = resultHeading\(record\)/);
+});
+
+test("the module keeps a localized heading from a right-to-left result", () => {
+  const page = out({ lang: "fa" }, { lang: "fa", dir: "rtl" });
+  const path = headingPathOf(page);
+
+  assert.equal(path.fragmentOf("/راهنما/نصب/#نشر"), "نشر");
+  assert.equal(
+    path.resultHeading({ url: "/راهنما/نصب/#نشر", anchors: [{ id: "نشر", text: "انتشار" }] }),
+    "انتشار",
+  );
+  assert.match(scriptOf(page), /const headingText = resultHeading\(record\)/);
 });
 
 test("a visitor without JavaScript gets a note and the form still submits", () => {

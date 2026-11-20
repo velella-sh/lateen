@@ -14,6 +14,7 @@ import {
   type OptionList,
   type SearchRecord,
 } from "../chrome/search/client.ts";
+import { resultHeading } from "../src/search/merge.ts";
 import {
   activate,
   countMessage,
@@ -498,6 +499,70 @@ test("an RTL page keeps its path, title, and excerpt in order, with its highligh
   assert.deepEqual(marks(nodes).map((mark) => textOf(mark)), ["کش"]);
   assert.ok(nodes.find((node) => node.attrs.class === "search-result-path")?.children[0]);
   assert.equal(nodes.find((node) => node.attrs.class === "search-result-path")?.children[0]?.tag, "bdi");
+});
+
+test("a result keeps its heading fragment and names the real heading", () => {
+  const record: SearchRecord = {
+    url: "/guide/install/#deploy",
+    excerpt: "Run <mark>deploy</mark> after the build.",
+    meta: { title: "Install" },
+    sub_results: [
+      { url: "/guide/install/", title: "Install" },
+      { url: "/guide/install/#deploy", title: "Deploy" },
+    ],
+  };
+  const nodes = drawnNodes(optionList([record], []));
+
+  assert.equal(optionsOf(nodes)[0]?.attrs.href, "/guide/install/#deploy", "the fragment stays in the link");
+  assert.equal(textOf(findClass(nodes, "search-result-heading")!), "Deploy");
+  assert.equal(findClass(nodes, "search-result-heading")?.children[0]?.tag, "bdi");
+  assert.deepEqual(marks(nodes).map(textOf), ["deploy"]);
+  assert.equal(resultHeading(record.url, record), "Deploy");
+});
+
+test("a result without a fragment gets no heading, even when Pagefind lists subsections", () => {
+  const record: SearchRecord = {
+    url: "/guide/install/",
+    excerpt: "Install the theme.",
+    meta: { title: "Install" },
+    sub_results: [{ url: "/guide/install/#deploy", title: "Deploy" }],
+  };
+  const nodes = drawnNodes(optionList([record], []));
+
+  assert.equal(optionsOf(nodes)[0]?.attrs.href, "/guide/install/");
+  assert.equal(nodes.some((node) => node.attrs.class === "search-result-heading"), false);
+  assert.equal(resultHeading(record.url, record), undefined, "a fragment is never invented");
+});
+
+test("the heading is the anchor the URL names, not the first one Pagefind lists", () => {
+  const record: SearchRecord = {
+    url: "/reference/#errors",
+    excerpt: "Every error code.",
+    meta: { title: "Reference" },
+    anchors: [
+      { id: "install", text: "Install" },
+      { id: "errors", text: "Errors" },
+    ],
+  };
+  const nodes = drawnNodes(optionList([record], []));
+
+  assert.equal(textOf(findClass(nodes, "search-result-heading")!), "Errors");
+  assert.equal(resultHeading("/reference/#missing", record), undefined);
+});
+
+test("a right-to-left result keeps its localized heading text and highlight", () => {
+  const record: SearchRecord = {
+    url: "/راهنما/نصب/#نشر",
+    excerpt: "پیش از <mark>نشر</mark> بازبینی کنید.",
+    meta: { title: "نصب" },
+    anchors: [{ id: "نشر", text: "انتشار" }],
+  };
+  const nodes = drawnNodes(optionList([record], []));
+
+  assert.equal(optionsOf(nodes)[0]?.attrs.href, "/راهنما/نصب/#نشر");
+  assert.equal(textOf(findClass(nodes, "search-result-heading")!), "انتشار");
+  assert.equal(findClass(nodes, "search-result-heading")?.children[0]?.tag, "bdi");
+  assert.deepEqual(marks(nodes).map(textOf), ["نشر"]);
 });
 
 test("technical paths and hyphenated names keep their order and mark boundaries", () => {
