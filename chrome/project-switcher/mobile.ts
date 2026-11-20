@@ -1,7 +1,7 @@
 import { h } from "preact";
 import type { ChromeProps } from "@velella/mizzen/contracts";
 import { t } from "../../i18n/index.ts";
-import { projectLinks } from "./index.ts";
+import { isExternalProjectUrl, projectLinks } from "./index.ts";
 
 /** Class on the mobile group. */
 export const MOBILE_CLASS = "project-switcher-mobile";
@@ -44,8 +44,9 @@ export function mobileProjects({ site, page }: ChromeProps) {
     h(
       "ul",
       { class: MOBILE_LIST_CLASS },
-      ...projects.map((project) =>
-        h(
+      ...projects.map((project) => {
+        const external = isExternalProjectUrl(project.url);
+        return h(
           "li",
           { class: MOBILE_ITEM_CLASS },
           h(
@@ -53,12 +54,14 @@ export function mobileProjects({ site, page }: ChromeProps) {
             {
               class: project.current ? `${MOBILE_LINK_CLASS} ${MOBILE_CURRENT_CLASS}` : MOBILE_LINK_CLASS,
               href: project.url,
+              rel: external ? "noopener noreferrer" : undefined,
+              target: external ? "_blank" : undefined,
               "aria-current": project.current ? "true" : undefined,
             },
             h("bdi", null, project.title),
           ),
-        ),
-      ),
+        );
+      }),
     ),
   );
 }

@@ -131,6 +131,23 @@ test("the group and the header switcher agree, because they read the same helper
   assert.deepEqual(mobileHrefs, headerHrefs);
 });
 
+test("an external project keeps its address and opens in a new tab, like the header", () => {
+  const value = {
+    current: "alpha",
+    lock: "0".repeat(64),
+    projects: [project("alpha", "Alpha", true), { ...project("beta", "Beta"), path: "https://beta.example.com/" }],
+  };
+  const doc = drawer(true, value);
+  const links = doc.querySelectorAll(".project-switcher-mobile-link");
+
+  assert.equal(links[0]?.getAttribute("href"), "/alpha/");
+  assert.equal(links[0]?.getAttribute("rel"), null);
+  assert.equal(links[0]?.getAttribute("target"), null);
+  assert.equal(links[1]?.getAttribute("href"), "https://beta.example.com/");
+  assert.equal(links[1]?.getAttribute("rel"), "noopener noreferrer");
+  assert.equal(links[1]?.getAttribute("target"), "_blank");
+});
+
 test("renders nothing without a network or with one project", () => {
   assert.equal(render(), "");
   assert.equal(mobileProjects(props()), null);
