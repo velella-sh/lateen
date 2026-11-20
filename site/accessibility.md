@@ -94,6 +94,18 @@ with `@velella/mizzen` 0.2.0:
 | Right-to-left chrome | pass (`dir=rtl`, localized names, code and identifiers stay LTR) |
 | Screen reader reading order and announcements | **not executed in this environment**; a person must still run it before the checklist item is called verified |
 
+### Screen-reader paths
+
+The accessibility tree a screen reader navigates is recorded for search, compare, and the code-copy
+path at desktop (1280×900) and mobile (390×844) widths in
+[`test/accessibility/screen-reader.json`](https://github.com/velella-sh/lateen/blob/main/test/accessibility/screen-reader.json).
+Reproduce it with `node scripts/audit-screen-reader.ts` after `npm run ui:build`; CI runs the same
+command in the accessibility job. The search path opens the dialog at `/`, compare records the table
+at `/compare/`, and the code path records the copy control at `/guide/install/`.
+
+Spoken output was not captured in this environment, so the manual screen-reader pass stays open at
+those three locations. Each recorded case names that finding and its viewport.
+
 ## Report a problem
 
 If something on a Lateen site is hard to use, open an issue in the [repository](https://github.com/velella-sh/lateen/issues).
