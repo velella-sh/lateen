@@ -43,8 +43,13 @@ const INDEX = JSON.stringify({
   ],
 });
 
-function html(ids = "a,c"): string {
-  const input = { props: { from: "books", ids, fields }, page, site, html: "" } as unknown as ComponentProps;
+function html(ids = "a,c", lang = "en", base = ""): string {
+  const input = {
+    props: { from: "books", ids, fields },
+    page: { ...page, lang } as unknown as Page,
+    site: { ...site, config: { base } } as unknown as Site,
+    html: "",
+  } as unknown as ComponentProps;
   return renderToString(compare(input) as never);
 }
 
@@ -55,8 +60,18 @@ interface Harness {
   readonly unhandled: unknown[];
 }
 
-function harness(ids = "a,c", search = "", index = INDEX): Harness {
-  const document = new JSDOM(`<!doctype html><html lang="en"><body>${html(ids)}</body></html>`).window.document;
+interface HarnessOptions {
+  readonly lang?: string;
+  readonly base?: string;
+  readonly dir?: string;
+}
+
+function harness(ids = "a,c", search = "", index = INDEX, options: HarnessOptions = {}): Harness {
+  const { lang = "en", base = "", dir } = options;
+  const attributes = `lang="${lang}"${dir === undefined ? "" : ` dir="${dir}"`}`;
+  const document = new JSDOM(
+    `<!doctype html><html ${attributes}><body>${html(ids, lang, base)}</body></html>`,
+  ).window.document;
   const urls: string[] = [];
   const fetches: string[] = [];
   const unhandled: unknown[] = [];
@@ -85,6 +100,19 @@ const picks = (document: Document): HTMLButtonElement[] => [
 const panels = (document: Document): HTMLElement[] => [
   ...document.querySelectorAll<HTMLElement>(".compare-picker"),
 ];
+
+const titles = (document: Document): (string | null)[] => [
+  ...document.querySelectorAll<HTMLElement>(".compare-title"),
+].map((title) => title.textContent);
+
+/** Picks `id` in the column at `at`, as the select's change event does. */
+function choose(document: Document, at: number, id: string): void {
+  const select = panels(document)[at]!.querySelector("select") as HTMLSelectElement;
+  select.value = id;
+  const change = document.createEvent("Event");
+  change.initEvent("change", true, false);
+  select.dispatchEvent(change);
+}
 
 test("nothing is fetched on load; every column gets a closed picker", () => {
   const { document, fetches } = harness();
@@ -193,4 +221,83 @@ test("the choice round-trips through the query string, keeping every other param
   assert.deepEqual(recordsOf("?lang=fa"), []);
   assert.equal(withRecords("?lang=fa", ["a", "b"]), "?lang=fa&records=a%2Cb");
   assert.equal(withRecords("?records=a,b", ["", ""]), "");
+});
+
+test("a shared address restores the ids in its own order, not the page's", async () => {
+  const { document } = harness("a,c", "?records=c,a");
+  picks(document)[0]!.click();
+  await settle();
+
+  assert.deepEqual(titles(document), ["Gamma", "Alpha"]);
+  assert.deepEqual(
+    [...document.querySelectorAll<HTMLSelectElement>(".compare-picker select")].map((select) => select.value),
+    ["c", "a"],
+  );
+  assert.deepEqual(
+    [...document.querySelectorAll<HTMLElement>('td[data-compare-column="0"]')].map((cell) => cell.textContent),
+    ["200", "June 1, 2026"],
+  );
+});
+
+test("the address writes the reordered columns, not the order they were chosen in", async () => {
+  const { document, urls } = harness();
+  picks(document)[0]!.click();
+  await settle();
+
+  choose(document, 1, "b");
+  choose(document, 0, "c");
+
+  assert.deepEqual(titles(document), ["Gamma", "Beta"]);
+  assert.deepEqual(urls, ["?records=a%2Cb#records", "?records=c%2Cb#records"]);
+});
+
+test("a shared duplicate applies twice, and an unknown id is dropped on the next write", async () => {
+  const duplicate = harness("a,c", "?records=b,b");
+  picks(duplicate.document)[0]!.click();
+  await settle();
+  assert.deepEqual(titles(duplicate.document), ["Beta", "Beta"]);
+
+  const unknown = harness("a,c", "?records=ghost,b");
+  picks(unknown.document)[0]!.click();
+  await settle();
+  assert.deepEqual(titles(unknown.document), ["Alpha", "Beta"], "an unknown id leaves its column's default");
+  assert.match(panels(unknown.document)[0]!.textContent ?? "", /No record with id "ghost"/);
+
+  choose(unknown.document, 1, "c");
+  assert.deepEqual(
+    unknown.urls,
+    ["?records=a%2Cc#records"],
+    "the column keeps its on-screen default and the unknown id is not written back",
+  );
+});
+
+test("an absent parameter keeps the page's own records and order", async () => {
+  const { document, urls } = harness("a,c", "");
+  assert.deepEqual(titles(document), ["Alpha", "Gamma"]);
+
+  picks(document)[1]!.click();
+  await settle();
+  assert.deepEqual(titles(document), ["Alpha", "Gamma"]);
+  assert.deepEqual(
+    [...document.querySelectorAll<HTMLSelectElement>(".compare-picker select")].map((select) => select.value),
+    ["a", "c"],
+  );
+  assert.deepEqual(urls, []);
+});
+
+test("RTL and a site base do not change the restored order", async () => {
+  const { document, fetches, urls } = harness("a,c", "?records=c,a", INDEX, {
+    lang: "fa",
+    base: "/lateen",
+    dir: "rtl",
+  });
+  picks(document)[0]!.click();
+  await settle();
+
+  assert.equal(document.querySelector("html")?.getAttribute("dir"), "rtl");
+  assert.deepEqual(titles(document), ["Gamma", "Alpha"]);
+  assert.deepEqual(fetches, ["/lateen/data/books.index.json"]);
+
+  choose(document, 0, "b");
+  assert.deepEqual(urls, ["?records=b%2Ca#records"]);
 });
