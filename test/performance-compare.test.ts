@@ -108,6 +108,83 @@ test("an added asset always fails, even when the tolerance is generous", () => {
   assert.equal(result.routes[0]?.javascript, 10);
 });
 
+test("a reviewed new asset passes and its bytes still count in the route delta", () => {
+  const base = manifest([route("/", [asset("assets/theme/a.js", "js/components", 400)])]);
+  const head = manifest([
+    route("/", [asset("assets/theme/a.js", "js/components", 400), asset("assets/theme/b.js", "js/components", 10)]),
+  ]);
+
+  const result = compareManifests(base, head, 0, ["assets/theme/b.js"]);
+  assert.deepEqual(result.problems, []);
+  assert.equal(result.routes[0]?.javascript, 10);
+});
+
+test("the review log exempts only new assets at its own paths, never growth or other paths", () => {
+  const base = manifest([route("/", [asset("assets/theme/a.js", "js/components", 400)])]);
+  const head = manifest([
+    route("/", [
+      asset("assets/theme/a.js", "js/components", 401),
+      asset("assets/theme/b.js", "js/components", 10),
+      asset("assets/theme/c.js", "js/components", 10),
+    ]),
+  ]);
+
+  const problems = compareManifests(base, head, 0, ["assets/theme/b.js", "assets/theme/a.js"]).problems;
+  assert.equal(problems.length, 2);
+  assert.ok(problems.some((problem) => /assets\/theme\/c\.js is a new asset/.test(problem)));
+  assert.ok(problems.some((problem) => /assets\/theme\/a\.js grew by 1 B/.test(problem)));
+});
+
+test("the committed review log is a list of asset paths", () => {
+  const log = JSON.parse(
+    readFileSync(new URL("../fixtures/performance/reviewed-assets.json", import.meta.url), "utf8"),
+  ) as { reviewed: unknown };
+  assert.ok(Array.isArray(log.reviewed));
+  assert.ok(log.reviewed.every((path) => typeof path === "string" && path.startsWith("assets/")));
+});
+
+test("the CLI reads the reviewed log; a missing file reviews nothing and a bad shape fails", () => {
+  const dir = mkdtempSync(join(tmpdir(), "lateen-compare-"));
+  try {
+    const baseFile = join(dir, "base.json");
+    const headFile = join(dir, "head.json");
+    const reviewedFile = join(dir, "reviewed.json");
+    writeFileSync(baseFile, JSON.stringify(manifest([route("/", [asset("assets/theme/a.js", "js/components", 400)])])));
+    writeFileSync(
+      headFile,
+      JSON.stringify(
+        manifest([
+          route("/", [asset("assets/theme/a.js", "js/components", 400), asset("assets/theme/b.js", "js/components", 10)]),
+        ]),
+      ),
+    );
+    writeFileSync(reviewedFile, JSON.stringify({ reviewed: ["assets/theme/b.js"] }));
+
+    const script = join(root, "scripts/performance-compare.ts");
+    const ok = spawnSync(process.execPath, [script, "--base", baseFile, "--head", headFile, "--reviewed", reviewedFile], {
+      encoding: "utf8",
+    });
+    assert.equal(ok.status, 0, ok.stderr);
+
+    const missing = spawnSync(
+      process.execPath,
+      [script, "--base", baseFile, "--head", headFile, "--reviewed", join(dir, "absent.json")],
+      { encoding: "utf8" },
+    );
+    assert.equal(missing.status, 1);
+    assert.match(missing.stderr, /is a new asset/);
+
+    writeFileSync(reviewedFile, JSON.stringify({ reviewed: "not a list" }));
+    const invalid = spawnSync(process.execPath, [script, "--base", baseFile, "--head", headFile, "--reviewed", reviewedFile], {
+      encoding: "utf8",
+    });
+    assert.equal(invalid.status, 1);
+    assert.match(invalid.stderr, /reviewed list of asset paths/);
+  } finally {
+    rmSync(dir, { recursive: true, force: true });
+  }
+});
+
 test("growth at the tolerance passes and one byte past it fails", () => {
   const base = manifest([route("/", [asset("assets/theme/a.js", "js/components", 1_000)])]);
   const at = manifest([route("/", [asset("assets/theme/a.js", "js/components", 1_100)])]);

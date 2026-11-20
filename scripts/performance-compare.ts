@@ -1,9 +1,10 @@
 // Compares the asset manifests of two commits: the gzip bytes each route loads, split into CSS,
 // JavaScript, fonts, and a total, with every changed asset named. The CI job builds main and the pull
 // request from the same fixture routes, so a difference belongs to this change. A new asset, a route
-// that appears on one side only, a duplicate path, or growth past the tolerance fails the run.
-// Usage: node scripts/performance-compare.ts --base <file> --head <file> [--tolerance <bytes>] [--report <file>]
-import { readFileSync } from "node:fs";
+// that appears on one side only, a duplicate path, or growth past the tolerance fails the run. A new
+// asset passes only when its path is in the reviewed log (--reviewed); an unreviewed one fails.
+// Usage: node scripts/performance-compare.ts --base <file> --head <file> [--tolerance <bytes>] [--reviewed <file>] [--report <file>]
+import { existsSync, readFileSync } from "node:fs";
 import { resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 import { ASSET_CLASSES, type AssetClass } from "./performance-budget.ts";
@@ -163,10 +164,16 @@ function parseManifest(label: string, value: unknown): { manifest?: AssetManifes
 
 /**
  * Compares two manifests by `route` and then by asset `path`. An asset only on the head side is an
- * added dependency and always a problem; one only on the base side is a removal and passes. Growth
- * of an asset is allowed up to `tolerance` gzip bytes, so a zlib release does not fail the gate.
+ * added dependency and a problem unless its path is in the reviewed log; one only on the base side
+ * is a removal and passes. Growth of an asset is allowed up to `tolerance` gzip bytes, so a zlib
+ * release does not fail the gate.
  */
-export function compareManifests(base: unknown, head: unknown, tolerance = 0): ManifestComparison {
+export function compareManifests(
+  base: unknown,
+  head: unknown,
+  tolerance = 0,
+  reviewed: readonly string[] = [],
+): ManifestComparison {
   const before = parseManifest("base", base);
   const after = parseManifest("head", head);
   if (before.manifest === undefined || after.manifest === undefined) {
@@ -218,7 +225,9 @@ export function compareManifests(base: unknown, head: unknown, tolerance = 0): M
       });
 
       if (previous === undefined) {
-        problems.push(`route ${route}: ${path} is a new asset (+${current?.gzip ?? 0} B gzip); a new dependency needs review`);
+        if (!reviewed.includes(path)) {
+          problems.push(`route ${route}: ${path} is a new asset (+${current?.gzip ?? 0} B gzip); a new dependency needs review`);
+        }
       } else if (current !== undefined && bytes > tolerance) {
         problems.push(
           `route ${route}: ${path} grew by ${bytes} B gzip (${previous.gzip} B to ${current.gzip} B, tolerance ${tolerance} B)`,
@@ -286,6 +295,20 @@ function readManifest(file: string): unknown {
   return JSON.parse(readFileSync(resolve(file), "utf8")) as unknown;
 }
 
+/** The reviewed new-dependency log; a checkout without the file reviews nothing. */
+function reviewedOf(argv: readonly string[]): readonly string[] {
+  const index = argv.indexOf("--reviewed");
+  if (index === -1) return [];
+  const file = argv[index + 1];
+  if (file === undefined || file.trim() === "") throw new Error("--reviewed needs a file path");
+  if (!existsSync(resolve(file))) return [];
+  const parsed = JSON.parse(readFileSync(resolve(file), "utf8")) as unknown;
+  if (!isRecord(parsed) || !Array.isArray(parsed.reviewed) || !parsed.reviewed.every((path) => typeof path === "string")) {
+    throw new Error("--reviewed needs a JSON object with a reviewed list of asset paths");
+  }
+  return parsed.reviewed as readonly string[];
+}
+
 function commitOf(manifest: unknown): string | undefined {
   if (!isRecord(manifest) || typeof manifest.commit !== "string" || !COMMIT.test(manifest.commit)) return undefined;
   return manifest.commit;
@@ -295,9 +318,10 @@ export function main(argv = process.argv.slice(2)): void {
   const baseFile = option(argv, "--base");
   const headFile = option(argv, "--head");
   const tolerance = toleranceOf(argv);
+  const reviewed = reviewedOf(argv);
   const base = readManifest(baseFile);
   const head = readManifest(headFile);
-  const comparison = compareManifests(base, head, tolerance);
+  const comparison = compareManifests(base, head, tolerance, reviewed);
 
   const text = formatComparison(comparison);
   if (text !== "") console.log(text);

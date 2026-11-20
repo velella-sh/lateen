@@ -58,7 +58,8 @@ routes, so a difference belongs to the pull request rather than to different con
 node scripts/asset-manifest.ts --report asset-manifest.json          # in the base checkout
 node scripts/asset-manifest.ts --report asset-manifest.json          # in the head checkout
 node head/scripts/performance-compare.ts --base base/asset-manifest.json \
-  --head head/asset-manifest.json --report reports/performance-compare.json
+  --head head/asset-manifest.json --reviewed head/fixtures/performance/reviewed-assets.json \
+  --report reports/performance-compare.json
 ```
 
 The report gives each route a CSS, JavaScript, font, and total gzip delta, then names every changed
@@ -71,9 +72,17 @@ route /reference/: js/components +1,204 B gzip (assets/theme/islands/components/
 
 `--tolerance <bytes>` allows that much gzip growth per existing asset; it defaults to `0`, so the two
 checkouts must compress to the same number. The job fails when a route appears on only one side, when a
-route lists the same path twice (two downloads of one file), when an asset is added — a new dependency,
-whatever its size — or when an existing asset grows past the tolerance. Removed assets and shrinks pass.
+route lists the same path twice (two downloads of one file), when an asset is added that the reviewed
+log does not list — a new dependency, whatever its size — or when an existing asset grows past the
+tolerance. Removed assets and shrinks pass.
 A changed global CSS bundle is counted and named under `css/base` on every route that loads it.
+
+`--reviewed <file>` reads `fixtures/performance/reviewed-assets.json`, the log of new dependencies a
+pull request has already reviewed: a JSON object whose `reviewed` list names asset paths. A listed
+path passes as a new asset on every route, and its bytes still count in the route's deltas; the log
+never exempts growth of an existing asset, and an unlisted addition still fails. A checkout without
+the file reviews nothing. The log is a review record, so an entry whose asset is no longer new stays
+harmless; remove it when the split it records is reverted.
 
 The JSON report is validated against `schema/performance-compare.schema.json` and uploaded as the
 `performance-compare` artifact, including when the comparison fails.
@@ -190,6 +199,10 @@ reader who never searches downloads no index.
 3. Say in the pull request which route and class moved, by how much, and why the new baseline is
    correct. A budget update without that explanation should not be merged.
 4. A decrease is recorded the same way. The budget ratchets down so the saving is not lost later.
+5. A new dependency is reviewed, not waved through: say in the pull request what the asset is, why the
+   page needs it, and what it costs per route, then list its path in
+   `fixtures/performance/reviewed-assets.json` so the comparison job passes. An addition without that
+   explanation and log entry should not be merged.
 
 Each route is compared only with its own baseline, so a data page's cost cannot raise the budget of a simple
 article, or the other way round. Separation skips no checks: a route the budget lists but the fixture no
