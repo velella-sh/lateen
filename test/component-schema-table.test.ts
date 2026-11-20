@@ -24,6 +24,9 @@ import schemaTable, {
   type SchemaRow,
   type SchemaTableProps,
 } from "../components/schema-table/index.ts";
+import { resolve } from "../components/schema-table/resolve.ts";
+import { schemaRows as rowsOfModule } from "../components/schema-table/rows.ts";
+import { fieldsPayloadOf as payloadOfModule } from "../components/schema-table/fields.ts";
 
 /** A loose view of a Preact vnode: the element type, its props, and its children (in `props.children`). */
 type Tree = { type: unknown; props: Record<string, unknown> & { children?: unknown }; key?: unknown };
@@ -800,5 +803,76 @@ test("the JSON is server-rendered markup: it needs no JavaScript to exist", () =
   const raw = rawJson(tree);
   assert.ok(raw.includes('"data":"widget"'));
   assert.equal(nodes(tree).filter((node) => node.type === "script").length, 1);
+});
+
+// The pure modules resolve schemas, build rows, and publish payloads without the rendering entry.
+
+test("resolve reports every ending state as a pure function, with no rendering involved", () => {
+  const root = {
+    $defs: {
+      name: { type: "string", description: "A name." },
+      a: { $ref: "#/$defs/b" },
+      b: { $ref: "#/$defs/a" },
+    },
+  };
+  const resolved = resolve({ $ref: "#/$defs/name", description: "Overridden." }, root);
+  assert.equal(resolved.ref?.state, "resolved");
+  assert.equal(resolved.schema.type, "string");
+  assert.equal(resolved.schema.description, "Overridden.");
+  assert.equal(resolve({ $ref: "https://example.com/s.json" }, root).ref?.state, "external");
+  assert.equal(resolve({ $ref: "#/$defs/na~2me" }, root).ref?.state, "malformed");
+  assert.equal(resolve({ $ref: 7 }, root).ref?.state, "malformed");
+  assert.equal(resolve({ $ref: "#/$defs/missing" }, root).ref?.state, "unresolved");
+  assert.equal(resolve({ $ref: "#notes" }, root).ref?.state, "unresolved");
+  assert.equal(resolve({ $ref: "#/$defs/a" }, root).ref?.state, "cycle");
+  assert.equal(resolve({ $ref: "#/toString" }, root).ref?.state, "unresolved");
+  assert.equal(resolve({ type: "string" }, root).ref, null);
+});
+
+test("resolve cuts a long $ref chain at the hop limit instead of looping", () => {
+  const defs: Record<string, unknown> = {};
+  for (let i = 0; i < 20; i += 1) defs[`s${i}`] = { $ref: `#/$defs/s${i + 1}` };
+  defs.s20 = { type: "string" };
+  const resolution = resolve({ $ref: "#/$defs/s0" }, { $defs: defs });
+  assert.equal(resolution.ref?.state, "depth");
+  assert.equal(resolution.ref?.value, "#/$defs/s0");
+});
+
+test("the rows module alone expands nested properties and stops cyclic refs", () => {
+  const schema = {
+    $defs: { node: { type: "object", properties: { child: { $ref: "#/$defs/node" } } } },
+    properties: {
+      root: { $ref: "#/$defs/node" },
+      list: { type: "array", items: { type: "object", properties: { id: { type: "string" } } } },
+    },
+  };
+  const rows = rowsOfModule(schema);
+  assert.deepEqual(rows, schemaRows(schema));
+  const root = rowNamed(rows, "root");
+  const child = rowNamed(root.children, "child");
+  assert.equal(child.path, "root.child");
+  assert.equal(child.ref?.state, "cycle");
+  assert.equal(child.truncated, "cycle");
+  assert.deepEqual(child.children, []);
+  assert.equal(rowNamed(rowNamed(rows, "list").children, "id").path, "list.id");
+});
+
+test("the fields module alone publishes rows, with a unique anchor per dotted path", () => {
+  const schema = {
+    properties: {
+      a: { type: "object", properties: { b: { type: "string" } } },
+      b: { type: "integer" },
+    },
+  };
+  const payload = payloadOfModule("s", "schema-s", rowsOfModule(schema));
+  assert.equal(payload.component, "schema-table");
+  assert.equal(payload.version, 2);
+  const anchors = [
+    findField(payload.fields, "a").anchor,
+    findField(payload.fields, "a.b").anchor,
+    findField(payload.fields, "b").anchor,
+  ];
+  assert.equal(new Set(anchors).size, anchors.length, "repeated names at different depths keep distinct ids");
+  assert.equal(findField(payload.fields, "a.b").copyValue, "a.b: string");
 });
 
