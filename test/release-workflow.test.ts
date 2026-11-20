@@ -11,6 +11,7 @@ interface Step {
   readonly uses?: string;
   readonly if?: string;
   readonly run?: string;
+  readonly with?: Record<string, string>;
 }
 
 interface Job {
@@ -70,6 +71,30 @@ test("a retry verifies the already-published version before the GitHub Release",
   assert.doesNotMatch(ifOf("github-release"), /published == 'true'/);
   const cases = job("acceptance-published").steps.find((step) => step.name === "Run the shipped cases against the npm package");
   assert.ok(cases?.run?.includes('--theme "@velella/lateen@$VERSION"'), "the retry installs the exact published version");
+});
+
+test("a manual dispatch validates the tag before the tag is checked out", () => {
+  // The dispatch input is arbitrary text: a malformed or fully qualified ref must stop before a
+  // runner checks it out, and the helper copy must come from the default branch, not the tag.
+  assert.ok(needsOf("acceptance").includes("preflight"), "acceptance waits for preflight");
+  const preflight = job("preflight");
+  const check = preflight.steps.find((step) => step.name === "Check the tag before checkout")?.run ?? "";
+  assert.ok(check.includes('node scripts/release-plan.ts --tag "$TAG" --version "$version" --github-output "$GITHUB_OUTPUT"'));
+  assert.ok(check.includes('git fetch --quiet --depth 1 origin "refs/tags/$TAG"'), "the tag must exist before it is checked out");
+  assert.ok(check.includes('echo "commit=$commit" >> "$GITHUB_OUTPUT"'), "preflight names the commit it resolved");
+  const helper = preflight.steps.find((step) => step.uses?.startsWith("actions/checkout"));
+  const helperRef = helper?.with?.ref ?? "";
+  assert.ok(helperRef.includes("github.event.repository.default_branch"), "preflight checks out a fixed ref");
+  assert.doesNotMatch(helperRef, /refs\/tags/, "preflight never checks out the dispatched tag");
+
+  // The tag checkout is the first acceptance step, and the version/dist-tag come from preflight.
+  const first = job("acceptance").steps[0];
+  assert.match(first?.with?.ref ?? "", /^refs\/tags\/\$\{\{ env\.TAG \}\}$/);
+  const meta = job("acceptance").steps.find((step) => step.name === "Check the tag target and choose the dist-tag");
+  assert.ok(meta?.run);
+  assert.match(meta.run, /git rev-parse HEAD.*!=.*COMMIT/s, "a moved tag cannot release another commit");
+  assert.doesNotMatch(meta.run, /require\('\.\/package\.json'\)\.version/, "acceptance does not recompute the tag version");
+  assert.ok(meta.run.includes("git merge-base --is-ancestor HEAD origin/main"), "the main-ancestor check stays");
 });
 
 test("publish and digest steps select the one tarball the acceptance report names", () => {

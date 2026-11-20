@@ -43,8 +43,51 @@ env:
   TAG: ${{ github.event.release.tag_name || inputs.tag || github.ref_name }}
 
 jobs:
+  preflight:
+    name: preflight
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    permissions:
+      contents: read
+    outputs:
+      version: ${{ steps.check.outputs.version }}
+      commit: ${{ steps.check.outputs.commit }}
+    steps:
+      # The helper comes from the default branch, never from the dispatched tag: the tag input is
+      # unchecked text, so it is validated and resolved before anything checks it out.
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          ref: ${{ github.event.repository.default_branch }}
+          path: lateen
+          persist-credentials: false
+      - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
+        with:
+          node-version: 24
+      - name: Check the tag before checkout
+        id: check
+        working-directory: lateen
+        env:
+          TAG: ${{ env.TAG }}
+        run: |
+          set -euo pipefail
+          # Keep in sync with TAG_PATTERN in scripts/release-plan.ts; a test compares them.
+          pattern='^v(0|[1-9][0-9]*)\.(0|[1-9][0-9]*)\.(0|[1-9][0-9]*)(-[0-9A-Za-z-]+(\.[0-9A-Za-z-]+)*)?$'
+          if [[ ! "$TAG" =~ $pattern ]]; then
+            echo "::error::$TAG is not a bare release tag such as v0.2.3. Pass the tag itself, not a branch, a full ref, or a commit range."
+            exit 1
+          fi
+          if ! git fetch --quiet --depth 1 origin "refs/tags/$TAG"; then
+            echo "::error::$TAG does not name a tag in this repository. Push the tag before releasing it."
+            exit 1
+          fi
+          commit="$(git rev-parse FETCH_HEAD^{commit})"
+          version="$(git show "$commit:package.json" | node -p 'JSON.parse(require("fs").readFileSync(0, "utf8")).version')"
+          node scripts/release-plan.ts --tag "$TAG" --version "$version" --github-output "$GITHUB_OUTPUT"
+          echo "commit=$commit" >> "$GITHUB_OUTPUT"
+
   acceptance:
     name: acceptance
+    needs: preflight
     runs-on: ubuntu-latest
     timeout-minutes: 25
     permissions:
@@ -70,17 +113,22 @@ jobs:
         if: hashFiles('lateen/.node-version') != ''
         working-directory: lateen
         run: npm install --global "$(node -p "require('./package.json').packageManager")" --no-audit --no-fund
-      - name: Check the tag and choose the dist-tag
+      - name: Check the tag target and choose the dist-tag
         id: meta
         working-directory: lateen
+        env:
+          VERSION: ${{ needs.preflight.outputs.version }}
+          COMMIT: ${{ needs.preflight.outputs.commit }}
         run: |
           set -euo pipefail
-          version="$(node -p "require('./package.json').version")"
-          name="$(node -p "require('./package.json').name")"
-          if [ "$TAG" != "v$version" ]; then
-            echo "::error::Tag $TAG does not match package.json version $version. Bump the version before releasing."
+          # Preflight validated this tag's syntax and package version; the checkout must still be
+          # the exact commit it resolved, so a moved tag cannot release a different package.
+          if [ "$(git rev-parse HEAD)" != "$COMMIT" ]; then
+            echo "::error::$TAG now names $(git rev-parse HEAD), not the commit preflight validated. Do not move a release tag."
             exit 1
           fi
+          version="$VERSION"
+          name="$(node -p "require('./package.json').name")"
           # Releases come from main only: the tagged commit must be reachable from it.
           git fetch --quiet origin main
           if ! git merge-base --is-ancestor HEAD origin/main; then
