@@ -1,6 +1,6 @@
 /// <reference lib="dom" />
 
-type ChartRow = { label: string; value: number };
+import { chartRows } from "../chart-data/input.ts";
 
 async function draw(root: HTMLElement): Promise<void> {
   if (root.dataset.loaded === "true") return;
@@ -8,7 +8,14 @@ async function draw(root: HTMLElement): Promise<void> {
   const canvas = root.querySelector("canvas");
   const data = root.querySelector("[data-chart-data]")?.textContent;
   if (!(canvas instanceof HTMLCanvasElement) || !data) return;
-  const rows = JSON.parse(data) as ChartRow[];
+  let parsed: unknown;
+  try {
+    parsed = JSON.parse(data);
+  } catch {
+    return;
+  }
+  // The shared chart validation: only rows with a label and a finite value are drawn.
+  const rows = chartRows(parsed);
   // @ts-expect-error The generated chart bundle has no TypeScript declarations.
   const { default: Chart } = await import("./chart.min.js");
   const context = canvas.getContext("2d");

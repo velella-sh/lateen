@@ -2,6 +2,26 @@ import { h } from "preact";
 import type { ComponentProps } from "@velella/mizzen/contracts";
 import { formatCount as formatNumber } from "../reading-time/index.ts";
 import chartData from "../chart-data/index.ts";
+import {
+  fieldOf,
+  idBaseOf,
+  isJson,
+  labelDir,
+  labelOf,
+  lookup,
+  numericValue,
+  shortenLabel as shorten,
+  text,
+  type Json,
+} from "../chart-data/input.ts";
+import { extentOf, ticksOf, xScaleOf, yScaleOf } from "../chart-data/scale.ts";
+import { barMark, labelMark, lineMark, svgFrame, textMark } from "../chart-data/svg.ts";
+
+/** The shared input validation every chart reads through; re-exported for the bar chart's callers. */
+export { labelDir, lookup, numericValue } from "../chart-data/input.ts";
+
+/** The shared tick calculation; re-exported for the bar chart's callers. */
+export { ticksOf } from "../chart-data/scale.ts";
 
 /** The Markdown directive this component handles: `::bar-chart{from="sales"}`. */
 export const directive = "bar-chart";
@@ -87,50 +107,8 @@ export interface BarRow {
   readonly value: number | undefined;
 }
 
-type Json = Readonly<Record<string, unknown>>;
-
-function isJson(value: unknown): value is Json {
-  return typeof value === "object" && value !== null && !Array.isArray(value);
-}
-
-function text(value: unknown): string {
-  return typeof value === "string" ? value.trim() : "";
-}
-
-/** The value at a dotted path inside a row, or undefined when the path does not resolve. */
-function resolveIn(row: Json, path: string): unknown {
-  let node: unknown = row;
-  for (const key of path.split(".").filter((part) => part !== "")) {
-    if (!isJson(node) || !Object.hasOwn(node, key)) return undefined;
-    node = node[key];
-  }
-  return node;
-}
-
-/** The value at a dotted or slashed path inside `_data`, or undefined when it does not resolve. */
-export function lookup(data: Readonly<Record<string, unknown>>, path: string): unknown {
-  let node: unknown = data;
-  for (const key of path.split(/[./]/).filter((part) => part !== "")) {
-    if (!isJson(node) || !Object.hasOwn(node, key)) return undefined;
-    node = node[key];
-  }
-  return node;
-}
-
-/** A number from a number or a numeric string; anything else, including an empty cell, has no value. */
-export function numericValue(raw: unknown): number | undefined {
-  if (typeof raw === "number") return Number.isFinite(raw) ? raw : undefined;
-  if (typeof raw === "string" && raw.trim() !== "") {
-    const parsed = Number(raw.trim());
-    return Number.isFinite(parsed) ? parsed : undefined;
-  }
-  return undefined;
-}
-
 function rowOf(id: string, fields: Json, category: string, value: string): BarRow {
-  const rawLabel = resolveIn(fields, category);
-  const label = typeof rawLabel === "string" || typeof rawLabel === "number" ? String(rawLabel) : id;
-  return { id, label: label === "" ? id : label, value: numericValue(resolveIn(fields, value)) };
+  return { id, label: labelOf(fieldOf(fields, category), id), value: numericValue(fieldOf(fields, value)) };
 }
 
 /**
@@ -165,46 +143,7 @@ export function rowsOf(
 
 /** A label cut to `max` characters, with an ellipsis; the table under the chart keeps the whole label. */
 export function shortenLabel(label: string, max = MAX_LABEL_LENGTH): string {
-  const characters = Array.from(label);
-  return characters.length <= max ? label : `${characters.slice(0, max - 1).join("")}…`;
-}
-
-/**
- * `dir="ltr"` for a Latin label on a right-to-left page: it states its own direction, so the words
- * keep their order inside the page's right-to-left text. A label in an Arabic or Hebrew script, or one
- * with no letters, keeps the page's direction.
- */
-export function labelDir(label: string, rtl: boolean): "ltr" | undefined {
-  return rtl && /\p{Script=Latin}/u.test(label) && !/[\p{Script=Arabic}\p{Script=Hebrew}]/u.test(label)
-    ? "ltr"
-    : undefined;
-}
-
-/** A round step near `span / count`: 1, 2, 5, or 10 times a power of ten. */
-function niceStep(span: number, count: number): number {
-  const rough = span / Math.max(1, count);
-  const power = 10 ** Math.floor(Math.log10(rough));
-  const error = rough / power;
-  const factor = error < 1.5 ? 1 : error < 3 ? 2 : error < 7 ? 5 : 10;
-  return factor * power;
-}
-
-/**
- * The tick values for a data range: round steps that include zero, the range's ends, and no tick
- * nobody asked for. A range with one value still gets a second end, so a single bar reads on a scale.
- */
-export function ticksOf(min: number, max: number, count = 5): number[] {
-  const low = Math.min(0, Number.isFinite(min) ? min : 0);
-  const high = Math.max(0, Number.isFinite(max) ? max : 0);
-  const span = high - low === 0 ? 1 : high - low;
-  const step = niceStep(span, count);
-  const start = Math.floor(low / step) * step;
-  const end = Math.ceil((low + span) / step) * step;
-  const ticks: number[] = [];
-  for (let value = start; value <= end + step / 2; value += step) {
-    ticks.push(Number(value.toPrecision(12)));
-  }
-  return ticks;
+  return shorten(label, max);
 }
 
 /** The direction the directive asked for; an unknown value falls back to horizontal. */
@@ -214,22 +153,9 @@ export function directionOf(raw: unknown): Direction {
     : "horizontal";
 }
 
-/** A value reduced to letters, digits, `-` and `_`, so it can go in an id. */
-function slugOf(value: string): string {
-  return value
-    .trim()
-    .toLowerCase()
-    .replace(/[^\p{L}\p{N}_-]+/gu, "-")
-    .replace(/-+/g, "-")
-    .replace(/^-+|-+$/g, "");
-}
-
 /** The id prefix of the chart: the `id` prop, or its source path. */
 export function idBase(raw: unknown, from: string): string {
-  const given = slugOf(text(raw));
-  if (given !== "") return given;
-  const source = slugOf(from);
-  return source === "" ? "bar-chart" : `bar-chart-${source}`;
+  return idBaseOf(raw, from, "bar-chart");
 }
 
 /** The marks and size of a horizontal chart: labels at the inline start, bars along the inline axis. */
@@ -248,82 +174,44 @@ function horizontalChart(rows: readonly BarRow[], ticks: readonly number[], lang
   const low = ticks[0] ?? 0;
   const high = ticks[ticks.length - 1] ?? 1;
   // On a right-to-left page the axis starts at the right edge, so values grow toward the left.
-  const x = (value: number): number => {
-    const ratio = (value - low) / (high - low || 1);
-    return rtl ? plotX + plotWidth * (1 - ratio) : plotX + plotWidth * ratio;
-  };
+  const x = xScaleOf(low, high, plotX, plotWidth, rtl);
   const marks = [];
 
   for (const tick of ticks) {
-    marks.push(h("line", { class: GRID_CLASS, x1: x(tick), x2: x(tick), y1: plotTop, y2: plotBottom }));
+    marks.push(lineMark(GRID_CLASS, x(tick), x(tick), plotTop, plotBottom));
   }
-  marks.push(
-    h("line", { class: AXIS_CLASS, x1: plotX, x2: plotX + plotWidth, y1: plotBottom, y2: plotBottom }),
-  );
+  marks.push(lineMark(AXIS_CLASS, plotX, plotX + plotWidth, plotBottom, plotBottom));
   for (const tick of ticks) {
-    marks.push(
-      h("text", { class: TICK_CLASS, x: x(tick), y: plotBottom + 16, "text-anchor": "middle" }, formatNumber(lang, tick)),
-    );
+    marks.push(textMark(TICK_CLASS, x(tick), plotBottom + 16, "middle", formatNumber(lang, tick)));
   }
 
   rows.forEach((row, index) => {
     const center = plotTop + index * rowHeight + rowHeight / 2;
     const short = shortenLabel(row.label);
     marks.push(
-      h(
-        "text",
-        {
-          class: LABEL_CLASS,
-          x: rtl ? width - 12 : plotX - 8,
-          y: center + 4,
-          "text-anchor": rtl ? "start" : "end",
-          dir: labelDir(row.label, rtl),
-        },
-        short === row.label ? null : h("title", null, row.label),
+      labelMark(
+        LABEL_CLASS,
+        rtl ? width - 12 : plotX - 8,
+        center + 4,
+        rtl ? "start" : "end",
+        row.label,
         short,
+        labelDir(row.label, rtl),
       ),
     );
     if (row.value === undefined) {
       marks.push(
-        h(
-          "text",
-          {
-            class: NO_VALUE_CLASS,
-            x: rtl ? plotX + plotWidth - 4 : plotX + 4,
-            y: center + 4,
-            "text-anchor": rtl ? "end" : "start",
-          },
-          NO_VALUE_TEXT,
-        ),
+        textMark(NO_VALUE_CLASS, rtl ? plotX + plotWidth - 4 : plotX + 4, center + 4, rtl ? "end" : "start", NO_VALUE_TEXT),
       );
       return;
     }
     const zero = x(0);
     const end = x(row.value);
-    marks.push(
-      h("rect", {
-        class: BAR_CLASS,
-        x: Math.min(zero, end),
-        y: center - barHeight / 2,
-        width: Math.abs(end - zero),
-        height: barHeight,
-      }),
-    );
+    marks.push(barMark(BAR_CLASS, Math.min(zero, end), center - barHeight / 2, Math.abs(end - zero), barHeight));
     const positive = row.value >= 0;
     // The value label sits beyond the bar's end, on whichever side the axis grows.
     const side = (positive ? 1 : -1) * (rtl ? -1 : 1);
-    marks.push(
-      h(
-        "text",
-        {
-          class: VALUE_CLASS,
-          x: end + side * 6,
-          y: center + 4,
-          "text-anchor": side > 0 ? "start" : "end",
-        },
-        formatNumber(lang, row.value),
-      ),
-    );
+    marks.push(textMark(VALUE_CLASS, end + side * 6, center + 4, side > 0 ? "start" : "end", formatNumber(lang, row.value)));
   });
 
   return { width, height, marks };
@@ -342,70 +230,27 @@ function verticalChart(rows: readonly BarRow[], ticks: readonly number[], lang: 
   const high = ticks[ticks.length - 1] ?? 1;
   const slot = (width - left - right) / Math.max(1, rows.length);
   const barWidth = Math.min(56, Math.max(8, slot * 0.6));
-  const y = (value: number): number => plotTop + ((high - value) / (high - low || 1)) * plotHeight;
+  const y = yScaleOf(low, high, plotTop, plotHeight);
   const marks = [];
 
   for (const tick of ticks) {
-    marks.push(h("line", { class: GRID_CLASS, x1: left, x2: width - right, y1: y(tick), y2: y(tick) }));
-    marks.push(
-      h(
-        "text",
-        {
-          class: TICK_CLASS,
-          x: rtl ? width - right + 8 : left - 8,
-          y: y(tick) + 4,
-          "text-anchor": rtl ? "start" : "end",
-        },
-        formatNumber(lang, tick),
-      ),
-    );
+    marks.push(lineMark(GRID_CLASS, left, width - right, y(tick), y(tick)));
+    marks.push(textMark(TICK_CLASS, rtl ? width - right + 8 : left - 8, y(tick) + 4, rtl ? "start" : "end", formatNumber(lang, tick)));
   }
-  marks.push(h("line", { class: AXIS_CLASS, x1: left, x2: width - right, y1: baseline, y2: baseline }));
+  marks.push(lineMark(AXIS_CLASS, left, width - right, baseline, baseline));
 
   rows.forEach((row, index) => {
     const center = left + (rtl ? rows.length - 1 - index : index) * slot + slot / 2;
     const short = shortenLabel(row.label, MAX_VERTICAL_LABEL_LENGTH);
-    marks.push(
-      h(
-        "text",
-        {
-          class: LABEL_CLASS,
-          x: center,
-          y: baseline + 18,
-          "text-anchor": "middle",
-          dir: labelDir(row.label, rtl),
-        },
-        short === row.label ? null : h("title", null, row.label),
-        short,
-      ),
-    );
+    marks.push(labelMark(LABEL_CLASS, center, baseline + 18, "middle", row.label, short, labelDir(row.label, rtl)));
     if (row.value === undefined) {
-      marks.push(h("text", { class: NO_VALUE_CLASS, x: center, y: baseline - 6, "text-anchor": "middle" }, NO_VALUE_TEXT));
+      marks.push(textMark(NO_VALUE_CLASS, center, baseline - 6, "middle", NO_VALUE_TEXT));
       return;
     }
     const zero = y(0);
     const end = y(row.value);
-    marks.push(
-      h("rect", {
-        class: BAR_CLASS,
-        x: center - barWidth / 2,
-        y: Math.min(zero, end),
-        width: barWidth,
-        height: Math.abs(end - zero),
-      }),
-    );
-    marks.push(
-      h(
-        "text",
-        {
-          class: VALUE_CLASS,
-          x: center,
-          y: row.value >= 0 ? end - 6 : end + 14,
-          "text-anchor": "middle",
-        },
-        formatNumber(lang, row.value),
-      ),
-    );
+    marks.push(barMark(BAR_CLASS, center - barWidth / 2, Math.min(zero, end), barWidth, Math.abs(end - zero)));
+    marks.push(textMark(VALUE_CLASS, center, row.value >= 0 ? end - 6 : end + 14, "middle", formatNumber(lang, row.value)));
   });
 
   return { width, height, marks };
@@ -439,7 +284,8 @@ export default function barChart({ props, site, page }: ComponentProps<BarChartP
   const lang = page.lang;
   const rtl = page.dir === "rtl";
   const values = rows.flatMap((row) => (row.value === undefined ? [] : [row.value]));
-  const ticks = ticksOf(Math.min(...values), Math.max(...values));
+  const extent = extentOf(values);
+  const ticks = ticksOf(extent?.low ?? 0, extent?.high ?? 0);
   const chart =
     direction === "vertical" ? verticalChart(rows, ticks, lang, rtl) : horizontalChart(rows, ticks, lang, rtl);
   const description = `Values of ${valueField} by ${category}, ${rows.length} ${rows.length === 1 ? "row" : "rows"}.`;
@@ -448,18 +294,7 @@ export default function barChart({ props, site, page }: ComponentProps<BarChartP
     "figure",
     { class: `${CLASS} ${CLASS}-${direction}`, id: base, "data-bar-chart": from },
     title === "" ? null : h("figcaption", { class: TITLE_CLASS }, title),
-    h(
-      "svg",
-      {
-        class: SVG_CLASS,
-        viewBox: `0 0 ${chart.width} ${chart.height}`,
-        role: "img",
-        "aria-labelledby": titleId,
-        preserveAspectRatio: "xMidYMid meet",
-      },
-      h("title", { id: titleId }, name),
-      ...chart.marks,
-    ),
+    svgFrame(SVG_CLASS, chart.width, chart.height, titleId, name, chart.marks),
     chartData({
       title: name,
       description,

@@ -1,5 +1,9 @@
-import { calendarDay, calendarParts, calendarYear } from "../../src/dates.ts";
+import { calendarParts, calendarYear } from "../../src/dates.ts";
 import { isEmpty } from "../../src/fields.ts";
+import { percentOf } from "../chart-data/scale.ts";
+import { DAY, dayOf, iso } from "./scale.ts";
+
+export { DAY, dayOf, iso };
 
 /**
  * The timeline's date arithmetic, with no rendering: date conversion, spans, the axis range,
@@ -18,19 +22,6 @@ export type Axis = { readonly from: number; readonly span: number };
 
 /** A span of whole days, in epoch milliseconds at UTC midnight; both ends are days the row covers. */
 export type Span = { readonly from: number; readonly to: number };
-
-export const DAY = 86_400_000;
-
-/** A value as epoch milliseconds at UTC midnight, or undefined when it is not a complete ISO 8601 date. */
-export function dayOf(value: unknown): number | undefined {
-  const iso = typeof value === "string" ? calendarDay(value.trim()) : undefined;
-  return iso === undefined ? undefined : Date.parse(iso);
-}
-
-/** The ISO date for a day. */
-export function iso(day: number): string {
-  return new Date(day).toISOString().slice(0, 10);
-}
 
 /** A row's or a phase's dates as epoch days; a missing end runs to its start, and a bad date is ignored. */
 export function spanOf(row: DateRow, fields: DateFields): Span | undefined {
@@ -87,8 +78,8 @@ export function segmentOf(row: DateRow, fields: DateFields, axis: Axis): Segment
   const from = openStart ? axis.from : span.from;
   const to = openEnd ? axis.from + axis.span : span.to + DAY;
   return {
-    start: ((from - axis.from) / axis.span) * 100,
-    length: ((to - from) / axis.span) * 100,
+    start: percentOf(from - axis.from, 0, axis.span),
+    length: percentOf(to - from, 0, axis.span),
     openStart,
     openEnd,
   };

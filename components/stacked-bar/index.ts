@@ -6,8 +6,13 @@ import {
   NO_VALUE_TEXT,
   rowsOf,
   shortenLabel,
-  ticksOf,
 } from "../bar-chart/index.ts";
+import { MAX_SERIES, idBaseOf, seriesColour, text } from "../chart-data/input.ts";
+import { stackedTotalsOf, ticksOf, xScaleOf } from "../chart-data/scale.ts";
+import { barMark, labelMark, lineMark, svgFrame, textMark } from "../chart-data/svg.ts";
+
+/** The number of series the chart colours: one per categorical token, `chart-cat-1` to `chart-cat-8`. */
+export { MAX_SERIES } from "../chart-data/input.ts";
 
 /** The Markdown directive this component handles: `::stacked-bar{from="revenue" series="region"}`. */
 export const directive = "stacked-bar";
@@ -60,9 +65,6 @@ export const MISSING_CLASS = "stacked-bar-missing";
 /** Class on the visible note shown when the source has more series than the chart draws. */
 export const LIMIT_CLASS = "stacked-bar-limit";
 
-/** The number of series the chart colours: one per categorical token, `chart-cat-1` to `chart-cat-8`. */
-export const MAX_SERIES = 8;
-
 /** The name a chart without a title takes. */
 export const DEFAULT_TITLE = "Stacked bar chart";
 
@@ -103,26 +105,9 @@ export interface StackedRow {
   readonly segments: readonly Segment[];
 }
 
-function text(value: unknown): string {
-  return typeof value === "string" ? value.trim() : "";
-}
-
-/** A value reduced to letters, digits, `-` and `_`, so it can go in an id. */
-function slugOf(value: string): string {
-  return value
-    .trim()
-    .toLowerCase()
-    .replace(/[^\p{L}\p{N}_-]+/gu, "-")
-    .replace(/-+/g, "-")
-    .replace(/^-+|-+$/g, "");
-}
-
 /** The id prefix of the chart: the `id` prop, or `stacked-bar` and its source path. */
 export function idBase(raw: unknown, from: string): string {
-  const given = slugOf(text(raw));
-  if (given !== "") return given;
-  const source = slugOf(from);
-  return source === "" ? "stacked-bar" : `stacked-bar-${source}`;
+  return idBaseOf(raw, from, "stacked-bar");
 }
 
 /**
@@ -184,46 +169,29 @@ function chartOf(rows: readonly StackedRow[], series: readonly string[], lang: s
   let low = 0;
   let high = 0;
   for (const row of rows) {
-    let positive = 0;
-    let negative = 0;
-    for (const segment of row.segments) {
-      if (segment.value === undefined) continue;
-      if (segment.value > 0) positive += segment.value;
-      else negative += segment.value;
-    }
-    high = Math.max(high, positive);
-    low = Math.min(low, negative);
+    const totals = stackedTotalsOf(row.segments);
+    high = Math.max(high, totals.positive);
+    low = Math.min(low, totals.negative);
   }
 
   const ticks = ticksOf(low, high);
   const scaleLow = ticks[0] ?? 0;
   const scaleHigh = ticks[ticks.length - 1] ?? 1;
-  const x = (value: number): number => plotX + ((value - scaleLow) / (scaleHigh - scaleLow || 1)) * plotWidth;
+  const x = xScaleOf(scaleLow, scaleHigh, plotX, plotWidth);
   const marks = [];
 
   for (const tick of ticks) {
-    marks.push(h("line", { class: GRID_CLASS, x1: x(tick), x2: x(tick), y1: plotTop, y2: plotBottom }));
+    marks.push(lineMark(GRID_CLASS, x(tick), x(tick), plotTop, plotBottom));
   }
-  marks.push(
-    h("line", { class: AXIS_CLASS, x1: plotX, x2: plotX + plotWidth, y1: plotBottom, y2: plotBottom }),
-  );
+  marks.push(lineMark(AXIS_CLASS, plotX, plotX + plotWidth, plotBottom, plotBottom));
   for (const tick of ticks) {
-    marks.push(
-      h("text", { class: TICK_CLASS, x: x(tick), y: plotBottom + 16, "text-anchor": "middle" }, formatNumber(lang, tick)),
-    );
+    marks.push(textMark(TICK_CLASS, x(tick), plotBottom + 16, "middle", formatNumber(lang, tick)));
   }
 
   rows.forEach((row, index) => {
     const center = plotTop + index * rowHeight + rowHeight / 2;
     const short = shortenLabel(row.label);
-    marks.push(
-      h(
-        "text",
-        { class: LABEL_CLASS, x: plotX - 8, y: center + 4, "text-anchor": "end" },
-        short === row.label ? null : h("title", null, row.label),
-        short,
-      ),
-    );
+    marks.push(labelMark(LABEL_CLASS, plotX - 8, center + 4, "end", row.label, short));
 
     let positive = 0;
     let negative = 0;
@@ -240,27 +208,17 @@ function chartOf(rows: readonly StackedRow[], series: readonly string[], lang: s
       const endX = x(end);
       const left = Math.min(startX, endX);
       const span = Math.abs(endX - startX);
-      const colour = series.indexOf(segment.series) + 1;
-      marks.push(
-        h("rect", {
-          class: `${SEGMENT_CLASS} ${CLASS}-series-${colour}`,
-          x: left,
-          y: center - barHeight / 2,
-          width: span,
-          height: barHeight,
-        }),
-      );
+      const colour = seriesColour(series.indexOf(segment.series));
+      marks.push(barMark(`${SEGMENT_CLASS} ${CLASS}-series-${colour}`, left, center - barHeight / 2, span, barHeight));
 
       // An estimate: the value is drawn only when the segment is wider than its digits.
       const label = formatNumber(lang, segment.value);
       if (span >= Array.from(label).length * 7 + 8) {
-        marks.push(
-          h("text", { class: SEGMENT_VALUE_CLASS, x: left + span / 2, y: center + 4, "text-anchor": "middle" }, label),
-        );
+        marks.push(textMark(SEGMENT_VALUE_CLASS, left + span / 2, center + 4, "middle", label));
       }
     }
     if (drawn === 0) {
-      marks.push(h("text", { class: NO_VALUE_CLASS, x: plotX + 4, y: center + 4 }, NO_VALUE_TEXT));
+      marks.push(textMark(NO_VALUE_CLASS, plotX + 4, center + 4, undefined, NO_VALUE_TEXT));
     }
   });
 
@@ -306,18 +264,7 @@ export default function stackedBar({ props, site, page }: ComponentProps<Stacked
     "figure",
     { class: CLASS, id: base, "data-stacked-bar": from },
     title === "" ? null : h("figcaption", { class: TITLE_CLASS }, title),
-    h(
-      "svg",
-      {
-        class: SVG_CLASS,
-        viewBox: `0 0 ${chart.width} ${chart.height}`,
-        role: "img",
-        "aria-labelledby": titleId,
-        preserveAspectRatio: "xMidYMid meet",
-      },
-      h("title", { id: titleId }, name),
-      ...chart.marks,
-    ),
+    svgFrame(SVG_CLASS, chart.width, chart.height, titleId, name, chart.marks),
     h(
       "ul",
       { class: LEGEND_CLASS, "aria-label": LEGEND_TEXT },
@@ -325,7 +272,7 @@ export default function stackedBar({ props, site, page }: ComponentProps<Stacked
         h(
           "li",
           { key: label },
-          h("span", { class: `${SWATCH_CLASS} ${CLASS}-series-${index + 1}`, "aria-hidden": "true" }),
+          h("span", { class: `${SWATCH_CLASS} ${CLASS}-series-${seriesColour(index)}`, "aria-hidden": "true" }),
           label,
         ),
       ),

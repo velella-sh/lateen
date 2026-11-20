@@ -2,8 +2,20 @@ import { h } from "preact";
 import type { ComponentProps } from "@velella/mizzen/contracts";
 import { calendarDay, calendarYear } from "../../src/dates.ts";
 import { formatCount as formatNumber } from "../reading-time/index.ts";
-import { labelDir, lookup, numericValue, shortenLabel } from "../bar-chart/index.ts";
+import {
+  idBaseOf,
+  isJson,
+  labelDir,
+  lookup,
+  numericValue,
+  seriesColour,
+  shortenLabel,
+  text,
+  type Json,
+} from "../chart-data/input.ts";
 import { scale } from "../timeline/scale.ts";
+import { evenTicksOf, extentOf, paddedDomain, percentOf, percentScaleOf, ratioOf } from "../chart-data/scale.ts";
+import { labelMark, lineMark, svgFrame, textMark } from "../chart-data/svg.ts";
 
 /** The Markdown directive this component handles: `::line-chart{from="growth"}`. */
 export const directive = "line-chart";
@@ -88,16 +100,6 @@ interface Series {
   readonly points: readonly Point[];
 }
 
-type Json = Readonly<Record<string, unknown>>;
-
-function isJson(value: unknown): value is Json {
-  return typeof value === "object" && value !== null && !Array.isArray(value);
-}
-
-function text(value: unknown): string {
-  return typeof value === "string" ? value.trim() : "";
-}
-
 /** Rows with their record id in the fields, from a collection or a list or keyed object in `_data`. */
 export function rowsOf(
   site: ComponentProps<LineChartProps>["site"],
@@ -131,15 +133,7 @@ export function seriesOf(raw: string): string[] {
 
 /** The id prefix of the chart: the `id` prop, or its source path. */
 export function idBase(raw: unknown, from: string): string {
-  const given = text(raw);
-  const source = given === "" ? `line-chart-${from}` : given;
-  const slug = source
-    .trim()
-    .toLowerCase()
-    .replace(/[^\p{L}\p{N}_-]+/gu, "-")
-    .replace(/-+/g, "-")
-    .replace(/^-+|-+$/g, "");
-  return slug === "" ? "line-chart" : slug;
+  return idBaseOf(raw, from, "line-chart");
 }
 
 /** A row's position value as an ISO day, or undefined when it is not one. */
@@ -204,22 +198,25 @@ export default function lineChart({ props, site, page }: ComponentProps<LineChar
         const number = numericValue(value);
         return number === undefined ? [] : [number];
       });
-  const numberMin = Math.min(...numbers);
-  const numberMax = Math.max(...numbers);
-  if (!dateMode && numbers.length === 0) {
+  const numberExtent = extentOf(numbers);
+  const numberMin = numberExtent?.low ?? 0;
+  const numberMax = numberExtent?.high ?? 0;
+  if (!dateMode && numberExtent === undefined) {
     return h("p", { class: MISSING_CLASS, role: "note" }, `${DEFAULT_TITLE}: no values in "${from}".`);
   }
 
   const axisStart = axis === undefined ? 0 : Date.parse(axis.from);
   const axisSpan = axis === undefined ? 1 : Date.parse(axis.to) - axisStart;
+  // A single value sits mid-axis; any other value is its percentage of the domain's span.
+  const position = (number: number): number =>
+    numberMin === numberMax ? 50 : percentOf(number, numberMin, numberMax);
   const positionOf = (value: unknown): number | undefined => {
     if (axis !== undefined) {
       const date = dateOf(value);
-      return date === undefined ? undefined : ((Date.parse(date) - axisStart) / axisSpan) * 100;
+      return date === undefined ? undefined : percentOf(Date.parse(date) - axisStart, 0, axisSpan);
     }
     const number = numericValue(value);
-    if (number === undefined) return undefined;
-    return numberMin === numberMax ? 50 : ((number - numberMin) / (numberMax - numberMin)) * 100;
+    return number === undefined ? undefined : position(number);
   };
 
   const series: Series[] = fields.map((field) => ({
@@ -236,7 +233,8 @@ export default function lineChart({ props, site, page }: ComponentProps<LineChar
   const values = series.flatMap((entry) =>
     entry.points.flatMap((point) => (point.value === undefined ? [] : [point.value])),
   );
-  if (values.length === 0) {
+  const valueExtent = extentOf(values);
+  if (valueExtent === undefined) {
     return h("p", { class: MISSING_CLASS, role: "note" }, `${DEFAULT_TITLE}: no values in "${from}".`);
   }
 
@@ -248,7 +246,7 @@ export default function lineChart({ props, site, page }: ComponentProps<LineChar
           return unique
             .filter((_, index) => index % step === 0)
             .map((number) => ({
-              position: numberMin === numberMax ? 50 : ((number - numberMin) / (numberMax - numberMin)) * 100,
+              position: position(number),
               label: formatNumber(lang, number),
             }));
         })()
@@ -268,55 +266,25 @@ export default function lineChart({ props, site, page }: ComponentProps<LineChar
   const bottom = height - 32;
   const plotWidth = right - left;
   const plotHeight = bottom - top;
-  const xPx = (position: number): number => (mirror ? right - (position / 100) * plotWidth : left + (position / 100) * plotWidth);
+  const xPx = percentScaleOf(mirror ? right : left, plotWidth, mirror);
 
-  let low = Math.min(...values);
-  let high = Math.max(...values);
-  if (low === high) {
-    low -= 1;
-    high += 1;
-  }
-  const yPx = (value: number): number => top + (1 - (value - low) / (high - low)) * plotHeight;
-  const yTicks = Array.from({ length: 5 }, (_, index) =>
-    Number((low + ((high - low) * index) / 4).toPrecision(12)),
-  );
+  const { low, high } = paddedDomain(valueExtent.low, valueExtent.high);
+  const yPx = (value: number): number => top + (1 - ratioOf(value, low, high)) * plotHeight;
+  const yTicks = evenTicksOf(low, high);
 
   const marks = [];
   for (const tick of yTicks) {
-    marks.push(h("line", { class: GRID_CLASS, x1: left, x2: right, y1: round(yPx(tick)), y2: round(yPx(tick)) }));
-    marks.push(
-      h(
-        "text",
-        {
-          class: TICK_CLASS,
-          x: mirror ? right + 8 : left - 8,
-          y: round(yPx(tick)) + 4,
-          "text-anchor": mirror ? "start" : "end",
-        },
-        formatNumber(lang, tick),
-      ),
-    );
+    marks.push(lineMark(GRID_CLASS, left, right, round(yPx(tick)), round(yPx(tick))));
+    marks.push(textMark(TICK_CLASS, mirror ? right + 8 : left - 8, round(yPx(tick)) + 4, mirror ? "start" : "end", formatNumber(lang, tick)));
   }
-  marks.push(h("line", { class: AXIS_CLASS, x1: left, x2: right, y1: bottom, y2: bottom }));
+  marks.push(lineMark(AXIS_CLASS, left, right, bottom, bottom));
   for (const tick of xTicks) {
-    marks.push(
-      h(
-        "text",
-        {
-          class: TICK_CLASS,
-          x: round(xPx(tick.position)),
-          y: bottom + 16,
-          "text-anchor": "middle",
-          dir: labelDir(tick.label, rtl),
-        },
-        tick.label,
-      ),
-    );
+    marks.push(textMark(TICK_CLASS, round(xPx(tick.position)), bottom + 16, "middle", tick.label, labelDir(tick.label, rtl)));
   }
 
   const ends: { index: number; label: string; x: number; y: number }[] = [];
   series.forEach((entry, index) => {
-    const seriesClass = `${CLASS}-series-${(index % 8) + 1}`;
+    const seriesClass = `${CLASS}-series-${seriesColour(index)}`;
     let drawing = false;
     let d = "";
     for (const point of entry.points) {
@@ -351,19 +319,16 @@ export default function lineChart({ props, site, page }: ComponentProps<LineChar
     end.y = Math.min(Math.max(end.y, floor + 12), bottom);
     floor = end.y;
     const label = shortenLabel(end.label, MAX_LABEL_LENGTH);
-    const seriesClass = `${CLASS}-series-${(end.index % 8) + 1}`;
+    const seriesClass = `${CLASS}-series-${seriesColour(end.index)}`;
     marks.push(
-      h(
-        "text",
-        {
-          class: `${END_LABEL_CLASS} ${seriesClass}`,
-          x: round(mirror ? end.x - 6 : end.x + 6),
-          y: round(end.y + 4),
-          "text-anchor": mirror ? "end" : undefined,
-          dir: labelDir(label, rtl),
-        },
-        label === end.label ? null : h("title", null, end.label),
+      labelMark(
+        `${END_LABEL_CLASS} ${seriesClass}`,
+        round(mirror ? end.x - 6 : end.x + 6),
+        round(end.y + 4),
+        mirror ? "end" : undefined,
+        end.label,
         label,
+        labelDir(label, rtl),
       ),
     );
   }
@@ -383,18 +348,7 @@ export default function lineChart({ props, site, page }: ComponentProps<LineChar
     "figure",
     { class: CLASS, id: base, "data-line-chart": from },
     title === "" ? null : h("figcaption", { class: TITLE_CLASS }, title),
-    h(
-      "svg",
-      {
-        class: SVG_CLASS,
-        viewBox: `0 0 ${width} ${height}`,
-        role: "img",
-        "aria-labelledby": titleId,
-        preserveAspectRatio: "xMidYMid meet",
-      },
-      h("title", { id: titleId }, name),
-      ...marks,
-    ),
+    svgFrame(SVG_CLASS, width, height, titleId, name, marks),
     h(
       "table",
       { class: TABLE_CLASS },
