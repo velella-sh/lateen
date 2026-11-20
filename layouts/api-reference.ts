@@ -19,6 +19,9 @@ import { t } from "../i18n/index.ts";
  * Pages name it with `layout: api-reference`; authors do not write this front matter by hand.
  * The page is an ordinary doc page to the engine, so search, the Markdown twin, and the sitemap
  * keep working without client JavaScript.
+ *
+ * All selection happens in `operationViewOf`, a pure front-matter-to-view-model step; the render
+ * functions below only turn the view model into markup.
  */
 
 /** The part of the OpenAPI schema the engine publishes. */
@@ -95,6 +98,82 @@ interface ApiOperation {
   readonly responses: readonly ApiResponse[];
 }
 
+/** One example, ready to display: its value already rendered as code text. */
+interface ExampleView {
+  readonly name: string;
+  readonly summary?: string;
+  readonly text: string;
+}
+
+/** One metadata row of a schema: a translated label and a value ready to display. */
+type SchemaMetaView =
+  | { readonly kind: "code"; readonly label: string; readonly value: string }
+  | { readonly kind: "codes"; readonly label: string; readonly values: readonly string[] }
+  | { readonly kind: "text"; readonly label: string; readonly value: string }
+  | { readonly kind: "schema"; readonly label: string; readonly schema: SchemaView };
+
+/** One named property of a schema, with its type text and required state selected. */
+interface SchemaPropertyView {
+  readonly name: string;
+  readonly typeLabel: string;
+  readonly required: boolean;
+  readonly schema: SchemaView;
+}
+
+/** A schema's description, metadata rows, and nested properties, ready to display. */
+interface SchemaView {
+  readonly description?: string;
+  readonly meta: readonly SchemaMetaView[];
+  readonly properties: readonly SchemaPropertyView[];
+}
+
+/** One media type: its name, schema, and examples. */
+interface MediaView {
+  readonly type: string;
+  readonly schema?: SchemaView;
+  readonly examples: readonly ExampleView[];
+}
+
+/** One parameter row: location, name, type text, required text, description, and examples. */
+interface ParameterView {
+  readonly location: string;
+  readonly name: string;
+  readonly deprecated: boolean;
+  readonly typeLabel: string;
+  readonly requiredLabel: string;
+  readonly description?: string;
+  readonly examples: readonly ExampleView[];
+}
+
+/** The request body: required state, description, and one view per media type. */
+interface RequestBodyView {
+  readonly required: boolean;
+  readonly description?: string;
+  readonly content: readonly MediaView[];
+}
+
+/** One response: its status, non-blank description, and media types. */
+interface ResponseView {
+  readonly status: string;
+  readonly description?: string;
+  readonly content: readonly MediaView[];
+}
+
+/** The whole operation page, selected and translated before any markup is built. */
+export interface OperationView {
+  readonly methodLabel: string;
+  readonly methodClass: string;
+  readonly path: string;
+  readonly title: string;
+  readonly description?: string;
+  readonly deprecated: boolean;
+  readonly tags: readonly string[];
+  readonly server?: string;
+  readonly parameters: readonly ParameterView[];
+  readonly requestBody?: RequestBodyView;
+  readonly responses: readonly ResponseView[];
+}
+
 type MediaDepth = 3 | 4;
 type ExamplesDepth = 4 | 5;
 
@@ -147,6 +226,110 @@ function exampleText(value: unknown): string {
   return JSON.stringify(value, null, 2) ?? String(value);
 }
 
+/** One example, with its value selected as code text. */
+function exampleViewOf(example: ApiExample): ExampleView {
+  return {
+    name: example.name,
+    ...(example.summary === undefined ? {} : { summary: example.summary }),
+    text: exampleText(example.value),
+  };
+}
+
+/** A schema's keywords, items, additional properties, and nested properties, selected in order. */
+function schemaViewOf(schema: ApiSchema, lang: string): SchemaView {
+  const required = Array.isArray(schema.required) ? schema.required : [];
+  const properties = Array.isArray(schema.properties) ? schema.properties : [];
+  const meta: SchemaMetaView[] = [];
+  const type = typeNames(schema);
+  if (type !== undefined) meta.push({ kind: "code", label: t(lang, "type"), value: type });
+  if (schema.format !== undefined) meta.push({ kind: "code", label: t(lang, "api_format"), value: schema.format });
+  if (required.length > 0) meta.push({ kind: "codes", label: t(lang, "required"), values: required });
+  if (schema.enum !== undefined) {
+    meta.push({ kind: "codes", label: t(lang, "api_enum"), values: schema.enum.map((value) => exampleText(value)) });
+  }
+  if (schema.default !== undefined) meta.push({ kind: "code", label: t(lang, "default"), value: exampleText(schema.default) });
+  if (typeof schema.additionalProperties === "boolean") {
+    meta.push({ kind: "text", label: t(lang, "api_additional_properties"), value: t(lang, schema.additionalProperties ? "yes" : "no") });
+  }
+  if (schema.items !== undefined) meta.push({ kind: "schema", label: t(lang, "api_items"), schema: schemaViewOf(schema.items, lang) });
+  if (typeof schema.additionalProperties === "object") {
+    meta.push({ kind: "schema", label: t(lang, "api_additional_properties"), schema: schemaViewOf(schema.additionalProperties, lang) });
+  }
+  return {
+    ...(schema.description === undefined ? {} : { description: schema.description }),
+    meta,
+    properties: properties.map((property) => ({
+      name: property.name,
+      typeLabel: typeLabel(property.schema),
+      required: required.includes(property.name),
+      schema: schemaViewOf(property.schema, lang),
+    })),
+  };
+}
+
+/** One media type, with its schema and examples selected. */
+function mediaViewOf(media: ApiMediaType, lang: string): MediaView {
+  return {
+    type: media.type,
+    ...(media.schema === undefined ? {} : { schema: schemaViewOf(media.schema, lang) }),
+    examples: media.examples.map(exampleViewOf),
+  };
+}
+
+/** One parameter, with its type text, required text, and examples selected. */
+function parameterViewOf(parameter: ApiParameter, lang: string): ParameterView {
+  return {
+    location: parameter.in,
+    name: parameter.name,
+    deprecated: parameter.deprecated,
+    typeLabel: typeLabel(parameter.schema),
+    requiredLabel: t(lang, parameter.required ? "yes" : "no"),
+    ...(parameter.description === undefined ? {} : { description: parameter.description }),
+    examples: parameter.examples.map(exampleViewOf),
+  };
+}
+
+/** The request body, with each media type selected. */
+function requestBodyViewOf(body: ApiRequestBody, lang: string): RequestBodyView {
+  return {
+    required: body.required,
+    ...(body.description === undefined ? {} : { description: body.description }),
+    content: body.content.map((media) => mediaViewOf(media, lang)),
+  };
+}
+
+/** One response; a blank description is dropped so the heading shows the status alone. */
+function responseViewOf(response: ApiResponse, lang: string): ResponseView {
+  return {
+    status: response.status,
+    ...(response.description.trim() === "" ? {} : { description: response.description }),
+    content: response.content.map((media) => mediaViewOf(media, lang)),
+  };
+}
+
+/**
+ * The pure operation view model: every operation, parameter, response, schema, and example
+ * selection, translated for the page language, before any markup is built. Returns undefined
+ * when the page is not an engine-built operation, so the layout can fall back to the doc article.
+ */
+export function operationViewOf(frontMatter: LayoutProps["page"]["frontMatter"], lang: string): OperationView | undefined {
+  const operation = operationOf(frontMatter);
+  if (operation === undefined) return undefined;
+  return {
+    methodLabel: operation.method.toUpperCase(),
+    methodClass: methodClassOf(operation.method),
+    path: operation.path,
+    title: operation.title,
+    ...(operation.description === undefined ? {} : { description: operation.description }),
+    deprecated: operation.deprecated,
+    tags: operation.tags,
+    ...(operation.server === undefined ? {} : { server: operation.server }),
+    parameters: operation.parameters.map((parameter) => parameterViewOf(parameter, lang)),
+    ...(operation.requestBody === undefined ? {} : { requestBody: requestBodyViewOf(operation.requestBody, lang) }),
+    responses: operation.responses.map((response) => responseViewOf(response, lang)),
+  };
+}
+
 /** One description line; newlines in the source become line breaks without HTML. */
 function description(text: string | undefined): ComponentChildren {
   return text === undefined || text.trim() === "" ? null : h("p", { class: "api-reference-description" }, text);
@@ -158,7 +341,7 @@ function flag(text: string, tone?: "caution"): ComponentChildren {
 }
 
 /** One example: its name and summary above the JSON or text value. */
-function exampleFigure(example: ApiExample): ComponentChildren {
+function exampleFigure(example: ExampleView): ComponentChildren {
   return h(
     "figure",
     { class: "api-reference-example" },
@@ -171,13 +354,13 @@ function exampleFigure(example: ApiExample): ComponentChildren {
     h(
       "pre",
       { class: "api-reference-example-code", dir: "ltr" },
-      h("code", null, exampleText(example.value)),
+      h("code", null, example.text),
     ),
   );
 }
 
 /** The examples of one media type, or nothing when it has none. */
-function examplesBlock(examples: readonly ApiExample[], depth: ExamplesDepth, lang: string): ComponentChildren {
+function examplesBlock(examples: readonly ExampleView[], depth: ExamplesDepth, lang: string): ComponentChildren {
   if (examples.length === 0) return null;
   return h(
     "div",
@@ -197,38 +380,30 @@ function code(value: string): ComponentChildren {
   return h("code", { dir: "ltr" }, value);
 }
 
-/** A schema's keywords, items, additional properties, and nested properties as one readable block. */
-function schemaBlock(schema: ApiSchema, lang: string): ComponentChildren {
-  const rows: ComponentChildren[] = [];
-  const required = Array.isArray(schema.required) ? schema.required : [];
-  const properties = Array.isArray(schema.properties) ? schema.properties : [];
-  const type = typeNames(schema);
-  if (type !== undefined) rows.push(metaRow(t(lang, "type"), code(type)));
-  if (schema.format !== undefined) rows.push(metaRow(t(lang, "api_format"), code(schema.format)));
-  if (required.length > 0) {
-    rows.push(metaRow(t(lang, "required"), h("span", { class: "api-reference-code-list" }, ...required.map(code))));
+/** One selected metadata value: code text, a code list, plain text, or a nested schema. */
+function metaValue(row: SchemaMetaView, lang: string): ComponentChildren {
+  switch (row.kind) {
+    case "code":
+      return code(row.value);
+    case "codes":
+      return h("span", { class: "api-reference-code-list" }, ...row.values.map((value) => code(value)));
+    case "text":
+      return row.value;
+    case "schema":
+      return schemaBlock(row.schema, lang);
   }
-  if (schema.enum !== undefined) {
-    rows.push(
-      metaRow(
-        t(lang, "api_enum"),
-        h("span", { class: "api-reference-code-list" }, ...schema.enum.map((value) => code(exampleText(value)))),
-      ),
-    );
-  }
-  if (schema.default !== undefined) rows.push(metaRow(t(lang, "default"), code(exampleText(schema.default))));
-  if (typeof schema.additionalProperties === "boolean") {
-    rows.push(metaRow(t(lang, "api_additional_properties"), t(lang, schema.additionalProperties ? "yes" : "no")));
-  }
-  if (schema.items !== undefined) {
-    rows.push(metaRow(t(lang, "api_items"), schemaBlock(schema.items, lang)));
-  }
-  if (typeof schema.additionalProperties === "object") {
-    rows.push(metaRow(t(lang, "api_additional_properties"), schemaBlock(schema.additionalProperties, lang)));
-  }
+}
 
-  const propertiesNode =
-    properties.length === 0
+/** A schema's selected description, metadata rows, and nested properties as one readable block. */
+function schemaBlock(schema: SchemaView, lang: string): ComponentChildren {
+  return h(
+    Fragment,
+    null,
+    description(schema.description),
+    schema.meta.length === 0
+      ? null
+      : h("dl", { class: "api-reference-schema-meta" }, ...schema.meta.map((row) => metaRow(row.label, metaValue(row, lang)))),
+    schema.properties.length === 0
       ? null
       : h(
           "div",
@@ -237,7 +412,7 @@ function schemaBlock(schema: ApiSchema, lang: string): ComponentChildren {
           h(
             "ul",
             { class: "api-reference-schema-list" },
-            ...properties.map((property) =>
+            ...schema.properties.map((property) =>
               h(
                 "li",
                 { class: "api-reference-schema-property" },
@@ -246,26 +421,19 @@ function schemaBlock(schema: ApiSchema, lang: string): ComponentChildren {
                   { class: "api-reference-schema-line" },
                   code(property.name),
                   " ",
-                  h("span", { class: "api-reference-schema-type", dir: "ltr" }, typeLabel(property.schema)),
-                  required.includes(property.name) ? [" ", flag(t(lang, "required"))] : null,
+                  h("span", { class: "api-reference-schema-type", dir: "ltr" }, property.typeLabel),
+                  property.required ? [" ", flag(t(lang, "required"))] : null,
                 ),
                 schemaBlock(property.schema, lang),
               ),
             ),
           ),
-        );
-
-  return h(
-    Fragment,
-    null,
-    description(schema.description),
-    rows.length === 0 ? null : h("dl", { class: "api-reference-schema-meta" }, ...rows),
-    propertiesNode,
+        ),
   );
 }
 
 /** One media type: its name, schema, and examples. */
-function mediaBlock(media: ApiMediaType, depth: MediaDepth, lang: string): ComponentChildren {
+function mediaBlock(media: MediaView, depth: MediaDepth, lang: string): ComponentChildren {
   return h(
     "section",
     { class: "api-reference-media" },
@@ -276,19 +444,19 @@ function mediaBlock(media: ApiMediaType, depth: MediaDepth, lang: string): Compo
 }
 
 /** One parameter row: location, name, type, required state, description, and examples. */
-function parameterRow(parameter: ApiParameter, lang: string): ComponentChildren {
+function parameterRow(parameter: ParameterView, lang: string): ComponentChildren {
   return h(
     "tr",
     null,
-    h("td", null, code(parameter.in)),
+    h("td", null, code(parameter.location)),
     h(
       "td",
       null,
       code(parameter.name),
       parameter.deprecated ? [" ", flag(t(lang, "deprecated"), "caution")] : null,
     ),
-    h("td", null, code(typeLabel(parameter.schema))),
-    h("td", null, t(lang, parameter.required ? "yes" : "no")),
+    h("td", null, code(parameter.typeLabel)),
+    h("td", null, parameter.requiredLabel),
     h(
       "td",
       null,
@@ -305,7 +473,7 @@ function parameterRow(parameter: ApiParameter, lang: string): ComponentChildren 
                 code(example.name),
                 example.summary === undefined ? null : ` ${example.summary}`,
                 ": ",
-                code(exampleText(example.value)),
+                code(example.text),
               ),
             ),
           ),
@@ -314,8 +482,8 @@ function parameterRow(parameter: ApiParameter, lang: string): ComponentChildren 
 }
 
 /** The parameters table, or nothing when the operation has no parameter. */
-function parametersSection(operation: ApiOperation, lang: string): ComponentChildren {
-  if (operation.parameters.length === 0) return null;
+function parametersSection(parameters: readonly ParameterView[], lang: string): ComponentChildren {
+  if (parameters.length === 0) return null;
   const heading = t(lang, "parameters");
   return h(
     "section",
@@ -339,14 +507,14 @@ function parametersSection(operation: ApiOperation, lang: string): ComponentChil
             ),
           ),
         ),
-        h("tbody", null, ...operation.parameters.map((parameter) => parameterRow(parameter, lang))),
+        h("tbody", null, ...parameters.map((parameter) => parameterRow(parameter, lang))),
       ),
     ),
   );
 }
 
 /** The request body section: required state, description, and one block per media type. */
-function requestBodySection(body: ApiRequestBody | undefined, lang: string): ComponentChildren {
+function requestBodySection(body: RequestBodyView | undefined, lang: string): ComponentChildren {
   if (body === undefined) return null;
   return h(
     "section",
@@ -364,7 +532,7 @@ function requestBodySection(body: ApiRequestBody | undefined, lang: string): Com
 }
 
 /** One response: its status, description, and media types. */
-function responseBlock(response: ApiResponse, lang: string): ComponentChildren {
+function responseBlock(response: ResponseView, lang: string): ComponentChildren {
   return h(
     "section",
     { class: "api-reference-response" },
@@ -372,52 +540,52 @@ function responseBlock(response: ApiResponse, lang: string): ComponentChildren {
       "h3",
       null,
       h("code", { class: "api-reference-status", dir: "ltr" }, response.status),
-      response.description.trim() === "" ? null : h("span", { class: "api-reference-response-description" }, " ", response.description),
+      response.description === undefined ? null : h("span", { class: "api-reference-response-description" }, " ", response.description),
     ),
     ...response.content.map((media) => mediaBlock(media, 4, lang)),
   );
 }
 
 /** The responses section; every valid operation has at least one. */
-function responsesSection(operation: ApiOperation, lang: string): ComponentChildren {
-  if (operation.responses.length === 0) return null;
+function responsesSection(responses: readonly ResponseView[], lang: string): ComponentChildren {
+  if (responses.length === 0) return null;
   return h(
     "section",
     { class: "api-reference-section" },
     h("h2", null, t(lang, "api_responses")),
-    ...operation.responses.map((response) => responseBlock(response, lang)),
+    ...responses.map((response) => responseBlock(response, lang)),
   );
 }
 
 /** The operation header: method and path, title, description, tags, server, and deprecation. */
-function operationHeader(operation: ApiOperation, lang: string): ComponentChildren {
+function operationHeader(view: OperationView, lang: string): ComponentChildren {
   return h(
     "header",
     { class: "api-reference-operation-header" },
     h(
       "div",
       { class: "api-reference-line" },
-      h("span", { class: methodClassOf(operation.method) }, operation.method.toUpperCase()),
-      h("code", { class: "api-reference-path", dir: "ltr" }, operation.path),
+      h("span", { class: view.methodClass }, view.methodLabel),
+      h("code", { class: "api-reference-path", dir: "ltr" }, view.path),
     ),
-    h("h1", null, operation.title),
-    operation.deprecated ? h("p", { class: "api-reference-deprecated" }, flag(t(lang, "deprecated"), "caution")) : null,
-    description(operation.description),
-    operation.tags.length === 0
+    h("h1", null, view.title),
+    view.deprecated ? h("p", { class: "api-reference-deprecated" }, flag(t(lang, "deprecated"), "caution")) : null,
+    description(view.description),
+    view.tags.length === 0
       ? null
       : h(
           "ul",
           { class: "api-reference-tags", "aria-label": t(lang, "tags") },
-          ...operation.tags.map((tag) => h("li", { class: "api-reference-tag" }, tag)),
+          ...view.tags.map((tag) => h("li", { class: "api-reference-tag" }, tag)),
         ),
-    operation.server === undefined
+    view.server === undefined
       ? null
       : h(
           "p",
           { class: "api-reference-server" },
           h("span", { class: "api-reference-server-label" }, t(lang, "api_server")),
           " ",
-          code(operation.server),
+          code(view.server),
         ),
   );
 }
@@ -428,8 +596,8 @@ function operationHeader(operation: ApiOperation, lang: string): ComponentChildr
  */
 function article(props: LayoutProps): ComponentChildren {
   const { page } = props;
-  const operation = operationOf(page.frontMatter);
-  if (operation === undefined) {
+  const view = operationViewOf(page.frontMatter, page.lang);
+  if (view === undefined) {
     return h(
       "article",
       { class: "doc api-reference", "data-pagefind-body": true },
@@ -443,10 +611,10 @@ function article(props: LayoutProps): ComponentChildren {
     "article",
     { class: "doc api-reference", "data-pagefind-body": true },
     breadcrumb(props) as ComponentChildren,
-    operationHeader(operation, lang),
-    parametersSection(operation, lang),
-    requestBodySection(operation.requestBody, lang),
-    responsesSection(operation, lang),
+    operationHeader(view, lang),
+    parametersSection(view.parameters, lang),
+    requestBodySection(view.requestBody, lang),
+    responsesSection(view.responses, lang),
   );
 }
 
