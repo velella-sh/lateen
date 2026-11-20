@@ -19,6 +19,9 @@ export const TITLE_CLASS = "code-tabs-title";
 /** Class on the element that holds one code block. */
 export const BODY_CLASS = "code-tabs-body";
 
+/** Attribute on each tab with the fragment that opens it (`install-pnpm`), without the `#`. */
+export const TAB_FRAGMENT_ATTR = "data-tab-fragment";
+
 /** Id prefix used when the directive gives none. */
 export const DEFAULT_ID = "code-tabs";
 
@@ -53,8 +56,24 @@ export function parseLabels(raw: string | undefined): string[] {
 
 /** The id prefix, reduced to letters, digits, `-` and `_` so a prop cannot break the markup. */
 export function idBase(raw: string | undefined): string {
-  const clean = (raw ?? "").trim().replace(/[^\p{L}\p{N}_-]+/gu, "-").replace(/^-+|-+$/g, "");
-  return clean || DEFAULT_ID;
+  return slug(raw) || DEFAULT_ID;
+}
+
+/** A label reduced to the same characters as an id prefix, so a fragment stays a plain word. */
+function slug(raw: string | undefined): string {
+  return (raw ?? "").trim().replace(/[^\p{L}\p{N}_-]+/gu, "-").replace(/^-+|-+$/g, "");
+}
+
+/** The fragment key a tab label gets: its slug, else its position, with repeats numbered. */
+export function tabFragments(base: string, labels: readonly string[]): string[] {
+  const used = new Set<string>();
+  return labels.map((label, i) => {
+    const key = slug(label) || String(i + 1);
+    let fragment = `${base}-${key}`;
+    for (let n = 2; used.has(fragment); n += 1) fragment = `${base}-${key}-${n}`;
+    used.add(fragment);
+    return fragment;
+  });
 }
 
 /** The sync group name, trimmed; a missing or blank value means the group is not grouped. */
@@ -81,6 +100,7 @@ export default function codeTabs({ props, html }: ComponentProps<CodeTabsProps>)
 
   const labels = parseLabels(props.labels);
   const names = bodies.map((_, i) => labels[i]?.trim() || String(i + 1));
+  const fragments = tabFragments(base, names);
 
   const tabs = names.map((label, i) =>
     h(
@@ -90,6 +110,7 @@ export default function codeTabs({ props, html }: ComponentProps<CodeTabsProps>)
         class: TAB_CLASS,
         role: "tab",
         id: `${base}-tab-${i + 1}`,
+        "data-tab-fragment": fragments[i],
         "aria-controls": `${base}-panel-${i + 1}`,
         "aria-selected": i === 0 ? "true" : "false",
         tabindex: i === 0 ? 0 : -1,
