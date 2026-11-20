@@ -82,13 +82,13 @@ function sortByTitle(document: Document, at = 0): void {
 function type(document: Document, value: string, at = 0): void {
   const input = wrappers(document)[at]!.querySelector(TEXT_FILTER_SELECTOR) as HTMLInputElement;
   input.value = value;
-  input.dispatchEvent(new (document.defaultView as Window & typeof globalThis).Event("input"));
+  input.dispatchEvent(new (document.defaultView as Window & typeof globalThis).Event("input", { bubbles: true }));
 }
 
 function choose(document: Document, select: number, value: string, at = 0): void {
   const input = selects(document, at)[select]!;
   input.value = value;
-  input.dispatchEvent(new (document.defaultView as Window & typeof globalThis).Event("change"));
+  input.dispatchEvent(new (document.defaultView as Window & typeof globalThis).Event("change", { bubbles: true }));
 }
 
 test("the sort and filters round trip through the address", () => {

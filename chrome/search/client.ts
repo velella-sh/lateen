@@ -265,6 +265,21 @@ interface Listenable {
   removeEventListener?(type: string, listener: (event: SearchEvent) => void): void;
 }
 
+/**
+ * The row or control under a pointer or click. The list's one listener reads the selector the event
+ * landed in, so no row carries a listener of its own.
+ */
+interface RowTarget {
+  closest(selector: string): RowTarget | null;
+  getAttribute(name: string): string | null;
+}
+
+/** The element under an event that matches `selector`, if any. */
+function closestIn(event: SearchEvent, selector: string): RowTarget | null {
+  const target = event.target as { closest?(selector: string): RowTarget | null } | undefined;
+  return target?.closest?.(selector) ?? null;
+}
+
 /** Each dialog's current wiring, so initializing it again replaces the old one instead of stacking. */
 const activations = new WeakMap<SearchDialog, () => void>();
 
@@ -298,6 +313,8 @@ export function activate(parts: SearchParts, env: SearchEnv): () => void {
   // The list as drawn now, and which of its rows the field points at. `-1` is no active option.
   let options: readonly RenderedOption[] = [];
   let active = -1;
+  // The row the pointer last entered, so crossing a row's own children names it once.
+  let hoveredRow: RowTarget | null = null;
   // The records behind the rows on screen, so the ask panel names the pages the reader is looking at.
   let lastRecords: readonly SearchRecord[] = [];
   // While false, every listener and continuation this activation owns is inert, even on a target
@@ -399,7 +416,6 @@ export function activate(parts: SearchParts, env: SearchEnv): () => void {
     options = renderOptions(results, list, {
       doc: env.document,
       run: execute,
-      hover: (index) => markActive(index),
       ...(askHandler === undefined
         ? {}
         : {
@@ -409,6 +425,8 @@ export function activate(parts: SearchParts, env: SearchEnv): () => void {
             },
           }),
     });
+    // The rows are new elements, so the pointer's memory of the old one goes with them.
+    hoveredRow = null;
     // A row the new query dropped takes the active option with it; the field then names nothing.
     markActive(activeIndexOf(options, key));
   };
@@ -543,6 +561,23 @@ export function activate(parts: SearchParts, env: SearchEnv): () => void {
     });
   }
   attach(input as unknown as Listenable, "input", run);
+  // One pointer listener for the whole list: a pointer entering a row, or any of its children, names
+  // that row once. Rows are redrawn, so the handler reads the row's position rather than holding it.
+  attach(results as unknown as Listenable, "pointerover", (event) => {
+    const row = closestIn(event, "[data-search-row]");
+    if (row === null || row === hoveredRow) return;
+    hoveredRow = row;
+    const index = Number(row.getAttribute("data-search-row"));
+    if (!Number.isNaN(index)) markActive(index);
+  });
+  // One click listener for the whole list: an action or ask row runs from the row's own model entry,
+  // so a click and Enter share one activation and no control registers a listener per row.
+  attach(results as unknown as Listenable, "click", (event) => {
+    const pressed = closestIn(event, "[data-palette-action], [data-ask-agent-open]");
+    if (pressed === null) return;
+    const key = pressed.getAttribute("data-search-option");
+    if (key !== null) options.find((option) => option.key === key)?.press();
+  });
   // A press on the modal backdrop lands on the dialog itself; a press on the panel or a row does not.
   attach(dialog, "click", (event) => {
     if (event.target === dialog) dialog.close();

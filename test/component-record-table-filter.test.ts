@@ -74,13 +74,13 @@ const selects = (document: Document): HTMLSelectElement[] =>
 function type(document: Document, value: string): void {
   const input = document.querySelector(TEXT_FILTER_SELECTOR) as HTMLInputElement;
   input.value = value;
-  input.dispatchEvent(new (document.defaultView as Window & typeof globalThis).Event("input"));
+  input.dispatchEvent(new (document.defaultView as Window & typeof globalThis).Event("input", { bubbles: true }));
 }
 
 function choose(document: Document, at: number, value: string): void {
   const select = selects(document)[at]!;
   select.value = value;
-  select.dispatchEvent(new (document.defaultView as Window & typeof globalThis).Event("change"));
+  select.dispatchEvent(new (document.defaultView as Window & typeof globalThis).Event("change", { bubbles: true }));
 }
 
 test("a table gets a text filter and one select per marked column, revealed by the island", () => {
