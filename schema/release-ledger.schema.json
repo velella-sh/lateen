@@ -1,0 +1,50 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://velella.sh/lateen/schema/release-ledger.schema.json",
+  "title": "Lateen release ledger",
+  "description": "One release's linked evidence: the commit, the CI run, the acceptance and post-publish runs, the archived accessibility and performance reports, the npm page, and the candidate and published tarball digests. Any missing or failed evidence is listed in problems and keeps complete false. No wall-clock time is recorded, so the same evidence writes the same file.",
+  "type": "object",
+  "required": ["tool", "version", "release", "tarball", "evidence", "complete", "problems"],
+  "additionalProperties": false,
+  "properties": {
+    "tool": { "type": "string", "enum": ["lateen/release-ledger"] },
+    "version": { "type": "integer", "enum": [1] },
+    "release": {
+      "type": "object",
+      "required": ["version", "commit", "mizzen", "npm", "run"],
+      "additionalProperties": false,
+      "properties": {
+        "version": { "type": "string" },
+        "commit": { "type": "string" },
+        "mizzen": {
+          "type": "string",
+          "description": "The exact installed @velella/mizzen version both acceptance runs used."
+        },
+        "npm": { "type": "string" },
+        "run": { "type": "string" }
+      }
+    },
+    "tarball": {
+      "type": "object",
+      "required": ["candidate", "published"],
+      "additionalProperties": false,
+      "properties": {
+        "candidate": { "type": "string", "description": "sha256:<hex> of the tarball the acceptance gate packed." },
+        "published": { "type": "string", "description": "sha256:<hex> of the tarball the post-publish run installed." }
+      }
+    },
+    "evidence": {
+      "type": "object",
+      "required": ["acceptance", "published", "accessibility", "performance"],
+      "additionalProperties": false,
+      "properties": {
+        "acceptance": { "type": "string", "description": "The CI run URL that produced the acceptance report." },
+        "published": { "type": "string", "description": "The CI run URL that produced the post-publish report." },
+        "accessibility": { "type": "string", "description": "The site path of the archived accessibility report." },
+        "performance": { "type": "string", "description": "The site path of the archived performance report." }
+      }
+    },
+    "complete": { "type": "boolean" },
+    "problems": { "type": "array", "items": { "type": "string" } }
+  }
+}

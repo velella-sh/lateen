@@ -61,6 +61,7 @@
     "typecheck": "tsc --noEmit -p tsconfig.json",
     "check:inventory": "node --test test/visual/inventory.test.ts",
     "test:release": "node --test test/release-candidate.test.ts",
+    "test:ledger": "node --test test/release-ledger.test.ts",
     "release:candidate": "node scripts/release-candidate.ts"
   },
   "dependencies": {
