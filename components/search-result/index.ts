@@ -2,6 +2,7 @@ import { h } from "preact";
 import type { SiteNetwork } from "@velella/mizzen/contracts";
 import { t } from "../../i18n/index.ts";
 import { resultHeading, resultHref, resultLabel, type FailedIndex, type SearchResult } from "../../src/search/merge.ts";
+import { languageName } from "../../src/language.ts";
 
 /** Class on one result's item. */
 export const RESULT_CLASS = "search-result";
@@ -51,15 +52,6 @@ export interface SearchResultItemProps {
 /** A language tag in the form matching compares: trimmed, lower case, `_` read as `-`. */
 function tagKey(tag: string): string {
   return tag.trim().toLowerCase().replace(/_/g, "-");
-}
-
-/** The language tag's name in `lang`, or the tag itself when the runtime has no name for it. */
-export function languageName(tag: string, lang: string): string {
-  try {
-    return new Intl.DisplayNames([lang], { type: "language" }).of(tag) ?? tag;
-  } catch {
-    return tag;
-  }
 }
 
 /** The entities Pagefind escapes in an excerpt. */

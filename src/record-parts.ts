@@ -5,6 +5,7 @@ import { LINK_CLASS, reportHref } from "../chrome/report-issue/index.ts";
 import { KEY_CLASS, LIST_CLASS, VALUE_CLASS } from "../components/key-value/index.ts";
 import { t } from "../i18n/index.ts";
 import { DERIVED_PREFIX, dataValue, fieldValueOf, formatField, kindOf, valueState } from "./fields.ts";
+import { languageName } from "./language.ts";
 
 /** Id of the facts panel; the record page's table of contents links to it. */
 export const FACTS_ID = "record-facts";
@@ -14,6 +15,9 @@ const FACT_REPORT_CLASS = "record-fact-report";
 
 /** Class on a fact's value, the block source mode labels with the field's data position. */
 export const FACT_CLASS = "record-fact";
+
+/** Class on the muted label that names the language a fallback value is in. */
+const LANGUAGE_CLASS = "field-language";
 
 const isRecord = (value: unknown): value is Record<string, unknown> =>
   value !== null && typeof value === "object" && !Array.isArray(value);
@@ -123,6 +127,18 @@ function dataSrcOf(position: RecordPos | undefined): string | undefined {
   return `${position.file}:${position.startLine}:${position.startColumn}-${position.endLine}:${position.endColumn}`;
 }
 
+/** The language tag in the form matching compares: trimmed, lower case, `_` read as `-`. */
+function tagKey(tag: string): string {
+  return tag.trim().toLowerCase().replace(/_/g, "-");
+}
+
+/** The default language's tag when the page's record says `field` fell back to it, else undefined. */
+function fallbackLang(props: LayoutProps, field: string): string | undefined {
+  if (props.page.record?.fallbacks.includes(field) !== true) return undefined;
+  const tag = props.site.config.lang.trim();
+  return tag === "" || tagKey(tag) === tagKey(props.page.lang) ? undefined : tag;
+}
+
 /** True when the page asks for a report link on every fact: absent or false by default. */
 function reportsFacts(props: LayoutProps): boolean {
   const front = props.page.frontMatter.record;
@@ -170,6 +186,7 @@ export function factsPanel(props: LayoutProps): ComponentChildren {
   const row = (fact: Fact): ComponentChildren => {
     const value = fact.field === "id" ? record.id : fieldValueOf(record, fact.field);
     const state = valueState(value);
+    const fallback = fallbackLang(props, fact.field);
     return h(
       Fragment,
       null,
@@ -184,6 +201,13 @@ export function factsPanel(props: LayoutProps): ComponentChildren {
             ? {}
             : { "data-src": dataSrcOf(factPosition(props, fact)) }),
         },
+        fallback === undefined
+          ? null
+          : h(
+              "span",
+              { class: LANGUAGE_CLASS },
+              h("bdi", { lang: fallback }, languageName(fallback, props.page.lang)),
+            ),
         factValue(
           props,
           fact,
