@@ -1,0 +1,34 @@
+# Shared Node/npm setup for workflows that check the repository out into a subdirectory.
+# The job checks out first (paths, refs, and fetch depth differ per job, and a local composite
+# action can only be referenced after a checkout), then calls this action with that directory.
+name: Set up Node and npm
+description: >-
+  Pins Node from .node-version and npm from packageManager, restores the lockfile-keyed npm
+  cache, and runs npm ci in the checked-out directory.
+
+inputs:
+  path:
+    description: Directory the repository is checked out into.
+    required: false
+    default: lateen
+  cache-dependency-path:
+    description: Lockfile(s) keying the npm cache; defaults to <path>/package-lock.json.
+    required: false
+    default: ""
+
+runs:
+  using: composite
+  steps:
+    - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
+      with:
+        node-version-file: ${{ inputs.path }}/.node-version
+        cache: npm
+        cache-dependency-path: ${{ inputs.cache-dependency-path || format('{0}/package-lock.json', inputs.path) }}
+    - name: Set up npm
+      shell: bash
+      working-directory: ${{ inputs.path }}
+      run: npm install --global "$(node -p "require('./package.json').packageManager")" --no-audit --no-fund
+    - name: Install
+      shell: bash
+      working-directory: ${{ inputs.path }}
+      run: npm ci --no-audit --no-fund

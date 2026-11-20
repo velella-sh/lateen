@@ -16,6 +16,7 @@ import { SEARCH_INPUT_ID } from "../chrome/search/index.ts";
 import { THEME_KEY } from "../chrome/theme-toggle/key.ts";
 import { fileForRequest, startServer, type StaticServer } from "../visual/index.ts";
 import { commitOf, reportPath, schemaAt, versionOf, writeReport } from "./report.ts";
+import { withCleanup } from "./runner-cleanup.ts";
 
 const ROOT = fileURLToPath(new URL("../", import.meta.url));
 const BASELINE = join(ROOT, "test/accessibility/baseline.json");
@@ -631,18 +632,25 @@ async function main(): Promise<void> {
   build("test/accessibility/fixtures/site", ".mizzen/a11y/fixtures");
   build("test/accessibility/fixtures/network", ".mizzen/a11y/network");
 
-  const servers = {
-    docs: await startServer(join(ROOT, ".mizzen/a11y/docs"), "/lateen"),
-    fixtures: await startServer(join(ROOT, ".mizzen/a11y/fixtures"), ""),
-    network: await startServer(join(ROOT, ".mizzen/a11y/network"), "/alpha"),
-  };
-  let browser: Browser | undefined;
   let chromiumVersion = "unknown";
   const findings: Finding[] = [];
   const reported: ReportFinding[] = [];
   let journeys: JourneyResult[] = [];
-  try {
-    browser = await chromium.launch();
+  // Each server is registered as it starts, so a later startup failure still closes the earlier
+  // ones; the browser and the servers are released on success, failure and interruption.
+  await withCleanup(async (cleanup) => {
+    const serve = async (dir: string, base: string): Promise<StaticServer> => {
+      const server = await startServer(dir, base);
+      cleanup.add(() => server.close());
+      return server;
+    };
+    const servers = {
+      docs: await serve(join(ROOT, ".mizzen/a11y/docs"), "/lateen"),
+      fixtures: await serve(join(ROOT, ".mizzen/a11y/fixtures"), ""),
+      network: await serve(join(ROOT, ".mizzen/a11y/network"), "/alpha"),
+    };
+    const browser = await chromium.launch();
+    cleanup.add(() => browser.close());
     chromiumVersion = browser.version();
     for (const item of cases) {
       for (const theme of THEMES) {
@@ -684,12 +692,7 @@ async function main(): Promise<void> {
     const fontProblem = await checkFontPreloads(browser, servers);
     if (fontProblem !== undefined) throw new Error(`font preloads: ${fontProblem}`);
     console.log("font preloads: custom fonts suppress the shipped preloads; default pages keep them");
-  } finally {
-    await browser?.close();
-    await servers.docs.close();
-    await servers.fixtures.close();
-    await servers.network.close();
-  }
+  });
 
   const known = readBaseline(BASELINE);
   if (reportFile !== undefined) {

@@ -36,6 +36,9 @@ done
 npx mizzen build site --out out
 test -s out/index.html
 grep -q 'class="mermaid-diagram"' out/components/mermaid/index.html
+# The compiled sailcloth CSS ships in the tarball: the consumer's base bundle carries the UI rules,
+# not only the token and media sheets.
+grep -qF ".chart-canvas" out/assets/theme/base-*.css
 
 npx mizzen build data-site --out out-data
 test -s out-data/index.html
@@ -45,13 +48,9 @@ npx mizzen init starter --theme node_modules/@velella/lateen --starter docs
 npx mizzen build starter --out out-starter
 test -s out-starter/index.html
 
-# A unit's file that the tarball leaves out fails here, not in a reader's build.
-for path in layouts/doc.ts components/code/index.ts components/performance-chart/chart.min.js styles/src/ui.css i18n/en.json tokens/presets/harbor.json skills/lateen/SKILL.md starters/docs/starter.json visual/index.ts schema/options.schema.json; do
-  test -s "node_modules/@velella/lateen/$path" || {
-    echo "the package omits $path" >&2
-    exit 1
-  }
-done
+# Every source and generated artifact the installed theme needs, checked against the packed copy:
+# a unit, island, font, schema, or redesign file the tarball leaves out fails here, not in a reader's build.
+node "$lateen/scripts/check-package.ts" "$PWD/node_modules/@velella/lateen"
 
 # The site tool (#505) is in the tarball and asks for its optional peer when Playwright is absent.
 # Node does not strip types under node_modules; Mizzen registers the same hook for the theme's sources.

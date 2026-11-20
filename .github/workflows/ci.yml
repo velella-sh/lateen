@@ -7,6 +7,13 @@ on:
   pull_request:
   workflow_dispatch:
 
+# One run per pull request (or per ref for pushes and manual runs). Only pull-request runs cancel
+# their superseded predecessors, so the required checks always report for the latest head while
+# main pushes and manual runs queue instead of cancelling each other.
+concurrency:
+  group: ci-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
+
 permissions:
   contents: read
 
@@ -19,15 +26,7 @@ jobs:
         with:
           path: lateen
           persist-credentials: false
-      - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
-        with:
-          node-version-file: lateen/.node-version
-      - name: Set up npm
-        working-directory: lateen
-        run: npm install --global "$(node -p "require('./package.json').packageManager")" --no-audit --no-fund
-      - name: Install
-        run: npm ci --no-audit --no-fund
-        working-directory: lateen
+      - uses: ./lateen/.github/actions/setup
       - name: Test
         run: npm test
         working-directory: lateen
@@ -70,15 +69,13 @@ jobs:
           ref: ${{ github.base_ref }}
           path: base
           persist-credentials: false
-      - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
+      - name: Set up the pull request
+        uses: ./head/.github/actions/setup
         with:
-          node-version-file: head/.node-version
-      - name: Set up npm
-        working-directory: head
-        run: npm install --global "$(node -p "require('./package.json').packageManager")" --no-audit --no-fund
-      - name: Install the pull request
-        run: npm ci --no-audit --no-fund
-        working-directory: head
+          path: head
+          cache-dependency-path: |
+            head/package-lock.json
+            base/package-lock.json
       - name: Install the base branch
         run: npm ci --no-audit --no-fund
         working-directory: base
@@ -110,15 +107,12 @@ jobs:
         with:
           path: lateen
           persist-credentials: false
-      - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
+      - uses: ./lateen/.github/actions/setup
+      - name: Cache the Playwright browser
+        uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
         with:
-          node-version-file: lateen/.node-version
-      - name: Set up npm
-        working-directory: lateen
-        run: npm install --global "$(node -p "require('./package.json').packageManager")" --no-audit --no-fund
-      - name: Install
-        run: npm ci --no-audit --no-fund
-        working-directory: lateen
+          path: ~/.cache/ms-playwright
+          key: ${{ runner.os }}-playwright-${{ hashFiles('lateen/package-lock.json') }}
       - name: Install Chromium
         run: npx playwright install chromium
         working-directory: lateen
@@ -149,15 +143,12 @@ jobs:
         with:
           path: lateen
           persist-credentials: false
-      - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
+      - uses: ./lateen/.github/actions/setup
+      - name: Cache the Playwright browser
+        uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
         with:
-          node-version-file: lateen/.node-version
-      - name: Set up npm
-        working-directory: lateen
-        run: npm install --global "$(node -p "require('./package.json').packageManager")" --no-audit --no-fund
-      - name: Install
-        run: npm ci --no-audit --no-fund
-        working-directory: lateen
+          path: ~/.cache/ms-playwright
+          key: ${{ runner.os }}-playwright-${{ hashFiles('lateen/package-lock.json') }}
       - name: Install Chromium
         run: npx playwright install chromium
         working-directory: lateen
@@ -194,15 +185,12 @@ jobs:
         with:
           path: lateen
           persist-credentials: false
-      - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
+      - uses: ./lateen/.github/actions/setup
+      - name: Cache the Playwright browser
+        uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
         with:
-          node-version-file: lateen/.node-version
-      - name: Set up npm
-        working-directory: lateen
-        run: npm install --global "$(node -p "require('./package.json').packageManager")" --no-audit --no-fund
-      - name: Install
-        run: npm ci --no-audit --no-fund
-        working-directory: lateen
+          path: ~/.cache/ms-playwright
+          key: ${{ runner.os }}-playwright-${{ hashFiles('lateen/package-lock.json') }}
       - name: Install Chromium
         run: npx playwright install chromium
         working-directory: lateen
@@ -223,21 +211,12 @@ jobs:
           path: lateen
           persist-credentials: false
           fetch-depth: 0
-      - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
-        with:
-          node-version-file: lateen/.node-version
-      - name: Set up npm
-        working-directory: lateen
-        run: npm install --global "$(node -p "require('./package.json').packageManager")" --no-audit --no-fund
+      - uses: ./lateen/.github/actions/setup
       - name: Cache the Playwright browser
         uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
         with:
           path: ~/.cache/ms-playwright
           key: ${{ runner.os }}-playwright-${{ hashFiles('lateen/package-lock.json') }}
-          restore-keys: ${{ runner.os }}-playwright-
-      - name: Install
-        run: npm ci --no-audit --no-fund
-        working-directory: lateen
       - name: Install Chromium
         run: npx playwright install chromium
         working-directory: lateen
@@ -267,24 +246,7 @@ jobs:
       - name: Summarize the visual gate
         if: always()
         working-directory: lateen
-        run: |
-          node --input-type=module - <<'EOF'
-          import { existsSync, readFileSync, appendFileSync } from "node:fs";
-          const file = "test/visual/out/report.json";
-          const summary = process.env.GITHUB_STEP_SUMMARY;
-          if (!existsSync(file)) {
-            appendFileSync(summary, "The visual gate wrote no report.\n");
-            process.exit(0);
-          }
-          const rows = JSON.parse(readFileSync(file, "utf8"));
-          const lines = ["| Page | Matrix entry | Changed share | Result |", "| --- | --- | ---: | --- |"];
-          for (const row of rows) {
-            const share = row.share === null ? "—" : `${(row.share * 100).toFixed(3)}%`;
-            const result = row.flaky ? "flaky" : row.status;
-            lines.push(`| ${row.page} | ${row.entry} | ${share} | ${result} |`);
-          }
-          appendFileSync(summary, `${lines.join("\n")}\n`);
-          EOF
+        run: node scripts/visual-summary.ts
       - name: Upload the visual review images
         if: failure()
         uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
@@ -308,15 +270,7 @@ jobs:
         with:
           path: lateen
           persist-credentials: false
-      - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
-        with:
-          node-version-file: lateen/.node-version
-      - name: Set up npm
-        working-directory: lateen
-        run: npm install --global "$(node -p "require('./package.json').packageManager")" --no-audit --no-fund
-      - name: Install
-        run: npm ci --no-audit --no-fund
-        working-directory: lateen
+      - uses: ./lateen/.github/actions/setup
       - name: Measure coverage
         working-directory: lateen
         run: |

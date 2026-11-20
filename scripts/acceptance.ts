@@ -11,14 +11,14 @@
 // Usage: node scripts/acceptance.ts [--report <file>] [--theme <spec>]
 import { execFileSync } from "node:child_process";
 import { createHash } from "node:crypto";
-import { cpSync, existsSync, mkdirSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from "node:fs";
-import { tmpdir } from "node:os";
+import { cpSync, mkdirSync, readFileSync, writeFileSync } from "node:fs";
 import { basename, dirname, join, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 import { chromium, type Browser, type Page } from "playwright";
 import { CASES, type Expectation } from "../test/acceptance/cases.ts";
 import { gateProblems, ledgerProblems, changelogProblems, type AcceptanceReport, type FeatureLedger } from "../test/acceptance/ledger.ts";
 import { startServer } from "../visual/index.ts";
+import { withCleanup } from "./runner-cleanup.ts";
 
 const ROOT = fileURLToPath(new URL("../", import.meta.url));
 const SITE = join(ROOT, "test/acceptance/site");
@@ -142,9 +142,11 @@ if (problems.length > 0) {
   process.exit(1);
 }
 
-const work = mkdtempSync(join(tmpdir(), "lateen-acceptance-"));
-let browser: Browser | undefined;
-try {
+// The temporary project, the server and the browser are released on success, failure and
+// interruption; the report and the tarball beside it are written outside the temporary folder,
+// so the evidence of a failed gate survives the cleanup.
+await withCleanup(async (cleanup) => {
+  const work = cleanup.tempDir("lateen-acceptance-");
   const tarball = pack(argument("--theme"), work);
   const digest = sha256(tarball);
   const mizzen = mizzenVersion();
@@ -156,29 +158,24 @@ try {
   sh(join(project, "node_modules/.bin/mizzen"), ["build", "site", "--out", "dist"], project);
 
   const server = await startServer(join(project, "dist"), "");
-  try {
-    browser = await chromium.launch();
-    const cases = await run(browser, server.url);
-    const report: AcceptanceReport = {
-      commit: commit(),
-      digest,
-      mizzen,
-      tarball: tarball.slice(tarball.lastIndexOf("/") + 1),
-      ok: cases.every((result) => result.ok),
-      cases,
-    };
-    const file = resolve(argument("--report") ?? join(ROOT, "test/acceptance/out/report.json"));
-    mkdirSync(dirname(file), { recursive: true });
-    writeFileSync(file, `${JSON.stringify(report, null, 2)}\n`);
-    // The release workflow publishes this file and nothing else, so it travels beside the report.
-    cpSync(tarball, join(dirname(file), basename(tarball)));
-    for (const result of cases) console.log(`${result.ok ? "ok" : "not ok"}  ${result.name}${result.ok ? "" : `: ${result.error}`}`);
-    console.log(`\n${report.ok ? "The acceptance gate passed." : "The acceptance gate failed."} Report: ${file}`);
-    process.exitCode = report.ok ? 0 : 1;
-  } finally {
-    await server.close();
-  }
-} finally {
-  await browser?.close();
-  if (existsSync(work)) rmSync(work, { recursive: true, force: true });
-}
+  cleanup.add(() => server.close());
+  const browser = await chromium.launch();
+  cleanup.add(() => browser.close());
+  const cases = await run(browser, server.url);
+  const report: AcceptanceReport = {
+    commit: commit(),
+    digest,
+    mizzen,
+    tarball: tarball.slice(tarball.lastIndexOf("/") + 1),
+    ok: cases.every((result) => result.ok),
+    cases,
+  };
+  const file = resolve(argument("--report") ?? join(ROOT, "test/acceptance/out/report.json"));
+  mkdirSync(dirname(file), { recursive: true });
+  writeFileSync(file, `${JSON.stringify(report, null, 2)}\n`);
+  // The release workflow publishes this file and nothing else, so it travels beside the report.
+  cpSync(tarball, join(dirname(file), basename(tarball)));
+  for (const result of cases) console.log(`${result.ok ? "ok" : "not ok"}  ${result.name}${result.ok ? "" : `: ${result.error}`}`);
+  console.log(`\n${report.ok ? "The acceptance gate passed." : "The acceptance gate failed."} Report: ${file}`);
+  process.exitCode = report.ok ? 0 : 1;
+});

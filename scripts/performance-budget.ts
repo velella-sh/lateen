@@ -3,12 +3,12 @@
 // a regression baseline, not a product target: see docs/performance.md for the adjustment policy.
 // Usage: node scripts/performance-budget.ts [--update] [--report <file>]
 import { spawnSync } from "node:child_process";
-import { existsSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from "node:fs";
-import { tmpdir } from "node:os";
+import { existsSync, readFileSync, writeFileSync } from "node:fs";
 import { join, posix, relative } from "node:path";
 import { fileURLToPath } from "node:url";
 import { gzipSync } from "node:zlib";
 import { commitOf, reportPath, schemaAt, writeReport } from "./report.ts";
+import { withTempOutput } from "./runner-cleanup.ts";
 
 export const root = fileURLToPath(new URL("../", import.meta.url));
 export const fixture = join(root, "fixtures/performance");
@@ -444,13 +444,10 @@ export function buildFixture(dir: string): void {
 
 /** Builds the fixture into a temporary folder and measures it, leaving the checkout untouched. */
 export function measure(): Measurements {
-  const out = mkdtempSync(join(tmpdir(), "lateen-performance-"));
-  try {
+  return withTempOutput("lateen-performance-", (out) => {
     buildFixture(out);
     return inventory(out, builtPages(out));
-  } finally {
-    rmSync(out, { recursive: true, force: true });
-  }
+  });
 }
 
 const number = (value: number): string => value.toLocaleString("en-US");
