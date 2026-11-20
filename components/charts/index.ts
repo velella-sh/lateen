@@ -1,6 +1,8 @@
 import { h } from "preact";
 import type { ComponentProps } from "@velella/mizzen/contracts";
 import { parseRows, type ChartRow } from "./data.ts";
+import chartData from "../chart-data/index.ts";
+import { idBaseOf } from "../chart-data/input.ts";
 
 export const directive = "charts";
 
@@ -19,12 +21,13 @@ const DEFAULT_ROWS: readonly ChartRow[] = [
   { label: "Tokens", value: 22 },
 ];
 
-export default function charts({ props }: ComponentProps<ChartsProps>) {
+export default function charts({ props, page }: ComponentProps<ChartsProps>) {
   const rows = parseRows(props.rows);
   const data = rows.length > 0 ? rows : DEFAULT_ROWS;
   const title = (typeof props.title === "string" ? props.title.trim() : "") || "Chart";
   const type = props.type === "line" ? "line" : "bar";
   const max = Math.max(...data.map((row) => row.value), 1);
+  const base = idBaseOf(undefined, title, "charts");
 
   return h(
     "figure",
@@ -54,20 +57,14 @@ export default function charts({ props }: ComponentProps<ChartsProps>) {
       "data-chart-data": true,
       dangerouslySetInnerHTML: { __html: JSON.stringify(data).replace(/</g, "\\u003c") },
     }),
-    h(
-      "details",
-      { class: "chart-data" },
-      h("summary", null, "View the data"),
-      h(
-        "table",
-        null,
-        h("thead", null, h("tr", null, h("th", { scope: "col" }, "Label"), h("th", { scope: "col" }, "Value"))),
-        h(
-          "tbody",
-          null,
-          data.map((row) => h("tr", null, h("th", { scope: "row" }, row.label), h("td", null, String(row.value)))),
-        ),
-      ),
-    ),
+    chartData({
+      title,
+      description: `Values by label for ${data.length} ${data.length === 1 ? "category" : "categories"}.`,
+      labelHeading: "Label",
+      columns: ["Value"],
+      rows: data.map((row, index) => ({ id: `${base}-${index + 1}`, label: row.label, values: [row.value] })),
+      lang: page.lang,
+      id: base,
+    }),
   );
 }

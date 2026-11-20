@@ -1,5 +1,6 @@
 import { h } from "preact";
 import type { ComponentProps } from "@velella/mizzen/contracts";
+import chartData from "../chart-data/index.ts";
 
 export const directive = "performance-chart";
 export const rows = [
@@ -8,7 +9,7 @@ export const rows = [
   { label: "Lazy chart", value: 75 },
 ] as const;
 
-export default function performanceChart(_input: ComponentProps) {
+export default function performanceChart({ page }: ComponentProps) {
   return h(
     "figure",
     { class: "card performance-chart", "data-performance-chart": true },
@@ -26,13 +27,15 @@ export default function performanceChart(_input: ComponentProps) {
       "aria-label": "Transfer budgets: Core UI 12 KB, Docs UI 18 KB, Lazy chart 75 KB",
     })),
     h("script", { type: "application/json", "data-chart-data": true, dangerouslySetInnerHTML: { __html: JSON.stringify(rows).replace(/</g, "\\u003c") } }),
-    h("details", { class: "chart-data" },
-      h("summary", null, "View the data"),
-      h("table", null,
-        h("thead", null, h("tr", null, h("th", { scope: "col" }, "Asset"), h("th", { scope: "col" }, "Budget"))),
-        h("tbody", null, rows.map((row) => h("tr", null, h("th", { scope: "row" }, row.label), h("td", null, `${row.value} KB`)))),
-      ),
-    ),
+    chartData({
+      title: "Transfer budgets",
+      description: "Gzip transfer budgets in kilobytes for each asset.",
+      labelHeading: "Asset",
+      columns: ["Budget (KB)"],
+      rows: rows.map((row, index) => ({ id: `performance-chart-${index + 1}`, label: row.label, values: [row.value] })),
+      lang: page.lang,
+      id: "performance-chart",
+    }),
     h("figcaption", null, "Budgets, not measurements. Chart.js loads only when this section approaches the viewport."),
   );
 }
