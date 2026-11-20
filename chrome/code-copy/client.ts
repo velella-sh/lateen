@@ -241,13 +241,18 @@ export function copy(text: string, ui: CopyUi, env: CopyEnv, isLatest: () => boo
   });
 }
 
-/** Adds a copy button and a wrap toggle above each code block and wires them. Nothing is added to a page the island does not run on. */
-export function activate(doc: CopyDocument, env: CopyEnv): void {
+/** Adds a copy button and a wrap toggle above each code block and wires them. Nothing is added to a page the island does not run on. The returned teardown cancels every pending result reset, so no callback touches a control the host has dropped. */
+export function activate(doc: CopyDocument, env: CopyEnv): () => void {
   const labels = labelsOf(doc);
   const icons = iconsOf(doc);
+  const attached: CopyUi[] = [];
   for (const block of doc.querySelectorAll(BLOCK_SELECTOR)) {
-    attach(doc, block, env, labels, icons);
+    const ui = attach(doc, block, env, labels, icons);
+    if (ui !== undefined) attached.push(ui);
   }
+  return () => {
+    for (const ui of attached) flashOf(env).restore(ui);
+  };
 }
 
 /**
@@ -296,10 +301,10 @@ function iconsOf(doc: CopyDocument): CopyIcons {
   return { copy: read("data-copy-icon"), check: read("data-check-icon") };
 }
 
-/** One block's control: a bar above the block with the button and the live message. */
-function attach(doc: CopyDocument, block: CopyBlock, env: CopyEnv, labels: CopyLabels, icons: CopyIcons): void {
+/** One block's control: a bar above the block with the button and the live message. Returns the control's result target, or nothing when the block has no code. */
+function attach(doc: CopyDocument, block: CopyBlock, env: CopyEnv, labels: CopyLabels, icons: CopyIcons): CopyUi | undefined {
   const code = block.querySelector("code");
-  if (code === null) return;
+  if (code === null) return undefined;
 
   const bar = doc.createElement("div");
   bar.setAttribute("class", BAR_CLASS);
@@ -354,6 +359,7 @@ function attach(doc: CopyDocument, block: CopyBlock, env: CopyEnv, labels: CopyL
     const text = copyText(code.textContent ?? "", block.getAttribute("data-lang") ?? undefined);
     void copy(text, ui, env, () => click === clicks);
   });
+  return ui;
 }
 
 /** The browser environment: the page's document, clipboard, and timer. */
