@@ -14,6 +14,7 @@ import lastUpdated, {
   contributorsOf,
   dateOf,
   datesOf,
+  displayOf,
   evidenceOf,
   isoDate,
   localeOf,
@@ -540,5 +541,100 @@ test("isoDate reads real ISO dates and nothing else", () => {
 
 test("MAX_CONTRIBUTORS is three", () => {
   assert.equal(MAX_CONTRIBUTORS, 3);
+});
+
+test("displayOf chooses relative, absolute, and neutral text without markup", () => {
+  const valid = { date: "2026-03-04", status: "valid", source: "source" } as const;
+  assert.deepEqual(displayOf(valid, "2026-03-06", "en"), {
+    kind: "date",
+    source: "source",
+    status: "valid",
+    text: "2 days ago",
+    label: stringsOf("en").updated,
+    datetime: "2026-03-04",
+    exact: "March 4, 2026",
+  });
+  assert.deepEqual(displayOf(valid, undefined, "en"), {
+    kind: "date",
+    source: "source",
+    status: "valid",
+    text: "March 4, 2026",
+    label: stringsOf("en").updated,
+    datetime: "2026-03-04",
+    exact: "March 4, 2026",
+  });
+
+  // A future date stays absolute, so bad data never reads as impending.
+  const future = { date: "2026-03-08", status: "future", source: "source" } as const;
+  assert.equal(displayOf(future, "2026-03-06", "en")?.text, "March 8, 2026");
+
+  // Rejected evidence claims nothing: no label, no datetime, no exact value.
+  const invalid = { date: undefined, status: "invalid", source: "review" } as const;
+  assert.deepEqual(displayOf(invalid, "2026-03-06", "en"), {
+    kind: "unavailable",
+    source: "review",
+    status: "invalid",
+    text: stringsOf("en").changelog_date_unknown,
+    label: undefined,
+    datetime: undefined,
+    exact: undefined,
+  });
+
+  // A value the calendar cannot format at all shows nothing.
+  assert.equal(displayOf({ date: "2026-02-30", status: "valid", source: "source" }, "2026-03-06", "en"), undefined);
+});
+
+test("the rendered line carries exactly what displayOf chose, in every language", () => {
+  for (const lang of ["en", "fa", "ar"] as const) {
+    const page = pageWith({ last_modified_at: "2026-03-04" }, lang);
+    const data = build("2026-03-06");
+    const entry = datesOf(page, props(page, data).site)[0];
+    assert.ok(entry, lang);
+    const display = displayOf(entry, "2026-03-06", lang);
+    assert.ok(display, lang);
+
+    const out = render(page, data);
+    assert.ok(out, lang);
+    assert.ok(out.includes(`<bdi>${display.text}</bdi>`), `${lang} shows the chosen text`);
+    assert.ok(out.includes(`datetime="${display.datetime}"`), `${lang} keeps the exact provenance`);
+    assert.ok(out.includes(`title="${display.exact}"`), `${lang} keeps the exact tooltip`);
+    assert.ok(out.includes(`aria-label="${display.exact}"`), `${lang} keeps the exact accessible value`);
+  }
+});
+
+test("displayOf keeps the authored precision and never invents a day", () => {
+  const month = { date: "2026-03", status: "valid", source: "source" } as const;
+  assert.deepEqual(displayOf(month, "2026-03-06", "en"), {
+    kind: "date",
+    source: "source",
+    status: "valid",
+    text: "March 2026",
+    label: stringsOf("en").updated,
+    datetime: "2026-03",
+    exact: "March 2026",
+  });
+
+  // A month or year alone never gains a synthetic day on the way in, either.
+  assert.equal(isoDate("2026-03"), undefined);
+  assert.equal(isoDate("2026"), undefined);
+  // The day is read from the start of a value, as before.
+  assert.equal(isoDate("2026-03-04junk"), "2026-03-04");
+});
+
+test("displayOf does not depend on the host time zone", () => {
+  const entry = { date: "2026-03-04", status: "valid", source: "source" } as const;
+  const first = displayOf(entry, "2026-03-06", "fa");
+  assert.ok(first);
+
+  const original = process.env.TZ;
+  try {
+    for (const zone of ["UTC", "Pacific/Kiritimati", "Pacific/Niue"]) {
+      process.env.TZ = zone;
+      assert.deepEqual(displayOf(entry, "2026-03-06", "fa"), first, zone);
+    }
+  } finally {
+    if (original === undefined) delete process.env.TZ;
+    else process.env.TZ = original;
+  }
 });
 
