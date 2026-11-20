@@ -362,6 +362,16 @@
     border-color: transparent transparent var(--link) transparent;
   }
 
+  .brand-logo-frame {
+    display: grid;
+    place-items: center;
+    inline-size: 1.75rem;
+    block-size: 1.75rem;
+    border-radius: 0.55rem;
+    background: linear-gradient(145deg, color-mix(in srgb, var(--card) 70%, var(--muted)), var(--muted));
+    box-shadow: inset 0 0 0 1px var(--border);
+  }
+
   .brand-logo {
     inline-size: 1.75rem;
     block-size: 1.75rem;
@@ -2318,19 +2328,19 @@
 }
 
 
-.shortcuts-open,
-.source-mode-switch {
-  position: fixed;
-  inset-inline-end: var(--space-4);
-  z-index: var(--layer-popover);
+.site-utilities {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+  gap: var(--space-2);
+  inline-size: min(100% - 3rem, 72.5rem);
+  margin-inline: auto;
+  padding-block-end: var(--space-4);
 }
 
-.shortcuts-open {
-  inset-block-end: var(--space-4);
-}
-
-.source-mode-switch {
-  inset-block-end: calc(var(--space-4) + var(--space-8));
+.site-utilities .shortcuts-open,
+.site-utilities .source-mode-switch {
+  position: static;
 }
 
 /* Keep the 24×24 target size above the Tailwind layers for WCAG 2.5.8. */

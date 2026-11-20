@@ -187,9 +187,23 @@ test("slots land in their landmarks in document order", () => {
   assert.match(html, /<div class="sidebar" id="site-navigation"><nav aria-label="Site navigation">S<\/nav><\/div>/);
   assert.match(html, /<main[^>]*>M<\/main>/);
   assert.match(html, /<div class="aside"><nav aria-label="On this page">A<\/nav><\/div>/);
-  assert.match(html, /<footer><span>F<\/span><\/footer>/);
+  assert.match(html, /<footer><span>F<\/span><div class="site-utilities">/);
   const order = ['<header class="header"', 'class="sidebar"', "<main", 'class="aside"', "<footer>"].map((s) => html.indexOf(s));
   assert.deepEqual(order, [...order].sort((a, b) => a - b));
+});
+
+test("utility controls follow the site footer in normal document flow and mount once", () => {
+  const html = out(layoutProps());
+  const siteFooter = html.indexOf('class="site-footer"');
+  const utilities = html.indexOf('<div class="site-utilities">');
+  const footerEnd = html.indexOf("</footer>", utilities);
+
+  assert.ok(siteFooter >= 0, "site footer is present");
+  assert.ok(utilities > siteFooter, "utility container follows the site footer");
+  assert.ok(footerEnd > utilities, "utility container is inside the footer");
+  assert.equal(html.match(/data-shortcuts-open/g)?.length, 1);
+  assert.equal(html.match(/data-source-mode/g)?.length, 1);
+  assert.equal(html.match(/<script type="module"/g)?.length, 1);
 });
 
 test("the shell leaves the banner and the side navigation to the slots, so each landmark appears once", () => {
