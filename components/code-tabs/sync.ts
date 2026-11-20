@@ -1,11 +1,20 @@
 /* Sync part of the code tabs island: the label a visitor chooses applies to every group with that
  * label on the page, and is remembered for the pages they open later. An explicit choice is also
  * written to `?lang=`, so a copied URL reopens it everywhere; a fragment pointing into a hidden
- * panel reveals that panel on load and on later hash changes. `?lang=` in the URL wins over what is
+ * panel reveals that panel on load and on later hash changes. A tab's own fragment
+ * (`#<group-or-component>-<key>`) opens it directly, and every explicit choice pushes a history
+ * entry, so Back and Forward return to the tab they showed. `?lang=` in the URL wins over what is
  * remembered. `client.ts` imports this module for its side effect, because the engine loads exactly
  * one file per component island. */
 
-import { GROUP_SELECTOR, PANEL_SELECTOR, TAB_SELECTOR, select, type TabsElement } from "./client.ts";
+import {
+  GROUP_SELECTOR,
+  PANEL_SELECTOR,
+  TAB_FRAGMENT_ATTR,
+  TAB_SELECTOR,
+  select,
+  type TabsElement,
+} from "./client.ts";
 
 /** localStorage key the chosen label is remembered under. */
 export const STORAGE_KEY = "lateen-code-tabs";
@@ -164,6 +173,30 @@ export function targetOf(
   return undefined;
 }
 
+/** The fragment a tab links to, without its `#`; a tab without one cannot be linked to. */
+export function tabFragment(tab: TabsElement | undefined): string | undefined {
+  const fragment = tab?.getAttribute?.(TAB_FRAGMENT_ATTR)?.trim();
+  return fragment || undefined;
+}
+
+/**
+ * Resolves a fragment a tab carries (`#install-pnpm`) to its group and index. An unknown fragment,
+ * or a group whose tabs and panels do not pair up, resolves to nothing.
+ */
+export function tabTargetOf(groups: Iterable<HashGroup>, hash: string): HashTarget | undefined {
+  const fragment = hashId(hash);
+  if (fragment === undefined) return undefined;
+
+  for (const group of groups) {
+    const tabs = [...group.querySelectorAll(TAB_SELECTOR)];
+    const panels = [...group.querySelectorAll(PANEL_SELECTOR)];
+    if (tabs.length === 0 || tabs.length !== panels.length) continue;
+    const index = tabs.findIndex((tab) => tabFragment(tab) === fragment);
+    if (index >= 0) return { group, index };
+  }
+  return undefined;
+}
+
 /**
  * Reveals the panel a fragment names and reports whether a hidden panel had to be shown. A group the
  * island did not enhance stays stacked with every block visible, so touching it would hide content;
@@ -185,7 +218,7 @@ export function revealHash(
   panelOf: (id: string) => TabsElement | null | undefined,
   hash: string,
 ): boolean {
-  const target = targetOf(groups, panelOf, hash);
+  const target = tabTargetOf(groups, hash) ?? targetOf(groups, panelOf, hash);
   return target !== undefined && revealTarget(target);
 }
 
@@ -216,25 +249,89 @@ export function share(env: ShareEnv, label: string, inside: boolean): void {
   }
 }
 
+/** What recording a chosen tab touches, so tests can watch it instead of the browser. */
+export interface HistoryEnv {
+  /** The page URL's query, as `location.search` gives it (`"?lang=npm"` or `""`). */
+  search(): string;
+  /** The page URL's fragment, as `location.hash` gives it (`"#install-npm"` or `""`). */
+  hash(): string;
+  /** Replaces the current history entry's URL. */
+  replace(url: string): void;
+  /** Adds the next history entry. */
+  push(url: string): void;
+}
+
+/**
+ * The URL a tab links to: its fragment, and `?lang=` too for an ungrouped choice. A grouped choice
+ * is page-local, so its `label` is left out and the query passes through.
+ */
+export function tabUrl(search: string, fragment: string, label?: string): string {
+  return `${label === undefined ? search : withLang(search, label)}#${fragment}`;
+}
+
+/**
+ * Records a chosen tab in the URL without scrolling. The tab already showing is pinned into the
+ * current entry first, so Back returns to it; the new tab is a new entry. Choosing the tab already
+ * showing only makes the current entry shareable. A fragment nobody chose (a heading) stays where
+ * it was, so a link into the page is not overwritten.
+ */
+export function rememberTab(
+  env: HistoryEnv,
+  fragment: string,
+  label: string | undefined,
+  previous: string | undefined,
+): void {
+  const hash = env.hash();
+  const ours = hash === "" || (previous !== undefined && hash === `#${previous}`);
+  if (fragment === previous) {
+    if (ours) env.replace(tabUrl(env.search(), fragment, label));
+    return;
+  }
+  if (ours && previous !== undefined) env.replace(tabUrl(env.search(), previous));
+  env.push(tabUrl(env.search(), fragment, label));
+}
+
 /** The panel an element id sits in, so a heading inside a panel resolves to the panel's group. */
 function panelOf(id: string): TabsElement | undefined {
   return (document.getElementById(id)?.closest(PANEL_SELECTOR) as TabsElement | null) ?? undefined;
 }
 
-/** Shares one explicit choice from this page: sets `?lang=` and keeps the rest of the URL. */
-export function shareChoice(label: string, group?: HashGroup): void {
-  // A grouped choice is page-local: writing it to the URL would carry it into later pages.
-  if (group?.getAttribute?.(TAB_GROUP_ATTR)?.trim()) return;
-  const inside = group !== undefined && targetOf([group], panelOf, window.location.hash) !== undefined;
-  share(
-    {
-      search: () => window.location.search,
-      hash: () => window.location.hash,
-      replace: (url) => history.replaceState(null, "", url),
-    },
-    label,
-    inside,
-  );
+/**
+ * Shares one explicit choice from this page: sets `?lang=` for an ungrouped group and links the
+ * chosen tab by its fragment, adding a history entry so Back returns to the previous tab.
+ */
+export function shareChoice(label: string, group?: HashGroup, fragment?: string, previous?: string): void {
+  // A grouped choice is page-local: writing `?lang=` would carry it into later pages.
+  const grouped = (group?.getAttribute?.(TAB_GROUP_ATTR)?.trim() ?? "") !== "";
+  try {
+    if (fragment !== undefined) {
+      rememberTab(
+        {
+          search: () => window.location.search,
+          hash: () => window.location.hash,
+          replace: (url) => history.replaceState(null, "", url),
+          push: (url) => history.pushState(null, "", url),
+        },
+        fragment,
+        grouped ? undefined : label,
+        previous,
+      );
+      return;
+    }
+    if (grouped) return;
+    const inside = group !== undefined && targetOf([group], panelOf, window.location.hash) !== undefined;
+    share(
+      {
+        search: () => window.location.search,
+        hash: () => window.location.hash,
+        replace: (url) => history.replaceState(null, "", url),
+      },
+      label,
+      inside,
+    );
+  } catch {
+    // A URL the browser refuses costs sharing only; the tabs still work.
+  }
 }
 
 /**
@@ -285,7 +382,10 @@ declare const window: {
   scrollTo(x: number, y: number): void;
   addEventListener(type: string, listener: () => void): void;
 };
-declare const history: { replaceState(data: unknown, unused: string, url: string): void };
+declare const history: {
+  replaceState(data: unknown, unused: string, url: string): void;
+  pushState(data: unknown, unused: string, url: string): void;
+};
 
 /** Reads one key from localStorage. Access itself can throw, so the whole touch is guarded. */
 function storageRead(key: string): string | undefined {
@@ -328,10 +428,17 @@ if (typeof document !== "undefined") {
   // A later fragment may name content in a panel the current label keeps closed. The browser could
   // not scroll to a hidden target, so it is shown first and the reader is then brought to it. A
   // target that was already visible was scrolled to by the browser and is left where it is, so a
-  // hash change never adds a jump of its own.
+  // hash change never adds a jump of its own. A tab fragment has no element to scroll to; it only
+  // selects the tab.
   window.addEventListener("hashchange", () => {
     if (!revealHash(groups(), panelOf, window.location.hash)) return;
     const id = hashId(window.location.hash);
     if (id !== undefined) document.getElementById(id)?.scrollIntoView?.();
+  });
+
+  // Back and Forward across the entries a chosen tab pushes; no scroll of our own, so the browser's
+  // own position restoration is what the reader sees.
+  window.addEventListener("popstate", () => {
+    revealHash(groups(), panelOf, window.location.hash);
   });
 }

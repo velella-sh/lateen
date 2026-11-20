@@ -1,6 +1,7 @@
 import assert from "node:assert/strict";
 import { test } from "node:test";
 import type { TabsEvent } from "../components/code-tabs/client.ts";
+import { TAB_FRAGMENT_ATTR } from "../components/code-tabs/client.ts";
 import {
   ENHANCED_ATTR,
   LANG_PARAM,
@@ -9,13 +10,18 @@ import {
   choose,
   hashId,
   readChoice,
+  rememberTab,
   revealHash,
   saveChoice,
   share,
   sync,
+  tabFragment,
+  tabTargetOf,
+  tabUrl,
   targetOf,
   urlFor,
   withLang,
+  type HistoryEnv,
   type SyncGroup,
   type SyncTab,
 } from "../components/code-tabs/sync.ts";
@@ -54,9 +60,13 @@ class FakeTab implements SyncTab {
 /** A group with `labels` tabs; pass `enhanced: false` for one whose blocks still sit stacked. */
 function fakeGroup(
   labels: string[],
-  { enhanced = true, syncGroup }: { enhanced?: boolean; syncGroup?: string } = {},
+  { enhanced = true, syncGroup, base }: { enhanced?: boolean; syncGroup?: string; base?: string } = {},
 ) {
-  const tabs = labels.map((label, i) => new FakeTab(`t${i + 1}`, label));
+  const tabs = labels.map((label, i) => {
+    const tab = new FakeTab(`t${i + 1}`, label);
+    if (base !== undefined) tab.setAttribute(TAB_FRAGMENT_ATTR, `${base}-${label || i + 1}`);
+    return tab;
+  });
   const panels = labels.map((_, i) => new FakeTab(`p${i + 1}`));
   // An enhanced group has already had its first panel shown; a stacked one shows every block.
   panels.forEach((panel, i) => (panel.hidden = enhanced ? i !== 0 : false));
@@ -102,6 +112,35 @@ function fakeEnv(groups: Group[], { search = "", stored = {} as Record<string, s
 
 const selected = (tabs: FakeTab[]) => tabs.map((tab) => tab.attrs.get("aria-selected"));
 const shown = (panels: FakeTab[]) => panels.map((panel) => !panel.hidden);
+
+/** A browser history over URL strings, with the current entry and Back/Forward. */
+function fakeHistory({ search = "", hash = "" }: { search?: string; hash?: string } = {}) {
+  const entries = [`${search}${hash}`];
+  let at = 0;
+  const split = (url: string) => {
+    const cut = url.indexOf("#");
+    return cut === -1 ? { search: url, hash: "" } : { search: url.slice(0, cut), hash: url.slice(cut) };
+  };
+  const env: HistoryEnv = {
+    search: () => split(entries[at] ?? "").search,
+    hash: () => split(entries[at] ?? "").hash,
+    replace: (url) => {
+      entries[at] = url;
+    },
+    push: (url) => {
+      entries.splice(at + 1);
+      entries.push(url);
+      at += 1;
+    },
+  };
+  return {
+    env,
+    entries,
+    current: () => entries[at] ?? "",
+    back: () => split(entries[--at] ?? "").hash,
+    forward: () => split(entries[++at] ?? "").hash,
+  };
+}
 
 /** Finds the fake panel that owns a fragment id: a panel's own id, or a heading mapped into one. */
 function fakePanelOf(groups: Group[], inside: Record<string, FakeTab> = {}) {
@@ -389,6 +428,75 @@ test("a fragment inside a closed panel opens its group after ?lang= and leaves o
   assert.deepEqual(shown(a.panels), [false, false, true], "the fragment picks the panel in its own group");
   assert.deepEqual(shown(b.panels), [false, true], "and leaves the other group alone");
   assert.deepEqual([...written], [], "opening a shared fragment is not a choice to remember");
+});
+
+test("a tab's own fragment opens that tab on page load, without moving focus", () => {
+  const a = fakeGroup(["npm", "pnpm", "yarn"], { base: "install" });
+  assert.equal(tabFragment(a.tabs[1]), "install-pnpm");
+  assert.equal(tabTargetOf([a.group], "#install-yarn")?.index, 2);
+  assert.equal(tabTargetOf([a.group], "#install-nope"), undefined);
+
+  assert.equal(revealHash([a.group], fakePanelOf([a]), "#install-pnpm"), true);
+  assert.deepEqual(selected(a.tabs), ["false", "true", "false"]);
+  assert.deepEqual(shown(a.panels), [false, true, false]);
+  assert.deepEqual(
+    a.tabs.map((tab) => tab.focused),
+    [false, false, false],
+    "opening a link leaves the reader's focus alone",
+  );
+});
+
+test("an unknown tab fragment falls back to today's tab and leaves it alone", () => {
+  const a = fakeGroup(["npm", "pnpm"], { base: "install" });
+  assert.equal(revealHash([a.group], fakePanelOf([a]), "#install-nope"), false);
+  assert.equal(revealHash([a.group], fakePanelOf([a]), "#"), false);
+  assert.deepEqual(selected(a.tabs), ["true", "false"]);
+  assert.deepEqual(shown(a.panels), [true, false]);
+});
+
+test("choosing a tab pushes its fragment into history without scrolling", () => {
+  const h = fakeHistory();
+  rememberTab(h.env, "install-pnpm", "pnpm", "install-npm");
+  assert.deepEqual(h.entries, ["#install-npm", "?lang=pnpm#install-pnpm"]);
+  assert.equal(h.current(), "?lang=pnpm#install-pnpm");
+});
+
+test("choosing the tab already showing only makes the current entry shareable", () => {
+  const h = fakeHistory();
+  rememberTab(h.env, "install-npm", "npm", "install-npm");
+  assert.deepEqual(h.entries, ["?lang=npm#install-npm"]);
+});
+
+test("Back and Forward restore the tab each history entry showed", () => {
+  const a = fakeGroup(["npm", "pnpm", "yarn"], { base: "install" });
+  const h = fakeHistory();
+  rememberTab(h.env, "install-pnpm", "pnpm", "install-npm");
+  rememberTab(h.env, "install-yarn", "yarn", "install-pnpm");
+
+  assert.equal(h.back(), "#install-pnpm", "popstate lands on the previous tab's fragment");
+  revealHash([a.group], fakePanelOf([a]), h.env.hash());
+  assert.deepEqual(selected(a.tabs), ["false", "true", "false"]);
+
+  assert.equal(h.back(), "#install-npm");
+  revealHash([a.group], fakePanelOf([a]), h.env.hash());
+  assert.deepEqual(selected(a.tabs), ["true", "false", "false"]);
+
+  assert.equal(h.forward(), "#install-pnpm");
+  revealHash([a.group], fakePanelOf([a]), h.env.hash());
+  assert.deepEqual(selected(a.tabs), ["false", "true", "false"]);
+
+  assert.equal(h.forward(), "#install-yarn");
+  revealHash([a.group], fakePanelOf([a]), h.env.hash());
+  assert.deepEqual(selected(a.tabs), ["false", "false", "true"]);
+});
+
+test("an ungrouped tab links by its component prefix and keeps ?lang= in the URL", () => {
+  assert.equal(tabUrl("?q=1", "code-tabs-pnpm", "pnpm"), "?q=1&lang=pnpm#code-tabs-pnpm");
+  assert.equal(tabUrl("?q=1", "install-pnpm"), "?q=1#install-pnpm", "a grouped choice stays page-local");
+
+  const a = fakeGroup(["npm", "pnpm"], { base: "code-tabs" });
+  assert.equal(revealHash([a.group], fakePanelOf([a]), "#code-tabs-pnpm"), true);
+  assert.deepEqual(selected(a.tabs), ["false", "true"]);
 });
 
 test("urlFor() keeps unrelated parameters and an unrelated fragment", () => {

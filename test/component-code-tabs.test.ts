@@ -13,12 +13,14 @@ import codeTabs, {
   blocks,
   idBase,
   parseLabels,
+  tabFragments,
   type CodeTabsProps,
 } from "../components/code-tabs/index.ts";
 import {
   activate,
   select,
   step,
+  TAB_FRAGMENT_ATTR,
   type TabsElement,
   type TabsEvent,
   type TabsGroup,
@@ -142,11 +144,11 @@ test("tabs are buttons that point at their panels, with the first one selected",
   const out = render({ id: "install", labels: '["npm","pnpm"]' });
   assert.match(
     out,
-    /<button type="button" class="code-tabs-tab" role="tab" id="install-tab-1" aria-controls="install-panel-1" aria-selected="true" tabindex="0">npm<\/button>/,
+    /<button type="button" class="code-tabs-tab" role="tab" id="install-tab-1" data-tab-fragment="install-npm" aria-controls="install-panel-1" aria-selected="true" tabindex="0">npm<\/button>/,
   );
   assert.match(
     out,
-    /<button type="button" class="code-tabs-tab" role="tab" id="install-tab-2" aria-controls="install-panel-2" aria-selected="false" tabindex="-1">pnpm<\/button>/,
+    /<button type="button" class="code-tabs-tab" role="tab" id="install-tab-2" data-tab-fragment="install-pnpm" aria-controls="install-panel-2" aria-selected="false" tabindex="-1">pnpm<\/button>/,
   );
   assert.match(out, /<div class="code-tabs-panel" id="install-panel-1">/);
   assert.match(out, /<div class="code-tabs-panel" id="install-panel-2">/);
@@ -155,6 +157,23 @@ test("tabs are buttons that point at their panels, with the first one selected",
 test("the id prop prefixes every id, and the default prefix is used when it is missing", () => {
   assert.match(render({ id: "second" }), /id="second-tab-1"/);
   assert.match(render({}), new RegExp(`id="${DEFAULT_ID}-tab-1"`));
+});
+
+test("each tab carries a stable fragment built from the group or component and its key", () => {
+  const grouped = render({ group: "install", labels: '["npm","pnpm"]' });
+  assert.match(grouped, /data-tab-fragment="install-npm"/);
+  assert.match(grouped, /data-tab-fragment="install-pnpm"/);
+
+  const plain = render({ labels: '["npm","pnpm"]' });
+  assert.match(plain, /data-tab-fragment="code-tabs-npm"/);
+  assert.match(render({ id: "second", labels: '["npm"]' }), /data-tab-fragment="second-npm"/);
+});
+
+test("tabFragments() slugs labels, numbers repeats, and falls back to the position", () => {
+  assert.deepEqual(tabFragments("install", ["npm", "pnpm"]), ["install-npm", "install-pnpm"]);
+  assert.deepEqual(tabFragments("install", ["npm", "npm"]), ["install-npm", "install-npm-2"]);
+  assert.deepEqual(tabFragments("install", ["", "pnpm"]), ["install-1", "install-pnpm"]);
+  assert.deepEqual(tabFragments("نصب", ["npm"]), ["نصب-npm"]);
 });
 
 test("a label missing from the list reads as the block's position", () => {
@@ -236,6 +255,9 @@ class FakeEl implements TabsElement {
   }
   setAttribute(name: string, value: string): void {
     this.attrs.set(name, value);
+  }
+  getAttribute(name: string): string | null {
+    return this.attrs.get(name) ?? null;
   }
   focus(): void {
     this.focused = true;
@@ -374,6 +396,18 @@ test("activate() reports the right-to-left neighbour a key moves to, and keeps f
     tabs.map((tab) => tab.attrs.get("aria-selected")),
     ["false", "false", "true"],
   );
+});
+
+test("activate() reports the fragment a choice opens and the one it replaced", () => {
+  const { group, tabs } = fakeGroup(2);
+  tabs[0]!.textContent = "npm";
+  tabs[1]!.textContent = "pnpm";
+  tabs[0]!.setAttribute(TAB_FRAGMENT_ATTR, "install-npm");
+  tabs[1]!.setAttribute(TAB_FRAGMENT_ATTR, "install-pnpm");
+  const choices: Array<[string, string | undefined, string | undefined]> = [];
+  activate(group, false, (label, fragment, previous) => choices.push([label, fragment, previous]));
+  tabs[1]!.fire("click", { target: tabs[1] });
+  assert.deepEqual(choices, [["pnpm", "install-pnpm", "install-npm"]]);
 });
 
 test("activate() reports nothing for a tab with no label", () => {
