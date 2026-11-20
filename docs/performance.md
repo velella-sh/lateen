@@ -32,6 +32,22 @@ route /reference/: font/self-hosted loads assets/theme/fonts/geist/geist-sans-la
 route /reference/: font/self-hosted assets/theme/fonts/geist/geist-sans-latin-400-normal-….woff2 is 24,900 B gzip, the baseline is 20,172 B (limit 20,236 B)
 ```
 
+### Mobile search opening
+
+`scripts/search-open-budget.ts` builds `fixtures/integration` in a temporary folder, serves it, and
+opens the search dialog once in a mobile Chromium context, then five more times, closing it with Escape
+after each opening. The first opening loads the search index and is reported separately from the median
+of the repeat openings, both in whole milliseconds:
+
+```bash
+node scripts/search-open-budget.ts --report test/smoke/out/search-open.json
+```
+
+The numbers are compared with the CI ceilings in `test/performance/search-baseline.json`; they are
+deliberately generous, not a claim about local timing. `--update` measures again and records each
+ceiling rounded up to the next 100 ms. The smoke CI job runs the script after the browser smoke gate
+and uploads the report as the `search-open-report` artifact, including when the budget fails.
+
 ## Comparing a pull request with main
 
 The `performance-compare` CI job checks out the pull request as `head` and its base branch as `base`,
