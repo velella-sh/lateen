@@ -170,6 +170,28 @@ test("choosing a record replaces the column's header and cells and recomputes th
   assert.equal(document.querySelector(".compare-status")?.textContent, "2 of 2 rows shown");
 });
 
+test("twenty later selections reuse the one index and do not grow the column", async () => {
+  const { document, fetches } = harness();
+  picks(document)[0]!.click();
+  await settle();
+  const afterOpen = panels(document)[0]!.querySelectorAll("option").length;
+  const cellsAfterOpen = document.querySelectorAll('td[data-compare-column="0"]').length;
+
+  choose(document, 0, "b");
+  await settle();
+  assert.equal(document.querySelector(".compare-title")?.textContent, "Beta");
+
+  for (let at = 1; at <= 20; at++) {
+    choose(document, 0, at % 2 === 0 ? "a" : "b");
+    await settle();
+  }
+
+  assert.equal(fetches.length, 1, "the index is read once; a reparse would refetch it");
+  assert.equal(document.querySelector(".compare-title")?.textContent, "Alpha", "the last choice wins");
+  assert.equal(panels(document)[0]!.querySelectorAll("option").length, afterOpen);
+  assert.equal(document.querySelectorAll('td[data-compare-column="0"]').length, cellsAfterOpen);
+});
+
 test("a failed fetch shows a message and a retry that reads the index again", async () => {
   const document = new JSDOM(`<!doctype html><html lang="en"><body>${html()}</body></html>`).window.document;
   let attempts = 0;
@@ -236,7 +258,7 @@ test("a shared address restores the ids in its own order, not the page's", async
   );
   assert.deepEqual(
     [...document.querySelectorAll<HTMLElement>('td[data-compare-column="0"]')].map((cell) => cell.textContent),
-    ["200", "June 1, 2026"],
+    ["Gamma200", "GammaJune 1, 2026"],
   );
 });
 
