@@ -325,6 +325,14 @@ A page outside the default version states its version and links to the equivalen
 
 ::preset-preview{preset=graphite}
 
+## quote
+
+:::quote{name="A reviewer" source="https://example.com/guide/"}
+The text wraps inside the column instead of being clipped on a narrow screen.
+:::
+
+::quote{text="An unattributed quotation stays a plain blockquote."}
+
 ## reading-time
 
 ::reading-time{minutes=3 words=600 showWords}

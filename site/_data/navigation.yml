@@ -81,6 +81,8 @@ main:
         url: /components/network/
       - title: Page status
         url: /components/page-status/
+      - title: Quote
+        url: /components/quote/
       - title: Record history
         url: /components/record-history/
       - title: Schema table
