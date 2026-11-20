@@ -3,7 +3,7 @@ import { readFileSync } from "node:fs";
 import { test } from "node:test";
 import { Fragment } from "preact";
 import type { ChromeProps, Heading, Page, Pager, Site, SiteConfig, SourcePos, Trail } from "@velella/mizzen/contracts";
-import toc from "../chrome/toc/index.ts";
+import toc, { tocFold } from "../chrome/toc/index.ts";
 
 const pos: SourcePos = { file: "docs/guide/install.md", line: 3, column: 1, endLine: 9, endColumn: 1 };
 
@@ -92,28 +92,27 @@ test("hidden when the page has fewer than two h2/h3 headings", () => {
 });
 
 test("lists h2 and h3 from page.headings, nested in the landmark and flat in the fold", () => {
-  const out = html(
-    toc(
-      props([
-        heading(1, "title", "Title"),
-        heading(2, "pick", "Pick a mode"),
-        heading(3, "gem", "Gem"),
-        heading(2, "build", "Build"),
-        heading(4, "deep", "Deep"),
-      ]),
-    ),
-  );
+  const page = props([
+    heading(1, "title", "Title"),
+    heading(2, "pick", "Pick a mode"),
+    heading(3, "gem", "Gem"),
+    heading(2, "build", "Build"),
+    heading(4, "deep", "Deep"),
+  ]);
+  const out = html(toc(page));
+  const fold = html(tocFold(page));
 
   assert.match(out, /<nav class="toc" aria-labelledby="toc-title"><h2 id="toc-title">On this page<\/h2>/);
-  assert.match(out, /<details class="toc-fold">/);
-  assert.match(out, /<summary>On this page<\/summary>/);
-  assert.doesNotMatch(out, /#title|#deep/);
+  assert.doesNotMatch(out, /toc-fold/);
+  assert.match(fold, /<details class="toc-fold">/);
+  assert.match(fold, /<summary>On this page<\/summary>/);
+  assert.doesNotMatch(out + fold, /#title|#deep/);
   assert.match(
     out,
     /<nav[\s\S]*<ul><li><a href="#pick">Pick a mode<\/a><ul><li><a href="#gem">Gem<\/a><\/li><\/ul><\/li><li><a href="#build">Build<\/a><\/li><\/ul>/,
   );
   assert.match(
-    out,
+    fold,
     /<details[\s\S]*<ul><li><a href="#pick">Pick a mode<\/a><\/li><li><a href="#gem">Gem<\/a><\/li><li><a href="#build">Build<\/a><\/li><\/ul>/,
   );
 });

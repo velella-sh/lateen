@@ -83,6 +83,14 @@ const INTENDED = [
     reason: "0.2.3 can retry a failed search index load.",
   },
   {
+    selector: ".toc-fold",
+    reason: "0.2.3 exposes the local section list at the start of an article on mobile.",
+  },
+  {
+    selector: ".back-to-top",
+    reason: "0.2.3 adds a back-to-top link to the page footer.",
+  },
+  {
     selector: ".api-example-code",
     reason: "API example code blocks are keyboard-focusable (tabindex=0) for the a11y target-size gate.",
   },
@@ -131,6 +139,10 @@ function normalize(text: string): { head: string; body: string } {
     for (const attribute of element.attributes) span.setAttribute(attribute.name, attribute.value);
     span.append(...element.childNodes);
     element.replaceWith(span);
+  }
+  // 0.2.3 gives each code tab a stable fragment hook; the visible tab markup is unchanged.
+  for (const element of [...document.querySelectorAll("[data-tab-fragment]")]) {
+    element.removeAttribute("data-tab-fragment");
   }
   // The Sailcloth shell adds style-only class hooks to the existing grid and recovery content.
   for (const element of [...document.querySelectorAll(".layout")]) element.classList.remove("doc-layout");
