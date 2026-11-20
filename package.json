@@ -48,6 +48,7 @@
     "pretest": "npm run ui:build",
     "test": "npm run ui:build && node scripts/tokens.ts --check && node scripts/check-design.ts && node --test \"test/**/*.test.ts\" && npm run test:redesign",
     "test:a11y": "npm run ui:build && node scripts/test-a11y.ts",
+    "test:smoke": "npm run ui:build && node scripts/test-smoke.ts",
     "test:acceptance": "npm run ui:build && node scripts/acceptance.ts",
     "test:visual": "npm run ui:build && node scripts/test-visual.ts",
     "test:performance": "npm run ui:build && node scripts/performance-budget.ts",
