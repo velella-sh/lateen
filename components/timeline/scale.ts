@@ -1,4 +1,4 @@
-import { calendarDate, calendarParts } from "../../src/dates.ts";
+import { calendarDay, calendarParts } from "../../src/dates.ts";
 
 /** What the axis counts in: whole years, or quarters when the range is under two years. */
 export type ScaleUnit = "year" | "quarter";
@@ -45,9 +45,9 @@ export type Scale = {
 
 const DAY = 86_400_000;
 
-/** A value as a real calendar date, in epoch milliseconds at UTC midnight, or undefined. */
+/** A value as a real calendar day, in epoch milliseconds at UTC midnight, or undefined. */
 function dayOf(value: unknown): number | undefined {
-  const iso = typeof value === "string" ? calendarDate(value.trim(), "en")?.datetime : undefined;
+  const iso = typeof value === "string" ? calendarDay(value.trim()) : undefined;
   return iso === undefined ? undefined : Date.parse(iso);
 }
 

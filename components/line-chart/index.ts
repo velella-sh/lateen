@@ -1,6 +1,6 @@
 import { h } from "preact";
 import type { ComponentProps } from "@velella/mizzen/contracts";
-import { calendarDate, calendarYear } from "../../src/dates.ts";
+import { calendarDay, calendarYear } from "../../src/dates.ts";
 import { formatCount as formatNumber } from "../reading-time/index.ts";
 import { labelDir, lookup, numericValue, shortenLabel } from "../bar-chart/index.ts";
 import { scale } from "../timeline/scale.ts";
@@ -142,9 +142,9 @@ export function idBase(raw: unknown, from: string): string {
   return slug === "" ? "line-chart" : slug;
 }
 
-/** A row's position value as an ISO date, or undefined when it is not one. */
+/** A row's position value as an ISO day, or undefined when it is not one. */
 function dateOf(value: unknown): string | undefined {
-  return typeof value === "string" ? calendarDate(value.trim(), "en")?.datetime : undefined;
+  return typeof value === "string" ? calendarDay(value.trim()) : undefined;
 }
 
 /** A number rounded so two runs render the same bytes. */
