@@ -1,0 +1,52 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://velella.sh/lateen/schema/deployed-smoke.schema.json",
+  "title": "Lateen deployed smoke report",
+  "description": "What the post-deployment smoke gate saw on the public site: every route at desktop and mobile width in light and dark, the HTTP status of its document, and the first failure when a visit failed. The base and commit name the deployment, so the report records which commit is live. Cases are in execution order and carry no wall-clock time.",
+  "type": "object",
+  "required": ["tool", "version", "base", "commit", "ok", "cases"],
+  "additionalProperties": false,
+  "properties": {
+    "tool": { "type": "string", "enum": ["lateen/deployed-smoke"] },
+    "version": { "type": "integer", "enum": [1] },
+    "base": {
+      "type": "string",
+      "pattern": "https://.+",
+      "description": "The public URL the deploy published, with its base path and a trailing slash."
+    },
+    "commit": {
+      "type": "string",
+      "pattern": "[0-9a-f]{7,40}",
+      "description": "The commit that was deployed. It identifies the run instead of a timestamp."
+    },
+    "ok": {
+      "type": "boolean",
+      "description": "True only when every visit passed."
+    },
+    "cases": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "type": "object",
+        "required": ["name", "path", "viewport", "scheme", "status", "ok"],
+        "additionalProperties": false,
+        "properties": {
+          "name": { "type": "string" },
+          "path": { "type": "string" },
+          "viewport": { "type": "string", "enum": ["desktop", "mobile"] },
+          "scheme": { "type": "string", "enum": ["light", "dark"] },
+          "status": {
+            "type": "integer",
+            "minimum": 0,
+            "description": "The document response's HTTP status; 0 when the route returned none."
+          },
+          "ok": { "type": "boolean" },
+          "error": {
+            "type": "string",
+            "description": "The first failure on this visit."
+          }
+        }
+      }
+    }
+  }
+}

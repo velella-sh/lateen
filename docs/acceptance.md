@@ -42,3 +42,19 @@ assertion, a different engine, or a different tarball stops the release.
 
 The unit tests for the rules are `test/acceptance/gate.test.ts`: a complete report passes, and a
 failed run, a missing case, a failed case, a mismatched commit, digest or engine each block it.
+
+## After deployment
+
+The deploy workflow runs the public gate once GitHub Pages publishes:
+
+```bash
+node scripts/smoke-deployed.ts --base "$PAGE_URL" --commit "$GITHUB_SHA" --report test/smoke/out/deployed.json
+```
+
+It visits home, components, search, changelog, a record, and a missing page at desktop and mobile
+widths in light and dark. A console error, an uncaught exception, a failed same-origin request, a
+response of 400 or more (the deliberate 404 page excepted), or a same-origin URL outside the deployed
+base fails the run. So does a broken Components link, a theme that does not change or persist across
+a reload, a search for `install` with no results, or a copy control that does not confirm the copy.
+The report records the deployed commit and is kept as a CI artifact, so a release names the commit
+that was actually live.
