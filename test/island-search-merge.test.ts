@@ -2,6 +2,7 @@ import assert from "node:assert/strict";
 import { test } from "node:test";
 import { search, type ScopeEnv, type SearchIndex } from "../chrome/search-scope/island.ts";
 import { mergeResults, readMergeList, type SearchResult } from "../src/search/merge.ts";
+import { waitFor } from "./helpers/wait.ts";
 
 function hit(project: string, title: string, score: number, current = false): SearchResult {
   return { project, current, title, url: `/${project}/${title}/`, excerpt: `${title} excerpt`, score };
@@ -16,8 +17,6 @@ function deferred<T>() {
   });
   return { promise, resolve, reject };
 }
-
-const tick = (): Promise<void> => new Promise((resolve) => setTimeout(resolve, 0));
 
 function indexOf(results: readonly SearchResult[]): SearchIndex {
   return { search: async () => results };
@@ -82,17 +81,17 @@ test("shows this project's results at once and adds each other index as it answe
   };
 
   const run = search("install", env);
-  await tick();
+  await waitFor(() => shows.length === 1 && announced.length === 1 && loads.length === 1);
   assert.deepEqual(shows, [{ titles: ["Alpha install"], complete: false }]);
   assert.deepEqual(announced, [1]);
   assert.deepEqual(loads, ["/pagefind-network.json"]);
 
   list.resolve(LIST);
-  await tick();
+  await waitFor(() => loads.length === 3);
   assert.deepEqual(loads, ["/pagefind-network.json", "/beta/pagefind", "/gamma/pagefind"]);
 
   betaIndex.resolve(indexOf([hit("beta", "Beta install", 9)]));
-  await tick();
+  await waitFor(() => announced.at(-1) === 2);
   assert.deepEqual(shows.at(-1), { titles: ["Beta install", "Alpha install"], complete: false });
   assert.equal(announced.at(-1), 2);
 
