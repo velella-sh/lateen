@@ -857,6 +857,8 @@
 
   .search-field input {
     flex: 1;
+    /* The value keeps its own direction inside a dialog that stays in the page language. */
+    unicode-bidi: plaintext;
     border: 0;
     outline: 0;
     background: transparent;

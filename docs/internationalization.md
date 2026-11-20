@@ -97,6 +97,9 @@ RTL page:
   calendar and wrapped in `<bdi>`. The accessible value never changes with direction.
 - Forms keep their labels, hints, and error messages in the page language, and every input's
   accessible name comes from its own `<label>`. The values themselves stay as the author wrote them.
+- The search field is the exception the reader types into: its value takes its own direction
+  (`dir="auto"` and `unicode-bidi: plaintext`), so a Persian query and a Latin function name on the
+  same page both keep readable text and a correct caret while the dialog stays in the page language.
 - Icons mirror only when their meaning is "the way the reader moves" (pager, breadcrumb, navigation
   arrows). Media controls and technical symbols do not mirror.
 - Use logical CSS properties (`margin-inline`, `border-inline-start`, `inset-inline`) instead of
