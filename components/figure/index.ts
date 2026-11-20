@@ -2,7 +2,7 @@ import { h } from "preact";
 import type { ComponentProps } from "@velella/mizzen/contracts";
 import { parseJson, textOf as trimmed } from "../../src/guards.ts";
 import { instanceId } from "../../src/page-ids.ts";
-import { baseOf, srcsetWithBase, withBase } from "../../src/url.ts";
+import { baseOf, safeHref, srcsetWithBase, withBase } from "../../src/url.ts";
 
 /** Class on the `<figure>` element. */
 export const FIGURE_CLASS = "figure";
@@ -62,17 +62,13 @@ export function dimension(value: unknown): number | undefined {
 
 /** The credit link, or `undefined` unless it is an `http` or `https` address. */
 export function creditHref(value: unknown): string | undefined {
-  if (typeof value !== "string") return undefined;
-  const url = value.trim();
-  return /^https?:\/\//i.test(url) ? url : undefined;
+  return safeHref(value);
 }
 
 /** The full-size image link, or `undefined` unless it is an `https` address or a root-relative same-site path. */
 export function fullSizeHref(base: string, value: unknown): string | undefined {
-  if (typeof value !== "string") return undefined;
-  const url = value.trim();
-  if (/^https:\/\//i.test(url)) return url;
-  return url.startsWith("/") && !url.startsWith("//") ? withBase(base, url) : undefined;
+  const href = safeHref(value, ["https:"]);
+  return href === undefined ? undefined : withBase(base, href);
 }
 
 function oneOf<T extends string>(value: unknown, allowed: readonly T[], fallback: T): T {

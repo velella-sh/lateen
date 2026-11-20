@@ -6,6 +6,7 @@ import { t } from "../../i18n/index.ts";
 import { textOf as text } from "../../src/guards.ts";
 import { icon } from "../../src/icon.ts";
 import { optionOf } from "../../src/options.ts";
+import { safeHref, withBase } from "../../src/url.ts";
 
 /** The id a bar without one is stored under; two bars need two ids to be dismissed separately. */
 export const DEFAULT_ID = "announcement";
@@ -49,19 +50,6 @@ export function toneOf(value: unknown): AnnouncementTone {
   return (TONES as readonly string[]).includes(name) ? (name as AnnouncementTone) : "info";
 }
 
-/**
- * Only `https`, `http`, `mailto`, and root-relative paths are linked; `javascript:`, protocol-relative (`//`), and
- * other schemes are dropped, so a config value cannot inject a script.
- */
-function isSafeUrl(url: string): boolean {
-  return /^(https?:\/\/|mailto:)/i.test(url) || /^\/(?!\/)/.test(url);
-}
-
-/** A root-relative link is relative to the site root, so the site's `base` comes first (as for the header logo). */
-function hrefOf(base: string, url: string): string {
-  return url.startsWith("/") ? `${base}${url}` : url;
-}
-
 /** A non-default tone's inline icon. It is decorative: the label beside it carries the meaning. */
 function toneIcon(tone: Exclude<AnnouncementTone, "info">) {
   return icon({ node: ICONS[tone], class: "announcement-icon" });
@@ -94,8 +82,8 @@ const announcement: Chrome = ({ site }) => {
   if (message === undefined) return null;
 
   const id = text(options.id) ?? DEFAULT_ID;
-  const url = text(options.href);
-  const href = url !== undefined && isSafeUrl(url) ? hrefOf(config.base, url) : undefined;
+  const url = safeHref(options.href, ["http:", "https:", "mailto:"]);
+  const href = url === undefined ? undefined : withBase(config.base, url);
   const tone = toneOf(options.tone);
   const label = t(config.lang, "announcement");
   const toneLabel = tone === "info" ? undefined : t(config.lang, TONE_KEYS[tone]);

@@ -2,7 +2,7 @@ import type { ComponentChildren } from "preact";
 import type { LayoutProps, PageStaleFile, Site } from "@velella/mizzen/contracts";
 import staleNotice from "../components/stale-notice/index.ts";
 import { editUrlOf } from "../chrome/edit-page/index.ts";
-import { providersOf, SAFE_SCHEME } from "../chrome/page-agent-menu/providers.ts";
+import { providersOf, safeAgentHref } from "../chrome/page-agent-menu/providers.ts";
 
 /** A provider template that takes a prompt and nothing else this unit cannot fill. */
 const PROMPT_ONLY = /\{(?!prompt\})[a-z]+\}/;
@@ -28,8 +28,8 @@ function agentUrlOf(props: LayoutProps): string | undefined {
   );
   for (const provider of providersOf(props.site.config)) {
     if (!provider.url.includes("{prompt}") || PROMPT_ONLY.test(provider.url)) continue;
-    const href = provider.url.replace("{prompt}", prompt);
-    if (SAFE_SCHEME.test(href)) return href;
+    const href = safeAgentHref(provider.url.replace("{prompt}", prompt));
+    if (href !== undefined) return href;
   }
   return undefined;
 }

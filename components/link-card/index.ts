@@ -1,6 +1,9 @@
 import { h } from "preact";
 import type { Component } from "@velella/mizzen/contracts";
 import { textOf } from "../../src/guards.ts";
+import { safeHref, withBase } from "../../src/url.ts";
+
+export { withBase } from "../../src/url.ts";
 
 /** The Markdown directive this component handles: `::link-card{href="/guide/" title="Guides"}`. */
 export const directive = "link-card";
@@ -59,34 +62,12 @@ export interface LinkCardRecord {
 }
 
 /**
- * A URL a link card may use: root-relative (`/guide/`, but not protocol-relative `//host`) or
- * `http`/`https`. Anything else (`javascript:`, `data:`, `mailto:`, a relative path) is refused.
+ * The href to use, trimmed, or undefined when it is missing, blank, or unsafe. The rule lives in
+ * `src/url.ts`: a root-relative path or `http`/`https`; `javascript:`, `data:`, `mailto:`, and a
+ * protocol-relative `//host` are refused.
  */
-const SAFE_HREF = /^(?:\/(?![/\\])|https?:\/\/)[^\s"'<>\\]*$/i;
-
-/** The href to use, trimmed, or undefined when it is missing, blank, or unsafe. */
 export function hrefOf(value: unknown): string | undefined {
-  if (typeof value !== "string") return undefined;
-  const href = value.trim();
-  return SAFE_HREF.test(href) ? href : undefined;
-}
-
-/** The site's `base` without a trailing slash, so paths join with one `/`. The root is the empty string. */
-function baseOf(base: string | undefined): string {
-  if (base === undefined || base === "" || base === "/") return "";
-  return base.endsWith("/") ? base.slice(0, -1) : base;
-}
-
-/**
- * A safe card destination with the site base in front of a root-relative path, so the same card works
- * at a domain root and under a subpath. An external address is returned unchanged, and a path that
- * already carries the base is not prefixed twice.
- */
-export function withBase(base: string, href: string): string {
-  if (!href.startsWith("/") || href.startsWith("//")) return href;
-  const prefix = baseOf(base);
-  if (prefix === "" || href === prefix || href.startsWith(`${prefix}/`)) return href;
-  return `${prefix}${href}`;
+  return safeHref(value);
 }
 
 /** Which way a safe href points; a scheme makes it external, everything else is a path on this site. */

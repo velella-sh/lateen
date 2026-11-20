@@ -5,6 +5,7 @@ import { askAgentSection } from "../chrome/ask-agent/index.ts";
 import searchScope from "../chrome/search-scope/index.ts";
 import shell, { footer as shellFooter, isCurrentSection, sectionLinks } from "../chrome/shell/index.ts";
 import { patternOf, t } from "../i18n/index.ts";
+import { safeHrefSource } from "../src/url.ts";
 import base from "./base.ts";
 
 /** Id of the query field, which its label points to. */
@@ -76,9 +77,12 @@ let shown = 0;
 let pending = false;
 if (input) input.value = query;
 
+/* link-path:start The link guard is the theme's shared rule, so the results page cannot drift from the dialog. */
+const SAFE_HREF = new RegExp(${scriptValue(safeHrefSource(undefined, true))}, "i");
 function safeHref(url) {
-  return url.startsWith("/") || url.startsWith("./") || url.startsWith("../") || /^https?:\\/\\//i.test(url) ? url : undefined;
+  return typeof url === "string" && SAFE_HREF.test(url) ? url : undefined;
 }
+/* link-path:end */
 
 /* heading-path:start The heading lookup is a self-contained block the layout's tests extract and
    run against real Pagefind records; it reads only its argument. */

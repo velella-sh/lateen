@@ -8,6 +8,7 @@ import { fileURLToPath } from "node:url";
 import { t } from "../../i18n/index.ts";
 import { textOf as footerText } from "../../src/guards.ts";
 import { icon } from "../../src/icon.ts";
+import { safeHref, withBase } from "../../src/url.ts";
 import { optionOf, resolveNetworkOptions } from "../../src/options.ts";
 import languageSwitcher from "../language-switcher/index.ts";
 import projectSwitcher from "../project-switcher/index.ts";
@@ -26,10 +27,6 @@ type Logo = { readonly light?: string; readonly dark?: string };
 function logoOf(config: SiteConfig): Logo | undefined {
   const value = optionOf(config.theme.options, "logo");
   return typeof value === "object" && value !== null ? (value as Logo) : undefined;
-}
-
-function withBase(base: string, path: string): string {
-  return path.startsWith("/") ? `${base}${path}` : path;
 }
 
 function brand(config: SiteConfig) {
@@ -192,8 +189,8 @@ export function footer({ site }: Pick<Parameters<Chrome>[0], "site">) {
         if (typeof value !== "object" || value === null) return [];
         const item = value as { title?: unknown; url?: unknown };
         const title = footerText(item.title);
-        const url = typeof item.url === "string" ? item.url.trim() : "";
-        if (title === undefined || !(/^(https?:\/\/|mailto:)/i.test(url) || /^\/(?!\/)/.test(url))) return [];
+        const url = safeHref(item.url, ["http:", "https:", "mailto:"]);
+        if (title === undefined || url === undefined) return [];
         return [{ title, url: withBase(site.config.base, url) }];
       })
     : (site.nav.main ?? []).flatMap((item) =>

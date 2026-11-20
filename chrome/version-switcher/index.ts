@@ -2,6 +2,7 @@ import { h } from "preact";
 import { isRecord, textOf } from "../../src/guards.ts";
 import type { Chrome, Page, Site } from "@velella/mizzen/contracts";
 import { t } from "../../i18n/index.ts";
+import { basePath, safeHref, withBase } from "../../src/url.ts";
 
 /** Class on the navigation landmark. */
 export const NAV_CLASS = "version-switcher";
@@ -84,31 +85,6 @@ interface VersionsData {
   readonly pages: readonly DataPage[];
   /** URL (with `base`) to page path, from the file's `byUrl` member. */
   readonly byUrl: ReadonlyMap<string, string>;
-}
-
-/** The site's `base` without a trailing slash, so paths join with one `/`. The root is the empty string. */
-function baseOf(site: Site): string {
-  const base = site.config.base;
-  if (base === "" || base === "/") return "";
-  return base.endsWith("/") ? base.slice(0, -1) : base;
-}
-
-/**
- * A URL from the data with `base` in front of a site path. A URL that already carries `base`, an external URL, and
- * anything that is not a site path are returned as written; {@link isSafeUrl} decides what may be linked.
- */
-function withBase(base: string, url: string): string {
-  if (!url.startsWith("/") || url.startsWith("//")) return url;
-  if (base === "" || url === base || url.startsWith(`${base}/`)) return url;
-  return `${base}${url}`;
-}
-
-/** A path on this site (not protocol-relative `//host`) or an https link. Anything else is not a link. */
-const SAFE_URL = /^(?:\/(?![/\\])|https:\/\/)[^\s"<>]*$/;
-
-/** True when the normalized URL is safe to put in an `href`. */
-function isSafeUrl(url: string): boolean {
-  return SAFE_URL.test(url);
 }
 
 /** Parses one `{ version, url, status? }` entry; anything missing a name or a URL is skipped. */
@@ -280,7 +256,7 @@ function defaultVersionOf(site: Site): string | undefined {
 
 /** The versions a page can switch between, from `site.data.docsVersions` first and its front matter second. */
 export function versionsOf(site: Site, page: Page): readonly VersionLink[] | undefined {
-  const base = baseOf(site);
+  const base = basePath(site.config.base);
   const data = dataOf(site.data.docsVersions) ?? (isRouting(site.data.versions) ? undefined : dataOf(site.data.versions));
 
   if (data !== undefined) {
@@ -292,7 +268,7 @@ export function versionsOf(site: Site, page: Page): readonly VersionLink[] | und
     for (const [version, home] of homes) {
       const entry = current.entries.find((candidate) => candidate.version === version);
       const url = entry === undefined ? home : withBase(base, entry.url);
-      if (!isSafeUrl(url)) continue;
+      if (safeHref(url, ["https:"]) === undefined) continue;
       links.push({
         version,
         url,
@@ -316,7 +292,7 @@ export function versionsOf(site: Site, page: Page): readonly VersionLink[] | und
   const links: VersionLink[] = [];
   for (const entry of entries) {
     const url = withBase(base, entry.url);
-    if (!isSafeUrl(url)) continue;
+    if (safeHref(url, ["https:"]) === undefined) continue;
     links.push({ version: entry.version, url, current: url === page.url, home: false });
   }
   return links.length === 0 ? undefined : links;

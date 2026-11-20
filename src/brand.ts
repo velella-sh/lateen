@@ -10,6 +10,7 @@ import { fileURLToPath } from "node:url";
 import { accentTokens, tokenCssValue, type BrandToken, type BrandTokens } from "./accent.ts";
 import { isRecord } from "./guards.ts";
 import { ensureContrast, fromOklch, mix, parseHex, toHex, toOklch } from "./color.ts";
+import { withBase } from "./url.ts";
 
 export type { BrandToken, BrandTokens } from "./accent.ts";
 
@@ -503,11 +504,6 @@ const CSS_FONT_STACK = {
 
 const quote = (value: string): string => `"${value.replace(/["\\]/g, "\\$&").replace(/[\n\r\f]/g, " ")}"`;
 
-/** The URL of a site file behind `base`: a root-relative path gets the site's base, others are left alone. */
-function siteUrl(base: string, path: string): string {
-  return path.startsWith("/") && !path.startsWith("//") ? `${base}${path}` : path;
-}
-
 /** The `@font-face` rules of the custom families, each file one face. */
 export function fontFaces(brand: Brand, base = ""): string {
   const rules: string[] = [];
@@ -517,7 +513,7 @@ export function fontFaces(brand: Brand, base = ""): string {
       if (typeof file.src !== "string") continue;
       rules.push(
         `@font-face { font-family: ${quote(family.family)}; font-style: ${file.style || "normal"}; font-display: swap; ` +
-          `font-weight: ${file.weight || "400"}; src: url("${siteUrl(base, file.src)}") format("woff2"); }`,
+          `font-weight: ${file.weight || "400"}; src: url("${withBase(base, file.src)}") format("woff2"); }`,
       );
     }
   }

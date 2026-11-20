@@ -29,5 +29,5 @@ export function addCardOf(config: SiteConfig): ComponentChildren {
   const link = typeof add.link === "string" ? add.link.trim() : "";
   if (label === "" || hrefOf(link) === undefined) return undefined;
 
-  return card({ href: withBase(config.base.replace(/\/+$/, ""), link), title: label, class: ADD_CLASS });
+  return card({ href: withBase(config.base, link), title: label, class: ADD_CLASS });
 }

@@ -142,6 +142,13 @@ function headingPathOf(page: string): HeadingPath {
   return new Function(`${block[0]}\nreturn { fragmentOf, resultHeading };`)() as HeadingPath;
 }
 
+/** The link guard block, extracted and run on the URLs a Pagefind index can carry. */
+function linkPathOf(page: string): (url: string) => string | undefined {
+  const block = /\/\* link-path:start[\s\S]*?link-path:end \*\//.exec(scriptOf(page));
+  assert.ok(block, "the script keeps the link guard in one self-contained block");
+  return new Function(`${block[0]}\nreturn safeHref;`)() as (url: string) => string | undefined;
+}
+
 interface MorePath {
   nextBatch(hits: readonly unknown[], shown: number, limit: number): readonly unknown[];
   hasMore(hits: readonly unknown[], shown: number): boolean;
@@ -259,6 +266,17 @@ test("result links are ordinary anchors, so the keyboard reaches them", () => {
   assert.match(script, /document\.createElement\(href === undefined \? "span" : "a"\)/);
   assert.doesNotMatch(script, /tabIndex|tabindex/);
   assert.match(script, /safeHref\(record\.url\)/);
+});
+
+test("the link guard refuses protocol-relative and script URLs", () => {
+  const safeHref = linkPathOf(out());
+
+  assert.equal(safeHref("/guide/install/"), "/guide/install/");
+  assert.equal(safeHref("./cache/"), "./cache/");
+  assert.equal(safeHref("https://example.com/a"), "https://example.com/a");
+  assert.equal(safeHref("//evil.example/phish"), undefined);
+  assert.equal(safeHref("javascript:alert(1)"), undefined);
+  assert.equal(safeHref("data:text/html,<script>alert(1)</script>"), undefined);
 });
 
 test("the module reads the heading a result's fragment names, and invents none", () => {

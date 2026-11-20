@@ -3,7 +3,7 @@ import type { Chrome } from "@velella/mizzen/contracts";
 import { ChevronDown } from "lucide";
 import { t } from "../../i18n/index.ts";
 import { icon } from "../../src/icon.ts";
-import { expand, jsonUrl, providersOf, SAFE_SCHEME } from "./providers.ts";
+import { expand, jsonUrl, providersOf, safeAgentHref } from "./providers.ts";
 import { twinUrl } from "../copy-markdown/twin.ts";
 
 // The Markdown twin rule is the copy-Markdown unit's, so both page actions name the same file.
@@ -33,8 +33,8 @@ const pageAgentMenu: Chrome = ({ site, page }) => {
   const json = page.record === undefined ? undefined : jsonUrl(page.url);
   const providers: Array<{ title: string; href: string }> = [];
   for (const provider of providersOf(site.config)) {
-    const href = expand(site.config, page, provider.url, markdown);
-    if (href !== undefined && SAFE_SCHEME.test(href)) providers.push({ title: provider.title, href });
+    const href = safeAgentHref(expand(site.config, page, provider.url, markdown));
+    if (href !== undefined) providers.push({ title: provider.title, href });
   }
 
   return h(

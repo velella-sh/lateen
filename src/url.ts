@@ -1,14 +1,54 @@
+import { textOf } from "./guards.ts";
+
 /** The site's base path, or an empty string when a test passes no site model. */
 export function baseOf(site: { readonly config?: { readonly base?: string } } | undefined): string {
   return site?.config?.base ?? "";
 }
 
+/** A base path without a trailing slash, so paths join with one `/`. The root is the empty string. */
+export function basePath(base: string): string {
+  if (base === "" || base === "/") return "";
+  return base.endsWith("/") ? base.slice(0, -1) : base;
+}
+
 /**
- * Prefixes a root-relative URL with the site's base path. Absolute, protocol-relative, `data:`, and
- * fragment URLs are left as written, so an external address never becomes a local one.
+ * Prefixes a root-relative URL with the site's base path exactly once. Absolute, protocol-relative,
+ * `data:`, and fragment URLs are left as written, so an external address never becomes a local one.
  */
 export function withBase(base: string, url: string): string {
-  return url.startsWith("/") && !url.startsWith("//") ? `${base}${url}` : url;
+  if (!url.startsWith("/") || url.startsWith("//")) return url;
+  const prefix = basePath(base);
+  if (prefix === "" || url === prefix || url.startsWith(`${prefix}/`)) return url;
+  return `${prefix}${url}`;
+}
+
+/** The protocols a link may use by default: `http` and `https`. */
+export const WEB_PROTOCOLS = ["http:", "https:"] as const;
+
+/**
+ * A safe link as a regular-expression source: a root-relative path (`/x`, not protocol-relative
+ * `//host` or `/\host`) or an absolute URL with one of `protocols`. Whitespace, quotes, angle
+ * brackets, and backslashes are refused, so a value cannot close an attribute. With `relative`, a
+ * Pagefind-style `./` or `../` path is also accepted. Exported as source because the search results
+ * page script is built as a string and cannot import this module.
+ */
+export function safeHrefSource(protocols: readonly string[] = WEB_PROTOCOLS, relative = false): string {
+  const path = relative ? String.raw`(?:\.{1,2}\/|\/(?![/\\]))` : String.raw`\/(?![/\\])`;
+  const schemes = protocols.map((protocol) => (protocol === "http:" || protocol === "https:" ? `${protocol}//` : protocol));
+  return `^(?:${path}|${schemes.join("|")})[^\\s"'<>\\\\]*$`;
+}
+
+/**
+ * A link the page may use, trimmed: a root-relative path or an absolute URL with one of `protocols`;
+ * anything else, including `javascript:` and `data:`, is `undefined`.
+ */
+export function safeHref(
+  value: unknown,
+  protocols: readonly string[] = WEB_PROTOCOLS,
+  relative = false,
+): string | undefined {
+  const href = textOf(value);
+  return href !== undefined && new RegExp(safeHrefSource(protocols, relative), "i").test(href) ? href : undefined;
 }
 
 /** One parameter's new value: a value, several to repeat in order, or `null` to remove the name. */
