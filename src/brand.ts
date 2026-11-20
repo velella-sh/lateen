@@ -8,6 +8,7 @@ import { readdirSync, readFileSync } from "node:fs";
 import { join } from "node:path";
 import { fileURLToPath } from "node:url";
 import { accentTokens, tokenCssValue, type BrandToken, type BrandTokens } from "./accent.ts";
+import { isRecord } from "./guards.ts";
 import { ensureContrast, fromOklch, mix, parseHex, toHex, toOklch } from "./color.ts";
 
 export type { BrandToken, BrandTokens } from "./accent.ts";
@@ -178,9 +179,6 @@ const NEUTRAL_ROLES: Readonly<Record<string, { readonly factor: number; readonly
 
 const RADIUS_SCALE: Readonly<Record<Radius, number>> = { none: 0, small: 0.5, medium: 1, large: 1.5 };
 const DENSITY_SCALE: Readonly<Record<Density, number>> = { compact: 0.75, comfortable: 1 };
-
-const isRecord = (value: unknown): value is Readonly<Record<string, unknown>> =>
-  typeof value === "object" && value !== null && !Array.isArray(value);
 
 const isHex = (value: unknown): value is string => typeof value === "string" && parseHex(value) !== undefined;
 

@@ -5,6 +5,7 @@
  * reveals the next page. Every word the island says comes from a `data-` attribute in the page
  * language. */
 
+import { isRecord } from "../../src/guards.ts";
 import { matchRows, prepareRows, type PreparedRow } from "./match.ts";
 import {
   createIndexLoader,
@@ -166,9 +167,6 @@ function fieldsOf(text: string | null): string[] {
     return [];
   }
 }
-
-const isRecord = (value: unknown): value is Record<string, unknown> =>
-  value !== null && typeof value === "object" && !Array.isArray(value);
 
 /** The display columns from the root's `data-columns`; the index's own columns when it names none. */
 function columnsOf(text: string | null, index?: CollectionIndex): Column[] {
@@ -348,7 +346,6 @@ function buildFacets(
 
   return facets;
 }
-
 
 function rowOf(
   doc: ExplorerDocument,

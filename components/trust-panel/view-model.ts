@@ -3,6 +3,7 @@ import { t } from "../../i18n/index.ts";
 import { calendarDate } from "../../src/dates.ts";
 import { optionOf } from "../../src/options.ts";
 import { commitUrlOf } from "../../src/repository.ts";
+import { isRecord } from "../../src/guards.ts";
 import { examplesAttrs, examplesClassName, examplesFor, examplesText } from "./examples.ts";
 
 /**
@@ -115,11 +116,6 @@ const ALIASES: Readonly<Record<string, TrustLevel>> = {
 
 /** A path on this site (not protocol-relative `//host`) or an https link. Anything else is not a link. */
 const SAFE_URL = /^(?:\/(?![/\\])|https:\/\/)[^\s"<>]*$/;
-
-/** True for a plain object, never an array or `null`. */
-function isRecord(value: unknown): value is Record<string, unknown> {
-  return typeof value === "object" && value !== null && !Array.isArray(value);
-}
 
 /** A trimmed, non-empty string, or undefined. */
 function textOf(value: unknown): string | undefined {

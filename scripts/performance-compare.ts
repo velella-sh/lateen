@@ -8,6 +8,7 @@ import { existsSync, readFileSync } from "node:fs";
 import { resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 import { ASSET_CLASSES, type AssetClass } from "./performance-budget.ts";
+import { isRecord } from "../src/guards.ts";
 import { reportPath, schemaAt, writeReport } from "./report.ts";
 
 export const MANIFEST_TOOL = "lateen/asset-manifest";
@@ -65,9 +66,6 @@ export interface ManifestComparison {
 type MutableTotals = { css: number; javascript: number; font: number; total: number };
 
 const emptyTotals = (): MutableTotals => ({ css: 0, javascript: 0, font: 0, total: 0 });
-
-const isRecord = (value: unknown): value is Record<string, unknown> =>
-  typeof value === "object" && value !== null && !Array.isArray(value);
 
 const isClass = (value: unknown): value is AssetClass =>
   typeof value === "string" && (ASSET_CLASSES as readonly string[]).includes(value);

@@ -4,6 +4,7 @@ import { CircleQuestionMark, Clock, TriangleAlert } from "lucide";
 import type { IconNode } from "lucide";
 import { t } from "../../i18n/index.ts";
 import { icon as lucideIcon } from "../../src/icon.ts";
+import { isRecord } from "../../src/guards.ts";
 import { optionOf } from "../../src/options.ts";
 
 /** Class on the banner. `style.css` styles it. */
@@ -106,11 +107,6 @@ function textOf(value: unknown): string | undefined {
   if (typeof value !== "string") return undefined;
   const text = value.trim();
   return text === "" ? undefined : text;
-}
-
-/** True for a plain object, never an array or `null`. */
-function isRecord(value: unknown): value is Record<string, unknown> {
-  return typeof value === "object" && value !== null && !Array.isArray(value);
 }
 
 /**

@@ -1,3 +1,4 @@
+import { isRecord } from "../../src/guards.ts";
 import type { Site } from "@velella/mizzen/contracts";
 import { t } from "../../i18n/index.ts";
 import { parseCount } from "../tested-chip/index.ts";
@@ -33,11 +34,6 @@ export interface ExamplesEvidence {
   readonly total?: number;
   /** Examples the report counted but did not run, when there is at least one. */
   readonly unrun?: number;
-}
-
-/** True for a plain object, never an array or `null`. */
-function isRecord(value: unknown): value is Record<string, unknown> {
-  return typeof value === "object" && value !== null && !Array.isArray(value);
 }
 
 /** Invalid evidence: written but unreadable, so no count is exposed with it. */

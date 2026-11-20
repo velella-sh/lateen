@@ -1,4 +1,5 @@
 import { h } from "preact";
+import { isRecord } from "../../src/guards.ts";
 import type { ComponentProps, SiteConfig } from "@velella/mizzen/contracts";
 import { t } from "../../i18n/index.ts";
 import { optionOf } from "../../src/options.ts";
@@ -42,9 +43,6 @@ export type InstallTabsProps = {
   /** Prefix for this group's element ids. Give each group on a page its own id. */
   id?: string;
 };
-
-const isRecord = (value: unknown): value is Record<string, unknown> =>
-  typeof value === "object" && value !== null && !Array.isArray(value);
 
 /**
  * The managers from `theme.options.installTabs.managers`. An entry needs a `name` and a `command` that are

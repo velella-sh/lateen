@@ -6,6 +6,7 @@ import { KEY_CLASS, LIST_CLASS, VALUE_CLASS } from "../components/key-value/inde
 import { t } from "../i18n/index.ts";
 import { claimsOf } from "./evidence.ts";
 import { DERIVED_PREFIX, dataValue, fieldValueOf, formatField, kindOf, valueState } from "./fields.ts";
+import { isRecord } from "./guards.ts";
 import { languageName } from "./language.ts";
 
 /** Id of the facts panel; the record page's table of contents links to it. */
@@ -22,9 +23,6 @@ export const FACT_CLASS = "record-fact";
 
 /** Class on the muted label that names the language a fallback value is in. */
 const LANGUAGE_CLASS = "field-language";
-
-const isRecord = (value: unknown): value is Record<string, unknown> =>
-  value !== null && typeof value === "object" && !Array.isArray(value);
 
 /** One front matter fact: the field to read, the label in the page language, the value's kind, and its group. */
 interface Fact {

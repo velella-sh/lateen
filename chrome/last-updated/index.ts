@@ -1,4 +1,5 @@
 import { h } from "preact";
+import { isRecord } from "../../src/guards.ts";
 import type { Chrome, Page, Site } from "@velella/mizzen/contracts";
 import { t } from "../../i18n/index.ts";
 import { calendarDate, calendarDay } from "../../src/dates.ts";
@@ -54,11 +55,6 @@ const LABELS: Readonly<Record<DateSource, string>> = { source: "updated", review
 const UNAVAILABLE_LABEL = "changelog_date_unknown";
 
 const DAY_MS = 86_400_000;
-
-/** True for a plain object, never an array or `null`. */
-function isRecord(value: unknown): value is Record<string, unknown> {
-  return typeof value === "object" && value !== null && !Array.isArray(value);
-}
 
 /**
  * The canonical form of `tag` when `Intl` can format it, else its language alone when that is supported.

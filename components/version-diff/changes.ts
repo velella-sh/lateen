@@ -5,6 +5,8 @@
  * repeated evidence keeps its written order and produces the same states, counts, and ids.
  */
 
+import { isRecord } from "../../src/guards.ts";
+
 /** The four kinds of section difference, in the order the viewer lists them in data. */
 export const KINDS = ["added", "removed", "changed", "moved"] as const;
 
@@ -75,10 +77,6 @@ export type VersionDiffProps = {
   /** Prefix for this viewer's element ids; give each viewer on a page its own id. */
   id?: string;
 };
-
-function isRecord(value: unknown): value is Readonly<Record<string, unknown>> {
-  return typeof value === "object" && value !== null && !Array.isArray(value);
-}
 
 /** A non-empty trimmed string, or a finite number as text; everything else is undefined. */
 function textOf(value: unknown): string | undefined {

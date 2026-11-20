@@ -1,4 +1,5 @@
 import { Fragment, h } from "preact";
+import { isRecord } from "../src/guards.ts";
 import type { ComponentChildren } from "preact";
 import type { ComponentProps, Layout, LayoutProps } from "@velella/mizzen/contracts";
 import drawer from "../chrome/drawer/index.ts";
@@ -17,10 +18,6 @@ import base from "./base.ts";
  * The docs home: sailcloth shell + mockup home stage (brand, preview pane, section cards).
  * `home.style: showpiece` still recomposes from the showpiece components.
  */
-
-function isRecord(value: unknown): value is Readonly<Record<string, unknown>> {
-  return typeof value === "object" && value !== null && !Array.isArray(value);
-}
 
 function isString(value: unknown): value is string {
   return typeof value === "string";

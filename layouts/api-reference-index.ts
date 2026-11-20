@@ -1,4 +1,5 @@
 import { Fragment, h } from "preact";
+import { isRecord } from "../src/guards.ts";
 import type { ComponentChildren } from "preact";
 import type { Layout, LayoutProps } from "@velella/mizzen/contracts";
 import base from "./base.ts";
@@ -35,10 +36,6 @@ interface ApiReferenceIndex {
   readonly version: string;
   readonly description?: string;
   readonly navigation: readonly ReferenceGroup[];
-}
-
-function isRecord(value: unknown): value is Readonly<Record<string, unknown>> {
-  return typeof value === "object" && value !== null && !Array.isArray(value);
 }
 
 /** The index from front matter, or undefined when the page was not built by the engine. */

@@ -1,4 +1,5 @@
 import { h } from "preact";
+import { isRecord } from "../../src/guards.ts";
 import type { Chrome, Page, Site } from "@velella/mizzen/contracts";
 import { t } from "../../i18n/index.ts";
 
@@ -83,11 +84,6 @@ interface VersionsData {
   readonly pages: readonly DataPage[];
   /** URL (with `base`) to page path, from the file's `byUrl` member. */
   readonly byUrl: ReadonlyMap<string, string>;
-}
-
-/** True for a plain object, never an array or `null`. */
-function isRecord(value: unknown): value is Record<string, unknown> {
-  return typeof value === "object" && value !== null && !Array.isArray(value);
 }
 
 /** A non-empty trimmed string, or undefined. */

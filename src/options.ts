@@ -4,6 +4,8 @@
  * changes what the network chrome shows.
  */
 
+import { isRecord } from "./guards.ts";
+
 /** The two places the project switcher can appear. */
 export const SWITCHER_POSITIONS = ["header", "footer"] as const;
 
@@ -28,10 +30,6 @@ export const DEFAULT_NETWORK_OPTIONS: NetworkOptions = {
 };
 
 /** True for a plain object, never an array or `null`. */
-function isRecord(value: unknown): value is Record<string, unknown> {
-  return typeof value === "object" && value !== null && !Array.isArray(value);
-}
-
 /**
  * The value at a dotted path under `theme.options`, or `undefined` when the path is absent or does
  * not lead through objects. Every path this returns is listed in `schema/options.schema.json`;

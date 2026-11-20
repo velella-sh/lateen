@@ -7,6 +7,7 @@
  * The module is pure: it reads no page module and touches no DOM of its own, so the island build can
  * carry it and tests pass a fake field, fetch, and handlers. */
 
+import { isRecord } from "../../src/guards.ts";
 import { withBase } from "../../src/url.ts";
 
 /** The folder the engine writes collection indexes under. */
@@ -69,11 +70,6 @@ export interface IndexInput {
 type Head =
   | { readonly columns: string[]; readonly rows: IndexRow[] }
   | { readonly columns: string[]; readonly chunks: string[] };
-
-/** True for a plain object, so a JSON array or `null` is not read as one. */
-function isRecord(value: unknown): value is Record<string, unknown> {
-  return typeof value === "object" && value !== null && !Array.isArray(value);
-}
 
 /** The column names, or undefined when the list is empty or holds something other than a name. */
 function columnsOf(value: unknown): string[] | undefined {

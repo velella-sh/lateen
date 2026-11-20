@@ -4,6 +4,7 @@ import type { ComponentProps, SiteConfig } from "@velella/mizzen/contracts";
 import { t } from "../../i18n/index.ts";
 import { calendarDate } from "../../src/dates.ts";
 import { formatField, isEmpty } from "../../src/fields.ts";
+import { isRecord } from "../../src/guards.ts";
 import { selectRecords } from "../../src/records.ts";
 import { DEFAULT_TONE, type StatusTone } from "../status/index.ts";
 import { resolveStatus } from "../status/values.ts";
@@ -114,9 +115,6 @@ interface Row {
   readonly fields: Readonly<Record<string, unknown>>;
   readonly url?: string;
 }
-
-const isRecord = (value: unknown): value is Record<string, unknown> =>
-  value !== null && typeof value === "object" && !Array.isArray(value);
 
 /** A JSON string as data, or undefined when it is not valid JSON. */
 function parse(value: string): unknown {

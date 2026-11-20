@@ -1,4 +1,5 @@
 import { h } from "preact";
+import { isRecord } from "../../src/guards.ts";
 import type { Chrome, Heading, Page, RepositoryConfig, Site, SiteConfig, SourcePos } from "@velella/mizzen/contracts";
 import { t } from "../../i18n/index.ts";
 import { optionOf } from "../../src/options.ts";
@@ -39,11 +40,6 @@ export const HEADING_LINK_CLASS = "edit-page-heading-link";
 
 /** Only a web address is linked, so a data file cannot inject `javascript:` or `data:`. */
 const SAFE_HREF = /^https?:\/\/[^\s]+$/i;
-
-/** True for a plain object, never an array or `null`. */
-function isRecord(value: unknown): value is Record<string, unknown> {
-  return typeof value === "object" && value !== null && !Array.isArray(value);
-}
 
 /** A non-empty string, trimmed; anything else is absent. */
 function text(value: unknown): string | undefined {

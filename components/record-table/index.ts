@@ -11,6 +11,7 @@ import {
   valueState,
   type FieldKind,
 } from "../../src/fields.ts";
+import { isRecord } from "../../src/guards.ts";
 import { selectRecords, type SelectedRecord } from "../../src/records.ts";
 import table from "../table/index.ts";
 
@@ -80,9 +81,6 @@ export type RecordTableProps = {
   /** Present (any value, as in `:::record-table{stack}`) to stack rows in a narrow column. */
   stack?: string;
 };
-
-const isRecord = (value: unknown): value is Record<string, unknown> =>
-  value !== null && typeof value === "object" && !Array.isArray(value);
 
 /** The columns as written: a JSON string, or the array a page's front matter already holds. */
 export function columnsOf(value: unknown): RecordColumn[] {

@@ -1,4 +1,5 @@
 import type { Site, SiteConfig } from "@velella/mizzen/contracts";
+import { isRecord } from "./guards.ts";
 
 /**
  * Reading the reports the gates write. A report is untrusted input like any data file: every field is
@@ -6,13 +7,6 @@ import type { Site, SiteConfig } from "@velella/mizzen/contracts";
  * and a report whose header is not this unit's own is treated as absent. The components render a
  * visible message for an absent report, never an empty table that reads like a clean result.
  */
-
-/** A JSON object, as read from `site.data`. */
-export type ReportRecord = Readonly<Record<string, unknown>>;
-
-export function isRecord(value: unknown): value is ReportRecord {
-  return typeof value === "object" && value !== null && !Array.isArray(value);
-}
 
 /** A non-empty string, trimmed; anything else is undefined. */
 export function text(value: unknown): string | undefined {

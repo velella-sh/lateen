@@ -10,6 +10,7 @@ import changelogEntry, {
   type ChangelogEntryNode,
   type ChangelogEntryProps,
 } from "../components/changelog-entry/index.ts";
+import { isRecord } from "../src/guards.ts";
 import { t } from "../i18n/index.ts";
 
 /** Class on the page's article. */
@@ -42,10 +43,6 @@ export interface Release {
   readonly body: string;
   /** The entry's position in front matter, so ties keep the author's order. */
   readonly order: number;
-}
-
-function isRecord(value: unknown): value is Readonly<Record<string, unknown>> {
-  return typeof value === "object" && value !== null && !Array.isArray(value);
 }
 
 /** A front-matter value as text: strings as written, numbers as their digits, anything else dropped. */
