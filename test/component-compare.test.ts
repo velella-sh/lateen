@@ -21,6 +21,7 @@ const books = [
   record("c", { title: "Gamma", pages: 200, published: "2026-03-01", draft: false }),
   record("d", { title: "Delta", pages: 60, published: "2026-04-02", draft: true }),
   record("e", { title: "Echo", pages: 40, published: "2026-05-03", draft: false }),
+  record("@scope/pkg/guide", { package: "@scope/pkg" }),
 ];
 
 const site = {
@@ -115,6 +116,24 @@ test("every cell is formatted with its field kind", () => {
   assert.match(out, new RegExp(`<td class="${CELL_CLASS}" data-kind="boolean" data-compare-column="0">No</td>`));
   assert.match(out, new RegExp(`<td class="${CELL_CLASS}" data-kind="boolean" data-compare-column="1">Yes</td>`));
   assert.match(out, new RegExp(`<td class="${CELL_CLASS}" data-kind="date" data-compare-column="1">2026-02-30</td>`));
+});
+
+test("package names and ids stay left to right in a right-to-left comparison", () => {
+  const out = render(
+    {
+      from: "books",
+      ids: ["@scope/pkg/guide", "a"],
+      fields: JSON.stringify([
+        { field: "package", label: "Package" },
+        { field: "id", label: "Identifier" },
+      ]),
+    },
+    "fa",
+  );
+  assert.match(out, /<th scope="col" data-compare-column="0"><bdi dir="ltr">@scope\/pkg\/guide<\/bdi><\/th>/);
+  assert.match(out, /data-kind="text" data-compare-column="0"><bdi dir="ltr">@scope\/pkg<\/bdi><\/td>/);
+  assert.match(out, /data-kind="text" data-compare-column="0"><bdi dir="ltr">@scope\/pkg\/guide<\/bdi><\/td>/);
+  assert.doesNotMatch(out, /<bdi[^>]*>Package<\/bdi>/);
 });
 
 test("an unknown id is a visible message and the other columns still render", () => {

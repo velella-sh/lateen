@@ -26,7 +26,18 @@ const config = {
   feeds: {},
 } as unknown as SiteConfig;
 
-const fields = { name: "Button", pages: 3, zero: 0, half: 0.5, blank: "  ", na: null, published: "2026-11-09", draft: false };
+const fields = {
+  name: "Button",
+  package: "@scope/pkg",
+  slug: "@scope/pkg/guide",
+  pages: 3,
+  zero: 0,
+  half: 0.5,
+  blank: "  ",
+  na: null,
+  published: "2026-11-09",
+  draft: false,
+};
 
 const facts = JSON.stringify([
   { field: "name", label: "Name" },
@@ -50,7 +61,7 @@ function pageWith(factList: unknown = JSON.parse(facts)): Page {
   } as unknown as Page;
 }
 
-function props(page: Page): LayoutProps {
+function props(page: Page, id = "button"): LayoutProps {
   const site: Site = {
     config,
     pages: [page],
@@ -65,11 +76,11 @@ function props(page: Page): LayoutProps {
     pager: { prev: { title: "Badge", url: "/components/badge/" }, next: { title: "Callout", url: "/components/callout/" } },
     head: { title: `${page.title} · Example`, meta: [], links: [], jsonLd: [] },
     islands: [],
-    record: { collection: "components", id: "button", url: page.url, fields, links: {} },
+    record: { collection: "components", id, url: page.url, fields, links: {} },
   } as unknown as LayoutProps;
 }
 
-const render = (page: Page = pageWith()) => renderToString(record(props(page)) as never);
+const render = (page: Page = pageWith(), id = "button") => renderToString(record(props(page, id)) as never);
 
 /** One record of the `books` collection as a table, so facts and cells read the same values. */
 function renderTable(columns: unknown[], lang = "en"): string {
@@ -164,7 +175,21 @@ test("a fact the record lacks is left out, not rendered empty", () => {
 
 test("the id is a fact a page may ask for", () => {
   const out = render(pageWith([{ field: "id", label: "Identifier" }]));
-  assert.match(out, /<dt class="key-value-key">Identifier<\/dt><dd class="key-value-value record-fact" data-kind="text">button<\/dd>/);
+  assert.match(out, /<dt class="key-value-key">Identifier<\/dt><dd class="key-value-value record-fact" data-kind="text"><bdi dir="ltr">button<\/bdi><\/dd>/);
+});
+
+test("package names, slugs, and ids stay left to right on a right-to-left page", () => {
+  const factList = [
+    { field: "package", label: "Package" },
+    { field: "slug", label: "Slug" },
+    { field: "id", label: "Identifier" },
+  ];
+  const page = { ...pageWith(factList), lang: "fa", dir: "rtl" } as Page;
+  const out = render(page, "@scope/pkg/guide");
+  assert.match(out, /<dt class="key-value-key">Package<\/dt><dd[^>]*><bdi dir="ltr">@scope\/pkg<\/bdi><\/dd>/);
+  assert.match(out, /<dt class="key-value-key">Slug<\/dt><dd[^>]*><bdi dir="ltr">@scope\/pkg\/guide<\/bdi><\/dd>/);
+  assert.match(out, /<dt class="key-value-key">Identifier<\/dt><dd[^>]*><bdi dir="ltr">@scope\/pkg\/guide<\/bdi><\/dd>/);
+  assert.doesNotMatch(out, /<bdi[^>]*>Package<\/bdi>/);
 });
 
 test("a page without facts renders no panel", () => {

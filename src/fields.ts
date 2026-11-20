@@ -129,6 +129,25 @@ function listNode(value: unknown, lang: string, config: SiteConfig | undefined):
   );
 }
 
+/** Field names whose text value is a package or module name rather than prose. */
+const PACKAGE_FIELD = /^(?:packages?|deps?|dependencies|modules?)$/i;
+
+/** True when a text value is machine data: the record id, a package name, or a slug with `@` or `/`. */
+function isDataValue(field: string, value: unknown): value is string {
+  if (typeof value !== "string") return false;
+  const text = value.trim();
+  if (text === "" || /\s/.test(text)) return false;
+  return field === "id" || PACKAGE_FIELD.test(field) || (/^[A-Za-z0-9@._/-]+$/.test(text) && /[@/]/.test(text));
+}
+
+/**
+ * A text value wrapped in `<bdi dir="ltr">` when it is machine data, so its dots, slashes, and `@`
+ * keep their order in a right-to-left page. Prose labels and other kinds pass through untouched.
+ */
+export function dataValue(field: string, value: unknown, kind: unknown, children: ComponentChildren): ComponentChildren {
+  return kindOf(kind) === "text" && isDataValue(field, value) ? h("bdi", { dir: "ltr" }, children as never) : children;
+}
+
 /** The label a status value shows in `lang`, which a status column sorts and filters by rather than by tone. */
 export function statusLabel(value: unknown, lang = "en", config?: SiteConfig): string {
   return resolveStatus(textOf(value), lang, config).label;

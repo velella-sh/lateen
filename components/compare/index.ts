@@ -1,7 +1,7 @@
 import { h } from "preact";
 import type { ComponentProps } from "@velella/mizzen/contracts";
 import { patternOf, t } from "../../i18n/index.ts";
-import { formatField, isEmpty, kindOf } from "../../src/fields.ts";
+import { dataValue, formatField, isEmpty, kindOf } from "../../src/fields.ts";
 import { selectRecords, type SelectedRecord } from "../../src/records.ts";
 import { formatNumber } from "../../src/report.ts";
 import { baseOf } from "../../src/url.ts";
@@ -172,10 +172,14 @@ export default function compare({ props, page, site }: ComponentProps<Readonly<R
       h("td", null),
       records.map((record, at) => {
         const title = formatField(record.fields.title ?? record.id, "text", lang);
+        const heading =
+          record.fields.title === undefined || record.fields.title === null
+            ? dataValue("id", record.id, "text", title as never)
+            : title;
         return h(
           "th",
           { scope: "col", [COLUMN_ATTRIBUTE]: String(at) },
-          record.url === undefined ? title : h("a", { href: record.url }, title as never),
+          record.url === undefined ? heading : h("a", { href: record.url }, heading as never),
         );
       }),
     ),
@@ -236,7 +240,7 @@ export default function compare({ props, page, site }: ComponentProps<Readonly<R
           h(
             "td",
             { class: CELL_CLASS, "data-kind": field.kind ?? "text", [COLUMN_ATTRIBUTE]: String(index) },
-            formatField(values[index], field.kind, lang, site?.config) as never,
+            dataValue(field.field, values[index], field.kind, formatField(values[index], field.kind, lang, site?.config) as never),
           ),
         ),
       ),
