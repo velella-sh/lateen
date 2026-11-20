@@ -156,6 +156,7 @@ export function factsPanel(props: LayoutProps): ComponentChildren {
           "dd",
           {
             class: `${VALUE_CLASS} ${FACT_CLASS}`,
+            "data-kind": fact.kind,
             ...(dataSrcOf(factPosition(props, fact)) === undefined
               ? {}
               : { "data-src": dataSrcOf(factPosition(props, fact)) }),

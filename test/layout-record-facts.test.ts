@@ -1,8 +1,9 @@
 import assert from "node:assert/strict";
 import { test } from "node:test";
 import { renderToString } from "preact-render-to-string";
-import type { LayoutProps, Page, Site, SiteConfig, SourcePos } from "@velella/mizzen/contracts";
+import type { ComponentProps, LayoutProps, Page, Site, SiteConfig, SourcePos } from "@velella/mizzen/contracts";
 import record from "../layouts/record.ts";
+import recordTable from "../components/record-table/index.ts";
 
 const pos: SourcePos = { file: "components/button.md", line: 1, column: 1, endLine: 1, endColumn: 1 };
 
@@ -25,7 +26,7 @@ const config = {
   feeds: {},
 } as unknown as SiteConfig;
 
-const fields = { name: "Button", pages: 3, published: "2026-11-09", draft: false };
+const fields = { name: "Button", pages: 3, zero: 0, half: 0.5, published: "2026-11-09", draft: false };
 
 const facts = JSON.stringify([
   { field: "name", label: "Name" },
@@ -84,10 +85,10 @@ test("the facts render in the author's order, after the title and before the bod
 
 test("every kind goes through the field formatter", () => {
   const out = render();
-  assert.match(out, /<dt class="key-value-key">Name<\/dt><dd class="key-value-value record-fact">Button<\/dd>/);
-  assert.match(out, /<dt class="key-value-key">Pages<\/dt><dd class="key-value-value record-fact">3<\/dd>/);
-  assert.match(out, /<dd class="key-value-value record-fact"><time datetime="2026-11-09">[^<]+<\/time><\/dd>/);
-  assert.match(out, /<dt class="key-value-key">Draft<\/dt><dd class="key-value-value record-fact">No<\/dd>/);
+  assert.match(out, /<dt class="key-value-key">Name<\/dt><dd class="key-value-value record-fact" data-kind="text">Button<\/dd>/);
+  assert.match(out, /<dt class="key-value-key">Pages<\/dt><dd class="key-value-value record-fact" data-kind="number">3<\/dd>/);
+  assert.match(out, /<dd class="key-value-value record-fact" data-kind="date"><time datetime="2026-11-09">[^<]+<\/time><\/dd>/);
+  assert.match(out, /<dt class="key-value-key">Draft<\/dt><dd class="key-value-value record-fact" data-kind="boolean">No<\/dd>/);
 });
 
 test("a fact the record lacks is left out, not rendered empty", () => {
@@ -102,7 +103,7 @@ test("a fact the record lacks is left out, not rendered empty", () => {
 
 test("the id is a fact a page may ask for", () => {
   const out = render(pageWith([{ field: "id", label: "Identifier" }]));
-  assert.match(out, /<dt class="key-value-key">Identifier<\/dt><dd class="key-value-value record-fact">button<\/dd>/);
+  assert.match(out, /<dt class="key-value-key">Identifier<\/dt><dd class="key-value-value record-fact" data-kind="text">button<\/dd>/);
 });
 
 test("a page without facts renders no panel", () => {
@@ -110,4 +111,54 @@ test("a page without facts renders no panel", () => {
   assert.ok(!render(none).includes('class="key-value"'));
   const missing = pageWith([{ field: "editor", label: "Editor" }]);
   assert.ok(!render(missing).includes('class="key-value"'), "no panel when every fact is missing");
+});
+
+test("zero and decimal numbers keep their value, digits, and data kind on facts and table cells", () => {
+  const factList = [
+    { field: "zero", label: "Zero", kind: "number" },
+    { field: "half", label: "Half", kind: "number" },
+  ];
+  const en = render(pageWith(factList));
+  assert.match(en, /<dd class="key-value-value record-fact" data-kind="number">0<\/dd>/);
+  assert.match(en, /<dd class="key-value-value record-fact" data-kind="number">0\.5<\/dd>/);
+
+  const faPage = { ...pageWith(factList), lang: "fa" } as Page;
+  const fa = render(faPage);
+  assert.match(fa, /<dd class="key-value-value record-fact" data-kind="number">۰<\/dd>/);
+  assert.match(fa, /<dd class="key-value-value record-fact" data-kind="number">۰٫۵<\/dd>/);
+
+  const tableSite = {
+    config,
+    nav: { main: [] },
+    data: {},
+    pages: [],
+    collections: {
+      books: {
+        name: "books",
+        source: "books.yml",
+        records: [{ id: "a", fields, position: pos, fieldPositions: {} }],
+      },
+    },
+  } as unknown as Site;
+  const table = (lang: string) =>
+    renderToString(
+      recordTable({
+        props: {
+          from: "books",
+          columns: JSON.stringify([
+            { field: "title", label: "Title" },
+            { field: "zero", label: "Zero", kind: "number" },
+            { field: "half", label: "Half", kind: "number" },
+          ]),
+        },
+        page: { lang, url: "/books/", frontMatter: {} } as unknown as Page,
+        site: tableSite,
+        html: "",
+      } as unknown as ComponentProps) as never,
+    );
+
+  assert.match(table("en"), /data-kind="number"[^>]*>0<\/td>/);
+  assert.match(table("en"), /data-kind="number"[^>]*>0\.5<\/td>/);
+  assert.match(table("fa"), /data-kind="number"[^>]*>۰<\/td>/);
+  assert.match(table("fa"), /data-kind="number"[^>]*>۰٫۵<\/td>/);
 });

@@ -145,9 +145,9 @@ test("a fact carries the data file position the engine gives for its field", () 
   const out = render();
   assert.match(
     out,
-    /<dd class="key-value-value record-fact" data-src="data\/books\.yml:13:10-13:14">Dune<\/dd>/,
+    /<dd class="key-value-value record-fact" data-kind="text" data-src="data\/books\.yml:13:10-13:14">Dune<\/dd>/,
   );
-  assert.match(out, /<dd class="key-value-value record-fact">978<\/dd>/, "a fact without a field position gets none");
+  assert.match(out, /<dd class="key-value-value record-fact" data-kind="text">978<\/dd>/, "a fact without a field position gets none");
   assert.doesNotMatch(out, /record-fact[^>]*data-src="data\/books\.yml:12:/, "the record start is not a field position");
 });
 
