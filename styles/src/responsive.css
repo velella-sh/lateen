@@ -56,23 +56,8 @@
 }
 
 @media (max-width: 48rem) {
-  .header-inner,
-  .layout,
-  .site-footer > div {
+  .layout {
     inline-size: min(100% - 2rem, 84rem);
-  }
-
-  .header-inner {
-    @apply gap-3;
-  }
-
-  .top-nav {
-    display: none;
-  }
-
-  .header-actions .btn {
-    min-inline-size: 2.75rem;
-    min-block-size: 2.75rem;
   }
 
   .doc-layout {
@@ -128,17 +113,6 @@
   .doc-body > table {
     @apply block overflow-x-auto;
   }
-
-  .site-footer > div {
-    @apply grid;
-  }
-}
-
-@media (max-width: 24rem) {
-  .brand-tag {
-    display: none;
-  }
-
 }
 
 /* Wide screens always show the whole trail: flatten the compact middle back into the row. */
@@ -172,7 +146,7 @@
 }
 
 @media print {
-  .site-header, .sidebar, .aside, .site-footer, .code-copy, .home-preview {
+  .sidebar, .aside, .code-copy, .home-preview {
     display: none !important;
   }
 

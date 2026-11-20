@@ -1,5 +1,5 @@
-/* Unlayered overrides above the Tailwind layers: diff chips, narrow header,
-   target sizes, highlighted lines, line links, source mode, compare containers,
+/* Unlayered overrides above the Tailwind layers: diff chips, target sizes,
+   highlighted lines, line links, source mode, compare containers,
    and the print fixes that follow them. */
 /* Screen-reader-only status chips must not extend the scroll width (print gallery overflow). */
 .diff-block-sr,
@@ -25,71 +25,6 @@
 .diff-block-removed::before { content: "−"; }
 /* The pseudo-element draws the sign, so the visible marker span is not painted twice. */
 .diff-block-marker { display: none; }
-
-/* Narrow screens: tools wrap so language/theme never widen the page. */
-@media (max-width: 767.98px) {
-  .site-header .shell-menu:not([hidden]),
-  html[data-js] .site-header .shell-menu[hidden] {
-    display: inline-grid;
-  }
-}
-
-@media (max-width: 48rem) {
-  .site-header .rail,
-  .site-header .header-inner {
-    inline-size: min(100% - 2rem, 72.5rem);
-    gap: var(--space-2);
-  }
-
-  .site-header .search-trigger kbd,
-  .site-header .brand-tag {
-    display: none;
-  }
-
-  .site-header .sections {
-    display: none;
-  }
-
-  .site-header .tools {
-    gap: var(--space-1);
-    min-inline-size: 0;
-  }
-
-  .site-header .search-trigger {
-    inline-size: 2.125rem;
-    min-inline-size: 2.125rem;
-    flex: none;
-    padding: 0;
-    justify-content: center;
-    font-size: 0;
-  }
-
-  .site-header .iconbtn,
-  .site-header .theme-toggle {
-    flex: none;
-  }
-
-  .site-header .header-inner:has(.language-switcher) {
-    flex-wrap: wrap;
-  }
-
-  .site-header .tools:has(.language-switcher) {
-    flex: 1 1 100%;
-    flex-wrap: wrap;
-    justify-content: flex-end;
-  }
-}
-
-@media (max-width: 40rem) {
-  .site-header .language-switcher {
-    flex: 1 1 100%;
-  }
-
-  .site-header .header-repo {
-    display: none;
-  }
-}
-
 
 .site-utilities {
   display: flex;

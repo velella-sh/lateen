@@ -556,6 +556,7 @@
     margin-top: 1.75rem;
     position: relative;
     border: 0;
+    @apply border-t py-8;
   }
 
   .site-footer::before {
@@ -568,11 +569,43 @@
     pointer-events: none;
   }
 
+  .site-footer > div {
+    @apply flex items-center justify-between gap-4 text-sm text-muted-foreground;
+  }
+
+  .site-footer p {
+    @apply m-0;
+  }
+
+  .site-footer nav {
+    @apply flex gap-5;
+  }
+
+  .site-footer a {
+    @apply no-underline;
+  }
+
+  .site-footer a:hover {
+    color: var(--primary);
+  }
+
   .site-footer .legal {
     color: var(--muted-foreground);
     font-size: 0.78rem;
   }
 
+  @media (max-width: 48rem) {
+    .site-footer > div {
+      @apply grid;
+      inline-size: min(100% - 2rem, 84rem);
+    }
+  }
+
+  @media print {
+    .site-footer {
+      display: none !important;
+    }
+  }
   .search-panel {
     display: flex;
     flex-direction: column;
@@ -798,6 +831,63 @@
 
     .site-header .search-trigger kbd {
       display: none;
+    }
+  }
+
+  @media (max-width: 767.98px) {
+    .site-header .shell-menu:not([hidden]),
+    html[data-js] .site-header .shell-menu[hidden] {
+      display: inline-grid;
+    }
+  }
+
+  /* Narrow header: the tools wrap instead of widening the page, and the tag and key hint yield first. */
+  @media (max-width: 48rem) {
+    .site-header .rail,
+    .site-header .header-inner {
+      inline-size: min(100% - 2rem, 72.5rem);
+      gap: var(--space-2);
+    }
+
+    .site-header .brand-tag {
+      display: none;
+    }
+
+    .site-header .tools {
+      gap: var(--space-1);
+      min-inline-size: 0;
+    }
+
+    .site-header .search-trigger {
+      min-inline-size: 2.125rem;
+      flex: none;
+    }
+
+    .site-header .iconbtn,
+    .site-header .theme-toggle {
+      flex: none;
+    }
+
+    .site-header .header-inner:has(.language-switcher) {
+      flex-wrap: wrap;
+    }
+
+    .site-header .tools:has(.language-switcher) {
+      flex: 1 1 100%;
+      flex-wrap: wrap;
+      justify-content: flex-end;
+    }
+  }
+
+  @media (max-width: 40rem) {
+    .site-header .language-switcher {
+      flex: 1 1 100%;
+    }
+  }
+
+  @media print {
+    .site-header {
+      display: none !important;
     }
   }
 }
