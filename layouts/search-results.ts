@@ -58,11 +58,13 @@ function clientScript(props: LayoutProps): string {
   return `const base = ${scriptValue(props.site.config.base)};
 const lang = ${scriptValue(lang)};
 const messages = ${scriptValue(messages)};
-const input = document.querySelector("[data-search-input]");
-const status = document.querySelector("[data-search-status]");
-const list = document.querySelector("[data-search-results]");
-const more = document.querySelector("[data-search-more]");
-const scopeLink = document.querySelector("[data-search-scope-change]");
+// The search dialog carries the same attributes in the page chrome; only this page's own copies are ours.
+const root = document.querySelector("[data-search-page]");
+const input = root?.querySelector("[data-search-input]");
+const status = root?.querySelector("[data-search-status]");
+const list = root?.querySelector("[data-search-results]");
+const more = root?.querySelector("[data-search-more]");
+const scopeLink = root?.querySelector("[data-search-scope-change]");
 const query = new URLSearchParams(location.search).get("q") || "";
 const storage = (() => {
   try {

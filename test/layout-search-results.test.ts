@@ -107,7 +107,7 @@ interface CountPath {
 
 function countPathOf(page: string): CountPath {
   const script = scriptOf(page);
-  const setup = /const lang = [^\n]*\nconst messages = [\s\S]*?\n(?=const input)/.exec(script);
+  const setup = /const lang = [^\n]*\nconst messages = [^\n]*;/.exec(script);
   assert.ok(setup, "the script declares the page language and its messages before the count path");
   const block = /\/\* count-path:start[\s\S]*?count-path:end \*\//.exec(script);
   assert.ok(block, "the script keeps the count path in one self-contained block");
@@ -235,6 +235,17 @@ test("the inline module reads the query from location.search and handles an empt
   assert.match(script, /new URLSearchParams\(location\.search\)\.get\("q"\)/);
   assert.match(script, /if \(input\) input\.value = query;/);
   assert.match(script, /query\.trim\(\) !== ""/);
+});
+
+test("the module reads the page's own elements, not the copies in the search dialog", () => {
+  const script = scriptOf(out());
+  const names = ["input", "status", "results", "more", "scope-change"];
+
+  assert.match(script, /const root = document\.querySelector\("\[data-search-page\]"\);/);
+  for (const name of names) {
+    assert.match(script, new RegExp(`root\\?\\.querySelector\\("\\[data-search-${name}\\]"\\)`), `data-search-${name} is scoped to the page`);
+    assert.doesNotMatch(script, new RegExp(`document\\.querySelector\\("\\[data-search-${name}\\]"\\)`), `data-search-${name} is not read from the whole document`);
+  }
 });
 
 test("the module loads the Pagefind index from the site base, at the root and under a subfolder", () => {
