@@ -54,6 +54,7 @@ axe checks the rules it has; a pass is not an audit. A person still reviews each
 - **Non-text contrast, hover and focus content, and focus not obscured.** Check focus rings, popovers, the sticky header, and the sidebar against a focused link.
 - **Keyboard traps and focus order.** Open every overlay, tab through it, and close it with Escape.
 - **Language of parts and consistent navigation.** Read mixed-direction text and compare the navigation across pages.
+- **Footnote return links.** A footnote with several references returns to the exact one activated. Each return link has its own accessible name.
 
 ## Checklist
 
