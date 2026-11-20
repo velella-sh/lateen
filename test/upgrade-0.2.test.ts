@@ -75,6 +75,10 @@ const INTENDED = [
     reason: "The sailcloth search control uses its visible label as the accessible name (no separate aria-label).",
   },
   {
+    selector: ".search-clear",
+    reason: "0.2.3 adds a clear control to the search field.",
+  },
+  {
     selector: ".api-example-code",
     reason: "API example code blocks are keyboard-focusable (tabindex=0) for the a11y target-size gate.",
   },
@@ -113,6 +117,17 @@ function normalize(text: string): { head: string; body: string } {
   }
   // The document metadata group changes only the wrapper, not the trust, freshness, or reading-time content.
   for (const element of [...document.querySelectorAll(".doc-meta")]) element.replaceWith(...element.childNodes);
+  // 0.2.3 renames the search field's class; the field itself is unchanged.
+  for (const element of [...document.querySelectorAll(".search-field")]) {
+    element.classList.replace("search-field", "search-form");
+  }
+  // 0.2.3 isolates LTR data with `bdi`; the element's text and attributes are unchanged.
+  for (const element of [...document.querySelectorAll("bdi")]) {
+    const span = document.createElement("span");
+    for (const attribute of element.attributes) span.setAttribute(attribute.name, attribute.value);
+    span.append(...element.childNodes);
+    element.replaceWith(span);
+  }
   // The Sailcloth shell adds style-only class hooks to the existing grid and recovery content.
   for (const element of [...document.querySelectorAll(".layout")]) element.classList.remove("doc-layout");
   for (const element of [...document.querySelectorAll(".not-found")]) element.classList.remove("lonely");
