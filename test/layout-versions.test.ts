@@ -255,6 +255,22 @@ test("no versions gives the empty state, not an empty list", () => {
   assert.doesNotMatch(html, /versions-list/);
 });
 
+test("prerelease and range names keep their dots and hyphens, isolated in both page directions", () => {
+  const versions = [
+    { version: "1.2.0-beta.1", url: "/v1/" },
+    { version: ">=1.2.0 <2.0.0", url: "/v2/" },
+  ];
+  for (const [lang, dir] of [["en", "ltr"], ["fa", "rtl"]] as const) {
+    const html = out({ lang, dir, frontMatter: { versions } });
+    assert.ok(html.includes(`<bdi class="versions-name" dir="ltr">1.2.0-beta.1</bdi>`), `${lang} prerelease`);
+    assert.ok(html.includes(`<bdi class="versions-name" dir="ltr">>=1.2.0 &lt;2.0.0</bdi>`), `${lang} range`);
+    assert.ok(html.includes(`data-version="1.2.0-beta.1"`), `${lang} prerelease attribute`);
+    assert.ok(html.includes(`data-version=">=1.2.0 &lt;2.0.0"`), `${lang} range attribute`);
+    assert.ok(html.includes(`href="/v1/"`), `${lang} keeps the link target`);
+    assert.ok(html.includes(`href="/v2/"`), `${lang} keeps the range link target`);
+  }
+});
+
 test("the empty state is localised, and an empty front matter list counts as none", () => {
   const html = out({ lang: "fa", dir: "rtl", frontMatter: { versions: [] } });
   assert.match(html, /<p class="versions-empty">هنوز نسخه‌ای منتشر نشده است\.<\/p>/);
@@ -279,7 +295,7 @@ test("version names and the page title stay text, never markup", () => {
     frontMatter: { versions: [{ version: "v2 <b>beta</b>", url: "https://example.com/v2?a=1&b=2" }] },
   });
   assert.match(html, /<h1 class="versions-title">Versions &lt;script>alert\(1\)&lt;\/script><\/h1>/);
-  assert.match(html, /<span class="versions-name">v2 &lt;b>beta&lt;\/b><\/span>/);
+  assert.match(html, /<bdi class="versions-name" dir="ltr">v2 &lt;b>beta&lt;\/b><\/bdi>/);
   assert.doesNotMatch(html, /<b>beta<\/b>/);
   assert.match(html, /href="https:\/\/example\.com\/v2\?a=1&amp;b=2"/);
 });

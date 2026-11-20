@@ -78,7 +78,7 @@ test("lists versions from the N17 versions.json shape and marks the current one"
   assert.match(out, /<details class="version-switcher-details">/);
   assert.match(out, /<summary class="version-switcher-summary">/);
   assert.match(out, /<span class="version-switcher-label">Versions<\/span>/);
-  assert.match(out, /<span class="version-switcher-value" dir="ltr">v2<\/span>/);
+  assert.match(out, /<bdi class="version-switcher-value" dir="ltr">v2<\/bdi>/);
   assert.match(out, /<a class="version-switcher-link" href="\/example\/v1\/guide\/install\/" data-version-target="page">/);
   assert.match(out, /<a class="version-switcher-link" href="\/example\/v2\/guide\/install\/" data-version-target="page" aria-current="true">/);
   assert.match(out, /<span class="version-switcher-current">Current version<\/span>/);
@@ -94,7 +94,7 @@ test("marks the default release current on its unprefixed canonical URL", () => 
     ["v1", "/example/v1/guide/install/", false],
     ["v2", "/example/v2/guide/install/", true],
   ]);
-  assert.match(render(props(data, page)), /<span class="version-switcher-value" dir="ltr">v2<\/span>/);
+  assert.match(render(props(data, page)), /<bdi class="version-switcher-value" dir="ltr">v2<\/bdi>/);
 });
 
 test("links the same page URL from the data, adding base once", () => {
@@ -122,7 +122,7 @@ test("accepts a simple page-to-versions map keyed by URL, and a terse version-to
 
   const terse = { "/guide/install/": { v1: "/v1/guide/install/", v2: "/v2/guide/install/" } };
   const terseOut = render(props({ versions: terse }));
-  assert.match(terseOut, /<span class="version-switcher-version" dir="ltr">v1<\/span>/);
+  assert.match(terseOut, /<bdi class="version-switcher-version" dir="ltr">v1<\/bdi>/);
   assert.match(terseOut, /href="\/example\/v2\/guide\/install\/" data-version-target="page" aria-current="true"/);
 });
 
@@ -138,7 +138,7 @@ test("falls back to the page's versions front matter without data", () => {
   });
   const out = render(props({}, page));
 
-  assert.match(out, /<span class="version-switcher-version" dir="ltr">1.0<\/span>/);
+  assert.match(out, /<bdi class="version-switcher-version" dir="ltr">1.0<\/bdi>/);
   assert.match(out, /href="\/example\/v1\/guide\/install\/"/);
   assert.match(out, /href="\/example\/v2\/guide\/install\/" data-version-target="page" aria-current="true"/);
   assert.match(out, /<span class="version-switcher-current">Current version<\/span>/);
@@ -160,7 +160,7 @@ test("a page missing from another version links that version's home, derived fro
   const out = render(props({ versions: data }));
 
   assert.match(out, /<a class="version-switcher-link" href="\/example\/v1\/" data-version-target="home">/);
-  assert.match(out, /href="\/example\/v1\/" data-version-target="home"><span class="version-switcher-version" dir="ltr">v1<\/span>/);
+  assert.match(out, /href="\/example\/v1\/" data-version-target="home"><bdi class="version-switcher-version" dir="ltr">v1<\/bdi>/);
   assert.match(out, /href="\/example\/v2\/guide\/install\/" data-version-target="page" aria-current="true">/);
 });
 

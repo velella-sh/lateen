@@ -297,7 +297,7 @@ function row(entry: VersionEntry, page: Page, base: string): ComponentChildren {
         href,
         ...(current ? { "aria-current": "page" } : {}),
       },
-      h("span", { class: "versions-name" }, entry.version),
+      h("bdi", { class: "versions-name", dir: "ltr" }, entry.version),
       status === undefined
         ? null
         : h(

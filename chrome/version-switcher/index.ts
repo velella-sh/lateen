@@ -357,7 +357,7 @@ const versionSwitcher: Chrome = ({ site, page }) => {
         "summary",
         { class: SUMMARY_CLASS },
         h("span", { class: LABEL_CLASS }, t(page.lang, LABEL_KEY)),
-        current === undefined ? null : h("span", { class: VALUE_CLASS, dir: "ltr" }, current.version),
+        current === undefined ? null : h("bdi", { class: VALUE_CLASS, dir: "ltr" }, current.version),
         h("span", { class: MARKER_CLASS, "aria-hidden": "true" }, "▾"),
       ),
       h(
@@ -375,7 +375,7 @@ const versionSwitcher: Chrome = ({ site, page }) => {
                 "data-version-target": version.home ? "home" : "page",
                 ...(version.current ? { "aria-current": "true" } : {}),
               },
-              h("span", { class: VERSION_CLASS, dir: "ltr" }, version.version),
+              h("bdi", { class: VERSION_CLASS, dir: "ltr" }, version.version),
               version.current
                 ? h("span", { class: CURRENT_CLASS }, t(page.lang, CURRENT_KEY))
                 : version.home
