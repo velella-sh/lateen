@@ -1,8 +1,9 @@
 import assert from "node:assert/strict";
-import { readFileSync } from "node:fs";
 import { test } from "node:test";
+import { JSDOM } from "jsdom";
 import type { Page, Site, SiteConfig, SourcePos } from "@velella/mizzen/contracts";
 import details, { BODY_CLASS, DEFAULT_SUMMARY, DETAILS_CLASS, SUMMARY_CLASS, type DetailsProps } from "../components/details/index.ts";
+import { reveal, watch, type FragmentDocument, type FragmentWindow } from "../components/details/client.ts";
 
 const pos: SourcePos = { file: "docs/guide/setup.md", line: 4, column: 1, endLine: 9, endColumn: 1 };
 
@@ -106,5 +107,90 @@ test("escapes the summary text", () => {
   const out = render({ summary: "<script>alert(1)</script>" });
   assert.doesNotMatch(out, /<script\b[^>]*>/i);
   assert.match(out, /&lt;script&gt;alert\(1\)&lt;\/script&gt;/);
+});
+
+/* The island: a closed disclosure hides the fragment target, so the target's ancestors open first. */
+function domPage(body: string, hash = "") {
+  const dom = new JSDOM(`<!doctype html><html lang="en"><body>${body}</body></html>`, {
+    url: `https://example.com/guide/${hash}`,
+  });
+  const document = dom.window.document;
+  const scrolled: string[] = [];
+  for (const element of document.querySelectorAll("[id]")) {
+    (element as unknown as { scrollIntoView?: () => void }).scrollIntoView = () => scrolled.push(element.id);
+  }
+  return {
+    dom,
+    document,
+    doc: document as unknown as FragmentDocument,
+    win: dom.window as unknown as FragmentWindow,
+    scrolled,
+  };
+}
+
+test("a fragment on load opens its closed disclosure, focuses the target, and scrolls to it", () => {
+  const { document, doc, win, scrolled } = domPage(
+    `<details class="${DETAILS_CLASS}"><summary>Install</summary><h3 id="windows">Windows</h3></details>`,
+    "#windows",
+  );
+  watch(doc, win);
+
+  assert.equal(document.querySelector<HTMLDetailsElement>("details")!.open, true);
+  assert.equal(document.activeElement?.id, "windows");
+  assert.equal(document.getElementById("windows")!.getAttribute("tabindex"), "-1", "a heading is focusable for this visit");
+  assert.deepEqual(scrolled, ["windows"]);
+});
+
+test("a hash change opens the disclosure that owns the new target", () => {
+  const { dom, document, doc, win } = domPage(
+    '<details id="first"><summary>First</summary><p id="one">One</p></details>' +
+      '<details id="second"><summary>Second</summary><p id="two">Two</p></details>',
+  );
+  watch(doc, win);
+  assert.deepEqual([...document.querySelectorAll<HTMLDetailsElement>("details")].map((entry) => entry.open), [false, false]);
+
+  dom.reconfigure({ url: "https://example.com/guide/#two" });
+  dom.window.dispatchEvent(new dom.window.Event("hashchange"));
+
+  assert.deepEqual([...document.querySelectorAll<HTMLDetailsElement>("details")].map((entry) => entry.open), [false, true]);
+  assert.equal(document.activeElement?.id, "two");
+});
+
+test("nested closed disclosures all open around the target", () => {
+  const { document, doc, win } = domPage(
+    '<details id="outer"><summary>Outer</summary><details id="inner"><summary>Inner</summary><p id="deep">Deep</p></details></details>',
+    "#deep",
+  );
+  watch(doc, win);
+
+  assert.equal(document.querySelector<HTMLDetailsElement>("#outer")!.open, true);
+  assert.equal(document.querySelector<HTMLDetailsElement>("#inner")!.open, true);
+  assert.equal(document.activeElement?.id, "deep");
+});
+
+test("a disclosure beside the target's ancestors stays closed", () => {
+  const { document, doc, win } = domPage(
+    '<details id="other"><summary>Other</summary><p>Elsewhere</p></details>' +
+      '<details id="own"><summary>Own</summary><p id="target">Target</p></details>',
+    "#target",
+  );
+  watch(doc, win);
+
+  assert.equal(document.querySelector<HTMLDetailsElement>("#own")!.open, true);
+  assert.equal(document.querySelector<HTMLDetailsElement>("#other")!.open, false);
+});
+
+test("a fragment with no target changes nothing", () => {
+  const { document, doc, win, scrolled } = domPage(
+    '<details id="closed"><summary>Closed</summary><p id="present">Here</p></details>',
+    "#missing",
+  );
+  watch(doc, win);
+
+  assert.equal(document.querySelector<HTMLDetailsElement>("#closed")!.open, false);
+  assert.equal(document.activeElement, document.body, "load does not steal focus for a missing target");
+  assert.deepEqual(scrolled, []);
+  assert.equal(reveal(doc, ""), false, "an empty fragment names no target");
+  assert.equal(reveal(doc, "#"), false);
 });
 
