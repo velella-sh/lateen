@@ -82,7 +82,7 @@ jobs:
           fi
           commit="$(git rev-parse FETCH_HEAD^{commit})"
           version="$(git show "$commit:package.json" | node -p 'JSON.parse(require("fs").readFileSync(0, "utf8")).version')"
-          node scripts/release-plan.ts --tag "$TAG" --version "$version" --github-output "$GITHUB_OUTPUT"
+          node scripts/release-plan.ts --tag "$TAG" --version "$version" --check-tag --github-output "$GITHUB_OUTPUT"
           echo "commit=$commit" >> "$GITHUB_OUTPUT"
 
   acceptance:
@@ -127,7 +127,6 @@ jobs:
             echo "::error::$TAG now names $(git rev-parse HEAD), not the commit preflight validated. Do not move a release tag."
             exit 1
           fi
-          version="$VERSION"
           name="$(node -p "require('./package.json').name")"
           # Releases come from main only: the tagged commit must be reachable from it.
           git fetch --quiet origin main
@@ -135,20 +134,8 @@ jobs:
             echo "::error::$TAG is not on main. Merge the release commit first."
             exit 1
           fi
-          case "$version" in
-            *-*) dist_tag=next ;;
-            *) dist_tag=latest ;;
-          esac
-          published=false
-          if [ "$(npm view "$name@$version" version 2>/dev/null || true)" = "$version" ]; then
-            published=true
-          fi
-          {
-            echo "version=$version"
-            echo "dist-tag=$dist_tag"
-            echo "published=$published"
-          } >> "$GITHUB_OUTPUT"
-          echo "Releasing $name@$version to the \`$dist_tag\` dist-tag (already on npm: $published)" | tee -a "$GITHUB_STEP_SUMMARY"
+          served="$(npm view "$name@$version" version 2>/dev/null || true)"
+          node scripts/release-plan.ts --tag "$TAG" --version "$VERSION" --served "$served" --github-output "$GITHUB_OUTPUT"
       # The gate runs on a retry too: an already-published version still needs fresh acceptance
       # evidence from the tagged commit before the published package can be verified against it.
       - name: Install
@@ -170,7 +157,7 @@ jobs:
   publish:
     name: publish
     needs: acceptance
-    if: needs.acceptance.outputs.published != 'true'
+    if: needs.acceptance.outputs.publish == 'true'
     runs-on: ubuntu-latest
     timeout-minutes: 15
     # The `npm` environment is what the npm trusted publisher is bound to. Add required reviewers
@@ -287,11 +274,13 @@ jobs:
         env:
           GH_TOKEN: ${{ github.token }}
           VERSION: ${{ needs.acceptance.outputs.version }}
-          DIST_TAG: ${{ needs.acceptance.outputs.dist-tag }}
+          PRERELEASE: ${{ needs.acceptance.outputs.prerelease }}
+          LATEST: ${{ needs.acceptance.outputs.latest }}
           GH_REPO: ${{ github.repository }}
         run: |
           set -euo pipefail
           if gh release view "$TAG" >/dev/null 2>&1; then exit 0; fi
           args=()
-          if [ "$DIST_TAG" = next ]; then args+=(--prerelease --latest=false); fi
+          if [ "$PRERELEASE" = true ]; then args+=(--prerelease); fi
+          if [ "$LATEST" != true ]; then args+=(--latest=false); fi
           gh release create "$TAG" --verify-tag --title "Lateen $VERSION" --generate-notes "${args[@]}"

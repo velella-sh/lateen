@@ -7,11 +7,13 @@ import { test } from "node:test";
 import { parse } from "yaml";
 
 interface Step {
+  readonly id?: string;
   readonly name?: string;
   readonly uses?: string;
   readonly if?: string;
   readonly run?: string;
   readonly with?: Record<string, string>;
+  readonly env?: Record<string, string>;
 }
 
 interface Job {
@@ -79,7 +81,7 @@ test("a manual dispatch validates the tag before the tag is checked out", () => 
   assert.ok(needsOf("acceptance").includes("preflight"), "acceptance waits for preflight");
   const preflight = job("preflight");
   const check = preflight.steps.find((step) => step.name === "Check the tag before checkout")?.run ?? "";
-  assert.ok(check.includes('node scripts/release-plan.ts --tag "$TAG" --version "$version" --github-output "$GITHUB_OUTPUT"'));
+  assert.ok(check.includes('node scripts/release-plan.ts --tag "$TAG" --version "$version" --check-tag --github-output "$GITHUB_OUTPUT"'));
   assert.ok(check.includes('git fetch --quiet --depth 1 origin "refs/tags/$TAG"'), "the tag must exist before it is checked out");
   assert.ok(check.includes('echo "commit=$commit" >> "$GITHUB_OUTPUT"'), "preflight names the commit it resolved");
   const helper = preflight.steps.find((step) => step.uses?.startsWith("actions/checkout"));
@@ -95,6 +97,22 @@ test("a manual dispatch validates the tag before the tag is checked out", () => 
   assert.match(meta.run, /git rev-parse HEAD.*!=.*COMMIT/s, "a moved tag cannot release another commit");
   assert.doesNotMatch(meta.run, /require\('\.\/package\.json'\)\.version/, "acceptance does not recompute the tag version");
   assert.ok(meta.run.includes("git merge-base --is-ancestor HEAD origin/main"), "the main-ancestor check stays");
+});
+
+test("the workflow consumes the plan instead of repeating its rules", () => {
+  const meta = job("acceptance").steps.find((step) => step.id === "meta")?.run ?? "";
+  assert.ok(
+    meta.includes('node scripts/release-plan.ts --tag "$TAG" --version "$VERSION" --served "$served" --github-output "$GITHUB_OUTPUT"'),
+    "the helper owns the tag, dist-tag and published decisions",
+  );
+  assert.doesNotMatch(meta, /case "\$version"/, "the dist-tag is not a shell case");
+  assert.doesNotMatch(meta, /= "\$version"/, "the published check is not shell string equality");
+  assert.equal(ifOf("publish"), "needs.acceptance.outputs.publish == 'true'");
+  const release = job("github-release").steps.find((step) => step.name === "Create GitHub Release");
+  assert.match(release?.env?.PRERELEASE ?? "", /needs\.acceptance\.outputs\.prerelease/);
+  assert.match(release?.env?.LATEST ?? "", /needs\.acceptance\.outputs\.latest/);
+  assert.doesNotMatch(release?.run ?? "", /DIST_TAG/, "the release flags come from the plan");
+  assert.match(release?.run ?? "", /PRERELEASE.*--prerelease/s);
 });
 
 test("publish and digest steps select the one tarball the acceptance report names", () => {
