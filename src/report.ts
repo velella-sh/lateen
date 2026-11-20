@@ -41,6 +41,45 @@ export function dataAt(site: Site, from: string | undefined): unknown {
   return node;
 }
 
+/** A report is bounded before any field is read: a gate writes far less than this. */
+export const MAX_REPORT_BYTES = 1024 * 1024;
+export const MAX_REPORT_NODES = 20_000;
+
+/** Whether `value` stays inside both report bounds; circular data is not a report. */
+function bounded(value: unknown): boolean {
+  try {
+    if (JSON.stringify(value).length > MAX_REPORT_BYTES) return false;
+  } catch {
+    return false;
+  }
+  let nodes = 0;
+  const stack: unknown[] = [value];
+  while (stack.length > 0) {
+    const node = stack.pop();
+    if (++nodes > MAX_REPORT_NODES) return false;
+    if (Array.isArray(node)) for (const item of node) stack.push(item);
+    else if (isRecord(node)) for (const item of Object.values(node)) stack.push(item);
+  }
+  return true;
+}
+
+/**
+ * The one boundary every report reader shares: the value `from` names in `site.data`, bounded, and
+ * carrying `tool`'s version 1 header when the format has one. Each reader keeps its own view model;
+ * a missing, oversized, malformed, or other unit's report reads as absent, so the component shows
+ * its visible missing-report note.
+ */
+export function reportAt(
+  site: Site,
+  from: string | undefined,
+  tool: string | undefined,
+): Readonly<Record<string, unknown>> | undefined {
+  const data = dataAt(site, from);
+  if (!isRecord(data)) return undefined;
+  if (tool !== undefined && (data.tool !== tool || data.version !== 1)) return undefined;
+  return bounded(data) ? data : undefined;
+}
+
 export const A11Y_REPORT = "lateen/a11y-report";
 export const PERFORMANCE_REPORT = "lateen/performance-report";
 
@@ -107,8 +146,8 @@ function resultOf(value: unknown): "pass" | "fail" | "skip" | undefined {
 
 /** The accessibility report at `from`, or undefined when the data is not one this unit wrote. */
 export function a11yReportOf(site: Site, from: string | undefined): A11yReport | undefined {
-  const data = dataAt(site, from);
-  if (!isRecord(data) || data.tool !== A11Y_REPORT || data.version !== 1) return undefined;
+  const data = reportAt(site, from, A11Y_REPORT);
+  if (data === undefined) return undefined;
   const commit = text(data.commit);
   const summary = isRecord(data.summary) ? data.summary : undefined;
   const findings = isRecord(summary?.findings) ? summary.findings : undefined;
@@ -251,8 +290,8 @@ function bytesOf(value: unknown): { raw: number; gzip: number } | undefined {
 
 /** The performance report at `from`, or undefined when the data is not one this unit wrote. */
 export function performanceReportOf(site: Site, from: string | undefined): PerformanceReport | undefined {
-  const data = dataAt(site, from);
-  if (!isRecord(data) || data.tool !== PERFORMANCE_REPORT || data.version !== 1) return undefined;
+  const data = reportAt(site, from, PERFORMANCE_REPORT);
+  if (data === undefined) return undefined;
   const commit = text(data.commit);
   const tolerance = count(data.tolerance);
   if (commit === undefined || tolerance === undefined) return undefined;
@@ -304,8 +343,8 @@ function howOf(value: unknown): CheckHow | undefined {
 
 /** The checklist at `from`, or undefined when the data is not a readable criteria list. */
 export function wcagChecksOf(site: Site, from: string | undefined): readonly WcagCheck[] | undefined {
-  const data = dataAt(site, from);
-  if (!isRecord(data) || !Array.isArray(data.criteria)) return undefined;
+  const data = reportAt(site, from, undefined);
+  if (data === undefined || !Array.isArray(data.criteria)) return undefined;
   const checks = data.criteria.flatMap((row) => {
     if (!isRecord(row)) return [];
     const id = text(row.id);
