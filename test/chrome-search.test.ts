@@ -2155,3 +2155,29 @@ test("choosing the ask row hands the panel the question and the results on scree
   rowsOf(results).at(-1)?.click();
   assert.deepEqual(calls, [{ question: "cache rules", urls: records.map((record) => record.url) }]);
 });
+
+test("the dialog keeps its controls and results inside a mobile viewport with a virtual keyboard", () => {
+  const css = readFileSync(new URL("../styles/src/ui.css", import.meta.url), "utf8");
+  const dialog = /dialog\.search \{([\s\S]*?)\}/.exec(css)?.[1] ?? "";
+  assert.match(dialog, /100dvw/);
+  assert.match(dialog, /80dvh/);
+  assert.match(dialog, /svh/);
+  assert.match(dialog, /env\(safe-area-inset-(?:left|right|top)\)/);
+
+  const panel = /\.search-panel \{([\s\S]*?)\}/.exec(css)?.[1] ?? "";
+  assert.match(panel, /display: flex/);
+  assert.match(panel, /flex-direction: column/);
+  assert.match(panel, /max-block-size: min\(80dvh, 40rem\)/);
+
+  const results = /\.search-results \{([\s\S]*?)\}/.exec(css)?.[1] ?? "";
+  assert.match(results, /flex: 1 1 auto/);
+  assert.match(results, /min-block-size: 0/);
+  assert.match(results, /overflow: auto/);
+  assert.match(results, /overscroll-behavior: contain/);
+
+  const field = /\.search-field \{([\s\S]*?)\}/.exec(css)?.[1] ?? "";
+  assert.match(field, /flex: none/, "the field never scrolls away");
+  const foot = /\.search-foot \{([\s\S]*?)\}/.exec(css)?.[1] ?? "";
+  assert.match(foot, /flex: none/, "the all-results action never scrolls away");
+  assert.match(foot, /env\(safe-area-inset-bottom\)/);
+});
