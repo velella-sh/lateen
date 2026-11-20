@@ -1821,8 +1821,9 @@
 
   .block-action {
     position: absolute;
-    inset-block-start: 0.25rem;
+    inset-block-start: -1.75rem;
     inset-inline-end: 0.25rem;
+    pointer-events: none;
     z-index: 2;
     min-block-size: 1.5rem;
     padding: 0.25rem 0.5rem;
@@ -1837,6 +1838,7 @@
   [data-src]:hover > .block-action,
   [data-src]:focus-within > .block-action {
     opacity: 1;
+    pointer-events: auto;
   }
 
   .page-status {

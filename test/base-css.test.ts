@@ -38,6 +38,8 @@ test("the docs shell styles use the classes the layouts render", () => {
   for (const selector of [".doc-layout main > article > h1", ".breadcrumb-list", ".toc-fold", ".block-action", ".site-header .shell-menu", ".not-found-search", ".not-found-sections", ".edit-page-link"]) {
     assert.match(ui, new RegExp(`\\${selector}(?![\\w-])`), selector);
   }
+  assert.match(bodyOf(ui, /^\.block-action$/), /pointer-events:\s*none/);
+  assert.match(bodyOf(ui, /^\.block-action$/), /inset-block-start:\s*-1\.75rem/);
   assert.match(ui, /\.site-header \.shell-menu\s*\{\s*display:\s*none/);
   assert.match(ui, /@media \(max-width: 48rem\)[\s\S]*?\.sidebar\s*\{[^}]*display:\s*none/);
 });

@@ -252,7 +252,7 @@ function article(props: LayoutProps): ComponentChildren {
 
 /**
  * The changelog page: the base shell with the usual header and mobile drawer, the navigation
- * sidebar, and the release list. `changelog.css` styles the version contents and the page.
+ * sidebar, and the release list. `styles/src/ui.css` styles the version contents and the page.
  */
 const changelog: Layout = (props) =>
   base({
