@@ -1,0 +1,67 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://velella.sh/lateen/schema/performance-compare.schema.json",
+  "title": "Lateen performance comparison",
+  "description": "What changed in gzip bytes between two commits' asset manifests: per route the CSS, JavaScript, font, and total deltas, every changed asset by path, and the problems that fail the gate. A positive delta is growth. Lists are ordered by route and asset path; no wall-clock time is recorded, so the same two manifests write the same file.",
+  "type": "object",
+  "required": ["tool", "version", "base", "head", "tolerance", "routes", "problems"],
+  "additionalProperties": false,
+  "properties": {
+    "tool": { "type": "string", "enum": ["lateen/performance-compare"] },
+    "version": { "type": "integer", "enum": [1] },
+    "base": {
+      "type": "string",
+      "pattern": "[0-9a-f]{7,40}",
+      "description": "The commit the base manifest was built from."
+    },
+    "head": {
+      "type": "string",
+      "pattern": "[0-9a-f]{7,40}",
+      "description": "The commit the head manifest was built from."
+    },
+    "tolerance": {
+      "type": "integer",
+      "minimum": 0,
+      "description": "The gzip growth an existing asset may show before the gate fails, in bytes."
+    },
+    "routes": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["route", "css", "javascript", "font", "total", "assets"],
+        "additionalProperties": false,
+        "properties": {
+          "route": { "type": "string" },
+          "css": { "type": "integer", "description": "Gzip delta across css/base and css/page." },
+          "javascript": { "type": "integer", "description": "Gzip delta across js/chrome, js/components, and js/inline." },
+          "font": { "type": "integer", "description": "Gzip delta of font/self-hosted." },
+          "total": { "type": "integer" },
+          "assets": {
+            "type": "array",
+            "description": "The assets whose gzip size changed, sorted by path. An absent side was not loaded by that commit.",
+            "items": {
+              "type": "object",
+              "required": ["path", "class", "delta"],
+              "additionalProperties": false,
+              "properties": {
+                "path": { "type": "string" },
+                "class": {
+                  "type": "string",
+                  "enum": ["css/base", "css/page", "js/chrome", "js/components", "js/inline", "font/self-hosted"]
+                },
+                "base": { "type": "integer", "minimum": 0 },
+                "head": { "type": "integer", "minimum": 0 },
+                "delta": { "type": "integer" }
+              }
+            }
+          }
+        }
+      }
+    },
+    "problems": {
+      "type": "array",
+      "description": "Every reason the comparison fails: a route on one side only, a duplicate path, a new asset, or growth past the tolerance.",
+      "items": { "type": "string" }
+    }
+  }
+}
