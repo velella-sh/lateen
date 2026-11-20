@@ -341,14 +341,14 @@ test("the doc layout places the chip between the title and the body", () => {
   );
   assert.match(
     out,
-    /<h1>Install<\/h1><p class="reading-time" data-minutes="2"><span class="reading-time-minutes">2 minutes read<\/span><\/p><div class="doc-body">/,
+    /<h1>Install<\/h1><div class="doc-meta"><p class="reading-time" data-minutes="2"><span class="reading-time-minutes">2 minutes read<\/span><\/p><\/div><div class="doc-body">/,
   );
 });
 
 test("the doc layout leaves the chip out when there is no reading time", () => {
   const page = pageWith();
   const out = renderToString(doc(layoutProps(page, {})) as never);
-  assert.match(out, /<h1>Install<\/h1><div class="doc-body">/);
+  assert.match(out, /<h1>Install<\/h1><div class="doc-meta"><\/div><div class="doc-body">/);
   assert.doesNotMatch(out, /class="reading-time"/);
 });
 
