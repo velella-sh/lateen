@@ -1,6 +1,7 @@
 import { h } from "preact";
 import type { ComponentProps, Page, Site } from "@velella/mizzen/contracts";
 import { t } from "../../i18n/index.ts";
+import { textOf as trimmed } from "../../src/guards.ts";
 import { glossaryCollectionName, glossaryPage, selectTerms, findTerm, type Term } from "../../src/terms.ts";
 import { baseOf, withBase } from "../../src/url.ts";
 
@@ -42,7 +43,7 @@ export type TermProps = {
 
 /** A prop as trimmed text; `undefined` for anything that is not a string. */
 function textOf(value: unknown): string {
-  return typeof value === "string" ? value.trim() : "";
+  return trimmed(value) ?? "";
 }
 
 const ENTITIES: Readonly<Record<string, string>> = {

@@ -3,6 +3,7 @@ import type { Chrome, SiteConfig } from "@velella/mizzen/contracts";
 import { OctagonAlert, TriangleAlert } from "lucide";
 import type { IconNode } from "lucide";
 import { t } from "../../i18n/index.ts";
+import { textOf as text } from "../../src/guards.ts";
 import { icon } from "../../src/icon.ts";
 import { optionOf } from "../../src/options.ts";
 
@@ -46,13 +47,6 @@ function announcementOf(config: SiteConfig): Announcement | undefined {
 export function toneOf(value: unknown): AnnouncementTone {
   const name = typeof value === "string" ? value.trim().toLowerCase() : "";
   return (TONES as readonly string[]).includes(name) ? (name as AnnouncementTone) : "info";
-}
-
-/** A non-empty line of text from the config, trimmed; anything else is not shown. */
-function text(value: unknown): string | undefined {
-  if (typeof value !== "string") return undefined;
-  const trimmed = value.trim();
-  return trimmed === "" ? undefined : trimmed;
 }
 
 /**

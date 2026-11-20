@@ -1,4 +1,4 @@
-import { isRecord } from "../guards.ts";
+import { isRecord, textOf } from "../guards.ts";
 import type { SiteNetwork } from "@velella/mizzen/contracts";
 
 /** One heading Pagefind lists for a page, and the id its fragment points at. */
@@ -125,11 +125,6 @@ export interface OtherIndex {
 export interface MergeList {
   /** The public projects other than this one, in the network file's order. */
   readonly others: readonly OtherIndex[];
-}
-
-/** A non-empty string, or undefined. */
-function textOf(value: unknown): string | undefined {
-  return typeof value === "string" && value.trim() !== "" ? value.trim() : undefined;
 }
 
 /**

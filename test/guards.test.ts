@@ -1,7 +1,7 @@
 import assert from "node:assert/strict";
 import { test } from "node:test";
-import { isRecord } from "../src/guards.ts";
-import { isRecord as entryIsRecord, theme } from "../src/index.ts";
+import { isRecord, textOf } from "../src/guards.ts";
+import { isRecord as entryIsRecord, textOf as entryTextOf, theme } from "../src/index.ts";
 
 test("a plain object passes, including nested and boxed objects", () => {
   assert.equal(isRecord({}), true);
@@ -32,4 +32,33 @@ test("the theme entry still names its folders and re-exports the same guard", ()
   assert.equal(entryIsRecord({ ok: true }), true);
   assert.equal(entryIsRecord(null), false);
   assert.equal(entryIsRecord([]), false);
+});
+
+test("textOf trims a non-empty string and drops absent, blank, and non-string values", () => {
+  assert.equal(textOf("  spaced  "), "spaced");
+  assert.equal(textOf("title"), "title");
+  assert.equal(textOf(undefined), undefined);
+  assert.equal(textOf(null), undefined);
+  assert.equal(textOf(""), undefined);
+  assert.equal(textOf("   "), undefined);
+  assert.equal(textOf("\n\t"), undefined);
+  assert.equal(textOf(7), undefined);
+  assert.equal(textOf(true), undefined);
+  assert.equal(textOf({ text: "title" }), undefined);
+  assert.equal(textOf(["title"]), undefined);
+});
+
+test("textOf keeps mixed-direction text exactly as written apart from the trimmed ends", () => {
+  const rtl = "سلام بر همه";
+  const mixed = "result: نتیجه ← ۱溪";
+  assert.equal(textOf(`  ${rtl} `), rtl);
+  assert.equal(textOf(mixed), mixed);
+  // Direction marks inside the value survive: only string ends are trimmed.
+  const isolated = "\u200fmark";
+  assert.equal(textOf(isolated), isolated);
+});
+
+test("the entry re-exports textOf", () => {
+  assert.equal(entryTextOf(" x "), "x");
+  assert.equal(entryTextOf("  "), undefined);
 });

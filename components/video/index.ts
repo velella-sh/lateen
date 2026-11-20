@@ -1,6 +1,7 @@
 import { h } from "preact";
 import type { ComponentProps } from "@velella/mizzen/contracts";
 import { t } from "../../i18n/index.ts";
+import { textOf as trimmed } from "../../src/guards.ts";
 import { baseOf, withBase } from "../../src/url.ts";
 import { embedSrc, httpsHref, providerOf } from "../embed/index.ts";
 
@@ -81,7 +82,7 @@ export function mediaHref(value: unknown): string | undefined {
 }
 
 function text(value: unknown): string {
-  return typeof value === "string" ? value.trim() : "";
+  return trimmed(value) ?? "";
 }
 
 /**

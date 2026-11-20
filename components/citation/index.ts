@@ -4,6 +4,7 @@ import type { ComponentProps, DataRecord, Page, Site } from "@velella/mizzen/con
 import { t } from "../../i18n/index.ts";
 import { calendarDate } from "../../src/dates.ts";
 import { fieldValueOf } from "../../src/fields.ts";
+import { textOf as trimmed } from "../../src/guards.ts";
 import { baseOf, withBase } from "../../src/url.ts";
 
 /** The Markdown directive this component handles: `::citation{source="handbook"}`. */
@@ -43,7 +44,7 @@ export type CitationProps = {
 const SAFE_URL = /^(?:https?:\/\/[^\s"'<>\\]+|\/(?![/\\])[^\s"'<>\\]*)$/i;
 
 /** A written value as trimmed text, or `""` when it is absent or not a string. */
-const textOf = (value: unknown): string => (typeof value === "string" ? value.trim() : "");
+const textOf = (value: unknown): string => trimmed(value) ?? "";
 
 /** The page's record as the site model holds it, so its fields and configured dates can be read. */
 function recordOf(site: Site | undefined, page: Page | undefined): DataRecord | undefined {

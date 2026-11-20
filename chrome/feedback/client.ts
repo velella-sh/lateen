@@ -1,3 +1,4 @@
+import { textOf as text } from "../../src/guards.ts";
 /*
  * Page feedback island: reveals the two vote buttons, posts the answer to the configured endpoint,
  * and records the vote for this browser session only. The widget stays hidden unless the site set an
@@ -71,13 +72,6 @@ export interface FeedbackRoot {
 export interface FeedbackEnv {
   storage: FeedbackStorage;
   post: FeedbackPost;
-}
-
-/** A non-empty trimmed string, or undefined. */
-function text(value: unknown): string | undefined {
-  if (typeof value !== "string") return undefined;
-  const trimmed = value.trim();
-  return trimmed === "" ? undefined : trimmed;
 }
 
 /** Every stored vote lives under this prefix plus the page's URL. */

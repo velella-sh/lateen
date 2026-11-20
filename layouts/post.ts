@@ -1,23 +1,19 @@
 import { Fragment, h } from "preact";
 import type { ComponentChildren } from "preact";
 import type { Layout, LayoutProps } from "@velella/mizzen/contracts";
-import base from "./base.ts";
-import { archiveUrlOf, authorNameOf, authorPageOf, titleFromBody } from "./blog/index.ts";
 import breadcrumb from "../chrome/breadcrumb/index.ts";
 import drawer from "../chrome/drawer/index.ts";
-import shell, { footer as shellFooter } from "../chrome/shell/index.ts";
 import pageFooter from "../chrome/page-footer/index.ts";
+import shell, { footer as shellFooter } from "../chrome/shell/index.ts";
 import sidebar from "../chrome/sidebar/index.ts";
 import toc from "../chrome/toc/index.ts";
 import { highlightFences } from "../components/code/index.ts";
 import { t } from "../i18n/index.ts";
 import { codeBackgrounds } from "../src/brand.ts";
 import { calendarDate } from "../src/dates.ts";
-
-/** A front matter string with content, or undefined. */
-function textOf(value: unknown): string | undefined {
-  return typeof value === "string" && value.trim() !== "" ? value.trim() : undefined;
-}
+import { textOf } from "../src/guards.ts";
+import base from "./base.ts";
+import { archiveUrlOf, authorNameOf, authorPageOf, titleFromBody } from "./blog/index.ts";
 
 /** The date line: a `<time>` in the page's calendar when the date is real, else the written text. */
 function dateOf(props: LayoutProps, value: string | undefined): ComponentChildren {

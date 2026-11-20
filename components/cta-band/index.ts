@@ -1,8 +1,9 @@
 import { h } from "preact";
 import type { ComponentProps } from "@velella/mizzen/contracts";
 import { t } from "../../i18n/index.ts";
-import { hrefOf, withBase } from "../link-card/index.ts";
+import { textOf } from "../../src/guards.ts";
 import installTabs, { commandFor, idBase, managersOf, packageOf } from "../install-tabs/index.ts";
+import { hrefOf, withBase } from "../link-card/index.ts";
 
 /** The Markdown directive this component handles: `::cta-band{title="…" label="…" url="/start/"}`. */
 export const directive = "cta-band";
@@ -30,13 +31,6 @@ export type CtaBandProps = {
   /** Prefix for the install tabs' element ids. */
   id?: string;
 };
-
-/** Text trimmed, or undefined when it is missing, blank, or not a string. */
-function textOf(value: unknown): string | undefined {
-  if (typeof value !== "string") return undefined;
-  const text = value.trim();
-  return text === "" ? undefined : text;
-}
 
 /**
  * A closing call to action: a heading, a line of text, one primary action, and an optional install command.

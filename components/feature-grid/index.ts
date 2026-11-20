@@ -1,5 +1,6 @@
 import { h } from "preact";
 import type { ComponentChild } from "preact";
+import { textOf } from "../../src/guards.ts";
 import { icon, iconByName } from "../../src/icon.ts";
 import { hrefOf } from "../link-card/index.ts";
 
@@ -33,12 +34,6 @@ export type FeatureGridProps = {
   /** The most columns the grid uses, from 2 to 4. Fewer fit when the space is narrow. */
   columns?: unknown;
 };
-
-function textOf(value: unknown): string | undefined {
-  if (typeof value !== "string") return undefined;
-  const text = value.trim();
-  return text === "" ? undefined : text;
-}
 
 /** The column count to use: a whole number from 2 to 4, else the default. */
 export function columnsOf(value: unknown): number {

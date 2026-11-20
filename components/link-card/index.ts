@@ -1,5 +1,6 @@
 import { h } from "preact";
 import type { Component } from "@velella/mizzen/contracts";
+import { textOf } from "../../src/guards.ts";
 
 /** The Markdown directive this component handles: `::link-card{href="/guide/" title="Guides"}`. */
 export const directive = "link-card";
@@ -68,13 +69,6 @@ export function hrefOf(value: unknown): string | undefined {
   if (typeof value !== "string") return undefined;
   const href = value.trim();
   return SAFE_HREF.test(href) ? href : undefined;
-}
-
-/** Text trimmed, or undefined when it is missing, blank, or not a string. */
-function textOf(value: unknown): string | undefined {
-  if (typeof value !== "string") return undefined;
-  const text = value.trim();
-  return text === "" ? undefined : text;
 }
 
 /** The site's `base` without a trailing slash, so paths join with one `/`. The root is the empty string. */

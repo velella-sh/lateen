@@ -1,5 +1,6 @@
 import { h } from "preact";
 import type { ComponentChildren } from "preact";
+import { textOf } from "../../src/guards.ts";
 import { hrefOf } from "../link-card/index.ts";
 
 /** Responsive grid that holds the cards. */
@@ -15,13 +16,6 @@ export const CARD_CLASS = "card";
  * `mailto:`, a relative path, a blank value) is refused. Re-exported so callers can test it.
  */
 export { hrefOf };
-
-/** Text trimmed, or undefined when it is missing, blank, or not a string. */
-function textOf(value: unknown): string | undefined {
-  if (typeof value !== "string") return undefined;
-  const text = value.trim();
-  return text === "" ? undefined : text;
-}
 
 export type CardsProps = {
   children?: ComponentChildren;

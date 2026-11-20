@@ -1,6 +1,7 @@
 import { h } from "preact";
 import type { ComponentChildren } from "preact";
 import type { ComponentProps } from "@velella/mizzen/contracts";
+import { textOf as trimmed } from "../../src/guards.ts";
 
 /** The Markdown directive this component handles: `::quote{name="…" source="…"}`. */
 export const directive = "quote";
@@ -27,7 +28,7 @@ export type QuoteProps = {
 /** An absolute `http(s)` address with no space, quote, angle bracket, or backslash. */
 const SAFE_URL = /^https?:\/\/[^\s"'<>\\]+$/i;
 
-const textOf = (value: unknown): string => (typeof value === "string" ? value.trim() : "");
+const textOf = (value: unknown): string => trimmed(value) ?? "";
 
 /** The source link, or `undefined` when the address is not absolute `http(s)`. */
 export function sourceHref(value: unknown): string | undefined {

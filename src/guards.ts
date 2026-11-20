@@ -8,3 +8,13 @@
 export function isRecord(value: unknown): value is Record<string, unknown> {
   return typeof value === "object" && value !== null && !Array.isArray(value);
 }
+
+/**
+ * A non-empty trimmed string: absent, non-string, and blank values are `undefined`. Only the ends are
+ * trimmed, so inner whitespace, bidi marks, and the text's own direction survive as written.
+ */
+export function textOf(value: unknown): string | undefined {
+  if (typeof value !== "string") return undefined;
+  const text = value.trim();
+  return text === "" ? undefined : text;
+}

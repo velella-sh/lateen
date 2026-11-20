@@ -4,7 +4,7 @@ import { CircleQuestionMark, Clock, TriangleAlert } from "lucide";
 import type { IconNode } from "lucide";
 import { t } from "../../i18n/index.ts";
 import { icon as lucideIcon } from "../../src/icon.ts";
-import { isRecord } from "../../src/guards.ts";
+import { isRecord, textOf } from "../../src/guards.ts";
 import { optionOf } from "../../src/options.ts";
 
 /** Class on the banner. `style.css` styles it. */
@@ -101,13 +101,6 @@ interface DriftOptions {
 
 /** A path on this site (not protocol-relative `//host`) or an https link. Anything else is not a link. */
 const SAFE_URL = /^(?:\/(?![/\\])|https:\/\/)[^\s"<>]*$/;
-
-/** A trimmed, non-empty string, or undefined. */
-function textOf(value: unknown): string | undefined {
-  if (typeof value !== "string") return undefined;
-  const text = value.trim();
-  return text === "" ? undefined : text;
-}
 
 /**
  * The URL-to-findings map inside `site.data.drift`. The engine's future `drift.json` output may write either

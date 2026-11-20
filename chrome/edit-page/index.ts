@@ -1,5 +1,5 @@
 import { h } from "preact";
-import { isRecord } from "../../src/guards.ts";
+import { isRecord, textOf as text } from "../../src/guards.ts";
 import type { Chrome, Heading, Page, RepositoryConfig, Site, SiteConfig, SourcePos } from "@velella/mizzen/contracts";
 import { t } from "../../i18n/index.ts";
 import { optionOf } from "../../src/options.ts";
@@ -40,13 +40,6 @@ export const HEADING_LINK_CLASS = "edit-page-heading-link";
 
 /** Only a web address is linked, so a data file cannot inject `javascript:` or `data:`. */
 const SAFE_HREF = /^https?:\/\/[^\s]+$/i;
-
-/** A non-empty string, trimmed; anything else is absent. */
-function text(value: unknown): string | undefined {
-  if (typeof value !== "string") return undefined;
-  const trimmed = value.trim();
-  return trimmed === "" ? undefined : trimmed;
-}
 
 /**
  * The file's edit URL: `${root}/edit/${branch}/${path}` on GitHub and `${root}/-/edit/${branch}/${path}` on

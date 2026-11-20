@@ -1,5 +1,6 @@
 import { h } from "preact";
 import type { ComponentProps } from "@velella/mizzen/contracts";
+import { textOf as trimmed } from "../../src/guards.ts";
 import { instanceId } from "../../src/page-ids.ts";
 import { baseOf, srcsetWithBase, withBase } from "../../src/url.ts";
 
@@ -79,7 +80,7 @@ function oneOf<T extends string>(value: unknown, allowed: readonly T[], fallback
 }
 
 function text(value: unknown): string {
-  return typeof value === "string" ? value.trim() : "";
+  return trimmed(value) ?? "";
 }
 
 /** The images in a JSON `images` prop, keeping only entries with a usable `src`. Invalid JSON gives none. */

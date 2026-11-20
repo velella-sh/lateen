@@ -1,5 +1,5 @@
 import type { Site, SiteConfig } from "@velella/mizzen/contracts";
-import { isRecord } from "./guards.ts";
+import { isRecord, textOf as text } from "./guards.ts";
 
 /**
  * Reading the reports the gates write. A report is untrusted input like any data file: every field is
@@ -7,13 +7,6 @@ import { isRecord } from "./guards.ts";
  * and a report whose header is not this unit's own is treated as absent. The components render a
  * visible message for an absent report, never an empty table that reads like a clean result.
  */
-
-/** A non-empty string, trimmed; anything else is undefined. */
-export function text(value: unknown): string | undefined {
-  if (typeof value !== "string") return undefined;
-  const trimmed = value.trim();
-  return trimmed === "" ? undefined : trimmed;
-}
 
 /** A finite, non-negative number; anything else is undefined. */
 export function count(value: unknown): number | undefined {
