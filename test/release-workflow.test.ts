@@ -9,7 +9,6 @@ import { parse } from "yaml";
 interface Step {
   readonly id?: string;
   readonly name?: string;
-  readonly id?: string;
   readonly uses?: string;
   readonly if?: string;
   readonly run?: string;
@@ -134,6 +133,14 @@ test("the workflow consumes the plan instead of repeating its rules", () => {
   assert.match(String(release?.env?.LATEST ?? ""), /needs\.acceptance\.outputs\.latest/);
   assert.doesNotMatch(release?.run ?? "", /DIST_TAG/, "the release flags come from the plan");
   assert.match(release?.run ?? "", /PRERELEASE.*--prerelease/s);
+});
+
+test("the workflow's job conditions express the tested state machine", () => {
+  assert.match(ifOf("acceptance-published"), /needs\.acceptance\.result == 'success'/);
+  assert.match(ifOf("acceptance-published"), /needs\.publish\.result == 'success'/);
+  assert.match(ifOf("acceptance-published"), /needs\.acceptance\.outputs\.published == 'true'/);
+  assert.match(ifOf("github-release"), /needs\['acceptance-published'\]\.result == 'success'/);
+  assert.doesNotMatch(ifOf("github-release"), /needs\.publish\.result == 'success'/);
 });
 
 test("publish and digest steps select the one tarball the acceptance report names", () => {
