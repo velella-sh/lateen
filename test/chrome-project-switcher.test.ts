@@ -97,6 +97,36 @@ test("renders nothing when the site has no network", () => {
   assert.deepEqual(projectLinks(props().site), []);
 });
 
+test("marks only an absolute https project as external, keeping its address", () => {
+  const value = network([
+    project("alpha", "Alpha", true),
+    { ...project("beta", "Beta"), path: "https://beta.example.com/" },
+    { ...project("gamma", "Gamma"), path: "http://gamma.example.com" },
+    { ...project("delta", "Delta"), path: "//delta.example.com" },
+    { ...project("epsilon", "Epsilon"), path: "javascript:alert(1)" },
+  ]);
+  const out = render(value);
+
+  assert.match(out, /<a class="project-switcher-link project-switcher-current" href="\/alpha\/" aria-current="true"><bdi>Alpha<\/bdi><\/a>/);
+  assert.match(out, /<a class="project-switcher-link" href="https:\/\/beta\.example\.com\/" rel="noopener noreferrer" target="_blank"><bdi>Beta<\/bdi><\/a>/);
+  assert.equal(count(out, /rel="noopener noreferrer"/g), 1);
+  assert.equal(count(out, /target="_blank"/g), 1);
+});
+
+test("leaves a base path and unsafe schemes unmarked", () => {
+  const value = network([
+    project("alpha", "Alpha"),
+    { ...project("beta", "Beta"), path: "http://beta.example.com" },
+    { ...project("gamma", "Gamma"), path: "//gamma.example.com" },
+  ]);
+  const out = render(value);
+
+  assert.match(out, /<a class="project-switcher-link" href="\/alpha\/"><bdi>Alpha<\/bdi><\/a>/);
+  assert.match(out, /<a class="project-switcher-link" href="\/http:\/\/beta\.example\.com\/"><bdi>Beta<\/bdi><\/a>/);
+  assert.match(out, /<a class="project-switcher-link" href="\/\/\/gamma\.example\.com\/"><bdi>Gamma<\/bdi><\/a>/);
+  assert.doesNotMatch(out, /rel=|target=/);
+});
+
 test("takes every name and address from the network input", () => {
   const value = network([project("docs", "Handbook", true), project("notes", "Field Notes"), project("lab", "Workshop")], "docs");
   const out = render(value);

@@ -32,13 +32,18 @@ export const CURRENT_CLASS = "project-switcher-current";
 /** The i18n key with the label of the control. */
 export const LABEL_KEY = "projects";
 
+/** True only for an absolute `https://` address; a path, protocol-relative, or other scheme is not external. */
+export function isExternalProjectUrl(url: string): boolean {
+  return /^https:\/\//i.test(url);
+}
+
 /** One project the switcher links to, with only the name and address the network input holds. */
 export interface ProjectLink {
   /** The project's id in the network file. */
   readonly id: string;
   /** The label shown for the project. */
   readonly title: string;
-  /** The project's home, at its own base path. */
+  /** The project's home: an absolute `https://` address as given, otherwise its own base path. */
   readonly url: string;
   /** Whether this entry is the project being rendered. */
   readonly current: boolean;
@@ -56,7 +61,7 @@ export function projectLinks(site: Site): readonly ProjectLink[] {
   return projects.map((project) => ({
     id: project.id,
     title: project.title,
-    url: `/${project.path}/`,
+    url: isExternalProjectUrl(project.path) ? project.path : `/${project.path}/`,
     current: project.current,
   }));
 }
@@ -86,8 +91,9 @@ const projectSwitcher: Chrome = ({ site, page }) => {
       h(
         "ul",
         { class: LIST_CLASS },
-        ...projects.map((project) =>
-          h(
+        ...projects.map((project) => {
+          const external = isExternalProjectUrl(project.url);
+          return h(
             "li",
             { class: ITEM_CLASS },
             h(
@@ -95,12 +101,14 @@ const projectSwitcher: Chrome = ({ site, page }) => {
               {
                 class: project.current ? `${LINK_CLASS} ${CURRENT_CLASS}` : LINK_CLASS,
                 href: project.url,
+                rel: external ? "noopener noreferrer" : undefined,
+                target: external ? "_blank" : undefined,
                 "aria-current": project.current ? "true" : undefined,
               },
               h("bdi", null, project.title),
             ),
-          ),
-        ),
+          );
+        }),
       ),
     ),
   );
