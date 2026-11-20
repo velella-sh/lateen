@@ -27,6 +27,9 @@ query field's first focus, so a page no one searches costs no download.
 Every column and sort field must exist in the collection. The table shows the first 50 records before
 the island runs, and the button the island reveals continues past them.
 
+Each chosen filter appears as a chip beside the filters. Removing a chip unchecks its filter, moves
+focus to that filter's checkbox instead of losing it, and announces the new result count once.
+
 ## Example
 
 :::data-explorer{from=books columns='[{"field":"title","label":"Title"},{"field":"pages","label":"Pages","kind":"number"},{"field":"published","label":"Published","kind":"date"},{"field":"format","label":"Format"}]' filters=format sort=title,pages}

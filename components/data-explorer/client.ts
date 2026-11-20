@@ -91,6 +91,8 @@ export interface ExplorerElement {
   replaceChildren(...children: ExplorerElement[]): void;
   /** Follows a result link, as a pointer would. */
   click?(): void;
+  /** Moves focus to the element, where the browser can. */
+  focus?(): void;
   /** Brings the active row into view, where the browser can scroll. */
   scrollIntoView?(options: { readonly block: "nearest" }): void;
   textContent: string | null;
@@ -579,6 +581,8 @@ function attach(root: ExplorerElement, doc: ExplorerDocument, env: ExplorerEnv):
         button.addEventListener("click", () => {
           value.input.checked = false;
           run();
+          // The chip is gone, so focus moves to the checkbox that replaced it rather than the body.
+          value.input.focus?.();
         });
         buttons.push(button);
       }
