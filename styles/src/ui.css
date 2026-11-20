@@ -1684,6 +1684,39 @@
     letter-spacing: 0.06em;
   }
 
+  /* The island marks the logical edges that hide content; a soft shade appears only there and
+     recedes as the reader reaches either end. It sits behind the grid, so text keeps its contrast,
+     and it is decoration: no pointer target and nothing added to the accessibility tree. */
+  .table-scroll {
+    --table-overflow-ink: color-mix(in srgb, var(--foreground) 12%, transparent);
+    background-image:
+      var(--table-overflow-start, none),
+      var(--table-overflow-end, none);
+    background-position: left top, right top;
+    background-repeat: no-repeat;
+    background-size: 2.5rem 100%, 2.5rem 100%;
+  }
+
+  .table-scroll[data-overflow-start] {
+    --table-overflow-start: linear-gradient(to right, var(--table-overflow-ink), transparent);
+  }
+
+  .table-scroll[data-overflow-end] {
+    --table-overflow-end: linear-gradient(to left, var(--table-overflow-ink), transparent);
+  }
+
+  .table-scroll:dir(rtl) {
+    background-position: right top, left top;
+  }
+
+  .table-scroll:dir(rtl)[data-overflow-start] {
+    --table-overflow-start: linear-gradient(to left, var(--table-overflow-ink), transparent);
+  }
+
+  .table-scroll:dir(rtl)[data-overflow-end] {
+    --table-overflow-end: linear-gradient(to right, var(--table-overflow-ink), transparent);
+  }
+
   .table caption {
     @apply text-sm font-semibold;
     padding-block-end: 0.5rem;
@@ -2509,6 +2542,11 @@
 @media print {
   .site-header, .sidebar, .aside, .site-footer, .code-copy, .home-preview {
     display: none !important;
+  }
+
+  /* Paper shows the whole table, so no edge hides content and no shade belongs there. */
+  .table-scroll {
+    background-image: none !important;
   }
 
   /* print.css forces closed-details children to `display:block`; beat that for chrome we hide. */

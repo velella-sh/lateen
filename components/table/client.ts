@@ -10,15 +10,24 @@ export const REGION_SELECTOR = "[data-table-scroll]";
 /** A difference of at most this many CSS pixels is rounding, not overflow. */
 export const OVERFLOW_TOLERANCE = 1;
 
+/** Marks the logical start edge while the table hides content before the viewport. */
+export const OVERFLOW_START_ATTRIBUTE = "data-overflow-start";
+
+/** Marks the logical end edge while the table hides content after the viewport. */
+export const OVERFLOW_END_ATTRIBUTE = "data-overflow-end";
+
 /** The parts of a scroll region the island reads and writes. */
 export interface TableElement {
   scrollWidth: number;
   clientWidth: number;
+  scrollLeft: number;
   readonly textContent: string | null;
   getAttribute(name: string): string | null;
   setAttribute(name: string, value: string): void;
   removeAttribute(name: string): void;
   querySelector(selector: string): TableElement | null;
+  addEventListener?(type: "scroll", listener: () => void): void;
+  removeEventListener?(type: "scroll", listener: () => void): void;
 }
 
 /** Keeps every target of one enhancement watched with a single observer or window listener. */
@@ -37,9 +46,31 @@ export interface TableEnv {
   watcher: TableWatcher;
 }
 
+/** Which logical edges of the region hide content, and whether it overflows at all. */
+export interface OverflowState {
+  overflow: boolean;
+  start: boolean;
+  end: boolean;
+}
+
+/**
+ * Reads the region's overflow on its logical sides. `scrollLeft` is 0 at the start and grows negative
+ * toward the end in RTL, so its distance from 0 is the distance from the start in either direction.
+ */
+export function overflowState(region: TableElement): OverflowState {
+  const hidden = region.scrollWidth - region.clientWidth;
+  if (hidden <= OVERFLOW_TOLERANCE) return { overflow: false, start: false, end: false };
+  const offset = Math.abs(region.scrollLeft);
+  return {
+    overflow: true,
+    start: offset > OVERFLOW_TOLERANCE,
+    end: hidden - offset > OVERFLOW_TOLERANCE,
+  };
+}
+
 /** True when the table is wider than the region, ignoring a subpixel rounding difference. */
 export function isOverflowing(region: TableElement): boolean {
-  return region.scrollWidth - region.clientWidth > OVERFLOW_TOLERANCE;
+  return overflowState(region).overflow;
 }
 
 /** The region's name: the author's `data-label`, else the table's caption. Empty when it has neither. */
@@ -50,12 +81,17 @@ export function regionLabel(region: TableElement): string {
 }
 
 /**
- * Applies the region's current overflow state: a table that fits loses its tab stop and landmark, and
- * a wide table gets both back. A table with no caption or author label gets the tab stop but no
- * unnamed `region` landmark. Returns whether the table overflows.
+ * Applies the region's current overflow state: the logical edges with hidden content are marked for
+ * the stylesheet, a table that fits loses its tab stop and landmark, and a wide table gets both back.
+ * A table with no caption or author label gets the tab stop but no unnamed `region` landmark. Returns
+ * whether the table overflows.
  */
 export function sync(region: TableElement): boolean {
-  if (!isOverflowing(region)) {
+  const state = overflowState(region);
+  setFlag(region, OVERFLOW_START_ATTRIBUTE, state.start);
+  setFlag(region, OVERFLOW_END_ATTRIBUTE, state.end);
+
+  if (!state.overflow) {
     region.removeAttribute("tabindex");
     region.removeAttribute("role");
     region.removeAttribute("aria-label");
@@ -74,14 +110,21 @@ export function sync(region: TableElement): boolean {
   return true;
 }
 
+function setFlag(region: TableElement, name: string, on: boolean): void {
+  if (on) region.setAttribute(name, "true");
+  else region.removeAttribute(name);
+}
+
 /**
- * Syncs every region on the page and re-syncs it on resize. The container and the table are both
- * watched through one shared watcher: the first changes with the viewport, the second with zoom or a
- * font that reflows the cells. The returned cleanup stops that watcher, so a late callback no longer
- * touches the page and the overflow state on screen stays as it is.
+ * Syncs every region on the page, re-syncs it on resize, and moves the edge markers as it scrolls. The
+ * container and the table are both watched through one shared watcher: the first changes with the
+ * viewport, the second with zoom or a font that reflows the cells. The returned cleanup stops that
+ * watcher and the scroll listeners, so a late callback no longer touches the page and the overflow
+ * state on screen stays as it is.
  */
 export function enhance(env: TableEnv): () => void {
   let active = true;
+  const unlisten: Array<() => void> = [];
   for (const region of env.regions()) {
     const update = () => {
       if (active) sync(region);
@@ -90,9 +133,13 @@ export function enhance(env: TableEnv): () => void {
     env.watcher.watch(region, update);
     const table = region.querySelector("table");
     if (table !== null) env.watcher.watch(table, update);
+    if (region.addEventListener === undefined) continue;
+    region.addEventListener("scroll", update);
+    unlisten.push(() => region.removeEventListener?.("scroll", update));
   }
   return () => {
     active = false;
+    for (const remove of unlisten) remove();
     env.watcher.stop();
   };
 }
