@@ -1,6 +1,7 @@
 import { h } from "preact";
 import { parseJson } from "../../src/guards.ts";
 import type { ComponentProps } from "@velella/mizzen/contracts";
+import { idChars } from "../../src/slug.ts";
 
 /** The Markdown directive this component handles: `:::tabs`. */
 export const directive = "tabs";
@@ -136,7 +137,7 @@ export function sections(html: string): TabSection[] {
 
 /** The id prefix, reduced to letters, digits, `-` and `_` so a prop cannot break the markup. */
 export function idBase(raw: string | undefined): string {
-  const clean = (raw ?? "").trim().replace(/[^\p{L}\p{N}_-]+/gu, "-").replace(/^-+|-+$/g, "");
+  const clean = idChars((raw ?? "").trim()).replace(/^-+|-+$/g, "");
   return clean || DEFAULT_ID;
 }
 

@@ -2,6 +2,7 @@ import { h } from "preact";
 import { parseJson } from "../../src/guards.ts";
 import type { ComponentProps } from "@velella/mizzen/contracts";
 import { t } from "../../i18n/index.ts";
+import { idChars } from "../../src/slug.ts";
 
 /** Methods with their own badge color. Any other method gets the neutral badge. */
 export const METHODS = ["GET", "POST", "PUT", "PATCH", "DELETE"] as const;
@@ -83,12 +84,7 @@ export function methodClassOf(method: string): string {
 
 /** A value reduced to letters, digits, `-` and `_`, so it can go in an id. */
 function slugOf(value: string): string {
-  return value
-    .trim()
-    .toLowerCase()
-    .replace(/[^\p{L}\p{N}_-]+/gu, "-")
-    .replace(/-+/g, "-")
-    .replace(/^-+|-+$/g, "");
+  return idChars(value.trim().toLowerCase()).replace(/-+/g, "-").replace(/^-+|-+$/g, "");
 }
 
 /**
