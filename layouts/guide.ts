@@ -13,7 +13,7 @@ import shell, { footer as shellFooter } from "../chrome/shell/index.ts";
 import lastUpdated from "../chrome/last-updated/index.ts";
 import pageFooter from "../chrome/page-footer/index.ts";
 import sidebar from "../chrome/sidebar/index.ts";
-import toc from "../chrome/toc/index.ts";
+import toc, { tocFold } from "../chrome/toc/index.ts";
 import { highlightFences } from "../components/code/index.ts";
 import guideSummary from "../components/guide-summary/index.ts";
 import pageStatus, { type PageStatusProps } from "../components/page-status/index.ts";
@@ -57,6 +57,7 @@ function article(props: LayoutProps): ComponentChildren {
     guideSummary({ props: {}, page, site: props.site, html: "" }) as ComponentChildren,
     lastUpdated(props) as ComponentChildren,
     readingTime({ props: {}, page, site: props.site, html: "" }) as ComponentChildren,
+    tocFold(props) as ComponentChildren,
     h("div", { class: "doc-body guide-body", dangerouslySetInnerHTML: { __html: highlightFences(page.html, backdrops, page.lang) } }),
     editPage(props) as ComponentChildren,
     h("div", { class: "doc-actions" }, pageFooter(props) as ComponentChildren, copyMarkdown(props) as ComponentChildren),

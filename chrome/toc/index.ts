@@ -1,4 +1,4 @@
-import { Fragment, h } from "preact";
+import { h } from "preact";
 import type { Chrome, Heading } from "@velella/mizzen/contracts";
 import { t } from "../../i18n/index.ts";
 
@@ -44,17 +44,28 @@ function flatList(items: readonly Heading[]) {
   );
 }
 
-/** On this page: sticky navigation landmark on wide screens, collapsible block on narrow ones. */
+/** On this page: the sticky navigation landmark shown beside the article on wide screens. */
 const toc: Chrome = ({ page }) => {
   const items = entries(page.headings);
   if (items.length < 2) return null;
   const label = t(page.lang, "on_this_page");
 
+  return h("nav", { class: "toc", "aria-labelledby": TITLE_ID }, h("h2", { id: TITLE_ID }, label), nestedList(items));
+};
+
+/**
+ * The same entries in a native `<details>` at the start of the article. Closed by default and fully
+ * usable without JavaScript; `ui.css` shows it below the aside breakpoint and hides it above it.
+ */
+export const tocFold: Chrome = ({ page }) => {
+  const items = entries(page.headings);
+  if (items.length < 2) return null;
+
   return h(
-    Fragment,
-    null,
-    h("nav", { class: "toc", "aria-labelledby": TITLE_ID }, h("h2", { id: TITLE_ID }, label), nestedList(items)),
-    h("details", { class: "toc-fold" }, h("summary", null, label), flatList(items)),
+    "details",
+    { class: "toc-fold" },
+    h("summary", null, t(page.lang, "on_this_page")),
+    flatList(items),
   );
 };
 

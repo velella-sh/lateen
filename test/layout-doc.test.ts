@@ -1,4 +1,5 @@
 import assert from "node:assert/strict";
+import { readFileSync } from "node:fs";
 import { test } from "node:test";
 import { Fragment, h } from "preact";
 import type { Heading, LayoutProps, Page, RepositoryConfig, Site, SiteConfig, SourcePos } from "@velella/mizzen/contracts";
@@ -168,6 +169,72 @@ test("the sidebar renders in the site-navigation column and the toc in its own n
   assert.match(page, /<div class="sidebar" id="site-navigation"><nav class="sidebar-nav"/);
   assert.match(page, /<div class="aside"><nav class="toc" aria-labelledby="toc-title">/);
   assert.match(page, /<details class="toc-fold"><summary>On this page<\/summary>/);
+});
+
+const section = (depth: 2 | 3, text: string, id: string): Heading => ({ ...heading(depth, text), id });
+
+test("the mobile section list sits at the start of the article and links the real sections", () => {
+  const page = out(pageWith({ headings: [heading(1, "Install"), section(2, "Pick a mode", "pick-a-mode"), section(3, "Gem", "gem")] }));
+  const article = /<article class="doc"[^>]*>([\s\S]*?)<\/article>/.exec(page);
+  assert.ok(article, "article present");
+  const body = article[1] ?? "";
+
+  assert.match(
+    body,
+    /<details class="toc-fold"><summary>On this page<\/summary><ul><li><a href="#pick-a-mode">Pick a mode<\/a><\/li><li><a href="#gem">Gem<\/a><\/li><\/ul><\/details>/,
+  );
+  assert.ok(body.indexOf('class="toc-fold"') < body.indexOf('class="doc-body"'), "the section list leads the body");
+  assert.doesNotMatch(body, /<details[^>]*\sopen(?:=|>)/, "the list starts closed");
+});
+
+test("the desktop aside keeps its list and the page carries one disclosure, not two", () => {
+  const page = out(pageWith({ headings: [section(2, "Pick a mode", "pick-a-mode"), section(3, "Gem", "gem")] }));
+  assert.equal((page.match(/<nav class="toc"/g) ?? []).length, 1);
+  assert.equal((page.match(/class="toc-fold"/g) ?? []).length, 1);
+  assert.match(page, /<div class="aside"><nav class="toc" aria-labelledby="toc-title">/);
+
+  const css = readFileSync(new URL("../styles/src/ui.css", import.meta.url), "utf8");
+  const fold = /\.toc-fold\s*\{([^}]*)\}/.exec(css);
+  assert.ok(fold, ".toc-fold is styled");
+  assert.match(fold[1] ?? "", /display:\s*none/, "the fold is out of the desktop layout");
+  const mobile = /@media \(max-width: 74rem\)\s*\{([\s\S]*?)\n\}/.exec(css);
+  assert.ok(mobile, "the aside breakpoint exists");
+  assert.match(mobile[1] ?? "", /\.aside\s*\{[^}]*display:\s*none/, "the aside is out below the breakpoint");
+  assert.match(mobile[1] ?? "", /\.toc-fold\s*\{[^}]*display:\s*block/, "the folded list takes its place");
+});
+
+test("a page with fewer than two sections adds no section list anywhere", () => {
+  for (const page of [pageWith({ headings: [] }), pageWith({ headings: [section(2, "Only", "only")] })]) {
+    const rendered = out(page);
+    assert.doesNotMatch(rendered, /class="toc-fold"/);
+    assert.doesNotMatch(rendered, /<nav class="toc"/);
+  }
+});
+
+test("the mobile section list keeps the page's language, direction, and localized label", () => {
+  const page = out(
+    pageWith({
+      lang: "fa",
+      dir: "rtl",
+      headings: [section(2, "نصب", "install-fa"), section(3, "حالت‌ها", "states-fa")],
+    }),
+  );
+  assert.match(page, /^<html lang="fa" dir="rtl"/);
+  assert.match(page, /<details class="toc-fold"><summary>در این صفحه<\/summary>/);
+  assert.match(page, /<a href="#install-fa">نصب<\/a>/);
+  assert.match(page, /<a href="#states-fa">حالت‌ها<\/a>/);
+});
+
+test("the mobile section list is native markup that stays usable without JavaScript", () => {
+  const page = out(pageWith({ headings: [section(2, "Pick a mode", "pick-a-mode"), section(3, "Gem", "gem")] }));
+  const fold = /<details class="toc-fold">[\s\S]*?<\/details>/.exec(page)?.[0];
+  assert.ok(fold, "the disclosure is rendered");
+
+  assert.match(fold, /^<details class="toc-fold"><summary>/);
+  assert.doesNotMatch(fold, /<script|<style|\son[a-z]+\s*=|\sdata-[a-z-]+=|\shidden\b/, "no script or JS-only state");
+  for (const anchor of fold.matchAll(/<a\b[^>]*>/g)) {
+    assert.match(anchor[0], /\shref="#[^"]+"/, "each entry is a plain same-page link");
+  }
 });
 
 test("the sailcloth shell and the drawer share the header slot", () => {
