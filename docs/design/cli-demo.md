@@ -52,6 +52,9 @@ depends on a style, a colour, or a script.
   outside it and never over the network.
 - It never starts playing on load. Playback happens only when the reader asks, and a reader who
   prefers reduced motion or has no script gets every line at once.
+- A reduced-motion preference that changes while the page is open is followed too: playback stops
+  at once, every line appears, and the playback controls leave the bar. Turning the preference back
+  off brings the controls back but never starts playback on its own.
 
 ## Install tabs
 
