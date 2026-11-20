@@ -7,9 +7,13 @@ import {
   rowsOf,
   shortenLabel,
 } from "../bar-chart/index.ts";
+import chartData from "../chart-data/index.ts";
 import { MAX_SERIES, idBaseOf, seriesColour, text } from "../chart-data/input.ts";
 import { stackedTotalsOf, ticksOf, xScaleOf } from "../chart-data/scale.ts";
 import { barMark, labelMark, lineMark, svgFrame, textMark } from "../chart-data/svg.ts";
+
+// The table and its download links come from the shared chart-data path.
+export { TABLE_CLASS } from "../chart-data/index.ts";
 
 /** The number of series the chart colours: one per categorical token, `chart-cat-1` to `chart-cat-8`. */
 export { MAX_SERIES } from "../chart-data/input.ts";
@@ -53,10 +57,7 @@ export const LEGEND_CLASS = "stacked-bar-legend";
 /** Class on the colour swatch in a legend item. */
 export const SWATCH_CLASS = "stacked-bar-swatch";
 
-/** Class on the table under the chart, the chart's text alternative. */
-export const TABLE_CLASS = "stacked-bar-table";
-
-/** Class on the gap and the table cell that stand for a segment with no value. */
+/** Class on the gap that stands for a bar with no segment value. */
 export const NO_VALUE_CLASS = "stacked-bar-no-value";
 
 /** Class on the visible note shown when the source is absent or empty. */
@@ -258,7 +259,6 @@ export default function stackedBar({ props, site, page }: ComponentProps<Stacked
   const titleId = `${base}-title`;
   const lang = page.lang;
   const chart = chartOf(rows, series, lang);
-  const format = (value: number) => formatNumber(lang, value);
 
   return h(
     "figure",
@@ -277,37 +277,22 @@ export default function stackedBar({ props, site, page }: ComponentProps<Stacked
         ),
       ),
     ),
-    h(
-      "table",
-      { class: TABLE_CLASS },
-      h("caption", null, name),
-      h(
-        "thead",
-        null,
-        h(
-          "tr",
-          null,
-          h("th", { scope: "col" }, CATEGORY_HEADING),
-          ...series.map((label) => h("th", { scope: "col", key: label }, label)),
+    chartData({
+      title: name,
+      description: `Values of ${valueField} by ${category} and ${seriesField}, ${rows.length} ${
+        rows.length === 1 ? "category" : "categories"
+      }.`,
+      labelHeading: CATEGORY_HEADING,
+      columns: series,
+      rows: rows.map((row) => ({
+        id: row.id,
+        label: row.label,
+        values: series.map(
+          (label) => row.segments.find((candidate) => candidate.series === label)?.value,
         ),
-      ),
-      h(
-        "tbody",
-        null,
-        ...rows.map((row) =>
-          h(
-            "tr",
-            { key: row.label },
-            h("th", { scope: "row" }, row.label),
-            ...series.map((label) => {
-              const segment = row.segments.find((candidate) => candidate.series === label);
-              return segment === undefined || segment.value === undefined
-                ? h("td", { class: NO_VALUE_CLASS, key: label }, NO_VALUE_TEXT)
-                : h("td", { key: label }, format(segment.value));
-            }),
-          ),
-        ),
-      ),
-    ),
+      })),
+      lang,
+      id: base,
+    }),
   );
 }

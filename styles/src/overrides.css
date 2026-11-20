@@ -375,7 +375,6 @@ button[data-block-id] {
 .schema-table th,
 .budget-report-table th,
 .a11y-report-table th,
-.line-chart-table th,
 .compare th,
 table th {
   color: var(--foreground);

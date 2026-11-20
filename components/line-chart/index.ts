@@ -14,8 +14,12 @@ import {
   type Json,
 } from "../chart-data/input.ts";
 import { scale } from "../timeline/scale.ts";
+import chartData from "../chart-data/index.ts";
 import { evenTicksOf, extentOf, paddedDomain, percentOf, percentScaleOf, ratioOf } from "../chart-data/scale.ts";
 import { labelMark, lineMark, svgFrame, textMark } from "../chart-data/svg.ts";
+
+// The table, its download links, and a missing value's note come from the shared chart-data path.
+export { NO_VALUE_CLASS, NO_VALUE_TEXT, TABLE_CLASS } from "../chart-data/index.ts";
 
 /** The Markdown directive this component handles: `::line-chart{from="growth"}`. */
 export const directive = "line-chart";
@@ -50,12 +54,6 @@ export const TICK_CLASS = "line-chart-tick";
 /** Class on the direct label at the end of a line. */
 export const END_LABEL_CLASS = "line-chart-end-label";
 
-/** Class on a gap and the table cell that stand for a row with no value. */
-export const NO_VALUE_CLASS = "line-chart-no-value";
-
-/** Class on the table under the chart, the chart's text alternative. */
-export const TABLE_CLASS = "line-chart-table";
-
 /** Class on the visible note shown when the source is absent or has nothing to draw. */
 export const MISSING_CLASS = "line-chart-missing";
 
@@ -67,9 +65,6 @@ export const MAX_LABEL_LENGTH = 14;
 
 /** What the chart says when it has no source to read. */
 export const NO_SOURCE_TEXT = "This chart has no source.";
-
-/** The note in the chart and in the table for a row with no value. */
-export const NO_VALUE_TEXT = "No value";
 
 /** Category heading of the table under the chart. */
 export const CATEGORY_HEADING = "Category";
@@ -349,37 +344,20 @@ export default function lineChart({ props, site, page }: ComponentProps<LineChar
     { class: CLASS, id: base, "data-line-chart": from },
     title === "" ? null : h("figcaption", { class: TITLE_CLASS }, title),
     svgFrame(SVG_CLASS, width, height, titleId, name, marks),
-    h(
-      "table",
-      { class: TABLE_CLASS },
-      h("caption", null, name),
-      h(
-        "thead",
-        null,
-        h(
-          "tr",
-          null,
-          h("th", { scope: "col" }, CATEGORY_HEADING),
-          ...series.map((entry) => h("th", { scope: "col" }, entry.label)),
-        ),
-      ),
-      h(
-        "tbody",
-        null,
-        ...plotted.map(({ row, x }) =>
-          h(
-            "tr",
-            null,
-            h("th", { scope: "row" }, x),
-            ...series.map((entry) => {
-              const value = numericValue(lookup(row, entry.field));
-              return value === undefined
-                ? h("td", { class: NO_VALUE_CLASS }, NO_VALUE_TEXT)
-                : h("td", null, formatNumber(lang, value));
-            }),
-          ),
-        ),
-      ),
-    ),
+    chartData({
+      title: name,
+      description: `Values of ${fields.join(", ")} by ${category}, ${plotted.length} ${
+        plotted.length === 1 ? "row" : "rows"
+      }.`,
+      labelHeading: CATEGORY_HEADING,
+      columns: series.map((entry) => entry.label),
+      rows: plotted.map(({ row, x }, index) => ({
+        id: `${base}-${index + 1}`,
+        label: x,
+        values: series.map((entry) => numericValue(lookup(row, entry.field))),
+      })),
+      lang,
+      id: base,
+    }),
   );
 }

@@ -154,8 +154,8 @@ test("charts and their data tables read before any island runs", () => {
   const data = page.querySelector(".chart-data") as HTMLDetailsElement;
   assert.ok(data, "the bar chart carries its data table");
   assert.equal(data.open, false, "the table waits for a click, not a script");
-  assert.equal(all(page, ".chart-data-table tbody tr").length, 4);
-  assert.equal(all(page, ".line-chart-table tbody tr").length, 5);
+  assert.equal(all(page, ".bar-chart .chart-data-table tbody tr").length, 4);
+  assert.equal(all(page, ".line-chart .chart-data-table tbody tr").length, 5);
 });
 
 test("the data explorer draws its table and fallback form before the island runs", () => {
