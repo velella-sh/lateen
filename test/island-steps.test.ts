@@ -66,6 +66,15 @@ test("a blocked or missing store changes nothing", () => {
   assert.equal(readTicks(setup(undefined, "not json").env).size, 0);
 });
 
+test("the island keeps the title anchor of every step, so external links still land", () => {
+  const { doc, root, env } = setup(undefined);
+  const second = doc.querySelector("#step-two");
+  assert.ok(second);
+  assert.equal(second.getAttribute("data-step"), "2");
+  activate(root, env);
+  assert.equal(doc.querySelector("#step-two"), second);
+});
+
 test("the ticks are real checkboxes with a name per step: keyboard use is native", () => {
   const { doc, root, env } = setup(undefined);
   activate(root, env);

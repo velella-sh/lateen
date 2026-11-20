@@ -90,6 +90,15 @@ function itemsOf(html: string): Item[] {
   return items;
 }
 
+/** A lower-case anchor from a title: letters and numbers, runs of other characters become `-`. */
+function slugOf(text: string): string {
+  return text
+    .normalize("NFKD")
+    .toLowerCase()
+    .replace(/[^\p{L}\p{N}]+/gu, "-")
+    .replace(/^-+|-+$/gu, "");
+}
+
 /** One step's markup details, for tests and for agents. */
 export interface Step {
   readonly number: number;
@@ -97,32 +106,48 @@ export interface Step {
   readonly title: string;
 }
 
-/** The steps of a rendered list in order: number, stable anchor `step-<n>`, and title. */
+/** One step's markup details plus where its content sits in the HTML. */
+interface Planned extends Step, Item {}
+
+/**
+ * Anchors the steps of a list by title, not position: inserting a step leaves the others' ids
+ * alone. A step without a title falls back to its number, and a repeated title gets `-2`, `-3`, ….
+ */
+function planOf(html: string): Planned[] {
+  const used = new Set<string>();
+  return itemsOf(html).map((item, index) => {
+    const number = index + 1;
+    const title = titleOf(html.slice(item.tagEnd, item.close));
+    const slug = slugOf(title);
+    const base = slug === "" ? `step-${String(number)}` : `step-${slug}`;
+    let id = base;
+    for (let suffix = 2; used.has(id); suffix += 1) id = `${base}-${String(suffix)}`;
+    used.add(id);
+    return { ...item, number, id, title };
+  });
+}
+
+/** The steps of a rendered list in order: number, title anchor, and title. */
 export function stepsOf(html: string): Step[] {
-  return itemsOf(html).map((item, index) => ({
-    number: index + 1,
-    id: `step-${String(index + 1)}`,
-    title: titleOf(html.slice(item.tagEnd, item.close)),
-  }));
+  return planOf(html).map(({ number, id, title }) => ({ number, id, title }));
 }
 
 /**
- * Gives every step a stable anchor (`step-1`, `step-2`, …) and its number as text, written with the
- * page's digits. The list stays an ordered list. A step may hold code and callouts: its content is not
+ * Gives every step a stable anchor from its title and its number as text, written with the page's
+ * digits. The list stays an ordered list. A step may hold code and callouts: its content is not
  * changed, only the number is put in front of it.
  */
 export function numberSteps(html: string, lang: string): string {
-  const items = itemsOf(html);
   let out = "";
   let cursor = 0;
-  items.forEach((item, index) => {
-    const n = index + 1;
+  for (const item of planOf(html)) {
+    const n = item.number;
     const label = t(lang, "guide_step", { n: digitsOf(n, lang) });
-    const li = `<li id="step-${String(n)}" class="step" data-step="${String(n)}">`;
+    const li = `<li id="${item.id}" class="step" data-step="${String(n)}">`;
     const number = `<span class="${NUMBER_CLASS}">${label}</span>`;
     out += html.slice(cursor, item.tagStart) + li + number;
     cursor = item.tagEnd;
-  });
+  }
   return out + html.slice(cursor);
 }
 

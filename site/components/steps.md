@@ -34,6 +34,6 @@ None.
 
 ## Notes
 
-- The body must be an ordered list. Each item is one step; each step gets an anchor (`#step-1`, `#step-2`) and its number as text, written with the digits of the page language.
+- The body must be an ordered list. Each item is one step; each step gets an anchor from its title (`1. Install the package.` becomes `#step-install-the-package`) and its number as text, written with the digits of the page language. Inserting another step does not change the anchors of the steps around it; repeated titles get `-2`, `-3`, and a step without a title uses its number.
 - The directive is for a sequence, not for a bulleted list. For options or features, a plain list reads better.
 - A step can hold a paragraph, a code block, or a callout; keep each step to one action.
