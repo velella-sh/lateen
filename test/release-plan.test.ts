@@ -1,5 +1,6 @@
-// A release dispatch input is arbitrary text: the tag must be one bare `v<version>` ref that names
-// the package.json version, so a branch, a full ref, a range or shell syntax stops before checkout.
+// The release workflow's decisions are pure: which dist-tag a version takes, whether a tag may
+// release it, and whether a run publishes or verifies an already-published version. A dispatch
+// input is arbitrary text, so only one bare `v<version>` ref that names package.json is accepted.
 import assert from "node:assert/strict";
 import { spawnSync } from "node:child_process";
 import { mkdtempSync, readFileSync, rmSync, writeFileSync } from "node:fs";
@@ -7,7 +8,7 @@ import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { test } from "node:test";
 import { fileURLToPath } from "node:url";
-import { TAG_PATTERN, tagProblems } from "../scripts/release-plan.ts";
+import { TAG_PATTERN, alreadyPublished, distTagOf, outputLines, planRelease, releaseOutcome, tagProblems, type ReleaseRun } from "../scripts/release-plan.ts";
 
 const script = fileURLToPath(new URL("../scripts/release-plan.ts", import.meta.url));
 
@@ -24,8 +25,7 @@ test("a stable or prerelease tag that names the package version is valid", () =>
 
 test("malformed and ambiguous refs name every reason", () => {
   for (const tag of ["0.2.3", "v0.2", "v0.2.3.4", "refs/tags/v0.2.3", "v0.2.3^{}", "v0.2.3..main", "v0.2.3 ", "main", "v0.2.3/extra", "v00.2.3"]) {
-    const problems = tagProblems(tag, "0.2.3");
-    assert.match(problems.join("\n"), /the release tag must be exactly/, tag);
+    assert.match(tagProblems(tag, "0.2.3").join("\n"), /the release tag must be exactly/, tag);
   }
 });
 
@@ -39,24 +39,82 @@ test("the helper's pattern is the one shape the workflow preflight checks", () =
   assert.ok(workflow.includes(TAG_PATTERN), "the preflight shell check and the helper agree");
 });
 
+test("a prerelease version goes to next, a stable version to latest", () => {
+  for (const [version, expected] of [
+    ["0.2.3", "latest"],
+    ["1.0.0", "latest"],
+    ["1.0.0+build.5", "latest"],
+    ["0.3.0-rc.1", "next"],
+    ["1.0.0-beta.2", "next"],
+  ] as const) {
+    assert.equal(distTagOf(version), expected, version);
+  }
+});
+
+test("a version npm already serves is a retry, not a first publish", () => {
+  for (const [served, version, expected] of [
+    ["", "0.2.3", false],
+    ["   ", "0.2.3", false],
+    ["0.2.2", "0.2.3", false],
+    ["0.2.3", "0.2.3", true],
+    ["0.2.3\n", "0.2.3", true],
+  ] as const) {
+    assert.equal(alreadyPublished(served, version), expected, served);
+  }
+});
+
+test("the plan is table-driven across first publish, stable, prerelease and retry", () => {
+  const cases = [
+    { served: "", version: "0.2.3", distTag: "latest", published: false, publish: true, prerelease: false, latest: true },
+    { served: "0.2.3", version: "0.2.3", distTag: "latest", published: true, publish: false, prerelease: false, latest: true },
+    { served: "", version: "0.3.0-rc.1", distTag: "next", published: false, publish: true, prerelease: true, latest: false },
+    { served: "0.3.0-rc.1", version: "0.3.0-rc.1", distTag: "next", published: true, publish: false, prerelease: true, latest: false },
+  ] as const;
+  for (const { served, version, ...expected } of cases) assert.deepEqual(planRelease(version, served), { version, ...expected });
+});
+
+test("the workflow outputs name every decision", () => {
+  assert.deepEqual(outputLines(planRelease("0.3.0-rc.1", "")), [
+    "version=0.3.0-rc.1",
+    "dist-tag=next",
+    "published=false",
+    "publish=true",
+    "prerelease=true",
+    "latest=false",
+  ]);
+});
+
 /** Runs the CLI in a temporary package checkout and returns its status, stdout, stderr and outputs. */
-function cli(tag: string, version = "0.2.3") {
-  const dir = mkdtempSync(join(tmpdir(), "lateen-tag-"));
+function cli(tag: string, served = "", version = "0.2.3") {
+  const dir = mkdtempSync(join(tmpdir(), "lateen-plan-"));
   const output = join(dir, "github-output");
+  const summary = join(dir, "github-summary");
   try {
     writeFileSync(join(dir, "package.json"), JSON.stringify({ name: "@velella/lateen", version }));
     writeFileSync(output, "");
-    const result = spawnSync(process.execPath, [script, "--tag", tag, "--github-output", output], { cwd: dir, encoding: "utf8" });
-    return { status: result.status, stdout: result.stdout, stderr: result.stderr, outputs: readFileSync(output, "utf8") };
+    writeFileSync(summary, "");
+    const result = spawnSync(process.execPath, [script, "--tag", tag, "--served", served, "--github-output", output], {
+      cwd: dir,
+      encoding: "utf8",
+      env: { ...process.env, GITHUB_STEP_SUMMARY: summary },
+    });
+    return { status: result.status, stdout: result.stdout, stderr: result.stderr, outputs: readFileSync(output, "utf8"), summary: readFileSync(summary, "utf8") };
   } finally {
     rmSync(dir, { recursive: true, force: true });
   }
 }
 
-test("the CLI writes the version for a valid tag", () => {
-  const result = cli("v0.2.3");
-  assert.equal(result.status, 0, result.stderr);
-  assert.equal(result.outputs, "version=0.2.3\n");
+test("the CLI writes the plan and the summary, and a retry turns publish off", () => {
+  const first = cli("v0.2.3");
+  assert.equal(first.status, 0, first.stderr);
+  assert.equal(first.outputs, "version=0.2.3\ndist-tag=latest\npublished=false\npublish=true\nprerelease=false\nlatest=true\n");
+  assert.match(first.summary, /Releasing @velella\/lateen@0\.2\.3 to the `latest` dist-tag \(already on npm: false\)/);
+
+  const retry = cli("v0.3.0-rc.1", "0.3.0-rc.1", "0.3.0-rc.1");
+  assert.equal(retry.status, 0, retry.stderr);
+  assert.match(retry.outputs, /dist-tag=next/);
+  assert.match(retry.outputs, /published=true/);
+  assert.match(retry.outputs, /publish=false/);
 });
 
 test("the CLI refuses a malformed tag and writes no output", () => {
@@ -64,4 +122,116 @@ test("the CLI refuses a malformed tag and writes no output", () => {
   assert.equal(result.status, 1);
   assert.match(result.stderr, /the release tag must be exactly/);
   assert.equal(result.outputs, "");
+});
+
+test("the CLI refuses a tag that does not match package.json", () => {
+  const result = cli("v0.2.4");
+  assert.equal(result.status, 1);
+  assert.match(result.stderr, /does not match package\.json version 0\.2\.3/);
+  assert.equal(result.outputs, "");
+});
+
+// Fixture-driven state machine: a release may only be `verified` when the evidence chain for that
+// path completed. The workflow's job conditions must express the same rules.
+const RUNS: readonly { name: string; run: ReleaseRun; verified: boolean; createRelease: boolean; problem?: RegExp }[] = [
+  {
+    name: "first publish: acceptance, publish and post-publish all pass",
+    run: { acceptance: "success", alreadyPublished: false, publish: "success", postPublish: "success", releaseExists: false },
+    verified: true,
+    createRelease: true,
+  },
+  {
+    name: "first publish: acceptance fails",
+    run: { acceptance: "failure", alreadyPublished: false, publish: "skipped", postPublish: "skipped", releaseExists: false },
+    verified: false,
+    createRelease: false,
+    problem: /acceptance gate was failure/,
+  },
+  {
+    name: "first publish: publish fails",
+    run: { acceptance: "success", alreadyPublished: false, publish: "failure", postPublish: "skipped", releaseExists: false },
+    verified: false,
+    createRelease: false,
+    problem: /first publish did not succeed \(publish was failure\)/,
+  },
+  {
+    name: "first publish: publish is skipped",
+    run: { acceptance: "success", alreadyPublished: false, publish: "skipped", postPublish: "success", releaseExists: false },
+    verified: false,
+    createRelease: false,
+    problem: /first publish did not succeed/,
+  },
+  {
+    name: "first publish: post-publish verification fails",
+    run: { acceptance: "success", alreadyPublished: false, publish: "success", postPublish: "failure", releaseExists: false },
+    verified: false,
+    createRelease: false,
+    problem: /post-publish verification was failure/,
+  },
+  {
+    name: "retry: npm already serves the version, post-publish passes",
+    run: { acceptance: "success", alreadyPublished: true, publish: "skipped", postPublish: "success", releaseExists: false },
+    verified: true,
+    createRelease: true,
+  },
+  {
+    name: "retry: npm already serves the version, post-publish fails",
+    run: { acceptance: "success", alreadyPublished: true, publish: "skipped", postPublish: "failure", releaseExists: false },
+    verified: false,
+    createRelease: false,
+    problem: /post-publish verification was failure/,
+  },
+  {
+    name: "retry: post-publish is skipped",
+    run: { acceptance: "success", alreadyPublished: true, publish: "skipped", postPublish: "skipped", releaseExists: false },
+    verified: false,
+    createRelease: false,
+    problem: /post-publish verification was skipped/,
+  },
+  {
+    name: "retry: the publish job's failure still blocks verification",
+    run: { acceptance: "success", alreadyPublished: true, publish: "failure", postPublish: "success", releaseExists: false },
+    verified: false,
+    createRelease: false,
+    problem: /publish job failed/,
+  },
+  {
+    name: "invalid transition: publish and post-publish pass without acceptance",
+    run: { acceptance: "failure", alreadyPublished: false, publish: "success", postPublish: "success", releaseExists: false },
+    verified: false,
+    createRelease: false,
+    problem: /acceptance gate was failure/,
+  },
+  {
+    name: "existing GitHub Release: verified evidence leaves it alone",
+    run: { acceptance: "success", alreadyPublished: true, publish: "skipped", postPublish: "success", releaseExists: true },
+    verified: true,
+    createRelease: false,
+  },
+  {
+    name: "existing GitHub Release: failed verification is not a checked release",
+    run: { acceptance: "success", alreadyPublished: true, publish: "skipped", postPublish: "failure", releaseExists: true },
+    verified: false,
+    createRelease: false,
+    problem: /existing GitHub Release is not backed/,
+  },
+];
+
+for (const fixture of RUNS) {
+  test(`state machine: ${fixture.name}`, () => {
+    const outcome = releaseOutcome(fixture.run);
+    assert.equal(outcome.verified, fixture.verified, outcome.problems.join("\n"));
+    assert.equal(outcome.createRelease, fixture.createRelease);
+    if (fixture.problem === undefined) assert.deepEqual(outcome.problems, []);
+    else assert.match(outcome.problems.join("\n"), fixture.problem);
+  });
+}
+
+test("only a success can verify a stage that must run", () => {
+  for (const stage of ["failure", "skipped"] as const) {
+    for (const alreadyPublished of [false, true]) {
+      const outcome = releaseOutcome({ acceptance: "success", alreadyPublished, publish: "success", postPublish: stage, releaseExists: false });
+      assert.equal(outcome.verified, false, `post-publish ${stage} verified`);
+    }
+  }
 });

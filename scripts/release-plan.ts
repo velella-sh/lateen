@@ -1,7 +1,7 @@
-// The release workflow's tag decisions: a dispatch input must be one bare `v<version>` ref whose
-// version is the package.json version of the commit it names. A branch name, a full ref, a range or
-// shell syntax must stop before anything checks that ref out.
-// Usage: node scripts/release-plan.ts --tag <tag> [--version <package.json version>] [--github-output <file>]
+// The release workflow's decisions: a dispatch input must be one bare `v<version>` ref whose
+// version is the package.json version of the commit it names; a prerelease goes to the `next`
+// dist-tag; and a version npm already serves is verified instead of published.
+// Usage: node scripts/release-plan.ts --tag <tag> [--version <version>] [--served <npm view output>] [--check-tag] [--github-output <file>]
 import { appendFileSync, readFileSync } from "node:fs";
 import { fileURLToPath } from "node:url";
 
@@ -10,6 +10,17 @@ export const TAG_PATTERN = "^v(0|[1-9][0-9]*)\\.(0|[1-9][0-9]*)\\.(0|[1-9][0-9]*
 
 const TAG = new RegExp(TAG_PATTERN);
 const VERSION = /^(0|[1-9][0-9]*)\.(0|[1-9][0-9]*)\.(0|[1-9][0-9]*)(-[0-9A-Za-z-]+(\.[0-9A-Za-z-]+)*)?$/;
+
+export type DistTag = "next" | "latest";
+
+export interface ReleasePlan {
+  readonly version: string;
+  readonly distTag: DistTag;
+  readonly published: boolean;
+  readonly publish: boolean;
+  readonly prerelease: boolean;
+  readonly latest: boolean;
+}
 
 /** Every reason the tag cannot release this version, one line each. Pure. */
 export function tagProblems(tag: string, version: string): string[] {
@@ -27,6 +38,81 @@ export function tagProblems(tag: string, version: string): string[] {
   return problems;
 }
 
+/** A version with a prerelease suffix never moves the `latest` dist-tag. Pure. */
+export function distTagOf(version: string): DistTag {
+  return version.includes("-") ? "next" : "latest";
+}
+
+/** Whether npm already serves this exact version, given `npm view`'s output. Pure. */
+export function alreadyPublished(served: string, version: string): boolean {
+  return served.trim() === version;
+}
+
+/** Every workflow output for one release run, including the retry decision and release flags. Pure. */
+export function planRelease(version: string, served: string): ReleasePlan {
+  const distTag = distTagOf(version);
+  const published = alreadyPublished(served, version);
+  return {
+    version,
+    distTag,
+    published,
+    publish: !published,
+    prerelease: distTag === "next",
+    latest: distTag === "latest",
+  };
+}
+
+/** The `key=value` lines the workflow reads, one per decision. */
+export function outputLines(plan: ReleasePlan): string[] {
+  return [
+    `version=${plan.version}`,
+    `dist-tag=${plan.distTag}`,
+    `published=${plan.published}`,
+    `publish=${plan.publish}`,
+    `prerelease=${plan.prerelease}`,
+    `latest=${plan.latest}`,
+  ];
+}
+
+/** How one job in the release graph ended. */
+export type Stage = "success" | "failure" | "skipped";
+
+/** What one release run observed, after its jobs settled. */
+export interface ReleaseRun {
+  readonly acceptance: Stage;
+  /** npm already serves this exact version, so publish is skipped. */
+  readonly alreadyPublished: boolean;
+  readonly publish: Stage;
+  readonly postPublish: Stage;
+  readonly releaseExists: boolean;
+}
+
+/** What the run may claim: a verified release, and whether it still needs creating. */
+export interface ReleaseOutcome {
+  readonly verified: boolean;
+  readonly createRelease: boolean;
+  readonly problems: string[];
+}
+
+/**
+ * The first-publish and retry state machine. A verified release needs fresh acceptance evidence,
+ * the published package verified again, and either a successful publish or a reason to skip it.
+ * Pure, so an invalid transition cannot produce `verified: true`.
+ */
+export function releaseOutcome(run: ReleaseRun): ReleaseOutcome {
+  const problems: string[] = [];
+  if (run.acceptance !== "success") problems.push(`the acceptance gate was ${run.acceptance}`);
+  if (run.alreadyPublished) {
+    if (run.publish === "failure") problems.push("npm already served the version but the publish job failed");
+  } else if (run.publish !== "success") {
+    problems.push(`the first publish did not succeed (publish was ${run.publish})`);
+  }
+  if (run.postPublish !== "success") problems.push(`the post-publish verification was ${run.postPublish}`);
+  const verified = problems.length === 0;
+  if (run.releaseExists && !verified) problems.push("an existing GitHub Release is not backed by this run's evidence");
+  return { verified, createRelease: verified && !run.releaseExists, problems };
+}
+
 /** The value after a flag, or `undefined` when the flag is absent or has no value. */
 export function flag(argv: readonly string[], name: string): string | undefined {
   const index = argv.indexOf(name);
@@ -37,9 +123,12 @@ export function flag(argv: readonly string[], name: string): string | undefined 
 export function main(argv = process.argv.slice(2)): void {
   const tag = flag(argv, "--tag");
   if (tag === undefined) {
-    throw new Error("usage: node scripts/release-plan.ts --tag <tag> [--version <package.json version>] [--github-output <file>]");
+    throw new Error("usage: node scripts/release-plan.ts --tag <tag> [--version <version>] [--served <npm view output>] [--check-tag] [--github-output <file>]");
   }
-  const version = flag(argv, "--version") ?? (JSON.parse(readFileSync("package.json", "utf8")) as { version: string }).version;
+  const pkg = JSON.parse(readFileSync("package.json", "utf8")) as { name?: string; version?: string };
+  // Preflight passes the tag commit's version because this checkout is the default branch.
+  const version = flag(argv, "--version") ?? pkg.version;
+  if (version === undefined) throw new Error("package.json has no version");
   const problems = tagProblems(tag, version);
   if (problems.length > 0) {
     console.error(`The release tag cannot be released:\n  ${problems.join("\n  ")}`);
@@ -47,8 +136,21 @@ export function main(argv = process.argv.slice(2)): void {
     return;
   }
   const output = flag(argv, "--github-output");
-  if (output !== undefined) appendFileSync(output, `version=${version}\n`);
-  console.log(`Release tag ${tag} names ${version}`);
+  if (argv.includes("--check-tag")) {
+    if (output !== undefined) appendFileSync(output, `version=${version}\n`);
+    console.log(`Release tag ${tag} names ${version}`);
+    return;
+  }
+  const plan = planRelease(version, flag(argv, "--served") ?? "");
+  const lines = outputLines(plan);
+  if (output !== undefined) appendFileSync(output, `${lines.join("\n")}\n`);
+  if (process.env.GITHUB_STEP_SUMMARY) {
+    appendFileSync(
+      process.env.GITHUB_STEP_SUMMARY,
+      `Releasing ${pkg.name ?? "the package"}@${plan.version} to the \`${plan.distTag}\` dist-tag (already on npm: ${plan.published})\n`,
+    );
+  }
+  console.log(lines.join("\n"));
 }
 
 if (process.argv[1] === fileURLToPath(import.meta.url)) {
