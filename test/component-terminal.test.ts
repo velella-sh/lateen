@@ -172,6 +172,19 @@ test("commandsOf joins only the commands, one per line", () => {
   assert.equal(commandsOf(lines), "npm ci\nnpm run check");
 });
 
+test("a mixed session copies only its marked commands and still shows every line", () => {
+  const out = render("<p>$ npm ci\nadded 200 packages\n% npm run check\nall gates passed</p>");
+
+  assert.match(out, /data-commands="npm ci\nnpm run check"/);
+  assert.match(out, /<span class="terminal-prompt" aria-hidden="true">% <\/span><span class="terminal-text">npm run check/);
+  assert.match(out, /terminal-output" data-line="output" data-command="0">added 200 packages<\/span>/);
+  assert.match(out, /terminal-output" data-line="output" data-command="1">all gates passed<\/span>/);
+  assert.deepEqual(recordsIn(out), [
+    { prompt: "$", input: "npm ci", output: ["added 200 packages"] },
+    { prompt: "%", input: "npm run check", output: ["all gates passed"] },
+  ]);
+});
+
 test("output before the first command belongs to no record", () => {
   const lines = parseLines("booting\n$ run\nok");
 

@@ -7,7 +7,7 @@ redirect_from:
   - /blocks/terminal/
 ---
 
-A terminal shows a shell session: lines that start with `$` are commands, and every other line is output. A command can run over several lines with a backslash continuation or a heredoc. The copy button copies only the complete commands, so a reader never pastes the output back into the shell.
+A terminal shows a shell session: lines that start with `$` are commands, and every other line is output. A line that starts with `% ` is a command too, for shells that print a `%` prompt. A command can run over several lines with a backslash continuation or a heredoc. The copy button copies only the complete commands, so a reader never pastes the output back into the shell.
 
 ## Syntax
 
@@ -58,7 +58,7 @@ The session is read, never executed or expanded: the parser only decides which l
 | --- | --- | --- | --- |
 | `group` | string | none | The example group whose form drives this session; letters, digits, `_`, and `-`. Matching is exact. Without a group, a page with exactly one form still follows it. |
 
-The prompt is `$ `. While an input in the group is invalid, the copy button is disabled and the bar says why; output-block copy is not blocked because its text is the author's.
+The prompts are `$ ` and `% `. While an input in the group is invalid, the copy button is disabled and the bar says why; output-block copy is not blocked because its text is the author's.
 
 ## Example
 
@@ -89,7 +89,7 @@ The session publishes one record per command, in document order, in an inert JSO
 
 ## Notes
 
-- A line that starts with `$` opens a command; the prompt and one space after it are not part of the copied text. Every other line is output, kept as written.
+- A line that starts with `$` opens a command; the prompt and one space after it are not part of the copied text. A `% ` line is read the same way, while a `%` without a following space (such as `100% done`) stays output. Every other line is output, kept as written.
 - Continuation and heredoc lines show no prompt, so the prompt marks only where a command begins.
 - Use a fenced block for a multiline command. In plain text Markdown removes a trailing backslash as a hard line break before the theme reads the session.
 - The copy button reads the session again when it is clicked, so a value the variables form changed is the value copied.
