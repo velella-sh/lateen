@@ -64,7 +64,7 @@ const search: Chrome = (props) =>
       { class: "search-panel" },
       h(
         "div",
-        { class: "search-form", role: "search" },
+        { class: "search-field", role: "search" },
         h("label", { class: "search-label", for: SEARCH_INPUT_ID }, t(props.page.lang, "search")),
         h("input", {
           class: "search-input",
@@ -81,6 +81,19 @@ const search: Chrome = (props) =>
           "aria-autocomplete": "list",
           "data-search-input": "",
         }),
+        // Hidden and disabled until `client.ts` finds text to clear, so no-JS sees no dead control.
+        h(
+          "button",
+          {
+            type: "button",
+            class: "search-clear",
+            "aria-label": t(props.page.lang, "search_clear"),
+            "data-search-clear": "",
+            hidden: true,
+            disabled: true,
+          },
+          h("span", { "aria-hidden": "true" }, "×"),
+        ),
         h(
           "button",
           {

@@ -699,6 +699,7 @@ function fakeButton(name = "button") {
   const fake = {
     name,
     hidden: true,
+    disabled: true,
     focused: 0,
     attrs: {} as Record<string, string>,
     clicks: [] as Array<() => void>,
@@ -816,6 +817,7 @@ function partsOf(options: { base?: string; focusables?: SearchFocusable[] } = {}
   });
   const button = fakeButton("search");
   const close = fakeButton("close");
+  const clear = fakeButton("clear");
   const input = fakeInput();
   const results = fakeResults();
   const status = fakeStatus();
@@ -826,8 +828,9 @@ function partsOf(options: { base?: string; focusables?: SearchFocusable[] } = {}
     input: input as unknown as SearchInput,
     results: results as unknown as SearchResults,
     status,
+    clear: clear as unknown as SearchParts["clear"],
   };
-  return { dialog, button, close, input, results, status, parts };
+  return { dialog, button, close, clear, input, results, status, parts };
 }
 
 function apiOf(data: readonly SearchRecord[], terms: string[] = []): PagefindApi {
@@ -1078,6 +1081,65 @@ test("an empty field clears the results, the status, and the active option", asy
   assert.equal(results.nodes.length, 0);
   assert.equal(status.textContent, "");
   assert.equal(input.active, undefined);
+});
+
+test("the clear button appears only while the field holds text", async () => {
+  const { button, input, clear, parts } = partsOf();
+  activate(parts, envWith(apiOf(records)));
+  button.click();
+  await tick();
+
+  assert.equal(clear.hidden, true, "an empty field has nothing to clear");
+  assert.equal(clear.disabled, true);
+
+  input.type("cache");
+  await tick();
+
+  assert.equal(clear.hidden, false);
+  assert.equal(clear.disabled, false);
+
+  input.type("  ");
+  await tick();
+
+  assert.equal(clear.hidden, false, "a space is still text the reader can clear");
+
+  input.type("");
+  await tick();
+
+  assert.equal(clear.hidden, true);
+  assert.equal(clear.disabled, true);
+});
+
+test("clearing empties the query, results, and status once, then returns focus to the field", async () => {
+  const { button, dialog, input, results, status, clear, parts } = partsOf();
+  activate(parts, envWith(apiOf(records)));
+  button.click();
+  await tick();
+  input.type("cache");
+  await tick();
+  assert.equal(status.textContent, "2 results.");
+
+  let writes = 0;
+  let announced = status.textContent;
+  Object.defineProperty(status, "textContent", {
+    get: () => announced,
+    set: (value: string) => {
+      writes += 1;
+      announced = value;
+    },
+  });
+
+  clear.click();
+
+  assert.equal(input.value, "");
+  assert.equal(clear.hidden, true, "cleared, there is nothing left to press");
+  assert.equal(clear.disabled, true);
+  assert.deepEqual(rowsOf(results), [], "no row from the cleared query survives");
+  assert.equal(writes, 1, "the clear is announced once");
+  assert.equal(status.textContent, "");
+  assert.equal(input.focused, 2, "focus left the button and returned to the field");
+  assert.equal(dialog.closes, 0, "clearing does not close the dialog");
+  assert.equal(dialog.open, true);
 });
 
 test("a query with no hits announces it in words", async () => {

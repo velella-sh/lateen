@@ -747,6 +747,41 @@
     font-size: 1rem;
   }
 
+  /* One clear action beside the field; the flex row keeps it at the row end in either direction. */
+  .search-field .search-clear {
+    display: grid;
+    place-items: center;
+    min-block-size: 1.5rem;
+    min-inline-size: 1.5rem;
+    padding: 0;
+    border: 0;
+    border-radius: 999px;
+    background: transparent;
+    color: var(--muted-foreground);
+    font-size: 1rem;
+    line-height: 1;
+    cursor: pointer;
+  }
+
+  .search-field .search-clear[hidden] {
+    display: none;
+  }
+
+  .search-field .search-clear:hover {
+    background: var(--muted);
+    color: var(--foreground);
+  }
+
+  .search-field .search-clear:focus-visible {
+    outline: 2px solid var(--state-focus-ring);
+    outline-offset: 2px;
+  }
+
+  /* The island's clear button is the only one: no second native × in WebKit. */
+  .search-field input[type="search"]::-webkit-search-cancel-button {
+    -webkit-appearance: none;
+  }
+
   .search-results {
     max-height: 21rem;
     overflow: auto;
