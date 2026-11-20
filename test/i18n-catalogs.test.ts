@@ -89,7 +89,6 @@ test("the 404 recovery group is complete in every language", () => {
   const recoveryKeys = [
     "not_found_title",
     "not_found_text",
-    "not_found_sections",
     "search_placeholder",
     "search",
     "home",

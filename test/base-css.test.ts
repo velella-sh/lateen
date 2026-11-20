@@ -35,7 +35,7 @@ test("headings leave room for the sticky header", () => {
 });
 
 test("the docs shell styles use the classes the layouts render", () => {
-  for (const selector of [".doc-layout main > article > h1", ".breadcrumb-list", ".toc-fold", ".block-action", ".site-header .shell-menu", ".not-found-search", ".not-found-sections", ".edit-page-link"]) {
+  for (const selector of [".doc-layout main > article > h1", ".breadcrumb-list", ".toc-fold", ".block-action", ".site-header .shell-menu", ".not-found-actions", ".edit-page-link"]) {
     assert.match(ui, new RegExp(`\\${selector}(?![\\w-])`), selector);
   }
   assert.match(bodyOf(ui, /^\.block-action$/), /pointer-events:\s*none/);

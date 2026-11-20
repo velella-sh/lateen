@@ -68,7 +68,7 @@ A page picks a layout with `layout` in its front matter, or gets one from `defau
 | `base` | The document shell: `<head>`, skip link, theme script, and slots for the header, sidebar, main column, aside, and footer. The other layouts build on it; a page does not name it. |
 | `doc` | The docs page: header, sidebar, breadcrumb, article, table of contents, pager, and page footer. Front matter `status`, `since`, and `replaced_by` add the page-status banner. |
 | `home` | The docs home: a hero, action buttons, and section cards from `hero`, `actions`, and `sections` in front matter. `home: { style: showpiece }` composes it from the showpiece sections instead. |
-| `not-found` | The 404 page, with a search form and links to the home page and the top-level sections. |
+| `not-found` | The 404 page, with base-aware home and documentation-search links that work without JavaScript. |
 | `versions` | The versions index: a page's versions from `site.data.docsVersions` or the `versions` front matter key, each row linked to the same page when it exists and marked with Latest, Deprecated, or Dev in text. |
 | `record` | One data record: title, summary, facts, status, body sections, history, calendar, and its source position. |
 | `list` | A collection index as a table, cards, or a dated list, with groups, counts, pagination, and an empty note. |
