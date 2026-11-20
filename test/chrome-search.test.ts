@@ -383,6 +383,28 @@ test("result nodes keep Pagefind's mark emphasis and the group order", () => {
   assert.deepEqual(marks(nodes).map((mark) => textOf(mark)), ["cache", "cache"]);
 });
 
+test("technical paths and hyphenated names keep their order and mark boundaries", () => {
+  const nodes = drawnNodes(
+    optionList(
+      [
+        {
+          url: "/guide/packages/",
+          excerpt:
+            "Install <mark>pkg/foo@2.1</mark>, then check <mark>ERR_CONNECTION-REFUSED</mark> in the log.",
+          meta: { title: "Packages" },
+        },
+      ],
+      [],
+    ),
+  );
+
+  assert.equal(
+    textOf(findClass(nodes, "search-result-excerpt")!),
+    "Install pkg/foo@2.1, then check ERR_CONNECTION-REFUSED in the log.",
+  );
+  assert.deepEqual(marks(nodes).map((mark) => textOf(mark)), ["pkg/foo@2.1", "ERR_CONNECTION-REFUSED"]);
+});
+
 test("a result whose URL is not a safe link is an option with nothing to follow", () => {
   const nodes = drawnNodes(optionList([{ url: "javascript:alert(1)", excerpt: "No link", meta: { title: "Bad" } }], []));
   const option = optionsOf(nodes)[0]!;

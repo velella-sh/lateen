@@ -620,6 +620,70 @@
     overflow: auto;
   }
 
+  .search-group-title {
+    margin: 0;
+    padding: 0.25rem 0.75rem;
+    color: var(--muted-foreground);
+    font-size: 0.72rem;
+    font-weight: 600;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+  }
+
+  .search-result-link {
+    display: flex;
+    flex-direction: column;
+    gap: 0.25rem;
+    padding: 0.5rem 0.75rem;
+    border-inline-start: 2px solid transparent;
+    color: var(--foreground);
+    text-decoration: none;
+  }
+
+  .search-result-link:hover {
+    background: var(--muted);
+  }
+
+  .search-result-title {
+    color: var(--foreground);
+    font-size: 0.9rem;
+    font-weight: 600;
+  }
+
+  /* A path or a hyphenated name keeps its own order inside a right-to-left line. */
+  .search-result-excerpt {
+    color: var(--muted-foreground);
+    font-size: 0.84rem;
+    line-height: 1.6;
+    unicode-bidi: isolate;
+  }
+
+  .search-result-excerpt mark {
+    border-radius: 0.25rem;
+    background: var(--color-selection);
+    color: var(--foreground);
+    unicode-bidi: isolate;
+  }
+
+  .search-action-button {
+    display: flex;
+    align-items: baseline;
+    gap: 0.5rem;
+    inline-size: 100%;
+    padding: 0.5rem 0.75rem;
+    border: 0;
+    border-inline-start: 2px solid transparent;
+    background: transparent;
+    color: var(--foreground);
+    font-size: 0.9rem;
+    text-align: start;
+    cursor: pointer;
+  }
+
+  .search-action-button:hover {
+    background: var(--muted);
+  }
+
   .search-hits {
     list-style: none;
     margin: 0;
