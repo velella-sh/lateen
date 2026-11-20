@@ -14,12 +14,12 @@ import type { Page } from "playwright";
 import { buildFixture } from "../test/visual/fixtures/build.ts";
 import {
   DEFAULT_VIEWPORT,
-  STABILIZE_CSS,
   capture,
   expandMatrix,
   launchChromium,
   loadMatrix,
   newVisualContext,
+  settle,
   startServer,
   type VisualMatrix,
 } from "../visual/index.ts";
@@ -37,6 +37,7 @@ export {
   isLocalRequest,
   loadMatrix,
   newVisualContext,
+  settle,
 } from "../visual/index.ts";
 
 const ROOT = fileURLToPath(new URL("../", import.meta.url));
@@ -90,16 +91,6 @@ export function islandComponents(dir: string = join(ROOT, "components")): string
 export function missingStateEntries(components: readonly string[], states: StatesFile): string[] {
   const listed = new Set(states.components.map((entry) => entry.name));
   return components.filter((name) => !listed.has(name));
-}
-
-/** Loads a page in the settings every shot uses. */
-async function prepare(page: Page, url: string): Promise<void> {
-  await page.emulateMedia({ reducedMotion: "reduce", colorScheme: "light", media: "screen", forcedColors: "none" });
-  const response = await page.goto(url, { waitUntil: "load" });
-  if (response === null || !response.ok()) throw new Error(`${url} did not load (HTTP ${response?.status() ?? "none"})`);
-  await page.addStyleTag({ content: STABILIZE_CSS });
-  await page.evaluate(() => (globalThis as unknown as { document: { documentElement: { setAttribute(name: string, value: string): void } } }).document.documentElement.setAttribute("data-theme", "light"));
-  await page.evaluate(() => (globalThis as unknown as { document: { fonts: { ready: Promise<unknown> } } }).document.fonts.ready);
 }
 
 /** The first match of `selector`, scrolled into view. */
@@ -186,7 +177,7 @@ export async function captureStates(
   for (const entry of states.components) {
     const at = entry.page === undefined ? url : new URL(entry.page, url).toString();
     for (const state of entry.states) {
-      await prepare(page, at);
+      await settle(page, at);
       const action = state === "focus" ? entry.focusSelector ?? entry.selector : state === "disabled" ? entry.disabledSelector ?? entry.selector : entry.selector;
       await applyState(page, action, state);
       const file = join(dir, `${entry.name}-${state}.png`);

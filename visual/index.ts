@@ -186,8 +186,11 @@ export interface CaptureOptions {
   readonly maxHeight?: number;
 }
 
-/** Opens `url`, waits until the page is settled, and writes the full-page screenshot to `file`. */
-export async function capture(page: Page, url: string, file: string, options: CaptureOptions = {}): Promise<void> {
+/**
+ * Opens `url` under the one contract every visual page is captured with: the emulated media,
+ * animation and transitions off, the theme set, and the fonts loaded. No test adds its own.
+ */
+export async function settle(page: Page, url: string, options: CaptureOptions = {}): Promise<void> {
   const theme = options.theme ?? "light";
   await page.emulateMedia({
     reducedMotion: "reduce",
@@ -204,6 +207,11 @@ export async function capture(page: Page, url: string, file: string, options: Ca
     theme,
   );
   await page.evaluate(() => (globalThis as unknown as { document: { fonts: { ready: Promise<unknown> } } }).document.fonts.ready);
+}
+
+/** Opens `url`, waits until the page is settled, and writes the full-page screenshot to `file`. */
+export async function capture(page: Page, url: string, file: string, options: CaptureOptions = {}): Promise<void> {
+  await settle(page, url, options);
   const height = await page.evaluate(() => (globalThis as unknown as { document: { documentElement: { scrollHeight: number } } }).document.documentElement.scrollHeight);
   const width = page.viewportSize()?.width ?? DEFAULT_VIEWPORT.width;
   const maxHeight = options.maxHeight ?? MAX_HEIGHT;
