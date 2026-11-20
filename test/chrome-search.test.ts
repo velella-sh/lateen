@@ -934,6 +934,11 @@ function fakeButton(name = "button") {
       assert.equal(type, "click");
       fake.clicks.push(listener);
     },
+    removeEventListener(type: string, listener: () => void) {
+      assert.equal(type, "click");
+      const at = fake.clicks.indexOf(listener);
+      if (at !== -1) fake.clicks.splice(at, 1);
+    },
     click() {
       for (const listener of fake.clicks) listener();
     },
@@ -959,6 +964,15 @@ function fakeInput(initial = "") {
     addEventListener(type: string, listener: () => void) {
       assert.equal(type, "input");
       listeners.push(listener);
+    },
+    removeEventListener(type: string, listener: () => void) {
+      assert.equal(type, "input");
+      const at = listeners.indexOf(listener);
+      if (at !== -1) listeners.splice(at, 1);
+    },
+    /** How many input listeners are attached right now. */
+    listenerCount(): number {
+      return listeners.length;
     },
     type(value: string) {
       fake.value = value;
@@ -1024,6 +1038,14 @@ function fakeDialog(options: { base?: string; focusables?: SearchFocusable[] } =
     },
     addEventListener(type: string, listener: (event: SearchEvent) => void) {
       (listeners[type] ??= []).push(listener);
+    },
+    removeEventListener(type: string, listener: (event: SearchEvent) => void) {
+      const at = (listeners[type] ?? []).indexOf(listener);
+      if (at !== -1) listeners[type]?.splice(at, 1);
+    },
+    /** How many listeners of `type` are attached right now. */
+    listenerCount(type: string): number {
+      return (listeners[type] ?? []).length;
     },
     fire(type: string, event: SearchEvent) {
       for (const listener of listeners[type] ?? []) listener(event);
@@ -1191,6 +1213,118 @@ test("two opens before the index answers share one load", async () => {
   settle?.(apiOf([]));
   await tick();
   assert.equal(calls, 1);
+});
+
+test("activating the same dialog twice keeps one set of listeners", async () => {
+  const { dialog, button, close, clear, retry, input, results, parts } = partsOf();
+  const terms: string[] = [];
+  const env = envWith(apiOf(records, terms));
+  activate(parts, env);
+  activate(parts, env);
+
+  assert.equal(button.clicks.length, 1, "the open button listens once");
+  assert.equal(close.clicks.length, 1, "the close button listens once");
+  assert.equal(clear.clicks.length, 1, "the clear button listens once");
+  assert.equal(retry.clicks.length, 1, "the retry action listens once");
+  assert.equal(input.listenerCount(), 1, "the field listens once");
+  for (const type of ["click", "close", "keydown"]) {
+    assert.equal(dialog.listenerCount(type), 1, `the dialog listens once for ${type}`);
+  }
+
+  button.click();
+  await tick();
+  assert.equal(dialog.shows, 1, "one press opens the dialog once");
+  input.type("cache");
+  await tick();
+  assert.deepEqual(terms, ["cache"], "one input event runs one query");
+
+  const options = rowsOf(results);
+  dialog.fire("keydown", key("ArrowDown", input));
+  assert.equal(input.active, options[0]?.attrs.id, "one keypress moves one row");
+
+  const focused = button.focused;
+  dialog.close();
+  assert.equal(button.focused, focused + 1, "closing returns focus once");
+});
+
+test("teardown removes every listener and leaves the dialog inert", async () => {
+  const { dialog, button, close, clear, retry, input, results, status, parts } = partsOf();
+  const terms: string[] = [];
+  const teardown = activate(parts, envWith(apiOf(records, terms)));
+  button.click();
+  await tick();
+  input.type("cache");
+  await tick();
+  const options = rowsOf(results);
+  dialog.fire("keydown", key("ArrowDown", input));
+  const active = input.active;
+  const shows = dialog.shows;
+  const focused = button.focused;
+
+  teardown();
+
+  assert.equal(button.clicks.length, 0, "the open button's listener is gone");
+  assert.equal(close.clicks.length, 0, "the close button's listener is gone");
+  assert.equal(clear.clicks.length, 0, "the clear button's listener is gone");
+  assert.equal(retry.clicks.length, 0, "the retry action's listener is gone");
+  assert.equal(input.listenerCount(), 0, "the field's listener is gone");
+  for (const type of ["click", "close", "keydown"]) {
+    assert.equal(dialog.listenerCount(type), 0, `the dialog's ${type} listener is gone`);
+  }
+
+  button.click();
+  assert.equal(dialog.shows, shows, "the open button no longer opens the dialog");
+  input.type("more");
+  await tick();
+  assert.deepEqual(terms, ["cache"], "the field no longer runs queries");
+  dialog.fire("keydown", key("ArrowDown", input));
+  assert.equal(input.active, active, "the arrow keys no longer move the active option");
+  options[0]?.fire("pointerenter");
+  assert.equal(input.active, active, "a stale row's pointer no longer moves the active option");
+  dialog.fire("close", { target: dialog, preventDefault() {} });
+  assert.equal(button.focused, focused, "a close event no longer moves focus");
+  assert.equal(status.textContent, "2 results.", "the last announcement stays as it was");
+
+  teardown(); // a second teardown is safe
+});
+
+test("a torn-down dialog can be activated again", async () => {
+  const { dialog, button, input, parts } = partsOf();
+  const terms: string[] = [];
+  const env = envWith(apiOf(records, terms));
+  const first = activate(parts, env);
+  first();
+  const second = activate(parts, env);
+
+  assert.equal(button.clicks.length, 1);
+  assert.equal(input.listenerCount(), 1);
+  assert.equal(dialog.listenerCount("keydown"), 1);
+  button.click();
+  await tick();
+  assert.equal(dialog.shows, 1);
+  input.type("cache");
+  await tick();
+  assert.deepEqual(terms, ["cache"]);
+  second();
+});
+
+test("teardown quiets an index load still in flight", async () => {
+  const { button, results, status, parts } = partsOf();
+  let settle: ((api: PagefindApi) => void) | undefined;
+  const teardown = activate(parts, {
+    document: fakeDocument(),
+    load() {
+      return new Promise<PagefindApi>((resolve) => {
+        settle = resolve;
+      });
+    },
+  });
+  button.click();
+  teardown();
+  settle?.(apiOf(records));
+  await tick();
+  assert.equal(results.nodes.length, 0, "no draw happens after teardown");
+  assert.equal(status.textContent, "", "no announcement happens after teardown");
 });
 
 test("the index URL includes a site base", async () => {

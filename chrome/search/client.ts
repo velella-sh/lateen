@@ -39,7 +39,8 @@
  *   `begin` inside `activate` only decides what to announce.
  * - Activation: `activate`, `trap`, `liveHandlers`, `resolveTheme`, the all-results link
  *   (`resultsHref`), and the browser bootstrap at the bottom wire the parts together; this is the
- *   only boundary that touches dialog state, focus, and event listeners.
+ *   only boundary that touches dialog state, focus, and event listeners. `activate` is idempotent
+ *   per dialog and returns a teardown that removes every listener it attached.
  *
  * Dependencies point one way — activation → rendering / loader / localization → option model /
  * palette validation — and the pure modules never import back, so a split introduces no cycles.
@@ -158,6 +159,7 @@ export interface SearchButton {
   hidden: boolean;
   setAttribute(name: string, value: string): void;
   addEventListener(type: "click", listener: () => void): void;
+  removeEventListener?(type: "click", listener: () => void): void;
   click(): void;
   focus(): void;
 }
@@ -170,6 +172,7 @@ export interface SearchAction {
   hidden: boolean;
   disabled: boolean;
   addEventListener(type: "click", listener: () => void): void;
+  removeEventListener?(type: "click", listener: () => void): void;
 }
 
 /** The all-results link: hidden and without an href until the field holds a query. */
@@ -190,6 +193,7 @@ export interface SearchInput {
   setAttribute(name: string, value: string): void;
   removeAttribute?(name: string): void;
   addEventListener(type: "input", listener: () => void): void;
+  removeEventListener?(type: "input", listener: () => void): void;
 }
 
 /** Anything in the dialog that can take keyboard focus, for the focus trap. */
@@ -233,6 +237,7 @@ export interface SearchDialog {
   close(): void;
   querySelectorAll(selector: string): Iterable<SearchFocusable>;
   addEventListener(type: string, listener: (event: SearchEvent) => void): void;
+  removeEventListener?(type: string, listener: (event: SearchEvent) => void): void;
 }
 
 /** The elements the island wires together. */
@@ -308,14 +313,34 @@ export function trap(dialog: SearchDialog, event: SearchEvent): void {
 }
 
 /**
+ * Anything the activation attaches a listener to. Removal is optional: the browser implements it,
+ * and a target without it still goes quiet at teardown because every attached listener checks the
+ * activation's live flag before it acts. The button, action, and field controls take no event
+ * argument; they are cast to this shape at the call sites, and their listeners simply ignore it.
+ */
+interface Listenable {
+  addEventListener(type: string, listener: (event: SearchEvent) => void): void;
+  removeEventListener?(type: string, listener: (event: SearchEvent) => void): void;
+}
+
+/** Each dialog's current wiring, so initializing it again replaces the old one instead of stacking. */
+const activations = new WeakMap<SearchDialog, () => void>();
+
+/**
  * Reveals the search button and wires the dialog: the button opens it, the index loads on that first
  * open only, typing redraws the options, the arrow keys move the active option, Enter runs or opens it,
  * Escape closes, and Tab stays inside. Focus belongs to the field from the moment the dialog opens
  * until it closes, so the active option is the only thing that moves. The DOM is touched only through
  * the small interfaces above, so tests need no browser.
+ *
+ * Setup and teardown are idempotent: activating the same dialog again first tears down the previous
+ * wiring, so no keyboard, pointer, input, or dialog listener is ever attached twice, and the returned
+ * teardown removes every listener this activation attached (and may be called more than once).
  */
-export function activate(parts: SearchParts, env: SearchEnv): void {
+export function activate(parts: SearchParts, env: SearchEnv): () => void {
   const { dialog, button, close, input, results, status } = parts;
+  // A repeated initialization replaces the previous wiring rather than doubling every listener.
+  activations.get(dialog)?.();
   const messages = env.messages ?? MESSAGES;
   const lang = env.lang ?? "en";
   const palette = env.palette ?? parsePalette(parts.palette?.textContent ?? null, messages.actions);
@@ -330,6 +355,19 @@ export function activate(parts: SearchParts, env: SearchEnv): void {
   let active = -1;
   // The records behind the rows on screen, so the ask panel names the pages the reader is looking at.
   let lastRecords: readonly SearchRecord[] = [];
+  // While false, every listener and continuation this activation owns is inert, even on a target
+  // that cannot remove listeners; teardown flips it once.
+  let live = true;
+  const removals: Array<() => void> = [];
+
+  /** Attaches one listener that goes quiet at teardown, and remembers how to remove it. */
+  const attach = (target: Listenable, type: string, listener: (event: SearchEvent) => void): void => {
+    const guarded = (event: SearchEvent): void => {
+      if (live) listener(event);
+    };
+    target.addEventListener(type, guarded);
+    removals.push(() => target.removeEventListener?.(type, guarded));
+  };
 
   dialog.hidden = false;
   button.hidden = false;
@@ -338,6 +376,7 @@ export function activate(parts: SearchParts, env: SearchEnv): void {
 
   /** Runs one action in the browser; a copy result is announced on the status region. */
   const execute = (command: PaletteRun): void => {
+    if (!live) return;
     if (command.kind === "theme") {
       handlers.theme?.(command.choice);
       return;
@@ -376,6 +415,7 @@ export function activate(parts: SearchParts, env: SearchEnv): void {
    * are the same row: one selection, one id reference.
    */
   const markActive = (index: number): void => {
+    if (!live) return;
     const current = options[active];
     const next = options[index];
     if (current !== undefined && current !== next) current.element.setAttribute("aria-selected", "false");
@@ -393,6 +433,7 @@ export function activate(parts: SearchParts, env: SearchEnv): void {
 
   /** Draws the page results and the matched actions, then puts the active option back where it was. */
   const draw = (records: readonly SearchRecord[], matched: readonly PaletteAction[]): void => {
+    if (!live) return;
     const key = options[active]?.key;
     lastRecords = records;
     const question = input.value.trim();
@@ -468,12 +509,12 @@ export function activate(parts: SearchParts, env: SearchEnv): void {
       .search(query)
       .then((page) => {
         // Pagefind resolves metadata separately for each hit. Only load it for the current query.
-        if (current !== sequence) return [];
+        if (!live || current !== sequence) return [];
         return Promise.all(page.results.slice(0, RESULT_LIMIT).map((hit) => hit.data()));
       })
       .then(
         (records) => {
-          if (current !== sequence) return;
+          if (!live || current !== sequence) return;
           draw(records, matched);
           status.textContent =
             records.length === 0
@@ -483,7 +524,7 @@ export function activate(parts: SearchParts, env: SearchEnv): void {
               : countMessage(records.length, lang, messages);
         },
         () => {
-          if (current === sequence) status.textContent = messages.failed;
+          if (live && current === sequence) status.textContent = messages.failed;
         },
       );
   };
@@ -507,7 +548,7 @@ export function activate(parts: SearchParts, env: SearchEnv): void {
     if (input.value.trim() !== "") status.textContent = messages.loading;
     index.load(indexUrl(dialog.getAttribute("data-base") ?? "")).then(
       () => {
-        if (!dialog.open) return;
+        if (!live || !dialog.open) return;
         if (retried && input.value.trim() === "") {
           status.textContent = messages.ready;
           return;
@@ -515,7 +556,7 @@ export function activate(parts: SearchParts, env: SearchEnv): void {
         run();
       },
       () => {
-        if (!dialog.open) return;
+        if (!live || !dialog.open) return;
         status.textContent = retried ? messages.retryFailed : messages.failed;
         offerRetry(true);
       },
@@ -539,25 +580,31 @@ export function activate(parts: SearchParts, env: SearchEnv): void {
     begin(false);
   };
 
-  button.addEventListener("click", show);
-  close.addEventListener("click", () => dialog.close());
-  parts.retry?.addEventListener("click", () => {
-    // The field is the combobox: a retry ends with focus back where the typing happens.
-    input.focus();
-    begin(true);
-  });
-  parts.clear?.addEventListener("click", () => {
-    input.value = "";
-    // One empty query redraws the palette's base rows and clears the status once; the dialog stays open.
-    run();
-    input.focus();
-  });
-  input.addEventListener("input", run);
+  attach(button as unknown as Listenable, "click", show);
+  attach(close as unknown as Listenable, "click", () => dialog.close());
+  const retry = parts.retry;
+  if (retry !== undefined) {
+    attach(retry as unknown as Listenable, "click", () => {
+      // The field is the combobox: a retry ends with focus back where the typing happens.
+      input.focus();
+      begin(true);
+    });
+  }
+  const clear = parts.clear;
+  if (clear !== undefined) {
+    attach(clear as unknown as Listenable, "click", () => {
+      input.value = "";
+      // One empty query redraws the palette's base rows and clears the status once; the dialog stays open.
+      run();
+      input.focus();
+    });
+  }
+  attach(input as unknown as Listenable, "input", run);
   // A press on the modal backdrop lands on the dialog itself; a press on the panel or a row does not.
-  dialog.addEventListener("click", (event) => {
+  attach(dialog, "click", (event) => {
     if (event.target === dialog) dialog.close();
   });
-  dialog.addEventListener("close", () => {
+  attach(dialog, "close", () => {
     ++sequence;
     button.setAttribute("aria-expanded", "false");
     input.setAttribute("aria-expanded", "false");
@@ -566,7 +613,7 @@ export function activate(parts: SearchParts, env: SearchEnv): void {
     if (returnFocus) button.focus();
     returnFocus = true;
   });
-  dialog.addEventListener("keydown", (event) => {
+  attach(dialog, "keydown", (event) => {
     if (event.key === "Escape") {
       event.preventDefault();
       dialog.close();
@@ -601,6 +648,17 @@ export function activate(parts: SearchParts, env: SearchEnv): void {
 
     trap(dialog, event);
   });
+
+  /** Removes every listener this activation attached and quiets its continuations; safe to repeat. */
+  const teardown = (): void => {
+    if (!live) return;
+    live = false;
+    for (const remove of removals) remove();
+    removals.length = 0;
+    if (activations.get(dialog) === teardown) activations.delete(dialog);
+  };
+  activations.set(dialog, teardown);
+  return teardown;
 }
 
 /** What the page's `<html>` needs for a theme change. */
