@@ -17,12 +17,30 @@ test("every top-level block gets a file:line label after its text, in either dir
       `<p data-src="docs/a.md:3:1-3:20">Hello</p><section data-src="docs/a.md:5:1-9:1"><p data-src="docs/a.md:6:1-6:4">in</p></section>`,
       dir,
     );
-    const count = stampLabels({ blocks: list, createLabel: () => document.createElement("span") as never });
+    const count = stampLabels({
+      blocks: list,
+      createLabel: (tag = "span") => document.createElement(tag) as never,
+    });
     assert.equal(count, 2, "the nested block is left to its outer block");
     const labels = [...document.querySelectorAll("[data-source-label]")];
     assert.deepEqual(labels.map((l) => l.textContent), ["docs/a.md:3", "docs/a.md:5"]);
     assert.equal(document.querySelector("p")?.lastElementChild, labels[0], "the label follows the block's text");
-    assert.equal(labels[0]?.getAttribute("dir"), "ltr", `a path reads left to right in ${dir}`);
+    assert.equal(labels[0]?.getAttribute("dir"), null, `the label keeps the page direction in ${dir}`);
+    assert.equal(labels[0]?.querySelector("bdi")?.getAttribute("dir"), "ltr", `a path reads left to right in ${dir}`);
+  }
+});
+
+test("a path beginning with a right-to-left segment stays one left-to-right island", () => {
+  for (const dir of ["ltr", "rtl"] as const) {
+    const { document, list } = blocks(`<p data-src="راهنما/install.md:3:1-3:20">نصب</p>`, dir);
+    stampLabels({
+      blocks: list,
+      createLabel: (tag = "span") => document.createElement(tag) as never,
+    });
+    const label = document.querySelector("[data-source-label]");
+    assert.equal(label?.getAttribute("dir"), null, `the label container keeps the page direction in ${dir}`);
+    assert.equal(label?.querySelector("bdi")?.getAttribute("dir"), "ltr", `the path is isolated in ${dir}`);
+    assert.equal(label?.textContent, "راهنما/install.md:3");
   }
 });
 

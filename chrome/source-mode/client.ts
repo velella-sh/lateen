@@ -111,7 +111,7 @@ export interface SourceEnv {
   readonly root: ModeRoot;
   readonly blocks: Iterable<SourceBlock>;
   readonly storage: SourceModeStorage | undefined;
-  createLabel(): SourceLabel;
+  createLabel(tag?: string): SourceLabel;
   /** Present in a browser: builds the copy button and links inside each label. */
   readonly actions?: SourceActions;
   /** The page's query string, for `?source=`. */
@@ -178,7 +178,11 @@ function stampActions(label: SourceLabel, span: Span, actions: SourceActions): P
   copy.setAttribute("type", "button");
   copy.setAttribute("class", "source-label-copy");
   copy.setAttribute("aria-label", fill(actions.messages("copy-label"), { location }));
-  copy.textContent = location;
+  // The path is its own left-to-right island, so the label keeps the page direction for layout.
+  const path = actions.createElement("bdi");
+  path.setAttribute("dir", "ltr");
+  path.textContent = location;
+  copy.appendChild?.(path);
   copy.addEventListener?.("click", () => {
     void actions.copy(location).then((ok) =>
       actions.announce(fill(actions.messages(ok ? "copied" : "copy-failed"), { location })),
@@ -230,10 +234,12 @@ export function stamp(env: Pick<SourceEnv, "blocks" | "createLabel" | "actions">
     const label = env.createLabel();
     label.setAttribute("class", "source-label");
     label.setAttribute("data-source-label", "");
-    // File paths read left to right in every page direction.
-    label.setAttribute("dir", "ltr");
     if (env.actions === undefined) {
-      label.textContent = locationOf(span);
+      // File paths read left to right in every page direction without flipping the label's layout.
+      const path = env.createLabel("bdi");
+      path.setAttribute("dir", "ltr");
+      path.textContent = locationOf(span);
+      label.appendChild?.(path);
       label.setAttribute("tabindex", "-1");
       out.push({ block, span, focus: label, refresh() {} });
     } else {
@@ -396,7 +402,7 @@ if (typeof document !== "undefined") {
       root: document.documentElement,
       blocks: document.querySelectorAll("[data-src]"),
       storage: shortcutStorage(),
-      createLabel: () => document.createElement("span"),
+      createLabel: (tag = "span") => document.createElement(tag),
       actions: actionsOf(root, (message) => {
         if (status !== null) status.textContent = message;
       }),

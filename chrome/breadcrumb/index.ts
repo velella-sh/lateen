@@ -9,13 +9,17 @@ function separator() {
   return icon({ node: ChevronRight, class: "breadcrumb-sep" });
 }
 
+/** A title shaped like a file path keeps its left-to-right segment order inside the crumb. */
+const PATH_SHAPED = /\/|:|\.\p{L}/u;
+
 /**
  * The authored title of a crumb. `<bdi>` isolates its own base direction, so a right-to-left,
  * left-to-right, or neutral-only run cannot reorder the crumbs or separators beside it, and the text
- * and the link's URL are carried through unchanged.
+ * and the link's URL are carried through unchanged. A path-shaped title gets an inner left-to-right
+ * island so its first right-to-left segment cannot reverse the path.
  */
 function title(text: string) {
-  return h("bdi", { class: "breadcrumb-title" }, text);
+  return h("bdi", { class: "breadcrumb-title" }, PATH_SHAPED.test(text) ? h("bdi", { dir: "ltr" }, text) : text);
 }
 
 /** One crumb: every ancestor is an ordinary keyboard-accessible link, the last item is the current page and is not a link. */
