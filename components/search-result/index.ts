@@ -1,7 +1,7 @@
 import { h } from "preact";
 import type { SiteNetwork } from "@velella/mizzen/contracts";
 import { t } from "../../i18n/index.ts";
-import { resultHref, resultLabel, type FailedIndex, type SearchResult } from "../../src/search/merge.ts";
+import { resultHeading, resultHref, resultLabel, type FailedIndex, type SearchResult } from "../../src/search/merge.ts";
 
 /** Class on one result's item. */
 export const RESULT_CLASS = "search-result";
@@ -20,6 +20,9 @@ export const LINK_CLASS = "search-result-link";
 
 /** Class on the section path that tells two same-titled results apart. */
 export const PATH_CLASS = "search-result-path";
+
+/** Class on the heading the result's fragment points at. */
+export const HEADING_CLASS = "search-result-heading";
 
 /** Class on the result's title. */
 export const TITLE_CLASS = "search-result-title";
@@ -118,6 +121,7 @@ export function searchResult({ result, network, path, lang, version }: SearchRes
   const label = resultLabel(result, network);
   const language = languageLabel(result, lang);
   const resultVersion = versionLabel(result, version);
+  const heading = resultHeading(result.url, result);
   return h(
     "li",
     { class: RESULT_CLASS },
@@ -129,6 +133,7 @@ export function searchResult({ result, network, path, lang, version }: SearchRes
       { class: LINK_CLASS, href: resultHref(result, network) },
       path === undefined || path === "" ? null : h("span", { class: PATH_CLASS }, h("bdi", null, path)),
       h("span", { class: TITLE_CLASS }, result.title),
+      heading === undefined ? null : h("span", { class: HEADING_CLASS }, h("bdi", null, heading)),
       h("span", { class: EXCERPT_CLASS }, excerptChildren(result.excerpt)),
     ),
   );

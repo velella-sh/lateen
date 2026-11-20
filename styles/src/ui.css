@@ -849,6 +849,14 @@
     unicode-bidi: isolate;
   }
 
+  .search-result-heading,
+  .search-results-heading {
+    color: var(--muted-foreground);
+    font-size: 0.76rem;
+    line-height: 1.4;
+    unicode-bidi: isolate;
+  }
+
   .search-result-title {
     color: var(--foreground);
     font-size: 0.9rem;

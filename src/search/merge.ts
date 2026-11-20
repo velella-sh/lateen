@@ -1,7 +1,25 @@
 import type { SiteNetwork } from "@velella/mizzen/contracts";
 
+/** One heading Pagefind lists for a page, and the id its fragment points at. */
+export interface PagefindAnchor {
+  readonly id?: string | undefined;
+  readonly text?: string | undefined;
+}
+
+/** One subsection Pagefind computed for a page; its URL carries the heading fragment. */
+export interface PagefindSubResult {
+  readonly url?: string | undefined;
+  readonly title?: string | undefined;
+}
+
+/** The Pagefind keys that name a result's subsections, when the index supplies them. */
+export interface HeadingSource {
+  readonly sub_results?: readonly PagefindSubResult[] | undefined;
+  readonly anchors?: readonly PagefindAnchor[] | undefined;
+}
+
 /** One search result after a project's index returned it, with the score and project the merge needs. */
-export interface SearchResult {
+export interface SearchResult extends HeadingSource {
   /** The project's id in the network file. */
   readonly project: string;
   /** Whether the result came from the project being rendered. */
@@ -18,6 +36,41 @@ export interface SearchResult {
   readonly version?: string;
   /** The index's score; higher ranks first. */
   readonly score: number;
+}
+
+/** A URL's decoded fragment, without the `#`; undefined when it has none. */
+function fragmentOf(url: string): string | undefined {
+  const hash = url.indexOf("#");
+  if (hash === -1) return undefined;
+  const fragment = url.slice(hash + 1);
+  if (fragment === "") return undefined;
+  try {
+    return decodeURIComponent(fragment);
+  } catch {
+    return fragment;
+  }
+}
+
+/**
+ * The real heading text for the fragment a result's URL already carries: the matching Pagefind
+ * `sub_results` title first, then the matching `anchors` text. A URL without a fragment, or one the
+ * index has no heading for, gives undefined: a fragment is never invented.
+ */
+export function resultHeading(url: string, source?: HeadingSource | undefined): string | undefined {
+  const fragment = fragmentOf(url);
+  if (fragment === undefined) return undefined;
+
+  for (const sub of source?.sub_results ?? []) {
+    const title = sub.title?.trim();
+    if (sub.url !== undefined && fragmentOf(sub.url) === fragment && title !== undefined && title !== "") {
+      return title;
+    }
+  }
+  for (const anchor of source?.anchors ?? []) {
+    const text = anchor.text?.trim();
+    if (anchor.id === fragment && text !== undefined && text !== "") return text;
+  }
+  return undefined;
 }
 
 /**

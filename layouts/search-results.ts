@@ -60,6 +60,37 @@ function safeHref(url) {
   return url.startsWith("/") || url.startsWith("./") || url.startsWith("../") || /^https?:\\/\\//i.test(url) ? url : undefined;
 }
 
+/* heading-path:start The heading lookup is a self-contained block the layout's tests extract and
+   run against real Pagefind records; it reads only its argument. */
+/** A URL's decoded fragment, without the #; undefined when it has none. */
+function fragmentOf(url) {
+  const hash = url.indexOf("#");
+  if (hash === -1) return undefined;
+  const fragment = url.slice(hash + 1);
+  if (fragment === "") return undefined;
+  try {
+    return decodeURIComponent(fragment);
+  } catch {
+    return fragment;
+  }
+}
+
+/** The real heading text for the fragment the record's URL already carries, or undefined. */
+function resultHeading(record) {
+  const fragment = fragmentOf(record.url);
+  if (fragment === undefined) return undefined;
+  for (const sub of record.sub_results || []) {
+    const title = typeof sub.title === "string" ? sub.title.trim() : "";
+    if (sub.url !== undefined && fragmentOf(sub.url) === fragment && title !== "") return title;
+  }
+  for (const anchor of record.anchors || []) {
+    const text = typeof anchor.text === "string" ? anchor.text.trim() : "";
+    if (anchor.id === fragment && text !== "") return text;
+  }
+  return undefined;
+}
+/* heading-path:end */
+
 /* section-path:start The section path is a self-contained block the layout's tests extract and run
    against the runtime's real URL parser; it reads only its argument. */
 /** The page's parent directory: /guide/install/ gives /guide/, a root page an empty string. */
@@ -157,12 +188,22 @@ function render(records) {
     const title = document.createElement("span");
     title.className = "search-results-title";
     title.textContent = record.meta && record.meta.title ? record.meta.title : record.url;
+    link.append(title);
+    const headingText = resultHeading(record);
+    if (headingText !== undefined) {
+      const heading = document.createElement("span");
+      heading.className = "search-results-heading";
+      const bdi = document.createElement("bdi");
+      bdi.textContent = headingText;
+      heading.append(bdi);
+      link.append(heading);
+    }
     const excerpt = document.createElement("span");
     excerpt.className = "search-results-excerpt";
     const template = document.createElement("template");
     template.innerHTML = record.excerpt || "";
     copyExcerpt(template.content, excerpt);
-    link.append(title, excerpt);
+    link.append(excerpt);
     const item = document.createElement("li");
     item.append(link);
     items.push(item);
