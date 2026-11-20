@@ -272,6 +272,13 @@ const records: readonly SearchRecord[] = [
   },
 ];
 
+/** A duplicate-heavy page of results: ten copies of each of two URLs, filling one query's limit. */
+const duplicateRecords: readonly SearchRecord[] = Array.from({ length: 20 }, (_, index) => ({
+  url: `/dup/${index % 2}/`,
+  excerpt: "A <mark>cache</mark> page.",
+  meta: { title: `Copy ${index}` },
+}));
+
 /**
  * The published technical fixture: a function name, a CLI option, and a quoted phrase, plus the
  * strings a docs reader searches for. Pagefind owns stemming and phrase matching; the dialog's job
@@ -1325,6 +1332,54 @@ test("teardown quiets an index load still in flight", async () => {
   await tick();
   assert.equal(results.nodes.length, 0, "no draw happens after teardown");
   assert.equal(status.textContent, "", "no announcement happens after teardown");
+});
+
+test("redraws reuse one activation's references: no root queries per row", async () => {
+  const { dialog, button, input, results, parts } = partsOf({ base: "/example" });
+  const env = envWith(apiOf(duplicateRecords));
+  const rootQueries: string[] = [];
+  const countingDoc = {
+    createElement: (tag: string) => env.document.createElement(tag),
+    createTextNode: (text: string) => env.document.createTextNode(text),
+    querySelector(selector: string): unknown {
+      rootQueries.push(selector);
+      return null;
+    },
+    querySelectorAll(selector: string): unknown[] {
+      rootQueries.push(selector);
+      return [];
+    },
+  };
+  let baseReads = 0;
+  let focusQueries = 0;
+  const getAttribute = dialog.getAttribute;
+  dialog.getAttribute = (name: string) => {
+    baseReads += 1;
+    return getAttribute.call(dialog, name);
+  };
+  const querySelectorAll = dialog.querySelectorAll;
+  dialog.querySelectorAll = (selector: string) => {
+    focusQueries += 1;
+    return querySelectorAll.call(dialog, selector);
+  };
+
+  activate(parts, { ...env, document: countingDoc as unknown as SearchDocument });
+  assert.equal(baseReads, 1, "the site base is resolved once per activation");
+  button.click();
+  await tick();
+  for (const query of ["cache", "cache rules", "cache rules now"]) {
+    input.type(query);
+    await tick();
+  }
+
+  assert.equal(rowsOf(results).length, duplicateRecords.length, "every redraw draws the whole list");
+  assert.deepEqual(rootQueries, [], "no redraw asks the document root for anything, per row or otherwise");
+  assert.equal(baseReads, 1, "the all-results link and the loader reuse the cached base");
+  assert.equal(focusQueries, 0, "redraws never re-resolve the focus trap's controls");
+  dialog.fire("keydown", key("Tab", input));
+  assert.equal(focusQueries, 1, "the trap still resolves focusables when Tab is pressed");
+  activate(parts, { ...env, document: countingDoc as unknown as SearchDocument });
+  assert.equal(baseReads, 2, "a new activation resolves its references once more");
 });
 
 test("the index URL includes a site base", async () => {

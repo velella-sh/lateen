@@ -338,9 +338,12 @@ const activations = new WeakMap<SearchDialog, () => void>();
  * teardown removes every listener this activation attached (and may be called more than once).
  */
 export function activate(parts: SearchParts, env: SearchEnv): () => void {
-  const { dialog, button, close, input, results, status } = parts;
+  // One activation resolves its dialog, field, list, status, and controls once; every redraw reuses
+  // these references and the site base instead of querying the root or the dialog again.
+  const { dialog, button, close, input, results, status, clear, retry, all } = parts;
   // A repeated initialization replaces the previous wiring rather than doubling every listener.
   activations.get(dialog)?.();
+  const base = dialog.getAttribute("data-base") ?? "";
   const messages = env.messages ?? MESSAGES;
   const lang = env.lang ?? "en";
   const palette = env.palette ?? parsePalette(parts.palette?.textContent ?? null, messages.actions);
@@ -467,7 +470,6 @@ export function activate(parts: SearchParts, env: SearchEnv): () => void {
 
   /** Shows the clear button only while the field holds text, so an empty field offers nothing to press. */
   const syncClear = (): void => {
-    const clear = parts.clear;
     if (clear === undefined) return;
     const filled = input.value !== "";
     clear.hidden = !filled;
@@ -476,7 +478,6 @@ export function activate(parts: SearchParts, env: SearchEnv): () => void {
 
   /** Points the all-results link at the field's query, hiding it while the field is empty. */
   const syncAll = (): void => {
-    const all = parts.all;
     if (all === undefined) return;
     if (input.value.trim() === "") {
       all.hidden = true;
@@ -484,7 +485,7 @@ export function activate(parts: SearchParts, env: SearchEnv): () => void {
       return;
     }
     all.hidden = false;
-    all.setAttribute("href", resultsHref(input.value, env.scope ?? null, dialog.getAttribute("data-base") ?? ""));
+    all.setAttribute("href", resultsHref(input.value, env.scope ?? null, base));
   };
 
   /** Runs the field's current query: an empty field shows the actions and clears the status. */
@@ -531,7 +532,6 @@ export function activate(parts: SearchParts, env: SearchEnv): () => void {
 
   /** Offers the retry action only while the index is missing and a press on it can start a load. */
   const offerRetry = (offered: boolean): void => {
-    const retry = parts.retry;
     if (retry === undefined) return;
     retry.hidden = !offered;
     retry.disabled = !offered;
@@ -546,7 +546,7 @@ export function activate(parts: SearchParts, env: SearchEnv): () => void {
     if (index.api !== undefined || index.loading) return;
     offerRetry(false);
     if (input.value.trim() !== "") status.textContent = messages.loading;
-    index.load(indexUrl(dialog.getAttribute("data-base") ?? "")).then(
+    index.load(indexUrl(base)).then(
       () => {
         if (!live || !dialog.open) return;
         if (retried && input.value.trim() === "") {
@@ -582,7 +582,6 @@ export function activate(parts: SearchParts, env: SearchEnv): () => void {
 
   attach(button as unknown as Listenable, "click", show);
   attach(close as unknown as Listenable, "click", () => dialog.close());
-  const retry = parts.retry;
   if (retry !== undefined) {
     attach(retry as unknown as Listenable, "click", () => {
       // The field is the combobox: a retry ends with focus back where the typing happens.
@@ -590,7 +589,6 @@ export function activate(parts: SearchParts, env: SearchEnv): () => void {
       begin(true);
     });
   }
-  const clear = parts.clear;
   if (clear !== undefined) {
     attach(clear as unknown as Listenable, "click", () => {
       input.value = "";
@@ -797,12 +795,12 @@ if (typeof document !== "undefined") {
     if (askAgent !== undefined) {
       (dialog as SearchDialog).addEventListener("close", () => askAgent.hide());
     }
-    // The search results page draws its own list; the ask section fills in when it has rows.
+    // The search results page draws its own list; the ask section fills in when it has rows. The
+    // list is the same element the dialog already holds, so it is not resolved a second time.
     const section = document.querySelector("[data-ask-agent-section]");
-    const pageList = document.querySelector("[data-search-results]");
-    if (askAgent !== undefined && section !== null && section !== undefined && pageList !== null && pageList !== undefined) {
+    if (askAgent !== undefined && section !== null && section !== undefined) {
       const askResults = (): AskResult[] => {
-        const links = (pageList as { querySelectorAll(selector: string): Iterable<unknown> }).querySelectorAll("a");
+        const links = (results as { querySelectorAll(selector: string): Iterable<unknown> }).querySelectorAll("a");
         const found: AskResult[] = [];
         for (const link of links) {
           const anchor = link as {
@@ -822,7 +820,7 @@ if (typeof document !== "undefined") {
         if (query.trim() === "" || found.length === 0) return;
         askAgent.open(query, found, section as AskElement, false);
       };
-      new MutationObserver(fill).observe(pageList, { childList: true });
+      new MutationObserver(fill).observe(results, { childList: true });
       fill();
     }
     // ⌘K/Ctrl+K and `/` press this button from anywhere, exactly as a pointer would.
