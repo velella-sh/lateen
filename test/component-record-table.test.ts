@@ -134,3 +134,36 @@ test("ready records render in the given order without reading a collection", () 
   assert.match(out, /<a href="\/books\/b\/">Beta<\/a>/);
   assert.match(out, /data-kind="number"[^>]*>80<\/td>/);
 });
+
+test("reference cells link to the records the engine resolved, and unresolved values stay text", () => {
+  const out = render({
+    records: [
+      { id: "b", fields: { title: "Beta", author: "ada" }, url: "/books/b/", links: { author: "/people/ada/" } },
+      { id: "a", fields: { title: "Alpha", author: "grace" }, url: "/books/a/", links: {} },
+    ],
+    columns: [
+      { field: "title", label: "Title" },
+      { field: "author", label: "Author" },
+    ],
+  });
+  assert.match(out, /<a href="\/books\/b\/">Beta<\/a>/);
+  assert.match(out, /<td class="record-table-cell" data-kind="text"[^>]*><a href="\/people\/ada\/">ada<\/a><\/td>/);
+  assert.match(out, /<td class="record-table-cell" data-kind="text"[^>]*>grace<\/td>/);
+  assert.ok(!out.includes(">grace</a>"), "no link without a resolved target");
+});
+
+test("a reference cell keeps the engine's base path on a right-to-left page", () => {
+  const out = render(
+    {
+      records: [
+        { id: "b", fields: { title: "Beta", author: "@scope/ada" }, url: "/books/b/", links: { author: "/fa/base/people/@scope/ada/" } },
+      ],
+      columns: [
+        { field: "title", label: "Title" },
+        { field: "author", label: "Author" },
+      ],
+    },
+    "fa",
+  );
+  assert.match(out, /<a href="\/fa\/base\/people\/@scope\/ada\/"><bdi dir="ltr">@scope\/ada<\/bdi><\/a>/);
+});

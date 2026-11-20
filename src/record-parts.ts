@@ -156,6 +156,12 @@ function groupFacts(facts: readonly Fact[]): { readonly label: string; readonly 
   return [...groups].map(([label, grouped]) => ({ label, facts: grouped }));
 }
 
+/** A fact's value, linked when the engine resolved the field as a reference to a record page. */
+function factValue(props: LayoutProps, fact: Fact, value: ComponentChildren): ComponentChildren {
+  const href = props.record?.links[fact.field];
+  return href === undefined || href === "" ? value : h("a", { href }, value as never);
+}
+
 /** The key facts panel: labels and values from the page, with no empty row and no panel without facts. */
 export function factsPanel(props: LayoutProps): ComponentChildren {
   const record = props.record;
@@ -178,11 +184,15 @@ export function factsPanel(props: LayoutProps): ComponentChildren {
             ? {}
             : { "data-src": dataSrcOf(factPosition(props, fact)) }),
         },
-        dataValue(
-          fact.field,
-          value,
-          fact.kind,
-          formatField(value, fact.kind, props.page.lang, props.site.config) as ComponentChildren,
+        factValue(
+          props,
+          fact,
+          dataValue(
+            fact.field,
+            value,
+            fact.kind,
+            formatField(value, fact.kind, props.page.lang, props.site.config) as ComponentChildren,
+          ),
         ),
         factReport(props, fact),
       ),
