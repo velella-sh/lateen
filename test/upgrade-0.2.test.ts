@@ -18,6 +18,7 @@ const EXPECTED = join(root, "fixtures", `${FIXTURE}-expected`);
 
 /** A difference this release makes on purpose, removed from both documents before comparing. */
 const INTENDED = [
+  { selector: ".doc-description", reason: "Sailcloth displays the page's authored description under its title." },
   { selector: ".doc-actions", reason: "0.2.3 adds the page actions, copy-Markdown and agent menu to every doc layout." },
   { selector: ".source-mode-switch", reason: "Source mode is new in 0.2.3." },
   { selector: ".ask-agent", reason: "The ask-your-agent panel is new in 0.2.3." },
@@ -110,6 +111,8 @@ function normalize(text: string): { head: string; body: string } {
   for (const difference of INTENDED) {
     for (const element of [...document.querySelectorAll(difference.selector)]) element.remove();
   }
+  // The document metadata group changes only the wrapper, not the trust, freshness, or reading-time content.
+  for (const element of [...document.querySelectorAll(".doc-meta")]) element.replaceWith(...element.childNodes);
   // The Sailcloth shell adds style-only class hooks to the existing grid and recovery content.
   for (const element of [...document.querySelectorAll(".layout")]) element.classList.remove("doc-layout");
   for (const element of [...document.querySelectorAll(".not-found")]) element.classList.remove("lonely");

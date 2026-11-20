@@ -45,8 +45,8 @@ function statusProps(page: LayoutProps["page"]): PageStatusProps {
 }
 
 /**
- * The page itself: breadcrumb, drift banner, status banner, title, trust chip, last updated line,
- * reading time, body, edit link, page footer, copy-Markdown control, feedback, and pager, marked for
+ * The page itself: breadcrumb, drift banner, status banner, title, description, grouped trust,
+ * freshness and reading-time metadata, body, edit link, page footer, copy-Markdown control, feedback, and pager, marked for
  * Pagefind. The drift banner reads `site.data.drift` and keeps itself out of the page when the site
  * has no findings for this URL; the trust chip reads `site.data.trust` and stays out until the site
  * has an entry for this URL; the edit link is likewise left out when the repository gives no URL.
@@ -64,10 +64,17 @@ function article(props: LayoutProps): ComponentChildren {
     pageStatus({ props: statusProps(page), page, site: props.site, html: "" }) as ComponentChildren,
     versionNotice({ props: {}, page, site: props.site, html: "" }) as ComponentChildren,
     titleFromBody(props) ? null : h("h1", null, page.title),
+    typeof page.frontMatter.description === "string" && page.frontMatter.description.trim() !== ""
+      ? h("p", { class: "doc-description dek" }, page.frontMatter.description)
+      : null,
+    h(
+      "div",
+      { class: "doc-meta" },
+      trustPanel({ props: {}, page, site: props.site, html: "" }) as ComponentChildren,
+      lastUpdated(props) as ComponentChildren,
+      readingTime({ props: {}, page, site: props.site, html: "" }) as ComponentChildren,
+    ),
     staleSlot(props),
-    trustPanel({ props: {}, page, site: props.site, html: "" }) as ComponentChildren,
-    lastUpdated(props) as ComponentChildren,
-    readingTime({ props: {}, page, site: props.site, html: "" }) as ComponentChildren,
     h("div", { class: "doc-body", dangerouslySetInnerHTML: { __html: highlightFences(page.html, backdrops, page.lang) } }),
     toolUrl === undefined
       ? null

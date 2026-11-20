@@ -110,6 +110,17 @@ test("the layout renders the h1 when the body has no top-level heading", () => {
   assert.match(page, /<article class="doc"[^>]*><h1>Install<\/h1>/);
 });
 
+test("doc renders its authored description and groups quiet metadata", () => {
+  const page = out(pageWith({ frontMatter: { description: "Install Lateen and serve a site." } }));
+  assert.match(page, /<h1>Install<\/h1><p class="doc-description dek">Install Lateen and serve a site\.<\/p><div class="doc-meta">/);
+  assert.equal((page.match(/<h1/g) ?? []).length, 1);
+});
+
+test("doc omits the description when none exists or it is blank", () => {
+  assert.doesNotMatch(out(pageWith()), /doc-description/);
+  assert.doesNotMatch(out(pageWith({ frontMatter: { description: "  \n" } })), /doc-description/);
+});
+
 test("the layout skips its h1 when a depth-1 heading exists, even with a front-matter title", () => {
   const page = out(
     pageWith({
@@ -190,10 +201,17 @@ test("the drift banner from site.data sits above the status banner and the title
   assert.doesNotMatch(html(doc(layoutProps(pageWith()))), /class="drift-banner"/);
 });
 
-test("the trust panel from site.data sits under the title and before the reading time", () => {
-  const data = { trust: { "/guide/install/": { level: "verified", reasons: ["All examples passed."] } } };
-  const page = html(doc(layoutProps(pageWith(), [], [], data)));
-  assert.match(page, /<h1>Install<\/h1><details class="trust-panel trust-panel-verified"/);
+test("the metadata group keeps trust, freshness, and reading time under the title", () => {
+  const data = {
+    trust: { "/guide/install/": { level: "verified", reasons: ["All examples passed."] } },
+    "reading-time": [{ url: "/guide/install/", words: 100, minutes: 1 }],
+  };
+  const page = pageWith({ frontMatter: { last_modified_at: "2026-03-04" } });
+  const rendered = html(doc(layoutProps(page, [], [], data)));
+  assert.match(
+    rendered,
+    /<h1>Install<\/h1><div class="doc-meta"><details class="trust-panel trust-panel-verified"[\s\S]*?<\/details><p class="last-updated">[\s\S]*?<\/p><p class="reading-time"/,
+  );
   assert.doesNotMatch(html(doc(layoutProps(pageWith()))), /class="trust-panel"/);
 });
 

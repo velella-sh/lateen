@@ -49,6 +49,57 @@ test("home preview and mobile cards keep the Sailcloth surface contract", () => 
   assert.match(ui, /@media \(max-width: 48rem\)[\s\S]*\.home-sections,[\s\S]*grid-template-columns:\s*1fr/s);
 });
 
+test("document typography and metadata follow the Sailcloth prose contract", () => {
+  assert.match(bodyOf(ui, /^\.doc-layout main > article > h1$/), /font-size:\s*clamp\(2\.125rem, 4\.2vw, 2\.625rem\)/);
+
+  const description = bodyOf(ui, /^\.doc-description$/);
+  assert.match(description, /margin:\s*0\.875rem 0 0/);
+  assert.match(description, /max-inline-size:\s*40em/);
+  assert.match(description, /font-size:\s*1\.125rem/);
+  assert.match(description, /line-height:\s*1\.875rem/);
+
+  const meta = bodyOf(ui, /^\.doc-meta$/);
+  assert.match(meta, /display:\s*flex/);
+  assert.match(meta, /flex-wrap:\s*wrap/);
+  assert.match(meta, /margin-block-start:\s*0\.75rem/);
+  assert.match(bodyOf(ui, /^\.doc-meta \.trust-panel$/), /margin:\s*0/);
+  assert.match(bodyOf(ui, /^\.reading-time,\s*\.doc-meta \.last-updated$/), /margin:\s*0/);
+
+  const section = bodyOf(ui, /^\.doc-body h2$/);
+  assert.match(section, /font-size:\s*1\.375rem/);
+  assert.match(section, /line-height:\s*1\.875rem/);
+  assert.match(bodyOf(ui, /^\.doc-body p$/), /max-inline-size:\s*40em/);
+  assert.match(bodyOf(ui, /^\.code-copy svg$/), /inline-size:\s*0\.875rem/);
+  assert.match(bodyOf(ui, /^\.code-copy svg$/), /block-size:\s*0\.875rem/);
+});
+
+test("document tables, reference rows, code panels, and callouts stay quiet and compact", () => {
+  assert.match(bodyOf(ui, /^\.breadcrumb$/), /margin:\s*0/);
+
+  const table = bodyOf(ui, /^\.doc-body table$/);
+  assert.match(table, /margin:\s*1\.125rem 0 0\.625rem/);
+  assert.doesNotMatch(table, /rounded|overflow/);
+  const cells = bodyOf(ui, /^\.doc-body th,\s*\.doc-body td$/);
+  assert.match(cells, /padding-block:\s*0\.75rem/);
+  assert.match(cells, /padding-inline:\s*0 1rem/);
+  assert.match(cells, /border-bottom:\s*1px solid var\(--border\)/);
+  const headers = bodyOf(ui, /^\.doc-body th$/);
+  assert.doesNotMatch(headers, /bg-muted|background/);
+  assert.match(headers, /color:\s*var\(--muted-foreground\)/);
+
+  const rows = bodyOf(ui, /^\.item,\s*\.list a$/);
+  assert.match(rows, /grid-template-columns:\s*minmax\(7\.5rem, 0\.4fr\) minmax\(0, 1fr\)/);
+  assert.match(bodyOf(ui, /^\.code-block$/), /rounded-xl/);
+
+  const callout = bodyOf(ui, /^\.callout$/);
+  assert.match(callout, /margin:\s*1\.125rem 0/);
+  assert.match(callout, /padding-block:\s*0\.875rem/);
+  assert.match(callout, /padding-inline:\s*1\.125rem 1rem/);
+  const calloutBody = bodyOf(ui, /^\.callout-body$/);
+  assert.match(calloutBody, /font-size:\s*0\.90625rem/);
+  assert.match(calloutBody, /line-height:\s*1\.4375rem/);
+});
+
 test("the color and length helpers still catch raw values", () => {
   const RAW_COLOR = /#[0-9a-f]{3,8}\b|\b(?:rgba?|hsla?|hwb|lab|lch|oklab|oklch|color|color-mix|light-dark|device-cmyk)\s*\(/i;
   const RAW_LENGTH = /(?:^|[^\w-])-?(?:\d+(?:\.\d+)?|\.\d+)(?:px|rem|em|ex|ch|vw|vh|vmin|vmax|pt|pc|cm|mm|in|q|fr)\b/i;
