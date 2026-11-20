@@ -25,6 +25,20 @@ so there is nothing to regenerate: add the entry for a new client component, do 
 others. `npm test` runs the same check (`test/visual/matrix.test.ts`), so the CI test job already
 proves it from a clean checkout and needs no separate step.
 
+## Component fixture contracts
+
+The component fixture gate checks every shipped component's server-rendered state and, for the
+components with screen-only behavior, its print rule in `styles/print.css`:
+
+```bash
+node --test test/visual/inventory.test.ts
+```
+
+It writes `test/visual/out/component-contracts.json` as the CI evidence, with the checked and
+exempt component names and any failure. The contract map lives in `test/visual/inventory.test.ts`;
+`diff-block`, `output-block`, `video` and `mermaid` are exempt because paper loses none of their
+content and the global link, code and figure rules already cover them.
+
 ## Runner
 
 **Playwright, Chromium only**, using the `playwright` devDependency already in `package.json`.
