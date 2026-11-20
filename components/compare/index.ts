@@ -3,6 +3,7 @@ import type { ComponentProps } from "@velella/mizzen/contracts";
 import { patternOf, t } from "../../i18n/index.ts";
 import { formatField, isEmpty, kindOf } from "../../src/fields.ts";
 import { selectRecords, type SelectedRecord } from "../../src/records.ts";
+import { formatNumber } from "../../src/report.ts";
 import { baseOf } from "../../src/url.ts";
 import { columnsOf } from "../record-table/index.ts";
 import table from "../table/index.ts";
@@ -33,6 +34,12 @@ export const DIFF_MARKER_CLASS = "compare-diff-marker";
 
 /** Marks the wrapper the island finds with `data-compare`. */
 export const ROOT_ATTRIBUTE = "data-compare";
+
+/** Class on the sentence above the table that counts the compared fields. */
+export const SUMMARY_CLASS = "compare-summary";
+
+/** Class on the changed field labels inside the summary. */
+export const SUMMARY_CHANGED_CLASS = "compare-summary-changed";
 
 /** Class on the row of controls; it starts `hidden`, and `client.ts` reveals it. */
 export const CONTROLS_CLASS = "compare-controls";
@@ -174,15 +181,46 @@ export default function compare({ props, page, site }: ComponentProps<Readonly<R
     ),
   );
 
+  const rows = fields.map((field) => {
+    const values = records.map((record) =>
+      field.field === "id" ? record.id : record.fields[field.field],
+    );
+    const differs = rowDiffers(values, field.kind);
+    return { field, values, differs, missing: differs && values.some(isEmpty) };
+  });
+
+  const sameCount = rows.filter((row) => !row.differs).length;
+  const missingCount = rows.filter((row) => row.missing).length;
+  const differentCount = rows.filter((row) => row.differs && !row.missing).length;
+  const changed = rows.filter((row) => row.differs).map((row) => row.field.label ?? row.field.field);
+
+  const summary = h(
+    "p",
+    { class: SUMMARY_CLASS },
+    t(lang, "compare_summary", {
+      same: formatNumber(lang, sameCount),
+      different: formatNumber(lang, differentCount),
+      missing: formatNumber(lang, missingCount),
+    }),
+    changed.length === 0
+      ? null
+      : [
+          " ",
+          h(
+            "span",
+            { class: SUMMARY_CHANGED_CLASS },
+            t(lang, "compare_summary_changed", {
+              fields: changed.join(`${t(lang, "comma")} `),
+            }),
+          ),
+        ],
+  );
+
   const body = h(
     "tbody",
     null,
-    fields.map((field) => {
-      const values = records.map((record) =>
-        field.field === "id" ? record.id : record.fields[field.field],
-      );
-      const differs = rowDiffers(values, field.kind);
-      return h(
+    rows.map(({ field, values, differs }) =>
+      h(
         "tr",
         {
           "data-compare-row": "",
@@ -201,8 +239,8 @@ export default function compare({ props, page, site }: ComponentProps<Readonly<R
             formatField(values[index], field.kind, lang, site?.config) as never,
           ),
         ),
-      );
-    }),
+      ),
+    ),
   );
 
   return h(
@@ -226,6 +264,7 @@ export default function compare({ props, page, site }: ComponentProps<Readonly<R
       "data-compare-records": t(lang, "compare_records"),
     },
     notes,
+    summary,
     h(
       "div",
       {

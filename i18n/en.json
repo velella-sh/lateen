@@ -137,6 +137,8 @@
   "compare_retry": "Try again",
   "compare_rows_shown": "{count} of {total} rows shown",
   "compare_show_only_diff": "Show only differences",
+  "compare_summary": "{same} same · {different} different · {missing} missing",
+  "compare_summary_changed": "Changed: {fields}",
   "compare_unknown_collection": "The site has no collection named \"{name}\".",
   "compare_unknown_record": "No record with id \"{name}\".",
   "contributors_label": "Contributors:",
