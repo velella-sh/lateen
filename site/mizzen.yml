@@ -40,6 +40,8 @@ theme:
           url: /install/
         - title: Accessibility
           url: /accessibility/
+        - title: Docs standard
+          url: /standards/
     status:
       values:
         shipped:

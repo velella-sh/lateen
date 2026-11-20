@@ -102,6 +102,8 @@ main:
     children:
       - title: Tokens and options
         url: /tokens/
+      - title: Docs standard
+        url: /standards/
       - title: Brand options
         url: /brand-options/
       - title: Refinement
