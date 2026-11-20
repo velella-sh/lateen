@@ -135,6 +135,14 @@ test("the workflow consumes the plan instead of repeating its rules", () => {
   assert.match(release?.run ?? "", /PRERELEASE.*--prerelease/s);
 });
 
+test("the workflow's job conditions express the tested state machine", () => {
+  assert.match(ifOf("acceptance-published"), /needs\.acceptance\.result == 'success'/);
+  assert.match(ifOf("acceptance-published"), /needs\.publish\.result == 'success'/);
+  assert.match(ifOf("acceptance-published"), /needs\.acceptance\.outputs\.published == 'true'/);
+  assert.match(ifOf("github-release"), /needs\['acceptance-published'\]\.result == 'success'/);
+  assert.doesNotMatch(ifOf("github-release"), /needs\.publish\.result == 'success'/);
+});
+
 test("publish and digest steps select the one tarball the acceptance report names", () => {
   const step = (jobName: string, name: string): string => {
     const found = job(jobName).steps.find((item) => item.name === name);

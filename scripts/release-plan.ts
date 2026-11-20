@@ -74,6 +74,45 @@ export function outputLines(plan: ReleasePlan): string[] {
   ];
 }
 
+/** How one job in the release graph ended. */
+export type Stage = "success" | "failure" | "skipped";
+
+/** What one release run observed, after its jobs settled. */
+export interface ReleaseRun {
+  readonly acceptance: Stage;
+  /** npm already serves this exact version, so publish is skipped. */
+  readonly alreadyPublished: boolean;
+  readonly publish: Stage;
+  readonly postPublish: Stage;
+  readonly releaseExists: boolean;
+}
+
+/** What the run may claim: a verified release, and whether it still needs creating. */
+export interface ReleaseOutcome {
+  readonly verified: boolean;
+  readonly createRelease: boolean;
+  readonly problems: string[];
+}
+
+/**
+ * The first-publish and retry state machine. A verified release needs fresh acceptance evidence,
+ * the published package verified again, and either a successful publish or a reason to skip it.
+ * Pure, so an invalid transition cannot produce `verified: true`.
+ */
+export function releaseOutcome(run: ReleaseRun): ReleaseOutcome {
+  const problems: string[] = [];
+  if (run.acceptance !== "success") problems.push(`the acceptance gate was ${run.acceptance}`);
+  if (run.alreadyPublished) {
+    if (run.publish === "failure") problems.push("npm already served the version but the publish job failed");
+  } else if (run.publish !== "success") {
+    problems.push(`the first publish did not succeed (publish was ${run.publish})`);
+  }
+  if (run.postPublish !== "success") problems.push(`the post-publish verification was ${run.postPublish}`);
+  const verified = problems.length === 0;
+  if (run.releaseExists && !verified) problems.push("an existing GitHub Release is not backed by this run's evidence");
+  return { verified, createRelease: verified && !run.releaseExists, problems };
+}
+
 /** The value after a flag, or `undefined` when the flag is absent or has no value. */
 export function flag(argv: readonly string[], name: string): string | undefined {
   const index = argv.indexOf(name);

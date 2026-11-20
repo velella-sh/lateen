@@ -8,7 +8,7 @@ import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { test } from "node:test";
 import { fileURLToPath } from "node:url";
-import { TAG_PATTERN, alreadyPublished, distTagOf, outputLines, planRelease, tagProblems } from "../scripts/release-plan.ts";
+import { TAG_PATTERN, alreadyPublished, distTagOf, outputLines, planRelease, releaseOutcome, tagProblems, type ReleaseRun } from "../scripts/release-plan.ts";
 
 const script = fileURLToPath(new URL("../scripts/release-plan.ts", import.meta.url));
 
@@ -129,4 +129,109 @@ test("the CLI refuses a tag that does not match package.json", () => {
   assert.equal(result.status, 1);
   assert.match(result.stderr, /does not match package\.json version 0\.2\.3/);
   assert.equal(result.outputs, "");
+});
+
+// Fixture-driven state machine: a release may only be `verified` when the evidence chain for that
+// path completed. The workflow's job conditions must express the same rules.
+const RUNS: readonly { name: string; run: ReleaseRun; verified: boolean; createRelease: boolean; problem?: RegExp }[] = [
+  {
+    name: "first publish: acceptance, publish and post-publish all pass",
+    run: { acceptance: "success", alreadyPublished: false, publish: "success", postPublish: "success", releaseExists: false },
+    verified: true,
+    createRelease: true,
+  },
+  {
+    name: "first publish: acceptance fails",
+    run: { acceptance: "failure", alreadyPublished: false, publish: "skipped", postPublish: "skipped", releaseExists: false },
+    verified: false,
+    createRelease: false,
+    problem: /acceptance gate was failure/,
+  },
+  {
+    name: "first publish: publish fails",
+    run: { acceptance: "success", alreadyPublished: false, publish: "failure", postPublish: "skipped", releaseExists: false },
+    verified: false,
+    createRelease: false,
+    problem: /first publish did not succeed \(publish was failure\)/,
+  },
+  {
+    name: "first publish: publish is skipped",
+    run: { acceptance: "success", alreadyPublished: false, publish: "skipped", postPublish: "success", releaseExists: false },
+    verified: false,
+    createRelease: false,
+    problem: /first publish did not succeed/,
+  },
+  {
+    name: "first publish: post-publish verification fails",
+    run: { acceptance: "success", alreadyPublished: false, publish: "success", postPublish: "failure", releaseExists: false },
+    verified: false,
+    createRelease: false,
+    problem: /post-publish verification was failure/,
+  },
+  {
+    name: "retry: npm already serves the version, post-publish passes",
+    run: { acceptance: "success", alreadyPublished: true, publish: "skipped", postPublish: "success", releaseExists: false },
+    verified: true,
+    createRelease: true,
+  },
+  {
+    name: "retry: npm already serves the version, post-publish fails",
+    run: { acceptance: "success", alreadyPublished: true, publish: "skipped", postPublish: "failure", releaseExists: false },
+    verified: false,
+    createRelease: false,
+    problem: /post-publish verification was failure/,
+  },
+  {
+    name: "retry: post-publish is skipped",
+    run: { acceptance: "success", alreadyPublished: true, publish: "skipped", postPublish: "skipped", releaseExists: false },
+    verified: false,
+    createRelease: false,
+    problem: /post-publish verification was skipped/,
+  },
+  {
+    name: "retry: the publish job's failure still blocks verification",
+    run: { acceptance: "success", alreadyPublished: true, publish: "failure", postPublish: "success", releaseExists: false },
+    verified: false,
+    createRelease: false,
+    problem: /publish job failed/,
+  },
+  {
+    name: "invalid transition: publish and post-publish pass without acceptance",
+    run: { acceptance: "failure", alreadyPublished: false, publish: "success", postPublish: "success", releaseExists: false },
+    verified: false,
+    createRelease: false,
+    problem: /acceptance gate was failure/,
+  },
+  {
+    name: "existing GitHub Release: verified evidence leaves it alone",
+    run: { acceptance: "success", alreadyPublished: true, publish: "skipped", postPublish: "success", releaseExists: true },
+    verified: true,
+    createRelease: false,
+  },
+  {
+    name: "existing GitHub Release: failed verification is not a checked release",
+    run: { acceptance: "success", alreadyPublished: true, publish: "skipped", postPublish: "failure", releaseExists: true },
+    verified: false,
+    createRelease: false,
+    problem: /existing GitHub Release is not backed/,
+  },
+];
+
+for (const fixture of RUNS) {
+  test(`state machine: ${fixture.name}`, () => {
+    const outcome = releaseOutcome(fixture.run);
+    assert.equal(outcome.verified, fixture.verified, outcome.problems.join("\n"));
+    assert.equal(outcome.createRelease, fixture.createRelease);
+    if (fixture.problem === undefined) assert.deepEqual(outcome.problems, []);
+    else assert.match(outcome.problems.join("\n"), fixture.problem);
+  });
+}
+
+test("only a success can verify a stage that must run", () => {
+  for (const stage of ["failure", "skipped"] as const) {
+    for (const alreadyPublished of [false, true]) {
+      const outcome = releaseOutcome({ acceptance: "success", alreadyPublished, publish: "success", postPublish: stage, releaseExists: false });
+      assert.equal(outcome.verified, false, `post-publish ${stage} verified`);
+    }
+  }
 });
