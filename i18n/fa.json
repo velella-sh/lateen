@@ -122,6 +122,7 @@
   "code_annotation_line": "خط {line}",
   "code_annotation_lines": "خطوط {from}–{to}",
   "code_annotations": "توضیحات ({count})",
+  "code_wrap": "شکستن خطوط",
   "comma": "،",
   "command_actions": "فرمان‌ها",
   "command_copy_markdown": "کپی به صورت مارک‌داون",

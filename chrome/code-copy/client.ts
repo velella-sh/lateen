@@ -1,9 +1,15 @@
-/* Code block copy control: copies a block's code without diff markers or shell prompts, and confirms
- * with a short text change and a live message. The control is made here, so a visitor without
- * JavaScript gets no control that would do nothing. */
+/* Code block copy and wrap controls: copies a block's code without diff markers or shell prompts,
+ * confirms with a short text change and a live message, and wraps long lines on demand. The controls
+ * are made here, so a visitor without JavaScript gets no control that would do nothing. */
 
 /** Class on the copy button. */
 export const BUTTON_CLASS = "code-copy";
+
+/** Class on the wrap toggle. */
+export const WRAP_BUTTON_CLASS = "code-wrap";
+
+/** Class the toggle puts on the block; `ui.css` turns it into wrapped lines, never different text. */
+export const WRAPPED_CLASS = "is-wrapped";
 
 /** Class on the wrapper that holds the button and the live message, placed over the block. */
 export const BAR_CLASS = "code-copy-bar";
@@ -23,11 +29,12 @@ export const RESET_MS = 2000;
 /** Hidden template the server writes, so the control's words follow the page's language. */
 export const TEMPLATE_SELECTOR = "[data-code-copy]";
 
-/** The words the control shows: its label, the result, and the fallback when a copy fails. */
+/** The words the control shows: its label, the result, the fallback when a copy fails, and the wrap toggle. */
 export interface CopyLabels {
   readonly copy: string;
   readonly copied: string;
   readonly failed: string;
+  readonly wrap: string;
 }
 
 const SVG_NS = "http://www.w3.org/2000/svg";
@@ -60,6 +67,7 @@ export const DEFAULT_LABELS: CopyLabels = {
   copy: "Copy",
   copied: "Copied",
   failed: "Copy failed. Select the text and copy it by hand.",
+  wrap: "Wrap lines",
 };
 
 /** Languages for a recorded console session: only prompted lines are command input; the rest is output. */
@@ -83,6 +91,7 @@ export interface CopyNode {
 /** A code block as the island reads it. */
 export interface CopyBlock {
   getAttribute(name: string): string | null;
+  classList: { toggle(name: string, force?: boolean): unknown };
   querySelector(selector: string): { textContent: string | null } | null;
   before(node: CopyNode): void;
 }
@@ -211,7 +220,7 @@ export function copy(text: string, ui: CopyUi, env: CopyEnv, isLatest: () => boo
   );
 }
 
-/** Adds a copy button above each code block and wires it. Nothing is added to a page the island does not run on. */
+/** Adds a copy button and a wrap toggle above each code block and wires them. Nothing is added to a page the island does not run on. */
 export function activate(doc: CopyDocument, env: CopyEnv): void {
   const labels = labelsOf(doc);
   const icons = iconsOf(doc);
@@ -231,6 +240,7 @@ export function labelsOf(doc: CopyDocument): CopyLabels {
     copy: read("data-copy", DEFAULT_LABELS.copy),
     copied: read("data-copied", DEFAULT_LABELS.copied),
     failed: read("data-failed", DEFAULT_LABELS.failed),
+    wrap: read("data-wrap", DEFAULT_LABELS.wrap),
   };
 }
 
@@ -278,7 +288,21 @@ function attach(doc: CopyDocument, block: CopyBlock, env: CopyEnv, labels: CopyL
   const checkIcon = icon(doc, icons.check);
   checkIcon.setAttribute("hidden", "");
   button.append(copyIcon, checkIcon);
-  bar.append(button, status);
+
+  // A real button, so Enter and Space work without a key handler. It changes only the block's class.
+  const wrap = doc.createElement("button");
+  wrap.setAttribute("type", "button");
+  wrap.setAttribute("class", WRAP_BUTTON_CLASS);
+  wrap.setAttribute("aria-pressed", "false");
+  wrap.textContent = labels.wrap;
+  let wrapped = false;
+  wrap.addEventListener("click", () => {
+    wrapped = !wrapped;
+    wrap.setAttribute("aria-pressed", wrapped ? "true" : "false");
+    block.classList.toggle(WRAPPED_CLASS, wrapped);
+  });
+
+  bar.append(button, status, wrap);
 
   const frame = doc.createElement("div");
   frame.setAttribute("class", FRAME_CLASS);

@@ -1673,11 +1673,28 @@
   }
 
   .code-copy-bar {
-    @apply absolute end-2 top-2 z-10;
+    @apply absolute end-2 top-2 z-10 flex items-center gap-1;
   }
 
   .code-copy {
     @apply inline-flex;
+  }
+
+  .code-wrap {
+    @apply rounded font-mono text-xs;
+    color: var(--sail);
+    background: var(--night-raised);
+    min-block-size: 1.5rem;
+  }
+
+  /* The wrap toggle changes presentation only: the text, its line breaks, and the copy stay as written. */
+  .code.is-wrapped {
+    overflow-x: hidden;
+  }
+
+  .code.is-wrapped code {
+    white-space: pre-wrap;
+    overflow-wrap: anywhere;
   }
 
   .code-copy svg {
@@ -2910,6 +2927,7 @@ summary,
 .tags a,
 .breadcrumb-item a,
 .code-copy,
+.code-wrap,
 .cta-band-action,
 .chart-data-downloads a,
 .embed-link,
