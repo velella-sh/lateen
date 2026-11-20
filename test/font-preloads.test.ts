@@ -13,6 +13,7 @@ const preloads = (html: string): string[] =>
 
 const sans = (url: string): boolean => /\/fonts\/manrope\/[^/]+\.woff2$/.test(url);
 const mono = (url: string): boolean => /\/fonts\/jetbrains-mono\/[^/]+\.woff2$/.test(url);
+const vazir = (url: string): boolean => /\/fonts\/vazirmatn\/[^/]+\.woff2$/.test(url);
 
 /** Builds one fixture, reads its home page, and removes the output. */
 function home(name: string): string {
@@ -38,6 +39,30 @@ test("the standard landing page preloads only the sans family", () => {
     const urls = preloads(site.html("/landing/"));
     assert.equal(urls.filter(sans).length, 3);
     assert.equal(urls.filter(mono).length, 0);
+  } finally {
+    rmSync(site.out, { recursive: true, force: true });
+  }
+});
+
+test("an RTL page preloads its own script's family first and leaves out the Latin face", () => {
+  const site = build("fonts-default", process.env, {
+    "fa/index.md": "---\ntitle: صفحه\nlang: fa\ndir: rtl\n---\n\nمتن.",
+    "ar/index.md": "---\ntitle: صفحة\nlang: ar\ndir: rtl\n---\n\nنص.",
+  });
+  try {
+    const en = preloads(site.html("/"));
+    assert.equal(en.filter(sans).length, 3, "the LTR page preloads three Manrope weights");
+    assert.equal(en.filter(mono).length, 2, "mono stays shared");
+    assert.equal(en.filter(vazir).length, 0, "the LTR page leaves out Vazirmatn");
+    assert.ok(sans(en[0] ?? ""), "the LTR page leads with Manrope");
+
+    for (const path of ["/fa/", "/ar/"]) {
+      const urls = preloads(site.html(path));
+      assert.equal(urls.filter(vazir).length, 3, `${path} preloads three Vazirmatn weights`);
+      assert.equal(urls.filter(mono).length, 2, `${path} keeps the shared mono preloads`);
+      assert.equal(urls.filter(sans).length, 0, `${path} leaves out Manrope`);
+      assert.ok(vazir(urls[0] ?? ""), `${path} leads with Vazirmatn`);
+    }
   } finally {
     rmSync(site.out, { recursive: true, force: true });
   }

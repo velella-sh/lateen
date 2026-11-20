@@ -111,6 +111,9 @@ runs only on input, after the typing pause.
 
 ### How fonts are counted
 
+- A page preloads only its direction's primary family — Manrope on an LTR page, Vazirmatn on an RTL
+  page — and the other script's face is fetched only when a glyph needs it. Mono stays shared by both
+  directions.
 - A font is discovered from the stylesheets the route actually loads, never from the theme's font
   folder. A face declared in a stylesheet no page links is not measured.
 - One file is one response per route, however many faces or stylesheets declare it. Two faces that name
