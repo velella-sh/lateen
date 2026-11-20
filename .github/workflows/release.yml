@@ -9,7 +9,8 @@ name: release
 #   2. publish     publishes that same tarball with provenance. It holds the only credential in the
 #                  workflow (an OIDC token) and never runs repository scripts.
 #   3. acceptance-published  installs the version npm now serves and runs the cases again.
-#   4. github-release         writes the GitHub Release for the tag.
+#   4. github-release         writes the GitHub Release for the tag, only after the post-publish
+#                             acceptance run passed.
 #
 # There is no npm token anywhere: npm trusted publishing exchanges the job's OIDC identity for a
 # short-lived publish credential. One-time setup on npmjs.com is in docs/release.md.
@@ -221,10 +222,12 @@ jobs:
           tarball="$(ls ../published/*.tgz)"
           node scripts/acceptance.ts --gate ../acceptance/report.json --tarball "$tarball"
 
+  # A first publish is only a release once the post-publish acceptance run passed: a failed case
+  # or digest check leaves the GitHub Release uncreated instead of announcing a broken version.
   github-release:
     name: github release
-    needs: [acceptance, publish]
-    if: always() && needs.acceptance.result == 'success' && (needs.acceptance.outputs.published == 'true' || needs.publish.result == 'success')
+    needs: [acceptance, publish, acceptance-published]
+    if: always() && needs.acceptance.result == 'success' && (needs.acceptance.outputs.published == 'true' || needs['acceptance-published'].result == 'success')
     runs-on: ubuntu-latest
     permissions:
       contents: write
