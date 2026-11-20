@@ -68,7 +68,8 @@ export function main(argv = process.argv.slice(2)): void {
     process.exitCode = 1;
     return;
   }
-  console.log(`all ${required.length} required theme artifacts are present`);
+  // stderr keeps prepack stdout clean for `npm pack --json` consumers (scripts/acceptance.ts).
+  console.error(`all ${required.length} required theme artifacts are present`);
 }
 
 if (process.argv[1] === fileURLToPath(import.meta.url)) {
