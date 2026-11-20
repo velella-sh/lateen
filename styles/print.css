@@ -303,6 +303,11 @@
     display: table-header-group;
   }
 
+  /* A figure credit can sit outside the article's prose, so its source address prints with it. */
+  .figure-credit a[href]::after {
+    content: " (" attr(href) ")";
+  }
+
   /* A paired figure shows the light image: dark artwork would be unreadable on white paper. */
   .figure-paired .figure-img-light {
     display: block !important;

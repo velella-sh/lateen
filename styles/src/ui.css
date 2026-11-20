@@ -2002,6 +2002,8 @@
   .figure-credit {
     display: block;
     margin-top: 0.25rem;
+    color: var(--muted-foreground);
+    font-size: 0.8125rem;
   }
 
   .reading-time,
