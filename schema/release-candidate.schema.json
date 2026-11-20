@@ -1,0 +1,46 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://velella.sh/lateen/schema/release-candidate.schema.json",
+  "title": "Lateen release candidate report",
+  "description": "The commit a release candidate proved, the package and engine versions it installed, and the result of every release gate. No wall-clock time is recorded, so the same commit writes the same report.",
+  "type": "object",
+  "required": ["tool", "version", "commit", "package", "mizzen", "status", "gates"],
+  "additionalProperties": false,
+  "properties": {
+    "tool": { "type": "string", "enum": ["lateen/release-candidate"] },
+    "version": { "type": "integer", "enum": [1] },
+    "commit": {
+      "type": "string",
+      "pattern": "^[0-9a-f]{7,40}$",
+      "description": "The exact commit the clean worktree was checked out at."
+    },
+    "package": {
+      "type": "object",
+      "required": ["name", "version"],
+      "additionalProperties": false,
+      "properties": {
+        "name": { "type": "string" },
+        "version": { "type": "string" }
+      }
+    },
+    "mizzen": {
+      "type": "string",
+      "description": "The exact installed @velella/mizzen version, not the range in package.json."
+    },
+    "status": { "type": "string", "enum": ["passed", "failed"] },
+    "gates": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "type": "object",
+        "required": ["name", "command", "status"],
+        "additionalProperties": false,
+        "properties": {
+          "name": { "type": "string" },
+          "command": { "type": "string" },
+          "status": { "type": "string", "enum": ["passed", "failed"] }
+        }
+      }
+    }
+  }
+}
