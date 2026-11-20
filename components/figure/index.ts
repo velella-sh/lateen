@@ -17,8 +17,10 @@ export const PAIR_CLASS = "figure-pair";
 
 /** Props from the directive: `:::figure{src=… alt=… caption=…}` or `::figure{src=…}`. Every value is a string. */
 export type FigureProps = {
-  /** The image. Without it the figure renders nothing. */
+  /** The image. Without it (or `images`) the figure renders nothing. */
   src?: string;
+  /** A JSON list of `{ "src", "alt" }` images, shown together with one shared caption instead of `src`. */
+  images?: string;
   /** A stable id for linking to the figure. Repeated ids get a numeric suffix on the page. */
   id?: string;
   /** The image shown in dark mode. Without it, or when equal to `src`, one image is shown in both modes. */
@@ -80,6 +82,24 @@ function text(value: unknown): string {
   return typeof value === "string" ? value.trim() : "";
 }
 
+/** The images in a JSON `images` prop, keeping only entries with a usable `src`. Invalid JSON gives none. */
+export function imageList(value: unknown): { src: string; alt: string }[] {
+  if (typeof value !== "string" || value.trim() === "") return [];
+  let parsed: unknown;
+  try {
+    parsed = JSON.parse(value);
+  } catch {
+    return [];
+  }
+  if (!Array.isArray(parsed)) return [];
+  return parsed.flatMap((entry) => {
+    if (typeof entry !== "object" || entry === null) return [];
+    const { src, alt } = entry as { src?: unknown; alt?: unknown };
+    const address = text(src);
+    return address === "" ? [] : [{ src: address, alt: typeof alt === "string" ? alt : "" }];
+  });
+}
+
 /** The id an author gave, reduced to letters, digits, `-` and `_`; "" when nothing usable is left. */
 export function idBase(raw: unknown): string {
   return typeof raw === "string"
@@ -125,7 +145,8 @@ function captionOf(props: FigureProps, html: string) {
  */
 export default function figure({ props, html, site, page }: ComponentProps<FigureProps>) {
   const authored = text(props.src);
-  if (authored === "") return null;
+  const gallery = imageList(props.images);
+  if (authored === "" && gallery.length < 2) return null;
   const base = baseOf(site);
   const src = withBase(base, authored);
   const alt = typeof props.alt === "string" ? props.alt : "";
@@ -133,7 +154,7 @@ export default function figure({ props, html, site, page }: ComponentProps<Figur
   const id = authoredId === "" ? undefined : instanceId(page, authoredId);
   const authoredDark = text(props.src_dark);
   const darkSrc = authoredDark === "" ? "" : withBase(base, authoredDark);
-  const paired = darkSrc !== "" && darkSrc !== src;
+  const paired = gallery.length < 2 && darkSrc !== "" && darkSrc !== src;
   const shared = {
     width: dimension(props.width),
     height: dimension(props.height),
@@ -153,11 +174,22 @@ export default function figure({ props, html, site, page }: ComponentProps<Figur
   const dark = paired
     ? h("img", { class: DARK_IMAGE_CLASS, src: darkSrc, alt: "", "aria-hidden": "true", ...shared })
     : null;
-  const images = paired
+  const pair = paired
     ? h("div", { class: PAIR_CLASS, role: alt === "" ? undefined : "img", "aria-label": alt === "" ? undefined : alt }, light, dark)
     : light;
   const href = fullSizeHref(base, props.href);
-  const media = href === undefined ? images : h("a", { class: "figure-link", href }, images);
+  const single = href === undefined ? pair : h("a", { class: "figure-link", href }, pair);
+  // Every gallery image keeps its own alt; src_dark, href, srcset and sizes describe the single image only.
+  const media =
+    gallery.length < 2
+      ? single
+      : h(
+          "div",
+          { class: "figure-images" },
+          gallery.map((image) =>
+            h("img", { class: "figure-img", src: withBase(base, image.src), alt: image.alt, ...shared }),
+          ),
+        );
 
   return h(
     "figure",

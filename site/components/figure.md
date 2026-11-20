@@ -68,5 +68,6 @@ readable and a credit link stays operable while its image is hidden.
 ## Notes
 
 - Write alt text that says what the image shows, not that it is an image.
+- With `images`, one figure holds several images with one shared caption: `images='[{"src":"/a.png","alt":"A"},{"src":"/b.png","alt":"B"}]'` gives each image its own `alt` and lets the caption wrap instead of clipping on small screens. `src_dark`, `href`, `srcset` and `sizes` describe the single-image form only.
 - A decorative image, such as a divider, takes `alt=""` and no caption; a decorative pair keeps both images decorative and still hides the dark one from assistive technology.
 - The two images in `src` and `src_dark` should be the same size, so the layout does not jump when the theme changes.

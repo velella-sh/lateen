@@ -14,6 +14,7 @@ import figure, {
   dimension,
   fullSizeHref,
   idBase,
+  imageList,
   type FigureProps,
 } from "../components/figure/index.ts";
 
@@ -374,6 +375,47 @@ test("the caption and credit are the figure's own children, outside the image wr
   assert.equal(creditLink.props.href, "https://example.com/ada");
   assert.equal(creditLink.props.rel, "noopener");
   assert.equal(textOf(creditLink), "Ada");
+});
+
+test("several images render inside one figure and share one caption", () => {
+  const tree = render({
+    images: JSON.stringify([
+      { src: "/a.png", alt: "First image" },
+      { src: "/b.png", alt: "Second image" },
+    ]),
+    caption: "Both at once",
+  }) as Tree;
+  assert.equal(tree.type, "figure");
+  assert.equal(elements(tree).filter((element) => element.type === "figcaption").length, 1);
+  const gallery = find(tree, "figure-images") as Tree;
+  const images = imagesOf(gallery);
+  assert.equal(images.length, 2);
+  assert.deepEqual(
+    images.map((image) => image.props.src),
+    ["/a.png", "/b.png"],
+  );
+  assert.deepEqual(
+    images.map((image) => image.props.alt),
+    ["First image", "Second image"],
+  );
+  assert.equal(textOf(find(tree, "figure-caption")), "Both at once");
+});
+
+test("a broken or too-short images list falls back to the single image", () => {
+  assert.deepEqual(imageList("not json"), []);
+  assert.deepEqual(imageList(JSON.stringify([{ alt: "no source" }])), []);
+  const tree = render({ src: "/a.png", images: JSON.stringify([{ src: "/b.png", alt: "B" }]) }) as Tree;
+  assert.equal(imagesOf(tree).length, 1);
+  assert.equal(find(tree, "figure-images"), undefined);
+});
+
+test("figure captions and galleries wrap instead of clipping on small screens", () => {
+  const sheet = readFileSync(join(root, "styles/src/ui.css"), "utf8");
+  const ruleOf = (selector: string) =>
+    sheet.match(new RegExp(`${selector}\\s*\\{([^}]*)\\}`))?.[1] ?? "";
+  assert.match(ruleOf("\\.figure-caption"), /overflow-wrap:\s*anywhere/);
+  assert.match(ruleOf("\\.figure-images"), /grid-template-columns/);
+  assert.doesNotMatch(sheet, /\.figure-(caption|text|images)[^{]*\{[^}]*text-overflow:\s*ellipsis/);
 });
 
 test("root-relative image URLs take the site base, external ones stay", () => {
