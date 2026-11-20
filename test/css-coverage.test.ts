@@ -3,13 +3,14 @@
 // never carries and no source file ever names cannot apply, so the sheet drops it instead of carrying it.
 import assert from "node:assert/strict";
 import { readdirSync, readFileSync, writeFileSync } from "node:fs";
-import { join, relative } from "node:path";
+import { join } from "node:path";
 import { test } from "node:test";
 import { fileURLToPath } from "node:url";
+import { tempDir } from "./integration-helpers.ts";
 import { buildFixture } from "./visual/fixtures/build.ts";
 
 const ROOT = fileURLToPath(new URL("../", import.meta.url));
-const BUILD = join(ROOT, ".mizzen/css-coverage");
+const BUILD = tempDir("css-coverage-");
 const SRC = join(ROOT, "styles/src");
 const SKIP = new Set(["node_modules", ".git", ".mizzen", "styles", "test", "coverage", "dist"]);
 const SOURCE = /\.(ts|tsx|js|mjs|json|md|html|yml|yaml)$/;
@@ -87,6 +88,6 @@ test("every sailcloth selector reaches a rendered fixture or a source reference"
   assert.deepEqual(
     dead.map((entry) => `${entry.file}: ${entry.selector}`),
     [],
-    `selectors no rendered fixture or source file reaches. Delete the rule, or name the class in the source that applies it. Report: ${relative(ROOT, report)}`,
+    `selectors no rendered fixture or source file reaches. Delete the rule, or name the class in the source that applies it. Report: ${report}`,
   );
 });
