@@ -39,6 +39,9 @@ function clientScript(props: LayoutProps): string {
   const lang = props.page.lang;
   const messages = {
     empty: patternOf(lang, "search_results_empty"),
+    emptyScope: patternOf(lang, "search_results_empty_scope"),
+    scopeProject: t(lang, "search_scope_project"),
+    scopeAll: t(lang, "search_scope_all"),
     failed: t(lang, "search_results_failed"),
     loading: t(lang, "search_results_loading"),
     one: t(lang, "search_results_one"),
@@ -58,6 +61,7 @@ const input = document.querySelector("[data-search-input]");
 const status = document.querySelector("[data-search-status]");
 const list = document.querySelector("[data-search-results]");
 const more = document.querySelector("[data-search-more]");
+const scopeLink = document.querySelector("[data-search-scope-change]");
 const query = new URLSearchParams(location.search).get("q") || "";
 const storage = (() => {
   try {
@@ -66,6 +70,7 @@ const storage = (() => {
     return undefined;
   }
 })();
+const scope = new URLSearchParams(location.search).get("scope") === "all" ? "all" : "project";
 let hits = [];
 let shown = 0;
 let pending = false;
@@ -305,12 +310,24 @@ if (status && list && query.trim() !== "") {
       shown = records.length;
       render(records);
       if (more) more.hidden = !hasMore(hits, shown);
-      status.textContent =
-        hits.length === 0
-          ? messages.empty.replace("{query}", () => query)
-          : hits.length === 1
-            ? messages.one
-            : countMessage(hits.length);
+      const empty = hits.length === 0;
+      status.textContent = empty
+        ? messages.emptyScope
+            .replace("{query}", () => query)
+            .replace("{scope}", () => (scope === "all" ? messages.scopeAll : messages.scopeProject))
+        : hits.length === 1
+          ? messages.one
+          : countMessage(hits.length);
+      if (scopeLink) {
+        scopeLink.hidden = !empty;
+        if (empty) {
+          const url = new URL(location.href);
+          url.searchParams.set("q", query);
+          url.searchParams.set("scope", scope === "all" ? "project" : "all");
+          scopeLink.setAttribute("href", url.pathname + url.search);
+          scopeLink.textContent = scope === "all" ? messages.scopeProject : messages.scopeAll;
+        }
+      }
     })
     .catch(() => {
       status.textContent = messages.failed;
@@ -400,6 +417,7 @@ function content(props: LayoutProps): ComponentChildren {
       searchScope(props) as ComponentChildren,
     ),
     h("p", { class: "search-results-status", role: "status", "data-search-status": "" }, ""),
+    h("a", { class: "search-results-scope-change", "data-search-scope-change": "", hidden: true }),
     h(
       "noscript",
       null,

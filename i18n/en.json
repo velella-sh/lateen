@@ -395,6 +395,7 @@
   "search_project_failed": "Results from {project} did not load.",
   "search_ready": "Search is available again.",
   "search_results_empty": "No results for “{query}”.",
+  "search_results_empty_scope": "No results for “{query}” in {scope}.",
   "search_results_failed": "Search is unavailable right now.",
   "search_results_js": "JavaScript is needed to show results on this page. Submit the form to carry your query in the address.",
   "search_results_loading": "Searching…",
