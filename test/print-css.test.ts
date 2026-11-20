@@ -361,6 +361,30 @@ test("the network chrome stays out of print with the header and footer", () => {
   assert.doesNotMatch(rules, /\.network-footer\s*\{[^}]*position:\s*(?:fixed|absolute)/);
 });
 
+test("sailcloth utility controls stay in flow and configured logos use the brand frame", () => {
+  const ui = read("../styles/src/ui.css");
+  const utilities = rule(ui, ".site-utilities");
+  assert.ok(utilities, "no site utilities layout rule");
+  assert.match(utilities.body, /display:\s*flex/);
+  assert.match(utilities.body, /flex-wrap:\s*wrap/);
+  assert.match(utilities.body, /justify-content:\s*flex-end/);
+  assert.match(utilities.body, /padding-block-end:\s*var\(--space-4\)/);
+
+  for (const selector of [".site-utilities .shortcuts-open", ".site-utilities .source-mode-switch"]) {
+    const control = rule(ui, selector);
+    assert.ok(control, `no normal-flow rule for ${selector}`);
+    assert.match(control.body, /position:\s*static/);
+    assert.doesNotMatch(control.body, /inset-|z-index/);
+  }
+
+  const frame = rule(ui, ".brand-logo-frame");
+  assert.ok(frame, "no configured logo frame");
+  assert.match(frame.body, /display:\s*grid/);
+  assert.match(frame.body, /place-items:\s*center/);
+  assert.match(frame.body, /inline-size:\s*1\.75rem/);
+  assert.match(frame.body, /block-size:\s*1\.75rem/);
+});
+
 test("sailcloth ui.css also hides shell chrome and block-action labels in print", () => {
   const ui = stripComments(read("../styles/src/ui.css"));
   const print = ui.slice(ui.indexOf("@media print"));

@@ -3,7 +3,8 @@ import { fileURLToPath } from "node:url";
 import { Fragment, h } from "preact";
 import type { ComponentChildren } from "preact";
 import type { Chrome, SiteConfig } from "@velella/mizzen/contracts";
-import { CodeXml, GitBranch } from "lucide";
+import { CodeXml } from "lucide";
+import type { IconNode } from "lucide";
 import { t } from "../../i18n/index.ts";
 import { icon } from "../../src/icon.ts";
 import { optionOf, resolveNetworkOptions } from "../../src/options.ts";
@@ -14,6 +15,10 @@ import themeToggle from "../theme-toggle/index.ts";
 import versionSwitcher from "../version-switcher/index.ts";
 
 const PACKAGE_VERSION = `v${(JSON.parse(readFileSync(fileURLToPath(new URL("../../package.json", import.meta.url)), "utf8")) as { version: string }).version}`;
+
+const Github: IconNode = [
+  ["path", { d: "M9 19c-4 1.5-4-2.5-6-3m14 6v-3.8a3.4 3.4 0 0 0-.9-2.6c3.1-.4 6.4-1.5 6.4-7A5.4 5.4 0 0 0 20 4.8 5 5 0 0 0 19.9 1S18.7.7 16 2.5a13 13 0 0 0-7 0C6.3.7 5.1 1 5.1 1A5 5 0 0 0 5 4.8 5.4 5.4 0 0 0 3.5 8.6c0 5.4 3.3 6.6 6.4 7a3.4 3.4 0 0 0-.9 2.6V22" }],
+];
 
 type Logo = { readonly light?: string; readonly dark?: string };
 
@@ -34,7 +39,9 @@ function brand(config: SiteConfig) {
     "a",
     { class: "brand", href: `${config.base}/` },
     light || dark
-      ? h(Fragment, null,
+      ? h(
+          "span",
+          { class: "brand-logo-frame", "aria-hidden": "true" },
           light ? h("img", { class: `brand-logo${dark ? " brand-logo-light" : ""}`, src: light, alt: "", width: 28, height: 28 }) : null,
           dark ? h("img", { class: `brand-logo${light ? " brand-logo-dark" : ""}`, src: dark, alt: "", width: 28, height: 28 }) : null,
         )
@@ -63,7 +70,7 @@ function repositoryLink(config: SiteConfig) {
       rel: "noopener",
       "aria-label": github ? "GitHub repository" : "Repository",
     },
-    icon({ node: github ? GitBranch : CodeXml }),
+    icon({ node: github ? Github : CodeXml }),
   );
 }
 
@@ -164,6 +171,7 @@ export default shell;
 type FooterOptions = {
   readonly copyright?: unknown;
   readonly license?: unknown;
+  readonly links?: unknown;
 };
 
 function footerText(value: unknown): string | undefined {
@@ -178,11 +186,20 @@ export function footer({ site }: Pick<Parameters<Chrome>[0], "site">) {
     typeof footerOptions === "object" && footerOptions !== null ? (footerOptions as FooterOptions) : undefined;
   const copyright = footerText(options?.copyright) ?? "© Velella";
   const license = footerText(options?.license) ?? "MIT";
-  const footerLinks = (site.nav.main ?? []).flatMap((item) =>
-    "url" in item && typeof item.url === "string" && typeof item.title === "string"
-      ? [{ title: item.title, url: item.url }]
-      : [],
-  );
+  const footerLinks = Array.isArray(options?.links)
+    ? options.links.flatMap((value: unknown) => {
+        if (typeof value !== "object" || value === null) return [];
+        const item = value as { title?: unknown; url?: unknown };
+        const title = footerText(item.title);
+        const url = typeof item.url === "string" ? item.url.trim() : "";
+        if (title === undefined || !(/^(https?:\/\/|mailto:)/i.test(url) || /^\/(?!\/)/.test(url))) return [];
+        return [{ title, url: withBase(site.config.base, url) }];
+      })
+    : (site.nav.main ?? []).flatMap((item) =>
+        "url" in item && typeof item.url === "string" && typeof item.title === "string"
+          ? [{ title: item.title, url: item.url }]
+          : [],
+      );
   return h(
     "div",
     { class: "site-footer" },

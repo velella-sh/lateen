@@ -79,6 +79,7 @@ test("shell renders sailcloth header chrome with search trigger", () => {
     navigation: "_data/navigation.yml",
     defaults: [],
     theme: { options: {} },
+    repository: { url: "https://github.com/velella-sh/lateen" },
     search: { text: 300 },
     redirects: {},
     outputs: {},
@@ -106,7 +107,37 @@ test("shell renders sailcloth header chrome with search trigger", () => {
   assert.match(out, /data-search-open/);
   assert.match(out, /data-drawer-open/);
   assert.match(out, /data-theme-toggle/);
+  assert.match(out, /M9 19c-4 1\.5-4-2\.5-6-3/, "GitHub repositories use the GitHub icon");
   assert.match(html(footer({ site })), /site-footer/);
+
+  const logoSite = {
+    ...site,
+    config: {
+      ...site.config,
+      base: "/docs",
+      theme: { options: { logo: { light: "/brand/light.svg", dark: "/brand/dark.svg" } } },
+    },
+  };
+  const logoOut = html(shell({ site: logoSite, page, trail: [], pager: {} }));
+  assert.match(logoOut, /class="brand-logo-frame"/);
+  assert.match(logoOut, /src="\/docs\/brand\/light.svg"/);
+  assert.match(logoOut, /src="\/docs\/brand\/dark.svg"/);
+
+  const footerSite = {
+    ...site,
+    config: {
+      ...site.config,
+      theme: { options: { footer: { links: [
+        { title: "Install", url: "/install/" },
+        { title: "Source", url: "https://github.com/velella-sh/lateen" },
+        { title: "Bad", url: "javascript:alert(1)" },
+      ] } } },
+    },
+  };
+  const footerOut = html(footer({ site: footerSite }));
+  assert.match(footerOut, /<a href="\/install\/">Install<\/a>/);
+  assert.match(footerOut, /<a href="https:\/\/github.com\/velella-sh\/lateen">Source<\/a>/);
+  assert.doesNotMatch(footerOut, /javascript:/);
 });
 
 test("shell client helpers search, theme color, and progress", () => {
