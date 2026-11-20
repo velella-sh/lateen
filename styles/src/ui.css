@@ -2425,7 +2425,8 @@
     @apply grid font-medium;
   }
 
-  .pager small {
+  .pager small,
+  .pager-section {
     @apply text-xs font-normal text-muted-foreground;
   }
 
