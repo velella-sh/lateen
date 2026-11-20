@@ -377,7 +377,6 @@
 .schema-table th,
 .budget-report-table th,
 .a11y-report-table th,
-.line-chart-table th,
 .compare th {
   color: var(--foreground);
   background: color-mix(in srgb, var(--muted) 72%, var(--card));

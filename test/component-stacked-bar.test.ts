@@ -4,6 +4,7 @@ import { test } from "node:test";
 import type { ComponentProps } from "@velella/mizzen/contracts";
 import { renderToString } from "preact-render-to-string";
 import { NO_VALUE_TEXT } from "../components/bar-chart/index.ts";
+import { NO_VALUE_CLASS as TABLE_NO_VALUE_CLASS } from "../components/chart-data/index.ts";
 import stackedBar, {
   CATEGORY_HEADING,
   CLASS,
@@ -12,7 +13,6 @@ import stackedBar, {
   LIMIT_CLASS,
   LIMIT_TEXT,
   MAX_SERIES,
-  NO_VALUE_CLASS,
   SEGMENT_CLASS,
   SEGMENT_VALUE_CLASS,
   rowsOfStacked,
@@ -114,7 +114,12 @@ test("three categories draw three bars, one segment per series, with no script",
   assert.equal(drawnSegments(html), 7, "two empty segments are not drawn");
   assert.match(html, /class="stacked-bar-axis"/);
   assert.match(html, /class="stacked-bar-tick"[^>]*>50</, "the axis ends at the Q1 total of the raw values");
-  assert.doesNotMatch(html, /%/, "segments keep their values and are never normalised");
+  assert.doesNotMatch(html, /<script/);
+  assert.doesNotMatch(
+    html,
+    /class="stacked-bar-(?:segment-value|tick|label)"[^>]*>[^<]*%/,
+    "segments keep their values and are never normalised",
+  );
 });
 
 test("a segment value is text inside the segment only when it fits, and is in the table always", () => {
@@ -140,7 +145,7 @@ test("a segment value is text inside the segment only when it fits, and is in th
 test("an empty segment stays out of its bar and says so in the table", () => {
   const html = render(PROPS, REVENUE);
   assert.equal(drawnSegments(html), 7);
-  assert.match(html, new RegExp(`<td class="${NO_VALUE_CLASS}">${NO_VALUE_TEXT}</td>`));
+  assert.match(html, new RegExp(`<td class="${TABLE_NO_VALUE_CLASS}">${NO_VALUE_TEXT}</td>`));
   assert.match(html, /<th scope="row">Q3<\/th><td>15<\/td><td>9<\/td><td>0<\/td>/, "a zero segment stays in the data");
 
   const gaps = {
@@ -154,7 +159,7 @@ test("an empty segment stays out of its bar and says so in the table", () => {
   const empty = render({ ...PROPS, from: "sales" }, gaps);
   assert.equal(drawnSegments(empty), 0);
   assert.match(empty, new RegExp(`class="${CLASS}-no-value"[^>]*>${NO_VALUE_TEXT}<`));
-  assert.equal((empty.match(new RegExp(`<td class="${NO_VALUE_CLASS}"`, "g")) ?? []).length, 2);
+  assert.equal((empty.match(new RegExp(`<td class="${TABLE_NO_VALUE_CLASS}"`, "g")) ?? []).length, 2);
 });
 
 test("the legend lists every series in source order with one categorical colour each", () => {
@@ -171,7 +176,7 @@ test("the table is the text alternative, with a column per series and every segm
   const html = render(PROPS, REVENUE);
   assert.match(html, new RegExp(`<th scope="col">${CATEGORY_HEADING}</th><th scope="col">North</th><th scope="col">South</th><th scope="col">East</th>`));
   assert.match(html, /<th scope="row">Q1<\/th><td>30<\/td><td>12<\/td><td>8<\/td>/);
-  assert.match(html, /<th scope="row">Q2<\/th><td>20<\/td><td class="stacked-bar-no-value">No value<\/td><td>5<\/td>/);
+  assert.match(html, new RegExp(`<th scope="row">Q2<\\/th><td>20<\\/td><td class="${TABLE_NO_VALUE_CLASS}">No value<\\/td><td>5<\\/td>`));
 });
 
 test("a source with more series than the chart can colour shows a note instead of a crowded chart", () => {

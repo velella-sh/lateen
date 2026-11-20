@@ -178,7 +178,7 @@ test("bar, stacked-bar, and line charts read the same malformed rows the same wa
   assert.match(stacked, /class="stacked-bar-segment-value"[^>]*>6</);
   assert.match(stacked, /class="stacked-bar-no-value"[^>]*>No value</);
   assert.match(line, /<td>6<\/td>/);
-  assert.match(line, /class="line-chart-no-value"[^>]*>No value</);
+  assert.match(line, new RegExp(`<td class="${NO_VALUE_CLASS}">${NO_VALUE_TEXT}</td>`));
   // The empty label falls back to the row id in the bar chart's table.
   assert.match(bar, /<th scope="row">b<\/th>/);
 });
