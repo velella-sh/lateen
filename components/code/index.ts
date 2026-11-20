@@ -9,6 +9,8 @@ import { isDiffLang, markDiffLines, stripDiffMarkers } from "./diff.ts";
 import { decodeEntities } from "./escape.ts";
 import { decorateLines, type LineRange } from "./lines.ts";
 import { codeTitleHtml } from "./title.ts";
+import { escapeHtml } from "./escape.ts";
+import { t } from "../../i18n/index.ts";
 import { createHighlighterCoreSync } from "shiki/core";
 import { createJavaScriptRegexEngine } from "shiki/engine/javascript";
 import { bundledLanguages } from "shiki/langs";
@@ -19,6 +21,15 @@ export const directive = "code";
 
 /** Class on the `<pre>`; `style.css` styles it. */
 export const CODE_CLASS = "code";
+
+/** A code block longer than this many lines starts collapsed, with the full text still in the DOM. */
+export const COLLAPSE_AFTER = 20;
+
+/** Class on the disclosure around a long code block. */
+export const COLLAPSE_CLASS = "code-details";
+
+/** Class on the disclosure's summary. */
+export const COLLAPSE_SUMMARY_CLASS = "code-details-summary";
 
 type Mode = "light" | "dark";
 type TokenEntry = { $value: string; $extensions?: { lateen?: { dark?: string } } };
@@ -246,10 +257,17 @@ export default function code({ props, html, page, site }: ComponentProps<CodePro
   const inner = /<code[^>]*>([\s\S]*)<\/code>/.exec(out)?.[1] ?? "";
   const block = src === undefined ? undefined : blockId(src);
   const decorated = block === undefined ? inner : decorateLines(inner, { block, lang: page.lang });
-  return h(
+  const pre = h(
     "pre",
     { class: CODE_CLASS, tabindex: 0, "data-lang": lang, ...(block === undefined ? {} : { id: block, "data-src": src }) },
     h("code", { dangerouslySetInnerHTML: { __html: decorated } }),
+  );
+  if (text.split("\n").length <= COLLAPSE_AFTER) return pre;
+  return h(
+    "details",
+    { class: COLLAPSE_CLASS },
+    h("summary", { class: COLLAPSE_SUMMARY_CLASS }, t(typeof page.lang === "string" ? page.lang : "en", "cli_demo_show_all")),
+    pre,
   );
 }
 
@@ -327,7 +345,10 @@ export function highlightFences(html: string, backdrops?: CodeBackdrops, lang = 
       const title = meta === undefined ? "" : codeTitleHtml(meta.title, titleId);
       const labelled = titleId === undefined ? "" : ` aria-labelledby="${titleId}"`;
       const notes = meta === undefined ? "" : renderAnnotations(meta.annotations, block, lang);
-      return `${title}<pre class="${className}" tabindex="0"${idAttr}${labelled} data-lang="${name}"${kept.rest}><code>${decorated}</code></pre>${notes}`;
+      const pre = `<pre class="${className}" tabindex="0"${idAttr}${labelled} data-lang="${name}"${kept.rest}><code>${decorated}</code></pre>`;
+      if (decorated.split("\n").length <= COLLAPSE_AFTER) return `${title}${pre}${notes}`;
+      const summary = `<summary class="${COLLAPSE_SUMMARY_CLASS}">${escapeHtml(t(lang, "cli_demo_show_all"))}</summary>`;
+      return `${title}<details class="${COLLAPSE_CLASS}">${summary}${pre}</details>${notes}`;
     })
     .replace(IDENTIFY, (match, attrs: string) => {
       if (/\sid=/.test(attrs)) return match;
