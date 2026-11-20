@@ -33,7 +33,7 @@ Every option is a directive attribute. The directive takes no body, so put it al
 
 ## What the reader sees
 
-The column header is the record's title, linked to the record's page. The row header names the field, and a row whose values differ gets a tint plus the word "differs" for a screen reader, so color is never the only signal. When the collection names an `evidence` field, each value keeps its own public claim links under it; a value with no claim gets no link, so sources never move between records. The comparison scrolls inside its own region once it is taller than the viewport, and a long value wraps inside its column instead of widening the table without bound.
+The column header is the record's title, linked to the record's page. Every record is a `th scope="col"` and every field name is a `th scope="row"`, so each cell is named by its record and its field. The row header names the field, and a row whose values differ gets a tint plus the word "differs" for a screen reader, so color is never the only signal. The differences-only view hides rows without removing them or their headers, so a screen reader still meets the same names. When the collection names an `evidence` field, each value keeps its own public claim links under it; a value with no claim gets no link, so sources never move between records. The comparison scrolls inside its own region once it is taller than the viewport, and a long value wraps inside its column instead of widening the table without bound.
 
 ## Without JavaScript
 
