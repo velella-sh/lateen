@@ -114,6 +114,14 @@ export function searchOf(url: string): string {
   return hash === -1 ? url.slice(at) : url.slice(at, hash);
 }
 
+/** The URL without its query string: the form action that still resets without script. */
+export function actionOf(url: string): string {
+  const at = url.indexOf("?");
+  if (at === -1) return url;
+  const hash = url.indexOf("#", at);
+  return url.slice(0, at) + (hash === -1 ? "" : url.slice(hash));
+}
+
 /** A URL with the named parameters set, or removed when the value is `null`; other parameters stay. */
 export function withParams(url: string, changes: Readonly<Record<string, string | null>>): string {
   const absolute = /^[a-z][a-z0-9+.-]*:\/\//i.test(url);
@@ -234,7 +242,7 @@ export function apply(
   doc: GalleryDocument,
   root: GalleryElement,
   url: string,
-  focus: "results" | "count" | null,
+  focus: "results" | "filters" | "count" | null,
 ): void {
   const lang = doc.documentElement?.getAttribute("lang") ?? "en";
   const selected = selectedOf(searchOf(url));
@@ -300,7 +308,7 @@ export function apply(
   }
 
   const clear = root.querySelector(CLEAR_SELECTOR);
-  if (clear !== null) clear.setAttribute("href", clearHref(url));
+  if (clear !== null) clear.hidden = selected.size === 0;
 
   for (const link of root.querySelectorAll(SORT_LINK_SELECTOR)) {
     const field = link.getAttribute("data-gallery-sort") ?? "";
@@ -325,6 +333,11 @@ export function apply(
     if (first !== null && first !== undefined) first.focus();
     else empty?.focus();
   }
+  if (focus === "filters") {
+    const first = root.querySelector(FILTER_LINK_SELECTOR);
+    if (first !== null) first.focus();
+    else count?.focus();
+  }
   if (focus === "count") count?.focus();
 }
 
@@ -334,7 +347,7 @@ export function activate(doc: GalleryDocument): void {
   if (roots.length === 0) return;
   const view = doc.defaultView ?? null;
 
-  const applyAll = (focus: "results" | "count" | null): void => {
+  const applyAll = (focus: "results" | "filters" | "count" | null): void => {
     for (const root of roots) apply(doc, root, view?.location.href ?? "", focus);
   };
 
@@ -357,7 +370,7 @@ export function activate(doc: GalleryDocument): void {
       event.preventDefault();
       const next = clearHref(view?.location.href ?? "");
       view?.history.replaceState(null, "", next);
-      applyAll("results");
+      applyAll("filters");
     });
 
     for (const link of root.querySelectorAll(SORT_LINK_SELECTOR)) {

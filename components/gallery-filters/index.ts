@@ -2,9 +2,11 @@ import { h } from "preact";
 import { formatCount } from "../reading-time/index.ts";
 import { patternOf, t } from "../../i18n/index.ts";
 import {
-  clearHref,
+  actionOf,
   filterHref,
   sortHref,
+  ORDER_PARAM,
+  SORT_PARAM,
   type GallerySort,
   type SortDirection,
 } from "./island.ts";
@@ -43,10 +45,33 @@ function labelOf(value: string, lang: string): string {
 /**
  * The filter and sort controls. Every choice is a normal link: the value's address when no script
  * runs, and the island only intercepts it to say the same thing in place. The chosen value carries
- * `aria-current`, and the clear link removes every filter while keeping the sort.
+ * `aria-current`, and the reset button is a form submit so it still works without script; it clears
+ * every filter while keeping the sort and is visible only while a filter is active.
  */
 export default function galleryFilters({ facets, sorts, url, selected, sort, lang }: GalleryFiltersProps) {
-  const clear = clearHref(url);
+  const reset =
+    facets.length === 0
+      ? null
+      : h(
+          "form",
+          { class: "gallery-filter-reset", method: "get", action: actionOf(url) },
+          sort === undefined
+            ? null
+            : [
+                h("input", { type: "hidden", name: SORT_PARAM, value: sort.field }),
+                h("input", { type: "hidden", name: ORDER_PARAM, value: sort.direction }),
+              ],
+          h(
+            "button",
+            {
+              class: "gallery-filter-clear",
+              type: "submit",
+              "data-gallery-clear": "",
+              hidden: selected.size === 0,
+            },
+            t(lang, "gallery_filter_clear"),
+          ),
+        );
   const shown = facets.filter((facet) => facet.values.length > 0);
   const filterNav =
     facets.length === 0
@@ -86,7 +111,7 @@ export default function galleryFilters({ facets, sorts, url, selected, sort, lan
               ),
             ),
           ),
-          h("a", { class: "gallery-filter-clear", href: clear, "data-gallery-clear": "" }, t(lang, "gallery_filter_clear")),
+          reset,
         );
 
   const sortNav =
