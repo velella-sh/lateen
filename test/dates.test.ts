@@ -1,6 +1,6 @@
 import assert from "node:assert/strict";
 import { test } from "node:test";
-import { calendarDate, calendarDay, calendarMonth, calendarParts, isoDate } from "../src/dates.ts";
+import { calendarDate, calendarDay, calendarMonth, calendarParts, calendarYear, isoDate } from "../src/dates.ts";
 
 const DAY = "2026-11-09";
 
@@ -72,6 +72,14 @@ test("a partial date does not pretend to have the part it lacks", () => {
   assert.deepEqual(calendarMonth("2026-11", "en"), { key: "11/2026", text: "November 2026" });
   assert.deepEqual(calendarParts(DAY, "en"), { year: 2026, month: 11, day: 9 });
   assert.equal(calendarDay(DAY), DAY);
+});
+
+test("calendarYear reads any real date in the page's calendar and digits", () => {
+  assert.equal(calendarYear("2026-11-09", "en"), "2026");
+  assert.equal(calendarYear("2026-11-09", "fa"), "۱۴۰۵");
+  assert.equal(calendarYear("2026", "ar"), "١٤٤٧ هـ");
+  assert.equal(calendarYear("2026-02-30", "en"), undefined);
+  assert.equal(calendarYear("not a date", "en"), undefined);
 });
 
 test("a regional language tag uses its primary language's calendar", () => {
