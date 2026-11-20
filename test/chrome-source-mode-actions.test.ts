@@ -43,6 +43,7 @@ test("the label is a button that copies file:line and announces it", async () =>
   const { document, announced, copied } = run(undefined);
   const button = document.querySelector("button.source-label-copy") as HTMLButtonElement;
   assert.equal(button.textContent, "docs/a.md:3");
+  assert.equal(button.querySelector("bdi")?.getAttribute("dir"), "ltr", "the path is isolated inside the button");
   assert.equal(button.getAttribute("aria-label"), "Copy docs/a.md:3");
   button.click();
   await new Promise((resolve) => setImmediate(resolve));

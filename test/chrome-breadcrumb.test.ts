@@ -150,6 +150,23 @@ test("mixed-direction titles are isolated one per crumb and never reorder the tr
   assert.ok(out.indexOf("v1.2.3") < out.indexOf("Install"));
 });
 
+test("path-shaped titles keep their left-to-right order; prose titles stay in the page direction", () => {
+  const path = "راهنما/install.md:3";
+  const prose = "راهنمای نصب";
+  const out = render(
+    [
+      { title: path, url: "/example/fa/path/" },
+      { title: prose, url: "/example/fa/prose/" },
+      install,
+    ],
+    "fa",
+  );
+
+  assert.ok(out.includes(`<bdi class="breadcrumb-title"><bdi dir="ltr">${path}</bdi></bdi>`), out);
+  assert.ok(out.includes(`<bdi class="breadcrumb-title">${prose}</bdi>`), out);
+  assert.ok(out.indexOf(path) < out.indexOf(prose), "the trail keeps the authored crumb order");
+});
+
 test("titles are escaped and URLs are left unchanged", () => {
   const tricky: Trail = [
     { title: 'A & "B" <i>', url: "/example/a&b/" },
