@@ -43,6 +43,9 @@ jobs:
       - name: Performance budget
         run: npm run test:performance
         working-directory: lateen
+      - name: Asset manifest
+        run: node scripts/asset-manifest.ts --report reports/asset-manifest.json
+        working-directory: lateen
       - name: Build the packages and install them
         run: scripts/smoke-package.sh
         working-directory: lateen

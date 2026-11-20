@@ -96,6 +96,21 @@ count every face the loaded CSS declares, including one a browser may skip becau
 paint. What the budget guards is the weight the theme declares, which is what a typography change
 controls.
 
+## Asset manifest
+
+`node scripts/asset-manifest.ts` builds the same fixture and writes `reports/asset-manifest.json`, or the
+`--report <file>` path. The file records one row per route and response: stylesheets, the startup module
+of each external script and the modules it imports, inline scripts as `inline:<n>`, and font files. Each
+row has the output path, the asset class, and the raw and gzip size. Routes are ordered by URL and a
+route's assets by path, so a diff names what changed. The file validates against
+`schema/asset-manifest.schema.json`.
+
+The manifest is the route's dependency list in one place. A simple article must have no `js/components`
+response: a component island there is a new global dependency, and `test/asset-manifest.test.ts` fails
+when one appears. The test also fails when a route names the same path twice, so a duplicate download
+cannot enter the manifest quietly. Shared modules are allowed across routes; within one route they count
+once.
+
 ## Adjustment policy
 
 1. Run `node scripts/performance-budget.ts`. Treat a failure as a question, not a formality: find what

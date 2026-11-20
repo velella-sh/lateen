@@ -374,13 +374,79 @@ export function inventory(dir: string, routes: readonly BuiltPage[]): Measuremen
   return Object.fromEntries(Object.entries(measured).sort(([a], [b]) => (a < b ? -1 : a > b ? 1 : 0)));
 }
 
+/** One response a route loads: its output path, asset class, and bytes before and after gzip. */
+export interface AssetFile {
+  readonly path: string;
+  readonly class: AssetClass;
+  readonly raw: number;
+  readonly gzip: number;
+}
+
+/**
+ * The manifest's view of one route: every response once, sorted by path. It mirrors `inventory`, but
+ * keeps the files instead of summing them, so a global dependency or a repeated download is visible.
+ */
+export function routeAssets(dir: string, route: BuiltPage): AssetFile[] {
+  const html = readFileSync(route.html, "utf8");
+  const from = pageDir(dir, route.html);
+  const assets = new Map<string, AssetFile>();
+  let inlineScripts = 0;
+
+  const add = (path: string, assetClass: AssetClass, bytes: Buffer): void => {
+    if (assets.has(path)) return;
+    assets.set(path, { path, class: assetClass, raw: bytes.byteLength, gzip: gzip(bytes) });
+  };
+
+  const styleSheets: string[] = [];
+  for (const tag of html.match(/<link\b[^>]*>/gi) ?? []) {
+    if (attr(tag, "rel") !== "stylesheet") continue;
+    const href = attr(tag, "href");
+    if (href === undefined) continue;
+    const path = resolveOutput(dir, href, from, `page ${route.url}`);
+    styleSheets.push(path);
+    add(path, classOf(path), readFileSync(join(dir, path)));
+  }
+
+  for (const cssPath of styleSheets) {
+    const css = readFileSync(join(dir, cssPath), "utf8");
+    for (const face of facesIn(cssPath, css)) {
+      if (face.url === undefined) continue;
+      const path = resolveOutput(dir, face.url, posix.dirname(cssPath), `${cssPath} @font-face ${face.family} ${face.weight}`);
+      add(path, FONT_CLASS, readFileSync(join(dir, path)));
+    }
+  }
+
+  const seenModules = new Set<string>();
+  for (const match of html.matchAll(/<script\b([^>]*)>([\s\S]*?)<\/script\s*>/gi)) {
+    const attrs = match[1] ?? "";
+    const body = match[2] ?? "";
+    const src = attr(attrs, "src");
+    if (src !== undefined) {
+      for (const file of moduleFiles(dir, resolveOutput(dir, src, from, `page ${route.url}`), seenModules)) {
+        add(file, classOf(file), readFileSync(join(dir, file)));
+      }
+      continue;
+    }
+    if (!isJavaScript(attr(attrs, "type")) || body.trim() === "") continue;
+    inlineScripts += 1;
+    add(`inline:${inlineScripts}`, "js/inline", Buffer.from(body));
+  }
+
+  return [...assets.values()].sort((a, b) => (a.path < b.path ? -1 : a.path > b.path ? 1 : 0));
+}
+
+/** Builds `fixtures/performance` with the installed engine into `dir`, leaving the checkout untouched. */
+export function buildFixture(dir: string): void {
+  if (!existsSync(MIZZEN)) throw new Error(`${MIZZEN} is missing; run \`npm ci\` before measuring`);
+  const run = spawnSync(process.execPath, [MIZZEN, "build", fixture, "--out", dir, "--theme", root], { encoding: "utf8" });
+  if (run.status !== 0) throw new Error(`mizzen build failed:\n${run.stderr || run.stdout || run.error?.message || "no output"}`);
+}
+
 /** Builds the fixture into a temporary folder and measures it, leaving the checkout untouched. */
 export function measure(): Measurements {
-  if (!existsSync(MIZZEN)) throw new Error(`${MIZZEN} is missing; run \`npm ci\` before measuring`);
   const out = mkdtempSync(join(tmpdir(), "lateen-performance-"));
   try {
-    const run = spawnSync(process.execPath, [MIZZEN, "build", fixture, "--out", out, "--theme", root], { encoding: "utf8" });
-    if (run.status !== 0) throw new Error(`mizzen build failed:\n${run.stderr || run.stdout || run.error?.message || "no output"}`);
+    buildFixture(out);
     return inventory(out, builtPages(out));
   } finally {
     rmSync(out, { recursive: true, force: true });
