@@ -79,6 +79,10 @@ printed, copying returns exactly that text with nothing inserted, and an invalid
 distinguishable from a missing one for a reader with or without JavaScript, because the script is in the
 served HTML.
 
+A declared stream also shows as a visible text label (`stdout`, `stderr`, or `combined`) with its own
+marker and weight, so the stream is never carried by color alone. The label sits in the bar beside the
+copy button and never enters the recorded text or the copied output.
+
 ## Scrolling
 
 A long line scrolls inside the block instead of widening the page. The body renders with a tab stop, so a

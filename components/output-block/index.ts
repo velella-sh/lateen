@@ -3,7 +3,7 @@ import type { ComponentProps } from "@velella/mizzen/contracts";
 import { t } from "../../i18n/index.ts";
 import { bodyText, variableNamesOf } from "../terminal/index.ts";
 import { GROUP_ATTRIBUTE, GROUP_EXPLICIT_ATTRIBUTE, groupIdOf } from "../variables-form/group.ts";
-import { evidenceElement } from "./evidence.ts";
+import { evidenceElement, streamOf } from "./evidence.ts";
 
 /** The Markdown directive this component handles: `:::output-block`. */
 export const directive = "output-block";
@@ -28,6 +28,25 @@ export const STATUS_CLASS = "output-block-status";
 
 /** Class on the note that says the output is older than the inputs. `client.ts` fills it in. */
 export const STALE_CLASS = "output-block-stale";
+
+/** Class on the visible stream label in the bar. */
+export const STREAM_CLASS = "output-block-stream";
+
+/** Class on the marker inside the stream label, so the stream reads without color. */
+export const STREAM_MARKER_CLASS = "output-block-stream-marker";
+
+/** Attribute naming the declared stream on its label, for styling and tests. */
+export const STREAM_ATTRIBUTE = "data-output-stream";
+
+/** A character marker per stream, kept beside the label so color is never the only signal. */
+export const STREAM_MARKERS: Record<string, string> = { stdout: "›", stderr: "!", combined: "≡" };
+
+/** The i18n key of each stream's visible label. */
+export const STREAM_LABEL_KEYS: Record<string, string> = {
+  stdout: "output_stdout",
+  stderr: "output_stderr",
+  combined: "output_combined",
+};
 
 /** The i18n key of the default accessible name. */
 export const LABEL_KEY = "output";
@@ -102,7 +121,8 @@ export function outputText(html: string): string {
  * text or the styling: an inert JSON script in `data-output-evidence` publishes all three states — valid,
  * invalid, or omitted — exactly as `evidence.ts` defines them, so an agent can tell a malformed declaration
  * from a missing one, and a block that declares no exit code is never taken for a successful command. The
- * visible recorded output is untouched by any of this.
+ * visible recorded output is untouched by any of this. A valid stream also labels the bar in text with a
+ * marker and, for stderr, a bolder weight, so the stream never rests on color alone.
  *
  * The body starts with a tab stop, so a wide result scrolls from the keyboard without JavaScript.
  * `client.ts` drops that tab stop when the output fits and restores it when the body overflows; the
@@ -114,6 +134,8 @@ export default function outputBlock({ props, html, page }: ComponentProps<Output
 
   const lang = page.lang;
   const label = props.label?.trim() || t(lang, LABEL_KEY);
+  const stream = streamOf(props.stream);
+  const streamName = stream.state === "valid" ? stream.value : undefined;
   const dependencies = [...new Set([...variableNamesOf(text), ...parseDependencies(props.deps)])];
   const authored = groupIdOf(props.group);
   const group = authored === undefined ? {} : { [GROUP_ATTRIBUTE]: authored, [GROUP_EXPLICIT_ATTRIBUTE]: "true" };
@@ -135,6 +157,16 @@ export default function outputBlock({ props, html, page }: ComponentProps<Output
     h(
       "div",
       { class: BAR_CLASS },
+      streamName === undefined
+        ? null
+        : h(
+            "span",
+            { class: STREAM_CLASS, [STREAM_ATTRIBUTE]: streamName },
+            h("span", { class: STREAM_MARKER_CLASS, "aria-hidden": "true" }, STREAM_MARKERS[streamName]),
+            streamName === "stderr"
+              ? h("strong", null, t(lang, STREAM_LABEL_KEYS[streamName]!))
+              : t(lang, STREAM_LABEL_KEYS[streamName]!),
+          ),
       dependencies.length === 0
         ? null
         : h("span", { class: STALE_CLASS, role: "status", "data-output-stale-note": true }),

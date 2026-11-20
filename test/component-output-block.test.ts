@@ -17,6 +17,11 @@ import outputBlock, {
   STALE_CLASS,
   STALE_KEY,
   STATUS_CLASS,
+  STREAM_ATTRIBUTE,
+  STREAM_CLASS,
+  STREAM_LABEL_KEYS,
+  STREAM_MARKER_CLASS,
+  STREAM_MARKERS,
   type OutputBlockProps,
 } from "../components/output-block/index.ts";
 import {
@@ -440,6 +445,35 @@ test("declared evidence publishes an inert JSON record beside unchanged output",
   });
   assert.match(out, /<code>Written 12 pages\nin 340 ms<\/code>/, "the recorded output is byte-for-byte unchanged");
   assert.doesNotMatch(/<code>[\s\S]*?<\/code>/.exec(out)![0], /stderr|exit|duration/, "no evidence leaks into the text");
+});
+
+test("a declared stream carries a visible text label and a non-color marker", () => {
+  const stdout = render(OUTPUT, "en", { stream: "stdout" });
+  const stderr = render(OUTPUT, "en", { stream: "stderr" });
+
+  assert.ok(stdout.includes(`<span class="${STREAM_CLASS}" ${STREAM_ATTRIBUTE}="stdout">`));
+  assert.ok(stdout.includes(`${STREAM_MARKERS.stdout}</span>stdout</span>`));
+  assert.match(
+    stderr,
+    new RegExp(
+      `<span class="${STREAM_CLASS}" ${STREAM_ATTRIBUTE}="stderr"><span class="${STREAM_MARKER_CLASS}" aria-hidden="true">${STREAM_MARKERS.stderr}</span><strong>stderr</strong></span>`,
+    ),
+  );
+  assert.notEqual(STREAM_MARKERS.stdout, STREAM_MARKERS.stderr, "the marker, not the color, names the stream");
+  assert.equal(STREAM_LABEL_KEYS.stderr, "output_stderr");
+});
+
+test("the stream label stays out of the recorded text and the copy payload", () => {
+  const out = render(OUTPUT, "en", { stream: "stderr" });
+
+  assert.match(out, /<code>Written 12 pages\nin 340 ms<\/code>/);
+  assert.equal(/data-output="([^"]*)"/.exec(out)?.[1], outputText(OUTPUT));
+  assert.doesNotMatch(/<code>[\s\S]*?<\/code>/.exec(out)![0], /stderr/, "the label never enters the output");
+});
+
+test("no stream label is invented when the stream is omitted or invalid", () => {
+  assert.doesNotMatch(render(OUTPUT), new RegExp(STREAM_ATTRIBUTE));
+  assert.doesNotMatch(render(OUTPUT, "en", { stream: "stdin" }), new RegExp(STREAM_ATTRIBUTE));
 });
 
 test("a block without evidence carries no record at all", () => {
