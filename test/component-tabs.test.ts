@@ -727,3 +727,13 @@ const tokenNames = new Set(
   Object.entries(namesFile).flatMap(([group, entries]) => Object.keys(entries).map((name) => `--${group}-${name}`)),
 );
 
+
+test("a tab's focus ring stays inside its clipping list", () => {
+  const css = readFileSync(new URL("../styles/src/ui.css", import.meta.url), "utf8");
+  assert.match(css, /\.tabs \[role="tab"\]:focus-visible/);
+  assert.match(css, /outline-offset: -3px/);
+
+  const forced = readFileSync(new URL("../styles/forced-colors.css", import.meta.url), "utf8");
+  assert.match(forced, /\[tabindex\][^{]*:focus-visible/);
+  assert.match(forced, /outline-color: Highlight !important/);
+});

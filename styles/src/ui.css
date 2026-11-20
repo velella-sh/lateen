@@ -234,6 +234,14 @@
     outline-offset: 3px;
   }
 
+  /* A card or a tab can sit in a clipping box; paint its ring inside the control so it is whole. */
+  .card:focus-visible,
+  .card :focus-visible,
+  .tabs [role="tab"]:focus-visible,
+  .tabs [role="tabpanel"]:focus-visible {
+    outline-offset: -3px;
+  }
+
   ::selection {
     color: var(--accent-foreground);
     background: var(--accent);
