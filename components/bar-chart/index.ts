@@ -2,6 +2,21 @@ import { h } from "preact";
 import type { ComponentProps } from "@velella/mizzen/contracts";
 import { formatCount as formatNumber } from "../reading-time/index.ts";
 import chartData from "../chart-data/index.ts";
+import {
+  fieldOf,
+  idBaseOf,
+  isJson,
+  labelDir,
+  labelOf,
+  lookup,
+  numericValue,
+  shortenLabel as shorten,
+  text,
+  type Json,
+} from "../chart-data/input.ts";
+
+/** The shared input validation every chart reads through; re-exported for the bar chart's callers. */
+export { labelDir, lookup, numericValue } from "../chart-data/input.ts";
 
 /** The Markdown directive this component handles: `::bar-chart{from="sales"}`. */
 export const directive = "bar-chart";
@@ -87,50 +102,8 @@ export interface BarRow {
   readonly value: number | undefined;
 }
 
-type Json = Readonly<Record<string, unknown>>;
-
-function isJson(value: unknown): value is Json {
-  return typeof value === "object" && value !== null && !Array.isArray(value);
-}
-
-function text(value: unknown): string {
-  return typeof value === "string" ? value.trim() : "";
-}
-
-/** The value at a dotted path inside a row, or undefined when the path does not resolve. */
-function resolveIn(row: Json, path: string): unknown {
-  let node: unknown = row;
-  for (const key of path.split(".").filter((part) => part !== "")) {
-    if (!isJson(node) || !Object.hasOwn(node, key)) return undefined;
-    node = node[key];
-  }
-  return node;
-}
-
-/** The value at a dotted or slashed path inside `_data`, or undefined when it does not resolve. */
-export function lookup(data: Readonly<Record<string, unknown>>, path: string): unknown {
-  let node: unknown = data;
-  for (const key of path.split(/[./]/).filter((part) => part !== "")) {
-    if (!isJson(node) || !Object.hasOwn(node, key)) return undefined;
-    node = node[key];
-  }
-  return node;
-}
-
-/** A number from a number or a numeric string; anything else, including an empty cell, has no value. */
-export function numericValue(raw: unknown): number | undefined {
-  if (typeof raw === "number") return Number.isFinite(raw) ? raw : undefined;
-  if (typeof raw === "string" && raw.trim() !== "") {
-    const parsed = Number(raw.trim());
-    return Number.isFinite(parsed) ? parsed : undefined;
-  }
-  return undefined;
-}
-
 function rowOf(id: string, fields: Json, category: string, value: string): BarRow {
-  const rawLabel = resolveIn(fields, category);
-  const label = typeof rawLabel === "string" || typeof rawLabel === "number" ? String(rawLabel) : id;
-  return { id, label: label === "" ? id : label, value: numericValue(resolveIn(fields, value)) };
+  return { id, label: labelOf(fieldOf(fields, category), id), value: numericValue(fieldOf(fields, value)) };
 }
 
 /**
@@ -165,19 +138,7 @@ export function rowsOf(
 
 /** A label cut to `max` characters, with an ellipsis; the table under the chart keeps the whole label. */
 export function shortenLabel(label: string, max = MAX_LABEL_LENGTH): string {
-  const characters = Array.from(label);
-  return characters.length <= max ? label : `${characters.slice(0, max - 1).join("")}…`;
-}
-
-/**
- * `dir="ltr"` for a Latin label on a right-to-left page: it states its own direction, so the words
- * keep their order inside the page's right-to-left text. A label in an Arabic or Hebrew script, or one
- * with no letters, keeps the page's direction.
- */
-export function labelDir(label: string, rtl: boolean): "ltr" | undefined {
-  return rtl && /\p{Script=Latin}/u.test(label) && !/[\p{Script=Arabic}\p{Script=Hebrew}]/u.test(label)
-    ? "ltr"
-    : undefined;
+  return shorten(label, max);
 }
 
 /** A round step near `span / count`: 1, 2, 5, or 10 times a power of ten. */
@@ -214,22 +175,9 @@ export function directionOf(raw: unknown): Direction {
     : "horizontal";
 }
 
-/** A value reduced to letters, digits, `-` and `_`, so it can go in an id. */
-function slugOf(value: string): string {
-  return value
-    .trim()
-    .toLowerCase()
-    .replace(/[^\p{L}\p{N}_-]+/gu, "-")
-    .replace(/-+/g, "-")
-    .replace(/^-+|-+$/g, "");
-}
-
 /** The id prefix of the chart: the `id` prop, or its source path. */
 export function idBase(raw: unknown, from: string): string {
-  const given = slugOf(text(raw));
-  if (given !== "") return given;
-  const source = slugOf(from);
-  return source === "" ? "bar-chart" : `bar-chart-${source}`;
+  return idBaseOf(raw, from, "bar-chart");
 }
 
 /** The marks and size of a horizontal chart: labels at the inline start, bars along the inline axis. */

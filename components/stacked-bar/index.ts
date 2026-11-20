@@ -8,6 +8,10 @@ import {
   shortenLabel,
   ticksOf,
 } from "../bar-chart/index.ts";
+import { MAX_SERIES, idBaseOf, seriesColour, text } from "../chart-data/input.ts";
+
+/** The number of series the chart colours: one per categorical token, `chart-cat-1` to `chart-cat-8`. */
+export { MAX_SERIES } from "../chart-data/input.ts";
 
 /** The Markdown directive this component handles: `::stacked-bar{from="revenue" series="region"}`. */
 export const directive = "stacked-bar";
@@ -60,9 +64,6 @@ export const MISSING_CLASS = "stacked-bar-missing";
 /** Class on the visible note shown when the source has more series than the chart draws. */
 export const LIMIT_CLASS = "stacked-bar-limit";
 
-/** The number of series the chart colours: one per categorical token, `chart-cat-1` to `chart-cat-8`. */
-export const MAX_SERIES = 8;
-
 /** The name a chart without a title takes. */
 export const DEFAULT_TITLE = "Stacked bar chart";
 
@@ -103,26 +104,9 @@ export interface StackedRow {
   readonly segments: readonly Segment[];
 }
 
-function text(value: unknown): string {
-  return typeof value === "string" ? value.trim() : "";
-}
-
-/** A value reduced to letters, digits, `-` and `_`, so it can go in an id. */
-function slugOf(value: string): string {
-  return value
-    .trim()
-    .toLowerCase()
-    .replace(/[^\p{L}\p{N}_-]+/gu, "-")
-    .replace(/-+/g, "-")
-    .replace(/^-+|-+$/g, "");
-}
-
 /** The id prefix of the chart: the `id` prop, or `stacked-bar` and its source path. */
 export function idBase(raw: unknown, from: string): string {
-  const given = slugOf(text(raw));
-  if (given !== "") return given;
-  const source = slugOf(from);
-  return source === "" ? "stacked-bar" : `stacked-bar-${source}`;
+  return idBaseOf(raw, from, "stacked-bar");
 }
 
 /**
@@ -240,7 +224,7 @@ function chartOf(rows: readonly StackedRow[], series: readonly string[], lang: s
       const endX = x(end);
       const left = Math.min(startX, endX);
       const span = Math.abs(endX - startX);
-      const colour = series.indexOf(segment.series) + 1;
+      const colour = seriesColour(series.indexOf(segment.series));
       marks.push(
         h("rect", {
           class: `${SEGMENT_CLASS} ${CLASS}-series-${colour}`,
@@ -325,7 +309,7 @@ export default function stackedBar({ props, site, page }: ComponentProps<Stacked
         h(
           "li",
           { key: label },
-          h("span", { class: `${SWATCH_CLASS} ${CLASS}-series-${index + 1}`, "aria-hidden": "true" }),
+          h("span", { class: `${SWATCH_CLASS} ${CLASS}-series-${seriesColour(index)}`, "aria-hidden": "true" }),
           label,
         ),
       ),

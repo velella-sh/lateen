@@ -1,6 +1,7 @@
 import { h } from "preact";
 import { formatNumber } from "../../src/report.ts";
 import chartDownloads from "./download.ts";
+import { numericValue } from "./input.ts";
 
 /** Class on the closed disclosure that holds the table. */
 export const DETAILS_CLASS = "chart-data";
@@ -57,8 +58,12 @@ export type ChartDataProps = {
 
 /** One cell: a formatted number, the text as given, or a visible note for a missing value. */
 function cell(value: ChartDataCell, lang: string) {
-  if (value === undefined) return h("td", { class: NO_VALUE_CLASS }, NO_VALUE_TEXT);
-  return h("td", null, typeof value === "number" ? formatNumber(lang, value) : value);
+  // A number that is not finite is a missing value, the same note an absent cell gets.
+  const number = typeof value === "number" ? numericValue(value) : undefined;
+  if (value === undefined || (typeof value === "number" && number === undefined)) {
+    return h("td", { class: NO_VALUE_CLASS }, NO_VALUE_TEXT);
+  }
+  return h("td", null, number === undefined ? value : formatNumber(lang, number));
 }
 
 /**

@@ -2,7 +2,17 @@ import { h } from "preact";
 import type { ComponentProps } from "@velella/mizzen/contracts";
 import { calendarDay, calendarYear } from "../../src/dates.ts";
 import { formatCount as formatNumber } from "../reading-time/index.ts";
-import { labelDir, lookup, numericValue, shortenLabel } from "../bar-chart/index.ts";
+import {
+  idBaseOf,
+  isJson,
+  labelDir,
+  lookup,
+  numericValue,
+  seriesColour,
+  shortenLabel,
+  text,
+  type Json,
+} from "../chart-data/input.ts";
 import { scale } from "../timeline/scale.ts";
 
 /** The Markdown directive this component handles: `::line-chart{from="growth"}`. */
@@ -88,16 +98,6 @@ interface Series {
   readonly points: readonly Point[];
 }
 
-type Json = Readonly<Record<string, unknown>>;
-
-function isJson(value: unknown): value is Json {
-  return typeof value === "object" && value !== null && !Array.isArray(value);
-}
-
-function text(value: unknown): string {
-  return typeof value === "string" ? value.trim() : "";
-}
-
 /** Rows with their record id in the fields, from a collection or a list or keyed object in `_data`. */
 export function rowsOf(
   site: ComponentProps<LineChartProps>["site"],
@@ -131,15 +131,7 @@ export function seriesOf(raw: string): string[] {
 
 /** The id prefix of the chart: the `id` prop, or its source path. */
 export function idBase(raw: unknown, from: string): string {
-  const given = text(raw);
-  const source = given === "" ? `line-chart-${from}` : given;
-  const slug = source
-    .trim()
-    .toLowerCase()
-    .replace(/[^\p{L}\p{N}_-]+/gu, "-")
-    .replace(/-+/g, "-")
-    .replace(/^-+|-+$/g, "");
-  return slug === "" ? "line-chart" : slug;
+  return idBaseOf(raw, from, "line-chart");
 }
 
 /** A row's position value as an ISO day, or undefined when it is not one. */
@@ -316,7 +308,7 @@ export default function lineChart({ props, site, page }: ComponentProps<LineChar
 
   const ends: { index: number; label: string; x: number; y: number }[] = [];
   series.forEach((entry, index) => {
-    const seriesClass = `${CLASS}-series-${(index % 8) + 1}`;
+    const seriesClass = `${CLASS}-series-${seriesColour(index)}`;
     let drawing = false;
     let d = "";
     for (const point of entry.points) {
@@ -351,7 +343,7 @@ export default function lineChart({ props, site, page }: ComponentProps<LineChar
     end.y = Math.min(Math.max(end.y, floor + 12), bottom);
     floor = end.y;
     const label = shortenLabel(end.label, MAX_LABEL_LENGTH);
-    const seriesClass = `${CLASS}-series-${(end.index % 8) + 1}`;
+    const seriesClass = `${CLASS}-series-${seriesColour(end.index)}`;
     marks.push(
       h(
         "text",
