@@ -2,7 +2,17 @@ import assert from "node:assert/strict";
 import { readFileSync } from "node:fs";
 import { test } from "node:test";
 import { renderToString } from "preact-render-to-string";
-import type { ChromeProps, NavLink, Page, Pager, Site, SiteConfig, SourcePos, Trail } from "@velella/mizzen/contracts";
+import type {
+  ChromeProps,
+  NavLink,
+  NavTree,
+  Page,
+  Pager,
+  Site,
+  SiteConfig,
+  SourcePos,
+  Trail,
+} from "@velella/mizzen/contracts";
 import pager from "../chrome/pager/index.ts";
 
 const pos: SourcePos = { file: "docs/guide/install.md", line: 3, column: 1, endLine: 9, endColumn: 1 };
@@ -43,15 +53,18 @@ const page: Page = {
 
 const prev: NavLink = { title: "Overview", url: "/example/guide/" };
 const next: NavLink = { title: "Configure", url: "/example/guide/configure/" };
+const current: NavLink = { title: "Install", url: page.url };
+const start: NavLink = { title: "Start", url: "/example/guide/" };
+const components: NavLink = { title: "Components", url: "/example/components/" };
 
-function props(links: Pager, lang = "en"): ChromeProps {
+function props(links: Pager, lang = "en", nav: NavTree = {}, pageTrail: Trail = trail): ChromeProps {
   const localized: Page = { ...page, lang, dir: lang === "en" ? "ltr" : "rtl" };
-  const site: Site = { config, pages: [localized], nav: {}, data: {}, collections: {} };
-  return { site, page: localized, trail, pager: links };
+  const site: Site = { config, pages: [localized], nav, data: {}, collections: {} };
+  return { site, page: localized, trail: pageTrail, pager: links };
 }
 
-function output(links: Pager, lang = "en"): string {
-  const node = pager(props(links, lang));
+function output(links: Pager, lang = "en", nav: NavTree = {}, pageTrail: Trail = trail): string {
+  const node = pager(props(links, lang, nav, pageTrail));
   return node === null ? "" : renderToString(node as never);
 }
 
@@ -201,5 +214,97 @@ test("both cards are plain links, reachable and ordered for keyboard navigation"
   assert.equal(links.filter((link) => / href="[^"]+"/.test(link)).length, 2);
   assert.ok(links.every((link) => !/tabindex|role=|onclick|onkeydown/.test(link)));
   assert.ok(out.indexOf('class="pager-link pager-prev"') < out.indexOf('class="pager-link pager-next"'));
+});
+
+test("a destination in the same section keeps the plain direction label", () => {
+  const nav: NavTree = { main: [{ title: "Start", children: [prev, current, next] }] };
+  const out = output({ prev, next }, "en", nav, [start]);
+
+  assert.doesNotMatch(out, /pager-section/);
+  assert.ok(out.includes("</svg>Previous</span>"));
+  assert.ok(out.includes("Next<svg"));
+});
+
+test("a next page in another section names that section while keeping its URL", () => {
+  const nav: NavTree = {
+    main: [
+      { title: "Start", children: [prev, current] },
+      { title: "Components", children: [next] },
+    ],
+  };
+  const out = output({ prev, next }, "en", nav, [start]);
+
+  assert.match(
+    out,
+    /<a class="pager-link pager-next" href="\/example\/guide\/configure\/" rel="next"><span class="pager-label">Next<span class="pager-section"> · <bdi>Components<\/bdi><\/span><svg/,
+  );
+  const previousCard = out.match(/<a class="pager-link pager-prev"[\s\S]*?<\/a>/)?.[0] ?? "";
+  assert.doesNotMatch(previousCard, /pager-section/);
+});
+
+test("a previous page in another section names that section while keeping its URL", () => {
+  const nav: NavTree = {
+    main: [
+      { title: "Components", children: [prev] },
+      { title: "Start", children: [current, next] },
+    ],
+  };
+  const out = output({ prev, next }, "en", nav, [start]);
+
+  assert.match(
+    out,
+    /<span class="pager-label"><svg[\s\S]*?<\/svg>Previous<span class="pager-section"> · <bdi>Components<\/bdi><\/span><\/span>/,
+  );
+  const nextCard = out.match(/<a class="pager-link pager-next"[\s\S]*?<\/a>/)?.[0] ?? "";
+  assert.doesNotMatch(nextCard, /pager-section/);
+});
+
+test("a destination missing from the navigation keeps the plain label", () => {
+  const nav: NavTree = { main: [{ title: "Start", children: [current, next] }] };
+  const out = output({ prev, next }, "en", nav, [start]);
+
+  assert.doesNotMatch(out, /pager-section/);
+  assert.match(out, /href="\/example\/guide\/" rel="prev"/);
+});
+
+test("section names keep their direction and the localized label under RTL", () => {
+  const persianStart: NavLink = { title: "شروع", url: "/example/fa/" };
+  const persianPrev: NavLink = { title: "راهنما", url: "/example/fa/guide/" };
+  const persianNext: NavLink = { title: "پیکربندی", url: "/example/fa/components/" };
+  const nav: NavTree = {
+    main: [
+      { title: "پیکربندی", children: [persianNext] },
+      { title: "راهنما", children: [persianPrev] },
+    ],
+  };
+  const out = output({ prev: persianPrev, next: persianNext }, "fa", nav, [persianStart]);
+
+  assert.ok(out.includes('<span class="pager-section"> · <bdi>راهنما</bdi></span>'));
+  assert.ok(out.includes('</svg>قبلی<span class="pager-section">'), out);
+  assert.ok(out.includes('بعدی<span class="pager-section"> · <bdi>پیکربندی</bdi></span><svg'), out);
+  assert.ok(out.includes('href="/example/fa/guide/" rel="prev"'));
+  assert.ok(out.includes('href="/example/fa/components/" rel="next"'));
+});
+
+test("a section name is escaped text, never markup", () => {
+  const hostile = '<script>alert("x")</script>';
+  const nav: NavTree = { main: [{ title: hostile, children: [next] }] };
+  const out = output({ next }, "en", nav, [start]);
+
+  assert.ok(
+    out.includes('<span class="pager-section"> · <bdi>&lt;script>alert(&quot;x&quot;)&lt;/script></bdi></span>'),
+    out,
+  );
+  assert.doesNotMatch(out, /<script>/);
+});
+
+test("the section label is server-rendered into plain links that work without JavaScript", () => {
+  const nav: NavTree = { main: [{ title: "Components", children: [next] }] };
+  const out = output({ next }, "en", nav, [start]);
+
+  assert.match(out, /^<nav class="pager" aria-label="Previous and next">/);
+  assert.match(out, /<a class="pager-link pager-next" href="\/example\/guide\/configure\/" rel="next">/);
+  assert.match(out, /<span class="pager-section"> · <bdi>Components<\/bdi><\/span>/);
+  assert.doesNotMatch(out, /onclick|onkeydown|tabindex|<script/);
 });
 
