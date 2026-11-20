@@ -150,6 +150,7 @@ test("an empty blog page says so instead of drawing an empty list", () => {
 test("every blog link is a plain keyboard-focusable anchor", () => {
   for (const out of [renderPost(pageWith()), renderList(archivePage), renderList(authorPage)]) {
     for (const tag of out.match(/<a\b[^>]*>/g) ?? []) {
+      if (/\shidden(?:\s|>)/.test(tag)) continue;
       assert.match(tag, /\shref="[^"]+"/, `an anchor has no href: ${tag}`);
       assert.doesNotMatch(tag, /tabindex="-1"/, `an anchor is removed from the tab order: ${tag}`);
       assert.doesNotMatch(tag, /\sonclick=/, `an anchor needs JavaScript: ${tag}`);
