@@ -14,11 +14,14 @@ import table, {
   type HastNode,
 } from "../components/table/index.ts";
 import {
+  OVERFLOW_END_ATTRIBUTE,
+  OVERFLOW_START_ATTRIBUTE,
   OVERFLOW_TOLERANCE,
   REGION_SELECTOR,
   createWatcher,
   enhance,
   isOverflowing,
+  overflowState,
   regionLabel,
   start,
   sync,
@@ -372,15 +375,18 @@ test("two tables with the same caption on one page get different description ids
   assert.match(second, /id="table-2-description"/);
 });
 
-/** A scroll region as the island reads it: attributes, measured widths, and a caption. */
+/** A scroll region as the island reads it: attributes, measured widths, scroll offset, and a caption. */
 interface FakeRegion extends TableElement {
   readonly attributes: Map<string, string>;
+  readonly scrollListeners: Set<() => void>;
+  scrollTo(offset: number): void;
 }
 
 /** A node that only satisfies the element shape for queries the island never reads from it. */
 const BLANK: TableElement = {
   scrollWidth: 0,
   clientWidth: 0,
+  scrollLeft: 0,
   textContent: "",
   getAttribute: () => null,
   setAttribute: () => {},
@@ -393,11 +399,18 @@ function fakeRegion(scrollWidth: number, clientWidth: number, caption = "", auth
   if (authorLabel !== undefined) attributes.set("data-label", authorLabel);
   const captionNode: TableElement = { ...BLANK, textContent: caption };
   const tableNode: TableElement = { ...BLANK };
-  return {
+  const scrollListeners = new Set<() => void>();
+  const region: FakeRegion = {
     scrollWidth,
     clientWidth,
+    scrollLeft: 0,
     textContent: "",
     attributes,
+    scrollListeners,
+    scrollTo(offset) {
+      region.scrollLeft = offset;
+      for (const listener of scrollListeners) listener();
+    },
     getAttribute: (name) => attributes.get(name) ?? null,
     setAttribute: (name, value) => {
       attributes.set(name, value);
@@ -405,12 +418,19 @@ function fakeRegion(scrollWidth: number, clientWidth: number, caption = "", auth
     removeAttribute: (name) => {
       attributes.delete(name);
     },
+    addEventListener: (_type, listener) => {
+      scrollListeners.add(listener);
+    },
+    removeEventListener: (_type, listener) => {
+      scrollListeners.delete(listener);
+    },
     querySelector: (selector) => {
       if (selector === "caption") return caption === "" ? null : captionNode;
       if (selector === "table") return tableNode;
       return null;
     },
   };
+  return region;
 }
 
 /** The markup the server sends before the island runs: a tab stop, plus a region when captioned. */
@@ -463,6 +483,78 @@ test("an author label names the region and beats a caption", () => {
   assert.equal(regionLabel(region), "Author label");
   sync(region);
   assert.equal(region.attributes.get("aria-label"), "Author label");
+});
+
+test("a wide table marks the end edge and hides the start affordance", () => {
+  const region = fakeRegion(640, 320);
+
+  assert.equal(sync(region), true);
+  assert.equal(region.attributes.has(OVERFLOW_START_ATTRIBUTE), false);
+  assert.equal(region.attributes.get(OVERFLOW_END_ATTRIBUTE), "true");
+  assert.deepEqual(overflowState(region), { overflow: true, start: false, end: true });
+});
+
+test("scrolling moves the affordance from the end to the start, and a table that fits loses both", () => {
+  const region = fakeRegion(640, 320);
+  sync(region);
+
+  region.scrollLeft = 160;
+  sync(region);
+  assert.equal(region.attributes.get(OVERFLOW_START_ATTRIBUTE), "true", "the middle hides content on both sides");
+  assert.equal(region.attributes.get(OVERFLOW_END_ATTRIBUTE), "true");
+
+  region.scrollLeft = 320;
+  sync(region);
+  assert.equal(region.attributes.get(OVERFLOW_START_ATTRIBUTE), "true");
+  assert.equal(region.attributes.has(OVERFLOW_END_ATTRIBUTE), false);
+
+  region.scrollLeft = 0;
+  sync(region);
+  assert.equal(region.attributes.has(OVERFLOW_START_ATTRIBUTE), false);
+  assert.equal(region.attributes.get(OVERFLOW_END_ATTRIBUTE), "true");
+
+  region.scrollWidth = 320;
+  assert.equal(sync(region), false);
+  assert.equal(region.attributes.has(OVERFLOW_START_ATTRIBUTE), false);
+  assert.equal(region.attributes.has(OVERFLOW_END_ATTRIBUTE), false);
+});
+
+test("a table that fits gets no directional affordance", () => {
+  const region = fakeRegion(100, 100, "Deploy targets");
+
+  assert.equal(sync(region), false);
+  assert.equal(region.attributes.has(OVERFLOW_START_ATTRIBUTE), false);
+  assert.equal(region.attributes.has(OVERFLOW_END_ATTRIBUTE), false);
+});
+
+test("RTL keeps logical sides: a negative scrollLeft reaches the logical end", () => {
+  const region = fakeRegion(640, 320, "أهداف النشر");
+
+  assert.equal(sync(region), true);
+  assert.equal(region.attributes.has(OVERFLOW_START_ATTRIBUTE), false);
+  assert.equal(region.attributes.get(OVERFLOW_END_ATTRIBUTE), "true", "the logical end hides content at rest");
+
+  region.scrollLeft = -320;
+  sync(region);
+  assert.equal(region.attributes.get(OVERFLOW_START_ATTRIBUTE), "true");
+  assert.equal(region.attributes.has(OVERFLOW_END_ATTRIBUTE), false);
+});
+
+test("scrolling inside the island updates the affordance, and cleanup stops listening", () => {
+  const region = fakeRegion(640, 320, "Wide");
+  const stop = enhance({ regions: () => [region], watcher: createWatcher(undefined, fakeWindow()) });
+
+  assert.equal(region.scrollListeners.size, 1, "one scroll listener per region");
+  assert.equal(region.attributes.get(OVERFLOW_END_ATTRIBUTE), "true");
+
+  region.scrollTo(320);
+  assert.equal(region.attributes.get(OVERFLOW_START_ATTRIBUTE), "true");
+  assert.equal(region.attributes.has(OVERFLOW_END_ATTRIBUTE), false);
+
+  stop();
+  assert.equal(region.scrollListeners.size, 0);
+  region.scrollTo(0);
+  assert.equal(region.attributes.get(OVERFLOW_START_ATTRIBUTE), "true", "a late scroll no longer touches the page");
 });
 
 /** A fake observer that records the targets it observes and whether it was disconnected. */
