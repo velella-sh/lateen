@@ -15,7 +15,7 @@ const pkg = JSON.parse(readFileSync(new URL("../package.json", import.meta.url),
 };
 
 test("prepack builds every generated asset and then verifies the required artifacts", () => {
-  assert.equal(pkg.scripts.prepack, "npm run ui:build && node scripts/check-package.ts");
+  assert.equal(pkg.scripts.prepack, "npm run ui:build && npm run check:ui-build && node scripts/check-package.ts");
   assert.ok(pkg.files.includes("styles/generated.css"), "the compiled CSS ships in the tarball");
   assert.equal(pkg.files.includes("!styles/generated.css"), false, "the compiled CSS is not excluded");
   assert.ok(pkg.files.includes("components/performance-chart/chart.min.js"), "the chart bundle ships");
