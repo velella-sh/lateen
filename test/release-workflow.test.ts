@@ -8,6 +8,7 @@ import { parse } from "yaml";
 
 interface Step {
   readonly name?: string;
+  readonly id?: string;
   readonly uses?: string;
   readonly if?: string;
   readonly run?: string;
@@ -20,6 +21,7 @@ interface Job {
   readonly if?: string;
   readonly environment?: { readonly name?: string } | string;
   readonly permissions?: Record<string, string>;
+  readonly outputs?: Record<string, string>;
   readonly steps: readonly Step[];
 }
 
@@ -99,6 +101,22 @@ test("a manual dispatch validates the tag before the tag is checked out", () => 
   assert.match(meta.run, /git rev-parse HEAD.*!=.*COMMIT/s, "a moved tag cannot release another commit");
   assert.doesNotMatch(meta.run, /require\('\.\/package\.json'\)\.version/, "acceptance does not recompute the tag version");
   assert.ok(meta.run.includes("git merge-base --is-ancestor HEAD origin/main"), "the main-ancestor check stays");
+});
+
+test("the post-publish job exports the digests the release step records", () => {
+  const outputs = job("acceptance-published").outputs ?? {};
+  assert.equal(outputs.accepted, "${{ steps.verify.outputs.accepted }}");
+  assert.equal(outputs.published, "${{ steps.verify.outputs.published }}");
+});
+
+test("the GitHub Release step verifies the release instead of exiting early", () => {
+  const step = job("github-release").steps.find((item) => item.id === "release");
+  assert.ok(step?.run, "the github-release job verifies the release in one step");
+  // An existing release must still be verified: the old `exit 0` presented it as done unverified.
+  assert.doesNotMatch(step.run, /then exit 0/);
+  assert.match(step.run, /node scripts\/release-result\.ts --tag "\$TAG" --exists/);
+  assert.match(step.run, /--accepted "\$ACCEPTED" --published "\$PUBLISHED"/);
+  assert.match(step.run, /GITHUB_STEP_SUMMARY/);
 });
 
 test("publish and digest steps select the one tarball the acceptance report names", () => {
@@ -188,7 +206,7 @@ test("the job token reaches only the GitHub Release step", () => {
       }
     }
   }
-  assert.deepEqual(holders, ["github-release/Create GitHub Release"]);
+  assert.deepEqual(holders, ["github-release/Verify the GitHub Release carries the post-publish evidence"]);
 });
 
 test("no step prints a credential or interpolates a secret", () => {

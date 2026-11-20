@@ -234,6 +234,9 @@ jobs:
     timeout-minutes: 25
     permissions:
       contents: read
+    outputs:
+      accepted: ${{ steps.verify.outputs.accepted }}
+      published: ${{ steps.verify.outputs.published }}
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
@@ -266,11 +269,21 @@ jobs:
           VERSION: ${{ needs.acceptance.outputs.version }}
         run: npm run test:acceptance -- --theme "@velella/lateen@$VERSION" --report ../published/report.json
       - name: Prove the published tarball is the tested tarball
+        id: verify
         working-directory: lateen
+        env:
+          VERSION: ${{ needs.acceptance.outputs.version }}
         run: |
           set -euo pipefail
           tarball="$(node scripts/release-tarball.ts --dir ../published --report ../acceptance/report.json)"
           node scripts/acceptance.ts --gate ../acceptance/report.json --tarball "$tarball"
+          accepted="$(node -e "process.stdout.write(JSON.parse(require('node:fs').readFileSync('../acceptance/report.json', 'utf8')).digest ?? '')")"
+          published="$(sha256sum "$tarball" | cut -d' ' -f1)"
+          {
+            echo "accepted=$accepted"
+            echo "published=$published"
+          } >> "$GITHUB_OUTPUT"
+          echo "Post-publish acceptance passed for Lateen $VERSION: the published tarball sha256:$published matches the accepted sha256:$accepted. Run: $GITHUB_SERVER_URL/$GITHUB_REPOSITORY/actions/runs/$GITHUB_RUN_ID" >> "$GITHUB_STEP_SUMMARY"
       # The post-publish report and digest are release evidence too, and a failed verification is
       # exactly when they matter most. A separate artifact name keeps them from overwriting the
       # pre-publish acceptance evidence; a missing report fails the upload instead of passing
@@ -283,9 +296,12 @@ jobs:
           if-no-files-found: error
           retention-days: 14
 
+
+
   # A release is only a release once the post-publish acceptance run passed, on a first publish
   # and on a retry alike: a failed case or digest check leaves the GitHub Release uncreated
-  # instead of announcing a broken version.
+  # instead of announcing a broken version. The step then re-reads the published release and records
+  # the run URL and the matched tarball digests in the workflow summary.
   github-release:
     name: github release
     needs: [acceptance, publish, acceptance-published]
@@ -294,15 +310,25 @@ jobs:
     permissions:
       contents: write
     steps:
-      - name: Create GitHub Release
+      - name: Verify the GitHub Release carries the post-publish evidence
+        id: release
         env:
           GH_TOKEN: ${{ github.token }}
           VERSION: ${{ needs.acceptance.outputs.version }}
           DIST_TAG: ${{ needs.acceptance.outputs.dist-tag }}
           GH_REPO: ${{ github.repository }}
+          ACCEPTED: ${{ needs['acceptance-published'].outputs.accepted }}
+          PUBLISHED: ${{ needs['acceptance-published'].outputs.published }}
+          RUN_URL: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
         run: |
           set -euo pipefail
-          if gh release view "$TAG" >/dev/null 2>&1; then exit 0; fi
-          args=()
-          if [ "$DIST_TAG" = next ]; then args+=(--prerelease --latest=false); fi
-          gh release create "$TAG" --verify-tag --title "Lateen $VERSION" --generate-notes "${args[@]}"
+          if ! gh release view "$TAG" >/dev/null 2>&1; then
+            args=()
+            if [ "$DIST_TAG" = next ]; then args+=(--prerelease --latest=false); fi
+            gh release create "$TAG" --verify-tag --title "Lateen $VERSION" --generate-notes "${args[@]}"
+          fi
+          # Only a published release counts: a draft was not presented, so it is not verified.
+          exists="$(gh release view "$TAG" --json isDraft --jq '(.isDraft | not)' 2>/dev/null || true)"
+          note="$(node scripts/release-result.ts --tag "$TAG" --exists "${exists:-false}" --run "$RUN_URL" --accepted "$ACCEPTED" --published "$PUBLISHED")"
+          echo "$note" >> "$GITHUB_STEP_SUMMARY"
+          echo "$note"
