@@ -95,6 +95,21 @@ interface Series {
   readonly points: readonly Point[];
 }
 
+/** One plotted row: its place on the axis, its table label, and one value per series. */
+export interface LineViewRow {
+  readonly row: Json;
+  readonly position: number;
+  readonly label: string;
+  readonly values: readonly (number | undefined)[];
+}
+
+/** Everything a render draws, derived from the rows once: the axis mode, the plotted rows, and the ticks. */
+export interface LineView {
+  readonly dateMode: boolean;
+  readonly rows: readonly LineViewRow[];
+  readonly xTicks: readonly { readonly position: number; readonly label: string }[];
+}
+
 /** Rows with their record id in the fields, from a collection or a list or keyed object in `_data`. */
 export function rowsOf(
   site: ComponentProps<LineChartProps>["site"],
@@ -150,6 +165,78 @@ function dateTick(date: string, unit: "year" | "quarter", lang: string): string 
 }
 
 /**
+ * The chart's whole view model: reads each row's category and every series value once, then derives
+ * the axis mode, the plotted rows, and the x ticks from those values. The SVG and the table both draw
+ * from the result, so no value is parsed twice in one render. Undefined when nothing can be plotted.
+ */
+export function viewOf(
+  rows: readonly Json[],
+  category: string,
+  fields: readonly string[],
+  lang: string,
+): LineView | undefined {
+  const normalized = rows.map((row) => {
+    const raw = lookup(row, category);
+    return {
+      row,
+      date: dateOf(raw),
+      number: numericValue(raw),
+      known: raw !== undefined && raw !== null && String(raw).trim() !== "",
+    };
+  });
+  const known = normalized.filter((entry) => entry.known);
+  const dateMode = known.length > 0 && known.every((entry) => entry.date !== undefined);
+  const axis = dateMode
+    ? scale(
+        known.flatMap((entry) => (entry.date === undefined ? [] : [{ start: entry.date, end: entry.date }])),
+      )
+    : undefined;
+  if (dateMode && axis === undefined) return undefined;
+
+  const numbers = dateMode
+    ? []
+    : known.flatMap((entry) => (entry.number === undefined ? [] : [entry.number]));
+  const numberExtent = extentOf(numbers);
+  if (!dateMode && numberExtent === undefined) return undefined;
+  const numberMin = numberExtent?.low ?? 0;
+  const numberMax = numberExtent?.high ?? 0;
+  const position = (number: number): number =>
+    numberMin === numberMax ? 50 : percentOf(number, numberMin, numberMax);
+
+  const axisStart = axis === undefined ? 0 : Date.parse(axis.from);
+  const axisSpan = axis === undefined ? 1 : Date.parse(axis.to) - axisStart;
+  const positionOf = (entry: (typeof normalized)[number]): number | undefined => {
+    if (axis !== undefined) {
+      return entry.date === undefined ? undefined : percentOf(Date.parse(entry.date) - axisStart, 0, axisSpan);
+    }
+    return entry.number === undefined ? undefined : position(entry.number);
+  };
+
+  const plotted = normalized.flatMap((entry) => {
+    const at = positionOf(entry);
+    if (at === undefined) return [];
+    return [{
+      row: entry.row,
+      position: at,
+      label: axis === undefined ? formatNumber(lang, entry.number ?? 0) : entry.date ?? "",
+      values: fields.map((field) => numericValue(lookup(entry.row, field))),
+    }];
+  });
+  const xTicks =
+    axis === undefined
+      ? (() => {
+          const unique = [...new Set(numbers)].sort((a, b) => a - b);
+          const step = Math.max(1, Math.ceil(unique.length / 8));
+          return unique
+            .filter((_, index) => index % step === 0)
+            .map((number) => ({ position: position(number), label: formatNumber(lang, number) }));
+        })()
+      : axis.ticks.map((tick) => ({ position: tick.position, label: dateTick(tick.date, axis.unit, lang) }));
+
+  return { dateMode, rows: plotted, xTicks };
+}
+
+/**
  * `::line-chart{from="growth" category="date" value="north,south" title="Growth"}` draws one or more
  * series as fixed SVG written at build time: no script, no fetch, and no computation on the reader's
  * device. A date axis uses the timeline's scale and ticks; a numeric axis fits the values. A missing
@@ -169,59 +256,18 @@ export default function lineChart({ props, site, page }: ComponentProps<LineChar
   const fields = seriesOf(text(props.value));
   const lang = page.lang;
   const rtl = page.dir === "rtl";
-  const xOf = (row: Json): unknown => lookup(row, category);
 
-  const known = rows
-    .map(xOf)
-    .filter((value) => value !== undefined && value !== null && String(value).trim() !== "");
-  const dateMode = known.length > 0 && known.every((value) => dateOf(value) !== undefined);
-  const axis = dateMode
-    ? scale(
-        known.flatMap((value) => {
-          const date = dateOf(value);
-          return date === undefined ? [] : [{ start: date, end: date }];
-        }),
-      )
-    : undefined;
-  if (dateMode && axis === undefined) {
+  const view = viewOf(rows, category, fields, lang);
+  if (view === undefined) {
     return h("p", { class: MISSING_CLASS, role: "note" }, `${DEFAULT_TITLE}: no values in "${from}".`);
   }
+  const { dateMode, xTicks } = view;
 
-  const numbers = dateMode
-    ? []
-    : known.flatMap((value) => {
-        const number = numericValue(value);
-        return number === undefined ? [] : [number];
-      });
-  const numberExtent = extentOf(numbers);
-  const numberMin = numberExtent?.low ?? 0;
-  const numberMax = numberExtent?.high ?? 0;
-  if (!dateMode && numberExtent === undefined) {
-    return h("p", { class: MISSING_CLASS, role: "note" }, `${DEFAULT_TITLE}: no values in "${from}".`);
-  }
-
-  const axisStart = axis === undefined ? 0 : Date.parse(axis.from);
-  const axisSpan = axis === undefined ? 1 : Date.parse(axis.to) - axisStart;
-  // A single value sits mid-axis; any other value is its percentage of the domain's span.
-  const position = (number: number): number =>
-    numberMin === numberMax ? 50 : percentOf(number, numberMin, numberMax);
-  const positionOf = (value: unknown): number | undefined => {
-    if (axis !== undefined) {
-      const date = dateOf(value);
-      return date === undefined ? undefined : percentOf(Date.parse(date) - axisStart, 0, axisSpan);
-    }
-    const number = numericValue(value);
-    return number === undefined ? undefined : position(number);
-  };
-
-  const series: Series[] = fields.map((field) => ({
+  const series: Series[] = fields.map((field, index) => ({
     field,
     label: field,
-    points: rows
-      .flatMap((row) => {
-        const position = positionOf(xOf(row));
-        return position === undefined ? [] : [{ position, value: numericValue(lookup(row, field)) }];
-      })
+    points: view.rows
+      .map((row) => ({ position: row.position, value: row.values[index] }))
       .sort((a, b) => a.position - b.position),
   }));
 
@@ -233,28 +279,11 @@ export default function lineChart({ props, site, page }: ComponentProps<LineChar
     return h("p", { class: MISSING_CLASS, role: "note" }, `${DEFAULT_TITLE}: no values in "${from}".`);
   }
 
-  const xTicks =
-    axis === undefined
-      ? (() => {
-          const unique = [...new Set(numbers)].sort((a, b) => a - b);
-          const step = Math.max(1, Math.ceil(unique.length / 8));
-          return unique
-            .filter((_, index) => index % step === 0)
-            .map((number) => ({
-              position: position(number),
-              label: formatNumber(lang, number),
-            }));
-        })()
-      : axis.ticks.map((tick) => ({
-          position: tick.position,
-          label: dateTick(tick.date, axis.unit, lang),
-        }));
-
   const width = 720;
   const height = 260;
   // A time axis is never mirrored: time runs the way the page's calendar runs. Other charts start
   // on the reading side of a right-to-left page.
-  const mirror = rtl && axis === undefined;
+  const mirror = rtl && !dateMode;
   const left = mirror ? 104 : 52;
   const right = width - (mirror ? 52 : 104);
   const top = 16;
@@ -332,12 +361,6 @@ export default function lineChart({ props, site, page }: ComponentProps<LineChar
   const name = title === "" ? `${DEFAULT_TITLE}: ${from}` : title;
   const base = idBase(props.id, from);
   const titleId = `${base}-title`;
-  const plotted = rows.flatMap((row) => {
-    const raw = xOf(row);
-    return positionOf(raw) === undefined
-      ? []
-      : [{ row, x: axis === undefined ? formatNumber(lang, numericValue(raw) ?? 0) : (dateOf(raw) ?? String(raw)) }];
-  });
 
   return h(
     "figure",
@@ -346,15 +369,15 @@ export default function lineChart({ props, site, page }: ComponentProps<LineChar
     svgFrame(SVG_CLASS, width, height, titleId, name, marks),
     chartData({
       title: name,
-      description: `Values of ${fields.join(", ")} by ${category}, ${plotted.length} ${
-        plotted.length === 1 ? "row" : "rows"
+      description: `Values of ${fields.join(", ")} by ${category}, ${view.rows.length} ${
+        view.rows.length === 1 ? "row" : "rows"
       }.`,
       labelHeading: CATEGORY_HEADING,
       columns: series.map((entry) => entry.label),
-      rows: plotted.map(({ row, x }, index) => ({
+      rows: view.rows.map(({ label, values: rowValues }, index) => ({
         id: `${base}-${index + 1}`,
-        label: x,
-        values: series.map((entry) => numericValue(lookup(row, entry.field))),
+        label,
+        values: rowValues,
       })),
       lang,
       id: base,
