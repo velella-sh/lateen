@@ -1798,6 +1798,21 @@
     color: var(--muted-foreground);
   }
 
+  /* An authored footer is a summary, not another header row: one strong top rule and lined-up figures. */
+  .table tfoot th,
+  .table tfoot td {
+    border-block-start: 2px solid var(--border-strong);
+    font-variant-numeric: tabular-nums;
+  }
+
+  .table tfoot th {
+    background: transparent;
+    color: var(--foreground);
+    font-size: inherit;
+    letter-spacing: normal;
+    text-transform: none;
+  }
+
   .callout {
     @apply relative flex gap-3 rounded-xl;
     margin: 1.125rem 0;

@@ -30,6 +30,7 @@ import {
 
 const root = fileURLToPath(new URL("../", import.meta.url));
 const namesPath = join(root, "tokens/names.json");
+const uiCssPath = join(root, "styles/src/ui.css");
 
 test("default export is the table component and the region marker matches the island selector", () => {
   assert.equal(typeof table, "function");
@@ -269,6 +270,73 @@ test("rehype keeps body row and row-group headers with their scope", () => {
   assert.deepEqual(firstRow?.children?.[0]?.properties, { scope: "rowgroup", rowspan: 3 });
   assert.deepEqual(firstRow?.children?.[1]?.properties, { scope: "row" });
   assert.ok(texts(tree).includes("canary"), "the row header content survives");
+});
+
+/** An authored table whose footer totals the body rows. */
+function footerTableTree(): HastNode {
+  const cell = (tagName: string, text: string, properties: Record<string, unknown> = {}): HastNode => ({
+    type: "element",
+    tagName,
+    properties,
+    children: [{ type: "text", value: text }],
+  });
+  const row = (...cells: HastNode[]): HastNode => ({ type: "element", tagName: "tr", children: cells });
+  return {
+    type: "element",
+    tagName: "table",
+    properties: {},
+    children: [
+      { type: "element", tagName: "thead", children: [row(cell("th", "Item"), cell("th", "Count"))] },
+      {
+        type: "element",
+        tagName: "tbody",
+        children: [row(cell("th", "staging", { scope: "row" }), cell("td", "2"))],
+      },
+      {
+        type: "element",
+        tagName: "tfoot",
+        children: [row(cell("th", "Total", { scope: "row" }), cell("td", "2"))],
+      },
+    ],
+  };
+}
+
+test("rehype keeps an authored tfoot and its row header scope when it wraps the table", () => {
+  const tableNode = footerTableTree();
+  const footer = tableNode.children?.[2];
+  const tree: HastNode = { type: "root", children: [tableNode] };
+
+  rehype()(tree);
+
+  assert.equal(tree.children?.[0]?.children?.[0], tableNode, "the table node itself is kept");
+  assert.equal(tableNode.children?.[2], footer, "the footer node is not moved or rebuilt");
+  assert.equal(footer?.tagName, "tfoot");
+  assert.equal(footer?.children?.[0]?.children?.[0]?.tagName, "th");
+  assert.deepEqual(footer?.children?.[0]?.children?.[0]?.properties, { scope: "row" });
+  assert.deepEqual(texts(footer as HastNode), ["Total", "2"]);
+});
+
+test("the component keeps an authored tfoot row header and its numeric cells", () => {
+  const html = renderToString(
+    table({
+      caption: "Deploy targets",
+      children: [
+        h("tfoot", null, h("tr", null, h("th", { scope: "row" }, "Total"), h("td", null, "3"))),
+      ],
+    }) as never,
+  );
+
+  assert.match(html, /<tfoot><tr><th scope="row">Total<\/th><td>3<\/td><\/tr><\/tfoot>/);
+});
+
+test("a table footer has a strong top rule and tabular figures", () => {
+  const css = readFileSync(uiCssPath, "utf8");
+  const footer = /\.table tfoot th,\s*\.table tfoot td\s*\{([^}]*)\}/.exec(css)?.[1] ?? "";
+  assert.match(footer, /border-block-start:\s*2px solid var\(--border-strong\)/);
+  assert.match(footer, /font-variant-numeric:\s*tabular-nums/);
+
+  const header = /\.table tfoot th\s*\{([^}]*)\}/.exec(css)?.[1] ?? "";
+  assert.match(header, /text-transform:\s*none/, "the footer row label is not a column header");
 });
 
 test("the component keeps multi-level header structure and scopes in its scroll region", () => {
