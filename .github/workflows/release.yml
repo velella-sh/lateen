@@ -7,7 +7,8 @@ name: release
 #                  Playwright cases. The report and the tarball are the only artifact publishing
 #                  may use.
 #   2. publish     publishes that same tarball with provenance. It holds the only credential in the
-#                  workflow (an OIDC token) and never runs repository scripts.
+#                  workflow (an OIDC token) and runs only the report gate and tarball selection,
+#                  never a repository build.
 #   3. acceptance-published  installs the version npm now serves and runs the cases again.
 #   4. github-release         writes the GitHub Release for the tag, only after the post-publish
 #                             acceptance run passed.
@@ -160,7 +161,7 @@ jobs:
         working-directory: lateen
         run: |
           set -euo pipefail
-          tarball="$(ls ../acceptance/*.tgz)"
+          tarball="$(node scripts/release-tarball.ts --dir ../acceptance --report ../acceptance/report.json)"
           node scripts/acceptance.ts --gate ../acceptance/report.json --tarball "$tarball"
       - name: Publish the tested tarball with provenance
         working-directory: lateen
@@ -168,7 +169,7 @@ jobs:
           DIST_TAG: ${{ needs.acceptance.outputs.dist-tag }}
         run: |
           set -euo pipefail
-          tarball="$(ls ../acceptance/*.tgz)"
+          tarball="$(node scripts/release-tarball.ts --dir ../acceptance --report ../acceptance/report.json)"
           npm publish "$tarball" --access public --provenance --tag "$DIST_TAG"
           echo "Published ${{ needs.acceptance.outputs.version }} to \`$DIST_TAG\` from $(basename "$tarball")" >> "$GITHUB_STEP_SUMMARY"
 
@@ -220,7 +221,7 @@ jobs:
         working-directory: lateen
         run: |
           set -euo pipefail
-          tarball="$(ls ../published/*.tgz)"
+          tarball="$(node scripts/release-tarball.ts --dir ../published --report ../acceptance/report.json)"
           node scripts/acceptance.ts --gate ../acceptance/report.json --tarball "$tarball"
 
   # A release is only a release once the post-publish acceptance run passed, on a first publish

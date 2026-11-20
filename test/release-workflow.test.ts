@@ -71,3 +71,24 @@ test("a retry verifies the already-published version before the GitHub Release",
   const cases = job("acceptance-published").steps.find((step) => step.name === "Run the shipped cases against the npm package");
   assert.ok(cases?.run?.includes('--theme "@velella/lateen@$VERSION"'), "the retry installs the exact published version");
 });
+
+test("publish and digest steps select the one tarball the acceptance report names", () => {
+  const step = (jobName: string, name: string): string => {
+    const found = job(jobName).steps.find((item) => item.name === name);
+    assert.ok(found?.run, `${jobName} has a ${name} step`);
+    return found.run;
+  };
+  const gate = step("publish", "Require the acceptance report to pass");
+  const publish = step("publish", "Publish the tested tarball with provenance");
+  const digest = step("acceptance-published", "Prove the published tarball is the tested tarball");
+  for (const run of [gate, publish]) {
+    assert.ok(run.includes("node scripts/release-tarball.ts --dir ../acceptance --report ../acceptance/report.json"));
+  }
+  assert.ok(digest.includes("node scripts/release-tarball.ts --dir ../published --report ../acceptance/report.json"));
+  // No shell glob may pick the tarball: zero or several .tgz files must stop the release.
+  for (const jobName of ["publish", "acceptance-published"]) {
+    for (const item of job(jobName).steps) {
+      assert.doesNotMatch(item.run ?? "", /ls \.\.\/(acceptance|published)\/\*\.tgz/);
+    }
+  }
+});
