@@ -4,7 +4,7 @@ import { Fragment, h } from "preact";
 import { JSDOM } from "jsdom";
 import type { Page, Site, SiteConfig, SourcePos } from "@velella/mizzen/contracts";
 import shell, { footer } from "../chrome/shell/index.ts";
-import { boot, searchPages, themeColor, readingProgress } from "../chrome/shell/client.ts";
+import { boot, historyNavigation, readPosition, savePosition, searchPages, themeColor, readingProgress } from "../chrome/shell/client.ts";
 
 const pos: SourcePos = { file: "index.md", line: 1, column: 1, endLine: 1, endColumn: 1 };
 
@@ -145,4 +145,77 @@ test("shell client helpers search, theme color, and progress", () => {
   assert.equal(themeColor("light"), "#f4f4f9");
   assert.equal(searchPages([{ title: "Install", description: "guide", url: "/i/" }], "inst")[0]?.url, "/i/");
   assert.ok(readingProgress(100, 0, 500, 200) >= 0);
+});
+
+/** A JSDOM window for a path, with frame and clock queues the test drives by hand. */
+function readerWindow(t: { after(fn: () => void): void }, path: string) {
+  const { window } = new JSDOM("<header data-site-header></header>", { url: `https://example.com${path}` });
+  t.after(() => window.close());
+  const timers: Array<() => void> = [];
+  const frames: FrameRequestCallback[] = [];
+  const scrolled: number[] = [];
+  Object.defineProperty(window, "setTimeout", { value: (callback: () => void) => timers.push(callback) });
+  Object.defineProperty(window, "requestAnimationFrame", { value: (callback: FrameRequestCallback) => frames.push(callback) });
+  Object.defineProperty(window, "scrollTo", { value: (_x: number, y: number) => scrolled.push(y) });
+  Object.defineProperty(window, "scrollY", { value: 0, configurable: true });
+  return { window, timers, frames, scrolled };
+}
+
+function navigation(window: Window, type: string): void {
+  Object.defineProperty(window.performance, "getEntriesByType", { value: () => [{ type }], configurable: true });
+}
+
+test("shell saves the reading position per path and restores it after Back", (t) => {
+  const { window, timers, frames, scrolled } = readerWindow(t, "/guide/");
+  navigation(window as unknown as Window, "back_forward");
+  boot(window as unknown as Window);
+
+  Object.defineProperty(window, "scrollY", { value: 640, configurable: true });
+  window.dispatchEvent(new window.Event("scroll"));
+  window.dispatchEvent(new window.Event("scroll"));
+  assert.equal(timers.length, 1, "scroll writes are throttled");
+  timers.shift()!();
+  assert.equal(readPosition(window.sessionStorage, "/guide/"), 640);
+  assert.equal(readPosition(window.sessionStorage, "/install/"), null);
+  frames.length = 0; // drop the progress frame the scroll scheduled
+
+  window.dispatchEvent(new window.PageTransitionEvent("pageshow", { persisted: false }));
+  window.dispatchEvent(new window.Event("load"));
+  frames.shift()!(0);
+  assert.deepEqual(scrolled, [640]);
+});
+
+test("shell does not restore on a fresh visit or a reload", (t) => {
+  const { window, frames, scrolled } = readerWindow(t, "/guide/");
+  navigation(window as unknown as Window, "back_forward");
+  boot(window as unknown as Window);
+
+  window.dispatchEvent(new window.PageTransitionEvent("pageshow", { persisted: false }));
+  window.dispatchEvent(new window.Event("load"));
+  assert.equal(frames.length, 0);
+
+  savePosition(window.sessionStorage, "/guide/", 640);
+  navigation(window as unknown as Window, "reload");
+  window.dispatchEvent(new window.PageTransitionEvent("pageshow", { persisted: false }));
+  window.dispatchEvent(new window.Event("load"));
+  assert.equal(frames.length, 0);
+  assert.deepEqual(scrolled, []);
+
+  navigation(window as unknown as Window, "back_forward");
+  window.dispatchEvent(new window.PageTransitionEvent("pageshow", { persisted: true }));
+  assert.equal(frames.length, 0, "a bfcache page keeps the position the browser restored");
+});
+
+test("shell does not share a reading position between paths", (t) => {
+  const { window, frames, scrolled } = readerWindow(t, "/install/");
+  savePosition(window.sessionStorage, "/guide/", 640);
+  assert.equal(readPosition(window.sessionStorage, "/install/"), null);
+  navigation(window as unknown as Window, "back_forward");
+  boot(window as unknown as Window);
+
+  window.dispatchEvent(new window.PageTransitionEvent("pageshow", { persisted: false }));
+  window.dispatchEvent(new window.Event("load"));
+  assert.equal(frames.length, 0);
+  assert.deepEqual(scrolled, []);
+  assert.equal(historyNavigation(window as unknown as Window), true);
 });
