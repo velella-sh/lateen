@@ -27,9 +27,9 @@
  * - DOM rendering: `renderOptions` and the `*Node`/`*Content` helpers turn an `OptionList` into
  *   elements through the `SearchDocument`/`SearchElement` interfaces (`RenderedOption`,
  *   `OptionRender`); they make no query or identity decisions of their own.
- * - Palette validation (pure): `parsePalette`, `isPaletteRun`, and their private guards read the
- *   inert JSON, and `matchesAction`/`filterActions` filter it on the query; every malformed shape
- *   falls back to an empty palette.
+ * - Palette validation (pure, `palette.ts`): `parsePalette`, `isPaletteRun`, and their private guards
+ *   read the inert JSON, and `matchesAction`/`filterActions` filter it on the query; every malformed
+ *   shape falls back to an empty palette.
  * - Localization (pure): `SearchMessages`, `MESSAGES`, `PLURAL_CATEGORIES`, `pluralCategory`,
  *   `emptyMessage`, `countMessage`, `messagesFrom`, `langFrom` — the page language's strings and
  *   CLDR plural rules, read from the dialog's `data-search-*` attributes.
@@ -49,7 +49,6 @@ import { activateShortcuts, type ShortcutEvent } from "./shortcut.ts";
 import { activateAskAgent, parseAskConfig, type AskDocument, type AskElement, type AskResult } from "../ask-agent/client.ts";
 import { browserFetch } from "../copy-markdown/island.ts";
 import {
-  ACTIONS_LABEL,
   activeIndexOf,
   optionList,
   wordCount,
@@ -58,6 +57,7 @@ import {
   type OptionRow,
   type SearchRecord,
 } from "./options.ts";
+import { filterActions, parsePalette } from "./palette.ts";
 
 // The pure option model lives in `options.ts`; these re-exports keep the client's public imports working.
 export {
@@ -87,6 +87,9 @@ export {
   type OptionLabels,
   type AskOption,
 } from "./options.ts";
+
+// Palette parsing, validation, and query filtering live in `palette.ts`; re-exported for the same reason.
+export { matchesAction, filterActions, isPaletteRun, parsePalette } from "./palette.ts";
 
 /** The path of the dedicated search page the all-results link opens. */
 export const SEARCH_PAGE_PATH = "/search/";
@@ -606,69 +609,6 @@ export function renderOptions(
 
   results.replaceChildren(...sections);
   return drawn;
-}
-
-/** A whole-word test for a hint, so a single typed letter does not match every hint. */
-function containsWord(text: string, needle: string): boolean {
-  const escaped = needle.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
-  return new RegExp(`(^|[^\\p{L}\\p{N}])${escaped}([^\\p{L}\\p{N}]|$)`, "iu").test(text);
-}
-
-/** Whether an action matches `query`; the pure counterpart of `chrome/command-palette/actions.ts`. */
-export function matchesAction(action: PaletteAction, query: string): boolean {
-  const needle = query.trim().toLowerCase();
-  if (needle === "") return true;
-  if (action.label.toLowerCase().includes(needle)) return true;
-  return action.hint !== undefined && containsWord(action.hint, needle);
-}
-
-/** The actions that match `query`, in their original order. */
-export function filterActions(actions: readonly PaletteAction[], query: string): readonly PaletteAction[] {
-  return actions.filter((action) => matchesAction(action, query));
-}
-
-/** Whether `value` is one of the theme choices the palette can apply. */
-function isThemeChoice(value: unknown): value is ThemeChoice {
-  return value === "light" || value === "dark" || value === "system";
-}
-
-/** Whether `value` is an action descriptor this module knows how to run. */
-export function isPaletteRun(value: unknown): value is PaletteRun {
-  if (value === null || typeof value !== "object") return false;
-  const run = value as { kind?: unknown; choice?: unknown; url?: unknown; id?: unknown };
-  if (run.kind === "theme") return isThemeChoice(run.choice);
-  if (run.kind === "copy") return typeof run.url === "string" && run.url !== "";
-  if (run.kind === "source") return true;
-  if (run.kind === "section") return typeof run.id === "string" && run.id !== "";
-  return false;
-}
-
-/** Whether `value` is an action this module can show and run. */
-function isPaletteAction(value: unknown): value is PaletteAction {
-  if (value === null || typeof value !== "object") return false;
-  const action = value as { id?: unknown; label?: unknown; hint?: unknown; run?: unknown };
-  if (typeof action.id !== "string" || action.id === "") return false;
-  if (typeof action.label !== "string" || action.label === "") return false;
-  if (action.hint !== undefined && typeof action.hint !== "string") return false;
-  return action.run === undefined || isPaletteRun(action.run);
-}
-
-/**
- * Reads the server's JSON. Anything missing, malformed, or shaped differently yields an empty
- * palette, so a bad build cannot stop search from working.
- */
-export function parsePalette(text: string | null, fallbackLabel: string = ACTIONS_LABEL): PalettePayload {
-  if (text === null || text.trim() === "") return { label: fallbackLabel, actions: [] };
-  try {
-    const value = JSON.parse(text) as unknown;
-    if (value === null || typeof value !== "object") return { label: fallbackLabel, actions: [] };
-    const payload = value as { label?: unknown; actions?: unknown };
-    const label = typeof payload.label === "string" && payload.label !== "" ? payload.label : fallbackLabel;
-    const actions = Array.isArray(payload.actions) ? payload.actions.filter(isPaletteAction) : [];
-    return { label, actions };
-  } catch {
-    return { label: fallbackLabel, actions: [] };
-  }
 }
 
 /** The index URL for a site `base`: `/pagefind/pagefind.js` at the root, `<base>/pagefind/pagefind.js` below it. */
