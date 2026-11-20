@@ -550,6 +550,138 @@
     white-space: nowrap;
   }
 
+  /* Mobile drawer: the sidebar inside a dialog pinned to the reading-order edge. */
+  .drawer:not([data-enhanced]) {
+    display: none;
+  }
+
+  @media (max-width: 767.98px) {
+    .drawer:not([data-enhanced]) {
+      display: block;
+      position: static;
+      inset: auto;
+      inline-size: auto;
+      max-inline-size: none;
+      max-block-size: none;
+      margin: 0;
+      padding-block: var(--space-3);
+      padding-inline: var(--space-1);
+      border: 0;
+      border-block-end: 1px solid var(--border-subtle);
+      background: transparent;
+      color: inherit;
+      overflow: visible;
+    }
+  }
+
+  /* A page that will run its scripts starts closed, so the first paint matches the script's layout. */
+  html[data-js] .drawer:not([data-enhanced]) {
+    display: none;
+  }
+
+  .drawer[data-enhanced] {
+    inset-block: 0;
+    inset-inline: 0 auto;
+    inline-size: min(20rem, 100%);
+    max-block-size: 100%;
+    margin: 0;
+    padding: var(--space-4) var(--space-3);
+    border: 0;
+    border-inline-end: 1px solid var(--border-subtle);
+    background: var(--background);
+    color: var(--foreground);
+    box-shadow: none;
+    overflow-y: auto;
+    translate: -100% 0;
+    transition:
+      translate var(--motion-base) var(--motion-ease-in),
+      overlay var(--motion-base) var(--motion-ease-in) allow-discrete,
+      display var(--motion-base) var(--motion-ease-in) allow-discrete;
+  }
+
+  .drawer[data-enhanced]:dir(rtl) {
+    translate: 100% 0;
+  }
+
+  .drawer[data-enhanced][open] {
+    translate: 0 0;
+    transition-timing-function: var(--motion-ease-out);
+  }
+
+  @starting-style {
+    .drawer[data-enhanced][open] {
+      translate: -100% 0;
+    }
+
+    .drawer[data-enhanced][open]:dir(rtl) {
+      translate: 100% 0;
+    }
+  }
+
+  .drawer[data-enhanced]::backdrop {
+    background: var(--state-overlay);
+    opacity: 0;
+    transition:
+      opacity var(--motion-base) var(--motion-ease-in),
+      overlay var(--motion-base) var(--motion-ease-in) allow-discrete,
+      display var(--motion-base) var(--motion-ease-in) allow-discrete;
+  }
+
+  .drawer[data-enhanced][open]::backdrop {
+    opacity: 1;
+  }
+
+  @starting-style {
+    .drawer[data-enhanced][open]::backdrop {
+      opacity: 0;
+    }
+  }
+
+  /* Sticky so a long sidebar can scroll under it, and independent of the navigation list. */
+  .drawer-close {
+    position: sticky;
+    inset-block-start: var(--space-3);
+    inset-inline-end: 0;
+    z-index: 1;
+    display: flex;
+    inline-size: fit-content;
+    min-block-size: var(--space-8);
+    min-inline-size: var(--space-8);
+    margin-inline-start: auto;
+    margin-block-end: var(--space-2);
+    padding: var(--space-1);
+    align-items: center;
+    justify-content: center;
+    border: 0;
+    border-radius: var(--radius-md);
+    background: var(--background);
+    color: var(--muted-foreground);
+    font-size: var(--type-size-lg);
+    line-height: 1;
+    cursor: pointer;
+  }
+
+  .drawer-close[hidden] {
+    display: none;
+  }
+
+  .drawer-close:hover {
+    background: var(--state-hover-bg);
+    color: var(--foreground);
+  }
+
+  .drawer-close:focus-visible {
+    outline: 2px solid var(--state-focus-ring);
+    outline-offset: 2px;
+  }
+
+  .drawer .sidebar-nav {
+    position: static;
+    max-height: none;
+    overflow: visible;
+    padding-block: 0 var(--space-8);
+  }
+
   .site-footer {
     width: 100%;
     margin-top: 1.75rem;
