@@ -107,3 +107,15 @@ test("the record page keeps the page footer under its actions", () => {
   const out = render(pageWith());
   assert.match(out, /<div class="doc-actions"><div class="page-footer">/);
 });
+
+test("a record with changed fields asks the engine for the history filter island", () => {
+  const input = props(pageWith());
+  (input.record as unknown as { changes: unknown[] }).changes = [
+    { id: "1".repeat(16), type: "changed", record: "components", date: "2026-05-01", field: "name", old: "A", new: "B" },
+  ];
+  renderToString(record(input) as never);
+  assert.ok(
+    input.islands.some((island) => island.src.endsWith("components/record-history/client.js")),
+    "the history filter runs without a Markdown directive",
+  );
+});

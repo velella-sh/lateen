@@ -1,6 +1,6 @@
 import { Fragment, h } from "preact";
 import type { ComponentChildren } from "preact";
-import type { DataRecord, Heading, Layout, LayoutProps, RecordPos } from "@velella/mizzen/contracts";
+import type { DataRecord, Heading, Island, Layout, LayoutProps, RecordPos } from "@velella/mizzen/contracts";
 import base from "./base.ts";
 import blockActions from "../chrome/block-actions/index.ts";
 import breadcrumb from "../chrome/breadcrumb/index.ts";
@@ -19,9 +19,16 @@ import { t } from "../i18n/index.ts";
 import { FACTS_ID, factsOf, factsPanel, recordHeader, summaryOf } from "../src/record-parts.ts";
 import doc from "./doc.ts";
 import { staleSlot } from "../src/stale.ts";
+import { baseOf } from "../src/url.ts";
+import { fieldsOf } from "../components/record-history/index.ts";
 
 /** Class on the embed code the record offers; `record.css` places it. */
 const EMBED_CLASS = "record-embed";
+
+/* The engine ships a component's island only when the page's Markdown names its directive, and the
+   record layout draws the history itself. The client filters the events in place; without it the
+   full history still reads. */
+const HISTORY_ISLAND = "assets/theme/islands/components/record-history/client.js";
 
 /** The page's own headings plus the facts panel first, on a copy so the page itself stays untouched. */
 function tocFor(props: LayoutProps): LayoutProps {
@@ -96,8 +103,14 @@ function article(props: LayoutProps): ComponentChildren {
  * the record article. A page that names this layout without record data renders exactly like the
  * `doc` layout, so a mistake in a template never produces a bare page.
  */
-const record: Layout = (props) =>
-  props.record === undefined
+const record: Layout = (props) => {
+  const historyIsland: Island = { name: "record-history", src: `${baseOf(props.site)}/${HISTORY_ISLAND}` };
+  // shortcut: mutating `islands`, as the list layout does; upgrade when a layout can declare a client.
+  const islands = props.islands as Island[];
+  if (fieldsOf(props.record?.changes ?? []).length > 0 && !islands.some((island) => island.src === historyIsland.src)) {
+    islands.push(historyIsland);
+  }
+  return props.record === undefined
     ? doc(props)
     : base({
         ...props,
@@ -107,5 +120,6 @@ const record: Layout = (props) =>
         main: h(Fragment, null, article(props), blockActions(props) as ComponentChildren),
         aside: toc(tocFor(props)) as ComponentChildren,
       });
+};
 
 export default record;
