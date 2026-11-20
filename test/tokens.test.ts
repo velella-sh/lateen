@@ -24,6 +24,15 @@ test("the committed tokens.css is current and every semantic group is frozen in 
   for (const group of ["color", "type", "space", "radius", "shadow", "motion", "state", "chart", "code"]) assert.ok(groups.has(group), group);
 });
 
+test("the Sailcloth bridge keeps only aliases the shared print sheet still reads (#913)", () => {
+  const source = readFileSync(new URL("../styles/src/theme.css", import.meta.url), "utf8");
+  const bridge = source.slice(source.indexOf("Sailcloth tokens"), source.indexOf('[data-theme="dark"]'));
+  const aliases = [...bridge.matchAll(/--color-([a-z-]+):/g)].map((match) => match[1]);
+  assert.deepEqual(aliases, ["surface-raised", "text", "muted"]);
+  const print = readFileSync(new URL("../styles/print.css", import.meta.url), "utf8");
+  for (const alias of aliases) assert.ok(print.includes(`var(--color-${alias})`), `no caller for --color-${alias}`);
+});
+
 /** WCAG 2.2 relative luminance of a six-digit hex color. */
 const luminance = (hex: string): number => {
   const [r = 0, g = 0, b = 0] = [1, 3, 5].map((index) => {

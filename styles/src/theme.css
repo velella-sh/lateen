@@ -25,7 +25,7 @@
 }
 
 /* Sailcloth tokens — locked Velella brand (see docs/design/sailcloth.md).
-   Bridge aliases keep older class hooks readable while markup migrates to Tailwind. */
+   The aliases left below are read by styles/print.css; markup uses the Tailwind theme above. */
 :root {
   --night: #23212c;
   --night-raised: #393743;
@@ -72,16 +72,9 @@
   --space-8: 2rem;
   --text-sm: 0.875rem;
   --text-2xl: 1.5rem;
-  --color-canvas: var(--background);
-  --color-surface: var(--card);
   --color-surface-raised: var(--card);
   --color-text: var(--foreground);
-  --color-heading: var(--foreground);
   --color-muted: var(--muted-foreground);
-  --color-border: var(--border);
-  --color-link: var(--link);
-  --color-accent: var(--mist);
-  --color-on-accent: var(--primary-foreground);
   color-scheme: light;
 }
 
