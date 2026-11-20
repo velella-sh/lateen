@@ -6,11 +6,15 @@ chip is a native `<details>` summary, so the panel opens with Enter, Space, or a
 Escape when JavaScript runs; without it the panel is a native disclosure. The island also puts focus
 back on the chip.
 
-- `index.ts` renders the component. It reads the page's entry from `site.data.trust`, keyed by
-  `page.url`, or from the directive's props for a manual panel. A page with no entry renders nothing,
-  so a page with no trust record never gets a chip. An entry that is present but unreadable renders an
-  `unknown` panel marked `data-trust-evidence="invalid"`, so a malformed record is reported instead of
-  disappearing.
+- `index.ts` renders the component from the view model's result; it never reads the site contracts
+  itself. A page with no entry renders nothing, so a page with no trust record never gets a chip. An
+  entry that is present but unreadable renders an `unknown` panel marked `data-trust-evidence="invalid"`,
+  so a malformed record is reported instead of disappearing.
+- `view-model.ts` is the pure selection boundary: it reads the page's entry from `site.data.trust`,
+  keyed by `page.url`, or from the directive's props for a manual panel, and resolves the evidence,
+  provenance dates, drift, reviewer, and action links into localised, render-ready rows
+  (`trustPanelViewOf`). The evidence helpers (`trustEvidenceFor`, `provenanceOf`, `driftFor`,
+  `actionHrefOf`, …) live here too and stay exported from `index.ts`.
 - `styles/parts-trust-panel.css` draws the chip and the panel with tokens and logical properties. The panel sits under
   the chip on a wide screen and in the flow on a narrow one, so it works under RTL too. Long reasons
   wrap (`overflow-wrap: anywhere`) and the panel never grows wider than the viewport, so a long
@@ -23,7 +27,8 @@ back on the chip.
   `data-trust-examples*` attributes derived from it.
 - `test/component-trust-panel.test.ts` covers absent versus malformed entries, every state, every
   evidence row, provenance, the action links, localisation, escaping, the island, and the
-  stylesheet's tokens.
+  stylesheet's tokens. `test/trust-panel-view-model.test.ts` covers the pure view model's selection
+  for absent, invalid, full, and partial evidence.
 
 ## Data
 
