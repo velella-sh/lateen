@@ -193,7 +193,7 @@ export function languageSelector({ site, page }: ChromeProps) {
     key: "language",
     label,
     // The compact control names the language it is showing, not just the kind of control.
-    accessibleName: current === undefined ? undefined : `${label}: ${current.language.name}`,
+    ...(current === undefined ? {} : { accessibleName: `${label}: ${current.language.name}` }),
     items: entries.map((entry) => ({
       text: entry.language.name,
       lang: entry.language.code,
