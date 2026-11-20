@@ -139,7 +139,9 @@ The manifest is the route's dependency list in one place. A simple article must 
 response: a component island there is a new global dependency, and `test/asset-manifest.test.ts` fails
 when one appears. The test also fails when a route names the same path twice, so a duplicate download
 cannot enter the manifest quietly. Shared modules are allowed across routes; within one route they count
-once.
+once. `test/island-assets-fixture.test.ts` builds the packaged performance fixture and checks the rule
+on real pages: a simple article such as `/alpha/` requests no component island, while `/alpha/compare/`
+requests its own island exactly once and another route never downloads it.
 
 ## Adjustment policy
 
