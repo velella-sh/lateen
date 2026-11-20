@@ -1,9 +1,9 @@
 import assert from "node:assert/strict";
-import { readFileSync } from "node:fs";
 import { test } from "node:test";
 import { renderToString } from "preact-render-to-string";
 import type { ComponentProps } from "@velella/mizzen/contracts";
 import code, { COLLAPSE_AFTER, highlightFences } from "../components/code/index.ts";
+import { readUiCss } from "./ui-css-helpers.ts";
 
 const lines = Array.from({ length: COLLAPSE_AFTER + 5 }, (_, index) => `const value${index} = ${index};`).join("\n");
 const fence = `<pre data-src="a.md:3"><code class="language-ts">${lines}\n</code></pre>`;
@@ -42,7 +42,7 @@ test("the disclosure is native: no script, button, or hidden attribute", () => {
 });
 
 test("the stylesheet uses logical spacing and no physical side", () => {
-  const css = readFileSync(new URL("../styles/src/ui.css", import.meta.url), "utf8");
+  const css = readUiCss();
   const rule = /\.code-details-summary \{([\s\S]*?)\}/.exec(css)?.[1] ?? "";
   assert.match(rule, /margin-block-end/);
   assert.doesNotMatch(rule, /\b(?:left|right)\b|margin-inline-(?:start|end)/);

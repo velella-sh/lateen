@@ -4,6 +4,7 @@ import assert from "node:assert/strict";
 import { readFileSync } from "node:fs";
 import { test } from "node:test";
 import { build } from "./integration-helpers.ts";
+import { readUiCss } from "./ui-css-helpers.ts";
 
 const read = (path: string): string => readFileSync(new URL(path, import.meta.url), "utf8");
 
@@ -21,7 +22,7 @@ test("the Persian fixture page carries every control the RTL icon contract cover
 });
 
 test("the RTL rule mirrors directional icons and leaves neutral ones alone", () => {
-  const css = read("../styles/src/ui.css");
+  const css = readUiCss();
   const rule = /\[dir="rtl"\][^{]*:is\(([^)]*)\)[^{]*\{[^}]*transform:\s*scaleX\(-1\)/.exec(css);
   assert.ok(rule, "ui.css has no [dir=\"rtl\"] mirror rule");
   const mirrored = (rule[1] ?? "").split(",").map((name) => name.trim());

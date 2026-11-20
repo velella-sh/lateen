@@ -1,6 +1,7 @@
 import assert from "node:assert/strict";
-import { existsSync, readFileSync } from "node:fs";
+import { existsSync } from "node:fs";
 import { test } from "node:test";
+import { readUiCss } from "./ui-css-helpers.ts";
 
 /**
  * Layout-rendered components must not keep a private style.css (the engine never loads it).
@@ -18,7 +19,7 @@ const LAYOUT_COMPONENTS: Readonly<Record<string, string>> = {
   "trust-panel": ".trust-panel",
 };
 
-const ui = readFileSync(new URL("../styles/src/ui.css", import.meta.url), "utf8");
+const ui = readUiCss();
 
 for (const [name, root] of Object.entries(LAYOUT_COMPONENTS)) {
   test(`layout component ${name} keeps its CSS in the sailcloth bundle`, () => {

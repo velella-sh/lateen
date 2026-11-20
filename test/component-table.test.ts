@@ -1,5 +1,4 @@
 import assert from "node:assert/strict";
-import { readFileSync } from "node:fs";
 import { join } from "node:path";
 import { test } from "node:test";
 import { fileURLToPath } from "node:url";
@@ -27,10 +26,10 @@ import {
   sync,
   type TableElement,
 } from "../components/table/client.ts";
+import { readUiCss } from "./ui-css-helpers.ts";
 
 const root = fileURLToPath(new URL("../", import.meta.url));
 const namesPath = join(root, "tokens/names.json");
-const uiCssPath = join(root, "styles/src/ui.css");
 
 test("default export is the table component and the region marker matches the island selector", () => {
   assert.equal(typeof table, "function");
@@ -330,7 +329,7 @@ test("the component keeps an authored tfoot row header and its numeric cells", (
 });
 
 test("a table footer has a strong top rule and tabular figures", () => {
-  const css = readFileSync(uiCssPath, "utf8");
+  const css = readUiCss();
   const footer = /\.table tfoot th,\s*\.table tfoot td\s*\{([^}]*)\}/.exec(css)?.[1] ?? "";
   assert.match(footer, /border-block-start:\s*2px solid var\(--border-strong\)/);
   assert.match(footer, /font-variant-numeric:\s*tabular-nums/);

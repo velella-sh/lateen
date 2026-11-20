@@ -1,5 +1,4 @@
 import assert from "node:assert/strict";
-import { readFileSync } from "node:fs";
 import { join } from "node:path";
 import { test } from "node:test";
 import { fileURLToPath } from "node:url";
@@ -17,9 +16,10 @@ import embed, {
   type EmbedProps,
 } from "../components/embed/index.ts";
 import figure, { type FigureProps } from "../components/figure/index.ts";
+import { readUiCss } from "./ui-css-helpers.ts";
 
 const root = fileURLToPath(new URL("../", import.meta.url));
-const css = readFileSync(join(root, "styles/src/ui.css"), "utf8");
+const css = readUiCss();
 
 const TITLE = "Big Buck Bunny";
 const WATCH = "https://www.youtube.com/watch?v=aqz-KE-bpKQ";

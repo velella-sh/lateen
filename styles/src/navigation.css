@@ -1,0 +1,59 @@
+/* Page navigation: pager, back-to-top, footer. */
+@layer components {
+  .pager {
+    @apply grid grid-cols-2 gap-4 border-t pt-8;
+  }
+
+  .pager a {
+    @apply rounded-xl p-4 no-underline;
+  }
+
+  .pager a:last-child {
+    @apply text-end;
+  }
+
+  .pager a > svg {
+    @apply inline size-4;
+  }
+
+  .pager a > span {
+    @apply grid font-medium;
+  }
+
+  .pager small,
+  .pager-section {
+    @apply text-xs font-normal text-muted-foreground;
+  }
+
+  .back-to-top {
+    @apply ms-auto mt-6 flex w-fit items-center gap-1.5 text-sm font-medium text-muted-foreground no-underline hover:text-foreground;
+  }
+
+  .back-to-top svg {
+    @apply size-4;
+  }
+
+  .site-footer {
+    @apply border-t py-8;
+  }
+
+  .site-footer > div {
+    @apply flex items-center justify-between gap-4 text-sm text-muted-foreground;
+  }
+
+  .site-footer p {
+    @apply m-0;
+  }
+
+  .site-footer nav {
+    @apply flex gap-5;
+  }
+
+  .site-footer a {
+    @apply no-underline;
+  }
+
+  .site-footer a:hover {
+    color: var(--primary);
+  }
+}

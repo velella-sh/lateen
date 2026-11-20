@@ -1,10 +1,11 @@
 import assert from "node:assert/strict";
 import { readFileSync } from "node:fs";
 import { test } from "node:test";
+import { readUiCss } from "./ui-css-helpers.ts";
 
 const layouts = readFileSync(new URL("../site/layouts.md", import.meta.url), "utf8");
 const components = readFileSync(new URL("../site/components/index.md", import.meta.url), "utf8");
-const styles = readFileSync(new URL("../styles/src/ui.css", import.meta.url), "utf8");
+const styles = readUiCss();
 
 function section(source: string, name: string): string {
   const start = source.indexOf(`## ${name}`);

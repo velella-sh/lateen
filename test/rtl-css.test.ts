@@ -10,6 +10,7 @@ import { test } from "node:test";
 import { JSDOM } from "jsdom";
 import { loadTokens } from "../scripts/tokens.ts";
 import { brandCss } from "../src/brand.ts";
+import { readUiCss } from "./ui-css-helpers.ts";
 
 const read = (path: string): string => readFileSync(new URL(path, import.meta.url), "utf8");
 
@@ -243,8 +244,9 @@ test("rtl.css stays under the 4 KB budget when minified", () => {
   assert.ok(bytes > 0 && bytes < 4 * 1024, `minified rtl.css is ${bytes} bytes; the budget is 4096`);
 });
 
-/** Every stylesheet the theme ships after the lateen-legacy drop (Tailwind/ui + keepers). */
-const SKIP_RTL_SCAN = new Set(["styles/generated.css", "styles/src/ui.css", "styles/fonts.css"]);
+/** Every stylesheet the theme ships after the lateen-legacy drop (Tailwind/ui + keepers).
+    The split sailcloth source (styles/src/, #863) is Tailwind input and is scanned as one sheet below. */
+const SKIP_RTL_SCAN = new Set(["styles/generated.css", "styles/fonts.css"]);
 function themeCss(): { path: string; text: string }[] {
   const found: { path: string; text: string }[] = [];
   for (const folder of ["styles"]) {
@@ -252,7 +254,7 @@ function themeCss(): { path: string; text: string }[] {
       const name = String(entry);
       if (!name.endsWith(".css")) continue;
       const path = `${folder}/${name}`;
-      if (SKIP_RTL_SCAN.has(path)) continue;
+      if (SKIP_RTL_SCAN.has(path) || path.startsWith("styles/src/")) continue;
       found.push({ path, text: read(`../${folder}/${name}`) });
     }
   }
@@ -279,7 +281,7 @@ test("every stylesheet uses logical direction properties", () => {
 
 test("only navigation affordances mirror, never media or technical symbols", () => {
   const mirrored = new Set<string>();
-  const sheets = [...themeCss(), { path: "styles/src/ui.css", text: read("../styles/src/ui.css") }];
+  const sheets = [...themeCss(), { path: "styles/src/ui.css", text: readUiCss() }];
   for (const file of sheets) {
     for (const block of blocks(file.text)) {
       if (!/transform:\s*scaleX\(\s*-1\s*\)/.test(block.body)) continue;
@@ -304,7 +306,7 @@ function rendered(name: string) {
   const dom = new JSDOM(read(`../fixtures/rtl/${name}`));
   for (const path of FIXTURE_CSS) {
     const style = dom.window.document.createElement("style");
-    style.textContent = read(path);
+    style.textContent = path === "../styles/src/ui.css" ? readUiCss() : read(path);
     dom.window.document.head.append(style);
   }
   return dom.window;
@@ -425,7 +427,7 @@ test("icons align to the text baseline and quotes use the script's own pair in P
 });
 
 test("active markers and sticky glass chrome live in sailcloth ui.css with logical edges", () => {
-  const ui = stripComments(read("../styles/src/ui.css"));
+  const ui = stripComments(readUiCss());
   assert.match(ui, /inset-inline|padding-inline|margin-inline|border-inline/);
   assert.match(ui, /\.site-header\s*\{/);
   assert.match(ui, /\bsticky\b/);

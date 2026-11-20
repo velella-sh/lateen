@@ -1,9 +1,9 @@
 import assert from "node:assert/strict";
-import { readFileSync } from "node:fs";
 import { test } from "node:test";
 import { decorateLines, HIGHLIGHT_CLASS, isHighlighted, LINE_CLASS, LINE_LINK_CLASS, lineAnchorId } from "../components/code/lines.ts";
 import { parseLineFragment, TARGET_CLASS } from "../components/code/line-fragment.ts";
 import { targetLines, type CopyDocument, type CopyLine } from "../chrome/code-copy/client.ts";
+import { readUiCss } from "./ui-css-helpers.ts";
 
 /** Shiki's inner HTML for three lines, one `span.line` each, joined by `\n`. */
 const SHIKI = '<span class="line"><span style="color:#111">a</span></span>\n<span class="line">b</span>\n<span class="line"></span>';
@@ -72,7 +72,7 @@ test("a long numbered line keeps one number per source line and wraps its code",
   assert.match(out, /<span class="line-number" data-line="2" aria-hidden="true"><\/span><span class="line-code">next<\/span>/);
   assert.equal(textOf(out), `${long}\nnext`);
 
-  const css = readFileSync(new URL("../styles/src/ui.css", import.meta.url), "utf8");
+  const css = readUiCss();
   const row = /\.code \.line\[data-line\] \{([^}]*)\}/.exec(css)?.[1] ?? "";
   assert.match(row, /display:\s*inline-grid/);
   assert.match(row, /grid-template-columns:[^;]*minmax\(0,\s*1fr\)/);
@@ -91,7 +91,7 @@ test("a line without Shiki's wrapper is wrapped too", () => {
 });
 
 test("the highlighted line marker is a logical inline border that keeps text in place", () => {
-  const css = readFileSync(new URL("../styles/src/ui.css", import.meta.url), "utf8");
+  const css = readUiCss();
   const rule = /\.code \.highlighted,[\s\S]{0,120}\{([^}]*)\}/.exec(css)?.[1] ?? "";
   assert.match(rule, /border-inline-start:\s*2px solid var\(--mist\)/);
   assert.match(rule, /padding-inline-start:/);
@@ -177,7 +177,7 @@ test("fragment targeting marks a range, clears the last one, and scrolls its fir
 });
 
 test("the line link is RTL-safe and the target uses a logical edge", () => {
-  const css = readFileSync(new URL("../styles/src/ui.css", import.meta.url), "utf8");
+  const css = readUiCss();
   const linkRule = /\.code \.line-link,\n\.code-frame \.line-link \{([^}]*)\}/.exec(css)?.[1] ?? "";
   assert.match(linkRule, /inline-size:/);
   assert.match(linkRule, /margin-inline-end:/);

@@ -3,6 +3,7 @@ import assert from "node:assert/strict";
 import { readdirSync, readFileSync } from "node:fs";
 import { join } from "node:path";
 import { test } from "node:test";
+import { readUiCss } from "./ui-css-helpers.ts";
 
 const root = new URL("../", import.meta.url).pathname;
 const cssFiles = (dir: string): string[] =>
@@ -14,11 +15,13 @@ const cssFiles = (dir: string): string[] =>
 const SKIP_MOTION = new Set([
   "styles/tokens.css",
   "styles/print.css",
-  "styles/src/ui.css",
   "styles/generated.css",
   "styles/fonts.css",
 ]);
-const files = [...cssFiles("styles"), ...cssFiles("components")].filter((file) => !SKIP_MOTION.has(file));
+// The split sailcloth source (styles/src/, #863) is Tailwind input, like the compiled bundle.
+const files = [...cssFiles("styles"), ...cssFiles("components")].filter(
+  (file) => !SKIP_MOTION.has(file) && !file.startsWith("styles/src/"),
+);
 const strip = (text: string): string => text.replace(/\/\*[\s\S]*?\*\//g, "");
 
 function motionDeclarations(): { file: string; property: string; part: string }[] {
@@ -73,7 +76,7 @@ test("no keeper transition or animation moves layout", () => {
 });
 
 test("sailcloth ui.css collapses motion under prefers-reduced-motion", () => {
-  const ui = readFileSync(join(root, "styles/src/ui.css"), "utf8");
+  const ui = readUiCss();
   assert.match(ui, /@media \(prefers-reduced-motion: reduce\)/);
   assert.match(ui, /transition:\s*none\s*!important/);
 });

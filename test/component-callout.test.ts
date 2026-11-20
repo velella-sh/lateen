@@ -1,14 +1,13 @@
 import assert from "node:assert/strict";
-import { readFileSync } from "node:fs";
 import { join } from "node:path";
 import { test } from "node:test";
 import { fileURLToPath } from "node:url";
 import type { ComponentProps, Page } from "@velella/mizzen/contracts";
 import { renderToString } from "preact-render-to-string";
 import callout, { TITLE_CLASS, calloutKind, type CalloutProps } from "../components/callout/index.ts";
+import { readUiCss } from "./ui-css-helpers.ts";
 
 const root = fileURLToPath(new URL("../", import.meta.url));
-const stylePath = join(root, "styles/src/ui.css");
 
 
 /** The parts of a preact VNode the assertions read. */
@@ -263,7 +262,7 @@ test("the icon is decorative", () => {
 });
 
 test("sailcloth ui.css styles callouts with the quiet inset edge", () => {
-  const css = readFileSync(stylePath, "utf8");
+  const css = readUiCss();
   assert.match(css, /\.callout\s*\{/);
   assert.match(css, /box-shadow:\s*inset/);
   assert.match(css, /\.callout-tip/);

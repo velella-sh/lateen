@@ -1,5 +1,4 @@
 import assert from "node:assert/strict";
-import { readFileSync } from "node:fs";
 import { join } from "node:path";
 import { test } from "node:test";
 import { fileURLToPath } from "node:url";
@@ -17,6 +16,7 @@ import figure, {
   imageList,
   type FigureProps,
 } from "../components/figure/index.ts";
+import { readUiCss } from "./ui-css-helpers.ts";
 
 const root = fileURLToPath(new URL("../", import.meta.url));
 const namesPath = join(root, "tokens/names.json");
@@ -410,7 +410,7 @@ test("a broken or too-short images list falls back to the single image", () => {
 });
 
 test("figure captions and galleries wrap instead of clipping on small screens", () => {
-  const sheet = readFileSync(join(root, "styles/src/ui.css"), "utf8");
+  const sheet = readUiCss();
   const ruleOf = (selector: string) =>
     sheet.match(new RegExp(`${selector}\\s*\\{([^}]*)\\}`))?.[1] ?? "";
   assert.match(ruleOf("\\.figure-caption"), /overflow-wrap:\s*anywhere/);

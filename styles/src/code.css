@@ -1,0 +1,183 @@
+/* Code blocks: frame, copy/wrap controls, line numbers, Shiki themes. */
+@layer components {
+  .code-block {
+    @apply relative my-6 max-w-full overflow-auto rounded-xl p-5 text-sm;
+    background: var(--night);
+    color: var(--sail);
+    line-height: 1.7;
+    tab-size: 2;
+    box-shadow: inset 0 0 0 1px color-mix(in srgb, #fff 6%, transparent);
+  }
+
+  [data-theme="dark"] .code-block {
+    background: color-mix(in srgb, var(--night-raised) 72%, #1a1822);
+  }
+
+  .code-block code {
+    @apply font-mono;
+  }
+
+  .code-block::before {
+    content: attr(data-lang);
+    @apply absolute end-3 top-2 rounded px-1.5 font-mono text-xs text-muted-foreground;
+  }
+
+  .code-frame {
+    @apply relative max-w-full;
+  }
+
+  /* The file name stays outside the code, wraps instead of overflowing, and keeps a technical name
+     readable in a right-to-left page. */
+  .code-title {
+    @apply flex max-w-full items-center gap-2;
+  }
+
+  .code-title-icon {
+    @apply shrink-0;
+  }
+
+  .code-title-name {
+    @apply min-w-0 font-mono text-xs;
+    overflow-wrap: anywhere;
+    direction: ltr;
+    unicode-bidi: isolate;
+  }
+
+  /* A long example opens on demand; the code and its copy stay complete in the DOM. */
+  .code-details {
+    @apply max-w-full;
+  }
+
+  .code-details-summary {
+    @apply cursor-pointer text-sm text-muted-foreground;
+    margin-block-end: var(--space-2);
+  }
+
+  /* Scroll inside the block, never the page (was styles/parts-code.css). */
+  .code,
+  .cli-demo-body,
+  .terminal-body,
+  .api-example-code,
+  pre:has(> code) {
+    max-inline-size: 100%;
+    overflow-x: auto;
+    overscroll-behavior-inline: contain;
+  }
+
+  .a11y-report-scroll,
+  .budget-report-scroll,
+  .wcag-checklist-scroll,
+  .table-scroll,
+  .schema-table-scroll {
+    max-inline-size: 100%;
+    overflow-x: auto;
+  }
+
+  .code-copy-bar {
+    @apply absolute end-2 top-2 z-10 flex items-center gap-1;
+  }
+
+  .code-copy {
+    @apply inline-flex;
+  }
+
+  .code-wrap {
+    @apply rounded font-mono text-xs;
+    color: var(--sail);
+    background: var(--night-raised);
+    min-block-size: 1.5rem;
+  }
+
+  /* The wrap toggle changes presentation only: the text, its line breaks, and the copy stay as written. */
+  .code.is-wrapped {
+    overflow-x: hidden;
+  }
+
+  .code.is-wrapped code {
+    white-space: pre-wrap;
+    overflow-wrap: anywhere;
+  }
+
+  /* A numbered line is two columns: the number never wraps or repeats, and the code wraps beside it,
+     so every source line keeps one number and later numbers stay aligned with their code. */
+  .code .line[data-line] {
+    display: inline-grid;
+    grid-template-columns: 4ch minmax(0, 1fr);
+    column-gap: 1ch;
+    inline-size: 100%;
+    vertical-align: top;
+  }
+
+  .code .line-number {
+    white-space: nowrap;
+    user-select: none;
+  }
+
+  .code .line-number::before {
+    content: attr(data-line);
+  }
+
+  .code .line-code {
+    min-inline-size: 0;
+    white-space: pre-wrap;
+    overflow-wrap: anywhere;
+  }
+
+  .code-copy svg {
+    inline-size: 0.875rem;
+    block-size: 0.875rem;
+  }
+
+  .code-block {
+    padding-block-start: 2.75rem;
+  }
+
+  .code-block:has(.code-copy)::before {
+    display: none;
+  }
+
+  .shiki span {
+    color: var(--shiki-light);
+  }
+
+  [data-theme="dark"] .shiki span {
+    color: var(--shiki-dark);
+  }
+
+  /* Inverse code / terminal: night panel + dark-theme Shiki tokens (light theme pages included).
+     Paint the night surface on the pre, code, and each line so axe samples the dark bg, not the page. */
+  .code,
+  .code-frame > .code,
+  .terminal-body,
+  .cli-demo-body,
+  .ba-code,
+  .ba-before .code,
+  .ba-after .code,
+  .code code,
+  .terminal-body code,
+  .cli-demo-body code,
+  .code .line,
+  .terminal-body .line,
+  .cli-demo-body .line {
+    background-color: var(--night) !important;
+    color: var(--sail);
+  }
+
+  .code .shiki span,
+  .code-frame .shiki span,
+  .code .line > span,
+  .code .line-code > span,
+  .terminal .shiki span,
+  .terminal-body .shiki span,
+  .terminal-body .line > span,
+  .cli-demo-body .shiki span,
+  .cli-demo-body .line > span,
+  .ba-before .shiki span,
+  .ba-after .shiki span,
+  .ba-code .shiki span,
+  .ba-before .line > span,
+  .ba-after .line > span {
+    color: var(--shiki-dark, var(--sail)) !important;
+    background-color: transparent;
+  }
+}

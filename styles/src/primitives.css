@@ -1,0 +1,57 @@
+/* Shared control primitives: btn, card, badge. */
+@layer components {
+  .btn {
+    @apply inline-flex shrink-0 items-center justify-center whitespace-nowrap transition-all outline-none select-none disabled:pointer-events-none disabled:opacity-50 [&_svg]:pointer-events-none [&_svg]:shrink-0;
+    @apply rounded-lg border border-transparent bg-clip-padding text-sm font-medium focus-visible:border-ring focus-visible:ring-ring/50 focus-visible:ring-[3px] active:not-aria-[haspopup]:translate-y-px [&_svg:not([class*='size-'])]:size-4;
+  }
+
+  .btn:not([data-size]),
+  .btn[data-size='default'] {
+    @apply h-8 gap-1.5 px-2.5;
+  }
+
+  .btn[data-size='sm'] {
+    @apply h-7 gap-1.5 px-2.5 text-[0.8rem];
+  }
+
+  .btn[data-size='lg'] {
+    @apply h-9 gap-1.5 px-2.5;
+  }
+
+  .btn[data-size='icon'] {
+    @apply size-8;
+  }
+
+  .btn:not([data-variant]),
+  .btn[data-variant='primary'] {
+    @apply bg-primary text-primary-foreground hover:bg-primary/80;
+  }
+
+  .btn[data-variant='secondary'] {
+    @apply bg-secondary text-secondary-foreground hover:bg-secondary/80;
+  }
+
+  .btn[data-variant='outline'] {
+    @apply border-border bg-background hover:bg-muted hover:text-foreground;
+  }
+
+  .btn[data-variant='ghost'] {
+    @apply hover:bg-muted hover:text-foreground;
+  }
+
+  .card {
+    @apply flex flex-col gap-4 overflow-hidden rounded-xl bg-card py-4 text-sm text-card-foreground ring-1 ring-foreground/10;
+  }
+
+  .badge {
+    /* No fixed h-*: clipped-text fails when type is taller than the box. */
+    @apply inline-flex w-fit shrink-0 items-center justify-center whitespace-nowrap focus-visible:border-ring focus-visible:ring-[3px] focus-visible:ring-ring/50 [&>svg]:pointer-events-none;
+    @apply gap-1 rounded-4xl border border-transparent px-2 py-0.5 text-xs font-medium leading-tight;
+    min-block-size: 1.25rem;
+    overflow: visible;
+  }
+
+  .badge[data-variant='outline'] {
+    @apply border-border text-foreground;
+  }
+}

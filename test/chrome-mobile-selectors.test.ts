@@ -1,5 +1,4 @@
 import assert from "node:assert/strict";
-import { readFileSync } from "node:fs";
 import { test } from "node:test";
 import { JSDOM } from "jsdom";
 import { renderToString } from "preact-render-to-string";
@@ -16,6 +15,7 @@ import type {
   Trail,
 } from "@velella/mizzen/contracts";
 import { mobileSelectors } from "../chrome/mobile-selectors/index.ts";
+import { readUiCss } from "./ui-css-helpers.ts";
 
 const pos: SourcePos = { file: "guide/install.md", line: 1, column: 1, endLine: 1, endColumn: 1 };
 const trail: Trail = [];
@@ -237,7 +237,7 @@ test("RTL uses the page labels and the shared CSS keeps direction in logical pro
   assert.deepEqual(summaryTexts(doc), ["پروژه‌ها▾", "زبان▾", "نسخه‌ها▾"]);
   assert.equal(doc.body.dir, "rtl");
 
-  const css = readFileSync("styles/src/ui.css", "utf8");
+  const css = readUiCss();
   const start = css.indexOf(".mobile-selectors {");
   const end = css.indexOf("/* Mobile drawer:", start);
   assert.ok(start >= 0 && end > start);

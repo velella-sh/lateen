@@ -4,6 +4,7 @@ import { test } from "node:test";
 import { renderToString } from "preact-render-to-string";
 import type { ChromeProps, NavLink, Page, Pager, Site, SiteConfig, SourcePos, Trail } from "@velella/mizzen/contracts";
 import breadcrumb from "../chrome/breadcrumb/index.ts";
+import { readUiCss } from "./ui-css-helpers.ts";
 
 const pos: SourcePos = { file: "docs/guide/install.md", line: 3, column: 1, endLine: 9, endColumn: 1 };
 
@@ -235,7 +236,7 @@ test("a right-to-left long trail keeps the authored order and the localized name
 });
 
 test("wide screens flatten the compact middle back into the row", () => {
-  const ui = readFileSync(new URL("../styles/src/ui.css", import.meta.url), "utf8");
+  const ui = readUiCss();
   const wide = /@media \(min-width: 48rem\) \{([\s\S]*?)\n\}/.exec(ui)?.[1] ?? "";
   assert.match(wide, /\.breadcrumb-details[\s\S]*display: contents/);
   assert.match(wide, /\.breadcrumb-details > \.breadcrumb-summary[\s\S]*display: none/);

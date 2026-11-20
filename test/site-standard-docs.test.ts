@@ -1,12 +1,13 @@
 import assert from "node:assert/strict";
 import { existsSync, readFileSync } from "node:fs";
 import { test } from "node:test";
+import { readUiCss } from "./ui-css-helpers.ts";
 
 const tokens = readFileSync(new URL("../site/tokens.md", import.meta.url), "utf8");
 const callout = readFileSync(new URL("../site/components/callout.md", import.meta.url), "utf8");
 const navigation = readFileSync(new URL("../site/_data/navigation.yml", import.meta.url), "utf8");
 const config = readFileSync(new URL("../site/mizzen.yml", import.meta.url), "utf8");
-const styles = readFileSync(new URL("../styles/src/ui.css", import.meta.url), "utf8");
+const styles = readUiCss();
 
 test("tokens and callouts expose the mockup's visual examples", () => {
   assert.ok(tokens.includes('class="swatches"'));

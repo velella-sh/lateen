@@ -1,0 +1,89 @@
+/* Element defaults: page field, type, focus, selection. */
+@layer base {
+  html {
+    scroll-behavior: smooth;
+    scroll-padding-block-start: 6rem;
+  }
+
+  body {
+    @apply m-0 overscroll-none text-foreground antialiased;
+    position: relative;
+    isolation: isolate;
+    background: var(--background);
+    font-family: var(--type-font-body);
+    font-size: 1.0625rem;
+    line-height: 1.65;
+  }
+
+  body::before {
+    content: "";
+    position: fixed;
+    inset: 0;
+    z-index: -1;
+    pointer-events: none;
+    background:
+      radial-gradient(900px 520px at 12% -8%, var(--field-a), transparent 60%),
+      radial-gradient(760px 480px at 92% 8%, var(--field-b), transparent 58%),
+      radial-gradient(640px 420px at 70% 100%, var(--glow), transparent 65%),
+      var(--background);
+  }
+
+  * {
+    @apply border-border outline-ring/50;
+    min-inline-size: 0;
+  }
+
+  [hidden] {
+    display: none !important;
+  }
+
+  h1, h2, h3, h4 {
+    @apply text-foreground;
+    font-weight: 680;
+    line-height: 1.2;
+    letter-spacing: -0.025em;
+    text-wrap: balance;
+  }
+
+  p, ul, ol, pre, table, figure, blockquote {
+    margin-block: 0 1.25rem;
+  }
+
+  .quote {
+    overflow-wrap: anywhere;
+  }
+
+  .quote blockquote {
+    margin-block: 0;
+  }
+
+  a {
+    color: inherit;
+  }
+
+  button, input, summary {
+    font: inherit;
+  }
+
+  :focus-visible {
+    outline: 3px solid var(--ring);
+    outline-offset: 3px;
+  }
+
+  /* A card or a tab can sit in a clipping box; paint its ring inside the control so it is whole. */
+  .card:focus-visible,
+  .card :focus-visible,
+  .tabs [role="tab"]:focus-visible,
+  .tabs [role="tabpanel"]:focus-visible {
+    outline-offset: -3px;
+  }
+
+  ::selection {
+    color: var(--accent-foreground);
+    background: var(--accent);
+  }
+
+  svg {
+    flex: none;
+  }
+}

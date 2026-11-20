@@ -1,0 +1,251 @@
+/* Viewport breakpoints, reduced motion, and the first print pass. */
+@media (max-width: 74rem) {
+  .doc-layout {
+    grid-template-columns: 13rem minmax(0, 46rem);
+  }
+
+  .aside {
+    display: none;
+  }
+
+  /* Below the aside breakpoint the same entries open at the start of the article. */
+  .toc-fold {
+    display: block;
+    margin-block: 0 1.5rem;
+    border: 1px solid var(--border);
+    border-radius: 0.75rem;
+    padding: 0.5rem 0.75rem;
+    background: color-mix(in srgb, var(--background) 80%, transparent);
+  }
+
+  .toc-fold > summary {
+    cursor: pointer;
+    font-size: 0.875rem;
+    font-weight: 600;
+  }
+
+  .toc-fold ul {
+    display: grid;
+    gap: 0.125rem;
+    margin: 0.5rem 0 0;
+    padding: 0;
+    list-style: none;
+  }
+
+  .toc-fold a {
+    display: block;
+    padding-block: 0.25rem;
+    padding-inline: 0.75rem;
+    border-inline-start: 1.5px solid transparent;
+    color: var(--muted-foreground);
+    font-size: 0.8125rem;
+    line-height: 1.25rem;
+    text-decoration: none;
+  }
+
+  .toc-fold a:hover {
+    color: var(--foreground);
+  }
+}
+
+@media (max-width: 62rem) {
+  .hero-copy h1 {
+    max-inline-size: 13ch;
+  }
+
+  .home-preview {
+    @apply w-full max-w-xl;
+    transform: none;
+  }
+}
+
+@media (max-width: 48rem) {
+  .header-inner,
+  .layout,
+  .site-footer > div {
+    inline-size: min(100% - 2rem, 84rem);
+  }
+
+  .header-inner {
+    @apply gap-3;
+  }
+
+  .top-nav {
+    display: none;
+  }
+
+  .mobile-nav {
+    display: block;
+  }
+
+  .header-actions .btn,
+  .mobile-nav summary {
+    min-inline-size: 2.75rem;
+    min-block-size: 2.75rem;
+  }
+
+  .doc-layout {
+    @apply block py-6;
+  }
+
+  .sidebar {
+    display: none;
+  }
+
+  .home-sections,
+  .home-bits {
+    grid-template-columns: 1fr;
+  }
+
+  .home-sections {
+    @apply pb-12;
+  }
+
+  .home-bits .specimen {
+    border-inline-start: 0;
+    border-top: 1px solid var(--border);
+  }
+
+  .home-bits .specimen:first-child {
+    border-top: 0;
+  }
+
+  .gallery,
+  .mini-cards,
+  .swatches {
+    grid-template-columns: 1fr;
+  }
+
+  .item,
+  .list a {
+    grid-template-columns: 1fr;
+    gap: 0.25rem;
+  }
+
+  .hero-copy h1 {
+    font-size: clamp(2.75rem, 13vw, 4rem);
+  }
+
+  .home-lead {
+    font-size: 1rem;
+  }
+
+  .performance-chart {
+    padding: 1.25rem;
+  }
+
+  .chart-heading {
+    @apply grid;
+  }
+
+  .doc-body > table {
+    @apply block overflow-x-auto;
+  }
+
+  .site-footer > div {
+    @apply grid;
+  }
+}
+
+@media (max-width: 24rem) {
+  .header-github,
+  .brand-tag {
+    display: none;
+  }
+
+}
+
+/* Wide screens always show the whole trail: flatten the compact middle back into the row. */
+@media (min-width: 48rem) {
+  .breadcrumb-overflow,
+  .breadcrumb-overflow > .breadcrumb-details,
+  .breadcrumb-overflow .breadcrumb-list {
+    display: contents;
+  }
+
+  .breadcrumb-overflow > .breadcrumb-details > .breadcrumb-summary {
+    display: none;
+  }
+
+  /* A closed <details> would keep its children hidden; the wide layout shows them regardless. */
+  .breadcrumb-overflow > .breadcrumb-details::details-content {
+    display: contents;
+    content-visibility: visible !important;
+  }
+}
+
+[dir="rtl"] :is(.pager-arrow, .breadcrumb-sep, .home-arrow, .pagination-arrow) {
+  transform: scaleX(-1);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    scroll-behavior: auto !important;
+    transition: none !important;
+  }
+}
+
+@media print {
+  .site-header, .sidebar, .aside, .site-footer, .code-copy, .home-preview {
+    display: none !important;
+  }
+
+  /* Paper shows the whole table, so no edge hides content and no shade belongs there. */
+  .table-scroll {
+    background-image: none !important;
+  }
+
+  /* print.css forces closed-details children to `display:block`; beat that for chrome we hide. */
+  details:not([open]) > button.block-action,
+  details > button.block-action,
+  button.block-action,
+  .block-action,
+  details:not([open]) > .source-label,
+  details > .source-label,
+  .source-label,
+  .source-label-copy,
+  button.source-label-copy {
+    display: none !important;
+  }
+
+  .layout, .doc-layout, .home-hero, .home-sections {
+    display: block;
+    inline-size: 100%;
+  }
+
+  .home-section, .performance-chart {
+    break-inside: avoid;
+    margin-block-end: 1rem;
+  }
+
+  /* print.css reveals tab titles; keep them in flow so RTL absolute chips cannot widen the page. */
+  .code-tabs-title,
+  .tabs-title,
+  .os-tabs-title,
+  .install-tabs-title {
+    position: static !important;
+    inset: auto !important;
+    inline-size: auto !important;
+    block-size: auto !important;
+    margin: 0 0 0.5rem !important;
+    clip-path: none !important;
+    overflow: visible !important;
+  }
+
+  .citation {
+    break-inside: avoid;
+  }
+
+  .video-box,
+  .embed-box {
+    break-inside: avoid;
+  }
+
+  .citation-copy {
+    display: none !important;
+  }
+
+  .citation-url {
+    color: inherit;
+  }
+}

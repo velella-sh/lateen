@@ -1,11 +1,11 @@
 import assert from "node:assert/strict";
-import { readFileSync } from "node:fs";
 import { join } from "node:path";
 import { test } from "node:test";
 import { fileURLToPath } from "node:url";
 import { renderToString } from "preact-render-to-string";
 import type { ComponentProps } from "@velella/mizzen/contracts";
 import quote, { CAPTION_CLASS, ROOT_CLASS, sourceHref, type QuoteProps } from "../components/quote/index.ts";
+import { readUiCss } from "./ui-css-helpers.ts";
 
 const root = fileURLToPath(new URL("../", import.meta.url));
 
@@ -56,7 +56,7 @@ test("an empty quotation renders nothing", () => {
 });
 
 test("the quotation's text wraps instead of clipping", () => {
-  const css = readFileSync(join(root, "styles/src/ui.css"), "utf8");
+  const css = readUiCss();
   const rule = /\.quote\s*\{([^}]*)\}/.exec(css);
   assert.ok(rule, "styles/src/ui.css has no .quote rule");
   const body = rule[1] ?? "";

@@ -1,0 +1,851 @@
+/* Site chrome: skip link, progress, header, brand, nav, drawer, search, footer shell. */
+@layer components {
+  .skip-link {
+    @apply fixed start-4 top-4 z-50 rounded-lg bg-primary px-4 py-2 text-primary-foreground no-underline;
+    transform: translateY(-200%);
+  }
+
+  .skip-link:focus {
+    transform: none;
+  }
+
+  .sr-only {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    padding: 0;
+    margin: -1px;
+    overflow: hidden;
+    clip: rect(0, 0, 0, 0);
+    white-space: nowrap;
+    border: 0;
+  }
+
+  .progress {
+    position: fixed;
+    top: 0;
+    left: 0;
+    height: 2px;
+    width: 100%;
+    transform: scaleX(0);
+    transform-origin: left center;
+    z-index: 55;
+    background: var(--link);
+    opacity: 0;
+    pointer-events: none;
+  }
+
+  .progress.is-on {
+    opacity: 1;
+  }
+
+  .site-header {
+    position: sticky;
+    top: 0;
+    z-index: 40;
+    width: 100%;
+    background: transparent;
+    border: 0;
+    transition: background-color 280ms cubic-bezier(0.22, 1, 0.36, 1);
+  }
+
+  .site-header::after {
+    content: "";
+    position: absolute;
+    inset-inline: 0;
+    bottom: 0;
+    height: 1px;
+    background: linear-gradient(90deg, transparent, var(--border) 20%, var(--border) 80%, transparent);
+    opacity: 0;
+    transition: opacity 280ms cubic-bezier(0.22, 1, 0.36, 1);
+    pointer-events: none;
+  }
+
+  .site-header.is-scrolled {
+    background: color-mix(in srgb, var(--background) 78%, transparent);
+    backdrop-filter: saturate(1.08) blur(16px);
+  }
+
+  .site-header.is-scrolled::after {
+    opacity: 1;
+  }
+
+  .site-header .shell-menu {
+    display: none;
+  }
+
+  .rail,
+  .header-inner,
+  .footer-inner,
+  .layout {
+    inline-size: min(100% - 3rem, 72.5rem);
+    margin-inline: auto;
+  }
+
+  .rail,
+  .header-inner,
+  .footer-inner {
+    display: flex;
+    align-items: center;
+    gap: 0.875rem;
+    min-height: 4.25rem;
+  }
+
+  .brand {
+    @apply flex items-center gap-2.5 font-bold no-underline;
+    font-size: 0.97rem;
+    letter-spacing: -0.01em;
+  }
+
+  .brand-mark {
+    position: relative;
+    width: 1.75rem;
+    height: 1.75rem;
+    border-radius: 0.55rem;
+    background: linear-gradient(145deg, color-mix(in srgb, var(--card) 70%, var(--muted)), var(--muted));
+    box-shadow: inset 0 0 0 1px var(--border);
+    overflow: hidden;
+  }
+
+  .brand-mark::after {
+    content: "";
+    position: absolute;
+    left: 0.5rem;
+    top: 0.42rem;
+    border-style: solid;
+    border-width: 0 0 0.8rem 0.68rem;
+    border-color: transparent transparent var(--link) transparent;
+  }
+
+  .brand-logo-frame {
+    display: grid;
+    place-items: center;
+    inline-size: 1.75rem;
+    block-size: 1.75rem;
+    border-radius: 0.55rem;
+    background: linear-gradient(145deg, color-mix(in srgb, var(--card) 70%, var(--muted)), var(--muted));
+    box-shadow: inset 0 0 0 1px var(--border);
+  }
+
+  .brand-logo {
+    inline-size: 1.75rem;
+    block-size: 1.75rem;
+  }
+
+  [data-theme="light"] .brand-logo-dark,
+  [data-theme="dark"] .brand-logo-light {
+    display: none;
+  }
+
+  .brand-tag {
+    @apply rounded-full px-2 py-0.5 font-mono text-[0.72rem] font-bold;
+    color: var(--muted-foreground);
+    box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--border) 80%, transparent);
+  }
+
+  .site-header.is-scrolled .brand-tag {
+    background: var(--shell);
+    color: var(--night);
+    box-shadow: none;
+  }
+
+  .sections,
+  .top-nav {
+    @apply flex items-center gap-0.5;
+  }
+
+  .sections a,
+  .top-nav a {
+    @apply px-3 py-1.5 text-[0.84rem] font-semibold text-muted-foreground no-underline;
+    border-radius: 999px;
+  }
+
+  .sections a:hover,
+  .top-nav a:hover {
+    @apply text-foreground;
+    background: color-mix(in srgb, var(--muted) 70%, transparent);
+  }
+
+  .site-header .sections a[aria-current="page"],
+  .top-nav a[aria-current="page"] {
+    color: var(--foreground);
+    background: transparent;
+    box-shadow: inset 0 -2px 0 var(--link);
+    border-radius: 0;
+    padding-bottom: 0.3rem;
+  }
+
+  .site-header.is-scrolled .sections a[aria-current="page"],
+  .site-header.is-scrolled .top-nav a[aria-current="page"] {
+    border-radius: 999px;
+    box-shadow: none;
+    background: var(--muted);
+    padding-bottom: 0.4rem;
+  }
+
+  .site-footer .sections a {
+    box-shadow: none;
+    border-radius: 999px;
+    padding-bottom: 0.4rem;
+  }
+
+  .header-actions,
+  .tools {
+    @apply ms-auto flex items-center gap-1.5;
+  }
+
+  /* Header search control (not the dialog — that also uses class "search"). */
+  .site-header .search-trigger {
+    display: inline-flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 0.5rem;
+    min-block-size: 2.125rem;
+    min-inline-size: 2.125rem;
+    inline-size: 14.25rem;
+    padding: 0 0.75rem;
+    border: 0;
+    border-radius: 999px;
+    background: transparent;
+    color: var(--muted-foreground);
+    font-size: 0.84rem;
+    font-weight: 500;
+    cursor: pointer;
+  }
+
+  .site-header.is-scrolled .search-trigger,
+  .site-header .search-trigger:hover,
+  .site-header .search-trigger:focus-visible {
+    background: color-mix(in srgb, var(--muted) 78%, var(--background));
+    box-shadow: inset 0 0 0 1px var(--border);
+    color: var(--foreground);
+  }
+
+  .site-header .search-trigger kbd,
+  .search-field kbd,
+  .search-foot kbd {
+    font-family: var(--type-font-mono);
+    font-size: 0.66rem;
+    padding: 0.1rem 0.35rem;
+    border-radius: 0.3rem;
+    box-shadow: inset 0 0 0 1px var(--border);
+  }
+
+  dialog.search {
+    inline-size: min(40rem, calc(100dvw - 2rem - env(safe-area-inset-left) - env(safe-area-inset-right)));
+    max-block-size: min(80dvh, 40rem);
+    margin-block: max(10svh, env(safe-area-inset-top)) auto;
+    margin-inline: auto;
+    padding: 0;
+    border: 1px solid var(--border);
+    border-radius: 1.25rem;
+    background: color-mix(in srgb, var(--background) 92%, var(--card));
+    color: var(--foreground);
+    box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--border) 90%, transparent);
+    overflow: hidden;
+  }
+
+  dialog.search[hidden] {
+    display: none !important;
+  }
+
+  dialog.search .search-close {
+    min-block-size: 2.75rem;
+    min-inline-size: 2.75rem;
+  }
+
+  dialog.search .search-input {
+    min-block-size: 2.75rem;
+    min-inline-size: 2.75rem;
+  }
+
+  .iconbtn {
+    width: 2.125rem;
+    height: 2.125rem;
+    border-radius: 999px;
+    display: grid;
+    place-items: center;
+    color: var(--muted-foreground);
+  }
+
+  .iconbtn:hover,
+  .site-header.is-scrolled .iconbtn {
+    color: var(--foreground);
+  }
+
+  .iconbtn:hover {
+    background: var(--muted);
+  }
+
+  .iconbtn svg {
+    width: 1.05rem;
+    height: 1.05rem;
+  }
+
+  .theme-toggle {
+    display: inline-flex;
+    align-items: center;
+  }
+
+  .theme-toggle-icon {
+    display: none;
+  }
+
+  .theme-toggle[data-choice="light"] .theme-toggle-icon-light,
+  .theme-toggle[data-choice="system"] .theme-toggle-icon-system,
+  .theme-toggle[data-choice="dark"] .theme-toggle-icon-dark {
+    display: block;
+  }
+
+  .theme-toggle-status {
+    position: absolute;
+    inline-size: 1px;
+    block-size: 1px;
+    overflow: hidden;
+    clip-path: inset(50%);
+    white-space: nowrap;
+  }
+
+  /* Mobile selectors: one disclosure row for projects, language, and versions. Logical properties keep the
+     labels, markers, and panels on the reading-order edge in both directions; each control is 2.75rem tall. */
+  .mobile-selectors {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(min(100%, 8rem), 1fr));
+    gap: var(--space-2);
+    padding-block: var(--space-3);
+  }
+
+  .mobile-selector {
+    min-inline-size: 0;
+  }
+
+  .mobile-selector-summary {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: var(--space-2);
+    box-sizing: border-box;
+    min-block-size: 2.75rem;
+    min-inline-size: 2.75rem;
+    padding-inline: var(--space-3);
+    border-radius: 999px;
+    background: var(--card);
+    box-shadow: inset 0 0 0 1px var(--border);
+    color: var(--foreground);
+    font-weight: 600;
+    text-align: start;
+    cursor: pointer;
+    list-style: none;
+  }
+
+  .mobile-selector-summary::-webkit-details-marker {
+    display: none;
+  }
+
+  .mobile-selector-summary::marker {
+    content: "";
+  }
+
+  .mobile-selector-marker {
+    flex: none;
+    transition: transform var(--motion-base) var(--motion-ease-in);
+  }
+
+  .mobile-selector[open] .mobile-selector-marker {
+    transform: rotate(180deg);
+  }
+
+  .mobile-selector-list {
+    display: grid;
+    gap: 2px;
+    margin: var(--space-2) 0 0;
+    padding: var(--space-1);
+    border-radius: var(--radius-md);
+    background: var(--card);
+    box-shadow: inset 0 0 0 1px var(--border);
+    list-style: none;
+  }
+
+  .mobile-selector-item {
+    min-inline-size: 0;
+  }
+
+  .mobile-selector-link {
+    display: flex;
+    align-items: center;
+    gap: var(--space-2);
+    box-sizing: border-box;
+    min-block-size: 2.75rem;
+    min-inline-size: 2.75rem;
+    padding-inline: var(--space-2);
+    border-radius: var(--radius-sm);
+    color: var(--foreground);
+    text-align: start;
+    text-decoration: none;
+  }
+
+  .mobile-selector-link:hover {
+    background: var(--muted);
+  }
+
+  .mobile-selector-link[aria-current="true"] {
+    color: var(--primary-foreground);
+    background: var(--primary);
+  }
+
+  .mobile-selector-link--unavailable {
+    color: var(--muted-foreground);
+    cursor: not-allowed;
+  }
+
+  .mobile-selector-note {
+    color: inherit;
+    font-size: 0.75rem;
+    opacity: 0.75;
+  }
+
+  .mobile-selector-summary:focus-visible,
+  .mobile-selector-link:focus-visible {
+    outline: 2px solid var(--ring);
+    outline-offset: 2px;
+  }
+
+  @media (max-width: 767.98px) {
+    /* The drawer carries the three selectors below this width, so the header does not repeat them. */
+    .site-header .project-switcher,
+    .site-header .language-switcher,
+    .site-header .version-switcher {
+      display: none;
+    }
+  }
+
+  /* Mobile drawer: the sidebar inside a dialog pinned to the reading-order edge. */
+  .drawer:not([data-enhanced]) {
+    display: none;
+  }
+
+  @media (max-width: 767.98px) {
+    .drawer:not([data-enhanced]) {
+      display: block;
+      position: static;
+      inset: auto;
+      inline-size: auto;
+      max-inline-size: none;
+      max-block-size: none;
+      margin: 0;
+      padding-block: var(--space-3);
+      padding-inline: var(--space-1);
+      border: 0;
+      border-block-end: 1px solid var(--border-subtle);
+      background: transparent;
+      color: inherit;
+      overflow: visible;
+    }
+  }
+
+  /* A page that will run its scripts starts closed, so the first paint matches the script's layout. */
+  html[data-js] .drawer:not([data-enhanced]) {
+    display: none;
+  }
+
+  .drawer[data-enhanced] {
+    inset-block: 0;
+    inset-inline: 0 auto;
+    inline-size: min(20rem, 100%);
+    max-block-size: 100%;
+    margin: 0;
+    padding: var(--space-4) var(--space-3);
+    border: 0;
+    border-inline-end: 1px solid var(--border-subtle);
+    background: var(--background);
+    color: var(--foreground);
+    box-shadow: none;
+    overflow-y: auto;
+    translate: -100% 0;
+    transition:
+      translate var(--motion-base) var(--motion-ease-in),
+      overlay var(--motion-base) var(--motion-ease-in) allow-discrete,
+      display var(--motion-base) var(--motion-ease-in) allow-discrete;
+  }
+
+  .drawer[data-enhanced]:dir(rtl) {
+    translate: 100% 0;
+  }
+
+  .drawer[data-enhanced][open] {
+    translate: 0 0;
+    transition-timing-function: var(--motion-ease-out);
+  }
+
+  @starting-style {
+    .drawer[data-enhanced][open] {
+      translate: -100% 0;
+    }
+
+    .drawer[data-enhanced][open]:dir(rtl) {
+      translate: 100% 0;
+    }
+  }
+
+  .drawer[data-enhanced]::backdrop {
+    background: var(--state-overlay);
+    opacity: 0;
+    transition:
+      opacity var(--motion-base) var(--motion-ease-in),
+      overlay var(--motion-base) var(--motion-ease-in) allow-discrete,
+      display var(--motion-base) var(--motion-ease-in) allow-discrete;
+  }
+
+  .drawer[data-enhanced][open]::backdrop {
+    opacity: 1;
+  }
+
+  @starting-style {
+    .drawer[data-enhanced][open]::backdrop {
+      opacity: 0;
+    }
+  }
+
+  /* Sticky so a long sidebar can scroll under it, and independent of the navigation list. */
+  .drawer-close {
+    position: sticky;
+    inset-block-start: var(--space-3);
+    inset-inline-end: 0;
+    z-index: 1;
+    display: flex;
+    inline-size: fit-content;
+    min-block-size: var(--space-8);
+    min-inline-size: var(--space-8);
+    margin-inline-start: auto;
+    margin-block-end: var(--space-2);
+    padding: var(--space-1);
+    align-items: center;
+    justify-content: center;
+    border: 0;
+    border-radius: var(--radius-md);
+    background: var(--background);
+    color: var(--muted-foreground);
+    font-size: var(--type-size-lg);
+    line-height: 1;
+    cursor: pointer;
+  }
+
+  .drawer-close[hidden] {
+    display: none;
+  }
+
+  .drawer-close:hover {
+    background: var(--state-hover-bg);
+    color: var(--foreground);
+  }
+
+  .drawer-close:focus-visible {
+    outline: 2px solid var(--state-focus-ring);
+    outline-offset: 2px;
+  }
+
+  .drawer .sidebar-nav {
+    position: static;
+    max-height: none;
+    overflow: visible;
+    padding-block: 0 var(--space-8);
+  }
+
+  .site-footer {
+    width: 100%;
+    margin-top: 1.75rem;
+    position: relative;
+    border: 0;
+  }
+
+  .site-footer::before {
+    content: "";
+    position: absolute;
+    inset-inline: 0;
+    top: 0;
+    height: 1px;
+    background: linear-gradient(90deg, transparent, var(--border) 18%, var(--border) 82%, transparent);
+    pointer-events: none;
+  }
+
+  .site-footer .legal {
+    color: var(--muted-foreground);
+    font-size: 0.78rem;
+  }
+
+  .search-dialog {
+    border: 0;
+    padding: 0;
+    margin: auto;
+    width: min(36rem, calc(100% - 2rem));
+    background: transparent;
+  }
+
+  .search-dialog::backdrop {
+    background: color-mix(in srgb, var(--night) 40%, transparent);
+    backdrop-filter: blur(6px);
+  }
+
+  [data-theme="dark"] .search-dialog::backdrop {
+    background: color-mix(in srgb, #000 56%, transparent);
+  }
+
+  .search-panel {
+    display: flex;
+    flex-direction: column;
+    max-block-size: min(80dvh, 40rem);
+    margin: 0;
+    border-radius: 1.25rem;
+    background: color-mix(in srgb, var(--background) 92%, var(--card));
+    overflow: hidden;
+    box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--border) 90%, transparent);
+  }
+
+  .search-field {
+    display: flex;
+    flex: none;
+    align-items: center;
+    gap: 0.65rem;
+    padding: 1rem 1.1rem;
+    border-bottom: 1px solid var(--border);
+  }
+
+  .search-field input {
+    flex: 1;
+    /* The value keeps its own direction inside a dialog that stays in the page language. */
+    unicode-bidi: plaintext;
+    border: 0;
+    outline: 0;
+    background: transparent;
+    color: var(--foreground);
+    font: inherit;
+    font-size: 1rem;
+  }
+
+  /* One clear action beside the field; the flex row keeps it at the row end in either direction. */
+  .search-field .search-clear {
+    display: grid;
+    place-items: center;
+    min-block-size: 1.5rem;
+    min-inline-size: 1.5rem;
+    padding: 0;
+    border: 0;
+    border-radius: 999px;
+    background: transparent;
+    color: var(--muted-foreground);
+    font-size: 1rem;
+    line-height: 1;
+    cursor: pointer;
+  }
+
+  .search-field .search-clear[hidden] {
+    display: none;
+  }
+
+  .search-field .search-clear:hover {
+    background: var(--muted);
+    color: var(--foreground);
+  }
+
+  .search-field .search-clear:focus-visible {
+    outline: 2px solid var(--state-focus-ring);
+    outline-offset: 2px;
+  }
+
+  /* The island's clear button is the only one: no second native × in WebKit. */
+  .search-field input[type="search"]::-webkit-search-cancel-button {
+    -webkit-appearance: none;
+  }
+
+  /* The retry action appears under the status line only after a failed index load. */
+  .search-retry {
+    display: inline-flex;
+    align-items: center;
+    min-block-size: 1.5rem;
+    margin-block: 0.25rem 0.5rem;
+    margin-inline: 0.75rem;
+    padding: 0 0.6rem;
+    border: 1px solid var(--border);
+    border-radius: 0.5rem;
+    background: transparent;
+    color: var(--foreground);
+    font: inherit;
+    font-size: 0.8rem;
+    cursor: pointer;
+  }
+
+  .search-retry[hidden] {
+    display: none;
+  }
+
+  .search-retry:hover {
+    background: var(--muted);
+  }
+
+  .search-retry:focus-visible {
+    outline: 2px solid var(--state-focus-ring);
+    outline-offset: 2px;
+  }
+
+  .search-results {
+    flex: 1 1 auto;
+    min-block-size: 0;
+    max-block-size: none;
+    overflow: auto;
+    overscroll-behavior: contain;
+  }
+
+  .search-group-title {
+    margin: 0;
+    padding: 0.25rem 0.75rem;
+    color: var(--muted-foreground);
+    font-size: 0.72rem;
+    font-weight: 600;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+  }
+
+  .search-result-link {
+    display: flex;
+    flex-direction: column;
+    gap: 0.25rem;
+    padding: 0.5rem 0.75rem;
+    border-inline-start: 2px solid transparent;
+    color: var(--foreground);
+    text-decoration: none;
+  }
+
+  .search-result-link:hover {
+    background: var(--muted);
+  }
+
+  .search-result-path,
+  .search-results-path {
+    color: var(--muted-foreground);
+    font-size: 0.72rem;
+    line-height: 1.4;
+    unicode-bidi: isolate;
+  }
+
+  .search-result-heading,
+  .search-results-heading {
+    color: var(--muted-foreground);
+    font-size: 0.76rem;
+    line-height: 1.4;
+    unicode-bidi: isolate;
+  }
+
+  .search-result-title {
+    color: var(--foreground);
+    font-size: 0.9rem;
+    font-weight: 600;
+  }
+
+  /* A path or a hyphenated name keeps its own order inside a right-to-left line. */
+  .search-result-excerpt {
+    color: var(--muted-foreground);
+    font-size: 0.84rem;
+    line-height: 1.6;
+    unicode-bidi: isolate;
+  }
+
+  .search-result-excerpt mark {
+    border-radius: 0.25rem;
+    background: var(--color-selection);
+    color: var(--foreground);
+    unicode-bidi: isolate;
+  }
+
+  .search-result-language,
+  .search-result-version {
+    display: inline-block;
+    margin-inline-end: 0.5rem;
+    color: var(--muted-foreground);
+    font-size: 0.72rem;
+  }
+
+  .search-action-button {
+    display: flex;
+    align-items: baseline;
+    gap: 0.5rem;
+    inline-size: 100%;
+    padding: 0.5rem 0.75rem;
+    border: 0;
+    border-inline-start: 2px solid transparent;
+    background: transparent;
+    color: var(--foreground);
+    font-size: 0.9rem;
+    text-align: start;
+    cursor: pointer;
+  }
+
+  .search-action-button:hover {
+    background: var(--muted);
+  }
+
+  .search-hits {
+    list-style: none;
+    margin: 0;
+    padding: 0.6rem;
+  }
+
+  .search-hits a {
+    display: flex;
+    justify-content: space-between;
+    gap: 1rem;
+    align-items: baseline;
+    text-decoration: none;
+    border-radius: 0.75rem;
+    padding: 0.7rem 0.75rem;
+  }
+
+  .search-hits a:hover,
+  .search-hits a[data-active="true"] {
+    background: var(--muted);
+  }
+
+  .search-hits strong {
+    font-size: 0.9rem;
+    font-weight: 600;
+  }
+
+  .search-hits span {
+    color: var(--muted-foreground);
+    font-size: 0.78rem;
+  }
+
+  .search-results .empty {
+    margin: 0;
+    padding: 1.25rem 0.75rem;
+    color: var(--muted-foreground);
+    font-size: 0.875rem;
+  }
+
+  .search-foot {
+    display: flex;
+    flex: none;
+    gap: 0.9rem;
+    flex-wrap: wrap;
+    padding: 0.65rem 1rem max(0.75rem, env(safe-area-inset-bottom));
+    border-top: 1px solid var(--border);
+    color: var(--muted-foreground);
+    font-size: 0.72rem;
+  }
+
+  @media (max-width: 960px) {
+    .site-header .sections {
+      display: none;
+    }
+
+    .site-header .search-trigger {
+      inline-size: 2.125rem;
+      padding: 0;
+      justify-content: center;
+      font-size: 0;
+    }
+
+    .site-header .search-trigger kbd {
+      display: none;
+    }
+  }
+}
