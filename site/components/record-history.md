@@ -22,6 +22,11 @@ record template shows the `:::changes` marker. A record with no event renders no
 The newest events stay in view and the rest go behind a native disclosure. The order is the order the
 engine supplies: newest first.
 
+When a record has changed fields, a field filter sits above the events: "All fields" plus each changed
+field once, in the order it first appears. The links are ordinary links carrying `?history-field=…`;
+with JavaScript they filter in place, update the count, and write the choice into the address. Without
+JavaScript the links are still real links and the full history stays readable.
+
 ## Option
 
 One key, read from the site's theme options:

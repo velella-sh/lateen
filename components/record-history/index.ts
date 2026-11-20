@@ -52,6 +52,18 @@ export const DETAILS_CLASS = "record-history-earlier";
 /** The default number of events shown before the disclosure. */
 export const DEFAULT_LIMIT = 5;
 
+/** Class on the field filter navigation. */
+export const FILTER_CLASS = "record-history-filters";
+
+/** Class on one field filter link. */
+export const FILTER_LINK_CLASS = "record-history-filter";
+
+/** Class on the visible event count. */
+export const COUNT_CLASS = "record-history-count";
+
+/** The query parameter that names the chosen field. */
+export const FIELD_PARAM = "history-field";
+
 /** Props from the record page: the events the engine supplied, newest first. */
 export type RecordHistoryProps = {
   readonly changes?: readonly ChangeEvent[];
@@ -111,7 +123,12 @@ function eventNode(event: ChangeEvent, lang: string): ComponentChildren {
   const date = calendarDate(event.date, lang);
   return h(
     "li",
-    { class: EVENT_CLASS, "data-event-type": event.type },
+    {
+      class: EVENT_CLASS,
+      "data-event-type": event.type,
+      "data-history-event": "",
+      "data-history-field": event.type === "changed" ? event.field ?? "" : "",
+    },
     h("time", { class: DATE_CLASS, datetime: date?.datetime ?? event.date }, date?.text ?? event.date),
     h("span", { class: TYPE_CLASS }, label),
     detailOf(event, lang),
@@ -120,6 +137,39 @@ function eventNode(event: ChangeEvent, lang: string): ComponentChildren {
 
 function listOf(events: readonly ChangeEvent[], lang: string): ComponentChildren {
   return h("ol", { class: LIST_CLASS }, events.map((event) => eventNode(event, lang)));
+}
+
+/** The changed fields in first-seen order; new entries in `ChangeEvent` that carry no field are skipped. */
+export function fieldsOf(events: readonly ChangeEvent[]): string[] {
+  const fields: string[] = [];
+  for (const event of events) {
+    const field = event.type === "changed" ? event.field : undefined;
+    if (field !== undefined && field !== "" && !fields.includes(field)) fields.push(field);
+  }
+  return fields;
+}
+
+/** The filters: every field plus an all-fields link, in the events' own order. */
+function filtersOf(events: readonly ChangeEvent[], lang: string): ComponentChildren {
+  const fields = fieldsOf(events);
+  if (fields.length === 0) return null;
+  const link = (value: string, label: string) =>
+    h(
+      "a",
+      {
+        class: FILTER_LINK_CLASS,
+        href: `?${FIELD_PARAM}=${encodeURIComponent(value)}`,
+        "data-history-link": "",
+        "data-history-value": value,
+      },
+      label,
+    );
+  return h(
+    "nav",
+    { class: FILTER_CLASS, "aria-label": t(lang, "history_filter") },
+    link("", t(lang, "history_all_fields")),
+    ...fields.map((field) => link(field, field)),
+  );
 }
 
 const recordHistory: Component<RecordHistoryProps> = ({ props, page, site }) => {
@@ -133,8 +183,18 @@ const recordHistory: Component<RecordHistoryProps> = ({ props, page, site }) => 
 
   return h(
     "section",
-    { class: CLASS, "aria-labelledby": `${CLASS}-title` },
+    { class: CLASS, "aria-labelledby": `${CLASS}-title`, "data-history-root": "" },
     h("h2", { id: `${CLASS}-title` }, t(lang, "history_title")),
+    filtersOf(events, lang),
+    h(
+      "p",
+      {
+        class: COUNT_CLASS,
+        "data-history-count": "",
+        "data-history-label": t(lang, "history_shown"),
+      },
+      t(lang, "history_shown", { count: events.length }),
+    ),
     listOf(head, lang),
     rest.length === 0
       ? null

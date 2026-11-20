@@ -101,3 +101,51 @@ test("the three languages label the section, the types and the disclosure", () =
   assert.equal(new Set(labels.map((label) => label.first)).size, 3);
   assert.equal(new Set(labels.map((label) => label.summary)).size, 3);
 });
+
+test("the field filter lists each changed field once, in the events' order", () => {
+  const html = render([
+    event({ id: "1".repeat(16), type: "changed", field: "status", old: "beta", new: "stable" }),
+    event({ id: "2".repeat(16), type: "added" }),
+    event({ id: "3".repeat(16), type: "changed", field: "title", old: "A", new: "B" }),
+    event({ id: "4".repeat(16), type: "changed", field: "status", old: "stable", new: "done" }),
+  ]);
+  const doc = document(html);
+  const links = [...doc.querySelectorAll(".record-history-filter")];
+
+  assert.deepEqual(
+    links.map((link) => [link.textContent, link.getAttribute("data-history-value")]),
+    [
+      ["All fields", ""],
+      ["status", "status"],
+      ["title", "title"],
+    ],
+  );
+  assert.equal(links[0]!.getAttribute("href"), "?history-field=");
+  assert.equal(links[1]!.getAttribute("href"), "?history-field=status");
+  assert.equal(doc.querySelector(`.${CLASS}`)!.getAttribute("data-history-root"), "");
+
+  const fields = [...doc.querySelectorAll("[data-history-event]")].map((item) => item.getAttribute("data-history-field"));
+  assert.deepEqual(fields, ["status", "", "title", "status"]);
+});
+
+test("the visible count is localised and no filter appears without a changed field", () => {
+  const changed = document(
+    render([event({ id: "1".repeat(16), type: "changed", field: "status", old: "beta", new: "stable" })]),
+  );
+  assert.equal(changed.querySelector(".record-history-count")!.textContent, "1 events");
+
+  const fa = new JSDOM(
+    render(
+      [
+        event({ id: "1".repeat(16), type: "changed", field: "status", old: "beta", new: "stable" }),
+        event({ id: "2".repeat(16), type: "added" }),
+      ],
+      "fa",
+    ),
+  ).window.document;
+  assert.match(fa.querySelector(".record-history-count")!.textContent!, /رویداد/);
+  assert.ok(fa.querySelector(".record-history-filters")!.getAttribute("aria-label"));
+
+  const added = document(render([event({ id: "1".repeat(16), type: "added" })]));
+  assert.equal(added.querySelector(".record-history-filters"), null);
+});
