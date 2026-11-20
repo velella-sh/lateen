@@ -83,13 +83,13 @@ test("a manual dispatch validates the tag before the tag is checked out", () => 
   assert.ok(check.includes('git fetch --quiet --depth 1 origin "refs/tags/$TAG"'), "the tag must exist before it is checked out");
   assert.ok(check.includes('echo "commit=$commit" >> "$GITHUB_OUTPUT"'), "preflight names the commit it resolved");
   const helper = preflight.steps.find((step) => step.uses?.startsWith("actions/checkout"));
-  const helperRef = helper?.with?.ref ?? "";
+  const helperRef = String(helper?.with?.ref ?? "");
   assert.ok(helperRef.includes("github.event.repository.default_branch"), "preflight checks out a fixed ref");
   assert.doesNotMatch(helperRef, /refs\/tags/, "preflight never checks out the dispatched tag");
 
   // The tag checkout is the first acceptance step, and the version/dist-tag come from preflight.
   const first = job("acceptance").steps[0];
-  assert.match(first?.with?.ref ?? "", /^refs\/tags\/\$\{\{ env\.TAG \}\}$/);
+  assert.match(String(first?.with?.ref ?? ""), /^refs\/tags\/\$\{\{ env\.TAG \}\}$/);
   const meta = job("acceptance").steps.find((step) => step.name === "Check the tag target and choose the dist-tag");
   assert.ok(meta?.run);
   assert.match(meta.run, /git rev-parse HEAD.*!=.*COMMIT/s, "a moved tag cannot release another commit");
