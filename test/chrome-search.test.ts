@@ -249,6 +249,43 @@ const records: readonly SearchRecord[] = [
   },
 ];
 
+/**
+ * The published technical fixture: a function name, a CLI option, and a quoted phrase, plus the
+ * strings a docs reader searches for. Pagefind owns stemming and phrase matching; the dialog's job
+ * is to hand it the query exactly as typed.
+ */
+const technicalRecords: readonly SearchRecord[] = [
+  {
+    url: "/reference/merge/",
+    excerpt: "Call <mark>mergeResults()</mark> with the groups.",
+    meta: { title: "mergeResults()" },
+    filters: { section: ["reference"] },
+  },
+  {
+    url: "/guide/build/",
+    excerpt: "Build one site with <mark>--site</mark>.",
+    meta: { title: "Build options" },
+    filters: { section: ["guide"] },
+  },
+  {
+    url: "/guide/install/",
+    excerpt: "The command <mark>&quot;npm install&quot;</mark> adds the package.",
+    meta: { title: "Install" },
+    filters: { section: ["guide"] },
+  },
+];
+
+/** An index that answers only one quoted phrase, as Pagefind's exact-phrase search does. */
+function phraseApiOf(phrase: string, data: readonly SearchRecord[], terms: string[] = []): PagefindApi {
+  return {
+    search(term: string) {
+      terms.push(term);
+      const hits = term === phrase ? data : [];
+      return Promise.resolve({ results: hits.map((record) => ({ data: () => Promise.resolve(record) })) });
+    },
+  };
+}
+
 /** The action rows the model tests need. */
 function actionsOf(...ids: string[]): { readonly id: string; readonly label: string }[] {
   return ids.map((id) => ({ id, label: id }));
@@ -1181,6 +1218,64 @@ test("typing searches the loaded index and renders grouped, highlighted results"
     rowsOf(results).map((row) => row.attrs.id),
     ["search-option-1", "search-option-2"],
   );
+});
+
+test("a quoted phrase and technical strings reach Pagefind exactly as typed", async () => {
+  const terms: string[] = [];
+  const { button, input, parts } = partsOf();
+  activate(parts, envWith(apiOf(technicalRecords, terms)));
+  button.click();
+  await tick();
+
+  const queries = ['"npm install"', "@scope/pkg", "GET /books/{id}", "a/b", "C++", "mergeResults()", "--site"];
+  for (const query of queries) {
+    input.type(query);
+    await tick();
+  }
+
+  assert.deepEqual(terms, queries, "no query loses a quote, a slash, or a symbol on the way");
+});
+
+test("an exact quoted phrase finds its fixture page, and the quotes stay on screen", async () => {
+  const terms: string[] = [];
+  const { button, input, results, status, parts } = partsOf();
+  activate(parts, envWith(phraseApiOf('"npm install"', [technicalRecords[2]!], terms)));
+  button.click();
+  await tick();
+
+  input.type('"npm install"');
+  await tick();
+
+  assert.deepEqual(terms, ['"npm install"']);
+  assert.deepEqual(sectionTitles(drawn(results)), ["guide"]);
+  assert.match(textOf(rowsOf(results)[0]!), /"npm install"/, "the excerpt shows the phrase with its quotes");
+  assert.equal(status.textContent, "1 result.");
+});
+
+test("without the quotes the phrase is not the exact result, and the empty fallback names it", async () => {
+  const terms: string[] = [];
+  const { button, input, results, status, parts } = partsOf();
+  activate(parts, envWith(phraseApiOf('"npm install"', [technicalRecords[2]!], terms)));
+  button.click();
+  await tick();
+
+  input.type("npm install");
+  await tick();
+
+  assert.deepEqual(terms, ["npm install"], "the field never adds quotes of its own");
+  assert.deepEqual(rowsOf(results), []);
+  assert.equal(status.textContent, emptyMessage("npm install"));
+
+  input.type("GET /books/{id}");
+  await tick();
+
+  assert.equal(status.textContent, emptyMessage("GET /books/{id}"), "braces in the query are text, not a placeholder");
+
+  input.type("");
+  await tick();
+
+  assert.deepEqual(rowsOf(results), []);
+  assert.equal(status.textContent, "", "an empty field still clears the status");
 });
 
 test("superseded queries do not load Pagefind hit data", async () => {
