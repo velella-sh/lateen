@@ -102,6 +102,10 @@ Layout component: the home layout draws it from `sections` in front matter, so s
 - `npm test` — Read the output.
 :::
 
+## citation
+
+::citation{title="Example citation" url="https://example.com/guide/" source="handbook" date="2026-01-12"}
+
 ## cli-demo
 
 :::cli-demo{play}

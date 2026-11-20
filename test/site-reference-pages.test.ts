@@ -59,6 +59,7 @@ test("component reference shows executable code tabs before its complete invento
     "cards",
     "changelog-entry",
     "charts",
+    "citation",
     "cli-demo",
     "code",
     "code-tabs",

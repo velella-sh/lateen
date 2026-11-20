@@ -41,6 +41,8 @@ main:
         url: /components/changelog-entry/
       - title: Charts
         url: /components/charts/
+      - title: Citation
+        url: /components/citation/
       - title: CLI demo
         url: /components/cli-demo/
       - title: Code
