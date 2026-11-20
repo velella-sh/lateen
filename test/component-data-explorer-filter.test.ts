@@ -200,6 +200,48 @@ test("two filters combine, and removing a chip brings the rows back", async () =
   assert.match(document.querySelector(".data-explorer-chip")!.textContent ?? "", /^year: 2021/);
 });
 
+test("removing a chip moves focus to its filter and announces the count once", async () => {
+  const { dom, document, env, flush } = setup();
+  activate(island(document), env);
+  typeQuery(document, dom, "book");
+  flush();
+  await tick();
+  await tick();
+
+  choose(document, dom, "fiction");
+  const box = option(document, "fiction");
+  const chip = document.querySelector(".data-explorer-chip") as unknown as HTMLElement;
+  chip.focus();
+  assert.equal(document.activeElement, chip);
+
+  const region = document.querySelector(".data-explorer-status")!;
+  const otherLive = [...document.querySelectorAll('[role="status"], [aria-live]')]
+    .filter((live) => live !== region)
+    .map((live) => live.textContent);
+  const seen: MutationRecord[] = [];
+  const observer = new dom.window.MutationObserver((records) => seen.push(...records));
+  observer.observe(region, { childList: true, characterData: true, subtree: true });
+
+  chip.click();
+  await tick();
+  seen.push(...observer.takeRecords());
+  observer.disconnect();
+
+  assert.equal(document.activeElement, box, "focus lands on the filter's checkbox, not the lost chip or the body");
+  assert.equal(box.checked, false);
+  assert.equal(box.isConnected, true);
+  assert.equal(document.querySelectorAll(".data-explorer-chip").length, 0);
+  assert.deepEqual(
+    [...document.querySelectorAll('[role="status"], [aria-live]')].filter((live) => live !== region).map((live) => live.textContent),
+    otherLive,
+    "the explorer's own status is the only live region that changed",
+  );
+  assert.equal(status(document), "6 results.");
+  // JSDOM writes the removed and added text as two records, so count the announcements instead.
+  const announced = seen.filter((record) => [...record.addedNodes].some((node) => node.nodeType === 3));
+  assert.equal(announced.length, 1, "the new count is announced once");
+});
+
 test("a filter and a query both apply, and a query with no match names itself", async () => {
   const { dom, document, env, flush } = setup();
   activate(island(document), env);
