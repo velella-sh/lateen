@@ -385,6 +385,7 @@
   "search_results_failed": "البحث غير متاح الآن.",
   "search_results_js": "يلزم JavaScript لعرض النتائج في هذه الصفحة. أرسل النموذج ليبقى استعلامك في العنوان.",
   "search_results_loading": "جارٍ البحث…",
+  "search_results_more": "عرض المزيد",
   "search_results_one": "نتيجة واحدة",
   "search_retry": "حاول مرة أخرى",
   "search_retry_failed": "البحث غير متاح بعد.",
