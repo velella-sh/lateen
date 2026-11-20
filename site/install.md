@@ -7,11 +7,14 @@ permalink: /install/
 
 Lateen is the default theme of [Mizzen](https://velella.sh/mizzen/): layouts, chrome, components, design tokens, and styles for a docs site that people and agents read. It needs Node 24 or later.
 
+:::callout{type=tip title="Check the version first"}
+The engine needs Node 24 or later. Run `node --version` before you install.
+:::
+
 ## Install
 
-```sh
-npm install --save-dev @velella/mizzen @velella/lateen
-```
+:::install-tabs{package="@velella/mizzen @velella/lateen"}
+:::
 
 ## Use it
 
