@@ -8,7 +8,11 @@
  * `fetch`, and key listener.
  */
 
+import { writeClipboard, type Clipboard } from "../clipboard/result.ts";
 import { shortcutsEnabled, type ShortcutStorage } from "../shortcuts/preference.ts";
+
+/** The part of `navigator.clipboard` the island uses; the shared clipboard result path defines it. */
+export type { Clipboard };
 
 /** The parts of the copy button the island reads and writes. */
 export interface CopyButton {
@@ -24,11 +28,6 @@ export interface CopyStatus {
   textContent: string | null;
   setAttribute?(name: string, value: string): void;
   removeAttribute?(name: string): void;
-}
-
-/** The part of `navigator.clipboard` the island uses. */
-export interface Clipboard {
-  writeText(text: string): Promise<void>;
 }
 
 /** Everything the island reads from the world; tests pass fakes, the browser supplies its own. */
@@ -115,12 +114,12 @@ export function copy(button: CopyButton, env: CopyEnv): Promise<void> {
     env.status.textContent = message ?? "";
   };
 
-  return fetchText(url).then(
-    (markdown) => clipboard.writeText(markdown),
-  ).then(
-    () => finish(button.dataset.copied),
-    () => finish(button.dataset.copyFailed),
-  );
+  return fetchText(url)
+    .then((markdown) => writeClipboard(clipboard, markdown))
+    .then(
+      (ok) => finish(ok ? button.dataset.copied : button.dataset.copyFailed),
+      () => finish(button.dataset.copyFailed),
+    );
 }
 
 /**

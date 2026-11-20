@@ -5,6 +5,7 @@
 
 import { parseJson } from "../../src/guards.ts";
 import { parseLineFragment, TARGET_CLASS } from "../../components/code/line-fragment.ts";
+import { createResultFlash, writeClipboard, type Clipboard, type ResultFlash } from "../clipboard/result.ts";
 
 /** Class on the copy button. */
 export const BUTTON_CLASS = "code-copy";
@@ -116,15 +117,15 @@ export interface CopyDocument {
   querySelector?(selector: string): { getAttribute(name: string): string | null } | null;
 }
 
-/** The part of `navigator.clipboard` the island uses. */
-export interface Clipboard {
-  writeText(text: string): Promise<void>;
-}
+/** The part of `navigator.clipboard` the island uses; the shared clipboard result path defines it. */
+export type { Clipboard };
 
 /** Everything the island reads from the world; tests pass fakes, the browser supplies its own. */
 export interface CopyEnv {
   clipboard?: Clipboard | undefined;
   schedule(callback: () => void, ms: number): unknown;
+  /** Cancels a scheduled reset, so a superseded or torn-down result never runs its restore. */
+  cancel?(handle: unknown): void;
 }
 
 /** The elements of one block's copy control. */
@@ -201,34 +202,43 @@ function fromDiff(lines: readonly string[]): string[] {
 }
 
 /**
- * Shows the result on the control, then after `RESET_MS` puts the label back and clears the message.
- * The reset is skipped when a later click has started since, so the newest result stays on screen.
+ * The result flash per environment: its timers drive the reset, its targets are one block's controls.
+ * The success and failure words and the icon swap are this island's own; the order of events — show,
+ * wait, restore, never letting a slower earlier result overwrite a newer one — is the shared one.
  */
-function report(ui: CopyUi, ok: boolean, env: CopyEnv, isLatest: () => boolean): void {
-  ui.status.textContent = ok ? ui.labels.copied : ui.labels.failed;
-  if (ok) {
-    ui.copyIcon.setAttribute("hidden", "");
-    ui.checkIcon.removeAttribute("hidden");
-  }
-  env.schedule(() => {
-    if (!isLatest()) return;
-    ui.status.textContent = "";
-    ui.checkIcon.setAttribute("hidden", "");
-    ui.copyIcon.removeAttribute("hidden");
-  }, RESET_MS);
+const flashes = new WeakMap<CopyEnv, ResultFlash<CopyUi>>();
+
+function flashOf(env: CopyEnv): ResultFlash<CopyUi> {
+  const existing = flashes.get(env);
+  if (existing !== undefined) return existing;
+  const created = createResultFlash<CopyUi>({
+    timers: env,
+    resetMs: RESET_MS,
+    apply(ui, ok) {
+      ui.status.textContent = ok ? ui.labels.copied : ui.labels.failed;
+      if (ok) {
+        ui.copyIcon.setAttribute("hidden", "");
+        ui.checkIcon.removeAttribute("hidden");
+      }
+    },
+    reset(ui) {
+      ui.status.textContent = "";
+      ui.checkIcon.setAttribute("hidden", "");
+      ui.copyIcon.removeAttribute("hidden");
+    },
+  });
+  flashes.set(env, created);
+  return created;
 }
 
-/** Writes `text` to the clipboard and reports the result on the control. Without a clipboard, that is a failure. */
+/**
+ * Writes `text` to the clipboard and reports the result on the control. Without a clipboard, that
+ * is a failure; the restore never runs for a click a newer one has superseded.
+ */
 export function copy(text: string, ui: CopyUi, env: CopyEnv, isLatest: () => boolean): Promise<void> {
-  const clipboard = env.clipboard;
-  const write =
-    clipboard === undefined
-      ? Promise.reject(new Error("no clipboard"))
-      : Promise.resolve().then(() => clipboard.writeText(text));
-  return write.then(
-    () => report(ui, true, env, isLatest),
-    () => report(ui, false, env, isLatest),
-  );
+  return writeClipboard(env.clipboard, text).then((ok) => {
+    if (isLatest()) flashOf(env).show(ui, ok);
+  });
 }
 
 /** Adds a copy button and a wrap toggle above each code block and wires them. Nothing is added to a page the island does not run on. */
@@ -353,6 +363,7 @@ const globals = globalThis as unknown as {
   location?: { readonly hash: string };
   addEventListener?(type: "hashchange", listener: () => void): void;
   setTimeout(callback: () => void, ms: number): unknown;
+  clearTimeout(handle: unknown): void;
 };
 
 // The island runs when the browser loads it; nothing happens in a runtime without a document.
@@ -360,6 +371,7 @@ if (globals.document) {
   activate(globals.document, {
     clipboard: globals.navigator?.clipboard,
     schedule: (callback, ms) => globals.setTimeout(callback, ms),
+    cancel: (handle) => globals.clearTimeout(handle),
   });
   const mark = (): void => {
     targetLines(globals.document!, globals.location?.hash ?? "");
