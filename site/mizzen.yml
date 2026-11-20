@@ -42,6 +42,8 @@ theme:
           url: /changelog/
         - title: Accessibility
           url: /accessibility/
+        - title: Docs standard
+          url: /standards/
     status:
       values:
         shipped:

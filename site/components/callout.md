@@ -9,6 +9,28 @@ redirect_from:
 
 A callout sets a short passage apart from the prose: something to remember, try, or avoid. The five kinds match GitHub alerts, and both syntaxes render the same component.
 
+## Kinds
+
+:::callout{type=note title="A docs theme for people and agents"}
+The theme draws the page. The engine reads the files.
+:::
+
+:::callout{type=tip title="Check the version first"}
+The engine needs Node 24 or later.
+:::
+
+:::callout{type=important title="Customizable without forking"}
+Tokens and options live in [one configuration file](/tokens/).
+:::
+
+:::callout{type=warning title="This option changes every page"}
+Brand, logo, and footer apply to the whole site.
+:::
+
+:::callout{type=caution title="Deleting the folder cannot be undone"}
+`danger` is read as the same kind as `caution`.
+:::
+
 ## Syntax
 
 A container directive:
