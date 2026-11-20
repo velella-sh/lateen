@@ -12,6 +12,7 @@ import lineChart, {
   POINT_CLASS,
   rowsOf,
   seriesOf,
+  viewOf,
   type LineChartProps,
 } from "../components/line-chart/index.ts";
 
@@ -85,6 +86,37 @@ test("seriesOf reads a comma separated list and defaults to the value field", ()
   assert.deepEqual(seriesOf(""), ["value"]);
   assert.deepEqual(seriesOf(" , "), ["value"]);
 });
+
+test("the view model reads each category and series value once per row", () => {
+  const reads = new Map<string, number>();
+  const counted = (fields: Record<string, number | null>) => {
+    const row: Record<string, unknown> = {};
+    for (const [key, value] of Object.entries(fields)) {
+      Object.defineProperty(row, key, {
+        enumerable: true,
+        get: () => {
+          reads.set(key, (reads.get(key) ?? 0) + 1);
+          return value;
+        },
+      });
+    }
+    return row;
+  };
+  const rows = [
+    counted({ month: 1, north: 10, south: 4 }),
+    counted({ month: 2, north: 14, south: 8 }),
+    counted({ month: 3, north: null, south: 6 }),
+  ];
+
+  const view = viewOf(rows, "month", ["north", "south"], "en");
+
+  assert.ok(view);
+  assert.equal(view.rows.length, 3);
+  assert.deepEqual(view.rows.map((row) => row.values), [[10, 4], [14, 8], [undefined, 6]]);
+  // One read per field per row, however many series the chart draws.
+  assert.deepEqual(Object.fromEntries(reads), { month: 3, north: 3, south: 3 });
+});
+
 
 test("two series draw two lines, their points, and a direct label at each end", () => {
   const html = render({ from: "growth", category: "month", value: "north,south", title: "Growth" }, GROWTH);
