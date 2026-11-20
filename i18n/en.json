@@ -385,6 +385,7 @@
   "search_results_failed": "Search is unavailable right now.",
   "search_results_js": "JavaScript is needed to show results on this page. Submit the form to carry your query in the address.",
   "search_results_loading": "Searching…",
+  "search_results_more": "Show more",
   "search_results_one": "1 result",
   "search_retry": "Try again",
   "search_retry_failed": "Search is still unavailable.",

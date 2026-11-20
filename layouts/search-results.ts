@@ -10,8 +10,11 @@ import base from "./base.ts";
 /** Id of the query field, which its label points to. */
 export const SEARCH_RESULTS_INPUT_ID = "search-results-input";
 
-/** Most results shown on the page; Pagefind ranks them and the top of the list is what a reader wants. */
+/** Most results shown at once; Pagefind ranks them and the top of the list is what a reader wants. */
 export const RESULT_LIMIT = 20;
+
+/** The control that reveals the next page of results. */
+export const MORE_CLASS = "search-results-more";
 
 /** A value safe to put inside the inline module script: `<` cannot close the tag early. */
 export function scriptValue(value: unknown): string {
@@ -20,9 +23,10 @@ export function scriptValue(value: unknown): string {
 
 /**
  * The page's client code. It reads `q` from the address, loads the Pagefind index from `base`,
- * searches, announces the count in the status region, and builds result links and excerpts from
- * text nodes. Pagefind's excerpts carry only its own `<mark>` emphasis, so the excerpt is parsed in
- * an inert `<template>` and only text and `<mark>` elements are copied into the page.
+ * searches, announces the real count in the status region, and builds result links and excerpts from
+ * text nodes. The show-more control appends the next page of hits without clearing the list and
+ * focuses its first result. Pagefind's excerpts carry only its own `<mark>` emphasis, so the excerpt
+ * is parsed in an inert `<template>` and only text and `<mark>` elements are copied into the page.
  *
  * The announcement uses the same mechanism as the search dialog (issue #108): every
  * `search_count_*` plural-category message is serialized, the browser picks the page language's
@@ -53,7 +57,11 @@ const messages = ${scriptValue(messages)};
 const input = document.querySelector("[data-search-input]");
 const status = document.querySelector("[data-search-status]");
 const list = document.querySelector("[data-search-results]");
+const more = document.querySelector("[data-search-more]");
 const query = new URLSearchParams(location.search).get("q") || "";
+let hits = [];
+let shown = 0;
+let pending = false;
 if (input) input.value = query;
 
 function safeHref(url) {
@@ -155,6 +163,26 @@ function countMessage(count) {
 }
 /* count-path:end */
 
+/* more-path:start The paging path is a self-contained block the layout's tests extract and run;
+   it reads only its arguments. */
+/** The next page of hits after the ones already shown; the last page may be shorter. */
+function nextBatch(hits, shown, limit) {
+  return hits.slice(shown, shown + limit);
+}
+
+/** Whether a hit remains after the ones already shown. */
+function hasMore(hits, shown) {
+  return shown < hits.length;
+}
+
+/** Focus the first new result's link, or the control when that result has no link. */
+function focusAfterAppend(items, control) {
+  const first = items.length === 0 ? undefined : items[0].querySelector("a");
+  if (first) first.focus();
+  else if (control) control.focus();
+}
+/* more-path:end */
+
 /** Copies text nodes and Pagefind's <mark> elements out of the inert excerpt template. */
 function copyExcerpt(node, target) {
   for (const child of node.childNodes) {
@@ -167,67 +195,107 @@ function copyExcerpt(node, target) {
   }
 }
 
+/** One result as a list item, with its section path when that path tells it apart. */
+function itemOf(record, path) {
+  const href = safeHref(record.url);
+  const link = document.createElement(href === undefined ? "span" : "a");
+  link.className = "search-results-link";
+  if (href !== undefined) link.setAttribute("href", href);
+  if (path !== "") {
+    const breadcrumb = document.createElement("span");
+    breadcrumb.className = "search-results-path";
+    const bdi = document.createElement("bdi");
+    bdi.textContent = path;
+    breadcrumb.append(bdi);
+    link.append(breadcrumb);
+  }
+  const title = document.createElement("span");
+  title.className = "search-results-title";
+  title.textContent = record.meta && record.meta.title ? record.meta.title : record.url;
+  link.append(title);
+  const headingText = resultHeading(record);
+  if (headingText !== undefined) {
+    const heading = document.createElement("span");
+    heading.className = "search-results-heading";
+    const bdi = document.createElement("bdi");
+    bdi.textContent = headingText;
+    heading.append(bdi);
+    link.append(heading);
+  }
+  const excerpt = document.createElement("span");
+  excerpt.className = "search-results-excerpt";
+  const template = document.createElement("template");
+  template.innerHTML = record.excerpt || "";
+  copyExcerpt(template.content, excerpt);
+  link.append(excerpt);
+  const item = document.createElement("li");
+  item.append(link);
+  return item;
+}
+
+/** The items of one batch, with the section paths computed across that batch. */
+function itemsOf(records) {
+  const paths = sectionPaths(records.map((record) => record.url));
+  return records.map((record, index) => itemOf(record, paths[index]));
+}
+
 function render(records) {
   if (!list) return;
-  const items = [];
-  const paths = sectionPaths(records.map((record) => record.url));
-  for (const [index, record] of records.entries()) {
-    const href = safeHref(record.url);
-    const link = document.createElement(href === undefined ? "span" : "a");
-    link.className = "search-results-link";
-    if (href !== undefined) link.setAttribute("href", href);
-    const path = paths[index];
-    if (path !== "") {
-      const breadcrumb = document.createElement("span");
-      breadcrumb.className = "search-results-path";
-      const bdi = document.createElement("bdi");
-      bdi.textContent = path;
-      breadcrumb.append(bdi);
-      link.append(breadcrumb);
-    }
-    const title = document.createElement("span");
-    title.className = "search-results-title";
-    title.textContent = record.meta && record.meta.title ? record.meta.title : record.url;
-    link.append(title);
-    const headingText = resultHeading(record);
-    if (headingText !== undefined) {
-      const heading = document.createElement("span");
-      heading.className = "search-results-heading";
-      const bdi = document.createElement("bdi");
-      bdi.textContent = headingText;
-      heading.append(bdi);
-      link.append(heading);
-    }
-    const excerpt = document.createElement("span");
-    excerpt.className = "search-results-excerpt";
-    const template = document.createElement("template");
-    template.innerHTML = record.excerpt || "";
-    copyExcerpt(template.content, excerpt);
-    link.append(excerpt);
-    const item = document.createElement("li");
-    item.append(link);
-    items.push(item);
-  }
-  list.replaceChildren(...items);
+  list.replaceChildren(...itemsOf(records));
+}
+
+/** Appends the next batch without clearing the list and moves focus to its first result. */
+function append(records) {
+  if (!list) return;
+  const items = itemsOf(records);
+  list.append(...items);
+  const remaining = hasMore(hits, shown);
+  if (more) more.hidden = !remaining;
+  focusAfterAppend(items, remaining ? more : undefined);
 }
 
 if (status && list && query.trim() !== "") {
   status.textContent = messages.loading;
+  if (more) more.hidden = true;
   import(base.replace(/\\/$/, "") + "/pagefind/pagefind.js")
     .then((api) => api.search(query))
-    .then((page) => Promise.all(page.results.slice(0, ${RESULT_LIMIT}).map((hit) => hit.data())))
+    .then((page) => {
+      hits = page.results;
+      return Promise.all(nextBatch(hits, 0, ${RESULT_LIMIT}).map((hit) => hit.data()));
+    })
     .then((records) => {
+      shown = records.length;
       render(records);
+      if (more) more.hidden = !hasMore(hits, shown);
       status.textContent =
-        records.length === 0
+        hits.length === 0
           ? messages.empty.replace("{query}", () => query)
-          : records.length === 1
+          : hits.length === 1
             ? messages.one
-            : countMessage(records.length);
+            : countMessage(hits.length);
     })
     .catch(() => {
       status.textContent = messages.failed;
     });
+
+  if (more) {
+    more.addEventListener("click", () => {
+      if (pending || !hasMore(hits, shown)) return;
+      pending = true;
+      const batch = nextBatch(hits, shown, ${RESULT_LIMIT});
+      Promise.all(batch.map((hit) => hit.data()))
+        .then((records) => {
+          pending = false;
+          shown += batch.length;
+          append(records);
+        })
+        .catch(() => {
+          pending = false;
+          status.textContent = messages.failed;
+          more.focus();
+        });
+    });
+  }
 }`;
 }
 
@@ -262,9 +330,9 @@ function noJsSections(props: LayoutProps): ComponentChildren {
 
 /**
  * The search results content: the page title, a labelled GET form that submits to this page, the
- * status region, the result list, and the no-JavaScript note with browsable section links. The form
- * works on its own; the inline module fills the list when the reader has JavaScript and the query is
- * in the address.
+ * status region, the result list, the show-more control, and the no-JavaScript note with browsable
+ * section links. The form works on its own; the inline module fills the list when the reader has
+ * JavaScript and the query is in the address.
  */
 function content(props: LayoutProps): ComponentChildren {
   const lang = props.page.lang;
@@ -295,6 +363,11 @@ function content(props: LayoutProps): ComponentChildren {
       noJsSections(props),
     ),
     h("ol", { class: "search-results-list", "data-search-results": "" }),
+    h(
+      "button",
+      { class: MORE_CLASS, type: "button", "data-search-more": "", hidden: true },
+      t(lang, "search_results_more"),
+    ),
     askAgentSection(props) as ComponentChildren,
     h("script", { type: "module", dangerouslySetInnerHTML: { __html: clientScript(props) } }),
   );

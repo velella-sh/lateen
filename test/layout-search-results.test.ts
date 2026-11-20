@@ -3,7 +3,7 @@ import { readFileSync } from "node:fs";
 import { test } from "node:test";
 import { Fragment, h } from "preact";
 import type { LayoutProps, NavTree, Page, Site, SiteConfig, SourcePos } from "@velella/mizzen/contracts";
-import searchResults, { scriptValue, SEARCH_RESULTS_INPUT_ID } from "../layouts/search-results.ts";
+import searchResults, { RESULT_LIMIT, scriptValue, SEARCH_RESULTS_INPUT_ID } from "../layouts/search-results.ts";
 import { patternOf, stringsOf, t } from "../i18n/index.ts";
 
 const pos: SourcePos = { file: "search.md", line: 1, column: 1, endLine: 1, endColumn: 1 };
@@ -142,6 +142,19 @@ function headingPathOf(page: string): HeadingPath {
   return new Function(`${block[0]}\nreturn { fragmentOf, resultHeading };`)() as HeadingPath;
 }
 
+interface MorePath {
+  nextBatch(hits: readonly unknown[], shown: number, limit: number): readonly unknown[];
+  hasMore(hits: readonly unknown[], shown: number): boolean;
+  focusAfterAppend(items: readonly { querySelector(selector: string): { focus(): void } | null }[], control?: { focus(): void }): void;
+}
+
+/** The paging block, extracted and run against real batch sizes. */
+function morePathOf(page: string): MorePath {
+  const block = /\/\* more-path:start[\s\S]*?more-path:end \*\//.exec(scriptOf(page));
+  assert.ok(block, "the script keeps the paging path in one self-contained block");
+  return new Function(`${block[0]}\nreturn { nextBatch, hasMore, focusAfterAppend };`)() as MorePath;
+}
+
 /** Serializing a page whose language has no catalog warns once; tests keep the output clean. */
 function quietOut(config: Partial<SiteConfig> = {}, page: Partial<Page> = {}): string {
   const previous = process.env.NODE_ENV;
@@ -166,6 +179,10 @@ test("renders a labelled GET search form, a status region, and a results contain
   assert.match(page, /<button class="search-results-submit" type="submit">Search<\/button>/);
   assert.match(page, /<p class="search-results-status" role="status" data-search-status=""><\/p>/);
   assert.match(page, /<ol class="search-results-list" data-search-results=""><\/ol>/);
+  assert.match(
+    page,
+    /<button class="search-results-more" type="button" data-search-more="" hidden>Show more<\/button>/,
+  );
 });
 
 test("the form submits to this page, base included, as a plain GET request", () => {
@@ -199,7 +216,7 @@ test("the module prints the count and renders links with Pagefind excerpts", () 
   assert.match(script, /status\.textContent = messages\.loading;/);
   assert.match(script, /messages\.empty\.replace\("\{query\}"/);
   assert.match(script, /status\.textContent = messages\.failed;/);
-  assert.match(script, /records\.length === 1\n\s+\? messages\.one\n\s+: countMessage\(records\.length\);/);
+  assert.match(script, /hits\.length === 1\n\s+\? messages\.one\n\s+: countMessage\(hits\.length\);/);
   assert.match(script, /link\.setAttribute\("href", href\)/);
   assert.match(script, /record\.excerpt/);
   assert.match(script, /document\.createElement\("mark"\)/);
@@ -349,6 +366,74 @@ test("the results page tells same-titled pages apart by their real section path"
   assert.deepEqual(paths.sectionPaths(["/api/install/", "/guide/install/"]), ["/api/", "/guide/"]);
   assert.deepEqual(paths.sectionPaths(["/guide/one/", "/guide/two/"]), ["", ""], "a shared path is omitted");
   assert.match(scriptOf(out()), /search-results-path/);
+});
+
+test("the first page shows the twenty highest-ranked hits", () => {
+  const path = morePathOf(out());
+  const hits = Array.from({ length: 45 }, (_, index) => index + 1);
+
+  assert.equal(RESULT_LIMIT, 20);
+  assert.deepEqual(path.nextBatch(hits, 0, RESULT_LIMIT), hits.slice(0, 20));
+  assert.match(scriptOf(out()), /nextBatch\(hits, 0, 20\)/);
+  assert.match(scriptOf(out()), /shown = records\.length/);
+});
+
+test("show more appends the next twenty without clearing the list", () => {
+  const path = morePathOf(out());
+  const hits = Array.from({ length: 45 }, (_, index) => index + 1);
+  const script = scriptOf(out());
+
+  assert.deepEqual(path.nextBatch(hits, 20, RESULT_LIMIT), hits.slice(20, 40));
+  assert.match(script, /list\.append\(\.\.\.items\)/);
+  assert.doesNotMatch(script, /list\.replaceChildren\(\.\.\.items\)[\s\S]*more\.addEventListener/);
+  assert.match(script, /shown \+= batch\.length/);
+});
+
+test("the control hides when the last real hit is shown", () => {
+  const path = morePathOf(out());
+  const hits = Array.from({ length: 40 }, (_, index) => index + 1);
+  const script = scriptOf(out());
+
+  assert.equal(path.hasMore(hits, 0), true);
+  assert.equal(path.hasMore(hits, 20), true);
+  assert.equal(path.hasMore(hits, 40), false);
+  assert.equal(path.hasMore(hits, 60), false);
+  assert.match(script, /more\.hidden = !hasMore\(hits, shown\)/);
+  assert.match(script, /more\.hidden = !remaining/);
+});
+
+test("focus moves to the first new result, with the control as the fallback", () => {
+  const path = morePathOf(out());
+  const focused: string[] = [];
+  const first = { focus: () => focused.push("first") };
+  const control = { focus: () => focused.push("control") };
+
+  path.focusAfterAppend([{ querySelector: (selector) => (selector === "a" ? first : null) }], control);
+  assert.deepEqual(focused, ["first"]);
+
+  path.focusAfterAppend([{ querySelector: () => null }], control);
+  assert.deepEqual(focused, ["first", "control"]);
+  assert.match(scriptOf(out()), /focusAfterAppend\(items, remaining \? more : undefined\)/);
+});
+
+test("the next batch keeps the same query and scope without navigating", () => {
+  const script = scriptOf(out());
+
+  assert.equal(script.match(/api\.search\(query\)/g)?.length, 1);
+  assert.match(script, /new URLSearchParams\(location\.search\)\.get\("q"\)/);
+  assert.doesNotMatch(script, /history\.|location\.(href|search|assign|replace)\s*=|\.submit\(|scope/i);
+  assert.match(out(), /data-search-more="" hidden/);
+});
+
+test("a right-to-left page keeps the same list and a translated show-more control", () => {
+  const page = out({ lang: "fa" }, { lang: "fa", dir: "rtl" });
+
+  assert.match(page, /^<html lang="fa" dir="rtl"/);
+  assert.match(
+    page,
+    /<button class="search-results-more" type="button" data-search-more="" hidden>نمایش بیشتر<\/button>/,
+  );
+  assert.equal(morePathOf(page).hasMore([1, 2, 3], 2), true);
 });
 
 const PLURAL_CATEGORIES = ["zero", "one", "two", "few", "many", "other"] as const;
