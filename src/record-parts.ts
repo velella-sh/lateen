@@ -4,7 +4,7 @@ import type { DataRecord, LayoutProps, RecordPos } from "@velella/mizzen/contrac
 import { LINK_CLASS, reportHref } from "../chrome/report-issue/index.ts";
 import { KEY_CLASS, LIST_CLASS, VALUE_CLASS } from "../components/key-value/index.ts";
 import { t } from "../i18n/index.ts";
-import { DERIVED_PREFIX, fieldValueOf, formatField, kindOf, valueState } from "./fields.ts";
+import { DERIVED_PREFIX, dataValue, fieldValueOf, formatField, kindOf, valueState } from "./fields.ts";
 
 /** Id of the facts panel; the record page's table of contents links to it. */
 export const FACTS_ID = "record-facts";
@@ -178,7 +178,12 @@ export function factsPanel(props: LayoutProps): ComponentChildren {
             ? {}
             : { "data-src": dataSrcOf(factPosition(props, fact)) }),
         },
-        formatField(value, fact.kind, props.page.lang, props.site.config) as ComponentChildren,
+        dataValue(
+          fact.field,
+          value,
+          fact.kind,
+          formatField(value, fact.kind, props.page.lang, props.site.config) as ComponentChildren,
+        ),
         factReport(props, fact),
       ),
     );

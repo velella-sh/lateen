@@ -90,6 +90,25 @@ test("a Persian page formats numbers, dates and booleans in Persian", () => {
   assert.match(out, /data-kind="boolean"[^>]*>خیر<\/td>/);
 });
 
+test("package names and ids stay left to right in a right-to-left table", () => {
+  const out = render(
+    {
+      records: [{ id: "@scope/pkg/guide", fields: { package: "@scope/pkg" }, url: "/packages/guide/" }],
+      columns: [
+        { field: "id", label: "Identifier" },
+        { field: "package", label: "Package" },
+      ],
+    },
+    "fa",
+  );
+  assert.match(
+    out,
+    /<td class="record-table-cell" data-kind="text"[^>]*><a href="\/packages\/guide\/"><bdi dir="ltr">@scope\/pkg\/guide<\/bdi><\/a><\/td>/,
+  );
+  assert.match(out, /<td class="record-table-cell" data-kind="text"[^>]*><bdi dir="ltr">@scope\/pkg<\/bdi><\/td>/);
+  assert.doesNotMatch(out, /<bdi[^>]*>Package<\/bdi>/);
+});
+
 test("ready records render in the given order without reading a collection", () => {
   const ready = [
     { id: "b", fields: { title: "Beta", pages: 80 }, url: "/books/b/" },

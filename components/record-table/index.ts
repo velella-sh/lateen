@@ -3,6 +3,7 @@ import type { ComponentProps } from "@velella/mizzen/contracts";
 import { patternOf, t } from "../../i18n/index.ts";
 import {
   DERIVED_PREFIX,
+  dataValue,
   fieldValueOf,
   formatField,
   isEmpty,
@@ -265,7 +266,7 @@ export default function recordTable({ props, page, site }: ComponentProps<Readon
           const has = known(column.field, selection.records);
           const value = valueOf(record, column.field);
           const cell = has
-            ? formatField(value, column.kind, lang, site?.config)
+            ? dataValue(column.field, value, column.kind, formatField(value, column.kind, lang, site?.config) as never)
             : h("span", { class: MISSING_CLASS }, t(lang, "record_table_unknown_field", { name: column.field }));
           const content =
             index === 0 && record.url !== undefined ? h("a", { href: record.url }, cell as never) : cell;
