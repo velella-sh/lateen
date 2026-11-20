@@ -6,6 +6,7 @@ import compare, {
   CELL_CLASS,
   ERROR_CLASS,
   MISSING_CLASS,
+  RECORD_CLASS,
   SUMMARY_CHANGED_CLASS,
   SUMMARY_CLASS,
   directive,
@@ -111,11 +112,11 @@ test("each field is a row header, in the fields order", () => {
 
 test("every cell is formatted with its field kind", () => {
   const out = render({ from: "books", ids: "a,b", fields });
-  assert.match(out, new RegExp(`<td class="${CELL_CLASS}" data-kind="number" data-compare-column="0">120</td>`));
-  assert.match(out, new RegExp(`<td class="${CELL_CLASS}" data-kind="date" data-compare-column="0"><time datetime="2026-11-09">November 9, 2026</time></td>`));
-  assert.match(out, new RegExp(`<td class="${CELL_CLASS}" data-kind="boolean" data-compare-column="0">No</td>`));
-  assert.match(out, new RegExp(`<td class="${CELL_CLASS}" data-kind="boolean" data-compare-column="1">Yes</td>`));
-  assert.match(out, new RegExp(`<td class="${CELL_CLASS}" data-kind="date" data-compare-column="1">2026-02-30</td>`));
+  assert.match(out, new RegExp(`<td class="${CELL_CLASS}" data-kind="number" data-compare-column="0"><span class="${RECORD_CLASS}">Alpha</span>120</td>`));
+  assert.match(out, new RegExp(`<td class="${CELL_CLASS}" data-kind="date" data-compare-column="0"><span class="${RECORD_CLASS}">Alpha</span><time datetime="2026-11-09">November 9, 2026</time></td>`));
+  assert.match(out, new RegExp(`<td class="${CELL_CLASS}" data-kind="boolean" data-compare-column="0"><span class="${RECORD_CLASS}">Alpha</span>No</td>`));
+  assert.match(out, new RegExp(`<td class="${CELL_CLASS}" data-kind="boolean" data-compare-column="1"><span class="${RECORD_CLASS}">Beta</span>Yes</td>`));
+  assert.match(out, new RegExp(`<td class="${CELL_CLASS}" data-kind="date" data-compare-column="1"><span class="${RECORD_CLASS}">Beta</span>2026-02-30</td>`));
 });
 
 test("package names and ids stay left to right in a right-to-left comparison", () => {
@@ -131,8 +132,8 @@ test("package names and ids stay left to right in a right-to-left comparison", (
     "fa",
   );
   assert.match(out, /<th scope="col" data-compare-column="0"><bdi dir="ltr">@scope\/pkg\/guide<\/bdi><\/th>/);
-  assert.match(out, /data-kind="text" data-compare-column="0"><bdi dir="ltr">@scope\/pkg<\/bdi><\/td>/);
-  assert.match(out, /data-kind="text" data-compare-column="0"><bdi dir="ltr">@scope\/pkg\/guide<\/bdi><\/td>/);
+  assert.match(out, new RegExp(`data-kind="text" data-compare-column="0"><span class="${RECORD_CLASS}"><bdi dir="ltr">@scope\\/pkg\\/guide<\\/bdi></span><bdi dir="ltr">@scope\\/pkg<\\/bdi></td>`));
+  assert.match(out, new RegExp(`data-kind="text" data-compare-column="0"><span class="${RECORD_CLASS}"><bdi dir="ltr">@scope\\/pkg\\/guide<\\/bdi></span><bdi dir="ltr">@scope\\/pkg\\/guide<\\/bdi></td>`));
   assert.doesNotMatch(out, /<bdi[^>]*>Package<\/bdi>/);
 });
 
@@ -198,7 +199,7 @@ test("a zero is a value: equal zeros are the same, and a zero against five diffe
     specsSite,
   );
   assert.match(summaryOf(equal), />1 same · 0 different · 0 missing/);
-  assert.match(equal, /<td class="compare-cell" data-kind="number" data-compare-column="0">0<\/td>/);
+  assert.match(equal, new RegExp(`<td class="${CELL_CLASS}" data-kind="number" data-compare-column="0"><span class="${RECORD_CLASS}">One</span>0</td>`));
 
   const differs = render(
     { from: "specs", ids: "one,five", fields: specsFields("price") },
@@ -218,4 +219,60 @@ test("the summary reads in the page language with its digits", () => {
   assert.match(summary, /۲ یکسان · ۱ متفاوت · ۱ ناموجود/);
   assert.match(summary, /تغییر یافته:/);
   assert.match(summary, /Color، Format/);
+});
+
+/** The comparison's data rows, without their opening tag, in table order. */
+function rowsOf(out: string): string[] {
+  return out.split("<tr data-compare-row").slice(1).map((row) => row.slice(0, row.indexOf("</tr>")));
+}
+
+test("each property is one narrow block with a titled value for every record", () => {
+  const out = render(
+    { from: "specs", ids: "one,two", fields: specsFields("price", "note") },
+    "en",
+    specsSite,
+  );
+  const rows = rowsOf(out);
+  assert.equal(rows.length, 2, "one block per property");
+  assert.equal((out.match(new RegExp(`class="${RECORD_CLASS}"`, "g")) ?? []).length, 4, "a title in every value cell");
+  assert.match(rows[0]!, /<th scope="row">Price/);
+  assert.ok(
+    rows[0]!.indexOf(`<span class="${RECORD_CLASS}">One</span>0`) <
+      rows[0]!.indexOf(`<span class="${RECORD_CLASS}">Two</span>0`),
+    "the record titles and values keep the ids order",
+  );
+});
+
+test("the narrow labels and values keep the table's order", () => {
+  const out = render({ from: "books", ids: "b,a", fields });
+  assert.ok(out.indexOf(">Beta</a></th>") < out.indexOf(">Alpha</a></th>"));
+  assert.deepEqual(
+    [...out.matchAll(new RegExp(`class="${RECORD_CLASS}">([^<]+)<`, "g"))].map((match) => match[1]),
+    ["Beta", "Alpha", "Beta", "Alpha", "Beta", "Alpha"],
+    "each row repeats its record titles in the same order as the headers",
+  );
+  assert.ok(
+    rowsOf(out)[0]!.indexOf(`<span class="${RECORD_CLASS}">Beta</span>80`) <
+      rowsOf(out)[0]!.indexOf(`<span class="${RECORD_CLASS}">Alpha</span>120`),
+  );
+});
+
+test("an empty value keeps its record title and shows the localized empty label", () => {
+  const out = render(
+    { from: "specs", ids: "one,two", fields: specsFields("format") },
+    "en",
+    specsSite,
+  );
+  assert.match(
+    out,
+    new RegExp(`data-compare-column="1"><span class="${RECORD_CLASS}">Two</span><span class="field-empty"`),
+  );
+});
+
+test("without JavaScript the narrow rows already hold every record title and value", () => {
+  const out = render({ from: "books", ids: "a,b", fields });
+  assert.doesNotMatch(out, /compare-tabs|compare-tab/);
+  assert.match(out, /class="compare-controls" hidden/);
+  assert.equal((out.match(new RegExp(`class="${RECORD_CLASS}"`, "g")) ?? []).length, 6);
+  assert.match(out, /<table/);
 });

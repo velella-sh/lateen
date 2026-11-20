@@ -29,6 +29,9 @@ export const CELL_CLASS = "compare-cell";
 /** Class on a row whose raw values are not all equal. */
 export const DIFF_CLASS = "compare-diff";
 
+/** Class on the record title repeated in each value cell for the narrow row layout. */
+export const RECORD_CLASS = "compare-record";
+
 /** Class on the screen-reader text naming a row that differs. */
 export const DIFF_MARKER_CLASS = "compare-diff-marker";
 
@@ -56,17 +59,8 @@ export const COPY_CLASS = "compare-copy";
 /** Class on the live region announcing the copy's result. */
 export const COPY_STATUS_CLASS = "compare-copy-status";
 
-/** Class on the row of record tabs the island draws in a narrow container. */
-export const TABS_CLASS = "compare-tabs";
-
-/** Class on one record tab. */
-export const TAB_CLASS = "compare-tab";
-
 /** Attribute on a record's header and cells, holding the record's column number. */
 export const COLUMN_ATTRIBUTE = "data-compare-column";
-
-/** Marks the tab row the island fills with `ROOT_ATTRIBUTE` on the wrapper. */
-export const TABS_ATTRIBUTE = "data-compare-tabs";
 
 /**
  * A raw value as text for comparison: a number by value, so `1.0` and `1.00` are equal; a list
@@ -92,6 +86,14 @@ function rowDiffers(values: readonly unknown[], kind: unknown): boolean {
   if (present.length !== values.length) return true;
   const first = comparable(present[0], kind);
   return present.some((value) => comparable(value, kind) !== first);
+}
+
+/** A record's title, or its id when the record has none, in the page language. */
+function recordHeading(record: SelectedRecord, lang: string) {
+  const title = formatField(record.fields.title ?? record.id, "text", lang);
+  return record.fields.title === undefined || record.fields.title === null
+    ? dataValue("id", record.id, "text", title as never)
+    : title;
 }
 
 /** Props from the directive or the page's front matter. */
@@ -171,11 +173,7 @@ export default function compare({ props, page, site }: ComponentProps<Readonly<R
       null,
       h("td", null),
       records.map((record, at) => {
-        const title = formatField(record.fields.title ?? record.id, "text", lang);
-        const heading =
-          record.fields.title === undefined || record.fields.title === null
-            ? dataValue("id", record.id, "text", title as never)
-            : title;
+        const heading = recordHeading(record, lang);
         return h(
           "th",
           { scope: "col", [COLUMN_ATTRIBUTE]: String(at) },
@@ -240,6 +238,7 @@ export default function compare({ props, page, site }: ComponentProps<Readonly<R
           h(
             "td",
             { class: CELL_CLASS, "data-kind": field.kind ?? "text", [COLUMN_ATTRIBUTE]: String(index) },
+            h("span", { class: RECORD_CLASS }, recordHeading(record, lang) as never),
             dataValue(field.field, values[index], field.kind, formatField(values[index], field.kind, lang, site?.config) as never),
           ),
         ),
@@ -305,16 +304,6 @@ export default function compare({ props, page, site }: ComponentProps<Readonly<R
         "aria-live": "polite",
         "aria-atomic": "true",
       }),
-    ),
-    h(
-      "div",
-      {
-        class: TABS_CLASS,
-        role: "tablist",
-        "aria-label": t(lang, "compare_records"),
-        [TABS_ATTRIBUTE]: "",
-        hidden: true,
-      },
     ),
     h(table, null, head, body),
   );

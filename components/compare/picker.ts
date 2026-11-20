@@ -31,7 +31,7 @@ export const RECORDS_PARAM = "records";
 const ROOT_SELECTOR = "[data-compare]";
 const HEAD_SELECTOR = "thead th[data-compare-column]";
 const ROW_SELECTOR = "[data-compare-row]";
-const TAB_SELECTOR = ".compare-tab";
+const RECORD_SELECTOR = ".compare-record";
 const TOGGLE_SELECTOR = ".compare-only-diff";
 const STATUS_SELECTOR = ".compare-status";
 
@@ -337,7 +337,7 @@ function resolveCurrent(state: CompareState, column: ColumnState): void {
   }
 }
 
-/** Replaces the column's header title, keeping the page's link to the record. */
+/** Replaces the column's header title and cell labels, keeping the page's link to the record. */
 function renameColumn(state: CompareState, column: ColumnState, row: IndexRow): void {
   const index = state.index;
   if (index === undefined) return;
@@ -351,9 +351,10 @@ function renameColumn(state: CompareState, column: ColumnState, row: IndexRow): 
     link.textContent = title;
     column.title.replaceChildren(link);
   }
-  const tabs = [...state.root.querySelectorAll(TAB_SELECTOR)];
-  const tab = tabs[column.at];
-  if (tab !== undefined) tab.textContent = title;
+  for (const cell of column.cells) {
+    const label = cell.querySelector(RECORD_SELECTOR);
+    if (label !== null) label.textContent = title;
+  }
 }
 
 /** Recomputes one row's difference from every column's chosen record, and updates the visible state. */
@@ -419,7 +420,9 @@ function applyRecord(state: CompareState, column: ColumnState, row: IndexRow): v
     const cell = rowElement.querySelector(`td[data-compare-column="${column.at}"]`);
     if (field === undefined || cell === null) return;
     const found = valueOf(index, row, field.field);
+    const label = cell.querySelector(RECORD_SELECTOR);
     cell.textContent = found.found ? cellText(found.value, field.kind, state) : state.empty;
+    if (label !== null) cell.prepend(label);
   });
 
   [...state.root.querySelectorAll(ROW_SELECTOR)].forEach((rowElement, at) => {

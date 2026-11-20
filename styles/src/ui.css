@@ -3287,6 +3287,67 @@ table th {
   margin-block-end: var(--space-3);
 }
 
+/* The comparison narrows with its column, not the viewport, so it also works in a narrow panel. */
+.compare {
+  container-name: compare;
+  container-type: inline-size;
+}
+
+/* The record title repeated in each value cell is for the narrow row layout only. */
+.compare-record {
+  display: none;
+}
+
+@container compare (max-inline-size: 40rem) {
+  .compare .table-scroll {
+    max-block-size: none;
+    overflow: visible;
+  }
+
+  .compare table,
+  .compare tbody,
+  .compare tr,
+  .compare th {
+    display: block;
+  }
+
+  /* Every record title is repeated in its value cells, so the column headers step aside. */
+  .compare thead {
+    display: none;
+  }
+
+  .compare tbody tr {
+    padding-block: var(--space-3);
+    border-block-end: 1px solid var(--border);
+  }
+
+  .compare tbody tr:first-child {
+    border-block-start: 1px solid var(--border);
+  }
+
+  .compare tbody tr > th {
+    margin-block-end: var(--space-2);
+    text-align: start;
+  }
+
+  /* Each compared record keeps its own row: the title from this cell, the value at the end. */
+  .compare tbody tr > td {
+    display: grid;
+    grid-template-columns: auto minmax(0, 1fr);
+    gap: var(--space-3);
+    padding-block: 0.2rem;
+    text-align: end;
+  }
+
+  .compare .compare-record {
+    display: block;
+    color: var(--muted-foreground);
+    font-size: var(--text-sm);
+    text-align: start;
+    overflow-wrap: anywhere;
+  }
+}
+
 .home-btn-primary,
 a.home-btn-primary,
 .home-actions .home-btn[data-variant="primary"],

@@ -164,7 +164,8 @@ test("choosing a record replaces the column's header and cells and recomputes th
   assert.equal(document.querySelector(".compare-title")?.textContent, "Beta");
   assert.equal(document.querySelector(".compare-title a")?.getAttribute("href"), "/books/b/");
   const cells = [...document.querySelectorAll<HTMLElement>('td[data-compare-column="0"]')];
-  assert.deepEqual(cells.map((cell) => cell.textContent), ["80", "February 27, 2026"]);
+  assert.deepEqual(cells.map((cell) => cell.querySelector(".compare-record")?.textContent), ["Beta", "Beta"]);
+  assert.deepEqual(cells.map((cell) => cell.textContent), ["Beta80", "BetaFebruary 27, 2026"]);
   assert.deepEqual(urls, ["?records=b%2Cc#records"]);
   assert.equal(document.querySelector(".compare-status")?.textContent, "2 of 2 rows shown");
 });

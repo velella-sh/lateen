@@ -510,5 +510,5 @@ test("the comparison ships every record and no script-only control", () => {
   assert.ok(table, "the comparison table is server-rendered");
   assert.equal(all(page, ".compare tbody th[scope=row]").length, 2);
   assert.equal(all(page, ".compare-controls[hidden]").length, 1, "the controls container stays hidden");
-  assert.equal(all(page, ".compare-tabs[hidden]").length, 1, "the tabs stay hidden until the island runs");
+  assert.equal(all(page, ".compare-cell .compare-record").length, 4, "each value names its record without a script");
 });

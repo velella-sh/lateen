@@ -7,7 +7,7 @@ permalink: /components/compare/
 
 A comparison puts records of one collection side by side. Each record is a column, each field is a row, and a row whose values are not all equal is tinted and named in text, so the difference never rests on color alone.
 
-The row headers stick to the start edge and the column headers stick to the top of the scroll region, so a wide or tall comparison keeps its labels in view. On a narrow screen the island shows one record at a time as tabs; without JavaScript the whole table stays readable and scrolls.
+The row headers stick to the start edge and the column headers stick to the top of the scroll region, so a wide or tall comparison keeps its labels in view. On a narrow screen each field becomes one block, and below its label every compared record gets its own line with the record's title and value; the same table and values stay in place, so the layout adapts without a script.
 
 ## Syntax
 
@@ -37,4 +37,4 @@ The column header is the record's title, linked to the record's page. The row he
 
 ## Without JavaScript
 
-The built page is the comparison itself: every record, every field, and every difference is in the HTML, and the table scrolls and stays readable. The "Show only differences" toggle, the copy button, the record tabs on a narrow screen, and the record pickers are added by the island, so no control appears that would do nothing without it. A saved `?compare=diff` link works once the island runs.
+The built page is the comparison itself: every record, every field, and every difference is in the HTML, and the table scrolls and stays readable. The narrow row layout is CSS only, so every record title and value is already in place. The "Show only differences" toggle, the copy button, and the record pickers are added by the island, so no control appears that would do nothing without it. A saved `?compare=diff` link works once the island runs.
