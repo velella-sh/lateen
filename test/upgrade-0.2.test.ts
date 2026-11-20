@@ -79,6 +79,10 @@ const INTENDED = [
     reason: "0.2.3 adds a clear control to the search field.",
   },
   {
+    selector: ".search-retry",
+    reason: "0.2.3 can retry a failed search index load.",
+  },
+  {
     selector: ".api-example-code",
     reason: "API example code blocks are keyboard-focusable (tabindex=0) for the a11y target-size gate.",
   },
@@ -137,6 +141,10 @@ function normalize(text: string): { head: string; body: string } {
     for (const name of ["data-search-ask-heading", "data-search-ask-label", "data-search-ask-hint"]) {
       element.removeAttribute(name);
     }
+  }
+  // A failed index load gained its own messages and a retry control, both removed as intended differences.
+  for (const element of [...document.querySelectorAll("[data-search]")]) {
+    for (const name of ["data-search-ready", "data-search-retry-failed"]) element.removeAttribute(name);
   }
   // A fence's token spans are the highlighter's presentation of the same text, and the engine's
   // grammar version can change them. Keep the block, its attributes, and its text; drop the spans.

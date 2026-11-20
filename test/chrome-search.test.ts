@@ -136,6 +136,10 @@ test("holds the query field, a close button, the status region, and the result c
     /<button type="button" class="search-close" aria-label="Close search" data-search-close=""><span aria-hidden="true">×<\/span><\/button>/,
   );
   assert.match(out, /<p class="search-status" role="status" data-search-status=""><\/p>/);
+  assert.match(
+    out,
+    /<button type="button" class="search-retry" data-search-retry="" hidden disabled>Try again<\/button>/,
+  );
 });
 
 test("the field is a combobox that names and controls the result list", () => {
@@ -178,6 +182,8 @@ test("the dialog carries every message the island shows, in the page language", 
   assert.equal(attribute(out, "data-search-searching"), "Searching…");
   assert.equal(attribute(out, "data-search-failed"), "Search is unavailable right now.");
   assert.equal(attribute(out, "data-search-empty"), "No results for “{query}”.");
+  assert.equal(attribute(out, "data-search-ready"), "Search is available again.");
+  assert.equal(attribute(out, "data-search-retry-failed"), "Search is still unavailable.");
   assert.equal(attribute(out, "data-search-count-zero"), "{n} results.");
   assert.equal(attribute(out, "data-search-count-one"), "{n} result.");
   assert.equal(attribute(out, "data-search-count-other"), "{n} results.");
@@ -810,7 +816,7 @@ function key(name: string, target: unknown, shiftKey = false): SearchEvent & { p
   return event;
 }
 
-function partsOf(options: { base?: string; focusables?: SearchFocusable[] } = {}) {
+function partsOf(options: { base?: string; focusables?: SearchFocusable[]; status?: SearchStatus } = {}) {
   const dialog = fakeDialog({
     ...(options.base === undefined ? {} : { base: options.base }),
     ...(options.focusables === undefined ? {} : { focusables: options.focusables }),
@@ -818,9 +824,10 @@ function partsOf(options: { base?: string; focusables?: SearchFocusable[] } = {}
   const button = fakeButton("search");
   const close = fakeButton("close");
   const clear = fakeButton("clear");
+  const retry = fakeButton("retry");
   const input = fakeInput();
   const results = fakeResults();
-  const status = fakeStatus();
+  const status = options.status ?? fakeStatus();
   const parts: SearchParts = {
     dialog: dialog as unknown as SearchDialog,
     button: button as unknown as SearchButton,
@@ -829,8 +836,9 @@ function partsOf(options: { base?: string; focusables?: SearchFocusable[] } = {}
     results: results as unknown as SearchResults,
     status,
     clear: clear as unknown as SearchParts["clear"],
+    retry: retry as unknown as SearchParts["retry"],
   };
-  return { dialog, button, close, clear, input, results, status, parts };
+  return { dialog, button, close, clear, retry, input, results, status, parts };
 }
 
 function apiOf(data: readonly SearchRecord[], terms: string[] = []): PagefindApi {
@@ -870,6 +878,8 @@ function messagesFor(lang: "fa" | "ar"): SearchMessages {
     copied: text.copied ?? "",
     copyFailed: text.search_copy_failed ?? "",
     empty: text.search_results_empty ?? "",
+    ready: text.search_ready ?? "",
+    retryFailed: text.search_retry_failed ?? "",
     otherSection: text.search_other_section ?? "",
     actions: text.command_actions ?? "",
     askHeading: text.ask_agent_heading ?? "",
@@ -954,6 +964,129 @@ test("a failed index load is announced and leaves the dialog usable for a retry"
   await tick();
 
   assert.equal(calls, 2, "a later open tries the index again");
+});
+
+test("a failed index load retries once and recovers", async () => {
+  const { button, dialog, retry, status, parts } = partsOf();
+  let calls = 0;
+  activate(parts, {
+    document: fakeDocument(),
+    load() {
+      calls += 1;
+      return calls === 1 ? Promise.reject(new Error("offline")) : Promise.resolve(apiOf([]));
+    },
+  });
+
+  button.click();
+  await tick();
+
+  assert.equal(status.textContent, MESSAGES.failed);
+  assert.equal(retry.hidden, false, "the failure offers the one retry action");
+  assert.equal(retry.disabled, false);
+
+  retry.click();
+  await tick();
+
+  assert.equal(calls, 2);
+  assert.equal(retry.hidden, true, "a recovered index needs no retry");
+  assert.equal(retry.disabled, true);
+  assert.equal(status.textContent, MESSAGES.ready);
+  assert.equal(dialog.open, true, "the dialog survives the failure and its retry");
+});
+
+test("a retry that fails again says so and stays retryable", async () => {
+  const { button, dialog, retry, status, parts } = partsOf();
+  let calls = 0;
+  activate(parts, {
+    document: fakeDocument(),
+    load() {
+      calls += 1;
+      return Promise.reject(new Error("offline"));
+    },
+  });
+
+  button.click();
+  await tick();
+  retry.click();
+  await tick();
+
+  assert.equal(calls, 2);
+  assert.equal(status.textContent, MESSAGES.retryFailed, "a second identical failure would not be heard");
+  assert.equal(retry.hidden, false);
+  assert.equal(retry.disabled, false);
+  assert.equal(dialog.open, true);
+});
+
+test("a retry keeps the phrase the reader typed and searches it", async () => {
+  const terms: string[] = [];
+  const { button, dialog, input, retry, status, parts } = partsOf();
+  let calls = 0;
+  activate(parts, {
+    document: fakeDocument(),
+    load() {
+      calls += 1;
+      return calls === 1 ? Promise.reject(new Error("offline")) : Promise.resolve(apiOf(records, terms));
+    },
+  });
+
+  button.click();
+  await tick();
+  input.type("cache");
+  retry.click();
+  await tick();
+
+  assert.equal(input.value, "cache", "the phrase survives the failure and the retry");
+  assert.deepEqual(terms, ["cache"], "the recovered index runs the same query");
+  assert.equal(status.textContent, "2 results.");
+  assert.equal(dialog.open, true);
+});
+
+test("a successful retry announces its result once", async () => {
+  const writes: string[] = [];
+  const status = fakeStatus();
+  Object.defineProperty(status, "textContent", {
+    get: () => writes.at(-1) ?? "",
+    set: (value: string) => {
+      writes.push(value);
+    },
+  });
+  const { button, retry, parts } = partsOf({ status });
+  let calls = 0;
+  activate(parts, {
+    document: fakeDocument(),
+    load() {
+      calls += 1;
+      return calls === 1 ? Promise.reject(new Error("offline")) : Promise.resolve(apiOf([]));
+    },
+  });
+
+  button.click();
+  await tick();
+  writes.length = 0;
+
+  retry.click();
+  await tick();
+
+  assert.deepEqual(writes, [MESSAGES.ready], "one announcement, and it is the retried result");
+});
+
+test("no retry is offered until an index load has failed", async () => {
+  const { button, dialog, retry, parts } = partsOf();
+  const env = envWith(apiOf([]));
+  activate(parts, env);
+
+  assert.equal(retry.hidden, true);
+  assert.equal(retry.disabled, true);
+
+  button.click();
+  await tick();
+  retry.click();
+  await tick();
+
+  assert.equal(dialog.open, true);
+  assert.equal(retry.hidden, true, "a load that worked leaves nothing to retry");
+  assert.equal(retry.disabled, true);
+  assert.deepEqual(env.calls, ["/pagefind/pagefind.js"], "a hidden retry cannot fetch again");
 });
 
 test("typing searches the loaded index and renders grouped, highlighted results", async () => {

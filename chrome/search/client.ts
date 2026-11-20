@@ -286,6 +286,10 @@ export interface SearchMessages {
   readonly copied: string;
   readonly copyFailed: string;
   readonly empty: string;
+  /** Announced when a reader's retry succeeds. */
+  readonly ready: string;
+  /** Announced when a reader's retry fails; it differs from `failed` so it is heard again. */
+  readonly retryFailed: string;
   readonly counts: Readonly<Record<PluralCategory, string>>;
   readonly otherSection: string;
   readonly actions: string;
@@ -301,6 +305,8 @@ export const MESSAGES: SearchMessages = {
   copied: "Copied",
   copyFailed: "Copy failed.",
   empty: "No results for “{query}”.",
+  ready: "Search is available again.",
+  retryFailed: "Search is still unavailable.",
   counts: {
     zero: "{n} results.",
     one: "{n} result.",
@@ -328,6 +334,13 @@ export interface SearchButton {
 
 /** The dialog's close button; it has the same shape as the search button. */
 export type SearchClose = SearchButton;
+
+/** A control the dialog reveals only while it can act: the field's clear button and the retry action. */
+export interface SearchAction {
+  hidden: boolean;
+  disabled: boolean;
+  addEventListener(type: "click", listener: () => void): void;
+}
 
 /**
  * The query field. It is the combobox, so it carries the popup's state: `aria-expanded` while the
@@ -422,11 +435,9 @@ export interface SearchParts {
   /** The command palette's JSON script, when the page carries one. */
   palette?: SearchPaletteSource | undefined;
   /** The field's clear button; it appears only while the field holds text. */
-  clear?: {
-    hidden: boolean;
-    disabled: boolean;
-    addEventListener(type: "click", listener: () => void): void;
-  } | undefined;
+  clear?: SearchAction | undefined;
+  /** The retry action; it appears only after an index load failed, and only until one succeeds. */
+  retry?: SearchAction | undefined;
 }
 
 /** Everything the island reads from the world; tests pass fakes, the browser supplies its own. */
@@ -1012,6 +1023,43 @@ export function activate(parts: SearchParts, env: SearchEnv): void {
       );
   };
 
+  /** Offers the retry action only while the index is missing and a press on it can start a load. */
+  const offerRetry = (offered: boolean): void => {
+    const retry = parts.retry;
+    if (retry === undefined) return;
+    retry.hidden = !offered;
+    retry.disabled = !offered;
+  };
+
+  /**
+   * Loads the index once. `retried` marks the reader's own press, whose result the status announces:
+   * the first load states the failure, a retried one says search is still down or that it is back.
+   */
+  const begin = (retried: boolean): void => {
+    if (api !== undefined || loading) return;
+    loading = true;
+    offerRetry(false);
+    if (input.value.trim() !== "") status.textContent = messages.loading;
+    env.load(indexUrl(dialog.getAttribute("data-base") ?? "")).then(
+      (loaded) => {
+        api = loaded;
+        loading = false;
+        if (!dialog.open) return;
+        if (retried && input.value.trim() === "") {
+          status.textContent = messages.ready;
+          return;
+        }
+        run();
+      },
+      () => {
+        loading = false;
+        if (!dialog.open) return;
+        status.textContent = retried ? messages.retryFailed : messages.failed;
+        offerRetry(true);
+      },
+    );
+  };
+
   /** Opens the dialog and, on the first open, loads the index; later opens reuse it. */
   const show = (): void => {
     returnFocus = true;
@@ -1026,25 +1074,16 @@ export function activate(parts: SearchParts, env: SearchEnv): void {
       if (input.value.trim() !== "") run();
       return;
     }
-    loading = true;
-    if (input.value.trim() !== "") status.textContent = messages.loading;
-    env.load(indexUrl(dialog.getAttribute("data-base") ?? "")).then(
-      (loaded) => {
-        api = loaded;
-        loading = false;
-        if (!dialog.open) return;
-        if (input.value.trim() === "") status.textContent = "";
-        run();
-      },
-      () => {
-        loading = false;
-        if (dialog.open) status.textContent = messages.failed;
-      },
-    );
+    begin(false);
   };
 
   button.addEventListener("click", show);
   close.addEventListener("click", () => dialog.close());
+  parts.retry?.addEventListener("click", () => {
+    // The field is the combobox: a retry ends with focus back where the typing happens.
+    input.focus();
+    begin(true);
+  });
   parts.clear?.addEventListener("click", () => {
     input.value = "";
     // One empty query redraws the palette's base rows and clears the status once; the dialog stays open.
@@ -1204,6 +1243,8 @@ export function messagesFrom(element: MessageSource): SearchMessages {
     copied: attributeOf(element, "data-search-copied") ?? MESSAGES.copied,
     copyFailed: attributeOf(element, "data-search-copy-failed") ?? MESSAGES.copyFailed,
     empty: attributeOf(element, "data-search-empty") ?? MESSAGES.empty,
+    ready: attributeOf(element, "data-search-ready") ?? MESSAGES.ready,
+    retryFailed: attributeOf(element, "data-search-retry-failed") ?? MESSAGES.retryFailed,
     otherSection: attributeOf(element, "data-search-other-section") ?? MESSAGES.otherSection,
     actions: attributeOf(element, "data-search-actions") ?? MESSAGES.actions,
     askHeading: attributeOf(element, "data-search-ask-heading") ?? MESSAGES.askHeading,
@@ -1236,6 +1277,7 @@ if (typeof document !== "undefined") {
   const button = document.querySelector("[data-search-open]");
   const close = document.querySelector("[data-search-close]");
   const clear = document.querySelector("[data-search-clear]");
+  const retry = document.querySelector("[data-search-retry]");
   const input = document.querySelector("[data-search-input]");
   const results = document.querySelector("[data-search-results]");
   const status = document.querySelector("[data-search-status]");
@@ -1265,6 +1307,7 @@ if (typeof document !== "undefined") {
         results: results as SearchResults,
         status: status as SearchStatus,
         ...(clear === null || clear === undefined ? {} : { clear: clear as NonNullable<SearchParts["clear"]> }),
+        ...(retry === null || retry === undefined ? {} : { retry: retry as NonNullable<SearchParts["retry"]> }),
         ...(palette === null ? {} : { palette }),
       },
       {
