@@ -14,6 +14,18 @@ import { calendarDate } from "../../src/dates.ts";
 import { parseJson } from "../../src/guards.ts";
 import { withParams } from "../../src/url.ts";
 import type { CompareDocument, CompareElement, CompareEnv } from "./client.ts";
+import {
+  keyOf,
+  labelOf,
+  optionsOf,
+  rowsOf,
+  selectionOf,
+  valueOf,
+  type CompareField,
+  type ComparedRow,
+  type PickerColumn,
+  type PickerSelection,
+} from "./picker-model.ts";
 
 /** Class on the button that opens a column's records. */
 export const PICK_CLASS = "compare-pick";
@@ -70,12 +82,6 @@ interface PickDocument {
   createElement(tag: string): PickElement;
 }
 
-/** One row of the comparison: its field and how its values compare. */
-interface CompareField {
-  readonly field: string;
-  readonly kind: string;
-}
-
 /** One record column: its header, its cells, and the picker the island draws in the header. */
 interface ColumnState {
   readonly at: number;
@@ -84,8 +90,6 @@ interface ColumnState {
   readonly title: PickElement;
   readonly button: CompareElement;
   readonly panel: CompareElement;
-  id?: string;
-  row?: IndexRow;
   select?: PickElement;
   missing?: PickElement;
 }
@@ -113,15 +117,10 @@ interface CompareState {
   readonly fetchText: (url: string, signal: AbortSignal) => Promise<string>;
   wanted: readonly string[];
   index?: CollectionIndex;
+  selection?: PickerSelection;
   loader?: IndexLoader;
   retry?: () => void;
   write: () => void;
-}
-
-/** A field's value in an index row, or that the index does not carry the field. */
-interface Found {
-  readonly found: boolean;
-  readonly value?: unknown;
 }
 
 /** The address's chosen ids, one slot per column, with empty slots kept as empty strings. */
@@ -160,33 +159,6 @@ function cellText(
   return String(value);
 }
 
-/** A raw value as comparison text: a number by value, a list without its order, anything else as JSON. */
-function comparable(value: unknown, kind: string): string {
-  const one = (item: unknown): string => {
-    if (kind === "number" && (typeof item === "number" || typeof item === "string")) {
-      const number = Number(item);
-      if (Number.isFinite(number)) return `n:${number}`;
-    }
-    return `${typeof item}:${typeof item === "object" ? JSON.stringify(item) : String(item)}`;
-  };
-  return kind === "list" && Array.isArray(value)
-    ? `l:${value.map(one).sort().join("\u0000")}`
-    : one(value);
-}
-
-/** True when the values are not all equal; a missing value differs from every present value. */
-function rowDiffers(values: readonly unknown[], kind: string): boolean {
-  const present = values.filter(
-    (value) => value !== null && value !== undefined && value !== "" && !(Array.isArray(value) && value.length === 0),
-  );
-  if (present.length === 0) return false;
-  if (present.length !== values.length) return true;
-  const first = comparable(present[0], kind);
-  return present.some((value) => comparable(value, kind) !== first);
-}
-
-/** Shortcut: the comparison rules mirror `index.ts`; move both into one module when a third caller needs them. */
-
 /** The fields a comparison renders, in row order, from the root's `data-fields`. */
 function fieldsOf(text: string): CompareField[] {
   if (text === "") return [];
@@ -204,31 +176,6 @@ function fieldsOf(text: string): CompareField[] {
 /** An attribute's text, or an empty string. */
 function attrOf(element: CompareElement, name: string): string {
   return element.getAttribute(name)?.trim() ?? "";
-}
-
-/** The id the index gives a row: its `id` column, or its page URL when the index has no id column. */
-function keyOf(index: CollectionIndex, row: IndexRow): string {
-  const at = index.columns.indexOf("id");
-  return String(row[at < 0 ? index.columns.length - 1 : at] ?? "");
-}
-
-/** The row with that id, or undefined when the index does not list it. */
-function rowOf(index: CollectionIndex, id: string): IndexRow | undefined {
-  return index.rows.find((row) => keyOf(index, row) === id);
-}
-
-/** The option text for a row: its title, or its id when the index has no title column. */
-function labelOf(index: CollectionIndex, row: IndexRow): string {
-  const at = index.columns.indexOf("title");
-  const title = at < 0 ? null : row[at];
-  return title === null || title === undefined || title === "" ? keyOf(index, row) : String(title);
-}
-
-/** The value a field holds in a row. */
-function valueOf(index: CollectionIndex, row: IndexRow, field: string): Found {
-  if (field === "id") return { found: true, value: keyOf(index, row) };
-  const at = index.columns.indexOf(field);
-  return at < 0 ? { found: false } : { found: true, value: row[at] };
 }
 
 /** A note the picker shows while loading, when loading fails, or for an id the address names. */
@@ -265,41 +212,47 @@ function showMissing(state: CompareState, column: ColumnState, id: string): void
   }
 }
 
-/** Applies the address's choice to every column it names, once the index is known. */
-function applyWanted(state: CompareState): void {
+/** Shows a selection: the panel's choice, its missing note, the changed columns, and every row's difference. */
+function showSelection(
+  state: CompareState,
+  selection: PickerSelection,
+  previous: PickerSelection | undefined,
+): void {
   const index = state.index;
   if (index === undefined) return;
+  state.selection = selection;
   state.columns.forEach((column, at) => {
-    const id = state.wanted[at];
-    if (id === undefined || id === "") return;
-    const row = rowOf(index, id);
-    if (row === undefined) {
-      showMissing(state, column, id);
-      return;
+    const chosen = selection.columns[at];
+    if (chosen === undefined) return;
+    if (chosen.missing === undefined) {
+      if (column.missing !== undefined) column.missing.hidden = true;
+    } else {
+      showMissing(state, column, chosen.missing);
     }
-    if (keyOf(index, row) !== column.id) applyRecord(state, column, row);
-    column.missing?.setAttribute("hidden", "");
-    if (column.select !== undefined && column.id !== undefined) column.select.value = column.id;
+    if (chosen.row !== undefined && chosen.row !== previous?.columns[at]?.row) applyRecord(state, column, chosen);
+    if (chosen.id !== "" && column.select !== undefined) column.select.value = chosen.id;
   });
+  renderRows(state, rowsOf(index, selection.columns, state.fields));
 }
 
-/** Fills every picker with one option per record, keeping the column's current choice. */
-function populate(state: CompareState): void {
+/** Fills every picker with one option per record, in the index's order, and the selection's choice. */
+function populate(state: CompareState, selection: PickerSelection): void {
   const index = state.index;
   if (index === undefined) return;
   const doc = state.doc;
+  const options = optionsOf(index);
   for (const column of state.columns) {
-    if (column.row === undefined) resolveCurrent(state, column);
     const select = doc.createElement("select");
     select.setAttribute("class", SELECT_CLASS);
     select.setAttribute("aria-label", state.recordsLabel);
-    for (const row of index.rows) {
-      const option = doc.createElement("option");
-      option.setAttribute("value", keyOf(index, row));
-      option.textContent = labelOf(index, row);
-      select.appendChild(option);
+    for (const option of options) {
+      const node = doc.createElement("option");
+      node.setAttribute("value", option.id);
+      node.textContent = option.label;
+      select.appendChild(node);
     }
-    if (column.id !== undefined) select.value = column.id;
+    const id = selection.columns[column.at]?.id ?? "";
+    if (id !== "") select.value = id;
     select.addEventListener("change", () => choose(state, column));
     column.select = select;
     const missing = missingOf(state, column);
@@ -309,26 +262,16 @@ function populate(state: CompareState): void {
 }
 
 /** The column's current record, found by its header link or, without one, by its title. */
-function resolveCurrent(state: CompareState, column: ColumnState): void {
-  const index = state.index;
-  if (index === undefined) return;
+function resolveCurrent(index: CollectionIndex, column: ColumnState): IndexRow | undefined {
   const link = column.head.querySelector("a");
   const href = link?.getAttribute("href") ?? "";
   if (href !== "") {
     const row = index.rows.find((candidate) => String(candidate[index.columns.length - 1] ?? "") === href);
-    if (row !== undefined) {
-      column.row = row;
-      column.id = keyOf(index, row);
-      return;
-    }
+    if (row !== undefined) return row;
   }
   const title = column.title.textContent?.trim() ?? "";
   const at = index.columns.indexOf("title");
-  const row = at < 0 ? undefined : index.rows.find((candidate) => String(candidate[at] ?? "") === title);
-  if (row !== undefined) {
-    column.row = row;
-    column.id = keyOf(index, row);
-  }
+  return at < 0 ? undefined : index.rows.find((candidate) => String(candidate[at] ?? "") === title);
 }
 
 /** Replaces the column's header title and cell labels, keeping the page's link to the record. */
@@ -351,19 +294,8 @@ function renameColumn(state: CompareState, column: ColumnState, row: IndexRow): 
   }
 }
 
-/** Recomputes one row's difference from every column's chosen record, and updates the visible state. */
-function recomputeRow(state: CompareState, rowElement: CompareElement, field: CompareField): void {
-  const index = state.index;
-  if (index === undefined) return;
-  const values: unknown[] = [];
-  for (const column of state.columns) {
-    if (column.row === undefined) return;
-    const found = valueOf(index, column.row, field.field);
-    if (!found.found) return;
-    values.push(found.value);
-  }
-
-  const differs = rowDiffers(values, field.kind);
+/** Marks one row as different or equal, adding its marker once. */
+function showDiff(state: CompareState, rowElement: CompareElement, differs: boolean): void {
   const marker = rowElement.querySelector(`.${DIFF_MARKER_CLASS}`);
   if (differs) {
     rowElement.setAttribute(DIFF_ATTR, "");
@@ -384,9 +316,18 @@ function recomputeRow(state: CompareState, rowElement: CompareElement, field: Co
     rowElement.removeAttribute("class");
     if (marker !== null) marker.hidden = true;
   }
+}
 
+/** Renders every row's difference from the model, then updates the live count once. */
+function renderRows(state: CompareState, rows: readonly ComparedRow[]): void {
+  const rowElements = [...state.root.querySelectorAll(ROW_SELECTOR)];
   const toggle = state.root.querySelector(TOGGLE_SELECTOR);
-  if (toggle?.checked === true) rowElement.hidden = !differs;
+  rowElements.forEach((rowElement, at) => {
+    const row = rows[at];
+    if (row === undefined || !row.available) return;
+    showDiff(state, rowElement, row.differs);
+    if (toggle?.checked === true) rowElement.hidden = !row.differs;
+  });
   updateStatus(state);
 }
 
@@ -402,11 +343,10 @@ function updateStatus(state: CompareState): void {
 }
 
 /** Replaces the column's cells with the chosen record's values. */
-function applyRecord(state: CompareState, column: ColumnState, row: IndexRow): void {
+function applyRecord(state: CompareState, column: ColumnState, chosen: PickerColumn): void {
   const index = state.index;
-  if (index === undefined) return;
-  column.row = row;
-  column.id = keyOf(index, row);
+  const row = chosen.row;
+  if (index === undefined || row === undefined) return;
   renameColumn(state, column, row);
 
   [...state.root.querySelectorAll(ROW_SELECTOR)].forEach((rowElement, at) => {
@@ -418,26 +358,18 @@ function applyRecord(state: CompareState, column: ColumnState, row: IndexRow): v
     cell.textContent = found.found ? cellText(found.value, field.kind, state) : state.empty;
     if (label !== null) cell.prepend(label);
   });
-
-  [...state.root.querySelectorAll(ROW_SELECTOR)].forEach((rowElement, at) => {
-    const field = state.fields[at];
-    if (field !== undefined) recomputeRow(state, rowElement, field);
-  });
 }
 
 /** Applies one picker choice, then writes every column's id to the address. */
 function choose(state: CompareState, column: ColumnState): void {
   const index = state.index;
-  if (index === undefined) return;
+  const current = state.selection;
+  if (index === undefined || current === undefined) return;
   const id = column.select?.value ?? "";
-  const row = rowOf(index, id);
-  if (row === undefined) {
-    showMissing(state, column, id);
-    return;
-  }
-  applyRecord(state, column, row);
-  const missing = column.missing;
-  if (missing !== undefined) missing.hidden = true;
+  const wanted = current.ids.map((one, at) => (at === column.at ? id : one));
+  const next = selectionOf(index, wanted, current.columns.map((chosen) => chosen.row));
+  showSelection(state, next, current);
+  if (next.columns[column.at]?.missing !== undefined) return;
   state.write();
   column.button.focus?.();
 }
@@ -455,9 +387,10 @@ function load(state: CompareState): void {
     {
       ready: (index) => {
         state.index = index;
-        for (const column of state.columns) if (column.row === undefined) resolveCurrent(state, column);
-        populate(state);
-        applyWanted(state);
+        const defaults = state.columns.map((column) => resolveCurrent(index, column));
+        const selection = selectionOf(index, state.wanted, defaults);
+        populate(state, selection);
+        showSelection(state, selection, selectionOf(index, [], defaults));
       },
       failed: (retry) => {
         state.retry = retry;
@@ -485,7 +418,7 @@ function toggle(state: CompareState, column: ColumnState): void {
   column.button.setAttribute("aria-expanded", opening ? "true" : "false");
   if (!opening) return;
   if (state.index !== undefined) {
-    populate(state);
+    if (state.selection !== undefined) populate(state, state.selection);
     return;
   }
   if (state.loader === undefined) showNote(state.doc, column, state.loading || "Loading records…");
@@ -573,8 +506,7 @@ export function attachPickers(doc: CompareDocument, env: CompareEnv): void {
 
   for (const state of states) {
     state.write = () => {
-      const ids: string[] = [];
-      for (const one of states) for (const column of one.columns) ids.push(column.id ?? "");
+      const ids = states.flatMap((one) => one.selection?.ids ?? one.columns.map(() => ""));
       env.replaceUrl(`${withRecords(env.search(), ids)}${env.hash()}`);
     };
     for (const column of state.columns) {
