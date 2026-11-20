@@ -101,6 +101,11 @@ export function withinBase(url: string, base: string): boolean {
   }
 }
 
+/** A route under the deployed base: `/components/` joins `/lateen/` as `/lateen/components/`. */
+export function deployedRoute(path: string, base: string): string {
+  return new URL(path.replace(/^\/+/, ""), base).href;
+}
+
 /** A same-origin URL outside the base path; external URLs are not this gate's business. */
 export function baseFailure(url: string, base: string): string | undefined {
   if (!sameOrigin(url, base) || withinBase(url, base)) return undefined;
@@ -288,7 +293,7 @@ async function auditCase(
       if (failure !== undefined) fail(failure);
     });
 
-    const response = await page.goto(new URL(item.path, base).href, { waitUntil: "networkidle", timeout: 30000 });
+    const response = await page.goto(deployedRoute(item.path, base), { waitUntil: "networkidle", timeout: 30000 });
     status = response?.status() ?? 0;
     if (response === null) fail("the route returned no response");
     else if (status !== item.status) fail(`expected HTTP ${item.status}, got ${status}`);

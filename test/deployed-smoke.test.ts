@@ -11,6 +11,7 @@ import {
   buildDeployedReport,
   commitFrom,
   deployedBase,
+  deployedRoute,
   isCommit,
   requestFailure,
   responseFailure,
@@ -24,6 +25,13 @@ const schema = JSON.parse(
 ) as JsonSchema;
 
 const BASE = "https://example.com/lateen/";
+
+test("every route joins under the deployed base path", () => {
+  assert.equal(deployedRoute("/", BASE), BASE);
+  assert.equal(deployedRoute("/components/", BASE), "https://example.com/lateen/components/");
+  assert.equal(deployedRoute("/search/?q=install", BASE), "https://example.com/lateen/search/?q=install");
+  assert.equal(deployedRoute("/books/alpha/", "https://example.com/"), "https://example.com/books/alpha/");
+});
 
 test("the base must be https and is normalized to one trailing slash", () => {
   assert.equal(deployedBase("https://example.com/lateen"), BASE);
