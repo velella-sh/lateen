@@ -167,8 +167,9 @@ test("highlightFences reads data-code after data-src: title, highlight, numbers,
   });
   const fence = `<pre data-src="a.md:3" data-code="${meta}"><code class="language-ts">const a = 1;\nconst b = 2;\nconst c = 3;\n</code></pre>`;
   const out = highlightFences(fence);
-  assert.match(out, /^<div class="code-title">.*<span class="code-title-name">src\/a > b\.ts<\/span><\/div><pre /);
-  assert.match(out, /<pre class="code" tabindex="0" id="code-a-md-3" data-lang="ts" data-src="a.md:3" data-code="/);
+  assert.match(out, /^<div class="code-title">.*<span class="code-title-name" id="code-a-md-3-title">src\/a > b\.ts<\/span><\/div><pre /);
+  assert.match(out, /<pre class="code" tabindex="0" id="code-a-md-3" aria-labelledby="code-a-md-3-title" data-lang="ts" data-src="a.md:3" data-code="/);
+  assert.doesNotMatch(out, /<code>[^<]*src\/a > b/);
   assert.match(out, /<span class="line ins" id="code-a-md-3-L1" data-line="1">/);
   assert.match(out, /<span class="line highlighted" id="code-a-md-3-L2" data-line="2">/);
   assert.match(out, /<span class="line del" id="code-a-md-3-L3" data-line="3">/);
@@ -189,6 +190,7 @@ test("malformed data-code is ignored and the fence is highlighted as before", ()
   const fence = '<pre data-src="a.md:3" data-code="not json"><code class="language-ts">const a = 1;\n</code></pre>';
   const out = highlightFences(fence);
   assert.match(out, /<pre class="code" tabindex="0" id="code-a-md-3" data-lang="ts" data-src="a.md:3" data-code="not json"><code>/);
+  assert.doesNotMatch(out, /aria-labelledby/);
   assert.doesNotMatch(out, /code-title/);
   assert.doesNotMatch(out, /data-line|highlighted|class="line (ins|del)"/);
 });

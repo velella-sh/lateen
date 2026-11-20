@@ -323,9 +323,11 @@ export function highlightFences(html: string, backdrops?: CodeBackdrops, lang = 
       const id = kept.originalId ?? (src === undefined ? undefined : block);
       const idAttr = id === undefined ? "" : ` id="${id}"`;
       const className = kept.extraClass === "" ? CODE_CLASS : `${CODE_CLASS} ${kept.extraClass}`;
-      const title = meta === undefined ? "" : codeTitleHtml(meta.title);
+      const titleId = meta === undefined || (meta.title ?? "").trim() === "" ? undefined : `${block}-title`;
+      const title = meta === undefined ? "" : codeTitleHtml(meta.title, titleId);
+      const labelled = titleId === undefined ? "" : ` aria-labelledby="${titleId}"`;
       const notes = meta === undefined ? "" : renderAnnotations(meta.annotations, block, lang);
-      return `${title}<pre class="${className}" tabindex="0"${idAttr} data-lang="${name}"${kept.rest}><code>${decorated}</code></pre>${notes}`;
+      return `${title}<pre class="${className}" tabindex="0"${idAttr}${labelled} data-lang="${name}"${kept.rest}><code>${decorated}</code></pre>${notes}`;
     })
     .replace(IDENTIFY, (match, attrs: string) => {
       if (/\sid=/.test(attrs)) return match;

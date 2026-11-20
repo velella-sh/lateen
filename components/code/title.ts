@@ -6,20 +6,21 @@ import { escapeHtml } from "./escape.ts";
 /** Class on the file name bar above a code block. */
 export const TITLE_CLASS = "code-title";
 
-/** The bar's insides: a decorative file icon and the escaped name. */
-function titleInner(name: string): string {
+/** The bar's insides: a decorative file icon and the escaped name, optionally with an id to name the code. */
+function titleInner(name: string, id?: string): string {
   const icon = iconHtml({ node: File, class: `${TITLE_CLASS}-icon` });
-  return `${icon}<span class="${TITLE_CLASS}-name">${escapeHtml(name)}</span>`;
+  const idAttr = id === undefined ? "" : ` id="${escapeHtml(id)}"`;
+  return `${icon}<span class="${TITLE_CLASS}-name"${idAttr}>${escapeHtml(name)}</span>`;
 }
 
 /**
  * The file name bar as HTML, for a rendered body that is a string rather than a component tree.
  * Empty when the title is missing or blank, so a block without one gets no bar.
  */
-export function codeTitleHtml(title: string | null | undefined): string {
+export function codeTitleHtml(title: string | null | undefined, id?: string): string {
   const name = title?.trim() ?? "";
   if (name === "") return "";
-  return `<div class="${TITLE_CLASS}">${titleInner(name)}</div>`;
+  return `<div class="${TITLE_CLASS}">${titleInner(name, id)}</div>`;
 }
 
 /**
@@ -27,8 +28,8 @@ export function codeTitleHtml(title: string | null | undefined): string {
  * when the title is missing or blank, so a block without one gets no bar. The icon is decorative; the name
  * is the bar's only text.
  */
-export function codeTitle(title: string | null | undefined) {
+export function codeTitle(title: string | null | undefined, id?: string) {
   const name = title?.trim() ?? "";
   if (name === "") return undefined;
-  return h("div", { class: TITLE_CLASS, dangerouslySetInnerHTML: { __html: titleInner(name) } });
+  return h("div", { class: TITLE_CLASS, dangerouslySetInnerHTML: { __html: titleInner(name, id) } });
 }

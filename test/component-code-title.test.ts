@@ -30,6 +30,15 @@ test("the icon is decorative: hidden from assistive tech", () => {
   assert.equal((out.match(/<path /g) ?? []).length, 2);
 });
 
+test("a named code block gets an id on the visible name", () => {
+  const named = codeTitle("src/a.ts", "code-a-title");
+  assert.ok(named !== undefined);
+  assert.match(renderToString(named), /<span class="code-title-name" id="code-a-title">src\/a\.ts<\/span>/);
+  const plain = codeTitle("src/a.ts");
+  assert.ok(plain !== undefined);
+  assert.doesNotMatch(renderToString(plain), /code-title-name" id=/);
+});
+
 test("the title is escaped, never markup", () => {
   const out = render('<script>x</script> & "q"');
   assert.ok(out !== undefined);
