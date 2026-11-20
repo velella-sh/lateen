@@ -44,7 +44,7 @@
     "build:redesign": "npm run ui:build && mizzen build redesign/site --out redesign/dist --theme .",
     "check:redesign": "npm run ui:build && mizzen check redesign/site --theme .",
     "test:redesign": "node --test \"redesign/test/*.test.ts\"",
-    "prepack": "npm run ui:assets",
+    "prepack": "npm run ui:build && node scripts/check-package.ts",
     "pretest": "npm run ui:build",
     "test": "node scripts/tokens.ts --check && node scripts/check-design.ts && node --test \"test/**/*.test.ts\" && npm run test:redesign",
     "test:a11y": "npm run ui:build && node scripts/test-a11y.ts",
@@ -120,9 +120,9 @@
     "!skills/*-workspace",
     "!skills/**/evals",
     "CHANGELOG.md",
-    "!styles/generated.css",
     "!components/performance-chart/chart.umd.min.js",
-    "components/performance-chart/chart.min.js"
+    "components/performance-chart/chart.min.js",
+    "styles/generated.css"
   ],
   "publishConfig": {
     "access": "public"
