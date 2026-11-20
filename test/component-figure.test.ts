@@ -267,6 +267,22 @@ test("a credit appears under the caption, linked only for web addresses", () => 
   assert.equal(textOf(find(unsafe, "figure-credit")), "Ada");
 });
 
+test("the credit line appears only with a credit, and links a web source", () => {
+  const none = render({ src: "/a.png", caption: "Figure 1" });
+  assert.equal(find(none, "figure-credit"), undefined);
+
+  const plain = render({ src: "/a.png", credit: "Ada" });
+  const plainCredit = find(plain, "figure-credit") as Tree;
+  assert.equal(textOf(plainCredit), "Ada");
+  assert.equal(elements(plainCredit).some((element) => element.type === "a"), false);
+
+  const linked = render({ src: "/a.png", credit: "Ada", credit_url: "https://example.com/ada" });
+  const link = elements(find(linked, "figure-credit") as Tree).find((element) => element.type === "a") as Tree;
+  assert.equal(link.props.href, "https://example.com/ada");
+  assert.equal(link.props.rel, "noopener");
+  assert.equal(textOf(link), "Ada");
+});
+
 test("creditHref accepts only http and https", () => {
   assert.equal(creditHref("https://example.com"), "https://example.com");
   assert.equal(creditHref(" HTTP://example.com "), "HTTP://example.com");

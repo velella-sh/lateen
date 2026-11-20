@@ -265,6 +265,12 @@ test("printed links show their address, but anchors, scripts, and mail links do 
   }
 });
 
+test("a printed figure credit shows its source address", () => {
+  const credit = rule(printBody(css), ".figure-credit a");
+  assert.ok(credit, "no print rule for a figure credit link");
+  assert.match(credit.body, /content:\s*"\s*\(" attr\(href\) "\)"/);
+});
+
 test("headings stay with their text and blocks stay whole", () => {
   const headings = blocks(css).find((block) => block.selector.includes("h1") && block.body.includes("break-after"));
   assert.ok(headings, "no heading break-after rule");
