@@ -137,6 +137,74 @@ test("a duplicate's occurrence keeps the active row on the second copy across a 
   assert.equal(activeIndexOf(after, remembered), 1);
 });
 
+/**
+ * A duplicate-heavy fixture whose every URL read is counted. Building occurrence keys by rescanning
+ * the rows before each result would read URLs quadratically; the one-map count reads each row's URL
+ * a fixed number of times, so the read count is the linear-work proof, independent of machine speed.
+ */
+function countedRecords(count: number, urls: readonly string[]): { records: SearchRecord[]; reads: () => number } {
+  let reads = 0;
+  const records: SearchRecord[] = [];
+  for (let index = 0; index < count; index += 1) {
+    const url = urls[index % urls.length] ?? "";
+    records.push({
+      get url(): string {
+        reads += 1;
+        return url;
+      },
+      excerpt: "",
+    });
+  }
+  return { records, reads: () => reads };
+}
+
+test("a large duplicate-heavy list keeps stable occurrence keys and does linear work", () => {
+  const urls = ["/a/", "/b/", "/c/"];
+  const size = 4000;
+  const first = countedRecords(size, urls);
+  const list = optionList(first.records, []);
+
+  // Every copy of a URL keeps its own occurrence, in row order, under its own positional id.
+  const occurrences = new Map<string, number>();
+  list.rows.forEach((row, index) => {
+    const url = urls[index % urls.length] ?? "";
+    const occurrence = occurrences.get(url) ?? 0;
+    occurrences.set(url, occurrence + 1);
+    assert.equal(row.key, resultKey(url, occurrence));
+    assert.equal(row.id, optionId(index));
+  });
+  assert.equal(new Set(list.rows.map((row) => row.key)).size, size, "no key is shared");
+
+  // Linear work: a fixed number of URL reads per row, and doubling the rows doubles the reads.
+  // A rescan of prior rows would read about size²/2 URLs instead of a small multiple of size.
+  const reads = first.reads();
+  assert.ok(reads <= 12 * size, `URL reads (${reads}) stay a small multiple of the row count (${size})`);
+  const doubled = countedRecords(size * 2, urls);
+  optionList(doubled.records, []);
+  assert.ok(doubled.reads() <= 2.5 * reads, "twice the rows costs about twice the work, not four times");
+
+  // A redraw of the same query gives the same keys, so a remembered duplicate resolves again.
+  const second = countedRecords(size, urls);
+  const redrawn = optionList(second.records, []);
+  assert.deepEqual(
+    redrawn.rows.map((row) => row.key),
+    list.rows.map((row) => row.key),
+  );
+  assert.equal(activeIndexOf(redrawn.rows, list.rows[size - 1]?.key), size - 1);
+});
+
+test("many actions sharing one id keep occurrence keys in linear time too", () => {
+  const size = 4000;
+  const actions = Array.from({ length: size }, () => action("copy"));
+  const list = optionList([], actions, {}, { question: "how do caches work", label: "Ask" });
+  list.rows.slice(0, size).forEach((row, index) => {
+    assert.equal(row.key, actionKey("copy", index));
+    assert.equal(row.id, optionId(index));
+  });
+  assert.equal(list.rows[size]?.key, askKey("how do caches work", 0));
+  assert.equal(new Set(list.rows.map((row) => row.key)).size, size + 1);
+});
+
 test("only followable URLs become links; script and data URLs stay plain text", () => {
   assert.equal(safeHref("/rules/cache/"), "/rules/cache/");
   assert.equal(safeHref("./cache/"), "./cache/");

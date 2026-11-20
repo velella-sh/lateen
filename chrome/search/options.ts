@@ -176,6 +176,8 @@ export function optionList(
   const otherSection = labels.otherSection ?? OTHER_SECTION;
   const actionsLabel = labels.actionsLabel ?? ACTIONS_LABEL;
   const askHeading = labels.askHeading ?? ASK_HEADING;
+  // One map counts occurrences as rows are built, so a duplicate-heavy list costs a single pass:
+  // no row ever rescans the rows before it to learn which occurrence of its identity it is.
   const seen = new Map<string, number>();
 
   /** The next occurrence of `base`, so two rows with the same identity still get different keys. */
