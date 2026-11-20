@@ -432,7 +432,7 @@ test("clicking a theme action writes the theme key and applies data-theme", asyn
   button.click();
   await tick();
 
-  clickAction(results.nodes, "theme-dark");
+  clickAction(results, "theme-dark");
 
   assert.deepEqual(calls, ["dark"]);
 });
@@ -453,13 +453,13 @@ test("clicking copy fetches and announces success or failure", async () => {
   button.click();
   await tick();
 
-  clickAction(results.nodes, "copy-markdown");
+  clickAction(results, "copy-markdown");
   await tick();
   assert.deepEqual(copied, ["/guide/install/index.md"]);
   assert.equal(status.textContent, MESSAGES.copied);
 
   fail = true;
-  clickAction(results.nodes, "copy-markdown");
+  clickAction(results, "copy-markdown");
   await tick();
   assert.equal(status.textContent, MESSAGES.copyFailed);
 });
@@ -471,7 +471,7 @@ test("clicking a section action jumps to the heading and closes the dialog", asy
   button.click();
   await tick();
 
-  clickAction(results.nodes, "section-requirements");
+  clickAction(results, "section-requirements");
 
   assert.deepEqual(jumped, ["requirements"]);
   assert.equal(dialog.open, false);
@@ -485,7 +485,7 @@ test("a section action keeps focus on the heading instead of pulling it back to 
   button.click();
   await tick();
 
-  clickAction(results.nodes, "section-requirements");
+  clickAction(results, "section-requirements");
 
   assert.deepEqual(jumped, ["requirements"]);
   assert.equal(button.focused, 0, "the search button does not take focus from the jump target");
@@ -898,17 +898,31 @@ function rowsOf(results: { nodes: readonly SearchNode[] }): FakeNode[] {
   return walkAll(results.nodes).filter((node) => node.attrs.role === "option");
 }
 
-function clickAction(nodes: readonly SearchNode[], id: string): void {
-  const button = walkAll(nodes).find((node) => node.attrs["data-palette-action"] === id);
+function clickAction(results: ReturnType<typeof fakeResults>, id: string): void {
+  const button = walkAll(results.nodes).find((node) => node.attrs["data-palette-action"] === id);
   assert.ok(button, `an action button for ${id}`);
-  button.click?.();
+  // The client delegates one click listener on the list; a real click bubbles from the pressed row.
+  results.fire("click", {
+    target: { closest: (selector: string) => (selector.includes("data-palette-action") ? button : null) },
+    preventDefault() {},
+  } as unknown as SearchEvent);
 }
 
 function fakeResults() {
+  const listeners: Record<string, Array<(event: SearchEvent) => void>> = {};
   const fake = {
     nodes: [] as SearchNode[],
     replaceChildren(...nodes: SearchNode[]) {
       fake.nodes = nodes;
+    },
+    addEventListener(type: string, listener: (event: SearchEvent) => void) {
+      (listeners[type] ??= []).push(listener);
+    },
+    removeEventListener(type: string, listener: (event: SearchEvent) => void) {
+      listeners[type] = (listeners[type] ?? []).filter((item) => item !== listener);
+    },
+    fire(type: string, event: SearchEvent) {
+      for (const listener of listeners[type] ?? []) listener(event);
     },
   };
   return fake;
