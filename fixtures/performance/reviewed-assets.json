@@ -1,0 +1,9 @@
+{
+  "reviewed": [
+    "assets/theme/islands/chrome/search/loader.js",
+    "assets/theme/islands/chrome/search/messages.js",
+    "assets/theme/islands/chrome/search/options.js",
+    "assets/theme/islands/chrome/search/palette.js",
+    "assets/theme/islands/chrome/search/render.js"
+  ]
+}
