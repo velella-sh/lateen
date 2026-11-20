@@ -106,6 +106,9 @@ The font class also records the files behind its totals, so `budget.json` lists 
 with its URL, the stylesheet that declares it, and the family, weight, style, `font-display`, and
 `format()` of the face that asked for it.
 
+Scrolling a loaded record list changes no rows and starts no new index read or filter work. Filtering
+runs only on input, after the typing pause.
+
 ### How fonts are counted
 
 - A font is discovered from the stylesheets the route actually loads, never from the theme's font

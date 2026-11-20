@@ -173,6 +173,38 @@ test("fifty rows show first, and the button reveals the rest", async () => {
   assert.equal(more(document).hidden, true);
 });
 
+test("scrolling a loaded list reads no index and replaces no rows", async () => {
+  const { dom, document, env, calls, flush, waiting } = setup();
+  activate(island(document), env);
+
+  typeQuery(document, dom, "book 5");
+  flush();
+  await tick();
+  await tick();
+
+  assert.equal(calls.length, 1, "the index is read once, on focus");
+  const before = rows(document);
+  assert.equal(before.length, 11);
+  const shown = status(document);
+
+  const scroll = (target: { dispatchEvent(event: unknown): boolean }): void => {
+    target.dispatchEvent(new dom.window.Event("scroll", { bubbles: true }));
+  };
+  scroll(document.querySelector(".table-scroll")!);
+  scroll(document);
+  scroll(dom.window);
+  (dom.window as unknown as { scrollY: number }).scrollY = 500;
+
+  await tick();
+
+  assert.equal(calls.length, 1, "scrolling reads no index");
+  const after = rows(document);
+  assert.equal(after.length, before.length, "no row appears or goes");
+  after.forEach((row, at) => assert.equal(row, before[at], `row ${at} is the same node`));
+  assert.equal(status(document), shown, "the count stays put");
+  assert.equal(waiting(), false, "a scroll schedules no query");
+});
+
 test("a later keystroke replaces the query that was waiting", async () => {
   const { dom, document, env, calls, flush } = setup();
   activate(island(document), env);
