@@ -80,6 +80,8 @@ An entry with no field, no label, or a field the record does not have is skipped
 
 When the collection names an `evidence` field, a field backed by public claims shows a link per claim beside its value, in the order the claims are written; a field with no claim shows no link.
 
+A date field in the panel is the record's **data date** and keeps the label the template gives it (for example, ["Published"](/books/alpha/)). The page's review date is separate: the metadata line under the title labels it "Reviewed" from the page's entry in `_data/reviewers.yml`. A missing review leaves the data date in place, and a record with no data date never grows an empty date row, so one date never stands in for the other.
+
 ## Fact kinds
 
 A field is shown by its kind. The default is `text`; `status` reads the site's status map and keeps the raw value.

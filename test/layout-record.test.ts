@@ -119,3 +119,33 @@ test("a record with changed fields asks the engine for the history filter island
     "the history filter runs without a Markdown directive",
   );
 });
+
+
+test("a record's data date and page review date are labelled and shown independently", () => {
+  const page = pageWith({
+    frontMatter: { record: { facts: [{ field: "published", label: "Published", kind: "date" }] } },
+  });
+  const input = props(page);
+  (input.record as unknown as { fields: Record<string, unknown> }).fields = {
+    name: "Button",
+    published: "2026-01-12",
+  };
+  (input.site.data as Record<string, unknown>).reviewers = {
+    "/components/button/": { date: "2026-03-04" },
+  };
+
+  const both = renderToString(record(input) as never);
+  assert.match(both, /<dt[^>]*>Published<\/dt>[\s\S]*?<time datetime="2026-01-12"/, "the data date keeps its own label");
+  assert.match(both, /data-date-source="review"[\s\S]*?<time datetime="2026-03-04"/, "the review date keeps its own label");
+
+  (input.site.data as Record<string, unknown>).reviewers = {};
+  const dataOnly = renderToString(record(input) as never);
+  assert.match(dataOnly, /<dt[^>]*>Published<\/dt>/);
+  assert.doesNotMatch(dataOnly, /data-date-source="review"/, "a missing review leaves the data date in place");
+
+  (input.site.data as Record<string, unknown>).reviewers = { "/components/button/": { date: "2026-03-04" } };
+  (input.record as unknown as { fields: Record<string, unknown> }).fields = { name: "Button" };
+  const reviewOnly = renderToString(record(input) as never);
+  assert.doesNotMatch(reviewOnly, /<dt[^>]*>Published<\/dt>/, "a missing data date never renders an empty fact");
+  assert.match(reviewOnly, /data-date-source="review"[\s\S]*?<time datetime="2026-03-04"/);
+});
