@@ -12,6 +12,8 @@ main:
         url: /upgrade/
       - title: Layouts
         url: /layouts/
+      - title: Changelog
+        url: /changelog/
       - title: List layout
         url: /layouts/list/
       - title: Record layout

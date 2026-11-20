@@ -38,6 +38,8 @@ theme:
           url: https://velella.sh/mizzen/
         - title: Install
           url: /install/
+        - title: Changelog
+          url: /changelog/
         - title: Accessibility
           url: /accessibility/
     status:
