@@ -50,6 +50,54 @@ jobs:
         run: scripts/smoke-package.sh
         working-directory: lateen
 
+  # Builds main and the pull request from the same fixture routes and compares the gzip bytes every
+  # route loads, naming each changed CSS, JavaScript, or font asset. A new asset or growth past the
+  # tolerance fails. The report uploads even when the comparison fails.
+  performance-compare:
+    name: performance-compare
+    if: github.event_name == 'pull_request'
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - name: Check out the pull request
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          path: head
+          persist-credentials: false
+      - name: Check out the base branch
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          ref: ${{ github.base_ref }}
+          path: base
+          persist-credentials: false
+      - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
+        with:
+          node-version-file: head/.node-version
+      - name: Set up npm
+        working-directory: head
+        run: npm install --global "$(node -p "require('./package.json').packageManager")" --no-audit --no-fund
+      - name: Install the pull request
+        run: npm ci --no-audit --no-fund
+        working-directory: head
+      - name: Install the base branch
+        run: npm ci --no-audit --no-fund
+        working-directory: base
+      - name: Build the base manifest
+        run: node scripts/asset-manifest.ts --report asset-manifest.json
+        working-directory: base
+      - name: Build the pull request manifest
+        run: node scripts/asset-manifest.ts --report asset-manifest.json
+        working-directory: head
+      - name: Compare
+        run: node head/scripts/performance-compare.ts --base base/asset-manifest.json --head head/asset-manifest.json --report reports/performance-compare.json
+      - name: Upload the comparison report
+        if: always()
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
+        with:
+          name: performance-compare
+          path: head/reports/performance-compare.json
+          retention-days: 7
+
   # Builds the docs site and a fixture site, then runs axe-core in Chromium over the layouts, both
   # themes, the right-to-left locales, and the open drawer and search states. Fails on a critical or
   # serious violation that test/accessibility/baseline.json does not list.

@@ -32,6 +32,36 @@ route /reference/: font/self-hosted loads assets/theme/fonts/geist/geist-sans-la
 route /reference/: font/self-hosted assets/theme/fonts/geist/geist-sans-latin-400-normal-….woff2 is 24,900 B gzip, the baseline is 20,172 B (limit 20,236 B)
 ```
 
+## Comparing a pull request with main
+
+The `performance-compare` CI job checks out the pull request as `head` and its base branch as `base`,
+installs both, and builds `scripts/asset-manifest.ts` on each. Both checkouts measure the same fixture
+routes, so a difference belongs to the pull request rather than to different content:
+
+```bash
+node scripts/asset-manifest.ts --report asset-manifest.json          # in the base checkout
+node scripts/asset-manifest.ts --report asset-manifest.json          # in the head checkout
+node head/scripts/performance-compare.ts --base base/asset-manifest.json \
+  --head head/asset-manifest.json --report reports/performance-compare.json
+```
+
+The report gives each route a CSS, JavaScript, font, and total gzip delta, then names every changed
+asset with its own delta:
+
+```text
+route /reference/: css +0 B gzip, javascript +1,204 B gzip, font +0 B gzip, total +1,204 B gzip
+route /reference/: js/components +1,204 B gzip (assets/theme/islands/components/foo/client.js +1,204 B)
+```
+
+`--tolerance <bytes>` allows that much gzip growth per existing asset; it defaults to `0`, so the two
+checkouts must compress to the same number. The job fails when a route appears on only one side, when a
+route lists the same path twice (two downloads of one file), when an asset is added — a new dependency,
+whatever its size — or when an existing asset grows past the tolerance. Removed assets and shrinks pass.
+A changed global CSS bundle is counted and named under `css/base` on every route that loads it.
+
+The JSON report is validated against `schema/performance-compare.schema.json` and uploaded as the
+`performance-compare` artifact, including when the comparison fails.
+
 ## The fixture
 
 `fixtures/performance/` is a small Mizzen site built with this theme. It has three fixed routes:
