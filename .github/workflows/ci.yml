@@ -31,6 +31,9 @@ jobs:
       - name: Test
         run: npm test
         working-directory: lateen
+      - name: Component fixture inventory
+        run: node --test test/visual/inventory.test.ts
+        working-directory: lateen
       - name: Type check
         run: npm run typecheck
         working-directory: lateen
