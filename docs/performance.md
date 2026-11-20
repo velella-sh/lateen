@@ -98,6 +98,10 @@ For every class the run records:
 - **count** — stylesheets, module files the page loads at startup, inline scripts, or font files. A
   module a page does not reach is not counted, and a module imported by two islands is counted once.
 
+Media is reserved before it downloads: a video or embed box holds its 16:9 frame with CSS, so the
+poster or player fills the box instead of moving the page when it arrives, and an image keeps its
+authored `width` and `height` so its space exists before the image is fetched.
+
 The font class also records the files behind its totals, so `budget.json` lists every font response
 with its URL, the stylesheet that declares it, and the family, weight, style, `font-display`, and
 `format()` of the face that asked for it.
