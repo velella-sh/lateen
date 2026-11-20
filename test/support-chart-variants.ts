@@ -7,7 +7,6 @@ import { TABLE_CLASS as DATA_TABLE_CLASS } from "../components/chart-data/index.
 import lineChart, {
   directive as lineDirective,
   MISSING_CLASS as LINE_MISSING,
-  TABLE_CLASS as LINE_TABLE_CLASS,
 } from "../components/line-chart/index.ts";
 import stackedBar, { directive as stackedDirective, MISSING_CLASS as STACKED_MISSING } from "../components/stacked-bar/index.ts";
 
@@ -29,7 +28,7 @@ export type ChartVariant = {
   readonly component: (input: never) => unknown;
   readonly props: Readonly<Record<string, string>>;
   readonly missingClass: string;
-  /** The class on the text alternative: `chart-data` for the bar and stacked charts. */
+  /** The class on the text alternative: every chart uses the shared chart-data table. */
   readonly tableClass: string;
   /** How many rows the text alternative keeps for the shared fixture. */
   readonly rowCount: number;
@@ -58,7 +57,7 @@ export const VARIANTS: readonly ChartVariant[] = [
     component: stackedBar as never,
     props: { from: "sales", category: "quarter", series: "region", value: "total" },
     missingClass: STACKED_MISSING,
-    tableClass: "stacked-bar-table",
+    tableClass: DATA_TABLE_CLASS,
     rowCount: 2,
     fromZero: true,
     download: false,
@@ -70,7 +69,7 @@ export const VARIANTS: readonly ChartVariant[] = [
     component: lineChart as never,
     props: { from: "sales", category: "month", value: "total" },
     missingClass: LINE_MISSING,
-    tableClass: LINE_TABLE_CLASS,
+    tableClass: DATA_TABLE_CLASS,
     rowCount: 4,
     fromZero: false,
     download: false,
