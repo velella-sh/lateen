@@ -14,6 +14,34 @@
  * The action list arrives as inert JSON from `chrome/command-palette/`; this module parses it,
  * filters it on the same query as the page results, and runs the chosen action. The module and its
  * client-only helper (`shortcut.ts`) import no server module, so they are safe to serve as an island.
+ *
+ * Module boundaries, named here so a later split can follow them without moving behavior first.
+ * Every name below lives in this file today; `client.ts` keeps re-exporting whatever moves so its
+ * public test imports keep working.
+ *
+ * - Option model (pure): the row types (`OptionKind`, `SearchRecord`, `ResultGroup`, `OptionRow`,
+ *   `OptionGroup`, `OptionList`, `OptionLabels`, `AskOption`), grouping (`sectionOf`, `groupBySection`),
+ *   positional ids (`optionId`, `groupId`), duplicate-safe keys (`resultKey`, `actionKey`, `askKey`),
+ *   the link guard `safeHref`, `wordCount`, and `optionList`, which assembles one query's rows.
+ *   Active-row resolution is the key-to-index lookup `draw` runs after a redraw. Depends only on
+ *   `src/search/merge.ts` and the palette's data types.
+ * - DOM rendering: `renderOptions` and the `*Node`/`*Content` helpers turn an `OptionList` into
+ *   elements through the `SearchDocument`/`SearchElement` interfaces (`RenderedOption`,
+ *   `OptionRender`); they make no query or identity decisions of their own.
+ * - Palette validation (pure): `parsePalette`, `isPaletteRun`, and their private guards read the
+ *   inert JSON, and `matchesAction`/`filterActions` filter it on the query; every malformed shape
+ *   falls back to an empty palette.
+ * - Localization (pure): `SearchMessages`, `MESSAGES`, `PLURAL_CATEGORIES`, `pluralCategory`,
+ *   `emptyMessage`, `countMessage`, `messagesFrom`, `langFrom` — the page language's strings and
+ *   CLDR plural rules, read from the dialog's `data-search-*` attributes.
+ * - Loader: `indexUrl`, `loadIndex`, and the `PagefindApi`/`SearchHit` types; `begin` inside
+ *   `activate` owns the once-only load and its retry.
+ * - Activation: `activate`, `trap`, `liveHandlers`, `resolveTheme`, the all-results link
+ *   (`resultsHref`), and the browser bootstrap at the bottom wire the parts together; this is the
+ *   only boundary that touches dialog state, focus, and event listeners.
+ *
+ * Dependencies point one way — activation → rendering / loader / localization → option model /
+ * palette validation — and the pure modules never import back, so a split introduces no cycles.
  */
 
 import type { PaletteAction, PalettePayload, PaletteRun, ThemeChoice } from "../command-palette/actions.ts";
