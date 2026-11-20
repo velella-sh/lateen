@@ -1672,6 +1672,11 @@
     font-weight: 600;
   }
 
+  :is(.record-fact, .record-table-cell)[data-kind="number"] {
+    font-variant-numeric: tabular-nums;
+    white-space: nowrap;
+  }
+
   .details,
   details.soft {
     background: color-mix(in srgb, var(--background) 80%, transparent);
