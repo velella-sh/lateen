@@ -12,6 +12,7 @@ import figure, {
   PAIRED_CLASS,
   creditHref,
   dimension,
+  idBase,
   type FigureProps,
 } from "../components/figure/index.ts";
 
@@ -23,10 +24,14 @@ type Tree = { type: string; props: { children?: unknown; [key: string]: unknown 
 type Node = Tree | string | number | null | undefined | boolean;
 
 function render(props: FigureProps, html = "") {
+  return renderOn({} as ComponentProps["page"], props, html);
+}
+
+function renderOn(page: ComponentProps["page"], props: FigureProps, html = "") {
   const input = {
     props,
     html,
-    page: {} as ComponentProps["page"],
+    page,
     site: {} as ComponentProps["site"],
   } as ComponentProps<FigureProps>;
   return figure(input) as unknown as Node;
@@ -85,6 +90,35 @@ test("renders a figure with the image, lazy loading, and async decoding by defau
 test("a missing or blank src renders nothing", () => {
   assert.equal(render({}), null);
   assert.equal(render({ src: "   " }), null);
+});
+
+test("an authored id lands on the figure and stays as written", () => {
+  const tree = render({ src: "/a.png", id: "pipeline" }) as Tree;
+  assert.equal(tree.props.id, "pipeline");
+});
+
+test("an id is reduced to safe characters, and a blank or missing one emits no id", () => {
+  assert.equal(idBase(" pipeline "), "pipeline");
+  assert.equal(idBase("My Figure!"), "My-Figure");
+  assert.equal(idBase("نسخه ۲"), "نسخه-۲");
+  assert.equal(idBase("???"), "");
+  assert.equal((render({ src: "/a.png", id: "  " }) as Tree).props.id, undefined);
+  assert.equal((render({ src: "/a.png" }) as Tree).props.id, undefined);
+});
+
+test("two figures on one page never share an id", () => {
+  const page = {} as ComponentProps["page"];
+  const first = renderOn(page, { src: "/a.png", id: "pipeline" }) as Tree;
+  const second = renderOn(page, { src: "/b.png", id: "pipeline" }) as Tree;
+  assert.equal(first.props.id, "pipeline");
+  assert.equal(second.props.id, "pipeline-2");
+});
+
+test("one page's ids do not leak into another page", () => {
+  const first = render({ src: "/a.png", id: "pipeline" }) as Tree;
+  const second = render({ src: "/b.png", id: "pipeline" }) as Tree;
+  assert.equal(first.props.id, "pipeline");
+  assert.equal(second.props.id, "pipeline");
 });
 
 test("a missing alt is empty, which marks the image as decorative", () => {

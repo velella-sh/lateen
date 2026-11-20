@@ -1,5 +1,6 @@
 import { h } from "preact";
 import type { ComponentProps } from "@velella/mizzen/contracts";
+import { instanceId } from "../../src/page-ids.ts";
 import { baseOf, srcsetWithBase, withBase } from "../../src/url.ts";
 
 /** Class on the `<figure>` element. */
@@ -18,6 +19,8 @@ export const PAIR_CLASS = "figure-pair";
 export type FigureProps = {
   /** The image. Without it the figure renders nothing. */
   src?: string;
+  /** A stable id for linking to the figure. Repeated ids get a numeric suffix on the page. */
+  id?: string;
   /** The image shown in dark mode. Without it, or when equal to `src`, one image is shown in both modes. */
   src_dark?: string;
   /** Text alternative for the image. Empty when missing, which marks the image as decorative. In a paired figure it names the wrapper, and both images stay presentational. */
@@ -67,6 +70,16 @@ function text(value: unknown): string {
   return typeof value === "string" ? value.trim() : "";
 }
 
+/** The id an author gave, reduced to letters, digits, `-` and `_`; "" when nothing usable is left. */
+export function idBase(raw: unknown): string {
+  return typeof raw === "string"
+    ? raw
+        .trim()
+        .replace(/[^\p{L}\p{N}_-]+/gu, "-")
+        .replace(/^-+|-+$/g, "")
+    : "";
+}
+
 /** The caption and credit under the image, or `null` when there is neither. */
 function captionOf(props: FigureProps, html: string) {
   const caption = text(props.caption);
@@ -97,14 +110,16 @@ function captionOf(props: FigureProps, html: string) {
  * are presentational (`alt=""`, `aria-hidden`), so assistive technology meets the figure exactly once in
  * either theme, with custom CSS, in forced colors, and before the styles load. The caption and credit
  * sit outside the wrapper, so they stay readable and a credit link stays operable. The body arrives
- * already rendered to HTML.
+ * already rendered to HTML. An author `id` names the figure for fragment links and is made unique per page.
  */
-export default function figure({ props, html, site }: ComponentProps<FigureProps>) {
+export default function figure({ props, html, site, page }: ComponentProps<FigureProps>) {
   const authored = text(props.src);
   if (authored === "") return null;
   const base = baseOf(site);
   const src = withBase(base, authored);
   const alt = typeof props.alt === "string" ? props.alt : "";
+  const authoredId = idBase(props.id);
+  const id = authoredId === "" ? undefined : instanceId(page, authoredId);
   const authoredDark = text(props.src_dark);
   const darkSrc = authoredDark === "" ? "" : withBase(base, authoredDark);
   const paired = darkSrc !== "" && darkSrc !== src;
@@ -133,7 +148,7 @@ export default function figure({ props, html, site }: ComponentProps<FigureProps
 
   return h(
     "figure",
-    { class: paired ? `${FIGURE_CLASS} ${PAIRED_CLASS}` : FIGURE_CLASS },
+    { class: paired ? `${FIGURE_CLASS} ${PAIRED_CLASS}` : FIGURE_CLASS, ...(id === undefined ? {} : { id }) },
     images,
     captionOf(props, html),
   );

@@ -25,11 +25,20 @@ Or a leaf directive with `caption`:
 ::figure{src="/images/architecture.svg" alt="Three boxes in a row." caption="The build pipeline"}
 ```
 
+Give the figure an `id` to link to it from the article:
+
+```markdown
+::figure{src="/images/architecture.svg" alt="Three boxes in a row." caption="The build pipeline" id="pipeline"}
+
+See [the build pipeline](#pipeline).
+```
+
 ## Options
 
 | Name | Type | Default | What it does |
 | --- | --- | --- | --- |
 | `src` | string | required | The image. Without it the figure renders nothing. |
+| `id` | string | none | A stable id for linking to the figure. Repeated ids get a numeric suffix on the page. |
 | `src_dark` | string | none | The image shown in dark mode. It is a second visual source only: one wrapper carries the accessible name. When it equals `src`, one image is used in both modes. |
 | `alt` | string | empty | The text alternative. It is exposed once for the figure, whatever theme is shown. An empty value marks the image as decorative. |
 | `caption` | string | the body | The caption text. The body is used when `caption` is absent. |
