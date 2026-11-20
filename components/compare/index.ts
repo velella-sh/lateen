@@ -4,8 +4,8 @@ import { patternOf, t } from "../../i18n/index.ts";
 import { dataValue, formatField, isEmpty, kindOf } from "../../src/fields.ts";
 import { claimsOf } from "../../src/evidence.ts";
 import { selectRecords, type SelectedRecord } from "../../src/records.ts";
-import { formatNumber } from "../../src/report.ts";
 import { baseOf } from "../../src/url.ts";
+import { formatCount } from "../reading-time/index.ts";
 import { columnsOf } from "../record-table/index.ts";
 import table from "../table/index.ts";
 
@@ -204,9 +204,9 @@ export default function compare({ props, page, site }: ComponentProps<Readonly<R
     "p",
     { class: SUMMARY_CLASS },
     t(lang, "compare_summary", {
-      same: formatNumber(lang, sameCount),
-      different: formatNumber(lang, differentCount),
-      missing: formatNumber(lang, missingCount),
+      same: formatCount(lang, sameCount),
+      different: formatCount(lang, differentCount),
+      missing: formatCount(lang, missingCount),
     }),
     changed.length === 0
       ? null
@@ -303,7 +303,7 @@ export default function compare({ props, page, site }: ComponentProps<Readonly<R
           "aria-atomic": "true",
           "data-template": patternOf(lang, "compare_rows_shown"),
         },
-        t(lang, "compare_rows_shown", { count: fields.length, total: fields.length }),
+        t(lang, "compare_rows_shown", { count: formatCount(lang, fields.length), total: formatCount(lang, fields.length) }),
       ),
       h(
         "button",
