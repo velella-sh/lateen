@@ -25,6 +25,7 @@ const INTENDED = [
   { selector: ".output-block", reason: "Output blocks share the code highlighter's markup in 0.2.3." },
   { selector: ".terminal", reason: "Terminal bodies share the code block markup in 0.2.3." },
   { selector: ".shortcut", reason: "The shortcut list gained the source-mode key in 0.2.3." },
+  { selector: ".shortcuts-open,.shortcuts", reason: "Sailcloth moves the shortcut trigger and dialog into the footer's utility group." },
   { selector: "script", reason: "The theme script set grows with the new islands and their data." },
   { selector: "header", reason: "0.2.3 cuts every layout over to the sailcloth site-header chrome." },
   { selector: ".progress", reason: "The sailcloth shell adds a reading progress bar above the header." },
