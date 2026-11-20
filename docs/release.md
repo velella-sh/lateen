@@ -96,12 +96,14 @@ Push the tag for the release commit. The workflow checks that the tag names the 
 a clean project with the installed CLI. Publishing needs that passing report and publishes the same
 tarball with npm provenance; a failed, missing or skipped case, a different engine version, a
 different tarball digest, or a tag that does not name the version stops the release before npm sees
-it. The workflow then installs the exact published version from npm and reruns the same cases, and
-writes the GitHub Release for the tag.
+it. The workflow then installs the exact published version from npm, reruns the same cases, and
+writes the GitHub Release for the tag only when that post-publish run passes.
 
 A prerelease version such as `0.3.0-rc.1` goes to the `next` dist-tag and its GitHub Release is
-marked as a prerelease. Running the workflow by hand with an existing tag is the retry path: a
-version npm already serves is skipped, and an existing GitHub Release is left alone.
+marked as a prerelease. Running the workflow by hand with an existing tag is the retry path: npm
+publish is skipped for a version npm already serves, but the acceptance gate and the post-publish
+verification run again, so a retry never marks an unverified published package as accepted. An
+existing GitHub Release is left alone.
 
 ## 6. Trusted publishing (one-time setup)
 

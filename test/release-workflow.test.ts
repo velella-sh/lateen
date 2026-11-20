@@ -53,3 +53,21 @@ test("a first publish creates the GitHub Release only after post-publish accepta
 test("the post-publish acceptance job still requires a successful publish", () => {
   assert.match(ifOf("acceptance-published"), /needs\.publish\.result == 'success'/);
 });
+
+test("a retry runs the acceptance gate instead of skipping it", () => {
+  // No acceptance step may be conditional on the version being unpublished: a retry needs fresh
+  // acceptance evidence from the tagged commit to verify the published package against.
+  for (const step of job("acceptance").steps) {
+    assert.doesNotMatch(step.if ?? "", /published/, `acceptance step ${step.name ?? step.uses} skips work on a retry`);
+  }
+});
+
+test("a retry verifies the already-published version before the GitHub Release", () => {
+  const condition = ifOf("acceptance-published");
+  assert.match(condition, /needs\.acceptance\.outputs\.published == 'true'/);
+  assert.match(condition, /needs\.acceptance\.result == 'success'/);
+  // The GitHub Release has no already-published bypass: the verified run is the only way in.
+  assert.doesNotMatch(ifOf("github-release"), /published == 'true'/);
+  const cases = job("acceptance-published").steps.find((step) => step.name === "Run the shipped cases against the npm package");
+  assert.ok(cases?.run?.includes('--theme "@velella/lateen@$VERSION"'), "the retry installs the exact published version");
+});

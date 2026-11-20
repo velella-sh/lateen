@@ -17,7 +17,8 @@ name: release
 #
 # A release whose version has a prerelease suffix (0.3.0-rc.1) goes to the `next` dist-tag; any
 # other goes to `latest`. To retry a failed publish, run this workflow by hand with the tag; an
-# already-published version is skipped, so a retry is safe.
+# already-published version skips npm publish but is accepted and verified again, so a retry is
+# safe and never marks an unverified package as accepted.
 # Tags without .node-version use Node 24 and its bundled npm for the older acceptance script.
 on:
   push:
@@ -99,20 +100,18 @@ jobs:
             echo "published=$published"
           } >> "$GITHUB_OUTPUT"
           echo "Releasing $name@$version to the \`$dist_tag\` dist-tag (already on npm: $published)" | tee -a "$GITHUB_STEP_SUMMARY"
+      # The gate runs on a retry too: an already-published version still needs fresh acceptance
+      # evidence from the tagged commit before the published package can be verified against it.
       - name: Install
-        if: steps.meta.outputs.published != 'true'
         run: npm ci --no-audit --no-fund
         working-directory: lateen
       - name: Install Chromium
-        if: steps.meta.outputs.published != 'true'
         run: npx playwright install chromium
         working-directory: lateen
       - name: Acceptance gate
-        if: steps.meta.outputs.published != 'true'
         run: npm run test:acceptance -- --report ../acceptance/report.json
         working-directory: lateen
       - uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
-        if: steps.meta.outputs.published != 'true'
         with:
           name: acceptance
           path: acceptance
@@ -175,11 +174,13 @@ jobs:
 
   # Installs the exact version npm now serves and runs the same cases again. A failure fails the
   # release run, so the release epic stays open until a post-publish run passes. The digest check
-  # proves publishing shipped the bytes the acceptance gate tested.
+  # proves publishing shipped the bytes the acceptance gate tested. On a retry (published=true)
+  # npm publish is skipped, but this job still installs the published version and proves its
+  # digest against the acceptance evidence from the tagged commit.
   acceptance-published:
     name: acceptance published
     needs: [acceptance, publish]
-    if: needs.acceptance.outputs.published != 'true' && needs.publish.result == 'success'
+    if: always() && needs.acceptance.result == 'success' && (needs.acceptance.outputs.published == 'true' || needs.publish.result == 'success')
     runs-on: ubuntu-latest
     timeout-minutes: 25
     permissions:
@@ -222,12 +223,13 @@ jobs:
           tarball="$(ls ../published/*.tgz)"
           node scripts/acceptance.ts --gate ../acceptance/report.json --tarball "$tarball"
 
-  # A first publish is only a release once the post-publish acceptance run passed: a failed case
-  # or digest check leaves the GitHub Release uncreated instead of announcing a broken version.
+  # A release is only a release once the post-publish acceptance run passed, on a first publish
+  # and on a retry alike: a failed case or digest check leaves the GitHub Release uncreated
+  # instead of announcing a broken version.
   github-release:
     name: github release
     needs: [acceptance, publish, acceptance-published]
-    if: always() && needs.acceptance.result == 'success' && (needs.acceptance.outputs.published == 'true' || needs['acceptance-published'].result == 'success')
+    if: always() && needs.acceptance.result == 'success' && needs['acceptance-published'].result == 'success'
     runs-on: ubuntu-latest
     permissions:
       contents: write
