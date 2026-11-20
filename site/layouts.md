@@ -18,6 +18,20 @@ A page picks a layout with `layout` in its front matter, or gets one from `defau
 | `guide` | The task page: the docs shell with a summary bar from `guide.from`, `guide.to`, `guide.time`, and `guide.risk`, reading time, and related guides. [Guide layout](/components/guide/) is a live example. |
 | `base` | The document shell: `<head>`, skip link, theme script, and slots for the header, sidebar, main column, aside, and footer. The other layouts build on it; a page does not name it. |
 
+## Sidebar sibling pages
+
+Set `theme.options.navigation.siblings: true` to list the current page's local sibling pages under its
+navigation group. The sidebar reads their titles and URLs from the engine's page list and adds only the
+pages the navigation does not already show, so existing links, the current-page marker, and the groups'
+open/closed behavior are unchanged. Off by default.
+
+```yaml
+theme:
+  options:
+    navigation:
+      siblings: true
+```
+
 ## Collections
 
 | Layout | What it renders |
