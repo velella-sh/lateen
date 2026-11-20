@@ -2,7 +2,7 @@ import assert from "node:assert/strict";
 import { readFileSync } from "node:fs";
 import { test } from "node:test";
 import { Fragment, h } from "preact";
-import type { LayoutProps, Page, Site, SiteConfig, SourcePos } from "@velella/mizzen/contracts";
+import type { LayoutProps, NavTree, Page, Site, SiteConfig, SourcePos } from "@velella/mizzen/contracts";
 import searchResults, { scriptValue, SEARCH_RESULTS_INPUT_ID } from "../layouts/search-results.ts";
 import { patternOf, stringsOf, t } from "../i18n/index.ts";
 
@@ -30,7 +30,7 @@ function configWith(overrides: Partial<SiteConfig> = {}): SiteConfig {
   };
 }
 
-function layoutProps(config: Partial<SiteConfig> = {}, pageOverrides: Partial<Page> = {}): LayoutProps {
+function layoutProps(config: Partial<SiteConfig> = {}, pageOverrides: Partial<Page> = {}, nav: NavTree = { main: [] }): LayoutProps {
   const page: Page = {
     url: "/search/",
     source: pos,
@@ -44,7 +44,7 @@ function layoutProps(config: Partial<SiteConfig> = {}, pageOverrides: Partial<Pa
     kind: "doc",
     ...pageOverrides,
   };
-  const site: Site = { config: configWith(config), pages: [page], nav: { main: [] }, data: {}, collections: {} };
+  const site: Site = { config: configWith(config), pages: [page], nav, data: {}, collections: {} };
   return {
     site,
     page,
@@ -81,7 +81,8 @@ function html(node: unknown): string {
   return `<${tag}${attrs}>${dangerouslySetInnerHTML ? dangerouslySetInnerHTML.__html : html(children)}</${tag}>`;
 }
 
-const out = (config: Partial<SiteConfig> = {}, page: Partial<Page> = {}): string => html(searchResults(layoutProps(config, page)));
+const out = (config: Partial<SiteConfig> = {}, page: Partial<Page> = {}, nav: NavTree = { main: [] }): string =>
+  html(searchResults(layoutProps(config, page, nav)));
 
 /** The text of the one inline module script the layout writes. */
 function scriptOf(page: string): string {
@@ -258,6 +259,67 @@ test("a visitor without JavaScript gets a note and the form still submits", () =
   assert.match(page, /<noscript><p class="search-results-nojs">JavaScript is needed to show results on this page\. Submit the form to carry your query in the address\.<\/p><\/noscript>/);
   assert.match(page, /<form class="search-results-form"/);
   assert.doesNotMatch(page, /<form[^>]* hidden/);
+});
+
+/** The markup the browser shows when scripts do not run. */
+function noscriptOf(page: string): string {
+  const fallback = /<noscript>([\s\S]*?)<\/noscript>/.exec(page);
+  assert.ok(fallback, "the page carries its no-JavaScript fallback in noscript");
+  return fallback[1]!;
+}
+
+/** The fallback's links as [href, label], in document order. */
+function fallbackLinks(page: string): string[][] {
+  return [...noscriptOf(page).matchAll(/<a href="([^"]+)"[^>]*>([^<]+)<\/a>/g)].map((match) => [match[1]!, match[2]!]);
+}
+
+const NAV: NavTree = {
+  main: [
+    { title: "Guide", url: "/guide/" },
+    { title: "Reference", children: [{ title: "API", url: "/reference/api/" }, { title: "CLI", url: "/reference/cli/" }] },
+    { title: "Blog", url: "/blog/" },
+  ],
+};
+
+test("without JavaScript, the page links to the browsable sections from the navigation model, in order", () => {
+  assert.deepEqual(fallbackLinks(out({}, {}, NAV)), [
+    ["/guide/", "Guide"],
+    ["/reference/api/", "Reference"],
+    ["/blog/", "Blog"],
+  ]);
+});
+
+test("the section links keep the site base, mark the current section, and follow the page direction", () => {
+  const nav: NavTree = {
+    main: [
+      { title: "خانه", url: "/docs/" },
+      { title: "راهنما", url: "/docs/guide/" },
+      { title: "جستجو", url: "/docs/search/" },
+    ],
+  };
+  const page = out({ base: "/docs", lang: "fa" }, { url: "/docs/search/", lang: "fa", dir: "rtl" }, nav);
+
+  assert.match(page, /<html lang="fa" dir="rtl"/);
+  assert.match(noscriptOf(page), /<nav class="search-results-sections" aria-label="Sections">/);
+  assert.match(noscriptOf(page), /<a href="\/docs\/guide\/">راهنما<\/a>/);
+  assert.match(noscriptOf(page), /<a href="\/docs\/search\/" aria-current="page">جستجو<\/a>/);
+  assert.doesNotMatch(noscriptOf(page), /<a href="\/docs\/" aria-current/);
+});
+
+test("a site with no navigation keeps the note and shows no empty section list", () => {
+  const page = out();
+
+  assert.match(page, /search-results-nojs/);
+  assert.doesNotMatch(page, /search-results-sections/);
+});
+
+test("the island keeps today's behavior and builds no second section list", () => {
+  const page = out({}, {}, NAV);
+  const script = scriptOf(page);
+
+  assert.doesNotMatch(script, /search-results-sections|sectionLinks|aria-current/);
+  assert.equal(page.match(/class="search-results-sections"/g)?.length, 1);
+  assert.ok(page.indexOf('<nav class="search-results-sections"') > page.indexOf("<noscript>"));
 });
 
 test("values written into the script are escaped so a base cannot close the tag", () => {

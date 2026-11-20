@@ -3,7 +3,7 @@ import type { ComponentChildren } from "preact";
 import type { Layout, LayoutProps } from "@velella/mizzen/contracts";
 import { askAgentSection } from "../chrome/ask-agent/index.ts";
 import searchScope from "../chrome/search-scope/index.ts";
-import shell, { footer as shellFooter } from "../chrome/shell/index.ts";
+import shell, { footer as shellFooter, isCurrentSection, sectionLinks } from "../chrome/shell/index.ts";
 import { patternOf, t } from "../i18n/index.ts";
 import base from "./base.ts";
 
@@ -232,9 +232,39 @@ if (status && list && query.trim() !== "") {
 }
 
 /**
+ * The no-JavaScript fallback under the note: links to the site's browsable sections from the engine
+ * navigation model, in its order and with its labels. Nothing when the site defines no navigation.
+ */
+function noJsSections(props: LayoutProps): ComponentChildren {
+  const base = props.site.config.base;
+  const links = sectionLinks(props.site);
+  if (links.length === 0) return null;
+  return h(
+    "nav",
+    { class: "search-results-sections", "aria-label": "Sections" },
+    h(
+      "ul",
+      { class: "search-results-sections-list" },
+      links.map((item) =>
+        h(
+          "li",
+          null,
+          h(
+            "a",
+            { href: item.url, ...(isCurrentSection(item.url, props.page.url, base) ? { "aria-current": "page" } : {}) },
+            item.title,
+          ),
+        ),
+      ),
+    ),
+  );
+}
+
+/**
  * The search results content: the page title, a labelled GET form that submits to this page, the
- * status region, the result list, and the no-JavaScript note. The form works on its own; the
- * inline module fills the list when the reader has JavaScript and the query is in the address.
+ * status region, the result list, and the no-JavaScript note with browsable section links. The form
+ * works on its own; the inline module fills the list when the reader has JavaScript and the query is
+ * in the address.
  */
 function content(props: LayoutProps): ComponentChildren {
   const lang = props.page.lang;
@@ -258,7 +288,12 @@ function content(props: LayoutProps): ComponentChildren {
       searchScope(props) as ComponentChildren,
     ),
     h("p", { class: "search-results-status", role: "status", "data-search-status": "" }, ""),
-    h("noscript", null, h("p", { class: "search-results-nojs" }, t(lang, "search_results_js"))),
+    h(
+      "noscript",
+      null,
+      h("p", { class: "search-results-nojs" }, t(lang, "search_results_js")),
+      noJsSections(props),
+    ),
     h("ol", { class: "search-results-list", "data-search-results": "" }),
     askAgentSection(props) as ComponentChildren,
     h("script", { type: "module", dangerouslySetInnerHTML: { __html: clientScript(props) } }),

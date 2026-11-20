@@ -2,7 +2,7 @@ import { readFileSync } from "node:fs";
 import { fileURLToPath } from "node:url";
 import { Fragment, h } from "preact";
 import type { ComponentChildren } from "preact";
-import type { Chrome, SiteConfig } from "@velella/mizzen/contracts";
+import type { Chrome, Site, SiteConfig } from "@velella/mizzen/contracts";
 import { CodeXml } from "lucide";
 import type { IconNode } from "lucide";
 import { t } from "../../i18n/index.ts";
@@ -74,6 +74,22 @@ function repositoryLink(config: SiteConfig) {
   );
 }
 
+/** The site's top-level sections in navigation order; a group counts as its first link under the group's title. */
+export function sectionLinks(site: Site): readonly { readonly title: string; readonly url: string }[] {
+  return (site.nav.main ?? []).flatMap((item) => {
+    if (typeof item.title !== "string") return [];
+    if ("url" in item && typeof item.url === "string") return [{ title: item.title, url: item.url }];
+    if (!("children" in item) || !Array.isArray(item.children)) return [];
+    const first = item.children.find((child) => "url" in child && typeof child.url === "string");
+    return first && "url" in first && typeof first.url === "string" ? [{ title: item.title, url: first.url }] : [];
+  });
+}
+
+/** Whether a section link covers the page; the home link matches only the home page. */
+export function isCurrentSection(url: string, pageUrl: string, base: string): boolean {
+  return url === `${base}/` || url === `${base}` ? pageUrl === url || pageUrl === `${base}/` : pageUrl.startsWith(url);
+}
+
 /** Sailcloth site chrome: glass header + Pagefind search, with version/language/project switchers. */
 const shell: Chrome = (props) => {
   const { site, page } = props;
@@ -85,19 +101,9 @@ const shell: Chrome = (props) => {
       ? (projectSwitcher(props) as ComponentChildren)
       : null;
 
-  const fromNav = (site.nav.main ?? []).flatMap((item) => {
-    if (typeof item.title !== "string") return [];
-    if ("url" in item && typeof item.url === "string") return [{ title: item.title, url: item.url }];
-    if (!("children" in item) || !Array.isArray(item.children)) return [];
-    const first = item.children.find((child) => "url" in child && typeof child.url === "string");
-    return first && "url" in first && typeof first.url === "string" ? [{ title: item.title, url: first.url }] : [];
-  });
+  const fromNav = sectionLinks(site);
   const sections = fromNav.length > 0 ? fromNav : [{ title: "Start", url: `${base}/` }];
-  const currentSection = sections.find((item) =>
-    item.url === `${base}/` || item.url === `${base}`
-      ? page.url === item.url || page.url === `${base}/`
-      : page.url.startsWith(item.url),
-  );
+  const currentSection = sections.find((item) => isCurrentSection(item.url, page.url, base));
 
   const bar = h(
     Fragment,
