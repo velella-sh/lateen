@@ -43,15 +43,61 @@ export function cacheEntrySvg(parsed: unknown, key: string): string | null {
   return typeof entry.svg === "string" && entry.svg !== "" ? entry.svg : null;
 }
 
+/**
+ * Successful reads memoized for the life of the build process, keyed by cache directory and diagram key.
+ * Only hits are memoized: a miss must stay on disk, because a later write may repair the entry.
+ */
+const readMemo = new Map<string, string>();
+
+let memoHits = 0;
+let diskHits = 0;
+let diskMisses = 0;
+
+/** Evidence that a repeated diagram did not re-read the disk: reads since the last clear, by outcome. */
+export interface DiagramCacheReadStats {
+  /** Reads served from the memo without touching the disk. */
+  readonly memoHits: number;
+  /** Reads that went to the disk and found a current, matching entry. */
+  readonly diskHits: number;
+  /** Reads that went to the disk and missed, including corrupt and oversized entries. */
+  readonly diskMisses: number;
+}
+
+/** The read counts since the last clear. Tests use them to prove a diagram reads the disk once. */
+export function diagramCacheReadStats(): DiagramCacheReadStats {
+  return { memoHits, diskHits, diskMisses };
+}
+
+/** Forgets memoized reads and their counts, as a fresh build process would start. */
+export function clearDiagramReadMemo(): void {
+  readMemo.clear();
+  memoHits = 0;
+  diskHits = 0;
+  diskMisses = 0;
+}
+
 /** The SVG stored for a key, or `null` for a miss, an older format, a partial write, or a corrupt entry. */
 export function readDiagramCache(dir: string, key: string): string | null {
+  const memoKey = `${dir}\u0000${key}`;
+  const memoized = readMemo.get(memoKey);
+  if (memoized !== undefined) {
+    memoHits += 1;
+    return memoized;
+  }
   const path = diagramCachePath(dir, key);
+  let svg: string | null = null;
   try {
-    if (statSync(path).size > MAX_ENTRY_BYTES) return null;
-    return cacheEntrySvg(JSON.parse(readFileSync(path, "utf8")), key);
+    if (statSync(path).size <= MAX_ENTRY_BYTES) svg = cacheEntrySvg(JSON.parse(readFileSync(path, "utf8")), key);
   } catch {
+    svg = null;
+  }
+  if (svg === null) {
+    diskMisses += 1;
     return null;
   }
+  diskHits += 1;
+  readMemo.set(memoKey, svg);
+  return svg;
 }
 
 /** Stores an SVG for a key with a same-directory temp file and a rename, so readers see all or nothing. */

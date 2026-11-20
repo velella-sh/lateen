@@ -24,11 +24,14 @@ import mermaid, {
 import {
   CACHE_DIR_ENV,
   cacheEntrySvg,
+  clearDiagramReadMemo,
   diagramCacheDir,
   diagramCachePath,
+  diagramCacheReadStats,
   MAX_ENTRY_BYTES,
   MERMAID_CACHE_FORMAT,
   readDiagramCache,
+  writeDiagramCache,
 } from "../components/mermaid/cache.ts";
 
 function render(props: MermaidProps, lang = "en"): string {
@@ -510,6 +513,78 @@ test("a disabled, read-only, or failing cache still renders normally", () => {
   } finally {
     if (previous === undefined) delete process.env[CACHE_DIR_ENV];
     else process.env[CACHE_DIR_ENV] = previous;
+  }
+});
+
+test("a successful read is memoized for the build; misses stay on the disk", () => {
+  const { dir, clean } = tempCacheDir();
+  try {
+    clearDiagramReadMemo();
+    const key = "memoized-read-key";
+
+    // A miss goes to the disk and is not memoized: repairing the entry makes the next read a hit.
+    assert.equal(readDiagramCache(dir, key), null);
+    assert.deepEqual(diagramCacheReadStats(), { memoHits: 0, diskHits: 0, diskMisses: 1 });
+    writeDiagramCache(dir, key, "<svg>memo</svg>");
+    assert.equal(readDiagramCache(dir, key), "<svg>memo</svg>");
+    assert.equal(readDiagramCache(dir, key), "<svg>memo</svg>");
+    assert.deepEqual(diagramCacheReadStats(), { memoHits: 1, diskHits: 1, diskMisses: 1 });
+
+    // A memo hit does not touch the disk: the entry can change underneath without changing the answer.
+    writeDiagramCache(dir, key, "<svg>changed</svg>");
+    assert.equal(readDiagramCache(dir, key), "<svg>memo</svg>", "a repeated read never re-reads the disk");
+    assert.equal(diagramCacheReadStats().memoHits, 2);
+    assert.equal(diagramCacheReadStats().diskHits, 1);
+  } finally {
+    clearDiagramReadMemo();
+    clean();
+  }
+});
+
+test("corrupt and oversized entries stay misses on every read", () => {
+  const { dir, clean } = tempCacheDir();
+  try {
+    clearDiagramReadMemo();
+    const key = "memoized-corrupt-key";
+    const path = diagramCachePath(dir, key);
+    mkdirSync(join(dir, `v${String(MERMAID_CACHE_FORMAT)}`), { recursive: true });
+
+    writeFileSync(path, '{"format":1,"key":"' + key, "utf8");
+    assert.equal(readDiagramCache(dir, key), null);
+    assert.equal(readDiagramCache(dir, key), null, "a corrupt entry is not memoized");
+    writeFileSync(path, "x".repeat(MAX_ENTRY_BYTES + 1), "utf8");
+    assert.equal(readDiagramCache(dir, key), null, "an oversized entry is not memoized");
+    assert.deepEqual(diagramCacheReadStats(), { memoHits: 0, diskHits: 0, diskMisses: 3 });
+  } finally {
+    clearDiagramReadMemo();
+    clean();
+  }
+});
+
+test("a second diagram in one build reuses the first read without touching the disk", () => {
+  const { dir, clean } = tempCacheDir();
+  try {
+    withCacheDir(dir, () => {
+      clearDiagramCache();
+      const renders = diagramRenderCount();
+      assert.ok(renderDiagram(FLOWCHART).ok);
+      assert.equal(diagramRenderCount(), renders + 1);
+
+      // Fresh memory, same build: the entry is read from the disk once, then memoized.
+      clearDiagramCache();
+      const before = diagramCacheReadStats();
+      assert.ok(renderDiagram(FLOWCHART).ok);
+      assert.equal(diagramRenderCount(), renders + 1, "the persistent cache served the second render");
+      assert.equal(diagramCacheReadStats().diskHits, before.diskHits + 1);
+
+      // The same diagram again: neither a render nor a second disk read.
+      assert.ok(renderDiagram(FLOWCHART).ok);
+      assert.equal(diagramRenderCount(), renders + 1);
+      assert.equal(diagramCacheReadStats().diskHits, before.diskHits + 1);
+      assert.equal(diagramCacheReadStats().memoHits, before.memoHits);
+    });
+  } finally {
+    clean();
   }
 });
 
