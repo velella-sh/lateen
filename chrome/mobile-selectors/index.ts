@@ -243,3 +243,4 @@ export function mobileSelectors(
   if (children.length === 0) return null;
   return h("div", { class: GROUP_CLASS, "data-mobile-selectors": "" }, ...children);
 }
+export default mobileSelectors;
