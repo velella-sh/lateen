@@ -169,6 +169,56 @@ test("without a repository or a tracker, both links are left out and the prompt 
   assert.match(out, /data-page-footer-copy/);
 });
 
+test("the back-to-top link targets the main landmark with the label and arrow", () => {
+  const out = html(pageFooter(props(pageWith())));
+
+  assert.match(
+    out,
+    /<a class="back-to-top" href="#main"><svg class="back-to-top-arrow"[^>]* aria-hidden="true" focusable="false">.*M12 19V5.*<\/svg>Back to top<\/a>/,
+  );
+});
+
+test("the back-to-top control follows the page actions as the last element of the footer", () => {
+  const withFeedback = html(pageFooter(props(pageWith(), repository)));
+  assert.match(withFeedback, /<\/p><a class="back-to-top" href="#main">/);
+
+  const withoutRepository = html(pageFooter(props(pageWith())));
+  assert.match(withoutRepository, /<\/button><a class="back-to-top" href="#main">/);
+  assert.match(withoutRepository, /<\/a><\/div>$/);
+});
+
+test("the back-to-top label follows the page language in both directions", () => {
+  for (const [lang, dir, label] of [
+    ["en", "ltr", "Back to top"],
+    ["fa", "rtl", "بازگشت به بالا"],
+    ["ar", "rtl", "العودة إلى الأعلى"],
+  ] as const) {
+    const page = { ...pageWith(), lang, dir };
+    const out = html(pageFooter(props(page)));
+    assert.ok(out.includes(`</svg>${label}</a>`), `${lang} label`);
+  }
+});
+
+test("the back-to-top link is a plain link with no JavaScript gate", () => {
+  const out = html(pageFooter(props(pageWith())));
+  const link = /<a class="back-to-top"[^>]*>/.exec(out)?.[0] ?? "";
+
+  assert.equal(link, '<a class="back-to-top" href="#main">');
+  assert.doesNotMatch(link, /hidden|data-|onclick/);
+});
+
+test("the back-to-top styles use logical margin and add no motion", () => {
+  const css = readFileSync(new URL("../styles/src/ui.css", import.meta.url), "utf8");
+  const rule = /\.back-to-top\s*\{([^}]*)\}/.exec(css)?.[1] ?? "";
+
+  assert.match(rule, /ms-auto/, "the control sits at the inline end in both directions");
+  assert.doesNotMatch(rule, /margin-(left|right)|(^|[;{\s])(left|right):/, "no physical side");
+  assert.doesNotMatch(rule, /transition|animation/, "the control adds no motion");
+
+  const reduced = /@media \(prefers-reduced-motion: reduce\)\s*\{([\s\S]*?)\n\}/.exec(css)?.[1] ?? "";
+  assert.match(reduced, /transition:\s*none\s*!important/);
+});
+
 /** A button with the attributes the page renders and a click listener that tests can fire. */
 function fakeButton(hidden = true): CopyButton & { clicks: Array<() => void>; click(): void } {
   const fake = {

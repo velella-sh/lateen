@@ -1,6 +1,8 @@
 import { h } from "preact";
 import type { Chrome, Page, RepositoryConfig } from "@velella/mizzen/contracts";
+import { ArrowUp } from "lucide";
 import { t } from "../../i18n/index.ts";
+import { icon } from "../../src/icon.ts";
 import { reportHref } from "../report-issue/index.ts";
 
 /*
@@ -71,6 +73,12 @@ const pageFooter: Chrome = ({ site, page }) => {
       t(lang, "edit_label"),
     ),
     links.length === 0 ? null : h("p", { class: "page-footer-feedback" }, ...links),
+    h(
+      "a",
+      { class: "back-to-top", href: "#main" },
+      icon({ node: ArrowUp, class: "back-to-top-arrow" }),
+      t(lang, "back_to_top"),
+    ),
   );
 };
 

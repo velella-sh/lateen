@@ -2491,6 +2491,14 @@
     @apply text-xs font-normal text-muted-foreground;
   }
 
+  .back-to-top {
+    @apply ms-auto mt-6 flex w-fit items-center gap-1.5 text-sm font-medium text-muted-foreground no-underline hover:text-foreground;
+  }
+
+  .back-to-top svg {
+    @apply size-4;
+  }
+
   .site-footer {
     @apply border-t py-8;
   }

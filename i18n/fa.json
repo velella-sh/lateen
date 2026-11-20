@@ -63,6 +63,7 @@
   "ask_agent_size": "{n} نویسه",
   "ask_agent_text_failed": "متن صفحه بارگذاری نشد.",
   "ask_agent_url_too_long": "این پیوند بیش از حد بلند می‌شد، پس پرامپت کپی شد.",
+  "back_to_top": "بازگشت به بالا",
   "blog_archive": "بایگانی",
   "blog_author_heading": "نوشته‌های {name}",
   "blog_empty": "هنوز نوشته‌ای نیست.",
