@@ -356,6 +356,41 @@ test("the live message is a status region that starts empty", () => {
   assert.equal(status.textContent, "");
 });
 
+test("adjacent copy controls announce on their own status region, one action at a time", async () => {
+  const first = new FakeBlock({ "data-lang": "ts", id: "first" }, "const a = 1;");
+  const second = new FakeBlock({ "data-lang": "ts", id: "second" }, "const b = 2;");
+  const clock = timers();
+  activate(new FakeDoc([first, second]), { clipboard: clipboard(), schedule: clock.schedule });
+
+  const control = (block: FakeBlock) => {
+    const bar = block.inserted[0]!.children[0] as FakeNode;
+    return { button: bar.children[0] as FakeNode, status: bar.children[1] as FakeNode };
+  };
+  const a = control(first);
+  const b = control(second);
+
+  a.button.click();
+  await flush();
+
+  assert.equal(a.status.attrs.role, "status");
+  assert.equal(b.status.attrs.role, "status");
+  assert.equal(a.status.textContent, COPIED);
+  assert.equal(b.status.textContent, "");
+  assert.equal(a.button.attrs["aria-label"], DEFAULT_LABELS.copy, "the name alone does not change");
+  assert.equal(clock.pending.length, 1, "one action schedules one reset");
+
+  clock.pending[0]!.callback();
+  assert.equal(a.status.textContent, "");
+
+  b.button.click();
+  await flush();
+
+  assert.equal(a.status.textContent, "");
+  assert.equal(b.status.textContent, COPIED);
+  assert.equal(b.button.attrs["aria-label"], DEFAULT_LABELS.copy, "the name alone does not change");
+  assert.equal(clock.pending.length, 2, "one action schedules one reset");
+});
+
 test("a block the island cannot read is left alone", () => {
   const block = new FakeBlock({}, null, false);
   activate(new FakeDoc([block]), { clipboard: clipboard(), schedule: timers().schedule });

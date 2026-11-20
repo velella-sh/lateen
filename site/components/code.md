@@ -73,6 +73,7 @@ The notes are ordinary HTML: a `<details>` element with a summary and an ordered
 
 - An example longer than 20 lines starts inside a native disclosure, so the page stays scannable. The full code is still in the DOM, the copy control still copies all of it, and the disclosure opens without JavaScript.
 - The copy button is made by JavaScript on every page and starts hidden. Without JavaScript the code still reads and selects by hand.
+- Each copy control owns one status region, so copying one block updates only that block's message, even beside another block or the page-level Markdown copy. The button's accessible name stays `Copy` before and after, so the result is announced once.
 - The wrap toggle beside the copy button changes only presentation: long lines break in the view, while the copied text keeps the original line breaks. Without JavaScript the toggle stays absent and the block scrolls as before.
 - A `console`, `shellsession`, or `terminal` fence is read as a recorded session: the copy takes only the `$`/`%` command lines and their `>` continuations, never the output. A `bash` fence is a script, so every line is copied with any prompt taken off.
 - A `diff` fence keeps its `+` and `−` lines. Use it to show a change to a file.

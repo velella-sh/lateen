@@ -326,6 +326,24 @@ test("a click fetches the Markdown twin, writes it to the clipboard, and announc
   assert.equal(world.status.textContent, "Copied");
 });
 
+test("an adjacent copy control keeps its own status region and announces once", async () => {
+  const pageButton = fakeButton();
+  const pageStatus = fakeStatus();
+  const codeStatus: CopyStatus = { textContent: "" };
+  const world = env();
+
+  activate(pageButton, { ...world, status: pageStatus });
+  activate(fakeButton(), { ...world, status: codeStatus });
+
+  pageButton.clicks[0]!();
+  await settle();
+
+  assert.equal(pageStatus.textContent, "Copied");
+  assert.equal(pageStatus.attrs.get("aria-busy"), undefined);
+  assert.equal(codeStatus.textContent, "");
+  assert.deepEqual(world.wrote, ["# Install\n"]);
+});
+
 test("the copy button fetches the same base-aware twin the plain link shows, byte for byte", async () => {
   const out = html(copyMarkdown(props(pageWith("/guide/install/"), "/docs")));
   const markdown = out.match(/data-markdown="([^"]+)"/)![1]!;
