@@ -44,6 +44,9 @@ const search: Chrome = (props) =>
       "data-search-searching": t(props.page.lang, "search_results_loading"),
       "data-search-failed": t(props.page.lang, "search_results_failed"),
       "data-search-empty": patternOf(props.page.lang, "search_results_empty"),
+      "data-search-empty-scope": patternOf(props.page.lang, "search_results_empty_scope"),
+      "data-search-scope-project": t(props.page.lang, "search_scope_project"),
+      "data-search-scope-all": t(props.page.lang, "search_scope_all"),
       "data-search-ready": t(props.page.lang, "search_ready"),
       "data-search-retry-failed": t(props.page.lang, "search_retry_failed"),
       "data-search-count-zero": patternOf(props.page.lang, "search_count_zero"),
@@ -150,6 +153,17 @@ const search: Chrome = (props) =>
             hidden: true,
           },
           t(props.page.lang, "search_all_results"),
+        ),
+        // Hidden until a search finds nothing; it then opens the same query in the other scope.
+        h(
+          "a",
+          {
+            class: "search-all",
+            "data-search-scope-change": "",
+            href: `${withBase(props.site.config.base, "/search/")}?scope=all`,
+            hidden: true,
+          },
+          t(props.page.lang, "search_scope_all"),
         ),
       ),
       commandPalette(props) as ComponentChildren,

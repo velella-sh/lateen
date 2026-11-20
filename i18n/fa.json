@@ -395,6 +395,7 @@
   "search_project_failed": "نتایج «{project}» بارگذاری نشد.",
   "search_ready": "جست‌وجو دوباره در دسترس است.",
   "search_results_empty": "نتیجه‌ای برای «{query}» پیدا نشد.",
+  "search_results_empty_scope": "نتیجه‌ای برای «{query}» در {scope} پیدا نشد.",
   "search_results_failed": "جست‌وجو در حال حاضر در دسترس نیست.",
   "search_results_js": "برای نمایش نتایج در این صفحه جاوااسکریپت لازم است. پرسش خود را با فرم ارسال کنید تا در نشانی بماند.",
   "search_results_loading": "در حال جست‌وجو…",

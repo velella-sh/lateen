@@ -395,7 +395,7 @@
   "search_project_failed": "تعذّر تحميل نتائج «{project}».",
   "search_ready": "البحث متاح مرة أخرى.",
   "search_results_empty": "لا نتائج لـ «{query}».",
-  "search_results_failed": "البحث غير متاح الآن.",
+  "search_results_empty_scope": "لا نتائج لـ «{query}» في {scope}.",  "search_results_failed": "البحث غير متاح الآن.",
   "search_results_js": "يلزم JavaScript لعرض النتائج في هذه الصفحة. أرسل النموذج ليبقى استعلامك في العنوان.",
   "search_results_loading": "جارٍ البحث…",
   "search_results_more": "عرض المزيد",

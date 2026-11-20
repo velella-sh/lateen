@@ -307,6 +307,11 @@ export interface SearchMessages {
   readonly copied: string;
   readonly copyFailed: string;
   readonly empty: string;
+  /** The empty message when search ran in a named scope; `{scope}` names it. */
+  readonly emptyScope?: string | undefined;
+  /** The scope names the empty message and the scope-change link use. */
+  readonly scopeProject?: string | undefined;
+  readonly scopeAll?: string | undefined;
   /** Announced when a reader's retry succeeds. */
   readonly ready: string;
   /** Announced when a reader's retry fails; it differs from `failed` so it is heard again. */
@@ -326,6 +331,9 @@ export const MESSAGES: SearchMessages = {
   copied: "Copied",
   copyFailed: "Copy failed.",
   empty: "No results for “{query}”.",
+  emptyScope: "No results for “{query}” in {scope}.",
+  scopeProject: "This project",
+  scopeAll: "All projects",
   ready: "Search is available again.",
   retryFailed: "Search is still unavailable.",
   counts: {
@@ -363,11 +371,13 @@ export interface SearchAction {
   addEventListener(type: "click", listener: () => void): void;
 }
 
-/** The all-results link: hidden and without an href until the field holds a query. */
+/** The all-results and scope-change links: hidden and without an href until they have something to open. */
 export interface SearchLink {
   hidden: boolean;
   setAttribute(name: string, value: string): void;
   removeAttribute(name: string): void;
+  /** The scope-change link's name; the all-results link keeps the server's text. */
+  textContent?: string | null;
 }
 
 /**
@@ -468,6 +478,8 @@ export interface SearchParts {
   retry?: SearchAction | undefined;
   /** The link to the dedicated search page, which follows the field's query. */
   all?: SearchLink | undefined;
+  /** The empty state's link to the same query in the other scope. */
+  scope?: SearchLink | undefined;
 }
 
 /** Everything the island reads from the world; tests pass fakes, the browser supplies its own. */
@@ -877,9 +889,13 @@ export function pluralCategory(lang: string, count: number): PluralCategory {
   return (PLURAL_CATEGORIES as readonly string[]).includes(category) ? (category as PluralCategory) : "other";
 }
 
-/** The text announced when a query finds nothing. */
-export function emptyMessage(query: string, messages: SearchMessages = MESSAGES): string {
-  return fill(messages.empty, { query });
+/** The text announced when a query finds nothing, naming the scope that was searched. */
+export function emptyMessage(query: string, messages: SearchMessages = MESSAGES, scope?: string | null): string {
+  const all = scope === "all";
+  return fill(messages.emptyScope ?? MESSAGES.emptyScope ?? "", {
+    query,
+    scope: (all ? messages.scopeAll : messages.scopeProject) ?? (all ? MESSAGES.scopeAll : MESSAGES.scopeProject) ?? "",
+  });
 }
 
 /** The text announced for a result count, in the page language's plural form. */
@@ -1051,11 +1067,30 @@ export function activate(parts: SearchParts, env: SearchEnv): void {
     all.setAttribute("href", resultsHref(input.value, env.scope ?? null, dialog.getAttribute("data-base") ?? ""));
   };
 
+  /**
+   * Shows the other scope's link only while the query has no hits, pointed at the same query there:
+   * a reader who searched this project can widen to the network, and the other way back.
+   */
+  const syncScopeLink = (query: string, empty: boolean): void => {
+    const link = parts.scope;
+    if (link === undefined) return;
+    if (!empty) {
+      link.hidden = true;
+      return;
+    }
+    const all = (env.scope ?? "project") === "all";
+    link.hidden = false;
+    link.textContent =
+      (all ? messages.scopeProject : messages.scopeAll) ?? (all ? MESSAGES.scopeProject : MESSAGES.scopeAll) ?? "";
+    link.setAttribute("href", resultsHref(query, all ? "project" : "all", dialog.getAttribute("data-base") ?? ""));
+  };
+
   /** Runs the field's current query: an empty field shows the actions and clears the status. */
   const run = (): void => {
     syncClear();
     syncAll();
     const query = input.value.trim();
+    syncScopeLink(query, false);
     const matched = filterActions(actions, query);
     const current = ++sequence;
     if (query === "") {
@@ -1078,12 +1113,13 @@ export function activate(parts: SearchParts, env: SearchEnv): void {
       .then(
         (records) => {
           if (current !== sequence) return;
+          const empty = records.length === 0 && matched.length === 0;
           draw(records, matched);
-          status.textContent =
-            records.length === 0
-              ? matched.length === 0
-                ? emptyMessage(query, messages)
-                : ""
+          syncScopeLink(query, empty);
+          status.textContent = empty
+            ? emptyMessage(query, messages, env.scope)
+            : records.length === 0
+              ? ""
               : countMessage(records.length, lang, messages);
         },
         () => {
@@ -1312,6 +1348,9 @@ export function messagesFrom(element: MessageSource): SearchMessages {
     copied: attributeOf(element, "data-search-copied") ?? MESSAGES.copied,
     copyFailed: attributeOf(element, "data-search-copy-failed") ?? MESSAGES.copyFailed,
     empty: attributeOf(element, "data-search-empty") ?? MESSAGES.empty,
+    emptyScope: attributeOf(element, "data-search-empty-scope") ?? MESSAGES.emptyScope,
+    scopeProject: attributeOf(element, "data-search-scope-project") ?? MESSAGES.scopeProject,
+    scopeAll: attributeOf(element, "data-search-scope-all") ?? MESSAGES.scopeAll,
     ready: attributeOf(element, "data-search-ready") ?? MESSAGES.ready,
     retryFailed: attributeOf(element, "data-search-retry-failed") ?? MESSAGES.retryFailed,
     otherSection: attributeOf(element, "data-search-other-section") ?? MESSAGES.otherSection,
@@ -1351,6 +1390,7 @@ if (typeof document !== "undefined") {
   const results = document.querySelector("[data-search-results]");
   const status = document.querySelector("[data-search-status]");
   const all = document.querySelector("[data-search-all]");
+  const scope = document.querySelector("[data-search-scope-change]");
   const palette = document.querySelector("[data-palette-actions]") as SearchPaletteSource | null;
   const askRoot = document.querySelector("[data-ask-agent]");
   const askSource = document.querySelector("[data-ask-agent-config]") as SearchPaletteSource | null;
@@ -1379,6 +1419,7 @@ if (typeof document !== "undefined") {
         ...(clear === null || clear === undefined ? {} : { clear: clear as NonNullable<SearchParts["clear"]> }),
         ...(retry === null || retry === undefined ? {} : { retry: retry as NonNullable<SearchParts["retry"]> }),
         ...(all === null || all === undefined ? {} : { all: all as NonNullable<SearchParts["all"]> }),
+        ...(scope === null || scope === undefined ? {} : { scope: scope as NonNullable<SearchParts["scope"]> }),
         ...(palette === null ? {} : { palette }),
       },
       {
