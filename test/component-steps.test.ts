@@ -22,13 +22,15 @@ test("the directive is named steps", () => {
   assert.equal(directive, "steps");
 });
 
-test("wraps the list in .steps and numbers three steps as text with stable anchors", () => {
+test("wraps the list in .steps and numbers three steps as text with title anchors", () => {
   const node = render(ORDERED_LIST);
   assert.equal(node.props.class, "steps");
   const html = node.props.dangerouslySetInnerHTML.__html;
-  for (const n of [1, 2, 3]) {
-    assert.ok(html.includes(`<li id="step-${n}" class="step" data-step="${n}"><span class="step-number">Step ${n}</span>`));
-  }
+  const anchors = ["install", "configure", "done"];
+  anchors.forEach((anchor, index) => {
+    const n = index + 1;
+    assert.ok(html.includes(`<li id="step-${anchor}" class="step" data-step="${n}"><span class="step-number">Step ${n}</span>`));
+  });
   assert.doesNotMatch(html, /step-4/);
 });
 
@@ -36,9 +38,24 @@ test("nested content stays inside its step and nested lists are not numbered", (
   const html = render(ORDERED_LIST).props.dangerouslySetInnerHTML.__html;
   assert.ok(html.includes("<pre><code>run</code></pre><ol><li>nested</li></ol>"));
   assert.deepEqual(stepsOf(ORDERED_LIST), [
-    { number: 1, id: "step-1", title: "Install." },
-    { number: 2, id: "step-2", title: "Configure." },
-    { number: 3, id: "step-3", title: "Done." },
+    { number: 1, id: "step-install", title: "Install." },
+    { number: 2, id: "step-configure", title: "Configure." },
+    { number: 3, id: "step-done", title: "Done." },
+  ]);
+});
+
+test("inserting a step keeps the anchors of the steps around it", () => {
+  const before = stepsOf(ORDERED_LIST).map((step) => step.id);
+  const inserted = "<ol><li><p>Check the version.</p></li><li><p>Install.</p></li><li><p>Configure.</p></li><li><p>Done.</p></li></ol>";
+  assert.deepEqual(stepsOf(inserted).slice(1).map((step) => step.id), before);
+});
+
+test("repeated titles get one anchor each and empty titles fall back to their number", () => {
+  const html = "<ol><li><p>Install.</p></li><li><p>Install.</p></li><li><pre><code>run</code></pre></li></ol>";
+  assert.deepEqual(stepsOf(html), [
+    { number: 1, id: "step-install", title: "Install." },
+    { number: 2, id: "step-install-2", title: "Install." },
+    { number: 3, id: "step-3", title: "" },
   ]);
 });
 
