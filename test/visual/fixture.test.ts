@@ -1,15 +1,16 @@
 import assert from "node:assert/strict";
-import { existsSync, mkdirSync, readFileSync, readdirSync, rmSync, statSync } from "node:fs";
+import { existsSync, readFileSync, readdirSync, statSync } from "node:fs";
 import { join } from "node:path";
 import { test } from "node:test";
 import { fileURLToPath } from "node:url";
+import { tempDir } from "../integration-helpers.ts";
 import { buildFixture } from "./fixtures/build.ts";
 import { GALLERY_PAGES, PAGES, componentNames } from "./fixtures/pages.ts";
 
 const ROOT = fileURLToPath(new URL("../../", import.meta.url));
 const A11Y_SITE = join(ROOT, "test/accessibility/fixtures/site");
 const GALLERY_SITE = join(ROOT, "test/visual/fixtures/site");
-const OUT = join(ROOT, ".mizzen/visual-test");
+const OUT = tempDir("visual-fixture-");
 
 function allFiles(dir: string, base = dir): Map<string, string> {
   const files = new Map<string, string>();
@@ -55,8 +56,6 @@ test("the gallery shows every component directory in every language", () => {
 });
 
 test("the fixture builds twice to identical files, and the gallery has a section per component", () => {
-  rmSync(OUT, { recursive: true, force: true });
-  mkdirSync(OUT, { recursive: true });
   buildFixture(join(OUT, "one"));
   buildFixture(join(OUT, "two"));
   const one = allFiles(join(OUT, "one"));
@@ -74,5 +73,4 @@ test("the fixture builds twice to identical files, and the gallery has a section
     for (const name of componentNames()) assert.match(html, new RegExp(`<h2[^>]*id="${name}"`), `${page.path} shows ${name}`);
     assert.doesNotMatch(html, /Invalid Date|undefined|\[object Object\]/);
   }
-  rmSync(OUT, { recursive: true, force: true });
 });

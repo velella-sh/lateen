@@ -15,7 +15,7 @@ test("npm test builds the UI once, in pretest, and runs every gate once", () => 
   for (const gate of [
     "node scripts/tokens.ts --check",
     "node scripts/check-design.ts",
-    'node --test "test/**/*.test.ts"',
+    'node --test --test-reporter=spec --test-reporter-destination=stdout --test-reporter=./scripts/test-report.ts --test-reporter-destination=stdout "test/**/*.test.ts"',
     "npm run test:redesign",
   ]) {
     assert.equal(run?.split(gate).length, 2, `the test script runs ${gate} exactly once`);

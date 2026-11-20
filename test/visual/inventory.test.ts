@@ -1,9 +1,10 @@
 import assert from "node:assert/strict";
-import { mkdirSync, readFileSync, readdirSync, writeFileSync } from "node:fs";
+import { readFileSync, readdirSync, writeFileSync } from "node:fs";
 import { join } from "node:path";
 import { test } from "node:test";
 import { fileURLToPath } from "node:url";
 import { JSDOM } from "jsdom";
+import { tempDir } from "../integration-helpers.ts";
 import { buildFixture } from "./fixtures/build.ts";
 
 interface Entry {
@@ -14,7 +15,8 @@ interface Entry {
 }
 
 const ROOT = fileURLToPath(new URL("../../", import.meta.url));
-const BUILD = join(ROOT, ".mizzen/inventory-gate");
+const BUILD = tempDir("visual-inventory-gate-");
+const REPORT = tempDir("visual-inventory-report-");
 const INVENTORY = JSON.parse(readFileSync(join(ROOT, "test/visual/inventory.json"), "utf8")) as { components: Entry[] };
 const STATES = JSON.parse(readFileSync(join(ROOT, "test/visual/states.json"), "utf8")) as { components: { name: string }[] };
 
@@ -58,9 +60,8 @@ test("the inventory covers every component, selector, variant and island", () =>
   const stateNames = new Set(STATES.components.map((entry) => entry.name));
   for (const name of islands) if (!stateNames.has(name)) errors.push(`client component ${name} has no states.json entry`);
 
-  mkdirSync(join(ROOT, "test/visual/out"), { recursive: true });
   writeFileSync(
-    join(ROOT, "test/visual/out/fixture-inventory.json"),
+    join(REPORT, "fixture-inventory.json"),
     `${JSON.stringify({ components: expected.length, variants: INVENTORY.components.reduce((n, entry) => n + (entry.variants?.length ?? 0), 0), clientComponents: islands.length, ok: errors.length === 0, errors }, null, 2)}\n`,
   );
 
@@ -133,8 +134,7 @@ test("the component fixtures keep their no-JS state and print contract", () => {
     ok: errors.length === 0,
     errors,
   };
-  mkdirSync(join(ROOT, "test/visual/out"), { recursive: true });
-  writeFileSync(join(ROOT, "test/visual/out/component-contracts.json"), `${JSON.stringify(report, null, 2)}\n`);
+  writeFileSync(join(REPORT, "component-contracts.json"), `${JSON.stringify(report, null, 2)}\n`);
 
   assert.deepEqual(errors, [], errors.join("\n"));
 });
