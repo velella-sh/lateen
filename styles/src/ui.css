@@ -1959,6 +1959,22 @@
     text-transform: none;
   }
 
+  /* The arrow beside a sortable header's label: the glyph says the direction, so it alone carries
+     the visible state. A logical margin keeps it on the far side of the label in RTL. */
+  .record-table-sort {
+    margin-inline-start: 0.4em;
+    padding: 0;
+    color: inherit;
+    background: none;
+    border: 0;
+    cursor: pointer;
+    line-height: 1;
+  }
+
+  .record-table-sort:hover {
+    color: var(--foreground);
+  }
+
   .callout {
     @apply relative flex gap-3 rounded-xl;
     margin: 1.125rem 0;

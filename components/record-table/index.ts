@@ -29,6 +29,9 @@ export const SORTABLE_CLASS = "record-table-sortable";
 /** Class on a header's sort button. It starts `hidden`; `client.ts` reveals it. */
 export const SORT_CLASS = "record-table-sort";
 
+/** Class on the arrow inside a sort button, which shows the direction the column runs. */
+export const SORT_INDICATOR_CLASS = "record-table-sort-icon";
+
 /** Class on the live region that announces the new order. */
 export const STATUS_CLASS = "record-table-status";
 
@@ -234,7 +237,12 @@ export default function recordTable({ props, page, site }: ComponentProps<Readon
           {
             scope: "col",
             ...(sortable(column)
-              ? { "data-field": column.field, "data-kind": column.kind ?? "text", "data-label": label }
+              ? {
+                  "aria-sort": "none",
+                  "data-field": column.field,
+                  "data-kind": column.kind ?? "text",
+                  "data-label": label,
+                }
               : {}),
           },
           label,
@@ -247,7 +255,7 @@ export default function recordTable({ props, page, site }: ComponentProps<Readon
                   hidden: true,
                   "aria-label": t(lang, "record_table_sort", { column: label }),
                 },
-                "↕",
+                h("span", { class: SORT_INDICATOR_CLASS, "aria-hidden": "true" }, "↕"),
               )
             : null,
         );

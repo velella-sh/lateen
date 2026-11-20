@@ -17,6 +17,9 @@ export const WRAPPER_SELECTOR = "[data-record-table-sort]";
 /** A header's sort button. */
 export const BUTTON_SELECTOR = ".record-table-sort";
 
+/** The arrow inside a sort button, which shows the direction the column runs. */
+export const INDICATOR_SELECTOR = ".record-table-sort-icon";
+
 /** The live region that announces the new order. */
 export const STATUS_SELECTOR = ".record-table-status";
 
@@ -104,6 +107,19 @@ export function orderRows(
 /** The column a header names, so the announcement says which column the reader sorted by. */
 function labelOf(th: SortElement): string {
   return th.getAttribute("data-label") ?? "";
+}
+
+/** How a column sorts: unsorted, or one of the two directions `aria-sort` spells. */
+type SortState = "none" | SortDirection;
+
+/** The arrow that shows a header's state: the same glyphs in every direction of the page. */
+const ARROWS: Readonly<Record<SortState, string>> = { none: "↕", ascending: "↑", descending: "↓" };
+
+/** Marks a header's sort state for assistive technology, and the arrow beside its label. */
+function mark(th: SortElement, state: SortState): void {
+  th.setAttribute("aria-sort", state);
+  const arrow = th.querySelector(INDICATOR_SELECTOR);
+  if (arrow !== null) arrow.textContent = ARROWS[state];
 }
 
 /** A chosen select: the cell index it reads, and the value it keeps or "" for every value. */
@@ -228,8 +244,8 @@ function attach(wrapper: SortElement, lang: string, view: SortWindow | null, pre
   const status = wrapper.querySelector(STATUS_SELECTOR);
 
   const sortBy = (th: SortElement, index: number, kind: string, direction: SortDirection): void => {
-    for (const header of headers) header.removeAttribute("aria-sort");
-    th.setAttribute("aria-sort", direction);
+    for (const entry of sortable.values()) mark(entry.th, "none");
+    mark(th, direction);
     for (const row of orderRows([...body.querySelectorAll(ROW_SELECTOR)], index, kind, direction, lang)) {
       body.append(row);
     }
@@ -239,7 +255,10 @@ function attach(wrapper: SortElement, lang: string, view: SortWindow | null, pre
   const write = (): void => {
     if (view === null) return;
     const values: [string, string][] = [];
-    const sorted = headers.find((header) => header.getAttribute("aria-sort") !== null);
+    const sorted = headers.find((header) => {
+      const state = header.getAttribute("aria-sort");
+      return state === "ascending" || state === "descending";
+    });
     const field = sorted?.getAttribute("data-field") ?? null;
     if (sorted !== undefined && field !== null) {
       values.push(["sort", `${field}:${sorted.getAttribute("aria-sort") === "descending" ? "desc" : "asc"}`]);
@@ -286,6 +305,7 @@ function attach(wrapper: SortElement, lang: string, view: SortWindow | null, pre
     if (target !== undefined && direction !== undefined) {
       sortBy(target.th, target.index, target.kind, direction);
     } else {
+      for (const entry of sortable.values()) mark(entry.th, "none");
       for (const row of sent) body.append(row);
     }
     filters?.restore(params);
