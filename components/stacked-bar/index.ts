@@ -9,6 +9,7 @@ import {
 } from "../bar-chart/index.ts";
 import { MAX_SERIES, idBaseOf, seriesColour, text } from "../chart-data/input.ts";
 import { stackedTotalsOf, ticksOf, xScaleOf } from "../chart-data/scale.ts";
+import { barMark, labelMark, lineMark, svgFrame, textMark } from "../chart-data/svg.ts";
 
 /** The number of series the chart colours: one per categorical token, `chart-cat-1` to `chart-cat-8`. */
 export { MAX_SERIES } from "../chart-data/input.ts";
@@ -180,28 +181,17 @@ function chartOf(rows: readonly StackedRow[], series: readonly string[], lang: s
   const marks = [];
 
   for (const tick of ticks) {
-    marks.push(h("line", { class: GRID_CLASS, x1: x(tick), x2: x(tick), y1: plotTop, y2: plotBottom }));
+    marks.push(lineMark(GRID_CLASS, x(tick), x(tick), plotTop, plotBottom));
   }
-  marks.push(
-    h("line", { class: AXIS_CLASS, x1: plotX, x2: plotX + plotWidth, y1: plotBottom, y2: plotBottom }),
-  );
+  marks.push(lineMark(AXIS_CLASS, plotX, plotX + plotWidth, plotBottom, plotBottom));
   for (const tick of ticks) {
-    marks.push(
-      h("text", { class: TICK_CLASS, x: x(tick), y: plotBottom + 16, "text-anchor": "middle" }, formatNumber(lang, tick)),
-    );
+    marks.push(textMark(TICK_CLASS, x(tick), plotBottom + 16, "middle", formatNumber(lang, tick)));
   }
 
   rows.forEach((row, index) => {
     const center = plotTop + index * rowHeight + rowHeight / 2;
     const short = shortenLabel(row.label);
-    marks.push(
-      h(
-        "text",
-        { class: LABEL_CLASS, x: plotX - 8, y: center + 4, "text-anchor": "end" },
-        short === row.label ? null : h("title", null, row.label),
-        short,
-      ),
-    );
+    marks.push(labelMark(LABEL_CLASS, plotX - 8, center + 4, "end", row.label, short));
 
     let positive = 0;
     let negative = 0;
@@ -219,26 +209,16 @@ function chartOf(rows: readonly StackedRow[], series: readonly string[], lang: s
       const left = Math.min(startX, endX);
       const span = Math.abs(endX - startX);
       const colour = seriesColour(series.indexOf(segment.series));
-      marks.push(
-        h("rect", {
-          class: `${SEGMENT_CLASS} ${CLASS}-series-${colour}`,
-          x: left,
-          y: center - barHeight / 2,
-          width: span,
-          height: barHeight,
-        }),
-      );
+      marks.push(barMark(`${SEGMENT_CLASS} ${CLASS}-series-${colour}`, left, center - barHeight / 2, span, barHeight));
 
       // An estimate: the value is drawn only when the segment is wider than its digits.
       const label = formatNumber(lang, segment.value);
       if (span >= Array.from(label).length * 7 + 8) {
-        marks.push(
-          h("text", { class: SEGMENT_VALUE_CLASS, x: left + span / 2, y: center + 4, "text-anchor": "middle" }, label),
-        );
+        marks.push(textMark(SEGMENT_VALUE_CLASS, left + span / 2, center + 4, "middle", label));
       }
     }
     if (drawn === 0) {
-      marks.push(h("text", { class: NO_VALUE_CLASS, x: plotX + 4, y: center + 4 }, NO_VALUE_TEXT));
+      marks.push(textMark(NO_VALUE_CLASS, plotX + 4, center + 4, undefined, NO_VALUE_TEXT));
     }
   });
 
@@ -284,18 +264,7 @@ export default function stackedBar({ props, site, page }: ComponentProps<Stacked
     "figure",
     { class: CLASS, id: base, "data-stacked-bar": from },
     title === "" ? null : h("figcaption", { class: TITLE_CLASS }, title),
-    h(
-      "svg",
-      {
-        class: SVG_CLASS,
-        viewBox: `0 0 ${chart.width} ${chart.height}`,
-        role: "img",
-        "aria-labelledby": titleId,
-        preserveAspectRatio: "xMidYMid meet",
-      },
-      h("title", { id: titleId }, name),
-      ...chart.marks,
-    ),
+    svgFrame(SVG_CLASS, chart.width, chart.height, titleId, name, chart.marks),
     h(
       "ul",
       { class: LEGEND_CLASS, "aria-label": LEGEND_TEXT },

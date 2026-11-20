@@ -15,6 +15,7 @@ import {
   type Json,
 } from "../chart-data/input.ts";
 import { extentOf, ticksOf, xScaleOf, yScaleOf } from "../chart-data/scale.ts";
+import { barMark, labelMark, lineMark, svgFrame, textMark } from "../chart-data/svg.ts";
 
 /** The shared input validation every chart reads through; re-exported for the bar chart's callers. */
 export { labelDir, lookup, numericValue } from "../chart-data/input.ts";
@@ -177,75 +178,40 @@ function horizontalChart(rows: readonly BarRow[], ticks: readonly number[], lang
   const marks = [];
 
   for (const tick of ticks) {
-    marks.push(h("line", { class: GRID_CLASS, x1: x(tick), x2: x(tick), y1: plotTop, y2: plotBottom }));
+    marks.push(lineMark(GRID_CLASS, x(tick), x(tick), plotTop, plotBottom));
   }
-  marks.push(
-    h("line", { class: AXIS_CLASS, x1: plotX, x2: plotX + plotWidth, y1: plotBottom, y2: plotBottom }),
-  );
+  marks.push(lineMark(AXIS_CLASS, plotX, plotX + plotWidth, plotBottom, plotBottom));
   for (const tick of ticks) {
-    marks.push(
-      h("text", { class: TICK_CLASS, x: x(tick), y: plotBottom + 16, "text-anchor": "middle" }, formatNumber(lang, tick)),
-    );
+    marks.push(textMark(TICK_CLASS, x(tick), plotBottom + 16, "middle", formatNumber(lang, tick)));
   }
 
   rows.forEach((row, index) => {
     const center = plotTop + index * rowHeight + rowHeight / 2;
     const short = shortenLabel(row.label);
     marks.push(
-      h(
-        "text",
-        {
-          class: LABEL_CLASS,
-          x: rtl ? width - 12 : plotX - 8,
-          y: center + 4,
-          "text-anchor": rtl ? "start" : "end",
-          dir: labelDir(row.label, rtl),
-        },
-        short === row.label ? null : h("title", null, row.label),
+      labelMark(
+        LABEL_CLASS,
+        rtl ? width - 12 : plotX - 8,
+        center + 4,
+        rtl ? "start" : "end",
+        row.label,
         short,
+        labelDir(row.label, rtl),
       ),
     );
     if (row.value === undefined) {
       marks.push(
-        h(
-          "text",
-          {
-            class: NO_VALUE_CLASS,
-            x: rtl ? plotX + plotWidth - 4 : plotX + 4,
-            y: center + 4,
-            "text-anchor": rtl ? "end" : "start",
-          },
-          NO_VALUE_TEXT,
-        ),
+        textMark(NO_VALUE_CLASS, rtl ? plotX + plotWidth - 4 : plotX + 4, center + 4, rtl ? "end" : "start", NO_VALUE_TEXT),
       );
       return;
     }
     const zero = x(0);
     const end = x(row.value);
-    marks.push(
-      h("rect", {
-        class: BAR_CLASS,
-        x: Math.min(zero, end),
-        y: center - barHeight / 2,
-        width: Math.abs(end - zero),
-        height: barHeight,
-      }),
-    );
+    marks.push(barMark(BAR_CLASS, Math.min(zero, end), center - barHeight / 2, Math.abs(end - zero), barHeight));
     const positive = row.value >= 0;
     // The value label sits beyond the bar's end, on whichever side the axis grows.
     const side = (positive ? 1 : -1) * (rtl ? -1 : 1);
-    marks.push(
-      h(
-        "text",
-        {
-          class: VALUE_CLASS,
-          x: end + side * 6,
-          y: center + 4,
-          "text-anchor": side > 0 ? "start" : "end",
-        },
-        formatNumber(lang, row.value),
-      ),
-    );
+    marks.push(textMark(VALUE_CLASS, end + side * 6, center + 4, side > 0 ? "start" : "end", formatNumber(lang, row.value)));
   });
 
   return { width, height, marks };
@@ -268,66 +234,23 @@ function verticalChart(rows: readonly BarRow[], ticks: readonly number[], lang: 
   const marks = [];
 
   for (const tick of ticks) {
-    marks.push(h("line", { class: GRID_CLASS, x1: left, x2: width - right, y1: y(tick), y2: y(tick) }));
-    marks.push(
-      h(
-        "text",
-        {
-          class: TICK_CLASS,
-          x: rtl ? width - right + 8 : left - 8,
-          y: y(tick) + 4,
-          "text-anchor": rtl ? "start" : "end",
-        },
-        formatNumber(lang, tick),
-      ),
-    );
+    marks.push(lineMark(GRID_CLASS, left, width - right, y(tick), y(tick)));
+    marks.push(textMark(TICK_CLASS, rtl ? width - right + 8 : left - 8, y(tick) + 4, rtl ? "start" : "end", formatNumber(lang, tick)));
   }
-  marks.push(h("line", { class: AXIS_CLASS, x1: left, x2: width - right, y1: baseline, y2: baseline }));
+  marks.push(lineMark(AXIS_CLASS, left, width - right, baseline, baseline));
 
   rows.forEach((row, index) => {
     const center = left + (rtl ? rows.length - 1 - index : index) * slot + slot / 2;
     const short = shortenLabel(row.label, MAX_VERTICAL_LABEL_LENGTH);
-    marks.push(
-      h(
-        "text",
-        {
-          class: LABEL_CLASS,
-          x: center,
-          y: baseline + 18,
-          "text-anchor": "middle",
-          dir: labelDir(row.label, rtl),
-        },
-        short === row.label ? null : h("title", null, row.label),
-        short,
-      ),
-    );
+    marks.push(labelMark(LABEL_CLASS, center, baseline + 18, "middle", row.label, short, labelDir(row.label, rtl)));
     if (row.value === undefined) {
-      marks.push(h("text", { class: NO_VALUE_CLASS, x: center, y: baseline - 6, "text-anchor": "middle" }, NO_VALUE_TEXT));
+      marks.push(textMark(NO_VALUE_CLASS, center, baseline - 6, "middle", NO_VALUE_TEXT));
       return;
     }
     const zero = y(0);
     const end = y(row.value);
-    marks.push(
-      h("rect", {
-        class: BAR_CLASS,
-        x: center - barWidth / 2,
-        y: Math.min(zero, end),
-        width: barWidth,
-        height: Math.abs(end - zero),
-      }),
-    );
-    marks.push(
-      h(
-        "text",
-        {
-          class: VALUE_CLASS,
-          x: center,
-          y: row.value >= 0 ? end - 6 : end + 14,
-          "text-anchor": "middle",
-        },
-        formatNumber(lang, row.value),
-      ),
-    );
+    marks.push(barMark(BAR_CLASS, center - barWidth / 2, Math.min(zero, end), barWidth, Math.abs(end - zero)));
+    marks.push(textMark(VALUE_CLASS, center, row.value >= 0 ? end - 6 : end + 14, "middle", formatNumber(lang, row.value)));
   });
 
   return { width, height, marks };
@@ -371,18 +294,7 @@ export default function barChart({ props, site, page }: ComponentProps<BarChartP
     "figure",
     { class: `${CLASS} ${CLASS}-${direction}`, id: base, "data-bar-chart": from },
     title === "" ? null : h("figcaption", { class: TITLE_CLASS }, title),
-    h(
-      "svg",
-      {
-        class: SVG_CLASS,
-        viewBox: `0 0 ${chart.width} ${chart.height}`,
-        role: "img",
-        "aria-labelledby": titleId,
-        preserveAspectRatio: "xMidYMid meet",
-      },
-      h("title", { id: titleId }, name),
-      ...chart.marks,
-    ),
+    svgFrame(SVG_CLASS, chart.width, chart.height, titleId, name, chart.marks),
     chartData({
       title: name,
       description,

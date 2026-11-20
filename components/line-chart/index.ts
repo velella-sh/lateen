@@ -15,6 +15,7 @@ import {
 } from "../chart-data/input.ts";
 import { scale } from "../timeline/scale.ts";
 import { evenTicksOf, extentOf, paddedDomain, percentOf, percentScaleOf, ratioOf } from "../chart-data/scale.ts";
+import { labelMark, lineMark, svgFrame, textMark } from "../chart-data/svg.ts";
 
 /** The Markdown directive this component handles: `::line-chart{from="growth"}`. */
 export const directive = "line-chart";
@@ -273,35 +274,12 @@ export default function lineChart({ props, site, page }: ComponentProps<LineChar
 
   const marks = [];
   for (const tick of yTicks) {
-    marks.push(h("line", { class: GRID_CLASS, x1: left, x2: right, y1: round(yPx(tick)), y2: round(yPx(tick)) }));
-    marks.push(
-      h(
-        "text",
-        {
-          class: TICK_CLASS,
-          x: mirror ? right + 8 : left - 8,
-          y: round(yPx(tick)) + 4,
-          "text-anchor": mirror ? "start" : "end",
-        },
-        formatNumber(lang, tick),
-      ),
-    );
+    marks.push(lineMark(GRID_CLASS, left, right, round(yPx(tick)), round(yPx(tick))));
+    marks.push(textMark(TICK_CLASS, mirror ? right + 8 : left - 8, round(yPx(tick)) + 4, mirror ? "start" : "end", formatNumber(lang, tick)));
   }
-  marks.push(h("line", { class: AXIS_CLASS, x1: left, x2: right, y1: bottom, y2: bottom }));
+  marks.push(lineMark(AXIS_CLASS, left, right, bottom, bottom));
   for (const tick of xTicks) {
-    marks.push(
-      h(
-        "text",
-        {
-          class: TICK_CLASS,
-          x: round(xPx(tick.position)),
-          y: bottom + 16,
-          "text-anchor": "middle",
-          dir: labelDir(tick.label, rtl),
-        },
-        tick.label,
-      ),
-    );
+    marks.push(textMark(TICK_CLASS, round(xPx(tick.position)), bottom + 16, "middle", tick.label, labelDir(tick.label, rtl)));
   }
 
   const ends: { index: number; label: string; x: number; y: number }[] = [];
@@ -343,17 +321,14 @@ export default function lineChart({ props, site, page }: ComponentProps<LineChar
     const label = shortenLabel(end.label, MAX_LABEL_LENGTH);
     const seriesClass = `${CLASS}-series-${seriesColour(end.index)}`;
     marks.push(
-      h(
-        "text",
-        {
-          class: `${END_LABEL_CLASS} ${seriesClass}`,
-          x: round(mirror ? end.x - 6 : end.x + 6),
-          y: round(end.y + 4),
-          "text-anchor": mirror ? "end" : undefined,
-          dir: labelDir(label, rtl),
-        },
-        label === end.label ? null : h("title", null, end.label),
+      labelMark(
+        `${END_LABEL_CLASS} ${seriesClass}`,
+        round(mirror ? end.x - 6 : end.x + 6),
+        round(end.y + 4),
+        mirror ? "end" : undefined,
+        end.label,
         label,
+        labelDir(label, rtl),
       ),
     );
   }
@@ -373,18 +348,7 @@ export default function lineChart({ props, site, page }: ComponentProps<LineChar
     "figure",
     { class: CLASS, id: base, "data-line-chart": from },
     title === "" ? null : h("figcaption", { class: TITLE_CLASS }, title),
-    h(
-      "svg",
-      {
-        class: SVG_CLASS,
-        viewBox: `0 0 ${width} ${height}`,
-        role: "img",
-        "aria-labelledby": titleId,
-        preserveAspectRatio: "xMidYMid meet",
-      },
-      h("title", { id: titleId }, name),
-      ...marks,
-    ),
+    svgFrame(SVG_CLASS, width, height, titleId, name, marks),
     h(
       "table",
       { class: TABLE_CLASS },
