@@ -2481,6 +2481,16 @@
     @apply block max-w-full rounded-xl;
   }
 
+  .figure-images {
+    display: grid;
+    gap: 0.75rem;
+    grid-template-columns: repeat(auto-fit, minmax(14rem, 1fr));
+  }
+
+  .figure-images .figure-img {
+    width: 100%;
+  }
+
   .figure-pair {
     display: grid;
   }
@@ -2501,6 +2511,7 @@
     margin-top: 0.65rem;
     color: var(--muted-foreground);
     font-size: 0.875rem;
+    overflow-wrap: anywhere;
   }
 
   .figure-credit {
