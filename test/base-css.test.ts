@@ -44,6 +44,11 @@ test("the docs shell styles use the classes the layouts render", () => {
   assert.match(ui, /@media \(max-width: 48rem\)[\s\S]*?\.sidebar\s*\{[^}]*display:\s*none/);
 });
 
+test("home preview and mobile cards keep the Sailcloth surface contract", () => {
+  assert.match(ui, /\.preview-code\s*\{[^}]*background:\s*var\(--card\)/s);
+  assert.match(ui, /@media \(max-width: 48rem\)[\s\S]*\.home-sections,[\s\S]*grid-template-columns:\s*1fr/s);
+});
+
 test("the color and length helpers still catch raw values", () => {
   const RAW_COLOR = /#[0-9a-f]{3,8}\b|\b(?:rgba?|hsla?|hwb|lab|lch|oklab|oklch|color|color-mix|light-dark|device-cmyk)\s*\(/i;
   const RAW_LENGTH = /(?:^|[^\w-])-?(?:\d+(?:\.\d+)?|\.\d+)(?:px|rem|em|ex|ch|vw|vh|vmin|vmax|pt|pc|cm|mm|in|q|fr)\b/i;
