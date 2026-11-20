@@ -117,6 +117,21 @@ test("the root carries the class and the data attribute the island finds", () =>
   assert.match(out, new RegExp(`^<div class="${CODE_TABS_CLASS}" data-code-tabs="">`));
 });
 
+test("the group option marks the root for page-local sync, and a blank one marks nothing", () => {
+  assert.match(render({ group: "install" }), /^<div class="code-tabs" data-code-tabs="" data-tab-group="install">/);
+  assert.doesNotMatch(render({}), /data-tab-group/);
+  assert.doesNotMatch(render({ group: "   " }), /data-tab-group/);
+});
+
+test("a group without an id uses its name as the id prefix, so groups keep their ids apart", () => {
+  assert.match(render({ group: "install" }), /id="install-tab-1"/);
+  assert.match(render({ group: "install", id: "second" }), /id="second-tab-1"/);
+});
+
+test("a group name is escaped in the attribute", () => {
+  assert.match(render({ group: '"<b>' }), /data-tab-group="&quot;&lt;b&gt;"/);
+});
+
 test("each block sits in a body element inside its panel", () => {
   const out = render({ labels: '["npm","pnpm"]' });
   assert.match(out, new RegExp(`<div class="${BODY_CLASS}">${PRE_NPM}</div>`));

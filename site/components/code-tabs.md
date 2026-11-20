@@ -30,7 +30,8 @@ pnpm add mizzen
 | Name | Type | Default | What it does |
 | --- | --- | --- | --- |
 | `labels` | JSON array of strings | the block's position | One label per block, in order: `'["npm","pnpm"]'`. |
-| `id` | string | `code-tabs` | Prefix for the group's element ids. Give each group on a page its own id. |
+| `id` | string | `group`, else `code-tabs` | Prefix for the group's element ids. Give each group on a page its own id. |
+| `group` | string | — | Sync key: groups on the page with the same value switch together. Grouped choices stay on the page and leave ungrouped groups alone. |
 
 The value of `labels` is JSON, so use single quotes around it in the directive and double quotes inside. A missing or empty label reads as the block's position.
 
@@ -50,7 +51,8 @@ pnpm add mizzen
 
 - The tab list starts `hidden`; without JavaScript the panels stack, each under its label.
 - Arrow keys move between tabs, `Home` and `End` go to the ends, and the arrows follow the reading direction in right-to-left pages.
-- Choosing a label in one group switches every group on the page that offers it, and the choice is remembered on later pages.
-- A chosen label is also written to `?lang=` in the address bar, replacing the current history entry, so a copied URL reopens that example in every group that offers it. Other query parameters and any unrelated fragment stay as they were.
+- Groups with the same `group` value switch together on the page. Different groups, and groups with no `group`, stay independent of them.
+- Choosing a label in an ungrouped group switches every ungrouped group on the page that offers it, and the choice is remembered on later pages. A grouped choice is not remembered and does not move ungrouped groups.
+- A chosen label in an ungrouped group is also written to `?lang=` in the address bar, replacing the current history entry, so a copied URL reopens that example in every ungrouped group that offers it. Grouped choices are page-local, so they write no URL. Other query parameters and any unrelated fragment stay as they were.
 - A fragment that points into a closed panel — a heading inside one, or the panel itself — opens that panel on load and whenever the fragment changes. The reader is not scrolled twice when the panel was already visible.
 - The blocks are plain fenced code inside the group; the `code` component does not run inside code tabs yet, so the tabs show the fence without Shiki colors.

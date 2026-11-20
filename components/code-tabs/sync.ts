@@ -16,6 +16,9 @@ export const LANG_PARAM = "lang";
 /** The `data-enhanced` marker `client.ts` leaves on groups it turned into tabs. */
 export const ENHANCED_ATTR = "data-enhanced";
 
+/** Attribute naming a code tabs group's sync key; groups with the same value switch together on one page. */
+export const TAB_GROUP_ATTR = "data-tab-group";
+
 /** A tab button as the sync part sees it: an island element that also carries its label text. */
 export type SyncTab = TabsElement & {
   /** The tab's label, as rendered (the button's text). */
@@ -94,6 +97,12 @@ export function choose(group: SyncGroup, label: string): boolean {
 /** A group the island enhanced, so one whose blocks still sit stacked is never touched. */
 function enhanced(group: SyncGroup): boolean {
   return group.getAttribute(ENHANCED_ATTR) !== null;
+}
+
+/** The group's explicit sync key, trimmed; a missing or blank key means the group is ungrouped. */
+export function groupOf(group: Pick<SyncGroup, "getAttribute">): string | undefined {
+  const key = group.getAttribute(TAB_GROUP_ATTR)?.trim();
+  return key || undefined;
 }
 
 /** The id a fragment names, without its `#` and percent-decoded. An empty or malformed fragment has none. */
@@ -214,6 +223,8 @@ function panelOf(id: string): TabsElement | undefined {
 
 /** Shares one explicit choice from this page: sets `?lang=` and keeps the rest of the URL. */
 export function shareChoice(label: string, group?: HashGroup): void {
+  // A grouped choice is page-local: writing it to the URL would carry it into later pages.
+  if (group?.getAttribute?.(TAB_GROUP_ATTR)?.trim()) return;
   const inside = group !== undefined && targetOf([group], panelOf, window.location.hash) !== undefined;
   share(
     {
@@ -227,29 +238,35 @@ export function shareChoice(label: string, group?: HashGroup): void {
 }
 
 /**
- * Wires the page: applies the starting label to every enhanced group, then remembers each label a
- * visitor clicks and switches every other group that has it. Switching the other groups can change
- * how tall the page is, so the scroll offset is put back the way it was — the group under the
- * visitor's pointer is the one they chose, and the rest of the page must not move.
+ * Wires the page: applies the starting label to every enhanced ungrouped group, then remembers each
+ * label a visitor clicks and switches every group with the same key that has it. A grouped group
+ * syncs only with groups of the same name on this page and remembers nothing, so groups stay
+ * independent across pages. Switching the other groups can change how tall the page is, so the
+ * scroll offset is put back the way it was — the group under the visitor's pointer is the one they
+ * chose, and the rest of the page must not move.
  */
 export function sync(env: SyncEnv): void {
   const groups = [...env.querySelectorAll(GROUP_SELECTOR)].filter(enhanced);
 
   const choice = readChoice(env.search(), env.read);
   if (choice !== undefined) {
-    for (const group of groups) choose(group, choice);
+    for (const group of groups) {
+      if (groupOf(group) === undefined) choose(group, choice);
+    }
   }
 
   for (const group of groups) {
+    const key = groupOf(group);
     for (const tab of group.querySelectorAll(TAB_SELECTOR)) {
       tab.addEventListener("click", () => {
         const label = labelOf(tab);
         if (label === undefined) return;
-        saveChoice(label, env.write);
+        if (key === undefined) saveChoice(label, env.write);
         const top = env.scrollY();
         let moved = false;
         for (const other of groups) {
-          if (other !== group && choose(other, label)) moved = true;
+          if (other === group || groupOf(other) !== key) continue;
+          if (choose(other, label)) moved = true;
         }
         if (moved) env.scrollTo(top);
       });
