@@ -85,7 +85,7 @@ test("a manual dispatch validates the tag before the tag is checked out", () => 
   assert.ok(needsOf("acceptance").includes("preflight"), "acceptance waits for preflight");
   const preflight = job("preflight");
   const check = preflight.steps.find((step) => step.name === "Check the tag before checkout")?.run ?? "";
-  assert.ok(check.includes('node scripts/release-plan.ts --tag "$TAG" --version "$version" --github-output "$GITHUB_OUTPUT"'));
+  assert.ok(check.includes('node scripts/release-plan.ts --tag "$TAG" --version "$version" --check-tag --github-output "$GITHUB_OUTPUT"'));
   assert.ok(check.includes('git fetch --quiet --depth 1 origin "refs/tags/$TAG"'), "the tag must exist before it is checked out");
   assert.ok(check.includes('echo "commit=$commit" >> "$GITHUB_OUTPUT"'), "preflight names the commit it resolved");
   const helper = preflight.steps.find((step) => step.uses?.startsWith("actions/checkout"));
@@ -117,6 +117,22 @@ test("the GitHub Release step verifies the release instead of exiting early", ()
   assert.match(step.run, /node scripts\/release-result\.ts --tag "\$TAG" --exists/);
   assert.match(step.run, /--accepted "\$ACCEPTED" --published "\$PUBLISHED"/);
   assert.match(step.run, /GITHUB_STEP_SUMMARY/);
+});
+
+test("the workflow consumes the plan instead of repeating its rules", () => {
+  const meta = job("acceptance").steps.find((step) => step.id === "meta")?.run ?? "";
+  assert.ok(
+    meta.includes('node scripts/release-plan.ts --tag "$TAG" --version "$VERSION" --served "$served" --github-output "$GITHUB_OUTPUT"'),
+    "the helper owns the tag, dist-tag and published decisions",
+  );
+  assert.doesNotMatch(meta, /case "\$version"/, "the dist-tag is not a shell case");
+  assert.doesNotMatch(meta, /= "\$version"/, "the published check is not shell string equality");
+  assert.equal(ifOf("publish"), "needs.acceptance.outputs.publish == 'true'");
+  const release = job("github-release").steps.find((step) => step.id === "release");
+  assert.match(String(release?.env?.PRERELEASE ?? ""), /needs\.acceptance\.outputs\.prerelease/);
+  assert.match(String(release?.env?.LATEST ?? ""), /needs\.acceptance\.outputs\.latest/);
+  assert.doesNotMatch(release?.run ?? "", /DIST_TAG/, "the release flags come from the plan");
+  assert.match(release?.run ?? "", /PRERELEASE.*--prerelease/s);
 });
 
 test("publish and digest steps select the one tarball the acceptance report names", () => {
@@ -239,7 +255,7 @@ test("the publish job runs no repository script with its OIDC token", () => {
 
 test("the publish job is gated on acceptance evidence and the npm environment", () => {
   assert.ok(needsOf("publish").includes("acceptance"));
-  assert.match(ifOf("publish"), /needs\.acceptance\.outputs\.published != 'true'/);
+  assert.equal(ifOf("publish"), "needs.acceptance.outputs.publish == 'true'");
   const environment = job("publish").environment;
   assert.equal(typeof environment === "string" ? environment : environment?.name, "npm");
   const names = job("publish").steps.map((step) => step.name ?? step.uses ?? "");
