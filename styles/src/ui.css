@@ -3171,6 +3171,15 @@
   border: 0 !important;
 }
 
+/* A long diff wraps inside its own block; the sign column stays put, so mobile never scrolls the page. */
+.diff-block { overflow-x: auto; }
+.diff-block-line { display: block; padding-inline-start: 1.25rem; text-indent: -1.25rem; white-space: pre-wrap; overflow-wrap: anywhere; }
+.diff-block-line::before { display: inline-block; inline-size: 1.25rem; text-indent: 0; }
+.diff-block-added::before { content: "+"; }
+.diff-block-removed::before { content: "−"; }
+/* The pseudo-element draws the sign, so the visible marker span is not painted twice. */
+.diff-block-marker { display: none; }
+
 /* Narrow screens: tools wrap so language/theme never widen the page. */
 @media (max-width: 767.98px) {
   .site-header .shell-menu:not([hidden]),
