@@ -1,6 +1,8 @@
 /* Copy buttons for the guide components: the button holds the text to copy in `data-text`, starts
    `hidden`, and is revealed only when the browser has a clipboard to write to. */
 
+import { bootOnce } from "../../src/boot.ts";
+
 export const RESET_MS = 2000;
 
 export interface CopyButton {
@@ -51,8 +53,9 @@ interface Globals {
 /** Wires the buttons matching `selector` in the browser; does nothing in a runtime without a document. */
 export function wireDocument(selector: string): void {
   const g = globalThis as unknown as Globals;
-  if (g.document === undefined) return;
-  wire(g.document.querySelectorAll(selector), {
+  const doc = g.document;
+  if (doc === undefined || !bootOnce(`components/copy-buttons:${selector}`, doc)) return;
+  wire(doc.querySelectorAll(selector), {
     clipboard: g.navigator?.clipboard,
     schedule: (callback, ms) => g.setTimeout(callback, ms),
   });
