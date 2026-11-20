@@ -1,6 +1,7 @@
 import assert from "node:assert/strict";
 import { readFileSync } from "node:fs";
 import { test } from "node:test";
+import { withEnv } from "./helpers/globals.ts";
 import { renderToString } from "preact-render-to-string";
 import type {
   ChromeProps,
@@ -96,9 +97,7 @@ test("shows only the card that exists, in the next column", () => {
 });
 
 test("the landmark and card labels follow the page language, with no missing-message diagnostics", () => {
-  const previous = process.env.NODE_ENV;
-  process.env.NODE_ENV = "development";
-  try {
+  withEnv("NODE_ENV", "development", () => {
     for (const [lang, messages] of Object.entries(MESSAGES)) {
       let out = "";
       assert.deepEqual(
@@ -112,16 +111,11 @@ test("the landmark and card labels follow the page language, with no missing-mes
       assert.ok(out.includes(`</svg>${messages.previous}</span>`), `${lang} previous label`);
       assert.ok(out.includes(`${messages.next}<svg`), `${lang} next label`);
     }
-  } finally {
-    if (previous === undefined) delete process.env.NODE_ENV;
-    else process.env.NODE_ENV = previous;
-  }
+  });
 });
 
 test("a regional page tag reads its primary catalog without a diagnostic", () => {
-  const previous = process.env.NODE_ENV;
-  process.env.NODE_ENV = "development";
-  try {
+  withEnv("NODE_ENV", "development", () => {
     for (const [lang, messages] of [
       ["fa-IR", MESSAGES.fa],
       ["AR-eg", MESSAGES.ar],
@@ -140,10 +134,7 @@ test("a regional page tag reads its primary catalog without a diagnostic", () =>
       assert.ok(out.includes(messages.previous));
       assert.ok(out.includes(messages.next));
     }
-  } finally {
-    if (previous === undefined) delete process.env.NODE_ENV;
-    else process.env.NODE_ENV = previous;
-  }
+  });
 });
 
 test("a mixed-direction title is isolated and does not reorder its own direction label", () => {

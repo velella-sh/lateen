@@ -1,6 +1,7 @@
 import assert from "node:assert/strict";
 import { readFileSync } from "node:fs";
 import { test } from "node:test";
+import { withGlobal } from "./helpers/globals.ts";
 import type { ComponentProps } from "@velella/mizzen/contracts";
 import { renderToString } from "preact-render-to-string";
 import schemaTable, {
@@ -250,35 +251,35 @@ test("sibling keywords beside an unresolved $ref still apply, with the state kep
 });
 
 test("an external $ref is reported as external and never fetched", () => {
-  const original = globalThis.fetch;
   let calls = 0;
-  globalThis.fetch = (() => {
-    calls += 1;
-    throw new Error("schema-table must not fetch references");
-  }) as typeof fetch;
-  try {
-    const schema = {
-      properties: {
-        remote: { $ref: "https://example.com/schema.json#/x" },
-        file: { $ref: "other.schema.json#/$defs/x" },
-      },
-    };
-    const rows = schemaRows(schema);
-    assert.deepEqual(rowNamed(rows, "remote").ref, {
-      value: "https://example.com/schema.json#/x",
-      state: "external",
-    });
-    assert.deepEqual(rowNamed(rows, "file").ref, {
-      value: "other.schema.json#/$defs/x",
-      state: "external",
-    });
-    assert.equal(rowNamed(rows, "remote").type, "unknown");
-    assert.equal(calls, 0);
-    const tree = render({ data: "s" }, { s: schema });
-    assert.equal(nodes(tree).filter((node) => node.type === "script").length, 1);
-  } finally {
-    globalThis.fetch = original;
-  }
+  withGlobal(
+    "fetch",
+    (() => {
+      calls += 1;
+      throw new Error("schema-table must not fetch references");
+    }) as typeof fetch,
+    () => {
+      const schema = {
+        properties: {
+          remote: { $ref: "https://example.com/schema.json#/x" },
+          file: { $ref: "other.schema.json#/$defs/x" },
+        },
+      };
+      const rows = schemaRows(schema);
+      assert.deepEqual(rowNamed(rows, "remote").ref, {
+        value: "https://example.com/schema.json#/x",
+        state: "external",
+      });
+      assert.deepEqual(rowNamed(rows, "file").ref, {
+        value: "other.schema.json#/$defs/x",
+        state: "external",
+      });
+      assert.equal(rowNamed(rows, "remote").type, "unknown");
+      assert.equal(calls, 0);
+      const tree = render({ data: "s" }, { s: schema });
+      assert.equal(nodes(tree).filter((node) => node.type === "script").length, 1);
+    },
+  );
 });
 
 test("a malformed $ref is reported as malformed with its authored value", () => {

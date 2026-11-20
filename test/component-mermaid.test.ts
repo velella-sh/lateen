@@ -4,6 +4,7 @@ import { chmodSync, existsSync, mkdirSync, mkdtempSync, readFileSync, readdirSyn
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { test } from "node:test";
+import { withEnv } from "./helpers/globals.ts";
 import { pathToFileURL } from "node:url";
 import { h } from "preact";
 import { renderToString } from "preact-render-to-string";
@@ -60,14 +61,7 @@ const CACHE_MODULE = new URL("../components/mermaid/cache.ts", import.meta.url).
 
 /** Runs `run` with the persistent cache pointed at `dir`, restoring the environment afterwards. */
 function withCacheDir<T>(dir: string, run: () => T): T {
-  const previous = process.env[CACHE_DIR_ENV];
-  process.env[CACHE_DIR_ENV] = dir;
-  try {
-    return run();
-  } finally {
-    if (previous === undefined) delete process.env[CACHE_DIR_ENV];
-    else process.env[CACHE_DIR_ENV] = previous;
-  }
+  return withEnv(CACHE_DIR_ENV, dir, run);
 }
 
 interface Probe {
@@ -470,9 +464,7 @@ test("corrupt, partial, and oversized entries never become page output", () => {
 });
 
 test("a disabled, read-only, or failing cache still renders normally", () => {
-  const previous = process.env[CACHE_DIR_ENV];
-  try {
-    delete process.env[CACHE_DIR_ENV];
+  withEnv(CACHE_DIR_ENV, undefined, () => {
     assert.equal(diagramCacheDir(), null);
     process.env[CACHE_DIR_ENV] = "  ";
     assert.equal(diagramCacheDir(), null);
@@ -507,10 +499,7 @@ test("a disabled, read-only, or failing cache still renders normally", () => {
     } finally {
       clean();
     }
-  } finally {
-    if (previous === undefined) delete process.env[CACHE_DIR_ENV];
-    else process.env[CACHE_DIR_ENV] = previous;
-  }
+  });
 });
 
 test("concurrent writers leave one complete entry", async () => {

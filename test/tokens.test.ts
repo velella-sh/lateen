@@ -3,6 +3,7 @@ import { mkdtempSync, readFileSync, rmSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { test } from "node:test";
+import { withExitCode, withGlobal } from "./helpers/globals.ts";
 import { buildCss, loadTokens, main, paths } from "../scripts/tokens.ts";
 import { VISION, distance } from "./support-chart-colour.ts";
 
@@ -143,21 +144,10 @@ test("a dark value outside the color groups is an error", () => {
 test("--check fails when tokens.css is stale or missing and passes after a build", () => {
   const dir = folder();
   const css = join(dir, "tokens.css");
-  const run = (arg: string) => {
-    process.exitCode = undefined;
-    const log = console.log;
-    const err = console.error;
-    console.log = console.error = () => {};
-    try {
-      main([arg], { dir, css });
-    } finally {
-      console.log = log;
-      console.error = err;
-    }
-    const code = process.exitCode;
-    process.exitCode = undefined;
-    return code;
-  };
+  const run = (arg: string): string | number | undefined =>
+    withGlobal("console", Object.assign(Object.create(console), { log: () => {}, error: () => {} }), () =>
+      withExitCode(() => main([arg], { dir, css })).code,
+    );
   assert.equal(run("--check"), 1, "missing");
   run("--write");
   assert.equal(run("--check"), undefined, "current");
