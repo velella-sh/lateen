@@ -26,6 +26,7 @@ npm run typecheck      # tsc --noEmit
 npm run ui:build       # Tailwind CSS + Chart.js asset
 npm test               # ui:build + design check + node --test
 npm run test:a11y      # axe gate; needs npx playwright install chromium
+npm run test:smoke     # production-build browser gate; needs npx playwright install chromium
 npm run test:performance
 npm run test:visual
 npm run dev:redesign   # sailcloth demo site on port 4173
