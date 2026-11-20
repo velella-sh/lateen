@@ -2524,6 +2524,45 @@
   .aside {
     display: none;
   }
+
+  /* Below the aside breakpoint the same entries open at the start of the article. */
+  .toc-fold {
+    display: block;
+    margin-block: 0 1.5rem;
+    border: 1px solid var(--border);
+    border-radius: 0.75rem;
+    padding: 0.5rem 0.75rem;
+    background: color-mix(in srgb, var(--background) 80%, transparent);
+  }
+
+  .toc-fold > summary {
+    cursor: pointer;
+    font-size: 0.875rem;
+    font-weight: 600;
+  }
+
+  .toc-fold ul {
+    display: grid;
+    gap: 0.125rem;
+    margin: 0.5rem 0 0;
+    padding: 0;
+    list-style: none;
+  }
+
+  .toc-fold a {
+    display: block;
+    padding-block: 0.25rem;
+    padding-inline: 0.75rem;
+    border-inline-start: 1.5px solid transparent;
+    color: var(--muted-foreground);
+    font-size: 0.8125rem;
+    line-height: 1.25rem;
+    text-decoration: none;
+  }
+
+  .toc-fold a:hover {
+    color: var(--foreground);
+  }
 }
 
 @media (max-width: 62rem) {

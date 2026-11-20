@@ -7,7 +7,7 @@ import drawer from "../chrome/drawer/index.ts";
 import shell, { footer as shellFooter } from "../chrome/shell/index.ts";
 import pageFooter from "../chrome/page-footer/index.ts";
 import sidebar from "../chrome/sidebar/index.ts";
-import toc from "../chrome/toc/index.ts";
+import toc, { tocFold } from "../chrome/toc/index.ts";
 import { t } from "../i18n/index.ts";
 
 /**
@@ -118,6 +118,7 @@ function article(props: LayoutProps): ComponentChildren {
     { class: "doc", "data-pagefind-body": true },
     breadcrumb(props) as ComponentChildren,
     titleFromBody(props) ? null : h("h1", null, page.title),
+    tocFold(props) as ComponentChildren,
     h("div", { class: "doc-body", dangerouslySetInnerHTML: { __html: page.html } }),
     h("div", { class: "doc-actions" }, pageFooter(props) as ComponentChildren),
   );

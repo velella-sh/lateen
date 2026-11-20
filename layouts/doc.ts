@@ -15,7 +15,7 @@ import pageAgentMenu from "../chrome/page-agent-menu/index.ts";
 import pageFooter from "../chrome/page-footer/index.ts";
 import pager from "../chrome/pager/index.ts";
 import sidebar from "../chrome/sidebar/index.ts";
-import toc from "../chrome/toc/index.ts";
+import toc, { tocFold } from "../chrome/toc/index.ts";
 import { highlightFences } from "../components/code/index.ts";
 import driftBanner from "../components/drift-banner/index.ts";
 import pageTool, { toolHref } from "../components/page-tool/index.ts";
@@ -75,6 +75,7 @@ function article(props: LayoutProps): ComponentChildren {
       readingTime({ props: {}, page, site: props.site, html: "" }) as ComponentChildren,
     ),
     staleSlot(props),
+    tocFold(props) as ComponentChildren,
     h("div", { class: "doc-body", dangerouslySetInnerHTML: { __html: highlightFences(page.html, backdrops, page.lang) } }),
     toolUrl === undefined
       ? null

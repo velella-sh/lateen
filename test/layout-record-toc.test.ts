@@ -103,12 +103,14 @@ test("a page with facts only hides the contents: one entry is fewer than two", (
 
 test("every contents link targets an element the scroll spy can observe", () => {
   const out = render();
-  const start = out.indexOf('<nav class="toc"');
-  const tocMarkup = out.slice(start, out.indexOf("</details>", start));
+  const foldStart = out.indexOf('<details class="toc-fold"');
+  const fold = out.slice(foldStart, out.indexOf("</details>", foldStart));
+  const navStart = out.indexOf('<nav class="toc"');
+  const nav = out.slice(navStart, out.indexOf("</nav>", navStart));
   const ids = new Set([...out.matchAll(/ id="([^"]+)"/g)].map((match) => match[1]));
-  const hrefs = [...tocMarkup.matchAll(/href="#([^"]+)"/g)].map((match) => match[1]);
+  const hrefs = [...(fold + nav).matchAll(/href="#([^"]+)"/g)].map((match) => match[1]);
   assert.ok(hrefs.length >= 4, "the sticky list and the fold both link every entry");
   for (const href of hrefs) assert.ok(ids.has(href), `#${href} has a target`);
-  const labelId = /aria-labelledby="([^"]+)"/.exec(tocMarkup)?.[1];
+  const labelId = /aria-labelledby="([^"]+)"/.exec(nav)?.[1];
   assert.ok(labelId !== undefined && ids.has(labelId), "the landmark's label exists");
 });

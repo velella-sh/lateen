@@ -11,7 +11,7 @@ import pageAgentMenu from "../chrome/page-agent-menu/index.ts";
 import pageFooter from "../chrome/page-footer/index.ts";
 import shell, { footer as shellFooter } from "../chrome/shell/index.ts";
 import sidebar from "../chrome/sidebar/index.ts";
-import toc from "../chrome/toc/index.ts";
+import toc, { tocFold } from "../chrome/toc/index.ts";
 import addToCalendar from "../components/add-to-calendar/index.ts";
 import embedCode from "../components/embed-code/index.ts";
 import recordHistory from "../components/record-history/index.ts";
@@ -59,6 +59,7 @@ function article(props: LayoutProps): ComponentChildren {
     { class: "record", "data-pagefind-body": true },
     breadcrumb(props) as ComponentChildren,
     recordHeader(props),
+    tocFold(tocFor(props)) as ComponentChildren,
     staleSlot(props),
     summaryOf(props),
     addToCalendar({
