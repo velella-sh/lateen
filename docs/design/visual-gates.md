@@ -12,6 +12,19 @@ right-to-left, at a mobile, a tablet and a desktop width. The exact matrix is in
 and `test:performance`; the visual gate answers one question: did the pixels of a page that did not
 mean to change, change?
 
+## The component state matrix
+
+The page cases come from `test/visual/matrix.json`. The interaction cases come from
+`test/visual/states.json`: one entry per component with a `client.ts`, naming only the states its
+control really has. `test/visual/inventory.json` names every component the gallery covers.
+
+`node scripts/visual-matrix.ts` derives every `<component>-<state>` case from the inventory and the
+state list, prints them, and fails when an interactive component has no entry, an entry names no
+inventory component, or a component or state appears twice. The checked JSON is the source of truth,
+so there is nothing to regenerate: add the entry for a new client component, do not rewrite the
+others. `npm test` runs the same check (`test/visual/matrix.test.ts`), so the CI test job already
+proves it from a clean checkout and needs no separate step.
+
 ## Runner
 
 **Playwright, Chromium only**, using the `playwright` devDependency already in `package.json`.

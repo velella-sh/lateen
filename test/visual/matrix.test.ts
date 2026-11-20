@@ -1,6 +1,7 @@
 import assert from "node:assert/strict";
 import { test } from "node:test";
-import { expandMatrix, loadMatrix } from "../../scripts/test-visual.ts";
+import { expandMatrix, islandComponents, loadMatrix, loadStates } from "../../scripts/test-visual.ts";
+import { loadInventory, stateMatrixCases, stateMatrixErrors } from "../../scripts/visual-matrix.ts";
 import { PAGES } from "./fixtures/pages.ts";
 
 const matrix = loadMatrix();
@@ -84,4 +85,38 @@ test("the matrix data names valid widths, themes and pages", () => {
   for (const widthName of matrix.gallery.widths) {
     assert.ok(matrix.widths[widthName] !== undefined, `${widthName} is a matrix width`);
   }
+});
+
+test("every interactive component has one unique state case", () => {
+  const states = loadStates();
+  const cases = stateMatrixCases(states).map((entry) => entry.case);
+  assert.equal(new Set(cases).size, cases.length);
+  assert.deepEqual(stateMatrixErrors(states, loadInventory(), islandComponents()), []);
+});
+
+test("a missing, unknown or duplicated component state is rejected", () => {
+  const states = loadStates();
+  const inventory = loadInventory();
+  const components = islandComponents();
+  const first = states.components[0];
+  assert.ok(first !== undefined);
+
+  const missing = { ...states, components: states.components.slice(1) };
+  assert.ok(stateMatrixErrors(missing, inventory, components).includes(`missing component: ${first.name}`));
+
+  const duplicated = { ...states, components: [...states.components, first] };
+  assert.ok(stateMatrixErrors(duplicated, inventory, components).includes(`duplicate component: ${first.name}`));
+
+  const unknown = { ...states, components: [...states.components, { ...first, name: "not-a-component" }] };
+  assert.ok(stateMatrixErrors(unknown, inventory, components).includes("unknown component: not-a-component"));
+
+  const state = first.states[0];
+  assert.ok(state !== undefined);
+  const repeated = {
+    ...states,
+    components: states.components.map((entry) => (entry.name === first.name ? { ...entry, states: [state, state] } : entry)),
+  };
+  const errors = stateMatrixErrors(repeated, inventory, components);
+  assert.ok(errors.includes(`${first.name}: duplicate state: ${state}`));
+  assert.ok(errors.includes(`duplicate case: ${first.name}-${state}`));
 });
