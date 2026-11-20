@@ -1,6 +1,7 @@
 /* The contrast numbers of one accent, and the palette they are measured on, shared by the server
  * render and the island. Pure functions, no DOM and no Node built-ins, because the island build
  * imports this module too. */
+import { parseJson } from "../../src/guards.ts";
 import { bestOn, contrast, ensureContrast, parseHex } from "../../src/color.ts";
 
 /** The scheme surfaces a preview is drawn on, and the text that sits on them. */
@@ -44,12 +45,7 @@ export function paletteJson(palette: PreviewPalette): string {
 /** Parses `data-palette`, or `undefined` when it is missing or not the shape the server writes. */
 export function parsePalette(raw: string | null | undefined): PreviewPalette | undefined {
   if (raw === null || raw === undefined || raw === "") return undefined;
-  let value: unknown;
-  try {
-    value = JSON.parse(raw);
-  } catch {
-    return undefined;
-  }
+  const value = parseJson(raw);
   const scheme = (candidate: unknown): PreviewScheme | undefined => {
     if (candidate === null || typeof candidate !== "object") return undefined;
     const { surfaces, text } = candidate as { surfaces?: unknown; text?: unknown };

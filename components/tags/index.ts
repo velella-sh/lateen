@@ -1,4 +1,5 @@
 import { h } from "preact";
+import { parseJson } from "../../src/guards.ts";
 import type { ComponentProps } from "@velella/mizzen/contracts";
 import { t } from "../../i18n/index.ts";
 
@@ -52,13 +53,9 @@ export function tagOf(value: unknown): Tag | undefined {
 /** The tags in the `items` prop, or undefined when it is absent or not a JSON array (so front matter wins). */
 export function parseItems(raw: unknown): Tag[] | undefined {
   if (typeof raw !== "string" || raw.trim() === "") return undefined;
-  try {
-    const value: unknown = JSON.parse(raw);
-    if (!Array.isArray(value)) return undefined;
-    return value.map(tagOf).filter((tag): tag is Tag => tag !== undefined);
-  } catch {
-    return undefined;
-  }
+  const value = parseJson(raw);
+  if (!Array.isArray(value)) return undefined;
+  return value.map(tagOf).filter((tag): tag is Tag => tag !== undefined);
 }
 
 /** The tags in front matter: a list of strings, or one comma-separated string. */

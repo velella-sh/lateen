@@ -10,6 +10,7 @@ import {
   groupIdOf,
 } from "./group.ts";
 import { instanceId } from "../../src/page-ids.ts";
+import { parseJson } from "../../src/guards.ts";
 import { validationTypeOf } from "./validation.ts";
 
 export {
@@ -156,12 +157,8 @@ function declarationOf(item: unknown): VariableDeclaration | undefined {
 function listOf(raw: unknown): unknown[] | undefined {
   if (typeof raw === "string") {
     if (raw.trim() === "") return undefined;
-    try {
-      const value: unknown = JSON.parse(raw);
-      return Array.isArray(value) ? value : undefined;
-    } catch {
-      return undefined;
-    }
+    const value = parseJson(raw);
+    return Array.isArray(value) ? value : undefined;
   }
   return Array.isArray(raw) ? raw : undefined;
 }

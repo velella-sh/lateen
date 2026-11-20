@@ -1,7 +1,7 @@
 import assert from "node:assert/strict";
 import { test } from "node:test";
-import { isRecord, textOf } from "../src/guards.ts";
-import { isRecord as entryIsRecord, textOf as entryTextOf, theme } from "../src/index.ts";
+import { isRecord, parseJson, textOf } from "../src/guards.ts";
+import { isRecord as entryIsRecord, parseJson as entryParseJson, textOf as entryTextOf, theme } from "../src/index.ts";
 
 test("a plain object passes, including nested and boxed objects", () => {
   assert.equal(isRecord({}), true);
@@ -61,4 +61,22 @@ test("textOf keeps mixed-direction text exactly as written apart from the trimme
 test("the entry re-exports textOf", () => {
   assert.equal(entryTextOf(" x "), "x");
   assert.equal(entryTextOf("  "), undefined);
+});
+
+test("parseJson yields the value as unknown data and never asserts a shape", () => {
+  assert.deepEqual(parseJson("{\"n\":1}"), { n: 1 });
+  assert.equal(parseJson("null"), null);
+  assert.deepEqual(parseJson("[1,2]"), [1, 2]);
+  assert.equal(parseJson("\"\""), "");
+  assert.equal(parseJson("nope"), undefined);
+  assert.equal(parseJson("{"), undefined);
+  assert.equal(parseJson(""), undefined);
+  // A parsed value is data, not a trusted shape: fields need the caller's own narrowing.
+  const value = parseJson("{\"deep\":{\"x\":1}}");
+  assert.equal(isRecord(value) && isRecord(value.deep) && value.deep.x === 1, true);
+});
+
+test("the entry re-exports parseJson", () => {
+  assert.deepEqual(entryParseJson("[true]"), [true]);
+  assert.equal(entryParseJson("}"), undefined);
 });

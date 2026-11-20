@@ -1,4 +1,5 @@
 import { h } from "preact";
+import { parseJson } from "../../src/guards.ts";
 import type { ComponentProps } from "@velella/mizzen/contracts";
 
 /** The Markdown directive this component handles: `:::tabs`. */
@@ -183,13 +184,10 @@ function startPoint(dataSrc: string | undefined): SourcePoint | undefined {
 function refBase(attrs: Record<string, string>): string {
   const raw = attrs["data-props"];
   if (raw === undefined || raw === "") return groupKey({});
-  try {
-    const value: unknown = JSON.parse(raw);
-    if (value !== null && typeof value === "object" && !Array.isArray(value)) return groupKey(value as TabsProps);
-  } catch {
-    // Props the engine itself cannot parse render as an empty object; count them the same way.
-  }
-  return groupKey({});
+  // Props the engine itself cannot parse render as an empty object; count them the same way.
+  const value = parseJson(raw);
+  if (value === null || typeof value !== "object" || Array.isArray(value)) return groupKey({});
+  return groupKey(value as TabsProps);
 }
 
 /**

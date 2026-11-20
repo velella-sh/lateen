@@ -1,6 +1,8 @@
 /* Sidebar groups: each group is a native <details>. The group that holds the page stays open and its current link is scrolled into the column; the rest remember their open or closed state in localStorage. */
 
 /** Legacy origin-wide key; newer states are namespaced by the published site base under it. */
+
+import { parseJson } from "../../src/guards.ts";
 export const STORAGE_KEY = "lateen-sidebar";
 
 /** Entries past this many are ignored, and never written: stored state stays bounded. */
@@ -92,7 +94,7 @@ export function read(storage: SidebarStorage | undefined, site = ""): GroupState
 function readKey(storage: SidebarStorage | undefined, key: string): GroupState {
   const state: GroupState = new Map();
   try {
-    const saved: unknown = JSON.parse(storage?.getItem(key) ?? "null");
+    const saved: unknown = parseJson(storage?.getItem(key) ?? "null");
     if (typeof saved !== "object" || saved === null || Array.isArray(saved)) return state;
     for (const [name, value] of Object.entries(saved)) {
       if (state.size >= MAX_ENTRIES) break;

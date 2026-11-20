@@ -3,6 +3,7 @@
  * with meta, already escaped for an HTML attribute, so the theme reads it there instead of parsing Markdown.
  */
 
+import { parseJson } from "../../src/guards.ts";
 import { t } from "../../i18n/index.ts";
 import type { LineRange } from "./lines.ts";
 import { decodeEntities, escapeHtml } from "./escape.ts";
@@ -117,13 +118,7 @@ function annotationsOf(value: unknown): CodeAnnotation[] {
  */
 export function parseFenceMeta(value: string | undefined): FenceMeta | undefined {
   if (value === undefined) return undefined;
-  let parsed: unknown;
-  try {
-    parsed = JSON.parse(decodeEntities(value));
-  } catch {
-    return undefined;
-  }
-  const meta = recordOf(parsed);
+  const meta = recordOf(parseJson(decodeEntities(value)));
   if (meta === undefined) return undefined;
   return {
     title: typeof meta.title === "string" && meta.title.trim() !== "" ? meta.title : null,

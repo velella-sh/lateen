@@ -3,6 +3,7 @@
  * are made here, so a visitor without JavaScript gets no control that would do nothing. It also marks
  * the lines a `#<block>-L3-L7` fragment names, a range no `:target` rule can select on its own. */
 
+import { parseJson } from "../../src/guards.ts";
 import { parseLineFragment, TARGET_CLASS } from "../../components/code/line-fragment.ts";
 
 /** Class on the copy button. */
@@ -279,11 +280,8 @@ function iconsOf(doc: CopyDocument): CopyIcons {
   const read = (name: string): IconNode => {
     const value = template?.getAttribute(name);
     if (!value) return [];
-    try {
-      return JSON.parse(value) as IconNode;
-    } catch {
-      return [];
-    }
+    const parsed = parseJson(value);
+    return Array.isArray(parsed) ? (parsed as IconNode) : [];
   };
   return { copy: read("data-copy-icon"), check: read("data-check-icon") };
 }

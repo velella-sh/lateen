@@ -21,6 +21,7 @@ import { locationOf, parseSpan, type Span } from "../../src/source-span.ts";
 import { acceptEditorTemplate, editorUrl, readFolder, saveFolder } from "./editor.ts";
 import { isTypingTarget } from "../shortcuts/client.ts";
 import { liveStorage as shortcutStorage, shortcutsEnabled } from "../shortcuts/preference.ts";
+import { parseJson, isRecord } from "../../src/guards.ts";
 import {
   readSourceMode,
   saveSourceMode,
@@ -365,12 +366,9 @@ declare const window: { prompt(message: string, initial: string): string | null 
 /** The island's actions from the switch root's data attributes. */
 function actionsOf(root: SwitchRoot, announce: (message: string) => void): SourceActions {
   let repository: SourceActions["repository"];
-  try {
-    const raw = root.getAttribute("data-repository");
-    if (raw !== null) repository = JSON.parse(raw) as SourceActions["repository"];
-  } catch {
-    repository = undefined;
-  }
+  const raw = root.getAttribute("data-repository");
+  const parsed = raw === null ? undefined : parseJson(raw);
+  if (isRecord(parsed) && typeof parsed.url === "string") repository = parsed as unknown as SourceActions["repository"];
   const messages = (name: string): string => root.getAttribute(`data-msg-${name}`) ?? "";
   const template = root.getAttribute("data-record-template");
   const data = root.getAttribute("data-record-data");

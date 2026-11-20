@@ -3,6 +3,7 @@ import type { ComponentProps } from "@velella/mizzen/contracts";
 import { t } from "../../i18n/index.ts";
 import { bodyText, variableNamesOf } from "../terminal/index.ts";
 import { GROUP_ATTRIBUTE, GROUP_EXPLICIT_ATTRIBUTE, groupIdOf } from "../variables-form/group.ts";
+import { parseJson } from "../../src/guards.ts";
 import { evidenceElement, streamOf } from "./evidence.ts";
 
 /** The Markdown directive this component handles: `:::output-block`. */
@@ -82,12 +83,7 @@ const VARIABLE_NAME = /^[A-Za-z0-9_.-]+$/;
  */
 export function parseDependencies(raw: string | undefined): string[] {
   if (typeof raw !== "string" || raw.trim() === "") return [];
-  let value: unknown;
-  try {
-    value = JSON.parse(raw);
-  } catch {
-    return [];
-  }
+  const value = parseJson(raw);
   if (!Array.isArray(value)) return [];
   const names: string[] = [];
   for (const item of value) {

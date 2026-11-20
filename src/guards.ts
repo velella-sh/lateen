@@ -18,3 +18,16 @@ export function textOf(value: unknown): string | undefined {
   const text = value.trim();
   return text === "" ? undefined : text;
 }
+
+/**
+ * The JSON `text` as unknown data, or `undefined` when it does not parse. A parse failure is the only
+ * thing `undefined` can mean here (JSON has no undefined value), and nothing about the shape is
+ * trusted at this boundary: callers narrow the value with their own contract afterwards.
+ */
+export function parseJson(text: string): unknown {
+  try {
+    return JSON.parse(text) as unknown;
+  } catch {
+    return undefined;
+  }
+}

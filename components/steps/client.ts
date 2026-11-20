@@ -1,6 +1,8 @@
-/* steps island: adds an optional tick to every step and remembers the ticks in the browser's local
+/* steps island: adds an optional tick to every step and remembers the ticks in the browser.s local
    storage, per page. Progress is text ("2 of 5"). Nothing leaves the browser. Without the island the steps
    are plain numbered content. */
+
+import { parseJson } from "../../src/guards.ts";
 
 export const ROOT_SELECTOR = "[data-steps]";
 export const STEP_SELECTOR = "li[data-step]";
@@ -44,7 +46,7 @@ export interface Env {
 export function readTicks(env: Env): Set<number> {
   try {
     const raw = env.storage()?.getItem(storageKey(env.path));
-    const parsed: unknown = raw === null || raw === undefined ? [] : JSON.parse(raw);
+    const parsed: unknown = raw === null || raw === undefined ? [] : parseJson(raw);
     if (!Array.isArray(parsed)) return new Set();
     return new Set(parsed.filter((n): n is number => Number.isInteger(n)));
   } catch {

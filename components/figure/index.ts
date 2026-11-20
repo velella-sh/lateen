@@ -1,6 +1,6 @@
 import { h } from "preact";
 import type { ComponentProps } from "@velella/mizzen/contracts";
-import { textOf as trimmed } from "../../src/guards.ts";
+import { parseJson, textOf as trimmed } from "../../src/guards.ts";
 import { instanceId } from "../../src/page-ids.ts";
 import { baseOf, srcsetWithBase, withBase } from "../../src/url.ts";
 
@@ -86,12 +86,7 @@ function text(value: unknown): string {
 /** The images in a JSON `images` prop, keeping only entries with a usable `src`. Invalid JSON gives none. */
 export function imageList(value: unknown): { src: string; alt: string }[] {
   if (typeof value !== "string" || value.trim() === "") return [];
-  let parsed: unknown;
-  try {
-    parsed = JSON.parse(value);
-  } catch {
-    return [];
-  }
+  const parsed = parseJson(value);
   if (!Array.isArray(parsed)) return [];
   return parsed.flatMap((entry) => {
     if (typeof entry !== "object" || entry === null) return [];

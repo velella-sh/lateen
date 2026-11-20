@@ -1,4 +1,5 @@
 import { h } from "preact";
+import { parseJson } from "../../src/guards.ts";
 import type { ComponentProps } from "@velella/mizzen/contracts";
 
 /** Class on the outer element; `style.css` styles it, and `client.ts` finds it by `data-code-tabs`. */
@@ -45,13 +46,9 @@ export function blocks(html: string): string[] {
 /** The labels from the JSON prop. Anything that is not a JSON array gives none; non-string items read as empty. */
 export function parseLabels(raw: string | undefined): string[] {
   if (!raw) return [];
-  try {
-    const value: unknown = JSON.parse(raw);
-    if (!Array.isArray(value)) return [];
-    return value.map((item) => (typeof item === "string" ? item : ""));
-  } catch {
-    return [];
-  }
+  const value = parseJson(raw);
+  if (!Array.isArray(value)) return [];
+  return value.map((item) => (typeof item === "string" ? item : ""));
 }
 
 /** The id prefix, reduced to letters, digits, `-` and `_` so a prop cannot break the markup. */

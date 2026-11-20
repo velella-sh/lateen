@@ -11,6 +11,7 @@ import {
   type IndexRow,
 } from "../data-explorer/index-loader.ts";
 import { calendarDate } from "../../src/dates.ts";
+import { parseJson } from "../../src/guards.ts";
 import type { CompareDocument, CompareElement, CompareEnv } from "./client.ts";
 
 /** Class on the button that opens a column's records. */
@@ -192,19 +193,15 @@ function rowDiffers(values: readonly unknown[], kind: string): boolean {
 /** The fields a comparison renders, in row order, from the root's `data-fields`. */
 function fieldsOf(text: string): CompareField[] {
   if (text === "") return [];
-  try {
-    const parsed: unknown = JSON.parse(text);
-    if (!Array.isArray(parsed)) return [];
-    return parsed.flatMap((entry): CompareField[] => {
-      if (typeof entry !== "object" || entry === null || Array.isArray(entry)) return [];
-      const field = (entry as Record<string, unknown>).field;
-      if (typeof field !== "string" || field === "") return [];
-      const kind = (entry as Record<string, unknown>).kind;
-      return [{ field, kind: typeof kind === "string" ? kind : "text" }];
-    });
-  } catch {
-    return [];
-  }
+  const parsed = parseJson(text);
+  if (!Array.isArray(parsed)) return [];
+  return parsed.flatMap((entry): CompareField[] => {
+    if (typeof entry !== "object" || entry === null || Array.isArray(entry)) return [];
+    const field = (entry as Record<string, unknown>).field;
+    if (typeof field !== "string" || field === "") return [];
+    const kind = (entry as Record<string, unknown>).kind;
+    return [{ field, kind: typeof kind === "string" ? kind : "text" }];
+  });
 }
 
 /** An attribute's text, or an empty string. */

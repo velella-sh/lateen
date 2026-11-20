@@ -5,6 +5,7 @@
 import { readdirSync, readFileSync } from "node:fs";
 import { join } from "node:path";
 import { fileURLToPath } from "node:url";
+import { parseJson } from "../src/guards.ts";
 
 export interface TarballSelection {
   readonly tarball: string | undefined;
@@ -41,7 +42,7 @@ export function main(argv = process.argv.slice(2)): void {
   if (dir === undefined || report === undefined) {
     throw new Error("usage: node scripts/release-tarball.ts --dir <dir> --report <report.json>");
   }
-  const value: unknown = JSON.parse(readFileSync(report, "utf8"));
+  const value: unknown = parseJson(readFileSync(report, "utf8"));
   const named = typeof value === "object" && value !== null ? (value as { tarball?: unknown }).tarball : undefined;
   const { tarball, problems } = selectTarball(readdirSync(dir), named);
   if (tarball === undefined) {
