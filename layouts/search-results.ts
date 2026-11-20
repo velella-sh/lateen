@@ -59,6 +59,13 @@ const status = document.querySelector("[data-search-status]");
 const list = document.querySelector("[data-search-results]");
 const more = document.querySelector("[data-search-more]");
 const query = new URLSearchParams(location.search).get("q") || "";
+const storage = (() => {
+  try {
+    return sessionStorage;
+  } catch {
+    return undefined;
+  }
+})();
 let hits = [];
 let shown = 0;
 let pending = false;
@@ -183,6 +190,36 @@ function focusAfterAppend(items, control) {
 }
 /* more-path:end */
 
+/* return-path:start The return path is a self-contained block the layout's tests extract and run;
+   it reads only its arguments. */
+const RETURN_KEY = "lateen:search-results-return";
+
+/** Remembers the query and the result address a reader followed. */
+function rememberResult(storage, query, url) {
+  try {
+    storage.setItem(RETURN_KEY, JSON.stringify({ query, url }));
+  } catch {}
+}
+
+/** The result address followed for this query, or undefined. */
+function rememberedResult(storage, query) {
+  try {
+    const stored = JSON.parse(storage.getItem(RETURN_KEY) || "null");
+    return stored && stored.query === query && typeof stored.url === "string" ? stored.url : undefined;
+  } catch {
+    return undefined;
+  }
+}
+
+/** Marks the remembered result in the list; never moves focus. */
+function markResult(list, url) {
+  if (!list || url === undefined) return;
+  for (const link of list.querySelectorAll("a.search-results-link")) {
+    if (link.getAttribute("href") === url) link.setAttribute("aria-current", "true");
+  }
+}
+/* return-path:end */
+
 /** Copies text nodes and Pagefind's <mark> elements out of the inert excerpt template. */
 function copyExcerpt(node, target) {
   for (const child of node.childNodes) {
@@ -242,6 +279,7 @@ function itemsOf(records) {
 function render(records) {
   if (!list) return;
   list.replaceChildren(...itemsOf(records));
+  markResult(list, rememberedResult(storage, query));
 }
 
 /** Appends the next batch without clearing the list and moves focus to its first result. */
@@ -296,6 +334,12 @@ if (status && list && query.trim() !== "") {
         });
     });
   }
+
+  list.addEventListener("click", (event) => {
+    const link = event.target && event.target.closest ? event.target.closest("a.search-results-link") : null;
+    if (link && link.getAttribute("href")) rememberResult(storage, query, link.getAttribute("href"));
+  });
+  addEventListener("pageshow", () => markResult(list, rememberedResult(storage, query)));
 }`;
 }
 
