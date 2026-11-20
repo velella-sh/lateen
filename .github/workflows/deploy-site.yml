@@ -40,6 +40,11 @@ jobs:
       - name: Install
         run: npm ci --no-audit --no-fund
         working-directory: lateen
+      - name: Cache the Playwright browser
+        uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
+        with:
+          path: ~/.cache/ms-playwright
+          key: ${{ runner.os }}-playwright-${{ hashFiles('lateen/package-lock.json') }}
       - name: Install Chromium for the accessibility gate
         run: npx playwright install --with-deps chromium
         working-directory: lateen
