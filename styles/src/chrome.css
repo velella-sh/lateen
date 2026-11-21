@@ -454,7 +454,6 @@
     border-inline-end: 1px solid var(--border-subtle);
     background: var(--background);
     color: var(--foreground);
-    box-shadow: none;
     overflow-y: auto;
     scroll-padding-block-start: 4rem;
     translate: -100% 0;
@@ -514,28 +513,6 @@
     border-block-end: 1px solid var(--border);
     background: var(--background);
     font-weight: 600;
-  }
-
-  .drawer-close {
-    @apply grid size-9 cursor-pointer place-items-center rounded-md text-muted-foreground;
-  }
-
-  .drawer-close svg {
-    @apply size-4;
-  }
-
-  .drawer-close[hidden] {
-    display: none;
-  }
-
-  .drawer-close:hover {
-    background: var(--state-hover-bg);
-    color: var(--foreground);
-  }
-
-  .drawer-close:focus-visible {
-    outline: 2px solid var(--state-focus-ring);
-    outline-offset: 2px;
   }
 
   .drawer .sidebar-nav {

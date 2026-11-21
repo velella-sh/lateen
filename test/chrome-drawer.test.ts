@@ -93,7 +93,7 @@ test("renders a closed dialog with the sidebar inside it and a hidden close butt
   assert.match(out, /<div class="drawer-header"><span>Menu<\/span>/);
   assert.match(
     out,
-    /<button type="button" class="drawer-close" aria-label="Close menu" hidden data-drawer-close>/,
+    /<button type="button" class="drawer-close iconbtn" aria-label="Close menu" hidden data-drawer-close>/,
   );
   assert.match(out, /<nav class="sidebar-nav" aria-label="Site navigation">/);
   assert.match(out, /<a href="\/guide\/install\/" aria-current="page">Install<\/a>/);

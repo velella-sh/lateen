@@ -31,7 +31,7 @@ const drawer: Chrome = (props) => {
       h("span", null, menu),
       h(
         "button",
-        { type: "button", class: "drawer-close", "aria-label": t(lang, "close_menu"), hidden: true, "data-drawer-close": true },
+        { type: "button", class: "drawer-close iconbtn", "aria-label": t(lang, "close_menu"), hidden: true, "data-drawer-close": true },
         icon({ node: X }),
       ),
     ),

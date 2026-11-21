@@ -147,6 +147,7 @@ function normalize(text: string): { head: string; body: string } {
   for (const element of [...document.querySelectorAll(".doc-meta")]) element.replaceWith(...element.childNodes);
   // The drawer header keeps the same close button and navigation links.
   for (const element of [...document.querySelectorAll(".drawer-header")]) element.replaceWith(...element.childNodes);
+  for (const element of [...document.querySelectorAll(".drawer-close")]) element.classList.remove("iconbtn");
   // 0.2.3 renames the search field's class; the field itself is unchanged.
   for (const element of [...document.querySelectorAll(".search-field")]) {
     element.classList.replace("search-field", "search-form");

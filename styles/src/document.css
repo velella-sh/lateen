@@ -27,8 +27,7 @@
     @apply m-0 mb-2 text-sm font-semibold;
   }
 
-  .sidebar-nav ul,
-  :is(.toc, .toc-fold) ul {
+  :is(.sidebar-nav, .toc, .toc-fold) ul {
     @apply m-0 grid list-none gap-0.5 p-0;
   }
 
@@ -36,7 +35,8 @@
     @apply block rounded-md px-3 py-1.5 text-muted-foreground no-underline;
   }
 
-  :is(.sidebar-nav a, .sidebar-group > summary, .toc-fold > summary):hover {
+  .sidebar-nav :is(a, summary):hover,
+  .toc-fold > summary:hover {
     background: var(--state-hover-bg);
     color: var(--foreground);
   }
