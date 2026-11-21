@@ -1,7 +1,7 @@
 import { Fragment, h } from "preact";
 import type { ComponentChildren } from "preact";
 import type { Chrome, Site, SiteConfig } from "@velella/mizzen/contracts";
-import { CodeXml } from "lucide";
+import { CodeXml, Search } from "lucide";
 import type { IconNode } from "lucide";
 import { readFileSync } from "node:fs";
 import { fileURLToPath } from "node:url";
@@ -144,6 +144,7 @@ const shell: Chrome = (props) => {
               hidden: true,
               "data-search-open": true,
             },
+            icon({ node: Search }),
             `${t(page.lang, "search_placeholder")} `,
             h("kbd", null, "⌘K"),
           ),

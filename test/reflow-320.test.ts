@@ -13,6 +13,54 @@ try {
 const skip = browser === undefined ? "Chromium is not installed (npx playwright install chromium)" : false;
 after(async () => browser?.close());
 
+test("the mobile search trigger shows an icon and opens with the keyboard in both directions", { skip }, async () => {
+  const site = build("integration");
+  const server = await serve(site.out);
+  const page = await (browser as Browser).newPage({ viewport: { width: 320, height: 800 } });
+  try {
+    const routes = [
+      ["/guide/install/", "Search the docs"],
+      ["/fa/guide/install/", "جست‌وجو در مستندات"],
+    ] as const;
+    for (const [path, name] of routes) {
+      await page.goto(server.url + path);
+      const trigger = page.getByRole("button", { name, exact: true });
+      const glyph = trigger.locator("svg[aria-hidden=true]");
+      assert.ok(await glyph.isVisible(), `the search icon is visible on ${path}`);
+      await trigger.press("Enter");
+      const input = page.getByRole("combobox");
+      assert.ok(await input.evaluate((element) => element === document.activeElement));
+      await input.press("Escape");
+      assert.ok(await trigger.evaluate((element) => element.matches(":focus-visible")));
+    }
+  } finally {
+    await page.close();
+  }
+});
+
+test("guide facts share space and long values wrap at 320px in Persian", { skip }, async () => {
+  const source = readFileSync(new URL("accessibility/fixtures/site/fa/guide/install.md", import.meta.url), "utf8");
+  const longValue = "نسخه‌پیش‌نمایش".repeat(10);
+  const site = build("integration", process.env, { "fa/guide/install.md": source.replace("from: 0.1", `from: ${longValue}`) });
+  const server = await serve(site.out);
+  const page = await (browser as Browser).newPage({ viewport: { width: 320, height: 800 } });
+  try {
+    await page.goto(`${server.url}/fa/guide/install/`);
+    const summary = page.getByRole("main").locator(".guide-summary");
+    const dimensions = await summary.evaluate((element) => {
+      const [from, to] = Array.from(element.children, (fact) => fact.getBoundingClientRect());
+      return {
+        firstRowSharesSpace: from!.top === to!.top && from!.left >= to!.right,
+        summaryFits: element.scrollWidth <= element.clientWidth,
+        pageFits: document.documentElement.scrollWidth === 320,
+      };
+    });
+    assert.deepEqual(dimensions, { firstRowSharesSpace: true, summaryFits: true, pageFits: true });
+  } finally {
+    await page.close();
+  }
+});
+
 test("wide code and tables scroll inside the article on mobile and desktop", { skip }, async () => {
   const site = build("integration");
   const server = await serve(site.out);
