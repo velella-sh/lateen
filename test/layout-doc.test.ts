@@ -108,7 +108,7 @@ test("the article carries data-pagefind-body and sits in the main landmark", () 
 
 test("the layout renders the h1 when the body has no top-level heading", () => {
   const page = out(pageWith());
-  assert.match(page, /<article class="doc"[^>]*><h1>Install<\/h1>/);
+  assert.match(page, /<article class="doc"[^>]*><div class="doc-context">[\s\S]*?<h1>Install<\/h1>/);
 });
 
 test("doc renders its authored description and groups quiet metadata", () => {
@@ -139,27 +139,27 @@ test("the body, page footer, and pager follow the title inside the article", () 
   assert.ok(article, "article present");
   assert.match(
     article[1] ?? "",
-    /<div class="doc-body"><p>Run the build.<\/p><\/div><div class="doc-actions"><div class="page-footer">[\s\S]*<nav class="pager" aria-label="Previous and next"><a class="pager-link pager-prev" href="\/guide\/" rel="prev">/,
+    /<div class="doc-body"><p>Run the build.<\/p><\/div><div class="doc-actions article-tools">[\s\S]*<nav class="pager" aria-label="Previous and next"><a class="pager-link pager-prev" href="\/guide\/" rel="prev">/,
   );
 });
 
-test("the copy-Markdown control follows the page footer and stays before the pager", () => {
+test("the Markdown disclosure groups copy and view before the pager", () => {
   const page = out(pageWith());
   const article = /<article class="doc"[^>]*>(.*?)<\/article>/s.exec(page);
   assert.ok(article, "article present");
   assert.match(
     article[1] ?? "",
-    /<div class="page-footer">[\s\S]*<\/div><div class="copy-markdown" data-copy-markdown>[\s\S]*data-copy-markdown-button[\s\S]*<nav class="pager"/,
+    /<details name="article-tools"><summary>Markdown[\s\S]*<div class="copy-markdown" data-copy-markdown>[\s\S]*data-copy-markdown-button[\s\S]*class="copy-markdown-link"[\s\S]*<\/details>[\s\S]*<nav class="pager"/,
   );
 });
 
-test("the back-to-top link closes the article's page footer before the copy control and pager", () => {
+test("the back-to-top link remains directly available after the grouped controls", () => {
   const page = out(pageWith());
   const article = /<article class="doc"[^>]*>(.*?)<\/article>/s.exec(page);
   assert.ok(article, "article present");
   assert.match(
     article[1] ?? "",
-    /<div class="page-footer">[\s\S]*<a class="back-to-top" href="#main">[\s\S]*<\/a><\/div><div class="copy-markdown"/,
+    /<div class="doc-actions article-tools">[\s\S]*<\/details><a class="back-to-top" href="#main">[\s\S]*<\/a><\/div><nav class="pager"/,
   );
   assert.ok((article[1] ?? "").indexOf('class="back-to-top"') < (article[1] ?? "").indexOf('<nav class="pager"'));
 });
@@ -170,8 +170,8 @@ test("the breadcrumb leads the article and repeats the trail, end at the current
     { title: "Install", url: "/guide/install/" },
   ];
   const page = out(pageWith(), [], trail);
-  assert.match(page, /<article class="doc"[^>]*><nav class="breadcrumb" aria-label="Breadcrumbs"><ol class="breadcrumb-list"><li class="breadcrumb-item"><a href="\/guide\/"><bdi class="breadcrumb-title">Guides<\/bdi><\/a><\/li>/);
-  assert.match(page, /<span aria-current="page"><bdi class="breadcrumb-title">Install<\/bdi><\/span><\/li><\/ol><\/nav><h1>Install<\/h1>/);
+  assert.match(page, /<article class="doc"[^>]*><div class="doc-context"><nav class="breadcrumb" aria-label="Breadcrumbs"><ol class="breadcrumb-list"><li class="breadcrumb-item"><a href="\/guide\/"><bdi class="breadcrumb-title">Guides<\/bdi><\/a><\/li>/);
+  assert.match(page, /<span aria-current="page"><bdi class="breadcrumb-title">Install<\/bdi><\/span><\/li><\/ol><\/nav><details class="doc-tools"[\s\S]*?<h1>Install<\/h1>/);
 });
 
 test("the sidebar renders in the site-navigation column and the toc in its own navigation landmark", () => {
@@ -293,23 +293,35 @@ test("the metadata group keeps trust, freshness, and reading time under the titl
   assert.doesNotMatch(html(doc(layoutProps(pageWith()))), /class="trust-panel"/);
 });
 
+test("Source mode appears once inside Page tools", () => {
+  const page = out(pageWith());
+  assert.equal((page.match(/class="source-mode-button"/g) ?? []).length, 1);
+  assert.match(page, /<details class="doc-tools"[^>]*><summary>Page tools[\s\S]*?class="source-mode-button"[\s\S]*?<\/details>/);
+});
+
+test("a quickstart prioritizes the prerequisites over reading metadata", () => {
+  const page = out(pageWith({ frontMatter: { quickstart: true } }));
+  assert.match(page, /<div class="doc-body" data-quickstart>/);
+  assert.doesNotMatch(page, /class="doc-meta"/);
+});
+
 test("the status banner from front matter sits between the breadcrumb and the title", () => {
   const page = out(pageWith({ frontMatter: { status: "beta" } }));
   assert.match(
     page,
-    /<article class="doc"[^>]*><div class="page-status page-status-beta" role="note"><strong class="page-status-label">Beta<\/strong>[\s\S]*?<\/div><h1>Install<\/h1>/,
+    /<article class="doc"[^>]*><div class="doc-context">[\s\S]*?<div class="page-status page-status-beta" role="note"><strong class="page-status-label">Beta<\/strong>[\s\S]*?<\/div><h1>Install<\/h1>/,
   );
 });
 
-test("the edit link sits between the body and the page footer, and is absent without a repository", () => {
+test("the feedback disclosure includes edit and report links when a repository is configured", () => {
   const page = pageWith();
   const rendered = html(doc(layoutProps(page, [], [], {}, { url: "https://github.com/o/r" })));
 
   assert.match(
     rendered,
-    /<div class="doc-body"><p>Run the build\.<\/p><\/div><div class="edit-page" data-edit-page><a class="edit-page-link" href="https:\/\/github\.com\/o\/r\/edit\/main\/guide\/install\.md" rel="noopener">Edit this page<\/a><\/div><div class="doc-actions"><div class="page-footer">/,
+    /<summary>Feedback[\s\S]*?<div class="edit-page" data-edit-page><a class="edit-page-link" href="https:\/\/github\.com\/o\/r\/edit\/main\/guide\/install\.md" rel="noopener">Edit this page<\/a><\/div>[\s\S]*?Report a problem/,
   );
-  assert.doesNotMatch(html(doc(layoutProps(page))), /class="edit-page"/);
+  assert.doesNotMatch(html(doc(layoutProps(page))), /class="edit-page"|<summary>Feedback/);
 });
 
 test("a page date and edit link appear once, not again in the footer", () => {
@@ -343,7 +355,7 @@ test("the banner renders above the body's own h1, which the layout still leaves 
 test("a status with no banner, and a non-string `since`, leave the page as they found it", () => {
   const page = out(pageWith({ frontMatter: { status: "accepted", since: 3 } }));
   assert.doesNotMatch(page, /page-status/);
-  assert.match(page, /<article class="doc"[^>]*><h1>Install<\/h1>/);
+  assert.match(page, /<article class="doc"[^>]*><div class="doc-context">[\s\S]*?<h1>Install<\/h1>/);
 });
 
 test("a page with tool: renders the tool, its module, and its fallback", () => {

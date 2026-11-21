@@ -248,28 +248,30 @@ test("the light theme comes from code.light.json (#1095)", () => {
   const theme = buildTheme("light");
   assert.equal(theme.name, "lateen-light");
   assert.equal(theme.type, "light");
-  assert.equal(theme.colors?.["editor.background"], "#e5e9f0");
+  assert.equal(theme.colors?.["editor.background"], "#e7e7ed");
   const scopes = (theme.settings ?? []).map((setting) => setting.scope).join(", ");
   for (const scope of ["comment", "keyword", "string", "constant.numeric", "entity.name.function", "entity.name.tag", "punctuation"]) {
     assert.ok(scopes.includes(scope), scope);
   }
 });
 
-test("every light theme color meets 4.5:1 on the code background (#1095)", () => {
-  const theme = buildTheme("light");
-  const background = theme.colors?.["editor.background"] ?? "";
-  const foregrounds = new Set(
-    [theme.colors?.["editor.foreground"], ...(theme.settings ?? []).map((setting) => setting.settings?.foreground)].filter(
-      (color): color is string => color !== undefined,
-    ),
-  );
-  assert.ok(foregrounds.size > 1);
-  for (const color of foregrounds) assert.ok(contrast(color, background) >= 4.5, `${color} on ${background}`);
+test("every syntax color meets 4.5:1 on its code background", () => {
+  for (const mode of ["light", "dark"] as const) {
+    const theme = buildTheme(mode);
+    const background = theme.colors?.["editor.background"] ?? "";
+    const foregrounds = new Set(
+      [theme.colors?.["editor.foreground"], ...(theme.settings ?? []).map((setting) => setting.settings?.foreground)].filter(
+        (color): color is string => color !== undefined,
+      ),
+    );
+    assert.ok(foregrounds.size > 1);
+    for (const color of foregrounds) assert.ok(contrast(color, background) >= 4.5, `${mode}: ${color} on ${background}`);
+  }
 });
 
 test("the dark theme comes from code.dark.json (#1096)", () => {
   assert.equal(buildTheme("dark").name, "lateen-dark");
-  assert.equal(buildTheme("dark").colors?.["editor.background"], "#2a2a37");
+  assert.equal(buildTheme("dark").colors?.["editor.background"], "#1b1a26");
   assert.ok(buildTheme("dark").settings?.some((s) => s.scope?.includes("keyword")));
 });
 

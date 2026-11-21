@@ -55,8 +55,8 @@
   .code-frame:has(> .code-copy-bar) {
     @apply rounded-lg border;
     margin-block: 1.125rem;
-    border-color: var(--border);
-    background: var(--night);
+    border-color: var(--code-border);
+    background: var(--code-bg);
   }
 
   :is(.code-tabs-body, .install-tabs-panel) > .code-frame {
@@ -78,14 +78,14 @@
 
   .code-copy-bar {
     @apply flex flex-wrap items-center justify-end gap-2 px-3 py-2 text-xs;
-    color: var(--sail);
-    border-block-end: 1px solid color-mix(in srgb, var(--sail) 18%, transparent);
+    color: var(--code-fg);
+    border-block-end: 1px solid var(--code-border);
   }
 
   .code-copy-bar > :is(.code-copy, .code-wrap) {
     @apply min-h-8 rounded-md;
-    color: var(--sail);
-    background: var(--night-raised);
+    color: var(--code-fg);
+    background: var(--muted);
     cursor: pointer;
   }
 
@@ -150,33 +150,80 @@
     color: var(--shiki-dark);
   }
 
-  /* Inverse code / terminal: night panel + dark-theme Shiki tokens (light theme pages included).
-     Paint the night surface on the pre, code, and each line so axe samples the dark bg, not the page.
-     Highlighted and targeted rows live unlayered in overrides.css, so they win by layer order and
-     neither side needs !important. */
-  .code,
-  .terminal-body,
-  .cli-demo-body,
-  .ba-code {
-    background-color: var(--night);
-    color: var(--sail);
+  /* Terminal examples retain their inverse surface. Regular snippets follow the site scheme. */
+  :is(.code, .terminal-body, .cli-demo-body, .ba-code) {
+    --snippet-bg: var(--code-bg);
+    --snippet-fg: var(--code-fg);
   }
 
-  .code code,
-  .terminal-body code,
-  .cli-demo-body code,
-  .code .line,
-  .terminal-body .line,
-  .cli-demo-body .line {
-    background-color: var(--night);
-    color: var(--sail);
+  :is(.terminal-body, .cli-demo-body, .ba-code) {
+    --snippet-bg: var(--night);
+    --snippet-fg: var(--sail);
   }
 
-  .code :is(.line, .shiki) span,
-  .terminal-body :is(.line, .shiki) span,
-  .cli-demo-body :is(.line, .shiki) span,
-  .ba-code :is(.line, .shiki) span {
+  :is(.code, .terminal-body, .cli-demo-body, .ba-code),
+  :is(.code, .terminal-body, .cli-demo-body) :is(code, .line) {
+    background-color: var(--snippet-bg);
+    color: var(--snippet-fg);
+  }
+
+  .code :is(.line, .shiki) span {
+    color: light-dark(var(--shiki-light, var(--code-fg)), var(--shiki-dark, var(--code-fg)));
+  }
+
+  :is(.terminal-body, .cli-demo-body, .ba-code) :is(.line, .shiki) span {
     color: var(--shiki-dark, var(--sail));
-    background-color: transparent;
+  }
+
+  .quickstart-step {
+    @apply grid items-center gap-x-2;
+    grid-template-columns: minmax(0, 1fr) auto;
+    margin-block-start: 2rem;
+  }
+
+  .quickstart-step > *,
+  .quickstart-step .code {
+    grid-column: 1 / -1;
+    min-inline-size: 0;
+  }
+
+  .doc-body .quickstart-step > h2 {
+    grid-area: 1 / 1;
+    margin: 0;
+  }
+
+  .quickstart-step > p {
+    margin-block: 0.5rem;
+  }
+
+  .quickstart-step .code-frame {
+    display: contents;
+  }
+
+  .quickstart-step .code-copy-bar {
+    grid-area: 1 / 2;
+    border: 0;
+    padding: 0;
+  }
+
+  .quickstart-step .code {
+    @apply rounded-lg border border-[var(--code-border)];
+    margin-block-start: 0.625rem;
+  }
+
+  .quickstart-step .code-copy-bar .code-copy {
+    @apply inline-flex w-auto items-center gap-1.5 border border-border bg-transparent px-2;
+    color: var(--muted-foreground);
+  }
+
+  .quickstart-step .code-copy::after {
+    content: attr(aria-label);
+  }
+}
+
+@media (width >= 48rem) {
+  /* These install snippets are short. Narrow screens still get the wrap control. */
+  .quickstart-step .code-wrap {
+    display: none;
   }
 }

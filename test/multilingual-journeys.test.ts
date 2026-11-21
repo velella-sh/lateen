@@ -77,7 +77,7 @@ test("search is a named combobox in the page language with a live listbox", () =
   assert.equal(fa.querySelector("label[for='search-input']")?.textContent, "جست‌وجو");
   assert.equal(input.getAttribute("placeholder"), "جست‌وجو در مستندات");
   // Visible label is the accessible name (no separate aria-label).
-  assert.match(fa.querySelector("[data-search-open]")?.textContent ?? "", /جست‌وجو در مستندات/);
+  assert.equal(fa.querySelector("[data-search-open]")?.textContent, "جست‌وجو");
 });
 
 test("mixed prose, code, identifiers, dates, and form values keep their own direction and names", () => {

@@ -124,18 +124,6 @@
     display: none;
   }
 
-  .brand-tag {
-    @apply rounded-full px-2 py-0.5 font-mono text-[0.72rem] font-bold;
-    color: var(--muted-foreground);
-    box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--border) 80%, transparent);
-  }
-
-  .site-header.is-scrolled .brand-tag {
-    background: var(--shell);
-    color: var(--night);
-    box-shadow: none;
-  }
-
   .sections,
   .top-nav {
     @apply flex items-center gap-0.5;
@@ -178,35 +166,25 @@
   /* Header search control (not the dialog — that also uses class "search"). */
   .site-header .search-trigger {
     display: inline-flex;
+    flex: none;
     align-items: center;
-    justify-content: space-between;
     gap: 0.5rem;
     min-block-size: 2.125rem;
     min-inline-size: 2.125rem;
-    inline-size: 14.25rem;
-    padding: 0 0.75rem;
-    border: 0;
-    border-radius: 999px;
+    padding-inline: 0.75rem;
+    border: 1px solid var(--border);
+    border-radius: var(--radius-md);
     background: transparent;
     color: var(--muted-foreground);
     font-size: 0.84rem;
     font-weight: 500;
+    white-space: nowrap;
     cursor: pointer;
   }
 
-  .site-header.is-scrolled .search-trigger,
   .site-header .search-trigger:is(:hover, :focus-visible) {
-    background: color-mix(in srgb, var(--muted) 78%, var(--background));
-    box-shadow: inset 0 0 0 1px var(--border);
+    background: var(--muted);
     color: var(--foreground);
-  }
-
-  .site-header .search-trigger kbd {
-    font-family: var(--type-font-mono);
-    font-size: 0.66rem;
-    padding: 0.1rem 0.35rem;
-    border-radius: 0.3rem;
-    box-shadow: inset 0 0 0 1px var(--border);
   }
 
   dialog.search {
@@ -251,7 +229,6 @@
     align-items: center;
   }
 
-  .search-trigger svg,
   .theme-toggle-icon {
     display: none;
   }
@@ -497,8 +474,7 @@
   }
 
   .site-footer {
-    margin-top: 1.75rem;
-    @apply border-t border-border pt-5 pb-3;
+    @apply border-t border-border py-3;
   }
 
   .footer-inner {
@@ -512,7 +488,7 @@
   }
 
   .footer-inner .sections a {
-    @apply px-2;
+    @apply rounded-sm px-2 font-medium;
   }
 
   .footer-name {
@@ -744,15 +720,10 @@
       inline-size: 2.125rem;
       padding: 0;
       justify-content: center;
-      font-size: 0;
     }
 
-    .site-header .search-trigger kbd {
-      display: none;
-    }
-
-    .search-trigger svg {
-      display: block;
+    .site-header .search-trigger span {
+      @apply sr-only;
     }
   }
 
@@ -763,7 +734,7 @@
     }
   }
 
-  /* Narrow header: the tools wrap instead of widening the page, and the tag and key hint yield first. */
+  /* Keep the compact navigation controls inside the narrow header. */
   @media (max-width: 48rem) {
     .site-header .rail,
     .site-header .header-inner {
@@ -771,17 +742,9 @@
       gap: var(--space-2);
     }
 
-    .site-header .brand-tag {
-      display: none;
-    }
-
     .site-header .tools {
       gap: var(--space-1);
       min-inline-size: 0;
-    }
-
-    .site-header .search-trigger {
-      flex: none;
     }
 
     .site-header .iconbtn,

@@ -1,10 +1,7 @@
 import { Fragment, h } from "preact";
 import type { ComponentChildren } from "preact";
 import type { Chrome, Site, SiteConfig } from "@velella/mizzen/contracts";
-import { CodeXml, Search } from "lucide";
-import type { IconNode } from "lucide";
-import { readFileSync } from "node:fs";
-import { fileURLToPath } from "node:url";
+import { Search } from "lucide";
 import { t } from "../../i18n/index.ts";
 import { textOf as footerText } from "../../src/guards.ts";
 import { icon } from "../../src/icon.ts";
@@ -16,12 +13,6 @@ import search from "../search/index.ts";
 import type { SourceModeVisibility } from "../source-mode/state.ts";
 import themeToggle from "../theme-toggle/index.ts";
 import versionSwitcher from "../version-switcher/index.ts";
-
-const PACKAGE_VERSION = `v${(JSON.parse(readFileSync(fileURLToPath(new URL("../../package.json", import.meta.url)), "utf8")) as { version: string }).version}`;
-
-const Github: IconNode = [
-  ["path", { d: "M9 19c-4 1.5-4-2.5-6-3m14 6v-3.8a3.4 3.4 0 0 0-.9-2.6c3.1-.4 6.4-1.5 6.4-7A5.4 5.4 0 0 0 20 4.8 5 5 0 0 0 19.9 1S18.7.7 16 2.5a13 13 0 0 0-7 0C6.3.7 5.1 1 5.1 1A5 5 0 0 0 5 4.8 5.4 5.4 0 0 0 3.5 8.6c0 5.4 3.3 6.6 6.4 7a3.4 3.4 0 0 0-.9 2.6V22" }],
-];
 
 type Logo = { readonly light?: string; readonly dark?: string };
 
@@ -55,22 +46,6 @@ function onGitHub(url: string): boolean {
   } catch {
     return false;
   }
-}
-
-function repositoryLink(config: SiteConfig) {
-  const url = config.repository?.url;
-  if (!url) return null;
-  const github = onGitHub(url);
-  return h(
-    "a",
-    {
-      class: "iconbtn",
-      href: url,
-      rel: "noopener",
-      "aria-label": github ? "GitHub repository" : "Repository",
-    },
-    icon({ node: github ? Github : CodeXml }),
-  );
 }
 
 /** The site's top-level sections in navigation order; a group counts as its first link under the group's title. */
@@ -115,7 +90,6 @@ const shell = (props: Parameters<Chrome>[0] & SourceModeVisibility) => {
         "div",
         { class: "rail header-inner" },
         brand(config),
-        h("span", { class: "brand-tag" }, PACKAGE_VERSION),
         h(
           "nav",
           { class: "top-nav sections", "aria-label": "Sections" },
@@ -146,12 +120,10 @@ const shell = (props: Parameters<Chrome>[0] & SourceModeVisibility) => {
               "data-search-open": true,
             },
             icon({ node: Search }),
-            `${t(page.lang, "search_placeholder")} `,
-            h("kbd", null, "⌘K"),
+            h("span", null, t(page.lang, "search")),
           ),
           languageSwitcher(props) as ComponentChildren,
           themeToggle(props) as ComponentChildren,
-          repositoryLink(config),
           h(
             "button",
             {
@@ -210,9 +182,8 @@ export function footer({ site }: Pick<Parameters<Chrome>[0], "site">) {
     h(
       "div",
       { class: "rail footer-inner" },
-      h("a", { class: "footer-name", href: `${site.config.base}/` }, site.config.title || "Lateen"),
       footerLinks.length === 0
-        ? null
+        ? h("a", { class: "footer-name", href: `${site.config.base}/` }, site.config.title || "Lateen")
         : h(
             "nav",
             { class: "sections", "aria-label": "Footer" },

@@ -55,5 +55,5 @@ test("the highlighted-line span colour is declared once, without !important", ()
     (rule) => rule.selector === ".code .highlighted span, .code-frame .highlighted span",
   );
   assert.equal(hits.length, 1);
-  assert.equal(hits[0]?.body, "color: var(--sail)");
+  assert.equal(hits[0]?.body, "color: var(--code-fg)");
 });

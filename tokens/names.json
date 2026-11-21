@@ -337,90 +337,90 @@
   },
   "code": {
     "bg": {
-      "$value": "#f5f5f5",
+      "$value": "#e7e7ed",
       "$extensions": {
         "lateen": {
-          "dark": "#1a1a1a"
+          "dark": "#1b1a26"
         }
       }
     },
     "fg": {
-      "$value": "#222222",
+      "$value": "#23212c",
       "$extensions": {
         "lateen": {
-          "dark": "#e5e5e5"
+          "dark": "#e6e1f0"
         }
       }
     },
     "border": {
-      "$value": "#d4d4d4",
+      "$value": "#d5d3e3",
       "$extensions": {
         "lateen": {
-          "dark": "#333333"
+          "dark": "#4a4760"
         }
       }
     },
     "line-highlight": {
-      "$value": "#fff8c5",
+      "$value": "#d5d3e3",
       "$extensions": {
         "lateen": {
-          "dark": "#2e2a1c"
+          "dark": "#343047"
         }
       }
     },
     "comment": {
-      "$value": "#6e7781",
+      "$value": "#4a4658",
       "$extensions": {
         "lateen": {
-          "dark": "#8b949e"
+          "dark": "#aaa2ba"
         }
       }
     },
     "keyword": {
-      "$value": "#cf222e",
+      "$value": "#5b3f99",
       "$extensions": {
         "lateen": {
-          "dark": "#ff7b72"
+          "dark": "#d7bff4"
         }
       }
     },
     "string": {
-      "$value": "#0a3069",
+      "$value": "#285f58",
       "$extensions": {
         "lateen": {
-          "dark": "#a5d6ff"
+          "dark": "#a5d4ca"
         }
       }
     },
     "number": {
-      "$value": "#0550ae",
+      "$value": "#6c407a",
       "$extensions": {
         "lateen": {
-          "dark": "#79c0ff"
+          "dark": "#e4c8b5"
         }
       }
     },
     "function": {
-      "$value": "#8250df",
+      "$value": "#3f5f88",
       "$extensions": {
         "lateen": {
-          "dark": "#d2a8ff"
+          "dark": "#b7d0ea"
         }
       }
     },
     "tag": {
-      "$value": "#116329",
+      "$value": "#425489",
       "$extensions": {
         "lateen": {
-          "dark": "#7ee787"
+          "dark": "#bec4ef"
         }
       }
     },
     "punctuation": {
-      "$value": "#57606a",
+      "$value": "#4a4658",
       "$extensions": {
         "lateen": {
-          "dark": "#8b949e"
+          "dark": "#b7b2c9"
         }
       }
     }
