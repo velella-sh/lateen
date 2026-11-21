@@ -310,8 +310,8 @@ function showpieceContent(props: LayoutProps): ComponentChildren {
 const home: Layout = (props) => {
   const showpiece = isShowpiece(props);
   const homeProps = { ...props, showSourceMode: false };
-  // The standard landing page starts with prose. Code can request its font from CSS.
-  if (!showpiece) props.hints?.skipFontPreload("JetBrains Mono");
+  // Mono is not preloaded here: the base layout preloads it only for a page body with a code block,
+  // which covers both the standard landing page and a showpiece whose demo carries code.
   return base({
     ...homeProps,
     header: h(Fragment, null, shell(homeProps) as ComponentChildren, drawer(props) as ComponentChildren),

@@ -41,7 +41,9 @@ function layoutProps(config: SiteConfig = configWith(), hints?: LayoutProps["hin
     lang: "en",
     dir: "ltr",
     headings: [],
-    html: "<p>Body</p>",
+    // A code block, so the page preloads both shipped families and only a brand can remove one;
+    // the layout-base-code-preload test holds the no-code rule.
+    html: "<p>Body</p><pre><code>code</code></pre>",
     markdown: "",
     kind: "doc",
   };
