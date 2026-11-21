@@ -246,8 +246,10 @@ async function checkNavigation(page: Page, fail: (message: string) => void): Pro
 
 /** Type a query into the results page's field and require at least one result link. */
 async function checkSearch(page: Page, fail: (message: string) => void): Promise<void> {
-  const input = page.locator("[data-search-input]").first();
-  const link = page.locator("a.search-results-link").first();
+  // The dialog repeats the same attributes; the results page names its own field and list.
+  const root = page.locator("[data-search-page]").first();
+  const input = root.locator("[data-search-input]").first();
+  const link = root.locator("a.search-results-link").first();
   try {
     await input.waitFor({ state: "visible", timeout: 15000 });
     await input.fill("install");

@@ -724,16 +724,19 @@ declare const MutationObserver: new (callback: () => void) => {
 if (typeof document !== "undefined") {
   const dialog = document.querySelector("[data-search]");
   const button = document.querySelector("[data-search-open]");
-  const close = document.querySelector("[data-search-close]");
-  const clear = document.querySelector("[data-search-clear]");
-  const retry = document.querySelector("[data-search-retry]");
-  const input = document.querySelector("[data-search-input]");
-  const results = document.querySelector("[data-search-results]");
-  const status = document.querySelector("[data-search-status]");
-  const all = document.querySelector("[data-search-all]");
-  const palette = document.querySelector("[data-palette-actions]") as SearchPaletteSource | null;
-  const askRoot = document.querySelector("[data-ask-agent]");
-  const askSource = document.querySelector("[data-ask-agent-config]") as SearchPaletteSource | null;
+  // The results page carries the same attributes as the dialog; only the dialog's copies are ours.
+  const within = (selector: string): unknown =>
+    (dialog as { querySelector(selector: string): unknown } | null)?.querySelector(selector) ?? null;
+  const close = within("[data-search-close]");
+  const clear = within("[data-search-clear]");
+  const retry = within("[data-search-retry]");
+  const input = within("[data-search-input]");
+  const results = within("[data-search-results]");
+  const status = within("[data-search-status]");
+  const all = within("[data-search-all]");
+  const palette = within("[data-palette-actions]") as SearchPaletteSource | null;
+  const askRoot = within("[data-ask-agent]");
+  const askSource = within("[data-ask-agent-config]") as SearchPaletteSource | null;
   if (dialog && button && close && input && results && status) {
     const source = dialog as unknown as MessageSource;
     const messages = messagesFrom(source);
@@ -774,12 +777,16 @@ if (typeof document !== "undefined") {
     if (askAgent !== undefined) {
       (dialog as SearchDialog).addEventListener("close", () => askAgent.hide());
     }
-    // The search results page draws its own list; the ask section fills in when it has rows. The
-    // list is the same element the dialog already holds, so it is not resolved a second time.
+    // The search results page draws its own list; the ask section reads that list when the page has
+    // one, so the dialog's empty list is not mistaken for it.
     const section = document.querySelector("[data-ask-agent-section]");
+    const pageList =
+      (document.querySelector("[data-search-page]") as { querySelector(selector: string): unknown } | null)
+        ?.querySelector("[data-search-results]") ?? null;
+    const askList = (pageList ?? results) as { querySelectorAll(selector: string): Iterable<unknown> };
     if (askAgent !== undefined && section !== null && section !== undefined) {
       const askResults = (): AskResult[] => {
-        const links = (results as { querySelectorAll(selector: string): Iterable<unknown> }).querySelectorAll("a");
+        const links = askList.querySelectorAll("a");
         const found: AskResult[] = [];
         for (const link of links) {
           const anchor = link as {
@@ -799,7 +806,7 @@ if (typeof document !== "undefined") {
         if (query.trim() === "" || found.length === 0) return;
         askAgent.open(query, found, section as AskElement, false);
       };
-      new MutationObserver(fill).observe(results, { childList: true });
+      new MutationObserver(fill).observe(askList, { childList: true });
       fill();
     }
     // ⌘K/Ctrl+K and `/` press this button from anywhere, exactly as a pointer would.
