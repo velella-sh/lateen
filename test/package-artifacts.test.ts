@@ -2,7 +2,7 @@
 // the compiled CSS ships in the tarball, and the required list covers units, islands, fonts, tokens,
 // translations, schemas, the visual export, the redesign alias, the skill, and the starters.
 import assert from "node:assert/strict";
-import { mkdirSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from "node:fs";
+import { existsSync, mkdirSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { test } from "node:test";
@@ -29,8 +29,8 @@ test("the required list covers sources, islands, fonts, schemas, and generated a
     "chrome/toc/client.ts",
     "components/code/index.ts",
     "components/performance-chart/chart.min.js",
-    "styles/src/ui.css",
     "styles/generated.css",
+    "styles/tokens.css",
     "styles/fonts.css",
     "fonts/manrope/manrope-latin-400-normal.woff2",
     "fonts/vazirmatn/vazirmatn-arabic-400-normal.woff2",
@@ -46,6 +46,21 @@ test("the required list covers sources, islands, fonts, schemas, and generated a
   }
   assert.deepEqual(required, [...required].sort(), "paths are in path order");
   assert.equal(new Set(required).size, required.length, "no path is required twice");
+});
+
+test("the Tailwind sources, per-unit READMEs, and redesign tests stay out of the tarball", () => {
+  // The engine bundles only the top-level `styles/*.css` sheets, so `styles/src` is build input for
+  // `npm run ui:css` and a consumer never reads it. The folder READMEs the docs and the skill point at
+  // (`components/README.md`, `chrome/README.md`) still ship; only the per-unit notes are left out.
+  for (const pattern of ["!styles/src", "!components/*/README.md", "!chrome/*/README.md", "!redesign/test"]) {
+    assert.ok(pkg.files.includes(pattern), `${pattern} is excluded from the tarball`);
+  }
+  const required = requiredArtifacts();
+  assert.equal(required.some((path) => path.startsWith("styles/src/")), false, "no Tailwind source is required");
+  assert.ok(required.includes("styles/generated.css"), "the compiled CSS is still required");
+  for (const path of ["components/README.md", "chrome/README.md", "layouts/README.md", "styles/README.md"]) {
+    assert.ok(existsSync(new URL(`../${path}`, import.meta.url)), `${path} stays in the repository`);
+  }
 });
 
 test("missingArtifacts names absent and empty files, and passes a complete copy", () => {

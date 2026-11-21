@@ -2,6 +2,11 @@
 // fonts, tokens, translations, schemas, the visual export, the redesign alias, the skill, and the
 // starters. prepack runs it after `ui:build`, and scripts/smoke-package.sh runs it against the
 // installed copy, so a file the tarball leaves out fails at the pack, not in a reader's build.
+//
+// It requires what a consumer's build reads, not everything the checkout holds. The Tailwind sources
+// under `styles/src` are build input for `npm run ui:css`, and the engine bundles only the top-level
+// `styles/*.css` sheets (it lists that folder's files, not its subfolders), so those sources stay out
+// of the tarball and out of this list.
 // Usage: node scripts/check-package.ts [dir]
 import { readdirSync, statSync } from "node:fs";
 import { join, relative, sep } from "node:path";
@@ -28,6 +33,14 @@ function filesUnder(repo: string, dir: string, extensions: readonly string[]): s
   return found;
 }
 
+/** Files directly under `repo/dir` with one of the extensions, as `<dir>/<name>`, sorted. */
+function filesIn(repo: string, dir: string, extensions: readonly string[]): string[] {
+  return readdirSync(join(repo, dir), { withFileTypes: true })
+    .filter((entry) => entry.isFile() && extensions.some((extension) => entry.name.endsWith(extension)))
+    .map((entry) => `${dir}/${entry.name}`)
+    .sort();
+}
+
 /** Every artifact the installed theme needs, derived from the checkout, in path order and once each. */
 export function requiredArtifacts(repo: string = root): string[] {
   const sources = [
@@ -36,8 +49,8 @@ export function requiredArtifacts(repo: string = root): string[] {
     ...filesUnder(repo, "chrome", [".ts"]),
     ...filesUnder(repo, "components", [".ts"]),
     ...filesUnder(repo, "visual", [".ts"]),
-    ...filesUnder(repo, join("redesign", "src"), [".ts"]),
-    ...filesUnder(repo, "styles", [".css"]),
+    ...filesUnder(repo, "redesign/src", [".ts"]),
+    ...filesIn(repo, "styles", [".css"]),
     ...filesUnder(repo, "tokens", [".json"]),
     ...filesUnder(repo, "fonts", [".woff2"]),
     ...filesUnder(repo, "i18n", [".json", ".ts"]),
