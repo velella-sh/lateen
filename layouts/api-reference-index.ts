@@ -1,15 +1,11 @@
-import { Fragment, h } from "preact";
+import { h } from "preact";
 import { isRecord } from "../src/guards.ts";
 import type { ComponentChildren } from "preact";
 import type { Layout, LayoutProps } from "@velella/mizzen/contracts";
-import base from "./base.ts";
 import breadcrumb from "../chrome/breadcrumb/index.ts";
-import drawer from "../chrome/drawer/index.ts";
-import shell, { footer as shellFooter } from "../chrome/shell/index.ts";
-import sidebar from "../chrome/sidebar/index.ts";
-import toc from "../chrome/toc/index.ts";
 import { t } from "../i18n/index.ts";
 import { articleHtml } from "../src/article-html.ts";
+import { articleShell } from "./shared/index.ts";
 
 /**
  * The index page of a pinned OpenAPI reference. The engine writes it at `apiReference.path` with
@@ -129,14 +125,7 @@ function fallback(props: LayoutProps): ComponentChildren {
 /** The API reference index page: the docs shell around the generated navigation. */
 const apiReferenceIndex: Layout = (props) => {
   const model = indexOf(props.page.frontMatter);
-  return base({
-    ...props,
-    header: h(Fragment, null, shell(props) as ComponentChildren, drawer(props) as ComponentChildren),
-    footer: shellFooter(props) as ComponentChildren,
-    sidebar: sidebar(props) as ComponentChildren,
-    main: model === undefined ? fallback(props) : content(props, model),
-    aside: toc(props) as ComponentChildren,
-  });
+  return articleShell(props, { main: model === undefined ? fallback(props) : content(props, model) });
 };
 
 export default apiReferenceIndex;

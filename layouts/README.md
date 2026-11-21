@@ -4,6 +4,8 @@ A layout turns one page into a document. One file per layout: `layouts/<name>.ts
 
 Layouts are `.ts`, not `.tsx`: Node's type stripping does not transform JSX, so write elements with `h()` from `preact`. The file's default export is the layout, typed by the engine's layout contract.
 
+The engine registers every `.ts` file directly in this folder as a layout, so each one must default-export a layout function. Helpers the layouts share live in a folder instead, as `blog/index.ts` and `shared/index.ts` do.
+
 Example, `layouts/doc.ts`:
 
 ```ts

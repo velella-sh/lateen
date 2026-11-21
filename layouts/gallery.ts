@@ -1,11 +1,7 @@
-import { Fragment, h } from "preact";
+import { h } from "preact";
 import type { ComponentChildren } from "preact";
 import type { Heading, Island, Layout, LayoutProps, RecordProps } from "@velella/mizzen/contracts";
-import base from "./base.ts";
 import breadcrumb from "../chrome/breadcrumb/index.ts";
-import drawer from "../chrome/drawer/index.ts";
-import shell, { footer as shellFooter } from "../chrome/shell/index.ts";
-import sidebar from "../chrome/sidebar/index.ts";
 import toc from "../chrome/toc/index.ts";
 import cards from "../components/cards/index.ts";
 import galleryFilters, { type GalleryFacet } from "../components/gallery-filters/index.ts";
@@ -14,7 +10,8 @@ import { formatCount } from "../components/reading-time/index.ts";
 import { addCardOf } from "../components/gallery-card/add-card.ts";
 import { patternOf, t } from "../i18n/index.ts";
 import { baseOf } from "../src/url.ts";
-import { cardOf, groupsOf, titleFromBody } from "./list.ts";
+import { cardOf, groupsOf } from "./list.ts";
+import { articleShell, titleFromBody } from "./shared/index.ts";
 
 /* A gallery page names no directive, so the engine does not ship its island. The island reads only
    the links and cards in the page, and the links work on their own.
@@ -220,12 +217,8 @@ const gallery: Layout = (props) => {
     const filterIsland: Island = { name: "gallery-filters", src: `${baseOf(props.site)}/${FILTER_ISLAND}` };
     if (!islands.some((island) => island.src === filterIsland.src)) islands.push(filterIsland);
   }
-  return base({
-    ...props,
-    islands,
-    header: h(Fragment, null, shell(props) as ComponentChildren, drawer(props) as ComponentChildren),
-    footer: shellFooter(props) as ComponentChildren,
-    sidebar: sidebar(props) as ComponentChildren,
+  return articleShell(props, {
+    base: { islands },
     main: article(props),
     aside: toc(tocFor(props)) as ComponentChildren,
   });

@@ -1,10 +1,6 @@
-import { Fragment, h } from "preact";
+import { h } from "preact";
 import type { ComponentChildren } from "preact";
 import type { Layout, LayoutProps, Page } from "@velella/mizzen/contracts";
-import base from "./base.ts";
-import drawer from "../chrome/drawer/index.ts";
-import shell, { footer as shellFooter } from "../chrome/shell/index.ts";
-import sidebar from "../chrome/sidebar/index.ts";
 import changelogEntry, {
   versionTextOf,
   type ChangelogEntryNode,
@@ -12,6 +8,7 @@ import changelogEntry, {
 } from "../components/changelog-entry/index.ts";
 import { isRecord } from "../src/guards.ts";
 import { t } from "../i18n/index.ts";
+import { articleShell, titleFromBody } from "./shared/index.ts";
 
 /** Class on the page's article. */
 export const ARTICLE_CLASS = "changelog";
@@ -160,11 +157,6 @@ export function newestFirst(releases: readonly Release[]): readonly Release[] {
   });
 }
 
-/** The same rule as `doc.ts`: the body supplies the `h1`, so the layout must not render a second one. */
-function titleFromBody(props: LayoutProps): boolean {
-  return props.page.headings.some((heading) => heading.depth === 1);
-}
-
 /** A release through the `changelog-entry` component, carrying the id the component allocated for it. */
 interface IdentifiedRelease {
   readonly release: Release;
@@ -252,17 +244,6 @@ function article(props: LayoutProps): ComponentChildren {
  * sidebar, and the release list. `styles/src/ui.css` styles the version contents and the page.
  */
 const changelog: Layout = (props) =>
-  base({
-    ...props,
-    header: h(
-      Fragment,
-      null,
-      shell(props) as ComponentChildren,
-      drawer(props) as ComponentChildren,
-    ),
-    footer: shellFooter(props) as ComponentChildren,
-    sidebar: sidebar(props) as ComponentChildren,
-    main: article(props),
-  });
+  articleShell(props, { main: article(props) });
 
 export default changelog;

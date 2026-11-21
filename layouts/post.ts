@@ -1,20 +1,16 @@
-import { Fragment, h } from "preact";
+import { h } from "preact";
 import type { ComponentChildren } from "preact";
 import type { Layout, LayoutProps } from "@velella/mizzen/contracts";
 import breadcrumb from "../chrome/breadcrumb/index.ts";
-import drawer from "../chrome/drawer/index.ts";
 import pageFooter from "../chrome/page-footer/index.ts";
-import shell, { footer as shellFooter } from "../chrome/shell/index.ts";
-import sidebar from "../chrome/sidebar/index.ts";
-import toc from "../chrome/toc/index.ts";
 import { highlightFences } from "../components/code/index.ts";
 import { t } from "../i18n/index.ts";
 import { codeBackgrounds } from "../src/brand.ts";
 import { calendarDate } from "../src/dates.ts";
 import { textOf } from "../src/guards.ts";
-import base from "./base.ts";
-import { archiveUrlOf, authorNameOf, authorPageOf, titleFromBody } from "./blog/index.ts";
+import { archiveUrlOf, authorNameOf, authorPageOf } from "./blog/index.ts";
 import { articleHtml } from "../src/article-html.ts";
+import { articleShell, titleFromBody } from "./shared/index.ts";
 
 /** The date line: a `<time>` in the page's calendar when the date is real, else the written text. */
 function dateOf(props: LayoutProps, value: string | undefined): ComponentChildren {
@@ -72,13 +68,6 @@ function article(props: LayoutProps): ComponentChildren {
 
 /** The post page: the base shell, header, drawer, sidebar, article, and the on-this-page column. */
 const post: Layout = (props) =>
-  base({
-    ...props,
-    header: h(Fragment, null, shell(props) as ComponentChildren, drawer(props) as ComponentChildren),
-    footer: shellFooter(props) as ComponentChildren,
-    sidebar: sidebar(props) as ComponentChildren,
-    main: article(props),
-    aside: toc(props) as ComponentChildren,
-  });
+  articleShell(props, { main: article(props) });
 
 export default post;
