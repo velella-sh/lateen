@@ -9,6 +9,19 @@
     padding: 0.75rem 0 6rem;
   }
 
+  @media screen and (width > 74rem) {
+    /* Both grids span 72rem, so the navigation keeps its track and alignment. */
+    .doc-layout:has(> main > .doc:not(.api-reference, .api-reference-index)) {
+      grid-template-columns: 12.5rem minmax(0, 36rem) minmax(10.5rem, 14.5rem);
+      column-gap: 4.5rem;
+    }
+
+    .doc-layout:has(> main > .doc:not(.api-reference, .api-reference-index)) > .aside {
+      max-inline-size: 10.5rem;
+      margin-block-start: 2.75rem;
+    }
+  }
+
   .doc-layout:has(.doc-context) {
     padding-block-end: 2rem;
   }
@@ -165,11 +178,6 @@
     background: none;
   }
 
-  .doc-body[data-quickstart] > p:first-child {
-    padding-block-start: 1rem;
-    border-block-start: 1px solid var(--border);
-  }
-
   :is(.toc, .toc-fold) li > ul {
     padding-inline-start: var(--space-3);
   }
@@ -184,15 +192,27 @@
     max-width: 44rem;
   }
 
-  .doc-layout main > article > h1 {
-    margin-block: 0.625rem 0;
+  .doc {
+    --type-size-doc-title: clamp(2.125rem, 1.5rem + 2.2vw, 3.25rem);
+    --type-weight-doc-title: 740;
+    --type-leading-doc-title: 1.08;
+    --doc-title-space: 0.875rem;
+    --doc-section-space: 2.25rem;
   }
 
   .doc-layout main > article > h1,
-  .doc-body > h1:first-child {
-    font-size: clamp(1.875rem, 1.5rem + 1.6vw, 2.75rem);
-    font-weight: 680;
-    line-height: var(--type-leading-display);
+  .doc > h1,
+  .api-reference-operation-header > h1 {
+    margin-block: var(--doc-title-space, 0.625rem) 0;
+  }
+
+  .doc-layout main > article > h1,
+  .doc > h1,
+  .doc-body > h1:first-child,
+  .api-reference-operation-header > h1 {
+    font-size: var(--type-size-doc-title, clamp(1.875rem, 1.5rem + 1.6vw, 2.75rem));
+    font-weight: var(--type-weight-doc-title, 680);
+    line-height: var(--type-leading-doc-title, var(--type-leading-display));
     letter-spacing: var(--type-tracking-display);
     overflow-wrap: anywhere;
   }
@@ -262,12 +282,13 @@
   }
 
   .doc-description {
-    margin-block: 0.5rem 0;
-    max-inline-size: 60ch;
+    margin-block: 0.875rem 0;
+    max-inline-size: 46ch;
     color: var(--muted-foreground);
-    font-size: clamp(1rem, 0.95rem + 0.3vw, 1.125rem);
+    font-size: 1.1875rem;
     line-height: 1.5;
     overflow-wrap: anywhere;
+    text-wrap: pretty;
   }
 
   .doc-meta {
@@ -342,24 +363,25 @@
   }
 
   .doc-body {
-    margin-block-start: 1.375rem;
+    margin-block-start: 1.625rem;
   }
 
-  .doc-body > :first-child {
-    margin-block-start: 0;
-  }
-
-  .doc-body h2 {
+  .doc-body h2,
+  .api-reference-section > h2 {
     position: relative;
-    margin: 2.75rem 0 0.75rem;
-    font-size: 1.375rem;
-    font-weight: 600;
+    margin: var(--doc-section-space) 0 0.75rem;
+    font-size: 1.4375rem;
+    font-weight: var(--type-weight-bold);
     line-height: 1.875rem;
     letter-spacing: -0.018em;
   }
 
   .doc-body h3 {
     @apply mb-3 mt-8 text-xl;
+  }
+
+  .doc-body > :first-child {
+    margin-block-start: 0;
   }
 
   /* Fragment targets clear the sticky header on desktop and mobile. */
@@ -390,6 +412,13 @@
   .doc-body > :is(p, ul, ol, h1, h2, h3) {
     max-inline-size: var(--type-measure-min);
     overflow-wrap: anywhere;
+  }
+
+  .doc-body > :is(p, ul, ol),
+  .quickstart-step > p,
+  .api-reference-operation-header > .api-reference-description {
+    max-inline-size: 58ch;
+    line-height: 1.7;
   }
 
   .doc-body > p {

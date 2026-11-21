@@ -488,7 +488,7 @@ function parametersSection(parameters: readonly ParameterView[], lang: string): 
     h("h2", null, heading),
     h(
       "div",
-      { class: "api-reference-table-wrap" },
+      { class: "api-reference-table-wrap table-scroll", tabIndex: 0 },
       h(
         "table",
         { class: "api-reference-table" },

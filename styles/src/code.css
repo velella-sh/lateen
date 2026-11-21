@@ -53,10 +53,10 @@
 
   /* Keep the controls in their own row, outside the code's scroll area. */
   .code-frame:has(> .code-copy-bar) {
-    @apply rounded-lg border;
+    border: 1px solid var(--doc-code-border, var(--code-border));
+    border-radius: var(--doc-code-radius, var(--radius-lg));
     margin-block: 1.125rem;
-    border-color: var(--code-border);
-    background: var(--code-bg);
+    background: var(--doc-code-bg, var(--code-bg));
   }
 
   :is(.code-tabs-body, .install-tabs-panel) > .code-frame {
@@ -79,7 +79,7 @@
   .code-copy-bar {
     @apply flex flex-wrap items-center justify-end gap-2 px-3 py-2 text-xs;
     color: var(--code-fg);
-    border-block-end: 1px solid var(--code-border);
+    border-block-end: 1px solid var(--doc-code-border, var(--code-border));
   }
 
   .code-copy-bar > :is(.code-copy, .code-wrap) {
@@ -151,8 +151,8 @@
   }
 
   /* Terminal examples retain their inverse surface. Regular snippets follow the site scheme. */
-  :is(.code, .terminal-body, .cli-demo-body, .ba-code) {
-    --snippet-bg: var(--code-bg);
+  .code:where(:not(.terminal-body, .cli-demo-body, .ba-code)) {
+    --snippet-bg: var(--doc-code-bg, var(--code-bg));
     --snippet-fg: var(--code-fg);
   }
 
@@ -175,55 +175,20 @@
     color: var(--shiki-dark, var(--sail));
   }
 
-  .quickstart-step {
-    @apply grid items-center gap-x-2;
-    grid-template-columns: minmax(0, 1fr) auto;
-    margin-block-start: 2rem;
-  }
+  @media screen {
+    .doc {
+      --doc-code-bg: light-dark(color-mix(in srgb, var(--code-bg) 82%, var(--background)), var(--code-bg));
+      --doc-code-border: color-mix(in srgb, var(--code-border) 82%, var(--background));
+      --doc-code-radius: var(--radius-card);
+      --doc-code-padding: 0.875rem 1.25rem;
+      --doc-code-leading: 1.65;
+    }
 
-  .quickstart-step > *,
-  .quickstart-step .code {
-    grid-column: 1 / -1;
-    min-inline-size: 0;
-  }
-
-  .doc-body .quickstart-step > h2 {
-    grid-area: 1 / 1;
-    margin: 0;
-  }
-
-  .quickstart-step > p {
-    margin-block: 0.5rem;
-  }
-
-  .quickstart-step .code-frame {
-    display: contents;
-  }
-
-  .quickstart-step .code-copy-bar {
-    grid-area: 1 / 2;
-    border: 0;
-    padding: 0;
-  }
-
-  .quickstart-step .code {
-    @apply rounded-lg border border-[var(--code-border)];
-    margin-block-start: 0.625rem;
-  }
-
-  .quickstart-step .code-copy-bar .code-copy {
-    @apply inline-flex w-auto items-center gap-1.5 border border-border bg-transparent px-2;
-    color: var(--muted-foreground);
-  }
-
-  .quickstart-step .code-copy::after {
-    content: attr(aria-label);
-  }
-}
-
-@media (width >= 48rem) {
-  /* These install snippets are short. Narrow screens still get the wrap control. */
-  .quickstart-step .code-wrap {
-    display: none;
+    .doc .code:where(:not(.terminal-body, .cli-demo-body, .ba-code)) {
+      padding: var(--doc-code-padding);
+      font-family: var(--type-font-mono);
+      font-size: var(--text-sm);
+      line-height: var(--doc-code-leading);
+    }
   }
 }
