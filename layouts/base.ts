@@ -21,6 +21,12 @@ export { THEME_KEY };
 
 const DEFAULT_THEME = "dark";
 
+/** The mono family the theme ships, named once so the brand and code-block rules agree. */
+const MONO_FAMILY = "JetBrains Mono";
+
+/** A fenced code block, which the build renders as `<pre>`; `<prefix>` and inline `<code>` do not count. */
+const CODE_BLOCK = /<pre\b/i;
+
 /**
  * Sets `data-theme` on `<html>` before first paint. A stored `light` or `dark` wins; otherwise the page
  * starts dark. It also sets `data-js`, so styles can tell a page that will run its scripts from one that will not
@@ -89,7 +95,7 @@ function jsonLd(data: Readonly<Record<string, unknown>>) {
 function brandStyle(config: SiteConfig, hints: LayoutProps["hints"]) {
   const { brand, problems } = resolveBrand(config.theme.options);
   if (brand?.sans !== undefined) hints?.skipFontPreload("Manrope");
-  if (brand?.mono !== undefined) hints?.skipFontPreload("JetBrains Mono");
+  if (brand?.mono !== undefined) hints?.skipFontPreload(MONO_FAMILY);
   const comments = problems.map(problemComment).join("\n");
   const css = [brand === undefined ? "" : brandCss(brand, { base: config.base }), comments].filter((part) => part !== "").join("\n");
   return css === "" ? null : h("style", { "data-brand": true, dangerouslySetInnerHTML: { __html: css } });
@@ -118,6 +124,11 @@ function headNodes(head: Head, site: Site, page: Page, hints: LayoutProps["hints
   }
   // The other script's face is fetched only when a glyph needs it.
   hints?.skipFontPreload(page.dir === "rtl" ? "Manrope" : "Vazirmatn");
+  // A page with no code block shows no mono glyph above the fold: its prose, headings, links, and
+  // inline code all render in the text face, so the mono preload only competes with the first paint.
+  // The stylesheet still declares the face, so inline code and a block rendered later look the same;
+  // a page that does have a block keeps the preload, since its code is first paint.
+  if (!CODE_BLOCK.test(page.html)) hints?.skipFontPreload(MONO_FAMILY);
   return [
     h("meta", { charset: "utf-8" }),
     h("meta", { name: "viewport", content: "width=device-width, initial-scale=1" }),
