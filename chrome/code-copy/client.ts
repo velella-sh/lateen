@@ -16,7 +16,7 @@ export const WRAP_BUTTON_CLASS = "code-wrap";
 /** Class the toggle puts on the block; `ui.css` turns it into wrapped lines, never different text. */
 export const WRAPPED_CLASS = "is-wrapped";
 
-/** Class on the wrapper that holds the button and the live message, placed over the block. */
+/** Class on the toolbar above the block. */
 export const BAR_CLASS = "code-copy-bar";
 
 /** Class on the wrapper that makes the block the positioning context for its control. */
@@ -322,6 +322,9 @@ function attach(doc: CopyDocument, block: CopyBlock, env: CopyEnv, labels: CopyL
   // The source, language, and stable block id ride on the control, so a copy keeps its context.
   const lang = block.getAttribute("data-lang");
   if (lang !== null) button.setAttribute("data-lang", lang);
+  if (lang && lang !== "text" && block.getAttribute("aria-labelledby") === null) {
+    bar.setAttribute("data-lang", lang);
+  }
   const source = block.getAttribute("data-src");
   if (source !== null) button.setAttribute("data-src", source);
   const identity = block.getAttribute("id") ?? source;

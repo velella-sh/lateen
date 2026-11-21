@@ -279,7 +279,6 @@
     margin-block-end: var(--space-2);
   }
 
-  .install-tabs-tab,
   .code-tabs-tab,
   .tabs > [role="tablist"] > [role="tab"] {
     @apply inline-flex items-center rounded-t-md px-3 py-2 text-sm leading-6 font-medium text-muted-foreground;
@@ -288,14 +287,12 @@
     overflow-wrap: anywhere;
   }
 
-  .install-tabs-tab:hover,
   .code-tabs-tab:hover,
   .tabs > [role="tablist"] > [role="tab"]:hover {
     color: var(--foreground);
     background: var(--card);
   }
 
-  .install-tabs-tab:has(.install-tabs-radio:checked),
   .code-tabs-tab[aria-selected="true"],
   .tabs > [role="tablist"] > [aria-selected="true"] {
     border-block-end-color: var(--ring);
@@ -324,29 +321,41 @@
   .install-tabs {
     display: flex;
     flex-wrap: wrap;
-    gap: var(--space-2) 0.25rem;
+    gap: 0 var(--space-1);
     margin-block: 1.125rem;
-    max-inline-size: 100%;
-  }
-
-  .install-tabs[data-single] {
-    display: block;
+    overflow: clip;
   }
 
   .install-tabs-tab {
-    order: 0;
+    @apply inline-flex items-center border-b-2 border-transparent px-3 py-2 text-sm text-muted-foreground;
+    cursor: pointer;
+    overflow-wrap: anywhere;
+  }
+
+  .install-tabs-tab:hover,
+  .install-tabs-tab:has(.install-tabs-radio:checked) {
+    color: var(--foreground);
+    background: var(--muted);
+  }
+
+  .install-tabs-tab:has(.install-tabs-radio:checked) {
+    border-block-end-color: var(--ring);
+    font-weight: 700;
   }
 
   .install-tabs-tab:has(.install-tabs-radio:focus-visible) {
     outline: 2px solid var(--ring);
-    outline-offset: 2px;
+    outline-offset: -3px;
   }
 
   .install-tabs-panel {
     display: none;
     order: 1;
     flex-basis: 100%;
-    min-inline-size: 0;
+  }
+
+  .install-tabs:not([data-single]) > .install-tabs-panel {
+    border-block-start: 1px solid var(--code-border);
   }
 
   .install-tabs[data-single] .install-tabs-panel,
@@ -638,15 +647,13 @@
     color: var(--muted-foreground);
   }
 
-  .terminal {
-    @apply relative my-6 overflow-hidden rounded-xl;
-    background: var(--night);
-    color: var(--sail);
+  .terminal-bar:not(:has(button:not([hidden]))) {
+    display: none;
   }
 
-  .terminal-body {
-    @apply m-0 overflow-x-auto p-4 text-sm leading-relaxed;
-    font-family: var(--type-font-mono);
+  .terminal-line {
+    display: block;
+    min-block-size: 1lh;
   }
 
   .terminal-command {
@@ -655,12 +662,6 @@
 
   .terminal-output {
     color: var(--sail-soft);
-  }
-
-  .terminal-copy {
-    @apply absolute end-3 top-3 rounded-md px-2 py-1 text-xs font-medium;
-    background: var(--night-raised);
-    color: var(--sail);
   }
 
   /* Timeline: keep the chart column in the sailcloth doc column (~37rem). Legacy hides it under
