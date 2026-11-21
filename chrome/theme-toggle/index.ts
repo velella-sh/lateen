@@ -1,18 +1,13 @@
 import { h } from "preact";
 import type { Chrome } from "@velella/mizzen/contracts";
-import { Monitor, Moon, Sun } from "lucide";
-import type { IconNode } from "lucide";
+import { Moon, Sun } from "lucide";
 import { icon as lucideIcon } from "../../src/icon.ts";
+import type { ThemeChoice } from "./key.ts";
 
 const LABEL = "Color theme";
 
-/** The three choices, in the order a press cycles through them; `client.ts` stores them verbatim. */
-const OPTIONS = [{ value: "light" }, { value: "system" }, { value: "dark" }] as const;
-
-/** The icon drawn for each choice: a sun, a screen, and a moon. */
-function icon(value: (typeof OPTIONS)[number]["value"]) {
-  const nodes: Record<(typeof OPTIONS)[number]["value"], IconNode> = { light: Sun, system: Monitor, dark: Moon };
-  return lucideIcon({ node: nodes[value], class: `theme-toggle-icon theme-toggle-icon-${value}` });
+function icon(value: ThemeChoice) {
+  return lucideIcon({ node: value === "light" ? Sun : Moon, class: `theme-toggle-icon theme-toggle-icon-${value}` });
 }
 
 /**
@@ -28,7 +23,8 @@ const themeToggle: Chrome = () =>
     h(
       "button",
       { class: "iconbtn theme-toggle-button", type: "button", "aria-label": LABEL },
-      ...OPTIONS.map((option) => icon(option.value)),
+      icon("light"),
+      icon("dark"),
     ),
     h("span", { class: "theme-toggle-status", role: "status" }, ""),
   );

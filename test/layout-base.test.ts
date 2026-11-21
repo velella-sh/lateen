@@ -129,11 +129,11 @@ function runThemeScript(stored: string | null | "throw", systemLight: boolean): 
   return attrs["data-theme"] ?? null;
 }
 
-test("theme script: first visit is dark, stored choice wins, system follows the OS", () => {
+test("theme script: light and dark are restored, with dark as the fallback", () => {
   assert.equal(runThemeScript(null, true), "dark");
   assert.equal(runThemeScript("light", false), "light");
   assert.equal(runThemeScript("dark", true), "dark");
-  assert.equal(runThemeScript("system", true), "light");
+  assert.equal(runThemeScript("system", true), "dark");
   assert.equal(runThemeScript("system", false), "dark");
   assert.equal(runThemeScript("bogus", true), "dark");
   assert.equal(runThemeScript("throw", true), "dark");

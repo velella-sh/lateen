@@ -257,7 +257,6 @@
   }
 
   .theme-toggle[data-choice="light"] .theme-toggle-icon-light,
-  .theme-toggle[data-choice="system"] .theme-toggle-icon-system,
   .theme-toggle[data-choice="dark"] .theme-toggle-icon-dark {
     display: block;
   }
