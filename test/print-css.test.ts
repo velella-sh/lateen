@@ -175,7 +175,7 @@ test("print.css hides every piece of chrome and every screen-only control", () =
     ".source-label",
     ".code-tabs-list",
     ".cli-demo-bar",
-    ".install-tabs-list",
+    ".install-tabs-tab",
     ".install-tabs-radio",
   ]) {
     assert.ok(hidden.has(selector), `print.css does not hide ${selector}`);

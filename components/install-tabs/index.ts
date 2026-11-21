@@ -11,7 +11,7 @@ export const directive = "install-tabs";
 /** Class on the outer element; `client.ts` finds it by `data-install-tabs`. */
 export const INSTALL_TABS_CLASS = "install-tabs";
 
-/** The most managers one group shows; `style.css` carries a rule for each position. */
+/** The most managers one group shows. */
 export const MAX_MANAGERS = 8;
 
 /** Id prefix used when the directive gives none. */
@@ -103,29 +103,32 @@ export default function installTabs({ props, html, page, site }: ComponentProps<
     );
 
   if (managers.length === 1) {
-    return h("div", { class: INSTALL_TABS_CLASS, "data-install-tabs": "", "data-single": "" }, h("div", { class: "install-tabs-panels" }, panel(managers[0]!)));
+    return h("div", { class: INSTALL_TABS_CLASS, "data-install-tabs": "", "data-single": "" }, panel(managers[0]!));
   }
 
-  const radios = managers.map((manager, i) =>
-    h("input", {
-      type: "radio",
-      class: "install-tabs-radio",
-      name: base,
-      id: `${base}-${i + 1}`,
-      value: manager.name,
-      "data-manager": manager.name,
-      ...(i === 0 ? { checked: true } : {}),
-    }),
-  );
-  const labels = managers.map((manager, i) =>
-    h("label", { class: "install-tabs-tab", for: `${base}-${i + 1}` }, manager.name),
-  );
+  // Each radio sits in its label, and that label sits immediately before its panel, so one
+  // `:checked +` rule shows the command. Flex order keeps every pill on the first row.
+  const rows = managers.flatMap((manager, i) => [
+    h(
+      "label",
+      { class: "install-tabs-tab" },
+      h("input", {
+        type: "radio",
+        class: "install-tabs-radio",
+        name: base,
+        id: `${base}-${i + 1}`,
+        value: manager.name,
+        "data-manager": manager.name,
+        ...(i === 0 ? { checked: true } : {}),
+      }),
+      manager.name,
+    ),
+    panel(manager),
+  ]);
 
   return h(
     "div",
-    { class: INSTALL_TABS_CLASS, "data-install-tabs": "" },
-    radios,
-    h("div", { class: "install-tabs-list", role: "radiogroup", "aria-label": t(lang, "install_tabs_label") }, labels),
-    h("div", { class: "install-tabs-panels" }, managers.map(panel)),
+    { class: INSTALL_TABS_CLASS, "data-install-tabs": "", role: "radiogroup", "aria-label": t(lang, "install_tabs_label") },
+    rows,
   );
 }

@@ -23,6 +23,13 @@ const document = (html: string): Document => new JSDOM(`<!doctype html><html lan
 const event = (over: Partial<ChangeEvent> = {}): ChangeEvent =>
   ({ id: "a".repeat(16), type: "added", record: "dated", date: "2026-05-01", ...over }) as ChangeEvent;
 
+test("the count label stays a template so the island can fill the filtered count", () => {
+  const html = render([event()]);
+  const count = document(html).querySelector("[data-history-count]");
+  assert.equal(count?.getAttribute("data-history-label"), "{count} events");
+  assert.equal(count?.textContent, "1 events");
+});
+
 test("each event type reads as what happened", () => {
   const events = [
     event({ id: "1".repeat(16), type: "changed", field: "status", old: "beta", new: "stable", date: "2026-05-15" }),

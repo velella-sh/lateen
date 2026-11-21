@@ -1,7 +1,7 @@
 import { h } from "preact";
 import type { ComponentChildren } from "preact";
 import type { ChangeEvent, Component } from "@velella/mizzen/contracts";
-import { t } from "../../i18n/index.ts";
+import { patternOf, t } from "../../i18n/index.ts";
 import { calendarDate } from "../../src/dates.ts";
 import { formatField } from "../../src/fields.ts";
 import { optionOf } from "../../src/options.ts";
@@ -191,7 +191,7 @@ const recordHistory: Component<RecordHistoryProps> = ({ props, page, site }) => 
       {
         class: COUNT_CLASS,
         "data-history-count": "",
-        "data-history-label": t(lang, "history_shown"),
+        "data-history-label": patternOf(lang, "history_shown"),
       },
       t(lang, "history_shown", { count: events.length }),
     ),
