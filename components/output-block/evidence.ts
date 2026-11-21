@@ -128,9 +128,6 @@ export function hasEvidence(props: { stream?: string; exit?: string; duration?: 
   return record.stream.state !== "omitted" || record.exit.state !== "omitted" || record.duration.state !== "omitted";
 }
 
-/** The element the rendered evidence record is read back from. */
-export const EVIDENCE_SELECTOR = "[data-output-evidence]";
-
 /** JSON safe inside a `<script>` element: a `<` can never close the tag early. */
 function scriptJson(record: EvidenceRecord): string {
   return JSON.stringify(record).replace(/</g, "\\u003c");

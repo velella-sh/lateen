@@ -9,11 +9,6 @@
  * it is what releases the resize observers and listeners the chart attached.
  */
 
-/** A Chart-like instance: destroying it releases its canvas and the resize handling it attached. */
-export interface ChartInstanceLike {
-  destroy(): void;
-}
-
 /** What the lifecycle disposes for one root: destroying the chart, removing a listener. */
 export type IslandDisposer = () => void;
 
