@@ -9,13 +9,6 @@
     padding: 0.75rem 0 6rem;
   }
 
-  @media screen and (width > 960px) {
-    /* Preserve the sidebar's original starting position below the shorter shell. */
-    .site-header ~ .doc-layout {
-      padding-block-start: 1.5rem;
-    }
-  }
-
   @media screen and (width > 74rem) {
     /* Both grids span 72rem so navigation keeps its alignment.
        API examples and field comparisons use the wider track. */

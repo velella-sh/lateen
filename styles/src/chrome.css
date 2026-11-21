@@ -74,10 +74,15 @@
     min-block-size: 4.25rem;
   }
 
-  @media (width > 960px) {
+  @media screen and (width > 960px) {
     .header-inner {
       min-block-size: 3.5rem;
       gap: 1.5rem;
+    }
+
+    /* Preserve the sidebar's original starting position below the shorter shell. */
+    .site-header ~ .doc-layout {
+      padding-block-start: 1.5rem;
     }
   }
 
@@ -128,8 +133,7 @@
     @apply rounded-md px-2.5 py-1.5 text-sm font-medium text-muted-foreground no-underline;
   }
 
-  .top-nav a:hover,
-  .top-nav a[aria-current="page"] {
+  .top-nav a:is(:hover, [aria-current="page"]) {
     background: var(--state-hover-bg);
     color: var(--foreground);
   }
@@ -461,30 +465,27 @@
   }
 
   .footer-inner {
-    @apply flex flex-wrap items-center justify-between gap-x-8 gap-y-3;
+    @apply flex flex-wrap items-center justify-between gap-x-8 gap-y-3 text-muted-foreground;
   }
 
-  .footer-inner .sections,
-  .footer-inner .tools {
-    @apply flex flex-wrap items-center;
+  .footer-inner :is(.sections, .tools) {
+    @apply flex flex-wrap items-center gap-y-1;
   }
 
   .footer-inner .sections {
-    @apply gap-x-5 gap-y-1;
+    @apply gap-x-5;
   }
 
-  .footer-inner .sections a,
-  .footer-name {
-    @apply inline-flex min-h-6 items-center rounded-sm text-sm font-semibold text-muted-foreground no-underline;
+  .site-footer a {
+    @apply inline-flex min-h-6 items-center rounded-sm text-sm font-semibold no-underline;
   }
 
-  .footer-inner .sections a:hover,
-  .footer-name:hover {
+  .site-footer a:hover {
     @apply text-foreground underline underline-offset-4;
   }
 
   .footer-inner .tools {
-    @apply gap-x-3 gap-y-1 text-xs text-muted-foreground;
+    @apply gap-x-3 text-xs;
   }
 
   .footer-inner .tools > span + span {

@@ -71,7 +71,7 @@
   }
 
   .article-tools {
-    @apply mt-8 mb-4 items-center gap-x-3 gap-y-1 border-t pt-3;
+    @apply mt-8 mb-4 items-center gap-x-3 gap-y-1 pt-3;
   }
 
   :is(.doc-tools, .article-tools details) {
@@ -85,8 +85,9 @@
     background: none;
   }
 
-  .article-tools details > summary {
-    @apply gap-1.5 px-2 py-1.5 text-[0.8125rem] font-semibold hover:bg-muted;
+  .article-tools details > summary,
+  .back-to-top {
+    @apply rounded px-2 py-1.5 text-[0.8125rem] font-semibold hover:bg-muted;
   }
 
   .article-tools details[open] > summary {
@@ -161,7 +162,7 @@
   }
 
   .back-to-top {
-    @apply ms-auto flex w-fit items-center gap-1.5 rounded px-2 py-1.5 text-[0.8125rem] font-semibold text-muted-foreground no-underline hover:bg-muted hover:text-foreground;
+    @apply ms-auto flex w-fit items-center gap-1.5 text-muted-foreground no-underline hover:text-foreground;
   }
 
   .back-to-top svg {
