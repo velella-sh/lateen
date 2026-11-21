@@ -45,3 +45,14 @@ test("quickstart renders the shell blocks in project setup order and links to th
   assert.equal(blocks[3], "npx mizzen dev .");
   assert.ok(article.querySelector('a[href="http://127.0.0.1:3000/"]'));
 });
+
+test("quickstart loads its reading styles through a page stylesheet", () => {
+  const styles = all(site.document("/install/"), 'link[rel="stylesheet"]').map((link) => {
+    const asset = link.getAttribute("href")!;
+    return { asset, css: site.file(asset.slice("/lateen/".length)) };
+  });
+  const readingStyles = styles.find(({ css }) => css.includes("--type-size-doc-title"));
+  assert.match(readingStyles?.asset ?? "", /^\/lateen\/assets\/theme\/page-/);
+  assert.ok(site.document("/install/").querySelector(".doc-body[data-quickstart]"));
+  assert.ok(!site.html("/").includes(readingStyles!.asset));
+});

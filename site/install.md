@@ -1,8 +1,8 @@
 ---
 title: Install and quickstart
 description: Install Lateen and Mizzen, write your first Markdown page, and preview it locally.
-layout: doc
-quickstart: true
+layout: quickstart
+# Preserve published code links, whose IDs are based on source line numbers.
 permalink: /install/
 ---
 

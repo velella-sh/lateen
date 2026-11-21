@@ -1,0 +1,60 @@
+@media screen {
+  .doc {
+    --type-size-doc-title: clamp(2.125rem, 1.5rem + 2.2vw, 3.25rem);
+    --type-size-doc-lead: 1.1875rem;
+    --type-size-doc-section: 1.4375rem;
+  }
+
+  .doc > h1 {
+    margin-block-start: 0.875rem;
+    font-size: var(--type-size-doc-title);
+    font-weight: 740;
+    line-height: 1.08;
+  }
+
+  .doc > .doc-description {
+    max-inline-size: 46ch;
+    margin-block-start: 0.875rem;
+    font-size: var(--type-size-doc-lead);
+    text-wrap: pretty;
+  }
+
+  .doc > .doc-body {
+    margin-block-start: 1.625rem;
+  }
+
+  .doc-body > p,
+  .quickstart-step > p {
+    max-inline-size: 58ch;
+    line-height: 1.7;
+  }
+
+  .quickstart-step {
+    margin-block-start: 2.25rem;
+  }
+
+  .quickstart-step > h2 {
+    font-size: var(--type-size-doc-section);
+    font-weight: var(--type-weight-bold);
+  }
+
+  .quickstart-step .code {
+    --snippet-bg: light-dark(color-mix(in srgb, var(--code-bg) 82%, var(--background)), var(--code-bg));
+    padding: 0.875rem 1.25rem;
+    border-color: color-mix(in srgb, var(--code-border) 82%, var(--background));
+    border-radius: 0.625rem;
+    line-height: 1.65;
+  }
+}
+
+@media screen and (width > 74rem) {
+  .doc-layout {
+    grid-template-columns: 12.5rem minmax(0, 36rem) minmax(10.5rem, 14.5rem);
+    column-gap: 4.5rem;
+  }
+
+  .doc-layout > .aside {
+    max-inline-size: 10.5rem;
+    margin-block-start: 2.75rem;
+  }
+}
