@@ -45,9 +45,10 @@ test("wide code and tables scroll inside the article on mobile and desktop", { s
   }
 });
 
-test("the component directory and both columns fit at 320px without JavaScript", { skip }, async () => {
-  const source = readFileSync(new URL("../site/components/index.md", import.meta.url), "utf8");
-  const site = build("integration", process.env, { "components/index.md": source });
+test("the component directory and the Table examples fit at 320px without JavaScript", { skip }, async () => {
+  const directory = readFileSync(new URL("../site/components/index.md", import.meta.url), "utf8");
+  const examples = readFileSync(new URL("../site/components/table.md", import.meta.url), "utf8");
+  const site = build("integration", process.env, { "components/index.md": directory, "components/table.md": examples });
   const server = await serve(site.out);
   const context = await (browser as Browser).newContext({
     viewport: { width: 320, height: 800 },
@@ -67,6 +68,17 @@ test("the component directory and both columns fit at 320px without JavaScript",
     assert.equal(widths.documentWidth, 320);
     assert.equal(widths.tableScrollWidth, widths.tableWidth);
     assert.ok(widths.tableWidth <= widths.parentWidth);
+
+    await page.goto(`${server.url}/components/table/`);
+    const authored = await page.getByRole("table", { name: "Deploy targets" }).evaluate((element) => ({
+      documentWidth: document.documentElement.scrollWidth,
+      tableWidth: element.clientWidth,
+      tableScrollWidth: element.scrollWidth,
+      overflow: getComputedStyle(element).overflowX,
+    }));
+    assert.equal(authored.documentWidth, 320);
+    assert.equal(authored.overflow, "auto");
+    assert.ok(authored.tableScrollWidth > authored.tableWidth);
   } finally {
     await context.close();
   }

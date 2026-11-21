@@ -1,6 +1,18 @@
 /* Article components: tables, citations, callouts, tabs, steps, kbd, endpoints,
    record fields, details, file tree, terminal, timeline, cards, changelog, figures,
    media embeds, trust panel, tags, lists, swatches, gallery specimens. */
+/* Native tables can arrive without a scroll wrapper. Keep this above the Tailwind
+   utility layer so an authored `.table` class still scrolls. */
+@media screen {
+  .doc-body > table,
+  .doc-body :is(.callout-body, .step-content, .tabs-body) > table {
+    display: block;
+    max-inline-size: 100%;
+    overflow-x: auto;
+    overscroll-behavior-inline: contain;
+  }
+}
+
 @layer components {
   .doc-body table {
     @apply w-full text-sm;
@@ -22,17 +34,6 @@
     color: var(--muted-foreground);
     font-size: 0.6875rem;
     letter-spacing: 0.06em;
-  }
-
-  /* Native tables can arrive without a scroll wrapper. */
-  @media screen {
-    .doc-body > table,
-    .doc-body :is(.callout-body, .step-content, .tabs-body) > table {
-      display: block;
-      max-inline-size: 100%;
-      overflow-x: auto;
-      overscroll-behavior-inline: contain;
-    }
   }
 
   .doc-body > table thead th {
