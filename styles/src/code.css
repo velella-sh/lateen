@@ -141,7 +141,7 @@
     display: none;
   }
 
-  .code-copy-status[data-copy-result="error"] {
+  .code-copy:has(> svg:last-child[hidden]) + .code-copy-status {
     color: var(--color-danger);
   }
 

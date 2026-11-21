@@ -116,11 +116,7 @@
   }
 
   .callout-icon,
-  .callout-note .callout-icon,
-  .callout-tip .callout-icon,
-  .callout-important .callout-icon,
-  .callout-warning .callout-icon,
-  .callout-caution .callout-icon {
+  :is(.callout-note, .callout-tip, .callout-important, .callout-warning, .callout-caution) .callout-icon {
     color: CanvasText !important;
   }
 
@@ -206,8 +202,7 @@
   }
 
   .diff-block-marker,
-  .diff-block-added > .diff-block-marker,
-  .diff-block-removed > .diff-block-marker {
+  :is(.diff-block-added, .diff-block-removed) > .diff-block-marker {
     color: CanvasText !important;
   }
 
@@ -227,17 +222,13 @@
     color: CanvasText !important;
   }
 
-  /* Selected text, including inside code blocks and diffs, uses the system highlight pair. */
+  /* Selected text, code lines, and file-tree rows use the system highlight pair. */
   ::selection,
   .code ::selection,
   .diff-block ::selection,
-  .terminal ::selection {
-    background-color: Highlight !important;
-    color: HighlightText !important;
-  }
-
-  /* A highlighted code line is a tint in the normal palette; name the system highlight instead. */
-  .code .highlighted {
+  .terminal ::selection,
+  .code .highlighted,
+  .file-tree-item.is-highlighted > .file-tree-row {
     background-color: Highlight !important;
     color: HighlightText !important;
   }
@@ -246,11 +237,7 @@
      alongside it, so the state is not colour alone. */
   .sidebar-nav a[aria-current="page"],
   .sidebar-nav a[aria-current="true"],
-  .sidebar-nav h2[aria-current="true"],
-  .sidebar-nav h3[aria-current="true"],
-  .sidebar-nav h4[aria-current="true"],
-  .sidebar-nav h5[aria-current="true"],
-  .sidebar-nav h6[aria-current="true"],
+  .sidebar-nav :is(h2, h3, h4, h5, h6)[aria-current="true"],
   .toc a[aria-current="true"],
   .section-tab[aria-current="page"],
   [role="tab"][aria-selected="true"],
@@ -268,12 +255,6 @@
   .section-tab[aria-current="page"],
   [role="tab"][aria-selected="true"] {
     border-block-end-color: HighlightText !important;
-  }
-
-  /* A highlighted file-tree entry is bold in the normal palette; the fill adds the system cue. */
-  .file-tree-item.is-highlighted > .file-tree-row {
-    background-color: Highlight !important;
-    color: HighlightText !important;
   }
 
   /* A search hit uses the system mark colors, which are separate from the reader's selection. */
@@ -348,8 +329,8 @@
     outline-color: Highlight !important;
   }
 
-  [role="tab"][aria-selected="true"]:focus-visible,
-  .install-tabs-tab:has(.install-tabs-radio:checked:focus-visible) {
+  [role="tab"][aria-selected="true"],
+  .install-tabs-tab:has(:checked) {
     outline-color: HighlightText !important;
   }
 

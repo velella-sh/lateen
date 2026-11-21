@@ -593,10 +593,6 @@
     overflow-wrap: anywhere;
   }
 
-  .search-result-link:hover {
-    background: var(--muted);
-  }
-
   .search-result-path,
   .search-results-path {
     color: var(--muted-foreground);
@@ -656,6 +652,7 @@
     cursor: pointer;
   }
 
+  .search-result-link:hover,
   .search [role="option"]:hover {
     background: var(--muted);
   }
@@ -677,7 +674,6 @@
   .search-status {
     flex: none;
     margin: 0;
-    padding: 0.625rem 0.875rem;
     color: var(--foreground);
     font-size: 0.825rem;
     font-weight: 600;
@@ -685,12 +681,9 @@
   }
 
   .search-status:not(:empty) {
+    padding: 0.625rem 0.875rem;
     border-block-end: 1px solid var(--border);
     background: var(--muted);
-  }
-
-  .search-status:empty {
-    padding: 0;
   }
 
   .search-foot {

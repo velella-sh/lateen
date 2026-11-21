@@ -455,7 +455,6 @@ test("a failure after a success replaces the check mark and keeps the button nam
   button.click();
   await flush();
   assert.equal(status.textContent, FAILED);
-  assert.equal(status.attrs["data-copy-result"], "error");
   assert.equal(checkIcon.hasAttr("hidden"), true);
   assert.equal(copyIcon.hasAttr("hidden"), false);
   assert.equal(button.attrs["aria-label"], DEFAULT_LABELS.copy);
