@@ -8,9 +8,6 @@ export const EMBED_CLASS = "embed";
 /** Class on the 16:9 box that reserves the space and holds the placeholder and, after a click, the iframe. */
 export const BOX_CLASS = "embed-box";
 
-/** Class on the iframe. */
-export const IFRAME_CLASS = "embed-iframe";
-
 /** Class on the placeholder that names the embed before it loads; the island hides it. */
 export const PLACEHOLDER_CLASS = "embed-placeholder";
 

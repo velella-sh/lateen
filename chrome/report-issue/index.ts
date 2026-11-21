@@ -22,9 +22,6 @@ export const CLASS = "report-issue";
 /** Class on the link. */
 export const LINK_CLASS = "report-issue-link";
 
-/** The placeholders a custom `url` template may use. */
-export const PLACEHOLDERS = ["title", "body", "url", "source", "lang", "version"] as const;
-
 /** Every config value the report link reads, in the order the docs page lists them. */
 export const REPORT_ISSUE_OPTIONS = [
   "repository.url",

@@ -20,9 +20,6 @@ export const QUERY_ID = "data-explorer-query";
 /** Id of the sort field; its label points at it. */
 export const SORT_ID = "data-explorer-sort";
 
-/** Id of the sort direction; its label points at it. */
-export const SORT_DIRECTION_ID = "data-explorer-sort-direction";
-
 /** The site's search results page, which answers a submit without any script. */
 export const SEARCH_PATH = "/search/";
 
