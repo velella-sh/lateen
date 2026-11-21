@@ -11,7 +11,7 @@ test("the source mode page documents every option the code reads, and no other",
 });
 
 test("the source mode page covers the switch, the deep link, the no-script case and the editor schemes", () => {
-  for (const phrase of ["Press <kbd>y</kbd>", "?source=<file>:<line>", "Without JavaScript", "vscode", "local storage"]) {
+  for (const phrase of ["switch above the page content", "?source=<file>:<line>", "Without JavaScript", "vscode", "local storage"]) {
     assert.ok(page.includes(phrase), `the page does not mention ${phrase}`);
   }
   assert.match(page, /^## Live example$/m);

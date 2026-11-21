@@ -1,9 +1,7 @@
 /*
  * Page agent menu island: the menu's copy button runs the same page copy island as
- * `chrome/copy-markdown` (`../copy-markdown/island.ts`), so a click in the menu and a press of `m`
- * fetch the same Markdown twin and report the same loading, success, failure, and unsupported
- * states. The menu has no shortcut of its own: the page has one `m`, owned by the copy-Markdown
- * control, and this button is its pointer path.
+ * `chrome/copy-markdown` (`../copy-markdown/island.ts`), so both buttons fetch the same Markdown twin
+ * and report the same loading, success, failure, and unsupported states.
  */
 
 import { activate, browserFetch, globals, type CopyButton, type CopyStatus } from "../copy-markdown/island.ts";

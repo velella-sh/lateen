@@ -43,10 +43,6 @@
     }
   }
 
-  .copy-markdown-key {
-    @apply text-xs text-muted-foreground;
-  }
-
   .page-agent-menu-summary {
     display: flex;
     justify-content: space-between;

@@ -12,8 +12,7 @@ export { markdownTwin, pageUrl, twinUrl } from "./twin.ts";
  * twin the link and the button share is resolved against the site's base exactly once, so a
  * subpath deployment never offers a root-relative twin. The button starts `hidden` and `client.ts`
  * reveals it once it knows the browser has a clipboard, so a visitor without JavaScript never sees
- * a control that would do nothing. The `m` shortcut belongs to the island too; the button carries
- * it in `aria-keyshortcuts`.
+ * a control that would do nothing.
  */
 const copyMarkdown: Chrome = ({ site, page }) => {
   if (page.kind !== "doc") return null;
@@ -34,11 +33,8 @@ const copyMarkdown: Chrome = ({ site, page }) => {
         "data-markdown": markdown,
         "data-copied": t(lang, "copied"),
         "data-copy-failed": t(lang, "copy_failed"),
-        "aria-keyshortcuts": "m",
-        title: t(lang, "copy_markdown_hint"),
       },
       t(lang, "copy_page_md"),
-      h("kbd", { class: "copy-markdown-key", "aria-hidden": "true" }, "M"),
     ),
     h("a", { class: "copy-markdown-link", href: markdown }, t(lang, "view_markdown")),
     h("p", { class: "copy-markdown-status", role: "status", "data-copy-markdown-status": true }, ""),

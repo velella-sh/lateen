@@ -73,7 +73,7 @@ const cards = (out: string) => [...out.matchAll(/<a class="card" href="([^"]*)">
 
 test("the layout renders a card grid inside the page frame, with the title and the intro", () => {
   const out = render(props({}, list([record("alpha", { title: "Alpha", summary: "First." }), record("beta", { title: "Beta" })])));
-  assert.match(out, /<main[^>]*><article class="gallery" data-pagefind-body="true">/);
+  assert.match(out, /<main[^>]*>[\s\S]*?<article class="gallery" data-pagefind-body="true">/);
   assert.match(out, /<h1>Gallery<\/h1>/);
   assert.match(out, /<div class="gallery-intro"><p>Everything in the catalogue, one card each.<\/p><\/div>/);
   assert.match(out, /<div class="cards">/);

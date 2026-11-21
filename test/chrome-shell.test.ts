@@ -110,7 +110,7 @@ test("shell renders sailcloth header chrome with search trigger", () => {
   assert.match(out, /M9 19c-4 1\.5-4-2\.5-6-3/, "GitHub repositories use the GitHub icon");
   const defaultFooter = html(footer({ site }));
   assert.match(defaultFooter, /site-footer/);
-  assert.match(defaultFooter, /aria-label="GitHub repository"/);
+  assert.match(defaultFooter, /<a href="https:\/\/github.com\/velella-sh\/lateen">GitHub<\/a>/);
 
   const logoSite = {
     ...site,
@@ -124,6 +124,9 @@ test("shell renders sailcloth header chrome with search trigger", () => {
   assert.match(logoOut, /class="brand-logo-frame"/);
   assert.match(logoOut, /src="\/docs\/brand\/light.svg"/);
   assert.match(logoOut, /src="\/docs\/brand\/dark.svg"/);
+  const logoFooter = html(footer({ site: logoSite }));
+  assert.match(logoFooter, /<a class="footer-name" href="\/docs\/">Lateen<\/a>/);
+  assert.doesNotMatch(logoFooter, /brand-logo|brand-mark|<img/);
 
   const footerSite = {
     ...site,
@@ -141,7 +144,7 @@ test("shell renders sailcloth header chrome with search trigger", () => {
   assert.match(footerOut, /<a href="\/install\/">Install<\/a>/);
   assert.match(footerOut, /<a href="https:\/\/github.com\/velella-sh\/lateen\/">Source<\/a>/);
   assert.match(footerOut, /<a href="https:\/\/github.com\/velella-sh\/lateen\/issues">Issues<\/a>/);
-  assert.doesNotMatch(footerOut, /aria-label="GitHub repository"/);
+  assert.doesNotMatch(footerOut, />GitHub<\/a>/);
   assert.doesNotMatch(footerOut, /javascript:/);
 });
 

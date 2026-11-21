@@ -1,8 +1,7 @@
 /*
  * Source mode: a switch that shows `file:line` beside every top-level block. The choice is remembered
  * for the site in local storage and set as a class on the root element; each change is announced on the
- * switch's status region. The unmodified shortcut is `y` (with the single-key preference honoured) and
- * the command palette clicks the same button, so there is one code path.
+ * switch's status region. The command palette clicks the same button.
  *
  * Labels are stamped once, as the last child of each block, so they follow the block's text in reading
  * order; the stylesheet draws them in the start margin (above the block on narrow screens) and only under
@@ -19,14 +18,12 @@ import type { RepositoryConfig } from "@velella/mizzen/contracts";
 import { lineUrlOf } from "../../src/repository.ts";
 import { locationOf, parseSpan, type Span } from "../../src/source-span.ts";
 import { acceptEditorTemplate, editorUrl, readFolder, saveFolder } from "./editor.ts";
-import { isTypingTarget } from "../shortcuts/client.ts";
-import { liveStorage as shortcutStorage, shortcutsEnabled } from "../shortcuts/preference.ts";
 import { parseJson, isRecord } from "../../src/guards.ts";
 import {
+  liveStorage,
   readSourceMode,
   saveSourceMode,
   SOURCE_MODE_CLASS,
-  SOURCE_MODE_KEY_CHAR,
   type SourceModeStorage,
 } from "./state.ts";
 
@@ -97,16 +94,6 @@ export interface ModeRoot {
   readonly classList: { toggle(name: string, force: boolean): unknown; contains(name: string): boolean };
 }
 
-/** A key event as the shortcut reads it. */
-export interface SourceKeyEvent {
-  readonly key?: string | undefined;
-  readonly metaKey?: boolean | undefined;
-  readonly ctrlKey?: boolean | undefined;
-  readonly altKey?: boolean | undefined;
-  readonly target?: unknown;
-  preventDefault(): void;
-}
-
 /** Everything the island reads from the world; tests pass fakes. */
 export interface SourceEnv {
   readonly root: ModeRoot;
@@ -117,7 +104,6 @@ export interface SourceEnv {
   readonly actions?: SourceActions;
   /** The page's query string, for `?source=`. */
   readonly search?: string;
-  addKeydown(listener: (event: SourceKeyEvent) => void): void;
 }
 
 /** Elements that cannot hold a label child without breaking their content model. */
@@ -125,16 +111,6 @@ const NO_LABEL = new Set(["UL", "OL", "DL", "TABLE", "THEAD", "TBODY", "TR"]);
 
 /** Interactive hosts that already take input; a label with buttons/links inside them nests controls. */
 const NO_LABEL_HOST = new Set(["A", "BUTTON", "INPUT", "SELECT", "TEXTAREA", "SUMMARY", "LABEL"]);
-
-/** Whether `event` is the source-mode shortcut: the bare key, with no command or alt modifier. */
-export function isSourceShortcut(event: SourceKeyEvent): boolean {
-  return (
-    event.key?.toLowerCase() === SOURCE_MODE_KEY_CHAR &&
-    event.metaKey !== true &&
-    event.ctrlKey !== true &&
-    event.altKey !== true
-  );
-}
 
 /** Blocks with a valid span and no sourced ancestor, in document order, that can hold a label. */
 export function labelable(blocks: Iterable<SourceBlock>): SourceBlock[] {
@@ -283,7 +259,7 @@ export function findJump(stamped: readonly Stamped[], value: string | null): Jum
   return before === undefined ? { kind: "none", file, line } : { kind: "block", target: before, exact: false };
 }
 
-/** Reveals the switch, applies the saved choice, and wires the button and the shortcut. */
+/** Reveals the switch, applies the saved choice, and wires the button. */
 export function activate(root: SwitchRoot, env: SourceEnv): void {
   const button = root.querySelector(".source-mode-button");
   const status = root.querySelector(".source-mode-status");
@@ -343,12 +319,6 @@ export function activate(root: SwitchRoot, env: SourceEnv): void {
     note(message("jump-none", { file: jump.file, line: jump.line }));
   }
   button.addEventListener?.("click", toggle);
-  env.addKeydown((event) => {
-    if (!isSourceShortcut(event) || isTypingTarget(event.target)) return;
-    if (!shortcutsEnabled(shortcutStorage())) return;
-    event.preventDefault();
-    toggle();
-  });
 }
 
 // The island runs in a browser; the theme's tsconfig has no DOM lib, so these are the globals it needs.
@@ -357,7 +327,6 @@ declare const document: {
   querySelectorAll(selector: string): Iterable<SourceBlock>;
   createElement(tag: string): SourceLabel;
   documentElement: ModeRoot;
-  addEventListener(type: "keydown", listener: (event: SourceKeyEvent) => void): void;
 };
 declare const location: { search: string };
 declare const navigator: { clipboard?: { writeText(text: string): Promise<void> } };
@@ -375,7 +344,7 @@ function actionsOf(root: SwitchRoot, announce: (message: string) => void): Sourc
   return {
     repository,
     editor: root.getAttribute("data-editor") ?? undefined,
-    storage: shortcutStorage(),
+    storage: liveStorage(),
     messages,
     kindOf: (file) => (file === template ? messages("kind-template") : file === data ? messages("kind-data") : undefined),
     createElement: (tag) => document.createElement(tag),
@@ -399,13 +368,12 @@ if (typeof document !== "undefined") {
     activate(root, {
       root: document.documentElement,
       blocks: document.querySelectorAll("[data-src]"),
-      storage: shortcutStorage(),
+      storage: liveStorage(),
       createLabel: (tag = "span") => document.createElement(tag),
       actions: actionsOf(root, (message) => {
         if (status !== null) status.textContent = message;
       }),
       search: location.search,
-      addKeydown: (listener) => document.addEventListener("keydown", listener),
     });
   }
 }

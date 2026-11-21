@@ -564,6 +564,14 @@
     @apply px-2;
   }
 
+  .footer-name {
+    @apply inline-flex min-h-8 items-center font-semibold text-foreground no-underline;
+  }
+
+  .footer-name:hover {
+    text-decoration: underline;
+  }
+
   .site-footer .legal {
     color: var(--muted-foreground);
     font-size: 0.78rem;

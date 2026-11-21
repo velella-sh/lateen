@@ -809,7 +809,7 @@ if (typeof document !== "undefined") {
       new MutationObserver(fill).observe(askList, { childList: true });
       fill();
     }
-    // ⌘K/Ctrl+K and `/` press this button from anywhere, exactly as a pointer would.
+    // ⌘K/Ctrl+K presses this button from anywhere, exactly as a pointer would.
     activateShortcuts(
       { button: button as unknown as SearchButton },
       { platform: navigator.platform, addEventListener: (type, listener) => document.addEventListener(type, listener) },

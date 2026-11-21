@@ -198,15 +198,17 @@ export function footer({ site }: Pick<Parameters<Chrome>[0], "site">) {
           ? [{ title: item.title, url: item.url }]
           : [],
       );
-  const repositoryUrl = site.config.repository?.url?.replace(/\/$/, "");
-  const hasRepositoryLink = footerLinks.some(({ url }) => url.replace(/\/$/, "") === repositoryUrl);
+  const repositoryUrl = site.config.repository?.url;
+  if (repositoryUrl && !footerLinks.some(({ url }) => url.replace(/\/$/, "") === repositoryUrl.replace(/\/$/, ""))) {
+    footerLinks.push({ title: onGitHub(repositoryUrl) ? "GitHub" : "Repository", url: repositoryUrl });
+  }
   return h(
     "div",
     { class: "site-footer" },
     h(
       "div",
       { class: "rail footer-inner" },
-      brand(site.config),
+      h("a", { class: "footer-name", href: `${site.config.base}/` }, site.config.title || "Lateen"),
       footerLinks.length === 0
         ? null
         : h(
@@ -219,7 +221,6 @@ export function footer({ site }: Pick<Parameters<Chrome>[0], "site">) {
         { class: "tools" },
         h("span", { class: "legal" }, copyright),
         h("span", { class: "legal" }, license),
-        hasRepositoryLink ? null : repositoryLink(site.config),
       ),
     ),
   );

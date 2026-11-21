@@ -77,7 +77,7 @@ const landmarks = (html: string) =>
 
 test("a record page renders the record landmark inside the base shell", () => {
   const out = render(pageWith());
-  assert.match(out, /<main id="main" tabindex="-1"><article class="record" data-pagefind-body="true">/);
+  assert.match(out, /<main id="main" tabindex="-1">[\s\S]*?<article class="record" data-pagefind-body="true">/);
   assert.match(out, /<div class="record-body"><p>A control that starts an action.<\/p><\/div>/);
 });
 

@@ -25,7 +25,7 @@ const indexCss = "" /* lateen-legacy removed: ../layouts/api-reference-index.css
 
 test("a full operation renders the method, path, title, description, tags, deprecated state, and server", () => {
   const page = render(operationPage(fullOperation));
-  assert.match(page, /<main id="main" tabindex="-1"><article class="doc api-reference" data-pagefind-body="true">/);
+  assert.match(page, /<main id="main" tabindex="-1">[\s\S]*?<article class="doc api-reference" data-pagefind-body="true">/);
   assert.match(page, /<span class="api-reference-method api-reference-method-post">POST<\/span><code class="api-reference-path" dir="ltr">\/widgets<\/code>/);
   assert.match(page, /<h1>Create a widget<\/h1>/);
   assert.match(page, /<p class="api-reference-description">Creates one widget and returns it\.<\/p>/);

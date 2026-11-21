@@ -380,19 +380,13 @@ test("the network chrome stays out of print with the header and footer", () => {
   assert.doesNotMatch(rules, /\.network-footer\s*\{[^}]*position:\s*(?:fixed|absolute)/);
 });
 
-test("sailcloth utility controls stay in flow and configured logos use the brand frame", () => {
+test("the Source mode toolbar stays in flow and configured logos use the brand frame", () => {
   const ui = readUiCss();
-  const utilities = rule(ui, ".site-utilities");
-  assert.ok(utilities, "no site utilities layout rule");
-  assert.match(utilities.body, /display:\s*flex/);
-  assert.match(utilities.body, /flex-wrap:\s*wrap/);
-  assert.match(utilities.body, /justify-content:\s*flex-end/);
-  assert.match(utilities.body, /padding-block:\s*var\(--space-2\) var\(--space-4\)/);
-
-  const controls = rule(ui, ".site-utilities :is(.shortcuts-open, .source-mode-button)");
-  assert.ok(controls, "footer utility buttons share their layout");
-  assert.match(controls.body, /display:\s*flex/);
-  assert.doesNotMatch(controls.body, /position:|inset-|z-index/);
+  const source = rule(ui, ".source-mode-switch");
+  assert.ok(source, "no source toolbar layout rule");
+  assert.match(source.body, /display:\s*flex/);
+  assert.match(source.body, /flex-wrap:\s*wrap/);
+  assert.doesNotMatch(source.body, /position:|inset-|z-index/);
 
   const frame = rule(ui, ".brand-logo-frame");
   assert.ok(frame, "no configured logo frame");

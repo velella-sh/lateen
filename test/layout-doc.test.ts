@@ -103,7 +103,7 @@ const out = (page: Page, nav: Site["nav"]["main"] = [], trail: LayoutProps["trai
 
 test("the article carries data-pagefind-body and sits in the main landmark", () => {
   const page = out(pageWith());
-  assert.match(page, /<main id="main" tabIndex="-1"><article class="doc" data-pagefind-body>/);
+  assert.match(page, /<main id="main" tabIndex="-1">[\s\S]*?<article class="doc" data-pagefind-body>/);
 });
 
 test("the layout renders the h1 when the body has no top-level heading", () => {
