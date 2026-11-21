@@ -3,8 +3,8 @@
   "routes": {
     "/alpha/": {
       "css/base": {
-        "raw": 124682,
-        "gzip": 23944,
+        "raw": 123512,
+        "gzip": 23850,
         "count": 1
       },
       "css/page": {
@@ -133,8 +133,8 @@
     },
     "/alpha/books/": {
       "css/base": {
-        "raw": 124682,
-        "gzip": 23944,
+        "raw": 123512,
+        "gzip": 23850,
         "count": 1
       },
       "css/page": {
@@ -263,8 +263,8 @@
     },
     "/alpha/books/alpha/": {
       "css/base": {
-        "raw": 124682,
-        "gzip": 23944,
+        "raw": 123512,
+        "gzip": 23850,
         "count": 1
       },
       "css/page": {
@@ -393,8 +393,8 @@
     },
     "/alpha/books/alpha/embed/": {
       "css/base": {
-        "raw": 124682,
-        "gzip": 23944,
+        "raw": 123512,
+        "gzip": 23850,
         "count": 1
       },
       "css/page": {
@@ -523,8 +523,8 @@
     },
     "/alpha/books/beta/": {
       "css/base": {
-        "raw": 124682,
-        "gzip": 23944,
+        "raw": 123512,
+        "gzip": 23850,
         "count": 1
       },
       "css/page": {
@@ -653,8 +653,8 @@
     },
     "/alpha/books/beta/embed/": {
       "css/base": {
-        "raw": 124682,
-        "gzip": 23944,
+        "raw": 123512,
+        "gzip": 23850,
         "count": 1
       },
       "css/page": {
@@ -783,8 +783,8 @@
     },
     "/alpha/books/delta/": {
       "css/base": {
-        "raw": 124682,
-        "gzip": 23944,
+        "raw": 123512,
+        "gzip": 23850,
         "count": 1
       },
       "css/page": {
@@ -913,8 +913,8 @@
     },
     "/alpha/books/delta/embed/": {
       "css/base": {
-        "raw": 124682,
-        "gzip": 23944,
+        "raw": 123512,
+        "gzip": 23850,
         "count": 1
       },
       "css/page": {
@@ -1043,8 +1043,8 @@
     },
     "/alpha/books/gamma/": {
       "css/base": {
-        "raw": 124682,
-        "gzip": 23944,
+        "raw": 123512,
+        "gzip": 23850,
         "count": 1
       },
       "css/page": {
@@ -1173,8 +1173,8 @@
     },
     "/alpha/books/gamma/embed/": {
       "css/base": {
-        "raw": 124682,
-        "gzip": 23944,
+        "raw": 123512,
+        "gzip": 23850,
         "count": 1
       },
       "css/page": {
@@ -1303,8 +1303,8 @@
     },
     "/alpha/changes/books/": {
       "css/base": {
-        "raw": 124682,
-        "gzip": 23944,
+        "raw": 123512,
+        "gzip": 23850,
         "count": 1
       },
       "css/page": {
@@ -1433,8 +1433,8 @@
     },
     "/alpha/changes/books/2026-05-01/": {
       "css/base": {
-        "raw": 124682,
-        "gzip": 23944,
+        "raw": 123512,
+        "gzip": 23850,
         "count": 1
       },
       "css/page": {
@@ -1563,8 +1563,8 @@
     },
     "/alpha/changes/books/2026-05-15/": {
       "css/base": {
-        "raw": 124682,
-        "gzip": 23944,
+        "raw": 123512,
+        "gzip": 23850,
         "count": 1
       },
       "css/page": {
@@ -1693,8 +1693,8 @@
     },
     "/alpha/charts/": {
       "css/base": {
-        "raw": 124682,
-        "gzip": 23944,
+        "raw": 123512,
+        "gzip": 23850,
         "count": 1
       },
       "css/page": {
@@ -1823,8 +1823,8 @@
     },
     "/alpha/cli-demo/": {
       "css/base": {
-        "raw": 124682,
-        "gzip": 23944,
+        "raw": 123512,
+        "gzip": 23850,
         "count": 1
       },
       "css/page": {
@@ -1953,8 +1953,8 @@
     },
     "/alpha/compare/": {
       "css/base": {
-        "raw": 124682,
-        "gzip": 23944,
+        "raw": 123512,
+        "gzip": 23850,
         "count": 1
       },
       "css/page": {
@@ -2083,8 +2083,8 @@
     },
     "/alpha/data-time/": {
       "css/base": {
-        "raw": 124682,
-        "gzip": 23944,
+        "raw": 123512,
+        "gzip": 23850,
         "count": 1
       },
       "css/page": {
@@ -2213,8 +2213,8 @@
     },
     "/alpha/dated-list/": {
       "css/base": {
-        "raw": 124682,
-        "gzip": 23944,
+        "raw": 123512,
+        "gzip": 23850,
         "count": 1
       },
       "css/page": {
@@ -2343,8 +2343,8 @@
     },
     "/alpha/explorer/": {
       "css/base": {
-        "raw": 124682,
-        "gzip": 23944,
+        "raw": 123512,
+        "gzip": 23850,
         "count": 1
       },
       "css/page": {
@@ -2473,8 +2473,8 @@
     },
     "/alpha/gallery-layout/": {
       "css/base": {
-        "raw": 124682,
-        "gzip": 23944,
+        "raw": 123512,
+        "gzip": 23850,
         "count": 1
       },
       "css/page": {
@@ -2603,8 +2603,8 @@
     },
     "/alpha/guide/": {
       "css/base": {
-        "raw": 124682,
-        "gzip": 23944,
+        "raw": 123512,
+        "gzip": 23850,
         "count": 1
       },
       "css/page": {
@@ -2733,8 +2733,8 @@
     },
     "/alpha/guide/upgrade/": {
       "css/base": {
-        "raw": 124682,
-        "gzip": 23944,
+        "raw": 123512,
+        "gzip": 23850,
         "count": 1
       },
       "css/page": {
@@ -2863,8 +2863,8 @@
     },
     "/alpha/network/": {
       "css/base": {
-        "raw": 124682,
-        "gzip": 23944,
+        "raw": 123512,
+        "gzip": 23850,
         "count": 1
       },
       "css/page": {
@@ -2993,8 +2993,8 @@
     },
     "/alpha/reference/": {
       "css/base": {
-        "raw": 124682,
-        "gzip": 23944,
+        "raw": 123512,
+        "gzip": 23850,
         "count": 1
       },
       "css/page": {
@@ -3123,8 +3123,8 @@
     },
     "/alpha/reports/": {
       "css/base": {
-        "raw": 124682,
-        "gzip": 23944,
+        "raw": 123512,
+        "gzip": 23850,
         "count": 1
       },
       "css/page": {
@@ -3253,8 +3253,8 @@
     },
     "/alpha/showpiece/": {
       "css/base": {
-        "raw": 124682,
-        "gzip": 23944,
+        "raw": 123512,
+        "gzip": 23850,
         "count": 1
       },
       "css/page": {
@@ -3383,8 +3383,8 @@
     },
     "/alpha/source-mode/": {
       "css/base": {
-        "raw": 124682,
-        "gzip": 23944,
+        "raw": 123512,
+        "gzip": 23850,
         "count": 1
       },
       "css/page": {
@@ -3513,8 +3513,8 @@
     },
     "/alpha/stale/": {
       "css/base": {
-        "raw": 124682,
-        "gzip": 23944,
+        "raw": 123512,
+        "gzip": 23850,
         "count": 1
       },
       "css/page": {
@@ -3643,8 +3643,8 @@
     },
     "/alpha/status/": {
       "css/base": {
-        "raw": 124682,
-        "gzip": 23944,
+        "raw": 123512,
+        "gzip": 23850,
         "count": 1
       },
       "css/page": {
@@ -3773,8 +3773,8 @@
     },
     "/alpha/timeline/": {
       "css/base": {
-        "raw": 124682,
-        "gzip": 23944,
+        "raw": 123512,
+        "gzip": 23850,
         "count": 1
       },
       "css/page": {

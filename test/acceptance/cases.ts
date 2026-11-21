@@ -72,7 +72,9 @@ export const CASES: readonly AcceptanceCase[] = [
   {
     name: "report-issue",
     path: "/report-issue/",
-    expect: [{ selector: 'a[href*="/issues/new"]', hrefIncludes: "/issues/new?title=" }],
+    expect: [{ selector: '.article-tools summary:text-is("Feedback")' }],
+    action: { selector: '.article-tools summary:text-is("Feedback")', click: true },
+    after: [{ selector: '.article-tools a:text-is("Report a problem with this page")', hrefIncludes: "/issues/new?title=" }],
   },
   {
     name: "blog",

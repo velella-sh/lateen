@@ -36,8 +36,6 @@ theme:
           url: https://github.com/velella-sh/lateen
         - title: Mizzen
           url: https://velella.sh/mizzen/
-        - title: Install
-          url: /install/
         - title: Changelog
           url: /changelog/
         - title: Accessibility

@@ -107,7 +107,7 @@ test("shell renders sailcloth header chrome with search trigger", () => {
   assert.match(out, /data-search-open/);
   assert.match(out, /data-drawer-open/);
   assert.match(out, /data-theme-toggle/);
-  assert.match(out, /M9 19c-4 1\.5-4-2\.5-6-3/, "GitHub repositories use the GitHub icon");
+  assert.doesNotMatch(out, /brand-tag|href="https:\/\/github.com\/velella-sh\/lateen"/);
   const defaultFooter = html(footer({ site }));
   assert.match(defaultFooter, /site-footer/);
   assert.match(defaultFooter, /<a href="https:\/\/github.com\/velella-sh\/lateen">GitHub<\/a>/);
@@ -125,26 +125,37 @@ test("shell renders sailcloth header chrome with search trigger", () => {
   assert.match(logoOut, /src="\/docs\/brand\/light.svg"/);
   assert.match(logoOut, /src="\/docs\/brand\/dark.svg"/);
   const logoFooter = html(footer({ site: logoSite }));
-  assert.match(logoFooter, /<a class="footer-name" href="\/docs\/">Lateen<\/a>/);
+  assert.doesNotMatch(logoFooter, /class="footer-name"/);
+  const sparseFooter = html(footer({
+    site: { ...site, config: { ...config, base: "/docs", theme: { options: { footer: { links: [] } } } } },
+  }));
+  assert.doesNotMatch(sparseFooter, /class="footer-name"/, "the configured repository provides a footer link");
+  const { repository: _repository, ...withoutRepository } = config;
+  const emptyFooter = html(footer({
+    site: { ...site, nav: {}, config: { ...withoutRepository, base: "/docs" } },
+  }));
+  assert.match(emptyFooter, /<a class="footer-name" href="\/docs\/">Lateen<\/a>/);
   assert.doesNotMatch(logoFooter, /brand-logo|brand-mark|<img/);
 
   const footerSite = {
     ...site,
     config: {
       ...site.config,
+      base: "/another-docs",
+      repository: { url: "https://gitlab.com/team/example" },
       theme: { options: { footer: { links: [
         { title: "Install", url: "/install/" },
-        { title: "Source", url: "https://github.com/velella-sh/lateen/" },
-        { title: "Issues", url: "https://github.com/velella-sh/lateen/issues" },
+        { title: "Source", url: "https://gitlab.com/team/example/" },
+        { title: "Issues", url: "https://gitlab.com/team/example/issues" },
         { title: "Bad", url: "javascript:alert(1)" },
       ] } } },
     },
   };
   const footerOut = html(footer({ site: footerSite }));
-  assert.match(footerOut, /<a href="\/install\/">Install<\/a>/);
-  assert.match(footerOut, /<a href="https:\/\/github.com\/velella-sh\/lateen\/">Source<\/a>/);
-  assert.match(footerOut, /<a href="https:\/\/github.com\/velella-sh\/lateen\/issues">Issues<\/a>/);
-  assert.doesNotMatch(footerOut, />GitHub<\/a>/);
+  assert.match(footerOut, /<a href="\/another-docs\/install\/">Install<\/a>/);
+  assert.match(footerOut, /<a href="https:\/\/gitlab\.com\/team\/example\/">Source<\/a>/);
+  assert.match(footerOut, /<a href="https:\/\/gitlab\.com\/team\/example\/issues">Issues<\/a>/);
+  assert.doesNotMatch(footerOut, />Repository<\/a>/);
   assert.doesNotMatch(footerOut, /javascript:/);
 });
 
