@@ -20,8 +20,7 @@ function chevron() {
  * links that open the page in an agent. The copy
  * button starts `hidden` and `client.ts` reveals it, so a visitor without JavaScript never sees a
  * control that would do nothing. It runs the same island as `chrome/copy-markdown`, so both page
- * actions copy the same twin and announce the same loading, success, and failure; the page keeps a
- * single `m` shortcut, owned by that control. The provider list comes from
+ * actions copy the same twin and announce the same loading, success, and failure. The provider list comes from
  * `theme.options.pageAgent.providers`.
  */
 const pageAgentMenu: Chrome = ({ site, page }) => {

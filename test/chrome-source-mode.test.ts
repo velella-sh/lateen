@@ -6,10 +6,8 @@ import type { ChromeProps, Page } from "@velella/mizzen/contracts";
 import sourceMode from "../chrome/source-mode/index.ts";
 import {
   activate,
-  isSourceShortcut,
   type ModeRoot,
   type SourceEnv,
-  type SourceKeyEvent,
   type SwitchPart,
   type SwitchRoot,
 } from "../chrome/source-mode/client.ts";
@@ -24,10 +22,10 @@ function renderFor(lang: string): string {
   return render(h("div", null, sourceMode({ site, page } as unknown as ChromeProps) as never));
 }
 
-test("the switch renders hidden, with a pressed state, a shortcut hint, and a status region", () => {
+test("the switch renders hidden, with a pressed state and a status region", () => {
   const out = renderFor("en");
   assert.match(out, /data-source-mode[^>]* hidden/);
-  assert.match(out, /<button type="button" class="source-mode-button" aria-pressed="false" aria-keyshortcuts="y">Source mode<\/button>/);
+  assert.match(out, /<button type="button" class="source-mode-button" aria-pressed="false"><svg[^>]*aria-hidden="true"[\s\S]*?<\/svg>Source mode<\/button>/);
   assert.match(out, /<span class="source-mode-status" role="status"><\/span>/);
   assert.ok(out.includes(`data-on-message="${stringsOf("en").source_mode_on}"`));
 });
@@ -73,7 +71,6 @@ function setup(stored?: string, throwing = false) {
     },
   };
   const store = new Map<string, string>(stored === undefined ? [] : [[SOURCE_MODE_KEY, stored]]);
-  let keydown: ((event: SourceKeyEvent) => void) | undefined;
   const env: SourceEnv = {
     root: modeRoot,
     blocks: [],
@@ -88,17 +85,9 @@ function setup(stored?: string, throwing = false) {
       },
     },
     createLabel: () => ({ textContent: "", setAttribute() {} }),
-    addKeydown: (listener) => {
-      keydown = listener;
-    },
   };
   activate(root, env);
-  const press = (event: Partial<SourceKeyEvent> = {}) => {
-    let prevented = false;
-    keydown?.({ key: "y", preventDefault: () => (prevented = true), ...event });
-    return prevented;
-  };
-  return { root, button, status, classes, store, press };
+  return { root, button, status, classes, store };
 }
 
 test("activation reveals the switch and applies the stored choice to the root class", () => {
@@ -123,17 +112,6 @@ test("a click toggles the mode, stores it, and announces it", () => {
   assert.equal(s.classes.has("source-mode"), false);
   assert.equal(s.store.get(SOURCE_MODE_KEY), "off");
   assert.equal(s.status.textContent, "off!");
-});
-
-test("the shortcut toggles, but not with a modifier or inside a field", () => {
-  const s = setup();
-  assert.equal(s.press(), true);
-  assert.equal(s.classes.has("source-mode"), true);
-  assert.equal(s.press({ ctrlKey: true }), false);
-  assert.equal(s.press({ target: { tagName: "INPUT" } }), false);
-  assert.equal(s.press({ key: "x" }), false);
-  assert.equal(s.classes.has("source-mode"), true);
-  assert.equal(isSourceShortcut({ key: "Y", preventDefault() {} }), true);
 });
 
 test("blocked storage still applies the choice to this page view", () => {

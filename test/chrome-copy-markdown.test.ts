@@ -1,29 +1,16 @@
 import assert from "node:assert/strict";
 import { readFileSync } from "node:fs";
-import { beforeEach, test } from "node:test";
+import { test } from "node:test";
 import type { ChromeProps, Page, Pager, Site, SiteConfig, SourcePos, Trail } from "@velella/mizzen/contracts";
 import copyMarkdown, { markdownTwin, pageUrl, twinUrl } from "../chrome/copy-markdown/index.ts";
 import {
   activate,
   copy,
-  isCopyShortcut,
-  isTypingTarget,
   type ActivateEnv,
   type Clipboard,
   type CopyButton,
   type CopyStatus,
-  type ShortcutEvent,
-  type ShortcutHost,
 } from "../chrome/copy-markdown/client.ts";
-import {
-  OFF,
-  rememberShortcuts,
-  resetShortcutsPreference,
-  type ShortcutStorage,
-} from "../chrome/shortcuts/preference.ts";
-
-beforeEach(() => resetShortcutsPreference());
-
 const pos: SourcePos = { file: "docs/guide/install.md", line: 3, column: 1, endLine: 9, endColumn: 1 };
 
 function siteConfig(base = "/example"): SiteConfig {
@@ -105,18 +92,17 @@ test("renders a plain Markdown link, a hidden copy button, and a status region",
   assert.match(out, /^<div class="copy-markdown" data-copy-markdown>/);
   assert.match(
     out,
-    /<button type="button" class="copy-markdown-button" hidden data-copy-markdown-button data-markdown="\/example\/guide\/install\/index\.md" data-copied="Copied" data-copy-failed="Press Ctrl\+C" aria-keyshortcuts="m" title="Press M to copy">Copy page as Markdown<kbd class="copy-markdown-key" aria-hidden="true">M<\/kbd><\/button>/,
+    /<button type="button" class="copy-markdown-button" hidden data-copy-markdown-button data-markdown="\/example\/guide\/install\/index\.md" data-copied="Copied" data-copy-failed="Press Ctrl\+C">Copy page as Markdown<\/button>/,
   );
   assert.match(out, /<a class="copy-markdown-link" href="\/example\/guide\/install\/index\.md">View Markdown<\/a>/);
   assert.match(out, /<p class="copy-markdown-status" role="status" data-copy-markdown-status><\/p>/);
 });
 
-test("the link, button, hint, and confirmation follow the page language", () => {
+test("the link, button, and confirmation follow the page language", () => {
   const out = html(copyMarkdown(props(pageWith("/example/fa/install/", "doc", "fa", "rtl"))));
 
   assert.match(out, />کپی صفحه به صورت مارک‌داون</);
   assert.match(out, /data-copied="کپی شد"/);
-  assert.match(out, /title="برای کپی M را بزنید"/);
   assert.match(out, /<a class="copy-markdown-link" href="\/example\/fa\/install\/index\.md">مشاهده مارک‌داون<\/a>/);
 });
 
@@ -223,63 +209,18 @@ function fakeStatus(): CopyStatus & { attrs: Map<string, string> } {
   };
 }
 
-interface PressOptions {
-  key?: string;
-  target?: unknown;
-  ctrlKey?: boolean;
-  metaKey?: boolean;
-  altKey?: boolean;
-  repeat?: boolean;
-}
-
-/** A document-shaped key listener the test can press. */
-interface FakeKeyHost extends ShortcutHost {
-  readonly listeners: Array<(event: ShortcutEvent) => void>;
-  press(options?: PressOptions): { prevented: boolean };
-}
-
-function keyHost(): FakeKeyHost {
-  const listeners: Array<(event: ShortcutEvent) => void> = [];
-  return {
-    listeners,
-    addEventListener(type: "keydown", listener) {
-      assert.equal(type, "keydown");
-      listeners.push(listener);
-    },
-    press(options: PressOptions = {}) {
-      const result = { prevented: false };
-      const event: ShortcutEvent = {
-        key: options.key ?? "m",
-        ...(options.target === undefined ? {} : { target: options.target }),
-        ...(options.ctrlKey === undefined ? {} : { ctrlKey: options.ctrlKey }),
-        ...(options.metaKey === undefined ? {} : { metaKey: options.metaKey }),
-        ...(options.altKey === undefined ? {} : { altKey: options.altKey }),
-        ...(options.repeat === undefined ? {} : { repeat: options.repeat }),
-        preventDefault() {
-          result.prevented = true;
-        },
-      };
-      for (const listener of listeners) listener(event);
-      return result;
-    },
-  };
-}
-
-/** An environment whose fetch, clipboard, and key listener record their calls. */
+/** An environment whose fetch and clipboard record their calls. */
 function env(
-  options: { fetchText?: (url: string) => Promise<string>; clipboard?: Clipboard; storage?: ShortcutStorage } = {},
+  options: { fetchText?: (url: string) => Promise<string>; clipboard?: Clipboard } = {},
 ): ActivateEnv & {
   fetched: string[];
   wrote: string[];
   status: CopyStatus & { attrs: Map<string, string> };
-  keys: FakeKeyHost;
 } {
   const fake = {
     fetched: [] as string[],
     wrote: [] as string[],
     status: fakeStatus(),
-    keys: keyHost(),
-    ...(options.storage === undefined ? {} : { storage: options.storage }),
     fetchText:
       options.fetchText ??
       ((url: string) => {
@@ -301,14 +242,13 @@ function env(
 /** Lets the fetch and clipboard promises settle. */
 const settle = (): Promise<void> => new Promise((resolve) => setImmediate(resolve));
 
-test("activate reveals the button and wires the key shortcut without requesting anything yet", () => {
+test("activate reveals the button and wires the click without requesting anything yet", () => {
   const button = fakeButton();
   const world = env();
   activate(button, world);
 
   assert.equal(button.hidden, false);
   assert.equal(button.clicks.length, 1);
-  assert.equal(world.keys.listeners.length, 1);
   assert.deepEqual(world.fetched, []);
   assert.deepEqual(world.wrote, []);
 });
@@ -360,21 +300,6 @@ test("the copy button fetches the same base-aware twin the plain link shows, byt
   assert.equal(world.status.textContent, "Copied");
 });
 
-test("the m key copies the twin through the button's click path and prevents the key's own action", async () => {
-  const button = fakeButton();
-  const world = env();
-  activate(button, world);
-
-  const result = world.keys.press();
-  await settle();
-
-  assert.equal(result.prevented, true);
-  assert.equal(button.clicks.length, 1, "the key pressed the button rather than copying beside it");
-  assert.deepEqual(world.fetched, ["/example/guide/install/index.md"]);
-  assert.deepEqual(world.wrote, ["# Install\n"]);
-  assert.equal(world.status.textContent, "Copied");
-});
-
 test("a copy in flight clears the old message, marks the status busy, and announces once it settles", async () => {
   let settleFetch!: (markdown: string) => void;
   const button = fakeButton();
@@ -407,164 +332,13 @@ test("a second press while a copy is in flight does not fetch or announce twice"
   activate(button, world);
 
   button.clicks[0]!();
-  world.keys.press();
+  button.clicks[0]!();
   settleFetch("# Install\n");
   await settle();
 
   assert.equal(calls, 1);
   assert.deepEqual(world.wrote, ["# Install\n"]);
   assert.equal(world.status.textContent, "Copied");
-});
-
-test("the m shortcut stays out of fields the reader is typing in", async () => {
-  const button = fakeButton();
-  const world = env();
-  activate(button, world);
-
-  for (const target of [
-    { tagName: "INPUT" },
-    { tagName: "textarea" },
-    { tagName: "SELECT" },
-    { tagName: "DIV", isContentEditable: true },
-  ]) {
-    const result = world.keys.press({ target });
-    assert.equal(result.prevented, false, `${JSON.stringify(target)} should keep the m key`);
-  }
-  await settle();
-
-  assert.deepEqual(world.fetched, []);
-  assert.equal(world.status.textContent, "");
-});
-
-test("a stored preference makes the m key an ordinary letter and keeps the button working", async () => {
-  const button = fakeButton();
-  const world = env({ storage: { getItem: () => OFF, setItem: () => {} } });
-  activate(button, world);
-
-  const result = world.keys.press();
-  await settle();
-
-  assert.equal(result.prevented, false, "`m` should type normally");
-  assert.equal(button.clicks.length, 1, "the pointer path is still wired");
-  assert.deepEqual(world.fetched, []);
-  assert.equal(world.status.textContent, "");
-});
-
-test("blocked or corrupt storage never disables the m key", async () => {
-  const blocked: ShortcutStorage = {
-    getItem(): string | null {
-      throw new Error("storage is blocked");
-    },
-    setItem(): void {
-      throw new Error("storage is blocked");
-    },
-  };
-  const corrupt: ShortcutStorage = { getItem: () => "something-else", setItem: () => {} };
-
-  for (const storage of [blocked, corrupt]) {
-    const button = fakeButton();
-    const world = env({ storage });
-    activate(button, world);
-
-    const result = world.keys.press();
-    await settle();
-
-    assert.equal(result.prevented, true);
-    assert.deepEqual(world.fetched, ["/example/guide/install/index.md"]);
-  }
-});
-
-test("the preference is read on every press, so turning it back on restores the m key", async () => {
-  let stored: string | null = OFF;
-  const storage: ShortcutStorage = { getItem: () => stored, setItem: () => {} };
-  const button = fakeButton();
-  const world = env({ storage });
-  activate(button, world);
-
-  assert.equal(world.keys.press().prevented, false);
-  stored = null;
-  assert.equal(world.keys.press().prevented, true);
-  await settle();
-  assert.deepEqual(world.fetched, ["/example/guide/install/index.md"]);
-});
-
-test("an explicit choice applies to m even when storage is blocked or read-only", async () => {
-  const blocked: ShortcutStorage = {
-    getItem(): string | null {
-      throw new Error("storage is blocked");
-    },
-    setItem(): void {
-      throw new Error("storage is blocked");
-    },
-  };
-  const readOnly: ShortcutStorage = {
-    getItem: () => null,
-    setItem(): void {
-      throw new Error("storage is read-only");
-    },
-  };
-
-  for (const storage of [blocked, readOnly]) {
-    resetShortcutsPreference();
-    const button = fakeButton();
-    const world = env({ storage });
-    activate(button, world);
-
-    rememberShortcuts(storage, false);
-    let result = world.keys.press();
-    await settle();
-    assert.equal(result.prevented, false);
-    assert.deepEqual(world.fetched, []);
-
-    button.clicks[0]!();
-    await settle();
-    assert.deepEqual(world.fetched, ["/example/guide/install/index.md"], "the pointer action still copies");
-
-    rememberShortcuts(storage, true);
-    result = world.keys.press();
-    await settle();
-    assert.equal(result.prevented, true);
-    assert.deepEqual(world.fetched, ["/example/guide/install/index.md", "/example/guide/install/index.md"]);
-  }
-});
-
-test("the shortcut leaves /, ?, and Ctrl/Cmd+K to search and ignores modifiers and repeats", () => {
-  const world = env();
-  activate(fakeButton(), world);
-
-  for (const options of [
-    { key: "/" },
-    { key: "?" },
-    { key: "k", ctrlKey: true },
-    { key: "k", metaKey: true },
-    { key: "m", ctrlKey: true },
-    { key: "m", metaKey: true },
-    { key: "m", altKey: true },
-    { key: "m", repeat: true },
-  ]) {
-    const result = world.keys.press(options);
-    assert.equal(result.prevented, false, `${JSON.stringify(options)} should not copy`);
-  }
-
-  assert.equal(isCopyShortcut({ key: "m", preventDefault() {} }), true);
-  assert.equal(isCopyShortcut({ key: "M", preventDefault() {} }), true);
-  assert.equal(isCopyShortcut({ key: "/", preventDefault() {} }), false);
-  assert.equal(isCopyShortcut({ key: "?", preventDefault() {} }), false);
-  assert.equal(isCopyShortcut({ key: "k", ctrlKey: true, preventDefault() {} }), false);
-});
-
-test("isTypingTarget covers every kind of field and nothing else", () => {
-  for (const target of [
-    { tagName: "INPUT" },
-    { tagName: "textarea" },
-    { tagName: "SELECT" },
-    { tagName: "DIV", isContentEditable: true },
-  ]) {
-    assert.equal(isTypingTarget(target), true, `${JSON.stringify(target)} is a field`);
-  }
-  for (const target of [{ tagName: "BUTTON" }, { tagName: "DIV" }, null, undefined, "input"]) {
-    assert.equal(isTypingTarget(target), false, `${String(target)} is not a field`);
-  }
 });
 
 test("a failed request or a refused clipboard announces the failure instead", async () => {
@@ -579,17 +353,15 @@ test("a failed request or a refused clipboard announces the failure instead", as
   assert.equal(clipboardFails.status.textContent, "Press Ctrl+C");
 });
 
-test("without a clipboard or fetch, the button stays hidden and no key is wired", () => {
+test("without a clipboard or fetch, the button stays hidden and no click is wired", () => {
   const button = fakeButton();
-  const keys = keyHost();
-  activate(button, { status: { textContent: "" }, keys });
+  activate(button, { status: { textContent: "" } });
 
   assert.equal(button.hidden, true);
   assert.equal(button.clicks.length, 0);
-  assert.equal(keys.listeners.length, 0);
 
   const noFetch = fakeButton();
-  activate(noFetch, { clipboard: { writeText: () => Promise.resolve() }, status: { textContent: "" }, keys });
+  activate(noFetch, { clipboard: { writeText: () => Promise.resolve() }, status: { textContent: "" } });
 
   assert.equal(noFetch.hidden, true);
   assert.equal(noFetch.clicks.length, 0);
@@ -602,7 +374,6 @@ test("a button with no Markdown address stays hidden and copies nothing", async 
 
   assert.equal(button.hidden, true);
   assert.equal(button.clicks.length, 0);
-  assert.equal(world.keys.listeners.length, 0);
 
   await copy(button, world);
   assert.deepEqual(world.fetched, []);

@@ -11,7 +11,7 @@
 //                             (see chrome-search.test.ts)                (WeakMap prevents a double wire)
 // chrome/drawer               button/close click, dialog close/click/  `env.signal` aborts the wiring
 //                             keydown, link click, viewport change
-// chrome/copy-markdown        button click, document keydown           `env.signal` aborts the wiring
+// chrome/copy-markdown        button click                             `env.signal` aborts the wiring
 // chrome/code-copy            created button clicks, window hashchange listeners live on created nodes;
 //                             (module scope)                           the hashchange mark lives for the page
 // chrome/block-actions        created button clicks                    listeners live on created nodes
@@ -41,7 +41,7 @@ import { activate as activateGallery, type GalleryDocument } from "../components
 import { activate as activateTable, type SortDocument } from "../components/record-table/client.ts";
 import { activate as activateCompare, type CompareDocument, type CompareEnv } from "../components/compare/client.ts";
 import { activate as activateDrawer, type DrawerControl, type DrawerDialog, type DrawerEnv } from "../chrome/drawer/client.ts";
-import { activate as activateCopyMarkdown, type ActivateEnv, type CopyButton, type CopyStatus, type ShortcutHost } from "../chrome/copy-markdown/island.ts";
+import { activate as activateCopyMarkdown, type ActivateEnv, type CopyButton, type CopyStatus } from "../chrome/copy-markdown/client.ts";
 import { activate as activateCodeCopy, type CopyDocument } from "../chrome/code-copy/client.ts";
 import { waitFor } from "./helpers/wait.ts";
 
@@ -399,7 +399,7 @@ test("aborting the drawer's signal detaches every listener at once", () => {
 // chrome/copy-markdown
 // ---------------------------------------------------------------------------
 
-test("aborting the copy island's signal detaches the click and the m key", () => {
+test("aborting the copy island's signal detaches the click", () => {
   const controller = new AbortController();
   const buttonTarget = signalTarget();
   const button = {
@@ -409,14 +409,11 @@ test("aborting the copy island's signal detaches the click and the m key", () =>
       buttonTarget.fire("click");
     },
     addEventListener: buttonTarget.addEventListener,
-  } as unknown as CopyButton;
-  const keysTarget = signalTarget();
-  const keys = { addEventListener: keysTarget.addEventListener.bind(keysTarget) } as unknown as ShortcutHost;
+  } satisfies CopyButton & { click(): void };
   const status: CopyStatus = { textContent: "" };
   const fetched: string[] = [];
   const env: ActivateEnv = {
     status,
-    keys,
     signal: controller.signal,
     clipboard: { writeText: () => Promise.resolve() },
     fetchText: (url: string) => {
@@ -430,12 +427,10 @@ test("aborting the copy island's signal detaches the click and the m key", () =>
 
   controller.abort();
   button.click();
-  keysTarget.fire("keydown", { key: "m", preventDefault() {} });
 
   assert.deepEqual(fetched, [], "nothing is fetched after the abort");
   assert.equal(status.textContent, "", "nothing is announced after the abort");
   assert.equal(buttonTarget.count("click"), 0);
-  assert.equal(keysTarget.count("keydown"), 0);
 });
 
 // ---------------------------------------------------------------------------

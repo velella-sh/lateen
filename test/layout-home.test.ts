@@ -187,6 +187,6 @@ test("the home content sits in the base shell, so the document keeps lang, dir, 
   const page = out();
   assert.match(page, /^<html lang="en" dir="ltr"/);
   assert.match(page, /<body><a class="skip-link" href="#main">Skip to content<\/a>/);
-  assert.match(page, /<main id="main" tabindex="-1"><div class="home-content"><div class="home-stage">/i);
+  assert.match(page, /<main id="main" tabindex="-1">[\s\S]*?<div class="home-content"><div class="home-stage">/i);
   assert.match(page, /<dialog class="drawer"/);
 });

@@ -65,20 +65,14 @@ not derived from the inputs. Reset revalidates the group's defaults and announce
 
 ## Keyboard and pointer
 
-The keyboard path is a click on the same native control, not a second handler:
+Keyboard and pointer input activate the same native controls. ⌘K on Apple platforms and Ctrl+K
+elsewhere open search.
 
-- `m` presses the page's copy-Markdown button, unless unmodified character shortcuts are turned off
-  in the shortcuts dialog. The key stays out of inputs, textareas, selects, and contenteditable
-  elements, and a second press while a copy is in flight is ignored.
-- `/`, `⌘K` (Apple), and `Ctrl+K` open search. Search owns no other letter.
-- `?` opens the keyboard shortcuts dialog. The dialog's preference turns off `m`, `/`, and `?`; the
-  modified search shortcut always works.
 - Every copy result is written to a `role="status"` region. The same localized success and failure
   strings are used by the page copy control, the agent menu, the page footer, and the code/output
   copy islands, so a reader hears one vocabulary wherever the action was started.
 - Buttons are native `<button>`s, disclosures use `<details>`/`<summary>`, and block actions are
-  cloned from an inert `<template>` only after the clipboard is known to exist. There is one `m`
-  shortcut per page and no duplicate id.
+  cloned from an inert `<template>` only after the clipboard is known to exist.
 
 ## Clipboard and security limits
 
@@ -101,8 +95,7 @@ The keyboard path is a click on the same native control, not a second handler:
 - Feedback posts to `theme.options.feedback.endpoint` only when configured. It records one answer per
   page in `sessionStorage` so a reload does not ask twice; the storage write is best-effort and a
   denied storage API does not block the vote.
-- The shortcuts preference is stored in `localStorage` under the theme's shortcut key; the theme
-  choice is stored under `lateen-theme`. Neither contains page text.
+- The theme stores the color choice under `lateen-theme` and Source mode under `lateen-source-mode`.
 
 Known limit: a block action's prompt names the page's declared version only when the page declares
 one. A page without a `version` front-matter value has no version claim to make, and the action never

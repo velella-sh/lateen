@@ -1,10 +1,11 @@
 import { h } from "preact";
 import type { Chrome } from "@velella/mizzen/contracts";
+import { CodeXml } from "lucide";
 import { patternOf, t } from "../../i18n/index.ts";
+import { icon } from "../../src/icon.ts";
 import { hostOf } from "../../src/repository.ts";
 import { optionOf } from "../../src/options.ts";
 import { acceptEditorTemplate } from "./editor.ts";
-import { SOURCE_MODE_KEY_CHAR } from "./state.ts";
 
 /** Every config value source mode reads, in the order the docs page lists them. */
 export const SOURCE_MODE_OPTIONS = [
@@ -75,8 +76,8 @@ const sourceMode: Chrome = ({ site, page }) => {
         type: "button",
         class: "source-mode-button",
         "aria-pressed": "false",
-        "aria-keyshortcuts": SOURCE_MODE_KEY_CHAR,
       },
+      icon({ node: CodeXml }),
       t(lang, "source_mode_label"),
     ),
     editor === undefined

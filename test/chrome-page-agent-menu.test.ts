@@ -154,8 +154,7 @@ test("the menu and the copy-Markdown control name the same twin and announce the
     assert.match(out, /role="status"/);
   }
 
-  assert.doesNotMatch(menuOut, /aria-keyshortcuts/, "the page keeps one m shortcut, owned by the copy control");
-  assert.match(copyOut, /aria-keyshortcuts="m"/);
+  assert.doesNotMatch(menuOut + copyOut, /aria-keyshortcuts/);
 });
 
 test("offers Claude, ChatGPT, and Cursor by default, in that order, with the absolute Markdown twin", () => {
@@ -423,7 +422,7 @@ test("the menu stays a keyboard-operable disclosure and keeps no-JS and external
   assert.match(out, /<button type="button" class="page-agent-menu-copy" hidden data-page-agent-copy/);
   assert.match(out, /<a class="page-agent-menu-view" href="\/example\/guide\/install\/index\.md">/);
   assert.match(out, /<a class="page-agent-menu-provider" href="[^"]+" target="_blank" rel="noopener">Ask<\/a>/);
-  assert.doesNotMatch(out, /aria-keyshortcuts/, "the page keeps one m shortcut, owned by the copy control");
+  assert.doesNotMatch(out, /aria-keyshortcuts/);
 });
 
 test("an app page, or a doc page whose URL names another file, renders nothing", () => {

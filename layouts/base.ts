@@ -9,7 +9,6 @@ import networkFooter from "../chrome/network-footer/index.ts";
 import projectSwitcher from "../chrome/project-switcher/index.ts";
 import { footer as shellFooter } from "../chrome/shell/index.ts";
 import { resolveNetworkOptions, optionOf } from "../src/options.ts";
-import shortcuts from "../chrome/shortcuts/index.ts";
 import sourceMode from "../chrome/source-mode/index.ts";
 import skipLinks, { MAIN_ID, NAVIGATION_ID } from "../chrome/skip-links/index.ts";
 import { THEME_KEY } from "../chrome/theme-toggle/key.ts";
@@ -157,13 +156,6 @@ export default function base(props: BaseProps) {
           network.footer ? (networkFooter(props) as ComponentChildren) : null,
         );
   const footerNode = footer ?? (shellFooter(props) as ComponentChildren);
-  const footerContent = h(
-    Fragment,
-    null,
-    footerNode,
-    networkChrome,
-    h("div", { class: "site-utilities" }, shortcuts(props) as ComponentChildren, sourceMode(props) as ComponentChildren),
-  );
   return h(
     "html",
     { lang: page.lang, dir: page.dir, "data-theme": "dark" },
@@ -182,12 +174,13 @@ export default function base(props: BaseProps) {
         h(
           "main",
           { id: MAIN_ID, tabIndex: -1 },
+          sourceMode(props) as ComponentChildren,
           main ?? h("div", { dangerouslySetInnerHTML: { __html: page.html } }),
         ),
         aside == null ? null : h("div", { class: "aside" }, aside),
       ),
       footnotePopover(props) as ComponentChildren,
-      h("footer", null, footerContent),
+      h("footer", null, footerNode, networkChrome),
       ...islands.map((island) => h("script", { type: "module", src: island.src })),
     ),
   );

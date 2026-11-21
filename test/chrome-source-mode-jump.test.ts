@@ -44,7 +44,6 @@ function page(search: string) {
       copy: async () => true,
       announce: () => {},
     },
-    addKeydown: () => {},
   });
   return { classes, status, focused, scrolled };
 }

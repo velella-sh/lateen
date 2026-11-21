@@ -147,7 +147,7 @@ test("skip link is the first element in body and targets main", () => {
 
 test("main always renders; page HTML is the default content", () => {
   const html = out(layoutProps());
-  assert.match(html, /<main[^>]*><div><p>Body<\/p><\/div><\/main>/);
+  assert.match(html, /<main[^>]*>[\s\S]*?<div><p>Body<\/p><\/div><\/main>/);
   assert.match(html, /<footer>[\s\S]*class="site-footer"/);
   assert.doesNotMatch(html, /<header|class="sidebar"|class="aside"/);
 });
@@ -169,23 +169,17 @@ test("slots land in their landmarks in document order", () => {
   });
   assert.match(html, /<header class="header"><span>H<\/span><\/header>/);
   assert.match(html, /<div class="sidebar" id="site-navigation"><nav aria-label="Site navigation">S<\/nav><\/div>/);
-  assert.match(html, /<main[^>]*>M<\/main>/);
+  assert.match(html, /<main[^>]*>[\s\S]*?M<\/main>/);
   assert.match(html, /<div class="aside"><nav aria-label="On this page">A<\/nav><\/div>/);
-  assert.match(html, /<footer><span>F<\/span><div class="site-utilities">/);
+  assert.match(html, /<footer><span>F<\/span><\/footer>/);
   const order = ['<header class="header"', 'class="sidebar"', "<main", 'class="aside"', "<footer>"].map((s) => html.indexOf(s));
   assert.deepEqual(order, [...order].sort((a, b) => a - b));
 });
 
-test("utility controls follow the site footer in normal document flow and mount once", () => {
+test("Source mode mounts once at the start of the main content", () => {
   const html = out(layoutProps());
-  const siteFooter = html.indexOf('class="site-footer"');
-  const utilities = html.indexOf('<div class="site-utilities">');
-  const footerEnd = html.indexOf("</footer>", utilities);
-
-  assert.ok(siteFooter >= 0, "site footer is present");
-  assert.ok(utilities > siteFooter, "utility container follows the site footer");
-  assert.ok(footerEnd > utilities, "utility container is inside the footer");
-  assert.equal(html.match(/data-shortcuts-open/g)?.length, 1);
+  assert.match(html, /<main[^>]*><div class="source-mode-switch"[\s\S]*?<\/main>/);
+  assert.doesNotMatch(html, /data-shortcuts|site-utilities/);
   assert.equal(html.match(/data-source-mode/g)?.length, 1);
   assert.equal(html.match(/<script type="module"/g)?.length, 1);
 });

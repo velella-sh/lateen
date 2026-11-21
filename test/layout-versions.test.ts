@@ -304,7 +304,7 @@ test("the layout sits in the base shell with lang, dir, the skip link, and the m
   const html = out({ frontMatter: { versions: [{ version: "v2" }] } });
   assert.match(html, /^<html lang="en" dir="ltr"/);
   assert.match(html, /<a class="skip-link" href="#main">Skip to content<\/a>/);
-  assert.match(html, /<main id="main" tabindex="-1"><article class="versions" data-pagefind-body="true">/);
+  assert.match(html, /<main id="main" tabindex="-1">[\s\S]*?<article class="versions" data-pagefind-body="true">/);
 });
 
 test("versionsOf prefers the data file and falls back to front matter", () => {

@@ -115,19 +115,6 @@ test("the endpoint parameter metadata group is complete in every language", () =
   }
 });
 
-test("the single-key shortcut preference names the same keys in every language", () => {
-  for (const lang of languages) {
-    const table = stringsOf(lang);
-    const label = table.shortcuts_preference ?? "";
-    const hint = table.shortcuts_preference_hint ?? "";
-
-    assert.notEqual(label.trim(), "", `${lang}.shortcuts_preference is empty`);
-    for (const key of ["/", "m", "?", "Ctrl/Cmd+K"]) {
-      assert.ok(hint.includes(key), `${lang}.shortcuts_preference_hint omits ${key}`);
-    }
-  }
-});
-
 /** The text of every theme unit, so a catalog key is live only when a unit reads it. */
 function units(): string {
   const text: string[] = [];

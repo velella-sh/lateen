@@ -177,7 +177,7 @@ criteria:
     level: A
     url: https://www.w3.org/WAI/WCAG22/Understanding/character-key-shortcuts.html
     how: manual
-    notes: The site's single-key shortcuts are disabled by default in unmodified form and can be turned off.
+    notes: Search opens with a modifier and K. Page actions use native controls.
   - id: "2.2.1"
     principle: operable
     name: Timing Adjustable

@@ -154,14 +154,11 @@ test("technical reference blocks expose canonical values and machine-readable fi
   assert.equal(document.querySelector(".schema-table-scroll")?.getAttribute("aria-label"), "Widget options");
 });
 
-test("keyboard and pointer meet the same native controls, with no duplicate ids or shortcut", () => {
+test("keyboard and pointer meet the same native controls, with unique ids and no character shortcuts", () => {
   const ids = all(document, "[id]").map((element) => element.getAttribute("id") ?? "");
   assert.equal(new Set(ids).size, ids.length, "no id is repeated");
 
-  const shortcuts = attrs(document, "[aria-keyshortcuts]", "aria-keyshortcuts");
-  assert.deepEqual(shortcuts, ["m", "y"], "one page action and the source mode switch own the character shortcuts");
-  const shortcutRows = all(document, ".shortcuts-list .shortcut-action").map(textOf);
-  assert.deepEqual(shortcutRows, ["SearchNeeds JavaScript", "Copy page as MarkdownNeeds JavaScript", "Toggle source modeNeeds JavaScript", "Show this dialogNeeds JavaScript"]);
+  assert.equal(document.querySelector("[aria-keyshortcuts], [data-shortcuts]"), null);
 
   // Pointer and keyboard reach the same elements because they are native controls.
   for (const control of all(document, "button")) {

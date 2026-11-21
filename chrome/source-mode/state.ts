@@ -4,9 +4,6 @@ export const SOURCE_MODE_KEY = "lateen-source-mode";
 /** The class source mode puts on the root element; the stylesheet shows the labels under it. */
 export const SOURCE_MODE_CLASS = "source-mode";
 
-/** The unmodified key that toggles source mode; unused by the browse-mode quick keys of NVDA and JAWS. */
-export const SOURCE_MODE_KEY_CHAR = "y";
-
 /** The parts of `Storage` source mode uses, so tests can pass plain objects. */
 export interface SourceModeStorage {
   getItem(key: string): string | null;

@@ -9,14 +9,12 @@ Source mode puts a `file:line` label beside every block that has a known positio
 status, a record fact, a component that keeps its source span. Each label copies the position, and,
 when the site names a repository or an editor template, links the same lines there.
 
-Press <kbd>y</kbd>, use the source-mode switch at the end of the page, or choose “Source mode” in the
-command palette. The choice is remembered per browser. Nothing moves when the mode turns on: the
-labels sit in the start margin on wide screens and above the block on narrow ones.
+Use the Source mode switch above the page content or choose “Source mode” in the command palette.
+The choice is remembered per browser. Labels appear beneath the blocks they describe.
 
 ## Live example
 
-This page is the example. Press <kbd>y</kbd> and the fence below gets a label with its own file and
-line. The switch is hidden until the island runs, so a reader without JavaScript never sees a
+This page is the example. Turn on Source mode to see the file and line next to the code fence below. The switch is hidden until the island runs, so a reader without JavaScript never sees a
 control that would do nothing.
 
 ```ts
