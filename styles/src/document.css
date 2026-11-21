@@ -131,11 +131,16 @@
   }
 
   .doc-layout main > article > h1 {
-    margin: 0.75rem 0 0;
-    font-size: clamp(2.125rem, 4.2vw, 2.625rem);
-    font-weight: 600;
-    line-height: 1.12;
-    letter-spacing: -0.03em;
+    margin-block: 0.625rem 0;
+  }
+
+  .doc-layout main > article > h1,
+  .doc-body > h1:first-child {
+    font-size: clamp(1.875rem, 1.5rem + 1.6vw, 2.75rem);
+    font-weight: 680;
+    line-height: var(--type-leading-display);
+    letter-spacing: var(--type-tracking-display);
+    overflow-wrap: anywhere;
   }
 
   .breadcrumb {
@@ -201,11 +206,12 @@
   }
 
   .doc-description {
-    margin: 0.875rem 0 0;
-    max-inline-size: 40em;
+    margin-block: 0.5rem 0;
+    max-inline-size: 60ch;
     color: var(--muted-foreground);
-    font-size: 1.125rem;
-    line-height: 1.875rem;
+    font-size: clamp(1rem, 0.95rem + 0.3vw, 1.125rem);
+    line-height: 1.5;
+    overflow-wrap: anywhere;
   }
 
   .doc-meta {
@@ -218,6 +224,10 @@
 
   .doc-meta .trust-panel {
     margin: 0;
+  }
+
+  .doc-meta:empty {
+    display: none;
   }
 
   .guide-prerequisites {
@@ -246,6 +256,14 @@
     margin-inline-start: 0.375rem;
     color: var(--muted-foreground);
     font-size: 0.8125rem;
+  }
+
+  .doc-body {
+    margin-block-start: 1.375rem;
+  }
+
+  .doc-body > :first-child {
+    margin-block-start: 0;
   }
 
   .doc-body h2 {
@@ -280,9 +298,18 @@
   }
 
   .doc-body p {
-    max-inline-size: 40em;
     margin: 0.6875rem 0;
+    max-inline-size: 40em;
     overflow-wrap: anywhere;
+  }
+
+  .doc-body > :is(p, ul, ol, h1, h2, h3) {
+    max-inline-size: var(--type-measure-min);
+    overflow-wrap: anywhere;
+  }
+
+  .doc-body > p {
+    text-wrap: pretty;
   }
 
   .doc-body li + li {
