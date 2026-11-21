@@ -10,15 +10,17 @@
   }
 
   @media screen and (width > 74rem) {
-    /* Both grids span 72rem, so the navigation keeps its track and alignment. */
-    .doc-layout:has(> main > .doc:not(.api-reference, .api-reference-index)) {
+    /* Both grids span 72rem so navigation keeps its alignment.
+       API examples and field comparisons use the wider track. */
+    .doc-layout:has(> main > .doc:not(.api-reference, .api-reference-index)):not(:has(> main [data-compare])) {
       grid-template-columns: 12.5rem minmax(0, 36rem) minmax(10.5rem, 14.5rem);
       column-gap: 4.5rem;
+      --doc-aside-offset: 2.75rem;
     }
 
-    .doc-layout:has(> main > .doc:not(.api-reference, .api-reference-index)) > .aside {
+    .doc-layout > .aside {
       max-inline-size: 10.5rem;
-      margin-block-start: 2.75rem;
+      margin-block-start: var(--doc-aside-offset, 0rem);
     }
   }
 
