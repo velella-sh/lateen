@@ -2,6 +2,10 @@
 @source "../../layouts";
 @source "../../chrome";
 @source "../../components";
+@source "../../src";
+@source "../../site";
+@source "../../redesign";
+@source "../../starters";
 
 @theme {
   --font-sans: "Geist", "Geist Sans", ui-sans-serif, system-ui, sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji";

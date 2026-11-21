@@ -9,6 +9,7 @@ import shell, { footer as shellFooter } from "../chrome/shell/index.ts";
 import sidebar from "../chrome/sidebar/index.ts";
 import toc from "../chrome/toc/index.ts";
 import { t } from "../i18n/index.ts";
+import { articleHtml } from "../src/article-html.ts";
 
 /**
  * The operation page of a pinned OpenAPI reference. The engine builds one doc page per operation
@@ -600,7 +601,7 @@ function article(props: LayoutProps): ComponentChildren {
       { class: "doc api-reference", "data-pagefind-body": true },
       breadcrumb(props) as ComponentChildren,
       h("h1", null, page.title),
-      h("div", { class: "doc-body", dangerouslySetInnerHTML: { __html: page.html } }),
+      h("div", { class: "doc-body", dangerouslySetInnerHTML: { __html: articleHtml(page.html) } }),
     );
   }
   const lang = page.lang;

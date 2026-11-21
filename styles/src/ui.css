@@ -1,7 +1,7 @@
 /* Sailcloth source entry. The sheet is split by responsibility (#863); Tailwind
    inlines the modules below in order, so the compiled cascade is unchanged.
    Author new visuals in the module that owns them, not here. */
-@import "tailwindcss";
+@import "tailwindcss" source(none);
 @import "./theme.css";
 @import "./primitives.css";
 @import "./base.css";

@@ -14,6 +14,7 @@ import { calendarDate } from "../src/dates.ts";
 import { textOf } from "../src/guards.ts";
 import base from "./base.ts";
 import { archiveUrlOf, authorNameOf, authorPageOf, titleFromBody } from "./blog/index.ts";
+import { articleHtml } from "../src/article-html.ts";
 
 /** The date line: a `<time>` in the page's calendar when the date is real, else the written text. */
 function dateOf(props: LayoutProps, value: string | undefined): ComponentChildren {
@@ -48,7 +49,7 @@ function article(props: LayoutProps): ComponentChildren {
   const date = textOf(front.date);
   const author = textOf(front.author);
   const description = textOf(front.description);
-  const body = { __html: highlightFences(page.html, codeBackgrounds(props.site.config.theme.options)) };
+  const body = { __html: highlightFences(articleHtml(page.html), codeBackgrounds(props.site.config.theme.options)) };
   return h(
     "article",
     { class: "doc post", "data-pagefind-body": true },

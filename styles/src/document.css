@@ -436,6 +436,76 @@
     text-wrap: pretty;
   }
 
+  .doc-body :where(blockquote, li, .callout-body, .details-body, .tabs-body, .tutorial-intro, .tutorial-step-body) > :is(ul, ol):not([class]),
+  .doc-body > :is(ul, ol):not([class]) {
+    margin-block: 0.75rem 1rem;
+    padding-inline-start: 1.45em;
+    list-style: disc outside;
+    overflow-wrap: anywhere;
+  }
+
+  .doc-body ol:not([class]) {
+    list-style-type: decimal;
+  }
+
+  .doc-body li > :is(ul, ol):not([class]) {
+    margin-block: 0.3em 0;
+  }
+
+  .doc-body li > ul:not([class]) {
+    list-style-type: circle;
+  }
+
+  .doc-body :is(ul, ol):not([class]) > li::marker {
+    color: var(--muted-foreground);
+  }
+
+  .doc-body blockquote:not([class]):not(.quote *) {
+    margin-block: 1.125rem;
+    padding-block: 0.125rem;
+    padding-inline: 1rem 0;
+    border-inline-start: 2px solid var(--border-strong);
+    color: var(--muted-foreground);
+
+    & > :first-child { margin-block-start: 0; }
+    & > :last-child { margin-block-end: 0; }
+  }
+
+  .doc-body :is(p, figure:not([class])) > :is(img, a > img) {
+    max-inline-size: 100%;
+    block-size: auto;
+    border-radius: var(--radius-card);
+  }
+
+  .doc-body figure:not([class]) {
+    margin-block: 1.125rem;
+  }
+
+  .doc-body :is(figure:not([class]) > figcaption, .figure-caption) {
+    margin-block-start: 0.5rem;
+    max-inline-size: 50ch;
+    color: var(--muted-foreground);
+    font-size: 0.875rem;
+    line-height: 1.5;
+    overflow-wrap: anywhere;
+  }
+
+  .doc-body :is(p, li, th, td, figcaption) > a:hover {
+    text-decoration-thickness: 0.12em;
+  }
+
+  .doc-body :is(p, li, th, td, figcaption) code:not(pre code) {
+    padding: 0.075em 0.32em;
+    border-radius: 0.25rem;
+    font-size: 0.86em;
+    box-decoration-break: clone;
+    -webkit-box-decoration-break: clone;
+  }
+
+  .doc-body a > code {
+    color: inherit;
+  }
+
   .doc-body li + li {
     margin-block-start: 0.35rem;
   }

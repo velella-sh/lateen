@@ -22,6 +22,7 @@ import readingTime from "../components/reading-time/index.ts";
 import relatedGuides from "../components/related-guides/index.ts";
 import versionNotice from "../components/version-notice/index.ts";
 import { codeBackgrounds } from "../src/brand.ts";
+import { articleHtml } from "../src/article-html.ts";
 
 /** True when the body already supplies the page's `h1`, so the layout never renders a second one. */
 function titleFromBody(props: LayoutProps): boolean {
@@ -60,7 +61,7 @@ function article(props: LayoutProps): ComponentChildren {
     readingTime({ props: {}, page, site: props.site, html: "" }) as ComponentChildren,
     tocFold(props) as ComponentChildren,
     guidePrerequisites({ props: {}, page, site: props.site, html: "" }) as ComponentChildren,
-    h("div", { class: "doc-body guide-body", dangerouslySetInnerHTML: { __html: highlightFences(page.html, backdrops, page.lang) } }),
+    h("div", { class: "doc-body guide-body", dangerouslySetInnerHTML: { __html: highlightFences(articleHtml(page.html), backdrops, page.lang) } }),
     editPage(props) as ComponentChildren,
     h("div", { class: "doc-actions" }, pageFooter(props) as ComponentChildren, copyMarkdown(props) as ComponentChildren),
     feedback(props) as ComponentChildren,
