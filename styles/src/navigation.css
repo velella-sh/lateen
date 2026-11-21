@@ -70,35 +70,82 @@
     @apply m-0 grid list-none gap-2 p-0;
   }
 
+  .article-tools {
+    @apply items-center gap-x-4 border-y py-2;
+  }
+
+  :is(.doc-tools, .article-tools details) {
+    position: relative;
+  }
+
+  :is(.doc-tools, .article-tools details) > summary {
+    @apply flex cursor-pointer items-center gap-1.5 rounded px-1 text-sm text-muted-foreground hover:text-foreground;
+    list-style: none;
+    border: 0;
+    background: none;
+  }
+
+  :is(.doc-tools, .article-tools details) > summary::-webkit-details-marker {
+    display: none;
+  }
+
+  :is(.doc-tools, .article-tools details) > summary svg {
+    @apply size-3.5 shrink-0;
+  }
+
+  :is(.article-tool-panel, .article-tools .page-agent-menu-panel) {
+    @apply absolute z-10 grid min-w-48 gap-2 rounded-lg border border-border bg-card p-3;
+    inset-block-end: calc(100% + 0.375rem);
+    inset-inline-start: 0;
+  }
+
+  .doc-tools .article-tool-panel {
+    inset-block: calc(100% + 0.375rem) auto;
+    inset-inline: auto 0;
+  }
+
+  .article-tool-panel .copy-markdown {
+    display: grid;
+  }
+
   .pager {
-    @apply grid grid-cols-2 gap-3;
+    @apply grid grid-cols-2 rounded-lg border border-border;
   }
 
   .pager-link {
-    @apply grid content-start gap-1 rounded-lg border p-3 no-underline;
-    border-color: var(--border);
+    @apply relative grid content-center gap-0.5 p-3 no-underline hover:bg-card;
     overflow-wrap: anywhere;
   }
 
-  .pager-link:hover {
-    background: var(--card);
+  .pager-prev {
+    padding-inline-start: 2.25rem;
   }
 
   .pager-next {
     grid-column: 2;
+    padding-inline-end: 2.25rem;
     text-align: end;
   }
 
-  .pager-label {
-    @apply flex flex-wrap items-center gap-x-1 gap-y-0.5 text-sm text-muted-foreground;
+  .pager-prev + .pager-next {
+    border-inline-start: 1px solid var(--border);
   }
 
-  .pager-next .pager-label {
-    justify-content: flex-end;
+  .pager-label {
+    @apply block text-xs text-muted-foreground;
   }
 
   .pager-arrow {
     @apply size-4 shrink-0;
+    position: absolute;
+    inset-block-start: 50%;
+    inset-inline-start: 0.875rem;
+    translate: 0 -50%;
+    color: var(--link);
+  }
+
+  .pager-next .pager-arrow {
+    inset-inline: auto 0.875rem;
   }
 
   .pager-title {
@@ -125,5 +172,22 @@
 
   .pager-next {
     grid-column: 1;
+  }
+
+  .pager-prev + .pager-next {
+    border-inline-start: 0;
+    border-block-start: 1px solid var(--border);
+  }
+
+  .article-tools :is(.article-tool-panel, .page-agent-menu-panel) {
+    position: static;
+    min-inline-size: 0;
+  }
+}
+
+@media print {
+  .doc-context,
+  .article-tools {
+    display: none;
   }
 }

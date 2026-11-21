@@ -1,4 +1,4 @@
-import { h } from "preact";
+import { h, type ComponentChildren } from "preact";
 import type { Chrome } from "@velella/mizzen/contracts";
 import { ChevronDown } from "lucide";
 import { t } from "../../i18n/index.ts";
@@ -23,7 +23,7 @@ function chevron() {
  * actions copy the same twin and announce the same loading, success, and failure. The provider list comes from
  * `theme.options.pageAgent.providers`.
  */
-const pageAgentMenu: Chrome = ({ site, page }) => {
+function pageAgentMenu({ site, page }: Parameters<Chrome>[0], editAction?: ComponentChildren) {
   if (page.kind !== "doc") return null;
   const markdown = twinUrl(page.url);
   if (markdown === undefined) return null;
@@ -38,11 +38,12 @@ const pageAgentMenu: Chrome = ({ site, page }) => {
 
   return h(
     "details",
-    { class: "page-agent-menu", "data-page-agent-menu": true },
+    { class: "page-agent-menu", "data-page-agent-menu": true, name: editAction === undefined ? undefined : "article-tools" },
     h("summary", { class: "page-agent-menu-summary" }, h("span", { class: "page-agent-menu-summary-text" }, t(lang, "page_agent_summary")), chevron()),
     h(
       "div",
       { class: "page-agent-menu-panel" },
+      editAction,
       h(
         "button",
         {
@@ -85,6 +86,6 @@ const pageAgentMenu: Chrome = ({ site, page }) => {
       h("p", { class: "page-agent-menu-status", role: "status", "data-page-agent-status": true }, ""),
     ),
   );
-};
+}
 
 export default pageAgentMenu;

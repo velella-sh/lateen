@@ -1,18 +1,19 @@
 import { Fragment, h } from "preact";
 import type { ComponentChildren } from "preact";
+import { ChevronDown } from "lucide";
+import { t } from "../i18n/index.ts";
+import { icon } from "../src/icon.ts";
 import type { Layout, LayoutProps } from "@velella/mizzen/contracts";
 import base from "./base.ts";
 import { staleSlot } from "../src/stale.ts";
 import blockActions from "../chrome/block-actions/index.ts";
 import breadcrumb from "../chrome/breadcrumb/index.ts";
-import copyMarkdown from "../chrome/copy-markdown/index.ts";
 import drawer from "../chrome/drawer/index.ts";
-import editPage from "../chrome/edit-page/index.ts";
 import feedback from "../chrome/feedback/index.ts";
 import shell, { footer as shellFooter } from "../chrome/shell/index.ts";
 import lastUpdated from "../chrome/last-updated/index.ts";
-import pageAgentMenu from "../chrome/page-agent-menu/index.ts";
-import pageFooter from "../chrome/page-footer/index.ts";
+import { docPageFooter } from "../chrome/page-footer/index.ts";
+import sourceMode from "../chrome/source-mode/index.ts";
 import pager from "../chrome/pager/index.ts";
 import sidebar from "../chrome/sidebar/index.ts";
 import toc, { tocFold } from "../chrome/toc/index.ts";
@@ -53,13 +54,20 @@ function statusProps(page: LayoutProps["page"]): PageStatusProps {
  */
 function article(props: LayoutProps): ComponentChildren {
   const { page } = props;
+  const quickstart = page.frontMatter.quickstart === true;
   const backdrops = codeBackgrounds(props.site.config.theme.options);
   const tool = typeof page.frontMatter.tool === "string" ? page.frontMatter.tool : undefined;
   const toolUrl = toolHref(props.site.config.base, tool);
   return h(
     "article",
     { class: "doc", "data-pagefind-body": true },
-    breadcrumb(props) as ComponentChildren,
+    h("div", { class: "doc-context" },
+      breadcrumb(props) as ComponentChildren,
+      h("details", { class: "doc-tools", "data-pagefind-ignore": true },
+        h("summary", null, t(page.lang, "article_page_tools"), icon({ node: ChevronDown })),
+        h("div", { class: "article-tool-panel" }, sourceMode(props) as ComponentChildren),
+      ),
+    ),
     driftBanner({ props: {}, page, site: props.site, html: "" }) as ComponentChildren,
     pageStatus({ props: statusProps(page), page, site: props.site, html: "" }) as ComponentChildren,
     versionNotice({ props: {}, page, site: props.site, html: "" }) as ComponentChildren,
@@ -67,7 +75,7 @@ function article(props: LayoutProps): ComponentChildren {
     typeof page.frontMatter.description === "string" && page.frontMatter.description.trim() !== ""
       ? h("p", { class: "doc-description dek" }, page.frontMatter.description)
       : null,
-    h(
+    quickstart ? null : h(
       "div",
       { class: "doc-meta" },
       trustPanel({ props: {}, page, site: props.site, html: "" }) as ComponentChildren,
@@ -76,7 +84,7 @@ function article(props: LayoutProps): ComponentChildren {
     ),
     staleSlot(props),
     tocFold(props) as ComponentChildren,
-    h("div", { class: "doc-body", dangerouslySetInnerHTML: { __html: highlightFences(page.html, backdrops, page.lang) } }),
+    h("div", { class: "doc-body", "data-quickstart": quickstart || undefined, dangerouslySetInnerHTML: { __html: highlightFences(page.html, backdrops, page.lang) } }),
     toolUrl === undefined
       ? null
       : (pageTool({
@@ -85,14 +93,7 @@ function article(props: LayoutProps): ComponentChildren {
           site: props.site,
           html: "",
         }) as ComponentChildren),
-    editPage(props) as ComponentChildren,
-    h(
-      "div",
-      { class: "doc-actions" },
-      pageFooter(props) as ComponentChildren,
-      copyMarkdown(props) as ComponentChildren,
-      pageAgentMenu(props) as ComponentChildren,
-    ),
+    docPageFooter(props) as ComponentChildren,
     feedback(props) as ComponentChildren,
     pager(props) as ComponentChildren,
   );
@@ -106,6 +107,7 @@ function article(props: LayoutProps): ComponentChildren {
 const doc: Layout = (props) =>
   base({
     ...props,
+    showSourceMode: false,
     header: h(
       Fragment,
       null,

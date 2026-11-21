@@ -61,8 +61,8 @@ const LINK_SELECTOR = ".toc a[href^='#'], .toc-fold a[href^='#']";
 const SCROLLER_SELECTOR = ".toc";
 const HEADER_SELECTOR = "[data-site-header]";
 const REDUCED = "(prefers-reduced-motion: reduce)";
-/* The band runs from below the sticky header to the top 30% of the viewport; a heading in it is in view. */
-const BAND_BOTTOM = "-70%";
+/* The band runs from below the sticky header to the top half of the viewport; a heading in it is in view. */
+const BAND_BOTTOM = "-50%";
 
 const globals = globalThis as unknown as {
   document?: TocDocument;

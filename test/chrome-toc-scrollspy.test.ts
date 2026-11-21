@@ -285,7 +285,7 @@ test("resolves a fast-scroll batch in document order, not entry order", () => {
 
 test("starts the band below the sticky header", () => {
   const { observer, heading, links } = spy(["pick", "gem"]);
-  assert.equal(observer.options?.rootMargin, `-${HEADER_HEIGHT}px 0px -70% 0px`);
+  assert.equal(observer.options?.rootMargin, `-${HEADER_HEIGHT}px 0px -50% 0px`);
 
   // A heading scrolled behind the sticky header is not in view, even though it is inside the viewport.
   observer.see(heading("pick"), HEADER_HEIGHT - 10, false);

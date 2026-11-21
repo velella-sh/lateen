@@ -141,14 +141,11 @@ test("every actual shipped theme colour survives every preset through adjustShik
   }
 });
 
-/** The code block the previous engine wrote for this input, byte for byte. */
-const NO_BRAND_CODE =
-  '<pre class="code" tabindex="0" data-lang="ts"><code><span class="line"><span style="--shiki-light:#4A6990;--shiki-dark:#9F8FC0">const</span><span style="--shiki-light:#886021;--shiki-dark:#E6C384"> answer</span><span style="--shiki-light:#4A6990;--shiki-dark:#9F8FC0"> =</span><span style="--shiki-light:#86597D;--shiki-dark:#FFA066"> 42</span><span style="--shiki-light:#4C566A;--shiki-dark:#C8C093">;</span></span></code></pre>';
-
-test("a page without a brand or preset renders code exactly as it did before", () => {
+test("unbranded snippets and accent-only brands use the same syntax theme", () => {
   const render = (site: unknown): string =>
     renderToString(code({ props: { lang: "ts" }, html: "const answer = 42;", page: {}, site } as never) as never);
-  assert.equal(render({}), NO_BRAND_CODE);
-  assert.equal(render({ config: { base: "", theme: { options: {} } } }), NO_BRAND_CODE);
-  assert.equal(render({ config: { base: "", theme: { options: { brand: { accent: "#ff0000", radius: "large" } } } } }), NO_BRAND_CODE);
+  const defaultCode = render({});
+  assert.match(defaultCode, /--shiki-light:#5B3F99;--shiki-dark:#D7BFF4/);
+  assert.equal(render({ config: { base: "", theme: { options: {} } } }), defaultCode);
+  assert.equal(render({ config: { base: "", theme: { options: { brand: { accent: "#ff0000", radius: "large" } } } } }), defaultCode);
 });

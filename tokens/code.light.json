@@ -2,23 +2,24 @@
   "name": "lateen-light",
   "type": "light",
   "colors": {
-    "editor.background": "#e5e9f0",
-    "editor.foreground": "#2e3440"
+    "editor.background": "#e7e7ed",
+    "editor.foreground": "#23212c"
   },
   "settings": [
     {
-      "settings": { "foreground": "#2e3440", "background": "#e5e9f0" }
+      "settings": { "foreground": "#23212c", "background": "#e7e7ed" }
     },
-    { "scope": "comment, punctuation.definition.comment", "settings": { "foreground": "#5f687c" } },
-    { "scope": "keyword, storage, storage.type, keyword.operator.new", "settings": { "foreground": "#4a6990" } },
-    { "scope": "string, string.regexp", "settings": { "foreground": "#566e42" } },
-    { "scope": "constant.numeric, constant.language, constant", "settings": { "foreground": "#86597d" } },
-    { "scope": "entity.name.function, support.function, meta.function-call", "settings": { "foreground": "#376f7b" } },
+    { "scope": "comment, punctuation.definition.comment", "settings": { "foreground": "#4a4658" } },
+    { "scope": "keyword, storage, storage.type, keyword.operator.new", "settings": { "foreground": "#5b3f99" } },
+    { "scope": "string, string.regexp", "settings": { "foreground": "#285f58" } },
+    { "scope": "constant.numeric, constant.language, constant", "settings": { "foreground": "#6c407a" } },
+    { "scope": "entity.name.function, support.function, meta.function-call, entity.name.command, support.function.builtin.shell", "settings": { "foreground": "#3f5f88" } },
     {
       "scope": "entity.name.tag, support.class.component, entity.name.type, entity.other.attribute-name",
-      "settings": { "foreground": "#406f6e" }
+      "settings": { "foreground": "#425489" }
     },
-    { "scope": "variable", "settings": { "foreground": "#886021" } },
-    { "scope": "punctuation, meta.brace", "settings": { "foreground": "#4c566a" } }
+    { "scope": "variable", "settings": { "foreground": "#4e536b" } },
+    { "scope": "constant.other.option, variable.parameter.option", "settings": { "foreground": "#5b3f99" } },
+    { "scope": "punctuation, meta.brace", "settings": { "foreground": "#4a4658" } }
   ]
 }

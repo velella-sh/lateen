@@ -33,7 +33,11 @@ test("the docs home identifies Lateen and links to onboarding, a preview, and do
 test("quickstart renders the shell blocks in project setup order and links to the local preview", () => {
   const article = site.document("/install/").querySelector(".doc-body")!;
   assert.match(article.textContent!, /Node\.js 24 or later/);
-  const blocks = all(article, "pre[data-lang='sh'] code").map((code) => code.textContent!.trim());
+  const steps = all(article, ".quickstart-step");
+  assert.deepEqual(steps.map((step) => step.querySelector("h2")?.textContent), [
+    "Install", "Configure the site", "Write the first page", "Preview the site",
+  ]);
+  const blocks = all(article, ".quickstart-step > pre[data-lang='sh'] code").map((code) => code.textContent!.trim());
   assert.equal(blocks.length, 4);
   assert.match(blocks[0]!, /^npm init -y\nnpm install --save-exact [\s\S]*@velella\/mizzen@0\.2\.\d+[\s\S]*@velella\/lateen@0\.2\.\d+$/);
   assert.match(blocks[1]!, /^cat > mizzen\.yml [\s\S]*name: "@velella\/lateen"/);

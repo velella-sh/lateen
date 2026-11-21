@@ -497,8 +497,7 @@
   }
 
   .site-footer {
-    margin-top: 1.75rem;
-    @apply border-t border-border pt-5 pb-3;
+    @apply border-t border-border bg-card py-4;
   }
 
   .footer-inner {

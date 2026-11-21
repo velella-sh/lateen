@@ -20,6 +20,7 @@ const EXPECTED = join(root, "fixtures", `${FIXTURE}-expected`);
 const INTENDED = [
   { selector: ".doc-description", reason: "Sailcloth displays the page's authored description under its title." },
   { selector: ".doc-actions", reason: "0.2.3 adds the page actions, copy-Markdown and agent menu to every doc layout." },
+  { selector: ".doc-tools", reason: "Documentation moves Source mode into a Page tools disclosure." },
   { selector: ".source-mode-switch", reason: "Source mode is new in 0.2.3." },
   { selector: ".ask-agent", reason: "The ask-your-agent panel is new in 0.2.3." },
   { selector: ".steps", reason: "Steps number each item and keep a progress state in 0.2.3." },
@@ -143,6 +144,8 @@ function normalize(text: string): { head: string; body: string } {
   for (const difference of INTENDED) {
     for (const element of [...document.querySelectorAll(difference.selector)]) element.remove();
   }
+  // The shared article header places the breadcrumb and page tools together.
+  for (const element of [...document.querySelectorAll(".doc-context")]) element.replaceWith(...element.childNodes);
   // The document metadata group changes only the wrapper, not the trust, freshness, or reading-time content.
   for (const element of [...document.querySelectorAll(".doc-meta")]) element.replaceWith(...element.childNodes);
   // The drawer header keeps the same close button and navigation links.

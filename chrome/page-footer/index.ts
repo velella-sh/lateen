@@ -1,8 +1,11 @@
-import { h } from "preact";
+import { h, type ComponentChildren } from "preact";
 import type { Chrome, Page, RepositoryConfig } from "@velella/mizzen/contracts";
-import { ArrowUp } from "lucide";
+import { ArrowUp, ChevronDown } from "lucide";
 import { t } from "../../i18n/index.ts";
 import { icon } from "../../src/icon.ts";
+import copyMarkdown from "../copy-markdown/index.ts";
+import editPage from "../edit-page/index.ts";
+import pageAgentMenu from "../page-agent-menu/index.ts";
 import { reportHref } from "../report-issue/index.ts";
 
 /*
@@ -38,7 +41,8 @@ function feedbackUrl(root: string, page: Page): string {
  * edit link and the last-updated line are separate chrome units, so the doc and tutorial layouts
  * place them once.
  */
-const pageFooter: Chrome = ({ site, page }) => {
+function renderPageFooter(props: Parameters<Chrome>[0], grouped: boolean) {
+  const { site, page } = props;
   const lang = page.lang;
   const repository = site.config.repository;
   const root = webRoot(repository);
@@ -56,30 +60,52 @@ const pageFooter: Chrome = ({ site, page }) => {
           ),
         ];
   const links = feedback.length > 0 && reportLink.length > 0 ? [...feedback, " · ", ...reportLink] : [...feedback, ...reportLink];
-  return h(
-    "div",
-    { class: "page-footer" },
-    h(
-      "button",
-      {
-        type: "button",
-        class: "page-footer-copy",
-        hidden: true,
-        "data-page-footer-copy": true,
-        "data-prompt": t(lang, "edit_prompt", { source: sourceOf(page), text: page.title }),
-        "data-copied": t(lang, "copied"),
-        "data-copy-failed": t(lang, "copy_failed"),
-      },
-      t(lang, "edit_label"),
-    ),
-    links.length === 0 ? null : h("p", { class: "page-footer-feedback" }, ...links),
-    h(
-      "a",
-      { class: "back-to-top", href: "#main" },
-      icon({ node: ArrowUp, class: "back-to-top-arrow" }),
-      t(lang, "back_to_top"),
-    ),
+  const agentAction = h(
+    "button",
+    {
+      type: "button",
+      class: "page-footer-copy",
+      hidden: true,
+      "data-page-footer-copy": true,
+      "data-prompt": t(lang, "edit_prompt", { source: sourceOf(page), text: page.title }),
+      "data-copied": t(lang, "copied"),
+      "data-copy-failed": t(lang, "copy_failed"),
+    },
+    t(lang, "edit_label"),
   );
-};
+  const back = h(
+    "a",
+    { class: "back-to-top", href: "#main" },
+    icon({ node: ArrowUp, class: "back-to-top-arrow" }),
+    t(lang, "back_to_top"),
+  );
+  if (!grouped) {
+    return h("div", { class: "page-footer" }, agentAction,
+      links.length === 0 ? null : h("p", { class: "page-footer-feedback" }, ...links),
+      back,
+    );
+  }
+  const markdown = copyMarkdown(props) as ComponentChildren;
+  const edit = editPage(props) as ComponentChildren;
+  return h("div", { class: "doc-actions article-tools" },
+    markdown == null ? null : disclosure(t(lang, "ask_agent_prompt_markdown"), markdown),
+    pageAgentMenu(props, agentAction) ?? agentAction,
+    edit == null && links.length === 0 ? null : disclosure(t(lang, "article_feedback"),
+      edit,
+      ...links.filter((link) => typeof link !== "string"),
+    ),
+    back,
+  );
+}
+
+function disclosure(label: string, ...children: ComponentChildren[]) {
+  return h("details", { name: "article-tools" },
+    h("summary", null, label, icon({ node: ChevronDown })),
+    h("div", { class: "article-tool-panel" }, ...children),
+  );
+}
+
+export const docPageFooter: Chrome = (props) => renderPageFooter(props, true);
+const pageFooter: Chrome = (props) => renderPageFooter(props, false);
 
 export default pageFooter;

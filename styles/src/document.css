@@ -9,6 +9,37 @@
     padding: 0.75rem 0 6rem;
   }
 
+  .doc-layout:has(.doc-context) {
+    padding-block-end: 2rem;
+  }
+
+  .doc-layout:has(.doc-context) > .aside {
+    position: sticky;
+    inset-block-start: 5.5rem;
+  }
+
+  .doc:has(> .doc-context) {
+    padding-block-end: 0;
+  }
+
+  .doc-context {
+    @apply flex items-center gap-2 text-sm;
+    min-block-size: 2rem;
+  }
+
+  .doc-tools {
+    margin-inline-start: auto;
+  }
+
+  :root:not([data-js]) .doc-tools {
+    display: none;
+  }
+
+  .doc-tools [data-source-mode] {
+    margin: 0;
+    justify-content: start;
+  }
+
   .sidebar-nav,
   .toc {
     position: sticky;
@@ -21,6 +52,10 @@
 
   .sidebar-nav {
     @apply grid content-start gap-3;
+  }
+
+  .toc > ul {
+    border-inline-start: 1px solid var(--border);
   }
 
   .toc h2 {
@@ -123,6 +158,16 @@
     color: var(--foreground);
     background: var(--state-hover-bg);
     font-weight: 600;
+  }
+
+  .toc a[aria-current="true"] {
+    color: var(--link);
+    background: none;
+  }
+
+  .doc-body[data-quickstart] > p:first-child {
+    padding-block-start: 1rem;
+    border-block-start: 1px solid var(--border);
   }
 
   :is(.toc, .toc-fold) li > ul {

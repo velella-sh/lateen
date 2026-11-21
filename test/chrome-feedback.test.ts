@@ -195,7 +195,7 @@ test("localized and versioned pages carry the exact language and declared versio
 
 test("the doc layout places the feedback under the page footer and before the pager", () => {
   const out = html(doc(layoutProps(configured())));
-  const footer = out.indexOf('class="page-footer"');
+  const footer = out.indexOf('class="doc-actions article-tools"');
   const widget = out.indexOf('class="feedback"');
   const pager = out.indexOf('class="pager"');
 

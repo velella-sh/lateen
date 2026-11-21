@@ -512,9 +512,11 @@ test("wrapping a block never changes the text a copy takes", async () => {
 });
 
 test("the wrap label comes from the page language", () => {
-  const template = (lang: string): string =>
-    renderToString(codeCopy({ page: { lang } } as unknown as ChromeProps) as never);
+  const template = (lang: string, quickstart = false): string =>
+    renderToString(codeCopy({ page: { lang, frontMatter: { quickstart } } } as unknown as ChromeProps) as never);
 
+  assert.match(template("en", true), /data-copy="Copy command"/);
+  assert.match(template("en"), /data-copy="Copy"/);
   assert.match(template("en"), /data-wrap="Wrap lines"/);
   assert.match(template("fa"), new RegExp(`data-wrap="${t("fa", "code_wrap")}"`));
   assert.match(template("ar"), new RegExp(`data-wrap="${t("ar", "code_wrap")}"`));
