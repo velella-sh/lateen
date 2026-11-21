@@ -46,7 +46,7 @@
     width: 28%;
   }
 
-  @media (max-width: 48rem) {
+  @media (max-width: 40rem) {
     .component-directory th:first-child {
       width: 37%;
     }
