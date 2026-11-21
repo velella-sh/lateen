@@ -1,5 +1,17 @@
 /* Site chrome: skip link, progress, header, brand, nav, drawer, search, footer shell. */
 @layer components {
+  @media screen {
+    body:has(> footer) {
+      display: flex;
+      flex-direction: column;
+      min-height: 100svh;
+    }
+
+    body > footer {
+      margin-block-start: auto;
+    }
+  }
+
   .skip-link {
     @apply fixed start-4 top-4 z-50 rounded-lg bg-primary px-4 py-2 text-primary-foreground no-underline;
     transform: translateY(-200%);
@@ -31,7 +43,6 @@
     position: sticky;
     top: 0;
     z-index: 40;
-    width: 100%;
     background: transparent;
     border: 0;
     transition: background-color 280ms cubic-bezier(0.22, 1, 0.36, 1);
@@ -488,23 +499,11 @@
     @apply gap-x-3 text-xs;
   }
 
-  .footer-inner .tools > span + span {
+  .legal + .legal {
     border-inline-start: 1px solid var(--border);
     padding-inline-start: 0.75rem;
   }
 
-  @media (max-width: 48rem) {
-    .footer-inner {
-      @apply grid;
-      inline-size: calc(100% - 2rem);
-    }
-  }
-
-  @media print {
-    .site-footer {
-      display: none !important;
-    }
-  }
   .search-panel {
     display: flex;
     flex-direction: column;
@@ -718,7 +717,6 @@
   /* Keep the compact navigation controls inside the narrow header. */
   @media (max-width: 48rem) {
     .site-header .header-inner {
-      inline-size: min(100% - 2rem, 72.5rem);
       gap: var(--space-2);
     }
 
@@ -750,7 +748,8 @@
   }
 
   @media print {
-    .site-header {
+    .site-header,
+    .site-footer {
       display: none !important;
     }
   }
