@@ -182,7 +182,7 @@
     color: GrayText !important;
   }
 
-  :where(.trust-panel-action, .drift-banner-actions a, .version-diff-previous, .version-diff-next) {
+  :where(.trust-panel-action, .version-diff-previous, .version-diff-next) {
     color: LinkText !important;
   }
 
@@ -239,7 +239,6 @@
   .sidebar-nav a[aria-current="true"],
   .sidebar-nav :is(h2, h3, h4, h5, h6)[aria-current="true"],
   .toc a[aria-current="true"],
-  .section-tab[aria-current="page"],
   [role="tab"][aria-selected="true"],
   .install-tabs-tab:has(.install-tabs-radio:checked) {
     background-color: Highlight !important;
@@ -252,7 +251,6 @@
     border-inline-start-color: HighlightText !important;
   }
 
-  .section-tab[aria-current="page"],
   [role="tab"][aria-selected="true"] {
     border-block-end-color: HighlightText !important;
   }
