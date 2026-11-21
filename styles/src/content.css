@@ -24,6 +24,25 @@
     letter-spacing: 0.06em;
   }
 
+  /* Native tables can arrive without a scroll wrapper. */
+  @media screen {
+    .doc-body > table,
+    .doc-body :is(.callout-body, .step-content, .tabs-body) > table {
+      display: block;
+      max-inline-size: 100%;
+      overflow-x: auto;
+      overscroll-behavior-inline: contain;
+    }
+  }
+
+  .doc-body > table thead th {
+    color: var(--foreground);
+    font-size: 0.8125rem;
+    letter-spacing: normal;
+    text-transform: none;
+    border-block-end-color: var(--border);
+  }
+
   .component-directory table {
     table-layout: fixed;
     line-height: 1.45;
@@ -69,6 +88,7 @@
      and it is decoration: no pointer target and nothing added to the accessibility tree. */
   .table-scroll {
     --table-overflow-ink: color-mix(in srgb, var(--foreground) 12%, transparent);
+    overscroll-behavior-inline: contain;
     background-image:
       var(--table-overflow-start, none),
       var(--table-overflow-end, none);
@@ -182,20 +202,18 @@
   }
 
   .callout {
-    @apply relative flex gap-3 rounded-xl;
-    margin: 1.125rem 0;
-    padding-block: 0.875rem;
-    padding-inline: 1.125rem 1rem;
+    @apply relative flex items-start rounded-xl;
+    --callout-color: var(--muted-foreground);
+    margin-block: 1.125rem;
+    gap: var(--space-3);
+    padding: var(--space-3) var(--space-4);
     background: color-mix(in srgb, var(--muted) 70%, var(--card));
-    box-shadow: inset 2px 0 0 color-mix(in srgb, var(--muted-foreground) 28%, transparent);
-    border: 0;
+    border-inline-start: 2px solid color-mix(in srgb, var(--callout-color) 42%, transparent);
   }
 
-  .callout-note { --callout-color: var(--muted-foreground); }
   .callout-tip {
-    /* Mist alone fails contrast on Foam; mix toward Night for the title/icon. */
+    /* Mist alone fails contrast on Foam; mix toward Night for the label and icon. */
     --callout-color: color-mix(in srgb, var(--mist) 42%, var(--night));
-    box-shadow: inset 2px 0 0 color-mix(in srgb, var(--mist) 55%, transparent);
   }
 
   [data-theme="dark"] .callout-tip {
@@ -203,82 +221,90 @@
   }
   .callout-important {
     --callout-color: var(--link);
-    box-shadow: inset 2px 0 0 color-mix(in srgb, var(--link) 55%, transparent);
   }
   .callout-warning,
   .callout-caution {
     --callout-color: var(--foreground);
-    box-shadow: inset 2px 0 0 color-mix(in srgb, var(--foreground) 35%, transparent);
   }
 
   .callout-icon {
-    @apply mt-0.5 size-5;
+    @apply size-5;
     color: var(--callout-color);
   }
 
-  .callout-kind {
+  .callout-content {
+    flex: 1;
+    min-inline-size: 0;
+    overflow-wrap: anywhere;
+  }
+
+  .callout-content > :is(.callout-kind, .callout-title) {
     margin: 0;
     color: var(--callout-color);
-    font-size: 0.75rem;
+    font-size: var(--text-sm);
     font-weight: 700;
-    letter-spacing: 0.04em;
-    line-height: 1.125rem;
-    text-transform: uppercase;
+    line-height: 1.25rem;
   }
 
-  .callout-title {
-    @apply m-0 mb-1 text-xs font-bold tracking-wide uppercase;
-    color: var(--callout-color);
-  }
-
-  /* An author's title sits under the kind eyebrow in sentence case, as in the mockup. */
-  .callout-content:has(.callout-kind) .callout-title {
-    margin-block: 0.25rem 0.15rem;
+  .callout-content > .callout-kind + .callout-title {
+    margin-block-start: 0.25rem;
     color: var(--foreground);
-    font-size: 0.9375rem;
-    font-weight: 700;
-    letter-spacing: 0;
-    line-height: 1.35;
-    text-transform: none;
+    font-size: 1rem;
+    line-height: 1.4;
   }
 
   .callout-body {
-    color: var(--muted-foreground);
-    font-size: 0.90625rem;
-    line-height: 1.4375rem;
+    margin-block-start: var(--space-2);
+    font-size: 0.9375rem;
+    line-height: 1.55;
+  }
+
+  .callout-body > :first-child {
+    margin-block-start: 0;
   }
 
   .callout-body > :last-child {
     margin-block-end: 0;
   }
 
+  .tabs,
   .code-tabs {
     @apply my-6;
   }
 
-  .code-tabs-list {
+  .code-tabs-list,
+  .tabs > [role="tablist"] {
     @apply flex flex-wrap gap-1;
     margin-block-end: var(--space-2);
   }
 
   .install-tabs-tab,
-  .code-tabs-tab {
+  .code-tabs-tab,
+  .tabs > [role="tablist"] > [role="tab"] {
     @apply inline-flex items-center rounded-t-md px-3 py-2 text-sm leading-6 font-medium text-muted-foreground;
     border-block-end: 2px solid transparent;
     cursor: pointer;
+    overflow-wrap: anywhere;
   }
 
   .install-tabs-tab:hover,
-  .code-tabs-tab:hover {
+  .code-tabs-tab:hover,
+  .tabs > [role="tablist"] > [role="tab"]:hover {
     color: var(--foreground);
     background: var(--card);
   }
 
   .install-tabs-tab:has(.install-tabs-radio:checked),
-  .code-tabs-tab[aria-selected="true"] {
+  .code-tabs-tab[aria-selected="true"],
+  .tabs > [role="tablist"] > [aria-selected="true"] {
     border-block-end-color: var(--ring);
     background: var(--muted);
     color: var(--foreground);
+  }
+
+  .tabs > [role="tabpanel"] > .tabs-title {
+    margin-block: var(--space-3) var(--space-2);
+    font-size: 1rem;
   }
 
   .code-tabs-title {
@@ -338,8 +364,7 @@
     @apply flex items-center gap-2.5 text-sm;
   }
 
-  .steps-ui .num,
-  .step-number {
+  .steps-ui .num {
     @apply grid size-5 place-items-center rounded-full text-[0.7rem] font-bold not-italic;
     background: var(--primary);
     color: var(--primary-foreground);
@@ -347,35 +372,109 @@
     position: relative;
   }
 
-  /* The client's tick covers the number instead of widening its fixed 20px circle. */
+  .steps {
+    margin-block: var(--space-6);
+  }
+
+  .steps > .steps-progress {
+    margin-block: 0 var(--space-3);
+    color: var(--muted-foreground);
+    font-size: var(--text-sm);
+  }
+
+  .steps > ol {
+    display: grid;
+    grid-template-columns: max-content minmax(0, 1fr);
+    column-gap: var(--space-3);
+    row-gap: var(--space-4);
+    margin: 0;
+  }
+
+  .steps > ol > .step {
+    display: grid;
+    grid-template-columns: subgrid;
+    grid-column: 1 / -1;
+    align-items: start;
+    margin: 0;
+  }
+
+  .step-number {
+    @apply relative rounded-full text-xs font-bold;
+    justify-self: start;
+    min-block-size: 1.5rem;
+    padding: 0.125rem var(--space-2);
+    background: var(--muted);
+    color: var(--foreground);
+    line-height: 1.25rem;
+  }
+
+  .step-content {
+    overflow-wrap: anywhere;
+  }
+
+  .step-content > :first-child {
+    margin-block-start: 0;
+  }
+
+  .step-content > p:first-child {
+    font-weight: 600;
+  }
+
+  .step-content > :last-child {
+    margin-block-end: 0;
+  }
+
+  .step-number:has(.step-tick) {
+    padding-inline-end: var(--space-6);
+  }
+
+  .step-number:has(:focus-visible) {
+    outline: 3px solid var(--ring);
+    outline-offset: 2px;
+  }
+
   .step-tick {
     position: absolute;
     inset: 0;
-    display: grid;
-    place-items: center;
+    display: flex;
+    align-items: center;
+    justify-content: end;
+    padding-inline-end: var(--space-2);
     cursor: pointer;
+  }
+
+  .step-tick::after {
+    content: "";
+    inline-size: 0.625rem;
+    block-size: 0.625rem;
+    border: 1px solid;
+    border-radius: 2px;
+  }
+
+  .step-tick:has(:checked)::after {
+    block-size: 0.375rem;
+    border-width: 0 0 2px 2px;
+    border-radius: 0;
+    rotate: -45deg;
   }
 
   .step-tick input {
     position: absolute;
-    inline-size: 1px !important;
-    block-size: 1px !important;
-    min-inline-size: 0 !important;
-    min-block-size: 0 !important;
-    margin: 0 !important;
-    padding: 0;
-    border: 0;
+    inset: 0;
+    inline-size: 100%;
+    block-size: 100%;
+    cursor: inherit;
     opacity: 0;
   }
 
   /* A step ending in a nested list of links offers each one as a next path. */
-  .steps > ol > li > ul {
+  .step-content > ul {
     @apply grid gap-2 m-0 p-0 list-none;
-    grid-template-columns: repeat(auto-fit, minmax(10rem, 1fr));
+    grid-template-columns: repeat(auto-fit, minmax(min(100%, 10rem), 1fr));
     margin-block-start: 0.75rem;
   }
 
-  .steps > ol > li > ul > li > a {
+  .step-content > ul > li > a {
     @apply block rounded-lg px-3 py-2 text-sm font-semibold;
     text-decoration: none;
     background: color-mix(in srgb, var(--background) 70%, transparent);

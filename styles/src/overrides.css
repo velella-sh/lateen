@@ -427,7 +427,6 @@ a.home-btn-primary,
   background: var(--sail);
 }
 
-.tabs [role="tab"][aria-selected="true"],
 .os-tabs-tab[aria-selected="true"],
 .install-tabs [role="tab"][aria-selected="true"] {
   color: var(--foreground);

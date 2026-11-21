@@ -109,15 +109,14 @@ test("document tables, reference rows, code panels, and callouts stay quiet and 
 
   const rows = bodyOf(ui, /^\.item,\s*\.list a$/);
   assert.match(rows, /grid-template-columns:\s*minmax\(7\.5rem, 0\.4fr\) minmax\(0, 1fr\)/);
-  assert.match(bodyOf(ui, /^\.code-block$/), /rounded-xl/);
+  assert.match(bodyOf(ui, /^\.code-frame:has\(> \.code-copy-bar\)$/), /rounded-lg/);
 
   const callout = bodyOf(ui, /^\.callout$/);
-  assert.match(callout, /margin:\s*1\.125rem 0/);
-  assert.match(callout, /padding-block:\s*0\.875rem/);
-  assert.match(callout, /padding-inline:\s*1\.125rem 1rem/);
+  assert.match(callout, /padding:\s*var\(--space-3\) var\(--space-4\)/);
+  assert.match(callout, /border-inline-start:/);
   const calloutBody = bodyOf(ui, /^\.callout-body$/);
-  assert.match(calloutBody, /font-size:\s*0\.90625rem/);
-  assert.match(calloutBody, /line-height:\s*1\.4375rem/);
+  assert.match(calloutBody, /font-size:\s*0\.9375rem/);
+  assert.match(calloutBody, /line-height:\s*1\.55/);
 });
 
 test("the color and length helpers still catch raw values", () => {

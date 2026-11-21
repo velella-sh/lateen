@@ -13,29 +13,33 @@ try {
 const skip = browser === undefined ? "Chromium is not installed (npx playwright install chromium)" : false;
 after(async () => browser?.close());
 
-test("an article stays inside 320px and scrolls code and tables in place", { skip }, async () => {
+test("wide code and tables scroll inside the article on mobile and desktop", { skip }, async () => {
   const site = build("integration");
   const server = await serve(site.out);
   const context = await (browser as Browser).newContext({ viewport: { width: 320, height: 800 } });
   try {
     const page = await context.newPage();
     await page.goto(`${server.url}/reflow/`, { waitUntil: "networkidle" });
-    const widths = await page.evaluate(() => ({
-      html: document.documentElement.scrollWidth,
-      body: document.body.scrollWidth,
-    }));
-    assert.ok(widths.html <= 320, `documentElement.scrollWidth is ${widths.html}`);
-    assert.ok(widths.body <= 320, `body.scrollWidth is ${widths.body}`);
-    const overflow = await page.evaluate(() => {
-      const code = document.querySelector(".code");
-      const table = document.querySelector(".doc-body > table") ?? document.querySelector("table");
-      return {
-        code: code === null ? null : getComputedStyle(code).overflowX,
-        table: table === null ? null : getComputedStyle(table).overflowX,
-      };
-    });
-    assert.equal(overflow.code, "auto", "the code block scrolls inside itself");
-    assert.equal(overflow.table, "auto", "the table scrolls inside itself");
+    for (const width of [320, 1280]) {
+      await page.setViewportSize({ width, height: 800 });
+      const widths = await page.evaluate(() => ({
+        article: document.querySelector(".doc-body")!.getBoundingClientRect().width,
+        html: document.documentElement.scrollWidth,
+        body: document.body.scrollWidth,
+      }));
+      assert.ok(widths.html <= width, `documentElement.scrollWidth is ${widths.html} at ${width}px`);
+      assert.ok(widths.body <= width, `body.scrollWidth is ${widths.body} at ${width}px`);
+      for (const selector of [".doc-body > .code-frame > .code", ".doc-body > table"]) {
+        const scroll = await page.locator(selector).evaluate((element) => ({
+          content: element.scrollWidth,
+          viewport: element.clientWidth,
+          overflow: getComputedStyle(element).overflowX,
+        }));
+        assert.equal(scroll.overflow, "auto", selector);
+        assert.ok(scroll.content > scroll.viewport, `${selector} scrolls at ${width}px`);
+        assert.ok(scroll.viewport <= widths.article, `${selector} fits in the article at ${width}px`);
+      }
+    }
   } finally {
     await context.close();
   }

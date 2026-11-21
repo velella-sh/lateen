@@ -36,7 +36,7 @@ test("wraps the list in .steps and numbers three steps as text with title anchor
 
 test("nested content stays inside its step and nested lists are not numbered", () => {
   const html = render(ORDERED_LIST).props.dangerouslySetInnerHTML.__html;
-  assert.ok(html.includes("<pre><code>run</code></pre><ol><li>nested</li></ol>"));
+  assert.ok(html.includes('<div class="step-content"><p>Configure.</p><pre><code>run</code></pre><ol><li>nested</li></ol></div>'));
   assert.deepEqual(stepsOf(ORDERED_LIST), [
     { number: 1, id: "step-install", title: "Install." },
     { number: 2, id: "step-configure", title: "Configure." },
