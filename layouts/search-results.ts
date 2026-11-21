@@ -307,7 +307,10 @@ if (status && list && query.trim() !== "") {
   status.textContent = messages.loading;
   if (more) more.hidden = true;
   import(base.replace(/\\/$/, "") + "/pagefind/pagefind.js")
-    .then((api) => api.search(query))
+    .then(async (api) => {
+      await api.options({ baseUrl: "/" });
+      return api.search(query);
+    })
     .then((page) => {
       hits = page.results;
       return Promise.all(nextBatch(hits, 0, ${RESULT_LIMIT}).map((hit) => hit.data()));

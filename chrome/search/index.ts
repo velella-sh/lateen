@@ -1,7 +1,9 @@
 import { h } from "preact";
 import type { ComponentChildren } from "preact";
 import type { Chrome } from "@velella/mizzen/contracts";
+import { Search, X } from "lucide";
 import { patternOf, t } from "../../i18n/index.ts";
+import { icon } from "../../src/icon.ts";
 import { withBase } from "../../src/url.ts";
 import askAgent from "../ask-agent/index.ts";
 import commandPalette from "../command-palette/index.ts";
@@ -68,7 +70,8 @@ const search: Chrome = (props) =>
       h(
         "div",
         { class: "search-field", role: "search" },
-        h("label", { class: "search-label", for: SEARCH_INPUT_ID }, t(props.page.lang, "search")),
+        h("label", { class: "search-label sr-only", for: SEARCH_INPUT_ID }, t(props.page.lang, "search")),
+        icon({ node: Search }),
         h("input", {
           class: "search-input",
           id: SEARCH_INPUT_ID,
@@ -91,7 +94,7 @@ const search: Chrome = (props) =>
           "button",
           {
             type: "button",
-            class: "search-clear",
+            class: "search-clear iconbtn",
             "aria-label": t(props.page.lang, "search_clear"),
             "data-search-clear": "",
             hidden: true,
@@ -103,11 +106,11 @@ const search: Chrome = (props) =>
           "button",
           {
             type: "button",
-            class: "search-close",
+            class: "search-close iconbtn",
             "aria-label": t(props.page.lang, "search_close"),
             "data-search-close": "",
           },
-          h("span", { "aria-hidden": "true" }, "×"),
+          icon({ node: X }),
         ),
       ),
       h("p", { class: "search-status", role: "status", "data-search-status": "" }, ""),

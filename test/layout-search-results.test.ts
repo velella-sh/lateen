@@ -255,6 +255,7 @@ test("the module loads the Pagefind index from the site base, at the root and un
 
   const under = scriptOf(out({ base: "/docs" }, { url: "/docs/search/" }));
   assert.match(under, /const base = "\/docs";/);
+  assert.match(under, /await api\.options\(\{ baseUrl: "\/" \}\);\s*return api\.search\(query\);/);
 });
 
 test("the module prints the count and renders links with Pagefind excerpts", () => {

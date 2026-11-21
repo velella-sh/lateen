@@ -13,8 +13,10 @@ import {
   deployedBase,
   deployedRoute,
   isCommit,
+  isTemporaryPagefindResponse,
   requestFailure,
   responseFailure,
+  retryDeployedVisit,
   waitForCommit,
   withinBase,
   type DeployedResult,
@@ -148,6 +150,43 @@ test("a response of 400 or more fails, except the document that is meant to be 4
   assert.equal(responseFailure("https://example.com/lateen/missing/", 404, BASE, 404, false), "HTTP 404 https://example.com/lateen/missing/");
   assert.equal(responseFailure("https://example.com/lateen/x.js", 500, BASE), "HTTP 500 https://example.com/lateen/x.js");
   assert.equal(responseFailure("https://cdn.example/x.js", 500, BASE), undefined);
+});
+
+test("only transient responses from the deployed Pagefind folder earn a retry", () => {
+  const metadata = `${BASE}pagefind/pagefind.en_hash.pf_meta`;
+  for (const status of [502, 503, 504]) assert.equal(isTemporaryPagefindResponse(metadata, status, BASE), true);
+  assert.equal(isTemporaryPagefindResponse(metadata, 404, BASE), false);
+  assert.equal(isTemporaryPagefindResponse(`${BASE}search/`, 503, BASE), false);
+  assert.equal(isTemporaryPagefindResponse("https://cdn.example/pagefind/index.js", 503, BASE), false);
+});
+
+test("a transient Pagefind failure gets one fresh visit and a persistent failure still fails", async () => {
+  const item = DEPLOYED_CASES.find((entry) => entry.name === "search")!;
+  const response = "HTTP 503 for Pagefind metadata";
+  const failed = {
+    name: item.name,
+    path: item.path,
+    viewport: "desktop",
+    scheme: "light",
+    status: 200,
+    ok: false,
+    error: response,
+    temporaryPagefindFailure: response,
+  } as const;
+  const passed = { ...failed, ok: true, error: undefined, temporaryPagefindFailure: undefined };
+  for (const second of [passed, failed]) {
+    let calls = 0;
+    const result = await retryDeployedVisit(async () => ++calls === 1 ? failed : second, async () => {});
+    assert.equal(result, second);
+    assert.equal(calls, 2);
+  }
+  let calls = 0;
+  const badLink = { ...failed, error: "HTTP 404", temporaryPagefindFailure: undefined };
+  assert.equal(await retryDeployedVisit(async () => {
+    calls += 1;
+    return badLink;
+  }, async () => {}), badLink);
+  assert.equal(calls, 1);
 });
 
 test("the report holds every visit, keeps the first failure, and passes its schema", () => {

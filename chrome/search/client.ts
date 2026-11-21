@@ -164,6 +164,7 @@ export interface PaletteHandlers {
 export interface SearchEvent {
   readonly key?: string | undefined;
   readonly shiftKey?: boolean | undefined;
+  readonly isComposing?: boolean | undefined;
   readonly target?: unknown;
   preventDefault(): void;
 }
@@ -380,7 +381,7 @@ export function activate(parts: SearchParts, env: SearchEnv): () => void {
    * key, a pointer, and a redraw all arrive here, so what a reader sees and what assistive tech reads
    * are the same row: one selection, one id reference.
    */
-  const markActive = (index: number): void => {
+  const markActive = (index: number, scroll = true): void => {
     if (!live) return;
     const current = options[active];
     const next = options[index];
@@ -394,13 +395,13 @@ export function activate(parts: SearchParts, env: SearchEnv): () => void {
     active = index;
     next.element.setAttribute("aria-selected", "true");
     input.setAttribute("aria-activedescendant", next.id);
-    next.element.scrollIntoView?.({ block: "nearest" });
+    if (scroll) next.element.scrollIntoView?.({ block: "nearest" });
   };
 
   /** Draws the page results and the matched actions, then puts the active option back where it was. */
-  const draw = (records: readonly SearchRecord[], matched: readonly PaletteAction[]): void => {
+  const draw = (records: readonly SearchRecord[], matched: readonly PaletteAction[], previousKey?: string): void => {
     if (!live) return;
-    const key = options[active]?.key;
+    const key = options[active]?.key ?? previousKey;
     lastRecords = records;
     const question = input.value.trim();
     const askHandler = env.ask;
@@ -459,17 +460,19 @@ export function activate(parts: SearchParts, env: SearchEnv): () => void {
     const query = input.value.trim();
     const matched = filterActions(actions, query);
     const current = ++sequence;
+    const previousKey = options[active]?.key;
+    // Replace stale page results immediately. Enter can only choose a row for this query.
+    draw([], matched);
     if (query === "") {
-      draw([], matched);
       status.textContent = "";
       return;
     }
     const api = index.api;
     if (api === undefined) {
-      draw([], matched);
+      if (index.loading) status.textContent = messages.loading;
       return;
     }
-    status.textContent = matched.length === 0 ? messages.searching : "";
+    status.textContent = messages.searching;
     api
       .search(query)
       .then((page) => {
@@ -480,7 +483,7 @@ export function activate(parts: SearchParts, env: SearchEnv): () => void {
       .then(
         (records) => {
           if (!live || current !== sequence) return;
-          draw(records, matched);
+          draw(records, matched, previousKey);
           status.textContent =
             records.length === 0
               ? matched.length === 0
@@ -536,11 +539,7 @@ export function activate(parts: SearchParts, env: SearchEnv): () => void {
     input.focus();
     // A fresh open starts at the field, not on the row the last query left selected.
     markActive(-1);
-    if (input.value.trim() === "") run();
-    if (index.api !== undefined || index.loading) {
-      if (input.value.trim() !== "") run();
-      return;
-    }
+    run();
     begin(false);
   };
 
@@ -569,7 +568,7 @@ export function activate(parts: SearchParts, env: SearchEnv): () => void {
     if (row === null || row === hoveredRow) return;
     hoveredRow = row;
     const index = Number(row.getAttribute("data-search-row"));
-    if (!Number.isNaN(index)) markActive(index);
+    if (!Number.isNaN(index)) markActive(index, false);
   });
   // One click listener for the whole list: an action or ask row runs from the row's own model entry,
   // so a click and Enter share one activation and no control registers a listener per row.
@@ -584,6 +583,7 @@ export function activate(parts: SearchParts, env: SearchEnv): () => void {
     if (event.target === dialog) dialog.close();
   });
   attach(dialog, "close", () => {
+    if (dialog.open) return;
     ++sequence;
     button.setAttribute("aria-expanded", "false");
     input.setAttribute("aria-expanded", "false");
@@ -593,6 +593,7 @@ export function activate(parts: SearchParts, env: SearchEnv): () => void {
     returnFocus = true;
   });
   attach(dialog, "keydown", (event) => {
+    if (event.isComposing) return;
     if (event.key === "Escape") {
       event.preventDefault();
       dialog.close();
@@ -759,10 +760,9 @@ if (typeof document !== "undefined") {
         input: input as SearchInput,
         results: results as SearchResults,
         status: status as SearchStatus,
-        ...(clear === null || clear === undefined ? {} : { clear: clear as NonNullable<SearchParts["clear"]> }),
-        ...(retry === null || retry === undefined ? {} : { retry: retry as NonNullable<SearchParts["retry"]> }),
-        ...(all === null || all === undefined ? {} : { all: all as NonNullable<SearchParts["all"]> }),
-        ...(palette === null ? {} : { palette }),
+        clear: (clear ?? undefined) as SearchParts["clear"],
+        retry: (retry ?? undefined) as SearchParts["retry"],
+        all: (all ?? undefined) as SearchParts["all"],
       },
       {
         document,
@@ -771,7 +771,7 @@ if (typeof document !== "undefined") {
         lang: langFrom(source),
         messages,
         scope: new URLSearchParams(location.search).get("scope"),
-        ...(askAgent === undefined ? {} : { ask: askAgent.open }),
+        ask: askAgent?.open,
       },
     );
     if (askAgent !== undefined) {
