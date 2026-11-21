@@ -158,6 +158,15 @@ test("the mockup component specimens and page body follow the section cards", ()
   for (const heading of ["Status", "Steps", "Kbd", "Endpoint"]) assert.match(page, new RegExp(`<h3>${heading}</h3>`));
 });
 
+test("home.specimens false omits the example strip between the section cards and the body", () => {
+  const page = out(
+    { home: { specimens: false }, sections: [{ title: "Guides" }] },
+    "<p>More about the project.</p>",
+  );
+  assert.match(page, /home-sections[\s\S]*<p>More about the project.<\/p>/);
+  assert.doesNotMatch(page, /class="home-bits"/);
+});
+
 test("front matter that does not match the shape is dropped without throwing", () => {
   const page = out({ hero: "nope", actions: 42, sections: ["x", 7, null] });
   assert.match(page, /<h1 id="home-title" class="home-title display">Home<\/h1>/);

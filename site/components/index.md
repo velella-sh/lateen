@@ -1,6 +1,6 @@
 ---
 title: Components
-description: Every component the Lateen theme provides, with its syntax, options, and a live example.
+description: Markdown syntax, options, and live examples for every Lateen component.
 layout: doc
 permalink: /components/
 redirect_from:
@@ -21,37 +21,13 @@ redirect_from:
   - /blocks/timeline/
 ---
 
-Components are the pieces pages use inside their content: a callout, a code tab, an endpoint, a file tree. Each page below shows the Markdown you write, every option it reads, and a live example.
-
-The engine turns a directive into the component whose folder has the same name under `components/`. A container directive (`:::name` … `:::`) wraps a Markdown body; a leaf directive (`::name`) stands alone on its own line. Directive attributes are the component's options: `:::callout{type=warning}`.
-
-Source mode, the `file:line` view of every block, is described on [Source mode](/source-mode/); its switch is part of every page, not a directive.
-
-The theme's own look is set with the [Brand options](/brand-options/); the shipped starting points are on [Presets](/presets/).
-
-## Code tabs
-
-Run the docs locally with your preferred package manager:
-
-:::code-tabs{labels='["npm","pnpm","yarn"]'}
-```bash
-npx mizzen dev .
-```
-
-```bash
-pnpm exec mizzen dev .
-```
-
-```bash
-yarn mizzen dev .
-```
-:::
-
 ## In the library
+
+<div class="component-directory">
 
 | Component | Use it for |
 | --- | --- |
-| [Add to calendar](./add-to-calendar/) | A download link for a record's `.ics` file and a subscribe link for its calendar. |
+| [Add to calendar](./add-to-calendar/) | Download a record's `.ics` file or subscribe to its calendar. |
 | [Badge](./badge/) | A short status label, such as a version or a beta marker. |
 | [Callout](./callout/) | A note, tip, important point, warning, or caution. |
 | [Cards](./cards/) | A responsive grid of linked cards, used by the home layout. |
@@ -61,8 +37,8 @@ yarn mizzen dev .
 | [CLI demo](./cli-demo/) | A terminal session and an install command as fixed, copyable text. |
 | [Code](./code/) | Code highlighted at build time, with a copy button when JavaScript runs. |
 | [Code tabs](./code-tabs/) | The same example in several languages or package managers, as tabs. |
-| [Data explorer](./data-explorer/) | Search, filter, and sort a collection in the browser, with a search page fallback. |
 | [Compare](./compare/) | Records side by side, with the differing rows marked. |
+| [Data explorer](./data-explorer/) | Search, filter, and sort a collection in the browser, with a search page fallback. |
 | [Dated list](./dated-list/) | Records grouped by month in the page language's calendar. |
 | [Details](./details/) | A native disclosure that the reader can open and close. |
 | [Diff block](./diff-block/) | Added, removed, and context lines, with a copy of the new file. |
@@ -80,9 +56,9 @@ yarn mizzen dev .
 | [Key-value list](./key-value/) | Properties, options, or metadata as a two-column list of keys and values. |
 | [Link card](./link-card/) | One link that reads as a card, for next steps and related pages. |
 | [Mermaid](./mermaid/) | A Mermaid diagram rendered to inline SVG at build time, with its source kept. |
+| [Network chrome](./network/) | A project switcher, a network footer, and a scope choice for a site in a network. |
 | [OS tabs](./os-tabs/) | Install instructions grouped by operating system, defaulting to the reader's system. |
 | [Output block](./output-block/) | The result of a command, apart from the command above it. |
-| [Network chrome](./network/) | A project switcher, a network footer, and a scope choice for a site in a network. |
 | [Page status](./page-status/) | An experimental, beta, or deprecated banner from front matter. |
 | [Preset preview](./preset-preview/) | One preset of the theme in its own scoped block, with the options to copy. |
 | [Reading time](./reading-time/) | A chip under the title with the page's reading time and word count. |
@@ -106,3 +82,29 @@ yarn mizzen dev .
 | [Version badge](./version-badge/) | A version badge that says when a feature was added, changed, or removed. |
 | [Version diff](./version-diff/) | A section-by-section comparison of two versions, with a text label for every change. |
 | [Video](./video/) | A click-to-load video with a poster and a link that works without JavaScript. |
+
+</div>
+
+## Using directives
+
+A container directive (`:::name` … `:::`) wraps a Markdown body. A leaf directive (`::name`) stands alone on its own line. Set component options as attributes, for example `:::callout{type=warning}`. Mizzen resolves the directive name to the matching folder under `components/`.
+
+Use [Source mode](/source-mode/) to see the file and line for each block. Customize the theme with [Brand options](/brand-options/) or start with one of the [Presets](/presets/).
+
+## Code tabs
+
+Run the docs locally with your preferred package manager.
+
+:::code-tabs{labels='["npm","pnpm","yarn"]'}
+```bash
+npx mizzen dev .
+```
+
+```bash
+pnpm exec mizzen dev .
+```
+
+```bash
+yarn mizzen dev .
+```
+:::

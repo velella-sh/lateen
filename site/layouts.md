@@ -14,7 +14,7 @@ A page picks a layout with `layout` in its front matter, or gets one from `defau
 | Layout | What it renders |
 | --- | --- |
 | `doc` | The docs page: header, sidebar, breadcrumb, article, table of contents, pager, and page footer. Front matter `status`, `since`, and `replaced_by` add the page-status banner. |
-| `home` | The docs home: a hero, action buttons, and section cards from `hero`, `actions`, and `sections` in front matter. |
+| `home` | The docs home: a hero, action buttons, and section cards from `hero`, `actions`, and `sections` in front matter. Set `home.specimens: false` to omit the example component strip. |
 | `guide` | The task page: the docs shell with a summary bar from `guide.from`, `guide.to`, `guide.time`, and `guide.risk`, reading time, and related guides. [Guide layout](/components/guide/) is a live example. |
 | `base` | The document shell: `<head>`, skip link, theme script, and slots for the header, sidebar, main column, aside, and footer. The other layouts build on it; a page does not name it. |
 
