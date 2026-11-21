@@ -180,6 +180,14 @@
     cursor: pointer;
   }
 
+  .site-header .search-trigger svg {
+    flex: none;
+  }
+
+  .site-header .search-trigger span {
+    @apply truncate;
+  }
+
   .site-header .search-trigger:is(:hover, :focus-visible) {
     background: var(--muted);
     color: var(--foreground);
@@ -718,9 +726,11 @@
       inline-size: 2.125rem;
       padding: 0;
       justify-content: center;
-      font-size: 0;
     }
 
+    .site-header .search-trigger span {
+      @apply sr-only;
+    }
   }
 
   @media (width < 768px) {

@@ -120,7 +120,7 @@ const shell = (props: Parameters<Chrome>[0] & SourceModeVisibility) => {
               "data-search-open": true,
             },
             icon({ node: Search }),
-            t(page.lang, "search_placeholder"),
+            h("span", null, t(page.lang, "search_placeholder")),
           ),
           languageSwitcher(props) as ComponentChildren,
           themeToggle(props) as ComponentChildren,
