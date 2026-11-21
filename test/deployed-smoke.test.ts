@@ -15,6 +15,7 @@ import {
   isCommit,
   requestFailure,
   responseFailure,
+  waitForCommit,
   withinBase,
   type DeployedResult,
 } from "../scripts/smoke-deployed.ts";
@@ -52,6 +53,47 @@ test("the commit comes from the flag or CI and is always 7-40 lowercase hex", ()
   assert.throws(() => commitFrom([], {}), /--commit/);
   assert.throws(() => commitFrom(["--commit"]), /needs a sha/);
   assert.throws(() => commitFrom(["--commit", "ABC1234"]), /lowercase hex/);
+});
+
+test("the gate waits until the deployed stamp names its commit", async () => {
+  const reads: string[] = [];
+  const waits: number[] = [];
+  const stamps = ["previous", "previous", "abc1234"];
+
+  await waitForCommit(
+    BASE,
+    "abc1234",
+    async (url) => {
+      reads.push(url);
+      return stamps.shift() ?? "";
+    },
+    async (ms) => {
+      waits.push(ms);
+    },
+  );
+
+  assert.equal(reads.length, 3);
+  assert.equal(reads[0], `${BASE}deploy-commit.txt`);
+  assert.deepEqual(waits, [2000, 2000]);
+});
+
+test("the gate fails when the edge never serves its commit, and keeps polling through errors", async () => {
+  await assert.rejects(
+    waitForCommit(BASE, "abc1234", async () => "previous", async () => {}, 0),
+    /did not serve commit abc1234/,
+  );
+  let reads = 0;
+  await waitForCommit(
+    BASE,
+    "abc1234",
+    async () => {
+      reads += 1;
+      if (reads === 1) throw new Error("not deployed yet");
+      return "abc1234\n";
+    },
+    async () => {},
+  );
+  assert.equal(reads, 2, "a failed read is retried");
 });
 
 test("six public routes are visited, and only the missing page expects a 404", () => {

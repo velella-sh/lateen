@@ -51,6 +51,8 @@ jobs:
         run: lateen/node_modules/.bin/mizzen build lateen/site --theme lateen --out "$RUNNER_TEMP/site"
       - name: Build the starter demos
         run: node lateen/scripts/build-starter-demos.ts --out "$RUNNER_TEMP/site" --base /lateen
+      - name: Stamp the deployed commit
+        run: echo "$GITHUB_SHA" > "$RUNNER_TEMP/site/deploy-commit.txt"
       - name: Check the site
         run: lateen/node_modules/.bin/mizzen check lateen/site --theme lateen
       - uses: actions/configure-pages@45bfe0192ca1faeb007ade9deae92b16b8254a0d # v6.0.0

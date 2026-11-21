@@ -5,7 +5,8 @@
 // copy control. The JSON report records the deployed commit and is uploaded by the deploy workflow.
 //
 // Usage: node scripts/smoke-deployed.ts --base https://velella.sh/lateen/ --commit "$GITHUB_SHA"
-// Setup: npx playwright install chromium
+// Setup: npx playwright install chromium; the deploy writes deploy-commit.txt at the site root so
+// this gate waits for its own commit at the edge before it audits anything.
 import { chromium, type Browser, type Page } from "playwright";
 import { join } from "node:path";
 import { fileURLToPath } from "node:url";
@@ -77,6 +78,40 @@ export function commitFrom(
   if (commit === undefined) throw new Error("--commit <sha> is required (or set GITHUB_SHA or LATEN_COMMIT)");
   if (!isCommit(commit)) throw new Error(`the commit must be 7-40 lowercase hex characters: ${JSON.stringify(commit)}`);
   return commit;
+}
+
+/** The stamp the deploy writes at the site root, so the gate waits for its own commit at the edge. */
+export const DEPLOYED_COMMIT_FILE = "deploy-commit.txt";
+
+/** How long the Pages edge may still serve the previous deployment after `deploy-pages` reports success. */
+export const DEPLOY_WAIT_MS = 180_000;
+const DEPLOY_POLL_MS = 2_000;
+
+/**
+ * Waits until the public site reports this commit. `deploy-pages` resolves before the edge serves the
+ * new files, so without this wait the smoke test can audit the previous deployment and fail on a
+ * difference that no longer exists.
+ */
+export async function waitForCommit(
+  base: string,
+  commit: string,
+  read: (url: string) => Promise<string> = async (url) => {
+    const response = await fetch(url);
+    return response.ok ? response.text() : "";
+  },
+  pause: (ms: number) => Promise<void> = (ms) => new Promise((resolve) => setTimeout(resolve, ms)),
+  waitMs = DEPLOY_WAIT_MS,
+): Promise<void> {
+  const url = new URL(DEPLOYED_COMMIT_FILE, base).toString();
+  const started = Date.now();
+  for (;;) {
+    const stamp = await read(url).catch(() => "");
+    if (stamp.trim() === commit) return;
+    if (Date.now() - started + DEPLOY_POLL_MS > waitMs) {
+      throw new Error(`the deployed site did not serve commit ${commit} within ${Math.round(waitMs / 1000)}s`);
+    }
+    await pause(DEPLOY_POLL_MS);
+  }
 }
 
 /** True for a URL on the base's origin. Unparseable and non-http URLs are never same-origin. */
@@ -337,6 +372,7 @@ async function main(): Promise<void> {
   const base = deployedBase(argv[baseIndex + 1]);
   const commit = commitFrom(argv);
   const file = reportPath(argv) ?? REPORT_FILE;
+  await waitForCommit(base, commit);
 
   let browser: Browser | undefined;
   const cases: DeployedResult[] = [];
