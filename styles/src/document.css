@@ -15,6 +15,7 @@
     top: 5.5rem;
     max-height: calc(100vh - 6.75rem);
     overflow: auto;
+    overscroll-behavior: contain;
     scrollbar-width: thin;
     font-size: 0.875rem;
   }
@@ -24,12 +25,11 @@
   }
 
   .toc h2 {
-    @apply m-0 mb-3 text-xs font-semibold uppercase text-muted-foreground;
-    letter-spacing: 0.08em;
+    @apply m-0 mb-2 text-sm font-semibold;
   }
 
   .sidebar-nav ul,
-  .toc ul {
+  :is(.toc, .toc-fold) ul {
     @apply m-0 grid list-none gap-0.5 p-0;
   }
 
@@ -37,8 +37,9 @@
     @apply block rounded-md px-3 py-1.5 text-muted-foreground no-underline;
   }
 
-  .sidebar-nav a:hover {
-    @apply bg-muted text-foreground;
+  :is(.sidebar-nav a, .sidebar-group > summary, .toc-fold > summary):hover {
+    background: var(--state-hover-bg);
+    color: var(--foreground);
   }
 
   .sidebar-nav a:is([aria-current="page"], [aria-current="true"]) {
@@ -58,20 +59,21 @@
     background: var(--link);
   }
 
-  .sidebar-group > summary {
-    @apply flex cursor-pointer items-center justify-between gap-2 rounded-md px-3 py-1.5 text-muted-foreground hover:bg-muted hover:text-foreground;
+  .sidebar-group > summary,
+  .toc-fold > summary {
+    @apply flex cursor-pointer items-center justify-between gap-2 rounded-md px-3 py-1.5 text-muted-foreground;
     list-style: none;
   }
 
-  .sidebar-group > summary::-webkit-details-marker {
+  :is(.sidebar-group, .toc-fold) > summary::-webkit-details-marker {
     display: none;
   }
 
   .sidebar-group > summary > :is(h2, h3, h4, h5, h6) {
-    @apply m-0 text-xs font-semibold text-inherit;
+    @apply m-0 text-sm font-semibold text-inherit;
   }
 
-  .sidebar-group > summary::after {
+  :is(.sidebar-group, .toc-fold) > summary::after {
     content: "";
     @apply size-2 shrink-0;
     border: solid currentColor;
@@ -79,45 +81,53 @@
     rotate: -45deg;
   }
 
-  .sidebar-group > summary:dir(rtl)::after {
+  :is(.sidebar-group, .toc-fold) > summary:dir(rtl)::after {
     rotate: 135deg;
   }
 
-  .sidebar-group[open] > summary::after,
-  .sidebar-group[open] > summary:dir(rtl)::after {
+  :is(.sidebar-group, .toc-fold)[open] > summary::after {
     rotate: 45deg;
   }
 
   .sidebar-group > ul {
-    margin-block-start: 0.25rem;
+    margin-block-start: var(--space-1);
+    margin-inline-start: var(--space-3);
+    padding-inline-start: var(--space-1);
+    border-inline-start: 1px solid var(--border);
   }
 
-  .sidebar-group .sidebar-group {
-    margin-inline-start: var(--space-2);
+  .sidebar-group[data-current] > summary {
+    color: var(--foreground);
   }
 
-  .sidebar-nav :is(a, summary):focus-visible {
+  :is(.sidebar-nav, .toc, .toc-fold) :is(a, summary):focus-visible {
     outline-offset: -3px;
   }
 
-  .toc a {
+  :is(.toc, .toc-fold) a {
     display: block;
-    padding: 0.25rem 0 0.25rem 0.75rem;
+    padding: 0.25rem 0.75rem;
     border-inline-start: 1.5px solid transparent;
     color: var(--muted-foreground);
     font-size: 0.8125rem;
     line-height: 1.25rem;
     text-decoration: none;
+    overflow-wrap: anywhere;
   }
 
-  .toc a:hover {
+  :is(.toc, .toc-fold) a:hover {
     color: var(--foreground);
   }
 
-  .toc a[aria-current="true"] {
+  :is(.toc, .toc-fold) a[aria-current="true"] {
     border-inline-start-color: var(--link);
     color: var(--link);
+    background: var(--muted);
     font-weight: 600;
+  }
+
+  :is(.toc, .toc-fold) li > ul {
+    padding-inline-start: var(--space-3);
   }
 
   .toc-fold {

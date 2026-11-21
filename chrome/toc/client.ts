@@ -101,7 +101,6 @@ export default function scrollspy(env: TocEnv = {}): () => void {
 
   const inBand = new Set<string>();
   let active: string | null = null;
-  let observed = false;
   let stopped = false;
 
   /** True unless a host or the reader asks for reduced motion; without matchMedia, no motion is assumed. */
@@ -146,28 +145,19 @@ export default function scrollspy(env: TocEnv = {}): () => void {
     }
     return byId.has(id) ? id : null;
   };
-  const initial = fragment();
-
-  /** The last heading in the band, independent of entry order; null clears the marker when none is in view. */
-  const current = (): string | null => {
-    let id: string | null = null;
-    for (const heading of headings) if (inBand.has(heading.id)) id = heading.id;
-    if (id !== null) return id;
-    return observed ? null : initial;
-  };
-
   const observer = new Observer((entries) => {
     if (stopped) return;
-    observed = true;
     for (const entry of entries) {
       if (entry.isIntersecting) inBand.add(entry.target.id);
       else inBand.delete(entry.target.id);
     }
-    mark(current());
+    const visible = headings.findLast((heading) => inBand.has(heading.id));
+    // During a long section, keep its heading active after it has scrolled past the header.
+    mark((visible ?? headings.findLast((heading) => heading.getBoundingClientRect().bottom <= headerHeight))?.id ?? null);
   }, { rootMargin: `-${headerHeight}px 0px ${BAND_BOTTOM} 0px` });
 
   for (const heading of headings) observer.observe(heading);
-  mark(current());
+  mark(fragment());
 
   return () => {
     stopped = true;

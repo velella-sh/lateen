@@ -95,6 +95,10 @@ const INTENDED = [
     reason: "0.2.3 puts the project, language, and version choices at the top of the mobile menu.",
   },
   {
+    selector: ".drawer-header > span, .drawer-close > :is(svg, span)",
+    reason: "The mobile menu shows its existing dialog name in the header and uses a Lucide icon for the close button.",
+  },
+  {
     selector: ".toc-fold",
     reason: "0.2.3 exposes the local section list at the start of an article on mobile.",
   },
@@ -141,6 +145,8 @@ function normalize(text: string): { head: string; body: string } {
   }
   // The document metadata group changes only the wrapper, not the trust, freshness, or reading-time content.
   for (const element of [...document.querySelectorAll(".doc-meta")]) element.replaceWith(...element.childNodes);
+  // The drawer header keeps the same close button and navigation links.
+  for (const element of [...document.querySelectorAll(".drawer-header")]) element.replaceWith(...element.childNodes);
   // 0.2.3 renames the search field's class; the field itself is unchanged.
   for (const element of [...document.querySelectorAll(".search-field")]) {
     element.classList.replace("search-field", "search-form");

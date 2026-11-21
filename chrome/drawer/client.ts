@@ -11,6 +11,7 @@ export interface DrawerControl {
 /** Anything inside the drawer that can take focus. */
 export interface DrawerFocusable {
   focus(): void;
+  checkVisibility?(): boolean;
 }
 
 /** A navigation group (`<details>`) inside the drawer. */
@@ -92,10 +93,8 @@ export interface DrawerEnv {
 /** What can take keyboard focus inside the drawer. */
 const FOCUSABLE = [
   "a[href]",
-  "button:not([disabled])",
-  "input:not([disabled])",
-  "select:not([disabled])",
-  "textarea:not([disabled])",
+  ":is(button,input,select,textarea):enabled",
+  "summary",
   "[tabindex]:not([tabindex='-1'])",
 ].join(", ");
 
@@ -124,20 +123,7 @@ function fragmentOf(href: string): string | null {
 
 /** Whether the resolved URL stays on the current page: the same address once the fragments are set aside. */
 function staysOnPage(href: string, currentHref: string): boolean {
-  const cut = (url: string): string => {
-    const at = url.indexOf("#");
-    return at === -1 ? url : url.slice(0, at);
-  };
-  return cut(href) === cut(currentHref);
-}
-
-/** The fake dialogs hand back every focusable, so a link is only a control that carries an `href` it can hear clicks on. */
-function asLink(item: DrawerFocusable): DrawerLink | undefined {
-  const candidate = item as Partial<DrawerLink>;
-  if (typeof candidate.href === "string" && candidate.href !== "" && typeof candidate.addEventListener === "function") {
-    return candidate as DrawerLink;
-  }
-  return undefined;
+  return href.split("#", 1)[0] === currentHref.split("#", 1)[0];
 }
 
 /**
@@ -146,7 +132,7 @@ function asLink(item: DrawerFocusable): DrawerLink | undefined {
  */
 export function trap(dialog: DrawerDialog, event: DrawerEvent): void {
   if (event.key !== "Tab") return;
-  const items = [...dialog.querySelectorAll(FOCUSABLE)];
+  const items = [...dialog.querySelectorAll(FOCUSABLE)].filter((item) => item.checkVisibility?.() !== false);
   const first = items[0];
   const last = items[items.length - 1];
   if (first === undefined || last === undefined) {
@@ -211,13 +197,11 @@ export function activate({ dialog, button, closeButton }: DrawerParts, env: Draw
     }
   };
 
-  for (const item of dialog.querySelectorAll(LINK_SELECTOR)) {
-    const link = asLink(item);
-    if (link === undefined) continue;
+  for (const link of dialog.querySelectorAll<DrawerLink>(LINK_SELECTOR)) {
+    if (typeof link.href !== "string" || !link.href) continue;
     link.addEventListener("click", (event) => {
-      if (event.ctrlKey === true || event.metaKey === true || event.shiftKey === true || event.altKey === true) return;
-      if (event.defaultPrevented === true) return;
-      if (event.button !== undefined && event.button !== 0) return;
+      if (event.ctrlKey || event.metaKey || event.shiftKey || event.altKey || event.defaultPrevented) return;
+      if ((event.button ?? 0) !== 0) return;
       closeForNavigation(link);
     }, { signal });
   }

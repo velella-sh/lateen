@@ -90,6 +90,7 @@ test("renders a closed dialog with the sidebar inside it and a hidden close butt
 
   assert.match(out, /^<dialog class="drawer" data-drawer aria-label="Menu">/);
   assert.doesNotMatch(out, /<dialog[^>]* open/);
+  assert.match(out, /<div class="drawer-header"><span>Menu<\/span>/);
   assert.match(
     out,
     /<button type="button" class="drawer-close" aria-label="Close menu" hidden data-drawer-close>/,
@@ -115,15 +116,13 @@ test("the close control is independent of the scrolling navigation and stays sti
   const navAt = out.indexOf("<nav");
   assert.ok(closeAt !== -1 && closeAt < navAt, "the close control is a sibling before the navigation, not inside it");
 
-  const close = cssRule(".drawer-close");
-  assert.match(close, /position:\s*sticky/);
-  assert.match(close, /inset-block-start:/);
-  assert.match(close, /inset-inline-end:/);
-  assert.match(close, /z-index:/);
-  assert.match(close, /background:/);
-  assert.match(close, /margin-inline-start:\s*auto/);
-  assert.doesNotMatch(close, /\b(top|bottom|left|right):/, "the sticky edges are logical");
-  assert.doesNotMatch(close, /\bmargin-(left|right):/, "the end alignment is logical");
+  const header = cssRule(".drawer-header");
+  assert.match(header, /position:\s*sticky/);
+  assert.match(header, /inset-block-start:/);
+  assert.match(header, /z-index:/);
+  assert.match(header, /background:/);
+  assert.match(header, /justify-content:\s*space-between/);
+  assert.doesNotMatch(header, /\b(top|bottom|left|right):/, "the sticky edges are logical");
 
   const nav = cssRule(".drawer .sidebar-nav");
   assert.match(nav, /position:\s*static/, "the navigation scrolls with the drawer");
@@ -695,6 +694,19 @@ test("Tab between inner controls is left to the browser", () => {
   trap(dialog, event);
   assert.equal(event.prevented, false);
   assert.equal(middle.focused, 0);
+});
+
+test("Shift+Tab wraps to the last visible control when the last group is collapsed", () => {
+  const { close, middle, items } = panel();
+  const hidden = { ...control("collapsed link"), checkVisibility: () => false };
+  const dialog = fakeDialog([...items.slice(0, -1), hidden]);
+  const event = key("Tab", close, true);
+
+  trap(dialog, event);
+
+  assert.equal(event.prevented, true);
+  assert.equal(middle.focused, 1);
+  assert.equal(hidden.focused, 0);
 });
 
 test("focus that has left the drawer is brought back to its first control", () => {

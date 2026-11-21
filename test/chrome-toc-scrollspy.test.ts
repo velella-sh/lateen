@@ -142,6 +142,7 @@ class FakeObserver {
 
   /** The browser reports a heading's position and whether it is inside the band. */
   see(target: FakeElement, top: number, intersecting: boolean): void {
+    target.top = top;
     this.report([{ isIntersecting: intersecting, target, boundingClientRect: { top } }]);
   }
 
@@ -245,7 +246,7 @@ test("marks the last heading when it is the one in view", () => {
   assertActive(links, "build");
 });
 
-test("clears the marker when no heading is in view", () => {
+test("keeps the last section active through long content and clears it above the first heading", () => {
   const { observer, heading, links } = spy(["pick", "gem"]);
 
   observer.see(heading("pick"), HEADER_HEIGHT + 60, true);
@@ -253,6 +254,9 @@ test("clears the marker when no heading is in view", () => {
 
   observer.see(heading("pick"), -40, false);
   observer.see(heading("gem"), 700, false);
+  assertActive(links, "pick");
+
+  observer.see(heading("pick"), 700, false);
   assertActive(links, null);
 });
 

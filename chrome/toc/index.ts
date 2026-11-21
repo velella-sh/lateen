@@ -14,7 +14,7 @@ function link(heading: Heading) {
   return h("a", { href: `#${heading.id}` }, heading.text);
 }
 
-/** Nested list for the sticky column: each `h2` may wrap following `h3`s. */
+/** Keep the same heading hierarchy in the column and the narrow-screen disclosure. */
 function nestedList(items: readonly Heading[]) {
   const nodes = [];
   for (let i = 0; i < items.length; ) {
@@ -33,15 +33,6 @@ function nestedList(items: readonly Heading[]) {
     }
   }
   return h("ul", null, nodes);
-}
-
-/** Flat list for the narrow-screen `<details>` block. */
-function flatList(items: readonly Heading[]) {
-  return h(
-    "ul",
-    null,
-    items.map((item) => h("li", null, link(item))),
-  );
 }
 
 /** On this page: the sticky navigation landmark shown beside the article on wide screens. */
@@ -65,7 +56,7 @@ export const tocFold: Chrome = ({ page }) => {
     "details",
     { class: "toc-fold" },
     h("summary", null, t(page.lang, "on_this_page")),
-    flatList(items),
+    nestedList(items),
   );
 };
 
