@@ -68,25 +68,27 @@ test("home preview and mobile cards keep the Sailcloth surface contract", () => 
 });
 
 test("document typography and metadata follow the Sailcloth prose contract", () => {
-  assert.match(bodyOf(ui, /^\.doc-layout main > article > h1$/), /font-size:\s*clamp\(2\.125rem, 4\.2vw, 2\.625rem\)/);
+  const title = bodyOf(ui, /^\.doc-layout main > article > h1,\s*\.doc-body > h1:first-child$/);
+  assert.match(title, /font-size:\s*clamp\(1\.875rem, 1\.5rem \+ 1\.6vw, 2\.75rem\)/);
 
   const description = bodyOf(ui, /^\.doc-description$/);
-  assert.match(description, /margin:\s*0\.875rem 0 0/);
-  assert.match(description, /max-inline-size:\s*40em/);
-  assert.match(description, /font-size:\s*1\.125rem/);
-  assert.match(description, /line-height:\s*1\.875rem/);
+  assert.match(description, /margin-block:\s*0\.5rem 0/);
+  assert.match(description, /max-inline-size:\s*60ch/);
+  assert.match(description, /line-height:\s*1\.5/);
 
   const meta = bodyOf(ui, /^\.doc-meta$/);
   assert.match(meta, /display:\s*flex/);
   assert.match(meta, /flex-wrap:\s*wrap/);
   assert.match(meta, /margin-block-start:\s*0\.75rem/);
+  assert.match(bodyOf(ui, /^\.doc-meta:empty$/), /display:\s*none/);
   assert.match(bodyOf(ui, /^\.doc-meta \.trust-panel$/), /margin:\s*0/);
   assert.match(bodyOf(ui, /^\.reading-time,\s*\.doc-meta \.last-updated$/), /margin:\s*0/);
 
   const section = bodyOf(ui, /^\.doc-body h2$/);
   assert.match(section, /font-size:\s*1\.375rem/);
   assert.match(section, /line-height:\s*1\.875rem/);
-  assert.match(bodyOf(ui, /^\.doc-body p$/), /max-inline-size:\s*40em/);
+  assert.match(bodyOf(ui, /^\.doc-body > :is\(p, ul, ol, h1, h2, h3\)$/), /max-inline-size:\s*var\(--type-measure-min\)/);
+  assert.match(bodyOf(ui, /^\.doc-body > :first-child$/), /margin-block-start:\s*0/);
   assert.match(bodyOf(ui, /^\.code-copy svg$/), /inline-size:\s*0\.875rem/);
   assert.match(bodyOf(ui, /^\.code-copy svg$/), /block-size:\s*0\.875rem/);
 });
