@@ -118,11 +118,11 @@ test("renders a closed, hidden dialog that carries the site base", () => {
 test("holds the query field, a close button, the status region, and the result container", () => {
   const out = html(search(props()));
 
-  assert.match(out, /<label class="search-label" for="search-input">Search<\/label>/);
+  assert.match(out, /<label class="search-label sr-only" for="search-input">Search<\/label>/);
   assert.match(out, /class="search-input" id="search-input"/);
   assert.match(
     out,
-    /<button type="button" class="search-close" aria-label="Close search" data-search-close=""><span aria-hidden="true">×<\/span><\/button>/,
+    /<button type="button" class="search-close iconbtn" aria-label="Close search" data-search-close=""><svg[^>]+aria-hidden="true"/,
   );
   assert.match(out, /<p class="search-status" role="status" data-search-status=""><\/p>/);
   assert.match(
@@ -169,7 +169,7 @@ test("every id the dialog carries statically is unique and every reference resol
 
   assert.deepEqual(ids, [...new Set(ids)], "one page, one dialog, one set of ids");
   assert.ok(ids.includes(SEARCH_INPUT_ID) && ids.includes(SEARCH_RESULTS_ID));
-  assert.equal(/<label class="search-label" for="([^"]+)"/.exec(out)?.[1], SEARCH_INPUT_ID, "the label names the field");
+  assert.equal(/<label class="search-label sr-only" for="([^"]+)"/.exec(out)?.[1], SEARCH_INPUT_ID, "the label names the field");
 });
 
 test("the dialog carries every message the island shows, in the page language", () => {
@@ -2167,6 +2167,58 @@ test("only the newest answer is rendered and announced when two queries resolve 
 
   assert.deepEqual(rowsOf(results).map((row) => textOf(row)), ["QuickQuick."]);
   assert.equal(status.textContent, "1 result.", "the late answer leaves the newest count announced");
+});
+
+test("typing before the index loads announces loading, then shows the current query's state", async () => {
+  const loading = Promise.withResolvers<PagefindApi>();
+  const { button, input, status, parts } = partsOf();
+  activate(parts, { ...envWith(apiOf([])), load: () => loading.promise });
+  button.click();
+  input.type("install");
+
+  assert.equal(status.textContent, MESSAGES.loading);
+
+  loading.resolve(apiOf([]));
+  await tick();
+  assert.equal(status.textContent, emptyMessage("install"));
+});
+
+test("a pending query drops the previous results and Enter cannot follow them", async () => {
+  const pending = Promise.withResolvers<Awaited<ReturnType<PagefindApi["search"]>>>();
+  const api = apiOf(records);
+  const { button, dialog, input, results, status, parts } = partsOf();
+  activate(parts, envWith({ search: (term) => term === "pending" ? pending.promise : api.search(term) }));
+  button.click();
+  await tick();
+  input.type("cache");
+  await tick();
+  dialog.fire("keydown", key("ArrowDown", input));
+  const previous = rowsOf(results)[0];
+
+  input.type("pending");
+  dialog.fire("keydown", key("Enter", input));
+  assert.equal(status.textContent, MESSAGES.searching);
+  assert.deepEqual(rowsOf(results), []);
+  assert.equal(input.active, undefined);
+  assert.equal(previous?.clicks, 0);
+
+  pending.resolve({ results: [] });
+  await tick();
+  assert.equal(status.textContent, emptyMessage("pending"));
+});
+
+test("the dialog lets the input method handle Enter and Escape during composition", async () => {
+  const { button, dialog, input, results, parts } = partsOf();
+  activate(parts, envWith(apiOf(records)));
+  button.click();
+  await tick();
+  input.type("cache");
+  await tick();
+
+  dialog.fire("keydown", { ...key("Enter", input), isComposing: true });
+  dialog.fire("keydown", { ...key("Escape", input), isComposing: true });
+  assert.equal(rowsOf(results)[0]?.clicks, 0);
+  assert.equal(dialog.open, true);
 });
 
 test("repeating a query keeps the last answer when an earlier copy resolves later", async () => {

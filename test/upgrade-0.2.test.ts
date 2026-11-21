@@ -152,6 +152,18 @@ function normalize(text: string): { head: string; body: string } {
   for (const element of [...document.querySelectorAll(".search-field")]) {
     element.classList.replace("search-field", "search-form");
   }
+  // Search adds a field icon and uses an icon close button while keeping the same controls and names.
+  for (const element of [...document.querySelectorAll(".search-form > svg")]) element.remove();
+  for (const element of [...document.querySelectorAll(".search-label")]) element.classList.remove("sr-only");
+  for (const element of [...document.querySelectorAll(".search-close")]) {
+    element.classList.remove("iconbtn");
+    const icon = element.querySelector("svg");
+    if (icon === null) continue;
+    const glyph = document.createElement("span");
+    glyph.setAttribute("aria-hidden", "true");
+    glyph.textContent = "×";
+    icon.replaceWith(glyph);
+  }
   // 0.2.3 isolates LTR data with `bdi`; the element's text and attributes are unchanged.
   for (const element of [...document.querySelectorAll("bdi")]) {
     const span = document.createElement("span");

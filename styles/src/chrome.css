@@ -215,9 +215,7 @@
     color: var(--foreground);
   }
 
-  .site-header .search-trigger kbd,
-  .search-field kbd,
-  .search-foot kbd {
+  .site-header .search-trigger kbd {
     font-family: var(--type-font-mono);
     font-size: 0.66rem;
     padding: 0.1rem 0.35rem;
@@ -235,22 +233,11 @@
     border-radius: 1.25rem;
     background: color-mix(in srgb, var(--background) 92%, var(--card));
     color: var(--foreground);
-    box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--border) 90%, transparent);
     overflow: hidden;
   }
 
   dialog.search[hidden] {
     display: none !important;
-  }
-
-  dialog.search .search-close {
-    min-block-size: 2.75rem;
-    min-inline-size: 2.75rem;
-  }
-
-  dialog.search .search-input {
-    min-block-size: 2.75rem;
-    min-inline-size: 2.75rem;
   }
 
   .iconbtn {
@@ -578,11 +565,6 @@
     display: flex;
     flex-direction: column;
     max-block-size: min(80dvh, 40rem);
-    margin: 0;
-    border-radius: 1.25rem;
-    background: color-mix(in srgb, var(--background) 92%, var(--card));
-    overflow: hidden;
-    box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--border) 90%, transparent);
   }
 
   .search-field {
@@ -590,50 +572,22 @@
     flex: none;
     align-items: center;
     gap: 0.65rem;
-    padding: 1rem 1.1rem;
+    padding: 0.5rem 0.875rem;
     border-bottom: 1px solid var(--border);
+    color: var(--muted-foreground);
   }
 
   .search-field input {
     flex: 1;
+    min-inline-size: 0;
+    block-size: 2.75rem;
     /* The value keeps its own direction inside a dialog that stays in the page language. */
     unicode-bidi: plaintext;
     border: 0;
-    outline: 0;
     background: transparent;
     color: var(--foreground);
     font: inherit;
     font-size: 1rem;
-  }
-
-  /* One clear action beside the field; the flex row keeps it at the row end in either direction. */
-  .search-field .search-clear {
-    display: grid;
-    place-items: center;
-    min-block-size: 1.5rem;
-    min-inline-size: 1.5rem;
-    padding: 0;
-    border: 0;
-    border-radius: 999px;
-    background: transparent;
-    color: var(--muted-foreground);
-    font-size: 1rem;
-    line-height: 1;
-    cursor: pointer;
-  }
-
-  .search-field .search-clear[hidden] {
-    display: none;
-  }
-
-  .search-field .search-clear:hover {
-    background: var(--muted);
-    color: var(--foreground);
-  }
-
-  .search-field .search-clear:focus-visible {
-    outline: 2px solid var(--state-focus-ring);
-    outline-offset: 2px;
   }
 
   /* The island's clear button is the only one: no second native × in WebKit. */
@@ -666,37 +620,30 @@
     background: var(--muted);
   }
 
-  .search-retry:focus-visible {
-    outline: 2px solid var(--state-focus-ring);
-    outline-offset: 2px;
-  }
-
   .search-results {
     flex: 1 1 auto;
     min-block-size: 0;
-    max-block-size: none;
     overflow: auto;
     overscroll-behavior: contain;
   }
 
   .search-group-title {
-    margin: 0;
-    padding: 0.25rem 0.75rem;
+    padding: 0.5rem 0.875rem 0.25rem;
     color: var(--muted-foreground);
-    font-size: 0.72rem;
+    font-size: 0.8rem;
     font-weight: 600;
-    letter-spacing: 0.04em;
-    text-transform: uppercase;
   }
 
   .search-result-link {
     display: flex;
     flex-direction: column;
-    gap: 0.25rem;
-    padding: 0.5rem 0.75rem;
+    gap: 0.125rem;
+    padding: 0.625rem 0.875rem;
     border-inline-start: 2px solid transparent;
+    border-block-end: 1px solid var(--border);
     color: var(--foreground);
     text-decoration: none;
+    overflow-wrap: anywhere;
   }
 
   .search-result-link:hover {
@@ -721,15 +668,14 @@
 
   .search-result-title {
     color: var(--foreground);
-    font-size: 0.9rem;
-    font-weight: 600;
+    font-weight: 700;
   }
 
   /* A path or a hyphenated name keeps its own order inside a right-to-left line. */
   .search-result-excerpt {
     color: var(--muted-foreground);
     font-size: 0.84rem;
-    line-height: 1.6;
+    line-height: 1.5;
     unicode-bidi: isolate;
   }
 
@@ -748,10 +694,11 @@
     font-size: 0.72rem;
   }
 
-  .search-action-button {
+  .search :is(.search-action-button, .search-ask-button) {
     display: flex;
     align-items: baseline;
-    gap: 0.5rem;
+    gap: 0.25rem 0.5rem;
+    flex-wrap: wrap;
     inline-size: 100%;
     padding: 0.5rem 0.75rem;
     border: 0;
@@ -763,26 +710,46 @@
     cursor: pointer;
   }
 
-  .search-action-button:hover {
+  .search [role="option"]:is(:hover, [aria-selected="true"]) {
     background: var(--muted);
   }
 
-  .search-results .empty {
-    margin: 0;
-    padding: 1.25rem 0.75rem;
+  .search [role="option"][aria-selected="true"] {
+    border-inline-start: 2px solid var(--link);
+  }
+
+  .search-action-hint,
+  .search-status {
     color: var(--muted-foreground);
-    font-size: 0.875rem;
+    font-size: 0.825rem;
+  }
+
+  .search-status {
+    margin: 0;
+    padding: 0.625rem 0.875rem;
+    overflow-wrap: anywhere;
+  }
+
+  .search-status:empty {
+    padding: 0;
   }
 
   .search-foot {
-    display: flex;
     flex: none;
-    gap: 0.9rem;
-    flex-wrap: wrap;
-    padding: 0.65rem 1rem max(0.75rem, env(safe-area-inset-bottom));
+    padding: 0.5rem 0.875rem max(0.5rem, env(safe-area-inset-bottom));
     border-top: 1px solid var(--border);
-    color: var(--muted-foreground);
-    font-size: 0.72rem;
+    font-size: 0.85rem;
+  }
+
+  .search-foot:has([hidden]) {
+    display: none;
+  }
+
+  .search-all {
+    display: inline-flex;
+    align-items: center;
+    min-block-size: 1.5rem;
+    color: var(--link);
   }
 
   @media (max-width: 960px) {

@@ -22,13 +22,15 @@ export interface PagefindApi {
 
 /** The index URL for a site `base`: `/pagefind/pagefind.js` at the root, `<base>/pagefind/pagefind.js` below it. */
 export function indexUrl(base: string): string {
-  const root = base.endsWith("/") ? base.slice(0, -1) : base;
-  return `${root}/pagefind/pagefind.js`;
+  return `${base.replace(/\/$/, "")}/pagefind/pagefind.js`;
 }
 
 /** Imports the Pagefind module from the built index. */
-export function loadIndex(url: string): Promise<PagefindApi> {
-  return import(url) as Promise<PagefindApi>;
+export async function loadIndex(url: string): Promise<PagefindApi> {
+  const api = await import(url);
+  // Mizzen indexes canonical paths, which already include the site's base.
+  await api.options({ baseUrl: "/" });
+  return api;
 }
 
 /** The once-only load state, readable without starting anything. */
@@ -53,24 +55,16 @@ export function createIndexLoader(load: (url: string) => Promise<PagefindApi>): 
       return api;
     },
     get loading() {
-      return pending !== undefined;
+      return api === undefined && pending !== undefined;
     },
     load(url: string): Promise<PagefindApi> {
-      if (api !== undefined) return Promise.resolve(api);
-      if (pending !== undefined) return pending;
-      pending = load(url).then(
-        (loaded) => {
-          api = loaded;
-          pending = undefined;
-          return loaded;
-        },
-        (error: unknown) => {
-          // A failed load is not remembered: the next call starts a fresh one, so a retry can work.
-          pending = undefined;
-          throw error;
-        },
-      );
-      return pending;
+      return pending ??= load(url).then((loaded) => {
+        api = loaded;
+        return loaded;
+      }).catch((error: unknown) => {
+        pending = undefined;
+        throw error;
+      });
     },
   };
 }

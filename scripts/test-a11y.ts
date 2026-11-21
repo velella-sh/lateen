@@ -533,11 +533,37 @@ async function runJourney(
       await page.keyboard.press("Enter");
       await page.locator("dialog[data-search][open]").waitFor({ state: "visible" });
       await expectFocus(page, `#${SEARCH_INPUT_ID}`);
-      await page.keyboard.type("install");
-      await page.locator("[role='option']").first().waitFor({ state: "visible" });
+      const options = page.locator("dialog[data-search] a[role='option']");
+      await page.keyboard.type("callout");
+      await options.nth(1).waitFor({ state: "visible" });
+      await page.keyboard.press("ArrowDown");
+      await page.keyboard.press("ArrowDown");
+      const secondId = await options.nth(1).getAttribute("id");
+      if (secondId === null || (await page.locator(`#${SEARCH_INPUT_ID}`).getAttribute("aria-activedescendant")) !== secondId) {
+        throw new Error("ArrowDown did not reach the second search result");
+      }
+      await page.keyboard.press("ArrowUp");
+      const selected = options.and(page.locator('[aria-selected="true"]'));
+      const destination = await selected.getAttribute("href");
+      if (destination === null || destination !== (await options.first().getAttribute("href"))) {
+        throw new Error("ArrowUp did not return to the first search result");
+      }
+      const url = new URL(destination, page.url());
+      if (!url.pathname.startsWith("/lateen/") || url.pathname.startsWith("/lateen/lateen/")) {
+        throw new Error("search returned an incorrect site base: " + url.pathname);
+      }
+      await expectFocus(page, `#${SEARCH_INPUT_ID}`);
       await page.keyboard.press("Escape");
       await page.locator("dialog[data-search][open]").waitFor({ state: "hidden" });
       await expectFocus(page, "[data-search-open]");
+      await page.keyboard.press("Enter");
+      await options.first().waitFor({ state: "visible" });
+      await page.keyboard.press("ArrowDown");
+      const [response] = await Promise.all([
+        page.waitForNavigation({ url: url.href }),
+        page.keyboard.press("Enter"),
+      ]);
+      if (!response?.ok()) throw new Error("the selected search result did not load");
     } else if (name === "change the language") {
       await page.goto(`${servers.fixtures.url}/fa/`, { waitUntil: "load" });
       await focusControl(page, "[data-language-switcher] a[hreflang='ar']");
