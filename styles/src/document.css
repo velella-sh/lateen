@@ -15,22 +15,19 @@
     .doc-layout:has(> main > .doc:not(.api-reference, .api-reference-index)):not(:has(> main [data-compare])) {
       grid-template-columns: 12.5rem minmax(0, 36rem) minmax(10.5rem, 14.5rem);
       column-gap: 4.5rem;
-      --doc-aside-offset: 2.75rem;
+      --doc-aside-offset: 2.875rem;
     }
 
     .doc-layout > .aside {
-      max-inline-size: 10.5rem;
+      position: sticky;
+      inset-block-start: 4.75rem;
+      max-inline-size: 12rem;
       margin-block-start: var(--doc-aside-offset, 0rem);
     }
   }
 
   .doc-layout:has(.doc-context) {
     padding-block-end: 2rem;
-  }
-
-  .doc-layout:has(.doc-context) > .aside {
-    position: sticky;
-    inset-block-start: 5.5rem;
   }
 
   .doc:has(> .doc-context) {
@@ -55,30 +52,33 @@
     justify-content: start;
   }
 
-  .sidebar-nav,
-  .toc {
+  .sidebar-nav {
     position: sticky;
     top: 5.5rem;
     max-height: calc(100vh - 6.75rem);
     overflow: auto;
     scrollbar-width: thin;
     font-size: 0.875rem;
-  }
-
-  .sidebar-nav {
     @apply grid content-start gap-3;
   }
 
-  .toc > ul {
-    border-inline-start: 1px solid var(--border);
+  .toc {
+    max-block-size: calc(100dvh - 6rem);
+    overflow: auto;
+    scrollbar-width: thin;
   }
 
   .toc h2 {
-    @apply m-0 mb-2 text-sm font-semibold;
+    @apply m-0 mb-2.5 text-sm font-bold;
   }
 
   :is(.sidebar-nav, .toc, .toc-fold) ul {
     @apply m-0 grid list-none gap-0.5 p-0;
+  }
+
+  .toc > ul {
+    border-inline-start: 1px solid var(--border);
+    padding-inline-start: 0.375rem;
   }
 
   .sidebar-nav a {
@@ -175,9 +175,18 @@
     font-weight: 600;
   }
 
+  .toc a {
+    padding: 0.3125rem 0.5rem;
+    border-radius: var(--radius-sm);
+    font-size: 0.875rem;
+  }
+
+  .toc a:hover {
+    background: var(--state-hover-bg);
+  }
+
   .toc a[aria-current="true"] {
-    color: var(--link);
-    background: none;
+    font-weight: 700;
   }
 
   :is(.toc, .toc-fold) li > ul {
