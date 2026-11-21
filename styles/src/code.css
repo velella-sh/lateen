@@ -3,7 +3,7 @@
   /* The file name stays outside the code, wraps instead of overflowing, and keeps a technical name
      readable in a right-to-left page. */
   .code-title {
-    @apply flex max-w-full items-center gap-2;
+    @apply flex items-center gap-2;
     color: var(--muted-foreground);
     padding: var(--space-2) var(--space-4);
   }
@@ -30,11 +30,6 @@
   }
 
   /* Scroll inside the block, never the page (was styles/parts-code.css). */
-  .code,
-  .cli-demo-body,
-  .terminal-body,
-  .api-example-code,
-  .api-reference-example-code,
   pre:has(> code) {
     max-inline-size: 100%;
     overflow-x: auto;
@@ -66,6 +61,7 @@
 
   :is(.code-frame, .terminal) {
     margin-block: 1.125rem;
+    overflow: clip;
   }
 
   :is(.code-tabs-body, .install-tabs-panel) > .code-frame {
@@ -74,12 +70,9 @@
 
   .install-tabs-panel > .code-frame {
     border: 0;
-    border-radius: 0;
   }
 
   :is(.code-frame > .code, .install-tabs-panel > .code, .terminal-body, .api-reference-example-code) {
-    border-end-start-radius: inherit;
-    border-end-end-radius: inherit;
     margin: 0;
     outline-offset: -3px;
   }
@@ -105,12 +98,11 @@
     @apply flex flex-wrap items-center justify-end gap-1;
   }
 
-  .code-copy-bar[data-lang]::before {
+  .code-copy[data-lang]:not([data-lang="text"])::after {
     content: attr(data-lang);
-    order: -2;
-    margin-inline-end: auto;
-    color: var(--muted-foreground);
     font-family: var(--type-font-mono);
+    margin-inline-start: var(--space-1);
+    overflow-wrap: anywhere;
   }
 
   :is(.code-copy, .code-wrap, .terminal-copy) {
@@ -129,10 +121,6 @@
 
   :is(.code-copy-status, .terminal-status) {
     order: -1;
-  }
-
-  :is(.code-copy-status, .terminal-status):empty {
-    position: absolute;
   }
 
   /* The wrap toggle changes presentation only: the text, its line breaks, and the copy stay as written. */
