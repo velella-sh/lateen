@@ -7,13 +7,13 @@ Thank you for helping. Most contributions are a bug report, a fix, a docs improv
 Lateen supports Node 24 or later, which runs the TypeScript source directly. For development, use the Node version in `.node-version` and the npm version in `package.json` to match CI.
 
 ```bash
-git clone https://github.com/velella-sh/mizzen.git
 git clone https://github.com/velella-sh/lateen.git
 cd lateen
 npm ci
+npm run ui:build
 ```
 
-Mizzen is checked out beside this repository because the tests and the docs site build with both.
+The tests and docs check use the published Mizzen installed by `npm ci`. To try a local engine change, clone Mizzen as `../mizzen`, run `npm ci` there, then run `node ../mizzen/bin/mizzen.ts check site --theme .` from Lateen.
 
 ## Before you open a pull request
 
@@ -22,7 +22,7 @@ npm run typecheck
 npm test
 ```
 
-A change to behavior needs a test beside the others in `test/`. A change to the docs site is checked with `node ../mizzen/bin/mizzen.ts check site` and must report 0 errors.
+A change to behavior needs a test beside the others in `test/`. A change to the docs site is checked with `npx mizzen check site --theme .` and must report 0 errors.
 
 ## Visual baselines
 
