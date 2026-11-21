@@ -393,12 +393,14 @@ test("the Source mode toolbar stays in flow and configured logos use the brand f
   assert.match(label.body, /flex-wrap:\s*wrap/);
   assert.doesNotMatch(label.body, /position:|inset-/);
 
-  const frame = rule(ui, ".brand-logo-frame");
-  assert.ok(frame, "no configured logo frame");
-  assert.match(frame.body, /display:\s*grid/);
-  assert.match(frame.body, /place-items:\s*center/);
-  assert.match(frame.body, /inline-size:\s*1\.75rem/);
-  assert.match(frame.body, /block-size:\s*1\.75rem/);
+  const frame = blocks(ui)
+    .filter(({ selector }) => selector.split(",").some((part) => part.trim() === ".brand-logo-frame"))
+    .map(({ body }) => body)
+    .join("\n");
+  assert.match(frame, /display:\s*grid/);
+  assert.match(frame, /place-items:\s*center/);
+  assert.match(frame, /inline-size:\s*1\.75rem/);
+  assert.match(frame, /block-size:\s*1\.75rem/);
 });
 
 test("sailcloth ui.css also hides shell chrome and block-action labels in print", () => {
