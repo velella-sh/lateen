@@ -175,7 +175,8 @@
     color: var(--primary);
   }
 
-  .breadcrumb svg {
+  .breadcrumb svg,
+  .trust-panel-icon {
     @apply size-3.5;
   }
 
@@ -196,7 +197,8 @@
     list-style: none;
   }
 
-  .breadcrumb-summary::-webkit-details-marker {
+  .breadcrumb-summary::-webkit-details-marker,
+  .trust-panel-chip::-webkit-details-marker {
     display: none;
   }
 
@@ -233,6 +235,7 @@
   }
 
   .doc-meta .trust-panel {
+    position: static;
     margin: 0;
   }
 
@@ -300,7 +303,8 @@
     scroll-margin-block-start: 6.75rem;
   }
 
-  .doc-body a {
+  .doc-body a,
+  .trust-panel-body a {
     color: var(--link);
     text-decoration: underline;
     text-decoration-thickness: 0.08em;
