@@ -7,6 +7,7 @@ import { icon } from "../../src/icon.ts";
 import { withBase } from "../../src/url.ts";
 import askAgent from "../ask-agent/index.ts";
 import commandPalette from "../command-palette/index.ts";
+import type { SourceModeVisibility } from "../source-mode/state.ts";
 
 /** Id the search field's label points to, and the one the listbox is named by; the page has one dialog. */
 export const SEARCH_INPUT_ID = "search-input";
@@ -34,7 +35,7 @@ export const SEARCH_RESULTS_ID = "search-results-list";
  * island has no access to the catalogs at run time, and the text is already escaped by the renderer.
  * Count and empty messages keep their `{n}` and `{query}` placeholders for the island to fill.
  */
-const search: Chrome = (props) =>
+const search = (props: Parameters<Chrome>[0] & SourceModeVisibility) =>
   h(
     "dialog",
     {

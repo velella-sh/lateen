@@ -1,13 +1,14 @@
 import { h } from "preact";
 import type { Chrome } from "@velella/mizzen/contracts";
+import type { SourceModeVisibility } from "../source-mode/state.ts";
 import { paletteActions, palettePayload, type PaletteInput, type PalettePayload } from "./actions.ts";
 
 /** Marks the server's JSON inside the search dialog; `chrome/search/client.ts` reads it once. */
 export const PALETTE_ATTRIBUTE = "data-palette-actions";
 
 /** The payload for a page, with the site's base folded into URLs that need it. */
-export function payloadFor(page: PaletteInput["page"], base: string): PalettePayload {
-  return palettePayload({ page, base });
+export function payloadFor(page: PaletteInput["page"], base: string, showSourceMode = true): PalettePayload {
+  return palettePayload({ page, base, showSourceMode });
 }
 
 /** JSON safe inside a `<script>` element: a `<` can never close the tag early. */
@@ -23,11 +24,11 @@ export function paletteJson(payload: PalettePayload): string {
  * `chrome/search/index.ts` places this inside the dialog. Nothing appears without JavaScript, and
  * the script is inert markup a reader never sees.
  */
-const commandPalette: Chrome = ({ page, site }) =>
+const commandPalette = ({ page, site, showSourceMode }: Parameters<Chrome>[0] & SourceModeVisibility) =>
   h("script", {
     type: "application/json",
     [PALETTE_ATTRIBUTE]: "",
-    dangerouslySetInnerHTML: { __html: paletteJson(payloadFor(page, site.config.base)) },
+    dangerouslySetInnerHTML: { __html: paletteJson(payloadFor(page, site.config.base, showSourceMode)) },
   });
 
 export default commandPalette;

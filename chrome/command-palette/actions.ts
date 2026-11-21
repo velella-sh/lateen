@@ -9,9 +9,10 @@
 import type { Page } from "@velella/mizzen/contracts";
 import { t } from "../../i18n/index.ts";
 import { twinUrl } from "../copy-markdown/index.ts";
+import type { SourceModeVisibility } from "../source-mode/state.ts";
+import { THEME_CHOICES, type ThemeChoice } from "../theme-toggle/key.ts";
 
-/** What the theme switch can hold: the visitor's choice, stored under the theme key. */
-export type ThemeChoice = "light" | "dark" | "system";
+export { THEME_CHOICES, type ThemeChoice };
 
 /** What an action does when it runs; data only, so the list survives serialisation. */
 export type PaletteRun =
@@ -29,7 +30,7 @@ export interface PaletteAction {
 }
 
 /** What `paletteActions` reads from the page and site. */
-export interface PaletteInput {
+export interface PaletteInput extends SourceModeVisibility {
   /** The page's language, URL, kind, and headings. */
   readonly page: Pick<Page, "lang" | "url" | "kind" | "headings">;
   /** The site base, added to the page URL only when the URL does not already carry it. */
@@ -42,9 +43,6 @@ export interface PalettePayload {
   readonly actions: readonly PaletteAction[];
 }
 
-/** The three theme choices, in the order the palette shows them. */
-export const THEME_CHOICES: readonly ThemeChoice[] = ["light", "dark", "system"];
-
 /** The page URL with `base` in front, unless it is already there. */
 export function pageUrl(url: string, base = ""): string {
   const root = base.replace(/\/+$/, "");
@@ -53,9 +51,9 @@ export function pageUrl(url: string, base = ""): string {
 }
 
 /**
- * Every action the palette offers for a page, in reading order: the three theme choices, the copy
+ * Every action the palette offers for a page, in reading order: the theme choices, the copy
  * action when the page has a Markdown twin, then one jump per section heading (the page title is not
- * a section), then the source mode switch. Labels and hints come from the page language's string table.
+ * a section), then the source mode switch where available. Labels and hints come from the page language's string table.
  */
 export function paletteActions(input: PaletteInput): readonly PaletteAction[] {
   const { page } = input;
@@ -94,12 +92,14 @@ export function paletteActions(input: PaletteInput): readonly PaletteAction[] {
     });
   }
 
-  actions.push({
-    id: "source-mode",
-    label: t(lang, "source_mode_label"),
-    hint: t(lang, "command_source_mode"),
-    run: { kind: "source" },
-  });
+  if (input.showSourceMode !== false) {
+    actions.push({
+      id: "source-mode",
+      label: t(lang, "source_mode_label"),
+      hint: t(lang, "command_source_mode"),
+      run: { kind: "source" },
+    });
+  }
 
   return actions;
 }

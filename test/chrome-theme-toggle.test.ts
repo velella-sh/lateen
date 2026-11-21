@@ -10,12 +10,10 @@ import {
   choose,
   next,
   read,
-  resolve,
   save,
   sync,
   type ThemeEnv,
   type ThemeEvents,
-  type ThemeMedia,
   type ThemeStorage,
   type ThemeStorageEvent,
   type ThemeToggleRoot,
@@ -120,47 +118,20 @@ function fakeToggle(): ThemeToggleRoot & {
   return fake;
 }
 
-/** An environment with a plain store, a `<html>` that records its attributes, and a light OS. */
+/** An environment with a plain store and a `<html>` that records its attributes. */
 function env<S extends ThemeStorage>(
   storage: S,
-  prefersLight = false,
-  extra: Pick<ThemeEnv, "media" | "events"> = {},
+  events?: ThemeEvents,
 ): ThemeEnv & { attrs: Record<string, string>; storage: S } {
-  const fake = {
-    attrs: {} as Record<string, string>,
+  const attrs: Record<string, string> = {};
+  return {
+    attrs,
     storage,
-    prefersLight,
-    ...extra,
+    ...(events === undefined ? {} : { events }),
     root: {
       setAttribute(name: string, value: string) {
-        fake.attrs[name] = value;
+        attrs[name] = value;
       },
-    },
-  };
-  return fake;
-}
-
-/** A color-scheme query whose OS change a test can fire. */
-function media(prefersLight = false): ThemeMedia & {
-  listeners: Set<(event: { matches: boolean }) => void>;
-  fire(matches: boolean): void;
-} {
-  const listeners = new Set<(event: { matches: boolean }) => void>();
-  let matches = prefersLight;
-  return {
-    listeners,
-    get matches() {
-      return matches;
-    },
-    addEventListener(_type, listener) {
-      listeners.add(listener);
-    },
-    removeEventListener(_type, listener) {
-      listeners.delete(listener);
-    },
-    fire(next: boolean) {
-      matches = next;
-      for (const listener of listeners) listener({ matches });
     },
   };
 }
@@ -194,27 +165,20 @@ test("renders a hidden switch with data-theme-toggle, one named button, and a st
   assert.doesNotMatch(out, /<input|<fieldset|checked/);
 });
 
-test("draws a sun, a screen, and a moon, in the order a press cycles", () => {
+test("draws a sun and a moon", () => {
   const out = render();
 
   const kinds = [...out.matchAll(/theme-toggle-icon theme-toggle-icon-([a-z]+)"/g)].map((match) => match[1]);
-  assert.deepEqual(kinds, ["light", "system", "dark"]);
+  assert.deepEqual(kinds, ["light", "dark"]);
 });
 
-test("resolve: system follows the OS, light and dark win as stored", () => {
-  assert.equal(resolve("system", true), "light");
-  assert.equal(resolve("system", false), "dark");
-  assert.equal(resolve("light", false), "light");
-  assert.equal(resolve("dark", true), "dark");
-});
-
-test("read: the three choices pass; anything else, nothing stored, or a broken store reads as system", () => {
+test("read: explicit choices are kept and missing, legacy, or invalid values default to dark", () => {
   assert.equal(read(store("light")), "light");
-  assert.equal(read(store("system")), "system");
   assert.equal(read(store("dark")), "dark");
-  assert.equal(read(store("banana")), "system");
-  assert.equal(read(store()), "system");
-  assert.equal(read(brokenStore()), "system");
+  assert.equal(read(store("system")), "dark");
+  assert.equal(read(store("banana")), "dark");
+  assert.equal(read(store()), "dark");
+  assert.equal(read(brokenStore()), "dark");
 });
 
 test("save: writes under the key the theme script reads, and survives a broken store", () => {
@@ -225,23 +189,14 @@ test("save: writes under the key the theme script reads, and survives a broken s
   assert.doesNotThrow(() => save(brokenStore(), "light"));
 });
 
-test("apply: sets data-theme on the root, resolving system", () => {
-  const lightPage = env(store(), true);
-  apply(lightPage, "system");
-  assert.equal(lightPage.attrs["data-theme"], "light");
-
-  const darkPage = env(store(), false);
-  apply(darkPage, "system");
-  assert.equal(darkPage.attrs["data-theme"], "dark");
-
-  const chosen = env(store(), true);
-  apply(chosen, "dark");
-  assert.equal(chosen.attrs["data-theme"], "dark");
+test("apply: sets data-theme on the root", () => {
+  const page = env(store());
+  apply(page, "light");
+  assert.equal(page.attrs["data-theme"], "light");
 });
 
-test("next: light, then system, then dark, then light again", () => {
-  assert.equal(next("light"), "system");
-  assert.equal(next("system"), "dark");
+test("next: alternates between light and dark", () => {
+  assert.equal(next("light"), "dark");
   assert.equal(next("dark"), "light");
 });
 
@@ -254,7 +209,7 @@ test("sync: reveals the switch, marks the choice, and labels the button with it 
 });
 
 test("announce: names the choice on the status region", () => {
-  for (const choice of ["light", "system", "dark"] as const) {
+  for (const choice of ["light", "dark"] as const) {
     const toggle = fakeToggle();
     announce(toggle, choice);
     assert.equal(toggle.status.textContent, `${choice[0]!.toUpperCase()}${choice.slice(1)} theme.`);
@@ -272,12 +227,12 @@ test("activate: reveals, shows and applies the saved choice, and listens for cli
   assert.equal(toggle.clicks.length, 1);
 });
 
-test("activate with nothing stored: system is the default choice and follows the OS", () => {
+test("activate with nothing stored: dark is the default choice", () => {
   const toggle = fakeToggle();
-  const page = env(store(), false);
+  const page = env(store());
   activate(toggle, page);
 
-  assert.equal(toggle.attrs["data-choice"], "system");
+  assert.equal(toggle.attrs["data-choice"], "dark");
   assert.equal(page.attrs["data-theme"], "dark");
 });
 
@@ -287,58 +242,32 @@ test("every click saves, applies, reflects, and announces the next choice", () =
   activate(toggle, page);
 
   toggle.clicks[0]!({});
-  assert.equal(page.storage.written, "system");
-  assert.equal(toggle.attrs["data-choice"], "system");
-  assert.equal(toggle.status.textContent, "System theme.");
-
-  toggle.clicks[0]!({});
   assert.equal(page.storage.written, "dark");
+  assert.equal(toggle.attrs["data-choice"], "dark");
   assert.equal(page.attrs["data-theme"], "dark");
   assert.equal(toggle.status.textContent, "Dark theme.");
 
   toggle.clicks[0]!({});
   assert.equal(page.storage.written, "light");
+  assert.equal(toggle.attrs["data-choice"], "light");
   assert.equal(page.attrs["data-theme"], "light");
 });
 
 test("choose: the whole change works without an event, in order", () => {
   const toggle = fakeToggle();
-  const page = env(store("system"), true);
+  const page = env(store("system"));
   choose(page, toggle, "light");
 
   assert.equal(page.storage.written, "light");
+  assert.equal(toggle.attrs["data-choice"], "light");
   assert.equal(page.attrs["data-theme"], "light");
   assert.equal(toggle.hidden, false);
   assert.equal(toggle.status.textContent, "Light theme.");
 });
 
-test("activate: system follows live OS changes", () => {
-  const query = media(true);
-  const page = env(store("system"), true, { media: query });
-  activate(fakeToggle(), page);
-
-  query.fire(false);
-  assert.equal(page.attrs["data-theme"], "dark");
-
-  query.fire(true);
-  assert.equal(page.attrs["data-theme"], "light");
-});
-
-test("activate: an explicit choice stays put when the OS changes", () => {
-  const query = media(false);
-  const page = env(store("dark"), false, { media: query });
-  const toggle = fakeToggle();
-  activate(toggle, page);
-
-  query.fire(true);
-  assert.equal(page.attrs["data-theme"], "dark");
-  assert.equal(toggle.attrs["data-choice"], "dark");
-  assert.equal(page.prefersLight, true);
-});
-
 test("activate: the toggle adopts a valid choice made in another tab", () => {
   const other = events();
-  const page = env(store("light"), false, { events: other });
+  const page = env(store("light"), other);
   const toggle = fakeToggle();
   activate(toggle, page);
 
@@ -348,25 +277,24 @@ test("activate: the toggle adopts a valid choice made in another tab", () => {
   assert.equal(toggle.button.attrs["aria-label"], "Color theme: Dark. Switch to light.");
   assert.equal(toggle.status.textContent, "Dark theme.");
 
-  other.fire({ key: THEME_KEY, newValue: "system" });
-  assert.equal(page.attrs["data-theme"], "dark");
-  assert.equal(toggle.attrs["data-choice"], "system");
 });
 
-test("activate: removing the stored key in another tab falls back to system", () => {
-  const other = events();
-  const page = env(store("light"), true, { events: other });
-  const toggle = fakeToggle();
-  activate(toggle, page);
+test("activate: clearing storage or receiving a legacy system choice falls back to dark", () => {
+  for (const value of [null, "system"]) {
+    const other = events();
+    const page = env(store("light"), other);
+    const toggle = fakeToggle();
+    activate(toggle, page);
 
-  other.fire({ key: THEME_KEY, newValue: null });
-  assert.equal(toggle.attrs["data-choice"], "system");
-  assert.equal(page.attrs["data-theme"], "light");
+    other.fire({ key: THEME_KEY, newValue: value });
+    assert.equal(toggle.attrs["data-choice"], "dark");
+    assert.equal(page.attrs["data-theme"], "dark");
+  }
 });
 
 test("activate: invalid values and other keys in storage events change nothing", () => {
   const other = events();
-  const page = env(store("light"), false, { events: other });
+  const page = env(store("light"), other);
   const toggle = fakeToggle();
   activate(toggle, page);
 
@@ -376,67 +304,33 @@ test("activate: invalid values and other keys in storage events change nothing",
   assert.equal(toggle.attrs["data-choice"], "light");
 });
 
-test("activate: cleanup stops following the OS and other tabs", () => {
-  const query = media(false);
+test("activate: cleanup stops following other tabs", () => {
   const other = events();
-  const page = env(store("system"), false, { media: query, events: other });
-  const toggle = fakeToggle();
-  const stop = activate(toggle, page);
+  const page = env(store("dark"), other);
+  const stop = activate(fakeToggle(), page);
 
-  assert.equal(query.listeners.size, 1);
   assert.equal(other.listeners.size, 1);
   stop();
 
-  assert.equal(query.listeners.size, 0);
   assert.equal(other.listeners.size, 0);
-  query.fire(true);
   other.fire({ key: THEME_KEY, newValue: "light" });
   assert.equal(page.attrs["data-theme"], "dark");
-  assert.equal(toggle.attrs["data-choice"], "system");
 });
 
-test("activate: an OS change and a cross-tab choice settle in the order they arrive", () => {
-  const query = media(true);
-  const other = events();
-  const page = env(store("system"), true, { media: query, events: other });
+test("activate: a blocked store still lets the reader change the theme", () => {
+  const page = env(brokenStore());
   const toggle = fakeToggle();
   activate(toggle, page);
-
-  // An explicit choice from another tab wins over a later OS change.
-  other.fire({ key: THEME_KEY, newValue: "dark" });
-  query.fire(true);
-  assert.equal(page.attrs["data-theme"], "dark");
-  assert.equal(toggle.attrs["data-choice"], "dark");
-
-  // Back to system, a later OS change applies using the latest preference.
-  other.fire({ key: THEME_KEY, newValue: "system" });
-  assert.equal(page.attrs["data-theme"], "light");
-  query.fire(false);
   assert.equal(page.attrs["data-theme"], "dark");
 
-  // A later cross-tab choice wins over the OS again.
-  other.fire({ key: THEME_KEY, newValue: "light" });
-  assert.equal(page.attrs["data-theme"], "light");
-});
-
-test("activate: a blocked store still follows the OS and other tabs", () => {
-  const query = media(true);
-  const other = events();
-  const page = env(brokenStore(), true, { media: query, events: other });
-  const toggle = fakeToggle();
-  assert.doesNotThrow(() => activate(toggle, page));
-
-  query.fire(false);
-  assert.equal(page.attrs["data-theme"], "dark");
-
-  other.fire({ key: THEME_KEY, newValue: "light" });
+  toggle.clicks[0]!({});
   assert.equal(page.attrs["data-theme"], "light");
   assert.equal(toggle.attrs["data-choice"], "light");
 });
 
-test("activate: a host without media or storage-event APIs stays usable", () => {
+test("activate: a host without storage-event APIs stays usable", () => {
   const toggle = fakeToggle();
-  const page = env(store("light"), true);
+  const page = env(store("light"));
   assert.doesNotThrow(() => activate(toggle, page));
   assert.equal(page.attrs["data-theme"], "light");
   assert.equal(toggle.attrs["data-choice"], "light");

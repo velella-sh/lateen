@@ -13,6 +13,7 @@ import { optionOf, resolveNetworkOptions } from "../../src/options.ts";
 import languageSwitcher from "../language-switcher/index.ts";
 import projectSwitcher from "../project-switcher/index.ts";
 import search from "../search/index.ts";
+import type { SourceModeVisibility } from "../source-mode/state.ts";
 import themeToggle from "../theme-toggle/index.ts";
 import versionSwitcher from "../version-switcher/index.ts";
 
@@ -89,7 +90,7 @@ export function isCurrentSection(url: string, pageUrl: string, base: string): bo
 }
 
 /** Sailcloth site chrome: glass header + Pagefind search, with version/language/project switchers. */
-const shell: Chrome = (props) => {
+const shell = (props: Parameters<Chrome>[0] & SourceModeVisibility) => {
   const { site, page } = props;
   const { config } = site;
   const base = config.base;

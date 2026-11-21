@@ -10,28 +10,27 @@ import projectSwitcher from "../chrome/project-switcher/index.ts";
 import { footer as shellFooter } from "../chrome/shell/index.ts";
 import { resolveNetworkOptions, optionOf } from "../src/options.ts";
 import sourceMode from "../chrome/source-mode/index.ts";
+import type { SourceModeVisibility } from "../chrome/source-mode/state.ts";
 import skipLinks, { MAIN_ID, NAVIGATION_ID } from "../chrome/skip-links/index.ts";
-import { THEME_KEY } from "../chrome/theme-toggle/key.ts";
+import { DEFAULT_THEME, THEME_KEY } from "../chrome/theme-toggle/key.ts";
 import { brandCss, problemComment, resolveBrand } from "../src/brand.ts";
 
 export { MAIN_ID, NAVIGATION_ID };
 
-/** localStorage key that holds the visitor's choice: `light`, `dark`, or `system`. */
 export { THEME_KEY };
 
 /**
- * Sets `data-theme` on `<html>` before first paint. A stored `light` or `dark` wins; `system` follows
- * `prefers-color-scheme`; a first visit (nothing stored) is dark. Storage may throw (private mode), so it
- * falls back to dark. It also sets `data-js`, so styles can tell a page that will run its scripts from one that will not
+ * Sets `data-theme` on `<html>` before first paint. A stored `light` or `dark` wins; otherwise the page
+ * starts dark. It also sets `data-js`, so styles can tell a page that will run its scripts from one that will not
  * and lay out the first paint the way the scripts leave it (the mobile drawer starts closed instead of open).
  */
 export const THEME_SCRIPT =
-  `(function(){var d=document.documentElement,t="dark";try{var s=localStorage.getItem("${THEME_KEY}");` +
-  `if(s==="light"||s==="dark")t=s;else if(s==="system")t=matchMedia("(prefers-color-scheme: light)").matches?"light":"dark"}` +
+  `(function(){var d=document.documentElement,t="${DEFAULT_THEME}";try{var s=localStorage.getItem("${THEME_KEY}");` +
+  `if(s==="light"||s==="dark")t=s}` +
   `catch(e){}d.setAttribute("data-theme",t);d.setAttribute("data-js","")})()`;
 
 /** Content for the slots the layout places around the page. Each is optional and renders nothing when empty. */
-export interface BaseSlots {
+export interface BaseSlots extends SourceModeVisibility {
   /** Site header: logo, tabs, search, theme switch. The header chrome renders the banner landmark. */
   readonly header?: ComponentChildren;
   /** Sidebar navigation, beside the main column. Its own `<nav>` is the navigation landmark. */
@@ -158,7 +157,7 @@ export default function base(props: BaseProps) {
   const footerNode = footer ?? (shellFooter(props) as ComponentChildren);
   return h(
     "html",
-    { lang: page.lang, dir: page.dir, "data-theme": "dark" },
+    { lang: page.lang, dir: page.dir, "data-theme": DEFAULT_THEME },
     h("head", null, ...headNodes(head, props.site, page, props.hints)),
     h(
       "body",
@@ -174,7 +173,7 @@ export default function base(props: BaseProps) {
         h(
           "main",
           { id: MAIN_ID, tabIndex: -1 },
-          sourceMode(props) as ComponentChildren,
+          props.showSourceMode === false ? null : (sourceMode(props) as ComponentChildren),
           main ?? h("div", { dangerouslySetInnerHTML: { __html: page.html } }),
         ),
         aside == null ? null : h("div", { class: "aside" }, aside),

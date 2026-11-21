@@ -37,7 +37,7 @@
  * - Loader (`loader.ts`): `indexUrl`, `loadIndex`, the `PagefindApi`/`SearchHit` types, and
  *   `createIndexLoader`, which owns the once-only load, its shared in-flight promise, and its retry;
  *   `begin` inside `activate` only decides what to announce.
- * - Activation: `activate`, `trap`, `liveHandlers`, `resolveTheme`, the all-results link
+ * - Activation: `activate`, `trap`, `liveHandlers`, the all-results link
  *   (`resultsHref`), and the browser bootstrap at the bottom wire the parts together; this is the
  *   only boundary that touches dialog state, focus, and event listeners. `activate` is idempotent
  *   per dialog and returns a teardown that removes every listener it attached.
@@ -47,6 +47,7 @@
  */
 
 import type { PaletteAction, PalettePayload, PaletteRun, ThemeChoice } from "../command-palette/actions.ts";
+import { THEME_KEY } from "../theme-toggle/key.ts";
 import { withBase } from "../../src/url.ts";
 import { fetchText, type Fetcher } from "../../src/fetch.ts";
 import { activateShortcuts, type ShortcutEvent } from "./shortcut.ts";
@@ -89,8 +90,7 @@ export function resultsHref(query: string, scope?: string | null, base = ""): st
   return `${withBase(base, SEARCH_PAGE_PATH)}?${params.toString()}`;
 }
 
-/** localStorage key for the visitor's theme choice; keep in step with `layouts/base.ts`. */
-export const THEME_KEY = "lateen-theme";
+export { THEME_KEY };
 
 /** Most results shown for one query; Pagefind ranks them, and the top of the list is what a reader wants. */
 export const RESULT_LIMIT = 20;
@@ -664,25 +664,26 @@ interface PaletteGlobals {
   readonly localStorage?: { setItem(key: string, value: string): void };
   readonly navigator?: { readonly clipboard?: { writeText(text: string): Promise<void> } };
   readonly fetch?: Fetcher;
-  readonly matchMedia?: (query: string) => { readonly matches: boolean };
-}
-
-/** The theme a choice puts on the page; `system` follows the OS preference. */
-export function resolveTheme(choice: ThemeChoice, prefersLight: boolean): "light" | "dark" {
-  return choice === "system" ? (prefersLight ? "light" : "dark") : choice;
 }
 
 /** The browser's handlers: the theme key, the clipboard and twin fetch, and the heading jump. */
 export function liveHandlers(globals: PaletteGlobals = globalThis as unknown as PaletteGlobals): PaletteHandlers {
   return {
     theme(choice) {
+      // Use the active toggle when it can make this change, so its icon and label update too.
+      const toggle = globals.document?.querySelector?.(
+        `[data-theme-toggle][data-choice]:not([data-choice="${choice}"]) .theme-toggle-button`,
+      );
+      if (toggle?.click) {
+        toggle.click();
+        return;
+      }
       try {
         globals.localStorage?.setItem(THEME_KEY, choice);
       } catch {
         /* storage is unavailable: apply the choice to this page view only */
       }
-      const prefersLight = globals.matchMedia?.("(prefers-color-scheme: light)").matches === true;
-      globals.document?.documentElement?.setAttribute("data-theme", resolveTheme(choice, prefersLight));
+      globals.document?.documentElement?.setAttribute("data-theme", choice);
     },
     copy(url) {
       const clipboard = globals.navigator?.clipboard;

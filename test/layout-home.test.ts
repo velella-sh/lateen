@@ -80,6 +80,14 @@ function html(node: unknown): string {
 
 const out = (frontMatter: Record<string, unknown> = {}, body = "") => html(home(layoutProps(frontMatter, body)));
 
+test("the home layout omits the Source mode switch and palette action", () => {
+  for (const frontMatter of [{}, { home: { style: "showpiece" } }]) {
+    const page = out(frontMatter);
+    assert.match(page, /data-palette-actions/);
+    assert.doesNotMatch(page, /data-source-mode|"id":"source-mode"/);
+  }
+});
+
 test("the hero renders the brand, eyebrow, title, and lead from front matter", () => {
   const page = out({ hero: { eyebrow: "v0.3.0 · 12 pages", title: "Docs you can trust.", lead: "One line." } });
   assert.match(page, /<p class="product">Example<\/p>/);
