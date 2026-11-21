@@ -19,7 +19,10 @@
     font-size: 0.875rem;
   }
 
-  .sidebar-nav h2,
+  .sidebar-nav {
+    @apply grid content-start gap-3;
+  }
+
   .toc h2 {
     @apply m-0 mb-3 text-xs font-semibold uppercase text-muted-foreground;
     letter-spacing: 0.08em;
@@ -31,21 +34,21 @@
   }
 
   .sidebar-nav a {
-    @apply block rounded-lg px-3 py-1.5 text-muted-foreground no-underline;
+    @apply block rounded-md px-3 py-1.5 text-muted-foreground no-underline;
   }
 
   .sidebar-nav a:hover {
     @apply bg-muted text-foreground;
   }
 
-  .sidebar-nav a[aria-current="page"] {
+  .sidebar-nav a:is([aria-current="page"], [aria-current="true"]) {
     position: relative;
     color: var(--foreground);
-    background: var(--muted);
+    background: color-mix(in srgb, var(--muted) 55%, transparent);
     font-weight: 600;
   }
 
-  .sidebar-nav a[aria-current="page"]::before {
+  .sidebar-nav a:is([aria-current="page"], [aria-current="true"])::before {
     content: "";
     position: absolute;
     inset-inline-start: 0;
@@ -56,9 +59,7 @@
   }
 
   .sidebar-group > summary {
-    display: flex;
-    align-items: center;
-    cursor: pointer;
+    @apply flex cursor-pointer items-center justify-between gap-2 rounded-md px-3 py-1.5 text-muted-foreground hover:bg-muted hover:text-foreground;
     list-style: none;
   }
 
@@ -66,8 +67,37 @@
     display: none;
   }
 
-  .sidebar-group h3 {
-    @apply mb-1 mt-5 px-3 text-xs font-semibold;
+  .sidebar-group > summary > :is(h2, h3, h4, h5, h6) {
+    @apply m-0 text-xs font-semibold text-inherit;
+  }
+
+  .sidebar-group > summary::after {
+    content: "";
+    @apply size-2 shrink-0;
+    border: solid currentColor;
+    border-width: 0 1px 1px 0;
+    rotate: -45deg;
+  }
+
+  .sidebar-group > summary:dir(rtl)::after {
+    rotate: 135deg;
+  }
+
+  .sidebar-group[open] > summary::after,
+  .sidebar-group[open] > summary:dir(rtl)::after {
+    rotate: 45deg;
+  }
+
+  .sidebar-group > ul {
+    margin-block-start: 0.25rem;
+  }
+
+  .sidebar-group .sidebar-group {
+    margin-inline-start: var(--space-2);
+  }
+
+  .sidebar-nav :is(a, summary):focus-visible {
+    outline-offset: -3px;
   }
 
   .toc a {

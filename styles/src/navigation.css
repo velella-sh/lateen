@@ -1,35 +1,133 @@
-/* Page navigation: pager and back-to-top. The footer shell lives in chrome.css. */
+/* Document actions and page navigation. The site footer shell lives in chrome.css. */
 @layer components {
+  .doc-actions {
+    @apply my-6 flex flex-wrap items-start gap-2 border-t pt-4 text-sm;
+    border-color: var(--border);
+  }
+
+  .page-footer {
+    @apply flex w-full flex-wrap items-center gap-x-4 gap-y-2 text-sm;
+  }
+
+  .page-footer-feedback,
+  .copy-markdown-status,
+  .page-agent-menu-status,
+  .page-agent-menu-heading {
+    margin: 0;
+  }
+
+  .page-footer-feedback a {
+    @apply underline underline-offset-4;
+  }
+
+  .copy-markdown {
+    @apply flex flex-wrap items-center gap-2;
+  }
+
+  .copy-markdown-status {
+    flex-basis: 100%;
+  }
+
+  :is(.copy-markdown-status, .page-agent-menu-status):empty {
+    @apply sr-only;
+  }
+
+  :is(.copy-markdown-button, .copy-markdown-link, .page-agent-menu-summary, .page-agent-menu-copy, .page-agent-menu-view, .page-agent-menu-provider, .page-footer-copy) {
+    @apply inline-flex cursor-pointer items-center gap-2 rounded-md border px-3 py-1.5 text-sm font-medium no-underline;
+    border-color: var(--border);
+    background: var(--card);
+    color: var(--foreground);
+
+    &:hover {
+      background: var(--muted);
+    }
+  }
+
+  .copy-markdown-key {
+    @apply text-xs text-muted-foreground;
+  }
+
+  .page-agent-menu-summary {
+    display: flex;
+    justify-content: space-between;
+    list-style: none;
+  }
+
+  .page-agent-menu-summary::-webkit-details-marker {
+    display: none;
+  }
+
+  .page-agent-menu-chevron {
+    @apply size-4 shrink-0 text-muted-foreground;
+  }
+
+  .page-agent-menu[open] > summary .page-agent-menu-chevron {
+    rotate: 180deg;
+  }
+
+  .page-agent-menu-panel {
+    @apply mt-2 grid gap-2 rounded-lg border p-2;
+    border-color: var(--border);
+  }
+
+  .page-agent-menu-providers {
+    @apply m-0 grid list-none gap-2 p-0;
+  }
+
   .pager {
-    @apply grid grid-cols-2 gap-4 border-t pt-8;
+    @apply grid grid-cols-2 gap-3;
   }
 
-  .pager a {
-    @apply rounded-xl p-4 no-underline;
+  .pager-link {
+    @apply grid content-start gap-1 rounded-lg border p-3 no-underline;
+    border-color: var(--border);
+    overflow-wrap: anywhere;
   }
 
-  .pager a:last-child {
-    @apply text-end;
+  .pager-link:hover {
+    background: var(--card);
   }
 
-  .pager a > svg {
-    @apply inline size-4;
+  .pager-next {
+    grid-column: 2;
+    text-align: end;
   }
 
-  .pager a > span {
-    @apply grid font-medium;
+  .pager-label {
+    @apply flex flex-wrap items-center gap-x-1 gap-y-0.5 text-sm text-muted-foreground;
   }
 
-  .pager small,
-  .pager-section {
-    @apply text-xs font-normal text-muted-foreground;
+  .pager-next .pager-label {
+    justify-content: flex-end;
+  }
+
+  .pager-arrow {
+    @apply size-4 shrink-0;
+  }
+
+  .pager-title {
+    @apply font-semibold;
   }
 
   .back-to-top {
-    @apply ms-auto mt-6 flex w-fit items-center gap-1.5 text-sm font-medium text-muted-foreground no-underline hover:text-foreground;
+    @apply ms-auto flex w-fit items-center gap-1.5 text-sm font-medium text-muted-foreground no-underline hover:text-foreground;
   }
 
   .back-to-top svg {
     @apply size-4;
+  }
+}
+
+@media (max-width: 30rem) {
+  .copy-markdown :is(.copy-markdown-button, .copy-markdown-link) {
+    @apply px-2;
+  }
+
+  .pager {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .pager-next {
+    grid-column: 1;
   }
 }
