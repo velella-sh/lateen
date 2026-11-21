@@ -1,14 +1,10 @@
-import { Fragment, h } from "preact";
+import { h } from "preact";
 import type { ComponentChildren } from "preact";
 import type { Heading, Island, Layout, LayoutProps, RecordProps } from "@velella/mizzen/contracts";
-import base from "./base.ts";
 import { authorNameOf, authorPageOf, blogAuthorOf, blogKindOf, blogOf, postsOf } from "./blog/index.ts";
 import breadcrumb from "../chrome/breadcrumb/index.ts";
-import drawer from "../chrome/drawer/index.ts";
-import shell, { footer as shellFooter } from "../chrome/shell/index.ts";
 import pageFooter from "../chrome/page-footer/index.ts";
 import pagination, { paginationLinks } from "../chrome/pagination/index.ts";
-import sidebar from "../chrome/sidebar/index.ts";
 import toc from "../chrome/toc/index.ts";
 import cards, { CARD_CLASS, hrefOf } from "../components/cards/index.ts";
 import datedList from "../components/dated-list/index.ts";
@@ -22,6 +18,7 @@ import { t } from "../i18n/index.ts";
 import { calendarDate, calendarMonth } from "../src/dates.ts";
 import { formatField, isEmpty } from "../src/fields.ts";
 import { baseOf } from "../src/url.ts";
+import { articleShell, titleFromBody } from "./shared/index.ts";
 
 /** The keys under `list` front matter this layout reads. The engine reads the rest. */
 export const OPTIONS = ["view", "date", "columns"] as const;
@@ -42,11 +39,6 @@ interface ListGroupView {
   count: number;
   records: readonly RecordProps[];
   url?: string;
-}
-
-/** True when the body already supplies the page's `h1`, by the same rule as `doc` and `record`. */
-export function titleFromBody(props: LayoutProps): boolean {
-  return props.page.headings.some((heading) => heading.depth === 1);
 }
 
 /** A group key as an anchor id; a repeated or alike-slugged key takes a stable numeric suffix. */
@@ -488,13 +480,8 @@ const list: Layout = (props) => {
     props.list === undefined
       ? props.head
       : { ...props.head, links: [...props.head.links, ...paginationLinks(props.list.pagination)] };
-  return base({
-    ...props,
-    head,
-    islands,
-    header: h(Fragment, null, shell(props) as ComponentChildren, drawer(props) as ComponentChildren),
-    footer: shellFooter(props) as ComponentChildren,
-    sidebar: sidebar(props) as ComponentChildren,
+  return articleShell(props, {
+    base: { head, islands },
     main: article(props),
     aside: toc(tocFor(props)) as ComponentChildren,
   });

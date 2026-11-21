@@ -1,4 +1,4 @@
-import type { LayoutProps, Page, Site } from "@velella/mizzen/contracts";
+import type { Page, Site } from "@velella/mizzen/contracts";
 
 /** One public post, as the engine's blog front matter carries it. */
 export interface BlogPost {
@@ -7,11 +7,6 @@ export interface BlogPost {
   readonly author: string;
   readonly url: string;
   readonly description?: string;
-}
-
-/** True when the page's body already supplies its `h1`, by the same rule as the `doc` layout. */
-export function titleFromBody(props: LayoutProps): boolean {
-  return props.page.headings.some((heading) => heading.depth === 1);
 }
 
 function mapping(value: unknown): Readonly<Record<string, unknown>> | undefined {

@@ -1,16 +1,12 @@
 import { Fragment, h } from "preact";
 import type { ComponentChildren } from "preact";
 import type { DataRecord, Heading, Island, Layout, LayoutProps, RecordPos } from "@velella/mizzen/contracts";
-import base from "./base.ts";
 import blockActions from "../chrome/block-actions/index.ts";
 import breadcrumb from "../chrome/breadcrumb/index.ts";
 import copyMarkdown from "../chrome/copy-markdown/index.ts";
-import drawer from "../chrome/drawer/index.ts";
 import lastUpdated from "../chrome/last-updated/index.ts";
 import pageAgentMenu from "../chrome/page-agent-menu/index.ts";
 import pageFooter from "../chrome/page-footer/index.ts";
-import shell, { footer as shellFooter } from "../chrome/shell/index.ts";
-import sidebar from "../chrome/sidebar/index.ts";
 import toc, { tocFold } from "../chrome/toc/index.ts";
 import addToCalendar from "../components/add-to-calendar/index.ts";
 import embedCode from "../components/embed-code/index.ts";
@@ -18,6 +14,7 @@ import recordHistory from "../components/record-history/index.ts";
 import { t } from "../i18n/index.ts";
 import { FACTS_ID, factsOf, factsPanel, recordHeader, summaryOf } from "../src/record-parts.ts";
 import doc from "./doc.ts";
+import { articleShell } from "./shared/index.ts";
 import { staleSlot } from "../src/stale.ts";
 import { baseOf } from "../src/url.ts";
 import { fieldsOf } from "../components/record-history/index.ts";
@@ -112,11 +109,7 @@ const record: Layout = (props) => {
   }
   return props.record === undefined
     ? doc(props)
-    : base({
-        ...props,
-        header: h(Fragment, null, shell(props) as ComponentChildren, drawer(props) as ComponentChildren),
-    footer: shellFooter(props) as ComponentChildren,
-        sidebar: sidebar(props) as ComponentChildren,
+    : articleShell(props, {
         main: h(Fragment, null, article(props), blockActions(props) as ComponentChildren),
         aside: toc(tocFor(props)) as ComponentChildren,
       });

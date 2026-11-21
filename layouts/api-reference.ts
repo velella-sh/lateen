@@ -2,14 +2,10 @@ import { Fragment, h } from "preact";
 import { isRecord } from "../src/guards.ts";
 import type { ComponentChildren } from "preact";
 import type { Layout, LayoutProps } from "@velella/mizzen/contracts";
-import base from "./base.ts";
 import breadcrumb from "../chrome/breadcrumb/index.ts";
-import drawer from "../chrome/drawer/index.ts";
-import shell, { footer as shellFooter } from "../chrome/shell/index.ts";
-import sidebar from "../chrome/sidebar/index.ts";
-import toc from "../chrome/toc/index.ts";
 import { t } from "../i18n/index.ts";
 import { articleHtml } from "../src/article-html.ts";
+import { articleShell } from "./shared/index.ts";
 
 /**
  * The operation page of a pinned OpenAPI reference. The engine builds one doc page per operation
@@ -618,13 +614,6 @@ function article(props: LayoutProps): ComponentChildren {
 
 /** The API reference operation page: the docs shell around the generated operation article. */
 const apiReference: Layout = (props) =>
-  base({
-    ...props,
-    header: h(Fragment, null, shell(props) as ComponentChildren, drawer(props) as ComponentChildren),
-    footer: shellFooter(props) as ComponentChildren,
-    sidebar: sidebar(props) as ComponentChildren,
-    main: article(props),
-    aside: toc(props) as ComponentChildren,
-  });
+  articleShell(props, { main: article(props) });
 
 export default apiReference;

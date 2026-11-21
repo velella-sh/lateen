@@ -1,16 +1,13 @@
-import { Fragment, h } from "preact";
+import { h } from "preact";
 import { isRecord } from "../src/guards.ts";
 import type { ComponentChildren } from "preact";
 import type { Layout, LayoutProps } from "@velella/mizzen/contracts";
-import base from "./base.ts";
 import breadcrumb from "../chrome/breadcrumb/index.ts";
-import drawer from "../chrome/drawer/index.ts";
-import shell, { footer as shellFooter } from "../chrome/shell/index.ts";
 import pageFooter from "../chrome/page-footer/index.ts";
-import sidebar from "../chrome/sidebar/index.ts";
-import toc, { tocFold } from "../chrome/toc/index.ts";
+import { tocFold } from "../chrome/toc/index.ts";
 import { t } from "../i18n/index.ts";
 import { articleHtml } from "../src/article-html.ts";
+import { articleShell, titleFromBody } from "./shared/index.ts";
 
 /**
  * The API reference layout: the docs article (breadcrumb, title, body) beside a sticky panel of
@@ -37,11 +34,6 @@ interface Example {
 
 function isString(value: unknown): value is string {
   return typeof value === "string";
-}
-
-/** True when the body already supplies the page's `h1`, by the engine's `resolveTitle` rule. */
-function titleFromBody(props: LayoutProps): boolean {
-  return props.page.headings.some((heading) => heading.depth === 1);
 }
 
 /** The heading for an example: its own title, else `Example {n}` in the page's language. */
@@ -129,18 +121,8 @@ function article(props: LayoutProps): ComponentChildren {
  */
 const api: Layout = (props) => {
   const examples = examplesOf(props.page.frontMatter, props.page.lang);
-  return base({
-    ...props,
-    header: h(
-      Fragment,
-      null,
-      shell(props) as ComponentChildren,
-      drawer(props) as ComponentChildren,
-    ),
-    footer: shellFooter(props) as ComponentChildren,
-    sidebar: sidebar(props) as ComponentChildren,
+  return articleShell(props, {
     main: h("div", { class: "api-page" }, article(props), examplesPanel(props, examples)),
-    aside: toc(props) as ComponentChildren,
   });
 };
 

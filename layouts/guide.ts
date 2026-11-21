@@ -1,43 +1,25 @@
 import { Fragment, h } from "preact";
 import type { ComponentChildren } from "preact";
 import type { Layout, LayoutProps } from "@velella/mizzen/contracts";
-import base from "./base.ts";
 import { staleSlot } from "../src/stale.ts";
 import blockActions from "../chrome/block-actions/index.ts";
 import breadcrumb from "../chrome/breadcrumb/index.ts";
 import copyMarkdown from "../chrome/copy-markdown/index.ts";
-import drawer from "../chrome/drawer/index.ts";
 import editPage from "../chrome/edit-page/index.ts";
 import feedback from "../chrome/feedback/index.ts";
-import shell, { footer as shellFooter } from "../chrome/shell/index.ts";
 import lastUpdated from "../chrome/last-updated/index.ts";
 import pageFooter from "../chrome/page-footer/index.ts";
-import sidebar from "../chrome/sidebar/index.ts";
-import toc, { tocFold } from "../chrome/toc/index.ts";
+import { tocFold } from "../chrome/toc/index.ts";
 import { highlightFences } from "../components/code/index.ts";
 import guidePrerequisites from "../components/guide-prerequisites/index.ts";
 import guideSummary from "../components/guide-summary/index.ts";
-import pageStatus, { type PageStatusProps } from "../components/page-status/index.ts";
+import pageStatus from "../components/page-status/index.ts";
 import readingTime from "../components/reading-time/index.ts";
 import relatedGuides from "../components/related-guides/index.ts";
 import versionNotice from "../components/version-notice/index.ts";
 import { codeBackgrounds } from "../src/brand.ts";
 import { articleHtml } from "../src/article-html.ts";
-
-/** True when the body already supplies the page's `h1`, so the layout never renders a second one. */
-function titleFromBody(props: LayoutProps): boolean {
-  return props.page.headings.some((heading) => heading.depth === 1);
-}
-
-/** The banner's props from front matter: a key is passed only when it holds a usable value. */
-function statusProps(page: LayoutProps["page"]): PageStatusProps {
-  const { status, since, replaced_by } = page.frontMatter;
-  return {
-    ...(status === undefined ? {} : { status }),
-    ...(typeof since === "string" ? { since } : {}),
-    ...(typeof replaced_by === "string" ? { replaced_by } : {}),
-  };
-}
+import { articleShell, statusProps, titleFromBody } from "./shared/index.ts";
 
 /**
  * The guide page: breadcrumb, status banner, title, the summary bar built from the `guide` front
@@ -74,13 +56,6 @@ function article(props: LayoutProps): ComponentChildren {
  * the summary bar. `guide.css` holds the few rules the frame needs beyond `doc.css`.
  */
 const guide: Layout = (props) =>
-  base({
-    ...props,
-    header: h(Fragment, null, shell(props) as ComponentChildren, drawer(props) as ComponentChildren),
-    footer: shellFooter(props) as ComponentChildren,
-    sidebar: sidebar(props) as ComponentChildren,
-    main: h(Fragment, null, article(props), blockActions(props) as ComponentChildren),
-    aside: toc(props) as ComponentChildren,
-  });
+  articleShell(props, { main: h(Fragment, null, article(props), blockActions(props) as ComponentChildren) });
 
 export default guide;

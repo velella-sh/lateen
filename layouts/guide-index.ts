@@ -1,12 +1,9 @@
-import { Fragment, h } from "preact";
+import { h } from "preact";
 import type { ComponentChildren } from "preact";
 import type { Layout, LayoutProps, Page } from "@velella/mizzen/contracts";
-import base from "./base.ts";
-import drawer from "../chrome/drawer/index.ts";
-import shell, { footer as shellFooter } from "../chrome/shell/index.ts";
-import sidebar from "../chrome/sidebar/index.ts";
 import { factsOf } from "../components/guide-summary/index.ts";
 import { t } from "../i18n/index.ts";
+import { articleShell } from "./shared/index.ts";
 
 /** One index group: a tag and its guides, or the untagged guides when `tag` is undefined. */
 export interface GuideGroup {
@@ -129,12 +126,6 @@ function content(props: LayoutProps): ComponentChildren {
  * risk. Untagged guides come last. It reads `site.pages`, so nothing is fetched.
  */
 const guideIndex: Layout = (props) =>
-  base({
-    ...props,
-    header: h(Fragment, null, shell(props) as ComponentChildren, drawer(props) as ComponentChildren),
-    footer: shellFooter(props) as ComponentChildren,
-    sidebar: sidebar(props) as ComponentChildren,
-    main: content(props),
-  });
+  articleShell(props, { main: content(props), aside: null });
 
 export default guideIndex;

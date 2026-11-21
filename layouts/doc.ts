@@ -4,47 +4,25 @@ import { ChevronDown } from "lucide";
 import { t } from "../i18n/index.ts";
 import { icon } from "../src/icon.ts";
 import type { Layout, LayoutProps } from "@velella/mizzen/contracts";
-import base from "./base.ts";
 import { staleSlot } from "../src/stale.ts";
 import blockActions from "../chrome/block-actions/index.ts";
 import breadcrumb from "../chrome/breadcrumb/index.ts";
-import drawer from "../chrome/drawer/index.ts";
 import feedback from "../chrome/feedback/index.ts";
-import shell, { footer as shellFooter } from "../chrome/shell/index.ts";
 import lastUpdated from "../chrome/last-updated/index.ts";
 import { docPageFooter } from "../chrome/page-footer/index.ts";
 import sourceMode from "../chrome/source-mode/index.ts";
 import pager from "../chrome/pager/index.ts";
-import sidebar from "../chrome/sidebar/index.ts";
-import toc, { tocFold } from "../chrome/toc/index.ts";
+import { tocFold } from "../chrome/toc/index.ts";
 import { highlightFences } from "../components/code/index.ts";
 import driftBanner from "../components/drift-banner/index.ts";
 import pageTool, { toolHref } from "../components/page-tool/index.ts";
-import pageStatus, { type PageStatusProps } from "../components/page-status/index.ts";
+import pageStatus from "../components/page-status/index.ts";
 import readingTime from "../components/reading-time/index.ts";
 import versionNotice from "../components/version-notice/index.ts";
 import trustPanel from "../components/trust-panel/index.ts";
 import { codeBackgrounds } from "../src/brand.ts";
 import { articleHtml } from "../src/article-html.ts";
-
-/**
- * True when the body already supplies the page's `h1`, by the same rule as the engine's
- * `resolveTitle`: any top-level depth-1 heading counts, even when front matter wins the title,
- * so the layout never renders a second `h1` above it.
- */
-function titleFromBody(props: LayoutProps): boolean {
-  return props.page.headings.some((heading) => heading.depth === 1);
-}
-
-/** The banner's props from front matter: a key is passed only when it holds a usable value. */
-function statusProps(page: LayoutProps["page"]): PageStatusProps {
-  const { status, since, replaced_by } = page.frontMatter;
-  return {
-    ...(status === undefined ? {} : { status }),
-    ...(typeof since === "string" ? { since } : {}),
-    ...(typeof replaced_by === "string" ? { replaced_by } : {}),
-  };
-}
+import { articleShell, statusProps, titleFromBody } from "./shared/index.ts";
 
 /**
  * The page itself: breadcrumb, drift banner, status banner, title, description, grouped trust,
@@ -106,19 +84,9 @@ function article(props: LayoutProps): ComponentChildren {
  * three columns; the chrome units keep their own sticky offsets and width breakpoints.
  */
 const doc: Layout = (props) =>
-  base({
-    ...props,
-    showSourceMode: false,
-    header: h(
-      Fragment,
-      null,
-      shell(props) as ComponentChildren,
-      drawer(props) as ComponentChildren,
-    ),
-    footer: shellFooter(props) as ComponentChildren,
-    sidebar: sidebar(props) as ComponentChildren,
+  articleShell(props, {
+    base: { showSourceMode: false },
     main: h(Fragment, null, article(props), blockActions(props) as ComponentChildren),
-    aside: toc(props) as ComponentChildren,
   });
 
 export default doc;

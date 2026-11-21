@@ -5,6 +5,7 @@ import type { Layout, LayoutProps, Page, Site } from "@velella/mizzen/contracts"
 import shell, { footer as shellFooter } from "../chrome/shell/index.ts";
 import { t } from "../i18n/index.ts";
 import base from "./base.ts";
+import { titleFromBody } from "./shared/index.ts";
 
 /**
  * The versions index: every version of a page in one list, each row a link to the same page in
@@ -300,11 +301,6 @@ function row(entry: VersionEntry, page: Page, base: string): ComponentChildren {
   );
 }
 
-/** True when the body already supplies the page's `h1`, by the same rule the doc layout uses. */
-function titleFromBody(page: Page): boolean {
-  return page.headings.some((heading) => heading.depth === 1);
-}
-
 /** The list, or the empty state when the page has no versions. */
 function content(props: LayoutProps): ComponentChildren {
   const { page, site } = props;
@@ -315,7 +311,7 @@ function content(props: LayoutProps): ComponentChildren {
     h(
       "header",
       { class: "versions-header" },
-      titleFromBody(page) ? null : h("h1", { class: "versions-title" }, page.title),
+      titleFromBody(props) ? null : h("h1", { class: "versions-title" }, page.title),
       entries.length === 0
         ? h("p", { class: "versions-empty" }, t(page.lang, "versions_empty"))
         : h("ol", { class: "versions-list" }, rows),
