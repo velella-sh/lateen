@@ -24,11 +24,15 @@ curl -H "Authorization: Bearer {{api_key}}" {{host}}/v1/status
 
 ## Options
 
+<div class="table-scroll" tabindex="0">
+
 | Name | Type | Default | What it does |
 | --- | --- | --- | --- |
 | `id` | string | `variables-form` | Prefix for the form's element ids. The first form to claim a base keeps it; later forms on the same page get a `-2`, `-3`, … suffix automatically, so several forms never share ids. |
 | `group` | string | the sanitized `id`, then `variables-form` | Connects the form to terminals and output blocks whose `group` matches exactly. Letters, digits, `_`, and `-`. An authored group is marked `data-variable-group-explicit="true"`. |
 | `variables` | JSON array | the page and site declarations | The whole list when present: `'[{"name":"api_key","default":"YOUR_KEY"}]'`. When it is absent or unreadable, the page's front matter and `site.data.variables` are used. |
+
+</div>
 
 A declaration is `{name, default?, type?}`, the shape the engine's variables output documents. The page's declaration wins over the site's for the same name, and a page declaration without a default keeps the site's default. The form renders nothing when there is no variable.
 

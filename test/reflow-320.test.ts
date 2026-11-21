@@ -132,3 +132,28 @@ test("the component directory and the Table examples fit at 320px without JavaSc
     await context.close();
   }
 });
+
+test("API reference examples have room on desktop and parameter tables scroll inside mobile pages", { skip }, async () => {
+  const config = readFileSync(new URL("../fixtures/api-reference/mizzen.yml", import.meta.url), "utf8");
+  const site = build("api-reference", process.env, {
+    "mizzen.yml": config.replace(/^title: .+$/m, "title: Lateen"),
+  });
+  const server = await serve(site.out);
+  const page = await (browser as Browser).newPage({ viewport: { width: 320, height: 800 } });
+  try {
+    await page.goto(`${server.url}/reference/createWidget/`);
+    const table = page.locator(".api-reference-table-wrap");
+    assert.equal(await page.evaluate(() => document.documentElement.scrollWidth), 320);
+    assert.ok(await table.evaluate((element) => element.scrollWidth > element.clientWidth));
+    assert.equal(await table.evaluate((element) => getComputedStyle(element).overflowX), "auto");
+
+    await page.setViewportSize({ width: 1440, height: 900 });
+    const examples = await page.locator(".api-reference-example-code").evaluateAll((elements) =>
+      elements.map((element) => element.getBoundingClientRect().width),
+    );
+    assert.ok(examples.length >= 2);
+    assert.ok(examples.every((width) => width >= 44 * 16));
+  } finally {
+    await page.close();
+  }
+});
