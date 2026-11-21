@@ -10,17 +10,6 @@ export interface SourceModeStorage {
   setItem(key: string, value: string): void;
 }
 
-declare const localStorage: SourceModeStorage;
-
-/** The browser's storage, when available. */
-export function liveStorage(): SourceModeStorage | undefined {
-  try {
-    return localStorage;
-  } catch {
-    return undefined;
-  }
-}
-
 /** The saved choice; storage that is missing, refusing, or holding anything else reads as off. */
 export function readSourceMode(storage: SourceModeStorage | undefined): boolean {
   try {

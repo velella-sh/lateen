@@ -4,9 +4,8 @@
  * switch's status region. The command palette clicks the same button.
  *
  * Labels are stamped once, as the last child of each block, so they follow the block's text in reading
- * order; the stylesheet draws them in the start margin (above the block on narrow screens) and only under
- * the root class, so turning the mode on shifts nothing. Blocks whose content model allows only list items
- * or rows (lists, tables) get no label yet.
+ * order. The stylesheet reveals them beneath the block while the mode is on. Containers that only
+ * allow list items or rows get no label.
  *
  * Each label is a copy button (`file:line`), plus, when the site names a GitHub or GitLab repository, a link
  * to those lines there (it opens a new window and its accessible name says so), plus, when the site gives an
@@ -20,7 +19,6 @@ import { locationOf, parseSpan, type Span } from "../../src/source-span.ts";
 import { acceptEditorTemplate, editorUrl, readFolder, saveFolder } from "./editor.ts";
 import { parseJson, isRecord } from "../../src/guards.ts";
 import {
-  liveStorage,
   readSourceMode,
   saveSourceMode,
   SOURCE_MODE_CLASS,
@@ -331,9 +329,18 @@ declare const document: {
 declare const location: { search: string };
 declare const navigator: { clipboard?: { writeText(text: string): Promise<void> } };
 declare const window: { prompt(message: string, initial: string): string | null };
+declare const localStorage: SourceModeStorage;
+
+function liveStorage(): SourceModeStorage | undefined {
+  try {
+    return localStorage;
+  } catch {
+    return undefined;
+  }
+}
 
 /** The island's actions from the switch root's data attributes. */
-function actionsOf(root: SwitchRoot, announce: (message: string) => void): SourceActions {
+function actionsOf(root: SwitchRoot, storage: SourceModeStorage | undefined, announce: (message: string) => void): SourceActions {
   let repository: SourceActions["repository"];
   const raw = root.getAttribute("data-repository");
   const parsed = raw === null ? undefined : parseJson(raw);
@@ -344,7 +351,7 @@ function actionsOf(root: SwitchRoot, announce: (message: string) => void): Sourc
   return {
     repository,
     editor: root.getAttribute("data-editor") ?? undefined,
-    storage: liveStorage(),
+    storage,
     messages,
     kindOf: (file) => (file === template ? messages("kind-template") : file === data ? messages("kind-data") : undefined),
     createElement: (tag) => document.createElement(tag),
@@ -365,12 +372,13 @@ if (typeof document !== "undefined") {
   const root = document.querySelector("[data-source-mode]") as SwitchRoot | null;
   if (root !== null) {
     const status = root.querySelector(".source-mode-status");
+    const storage = liveStorage();
     activate(root, {
       root: document.documentElement,
       blocks: document.querySelectorAll("[data-src]"),
-      storage: liveStorage(),
+      storage,
       createLabel: (tag = "span") => document.createElement(tag),
-      actions: actionsOf(root, (message) => {
+      actions: actionsOf(root, storage, (message) => {
         if (status !== null) status.textContent = message;
       }),
       search: location.search,

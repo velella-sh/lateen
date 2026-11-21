@@ -388,6 +388,11 @@ test("the Source mode toolbar stays in flow and configured logos use the brand f
   assert.match(source.body, /flex-wrap:\s*wrap/);
   assert.doesNotMatch(source.body, /position:|inset-|z-index/);
 
+  const label = rule(ui, ".source-mode .source-label");
+  assert.ok(label, "no active source label rule");
+  assert.match(label.body, /flex-wrap:\s*wrap/);
+  assert.doesNotMatch(label.body, /position:|inset-/);
+
   const frame = rule(ui, ".brand-logo-frame");
   assert.ok(frame, "no configured logo frame");
   assert.match(frame.body, /display:\s*grid/);
