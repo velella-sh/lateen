@@ -108,7 +108,9 @@ test("shell renders sailcloth header chrome with search trigger", () => {
   assert.match(out, /data-drawer-open/);
   assert.match(out, /data-theme-toggle/);
   assert.match(out, /M9 19c-4 1\.5-4-2\.5-6-3/, "GitHub repositories use the GitHub icon");
-  assert.match(html(footer({ site })), /site-footer/);
+  const defaultFooter = html(footer({ site }));
+  assert.match(defaultFooter, /site-footer/);
+  assert.match(defaultFooter, /aria-label="GitHub repository"/);
 
   const logoSite = {
     ...site,
@@ -129,14 +131,17 @@ test("shell renders sailcloth header chrome with search trigger", () => {
       ...site.config,
       theme: { options: { footer: { links: [
         { title: "Install", url: "/install/" },
-        { title: "Source", url: "https://github.com/velella-sh/lateen" },
+        { title: "Source", url: "https://github.com/velella-sh/lateen/" },
+        { title: "Issues", url: "https://github.com/velella-sh/lateen/issues" },
         { title: "Bad", url: "javascript:alert(1)" },
       ] } } },
     },
   };
   const footerOut = html(footer({ site: footerSite }));
   assert.match(footerOut, /<a href="\/install\/">Install<\/a>/);
-  assert.match(footerOut, /<a href="https:\/\/github.com\/velella-sh\/lateen">Source<\/a>/);
+  assert.match(footerOut, /<a href="https:\/\/github.com\/velella-sh\/lateen\/">Source<\/a>/);
+  assert.match(footerOut, /<a href="https:\/\/github.com\/velella-sh\/lateen\/issues">Issues<\/a>/);
+  assert.doesNotMatch(footerOut, /aria-label="GitHub repository"/);
   assert.doesNotMatch(footerOut, /javascript:/);
 });
 

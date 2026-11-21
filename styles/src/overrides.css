@@ -33,12 +33,44 @@
   gap: var(--space-2);
   inline-size: min(100% - 3rem, 72.5rem);
   margin-inline: auto;
-  padding-block-end: var(--space-4);
+  padding-block: var(--space-2) var(--space-4);
 }
 
-.site-utilities .shortcuts-open,
-.site-utilities .source-mode-switch {
-  position: static;
+.site-utilities :is(.shortcuts-open, .source-mode-button) {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  min-block-size: 2.25rem;
+  padding-inline: var(--space-3);
+  border: 1px solid var(--border);
+  border-radius: 0.5rem;
+  color: var(--muted-foreground);
+  font-size: 0.84rem;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.site-utilities :is(.shortcuts-open, .source-mode-button):hover {
+  color: var(--foreground);
+  background: var(--muted);
+}
+
+.site-utilities .source-mode-button[aria-pressed="true"] {
+  color: var(--primary-foreground);
+  background: var(--primary);
+}
+
+@media (max-width: 48rem) {
+  .site-utilities {
+    justify-content: flex-start;
+    inline-size: calc(100% - 2rem);
+  }
+}
+
+@media print {
+  .site-utilities {
+    display: none !important;
+  }
 }
 
 /* Keep the 24×24 target size above the Tailwind layers for WCAG 2.5.8. The element and role
@@ -289,17 +321,6 @@
   overflow: hidden;
   clip-path: inset(50%);
   white-space: nowrap;
-}
-
-.source-mode-button {
-  color: var(--foreground);
-  background: var(--card);
-  border-color: var(--border);
-}
-
-.source-mode-button[aria-pressed="true"] {
-  color: var(--primary-foreground);
-  background: var(--primary);
 }
 
 @media (min-width: 90rem) {

@@ -198,6 +198,8 @@ export function footer({ site }: Pick<Parameters<Chrome>[0], "site">) {
           ? [{ title: item.title, url: item.url }]
           : [],
       );
+  const repositoryUrl = site.config.repository?.url?.replace(/\/$/, "");
+  const hasRepositoryLink = footerLinks.some(({ url }) => url.replace(/\/$/, "") === repositoryUrl);
   return h(
     "div",
     { class: "site-footer" },
@@ -217,7 +219,7 @@ export function footer({ site }: Pick<Parameters<Chrome>[0], "site">) {
         { class: "tools" },
         h("span", { class: "legal" }, copyright),
         h("span", { class: "legal" }, license),
-        repositoryLink(site.config),
+        hasRepositoryLink ? null : repositoryLink(site.config),
       ),
     ),
   );
