@@ -348,6 +348,11 @@
     outline-color: Highlight !important;
   }
 
+  [role="tab"][aria-selected="true"]:focus-visible,
+  .install-tabs-tab:has(.install-tabs-radio:checked:focus-visible) {
+    outline-color: HighlightText !important;
+  }
+
   /* The project switcher and the network footer mark the current project with colour alone in the
      default palette; in high contrast they keep a visible edge. */
   .project-switcher-link[aria-current="true"],

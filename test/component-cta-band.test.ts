@@ -72,7 +72,7 @@ test("island: the copy control takes the command of the selected manager", async
   let click = () => {};
   const button = {
     hidden: true,
-    textContent: "Copy",
+    nextElementSibling: { textContent: "" },
     dataset: { commands: "npm install example-pkg" } as Record<string, string>,
     addEventListener: (_: "click", l: () => void) => void (click = l),
     parentElement: tabs,
@@ -89,7 +89,7 @@ test("island: the copy control takes the command of the selected manager", async
 });
 
 test("island: without a clipboard the button stays hidden", () => {
-  const button = { hidden: true, textContent: "Copy", dataset: {}, addEventListener: () => {}, parentElement: { querySelector: () => null } };
+  const button = { hidden: true, nextElementSibling: { textContent: "" }, dataset: {}, addEventListener: () => {}, parentElement: { querySelector: () => null } };
   activateAll({ querySelectorAll: () => [button] }, { clipboard: undefined, schedule: () => {} });
   assert.equal(button.hidden, true);
 });

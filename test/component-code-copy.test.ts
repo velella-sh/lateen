@@ -437,6 +437,27 @@ test("a rejected write shows the fallback message and leaves the copy icon in pl
   assert.equal(checkIcon.hasAttr("hidden"), true);
 });
 
+test("a failure after a success replaces the check mark and keeps the button name", async () => {
+  let reject = false;
+  const { button, status, copyIcon, checkIcon } = page("x", "ts", {
+    async writeText() {
+      if (reject) throw new Error("denied");
+    },
+  });
+  button.click();
+  await flush();
+  assert.equal(checkIcon.hasAttr("hidden"), false);
+
+  reject = true;
+  button.click();
+  await flush();
+  assert.equal(status.textContent, FAILED);
+  assert.equal(status.attrs["data-copy-result"], "error");
+  assert.equal(checkIcon.hasAttr("hidden"), true);
+  assert.equal(copyIcon.hasAttr("hidden"), false);
+  assert.equal(button.attrs["aria-label"], DEFAULT_LABELS.copy);
+});
+
 test("a write that throws at once shows the fallback message", async () => {
   const { button, status } = page("x", "ts", clipboard("throw"));
   button.click();

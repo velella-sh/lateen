@@ -215,13 +215,18 @@ function flashOf(env: CopyEnv): ResultFlash<CopyUi> {
     timers: env,
     resetMs: RESET_MS,
     apply(ui, ok) {
+      ui.status.setAttribute("data-copy-result", ok ? "success" : "error");
       ui.status.textContent = ok ? ui.labels.copied : ui.labels.failed;
       if (ok) {
         ui.copyIcon.setAttribute("hidden", "");
         ui.checkIcon.removeAttribute("hidden");
+      } else {
+        ui.checkIcon.setAttribute("hidden", "");
+        ui.copyIcon.removeAttribute("hidden");
       }
     },
     reset(ui) {
+      ui.status.removeAttribute("data-copy-result");
       ui.status.textContent = "";
       ui.checkIcon.setAttribute("hidden", "");
       ui.copyIcon.removeAttribute("hidden");

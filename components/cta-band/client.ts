@@ -42,6 +42,7 @@ const globals = globalThis as unknown as {
   document?: CtaDocument;
   navigator?: { clipboard?: Clipboard };
   setTimeout(callback: () => void, ms: number): unknown;
+  clearTimeout(handle: unknown): void;
 };
 
 // The island runs when the browser loads it; nothing happens in a runtime without a document.
@@ -49,5 +50,6 @@ if (globals.document) {
   activateAll(globals.document, {
     clipboard: globals.navigator?.clipboard,
     schedule: (callback, ms) => globals.setTimeout(callback, ms),
+    cancel: (handle) => globals.clearTimeout(handle),
   });
 }

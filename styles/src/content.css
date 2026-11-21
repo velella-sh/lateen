@@ -316,12 +316,13 @@
   .install-tabs-tab {
     @apply inline-flex max-w-full items-center rounded-t-md border-b-2 border-transparent px-3 py-2 text-sm text-muted-foreground;
     cursor: pointer;
+    font-weight: 600;
     min-block-size: 2.5rem;
     overflow-wrap: anywhere;
   }
 
-  :is(.tabs, .code-tabs, .os-tabs) > [role="tablist"] > [role="tab"]:is(:hover, :focus-visible),
-  .install-tabs-tab:is(:hover, :has(.install-tabs-radio:focus-visible)) {
+  :is(.tabs, .code-tabs, .os-tabs) > [role="tablist"] > [role="tab"]:hover,
+  .install-tabs-tab:hover {
     color: var(--foreground);
     background: var(--muted);
   }
@@ -329,9 +330,8 @@
   :is(.tabs, .code-tabs, .os-tabs) > [role="tablist"] > [aria-selected="true"],
   .install-tabs-tab:has(.install-tabs-radio:checked) {
     border-block-end-color: var(--ring);
-    background: var(--muted);
-    color: var(--foreground);
-    font-weight: 700;
+    background: var(--accent);
+    color: var(--accent-foreground);
   }
 
   :is(.tabs, .os-tabs) > [role="tabpanel"] {
@@ -384,7 +384,7 @@
   }
 
   .install-tabs-tab:has(.install-tabs-radio:focus-visible) {
-    outline: 2px solid var(--ring);
+    outline: 3px solid var(--ring);
     outline-offset: -3px;
   }
 
@@ -665,10 +665,23 @@
     padding: 0.5rem 0.75rem;
   }
 
-  .details-summary,
-  details.soft summary {
+  :is(.details, details.soft) > summary {
     cursor: pointer;
     font-weight: 600;
+  }
+
+  :is(.details, details.soft, .code-details) > summary {
+    border-radius: var(--radius-sm);
+  }
+
+  :is(.details, details.soft, .code-details) > summary:hover {
+    text-decoration: underline;
+    text-underline-offset: 0.2em;
+  }
+
+  :is(.details, details.soft, .code-details)[open] > summary,
+  :is(.details, details.soft, .code-details) > summary::marker {
+    color: var(--link);
   }
 
   .details-body > :last-child {

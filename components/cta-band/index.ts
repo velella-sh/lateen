@@ -69,10 +69,11 @@ export default function ctaBand(input: ComponentProps<CtaBandProps>) {
               [COPY_ATTRIBUTE]: "",
               "data-commands": commandFor(managers[0]!, packageOf({ package: pkg }, "")),
               "data-copied": t(lang, "copied"),
-              "data-copy-failed": t(lang, "copy_failed"),
+              "data-copy-failed": t(lang, "copy_failed_select"),
             },
             t(lang, "copy"),
           ),
+          h("span", { class: "cta-band-copy-status", role: "status" }),
         );
 
   return h(

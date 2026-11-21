@@ -522,6 +522,7 @@
 
   .search-field input {
     flex: 1;
+    min-inline-size: 0;
     block-size: 2.75rem;
     /* The value keeps its own direction inside a dialog that stays in the page language. */
     unicode-bidi: plaintext;
@@ -529,6 +530,16 @@
     background: transparent;
     color: var(--foreground);
     font-size: 1rem;
+  }
+
+  .search-field input:focus {
+    outline: 2px solid var(--ring);
+    outline-offset: 2px;
+    border-radius: var(--radius-sm);
+  }
+
+  .search-field > .iconbtn:focus-visible {
+    outline-offset: -3px;
   }
 
   /* The island's clear button is the only one: no second native × in WebKit. */
@@ -645,28 +656,37 @@
     cursor: pointer;
   }
 
-  .search [role="option"]:is(:hover, [aria-selected="true"]) {
+  .search [role="option"]:hover {
     background: var(--muted);
   }
 
   .search [role="option"][aria-selected="true"] {
-    border-inline-start: 2px solid var(--link);
+    border-inline-start-color: var(--ring);
+    background: var(--accent);
 
     @media (forced-colors: active) {
       border-inline-start-color: Highlight;
     }
   }
 
-  .search-action-hint,
-  .search-status {
+  .search-action-hint {
     color: var(--muted-foreground);
     font-size: 0.825rem;
   }
 
   .search-status {
+    flex: none;
     margin: 0;
     padding: 0.625rem 0.875rem;
+    color: var(--foreground);
+    font-size: 0.825rem;
+    font-weight: 600;
     overflow-wrap: anywhere;
+  }
+
+  .search-status:not(:empty) {
+    border-block-end: 1px solid var(--border);
+    background: var(--muted);
   }
 
   .search-status:empty {

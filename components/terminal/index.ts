@@ -322,7 +322,7 @@ export default function terminal({ props, html, page }: ComponentProps<TerminalP
               "data-terminal-copy": true,
               "data-commands": commands,
               "data-copied": t(lang, "copied"),
-              "data-copy-failed": t(lang, "copy_failed"),
+              "data-copy-failed": t(lang, "copy_failed_select"),
               ...group,
             },
             t(lang, "copy"),

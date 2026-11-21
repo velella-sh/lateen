@@ -115,12 +115,31 @@
     border-color: currentColor;
   }
 
+  :is(.code-copy, .code-wrap, .terminal-copy):focus-visible {
+    outline-offset: -3px;
+  }
+
   .code-wrap[aria-pressed="true"] {
     color: var(--ring);
   }
 
   :is(.code-copy-status, .terminal-status) {
     order: -1;
+    flex: 1 1 0;
+    min-inline-size: 0;
+    font-weight: 600;
+    line-height: 1.25;
+    overflow-wrap: anywhere;
+  }
+
+  .code-copy-status[data-copy-result="error"] {
+    color: var(--color-danger);
+  }
+
+  .cta-band-copy-status {
+    margin-inline-start: var(--space-2);
+    font-size: var(--text-sm);
+    font-weight: 600;
   }
 
   /* The wrap toggle changes presentation only: the text, its line breaks, and the copy stay as written. */
