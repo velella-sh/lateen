@@ -66,15 +66,16 @@ export default function featureGrid({ features, columns, base = "" }: FeatureGri
       node === undefined
         ? null
         : h("span", { class: "feature-grid-icon", "aria-hidden": "true" }, icon({ node })),
-      h("span", { class: "feature-grid-title" }, title),
+      h("strong", { class: "feature-grid-title" }, title),
       description === undefined ? null : h("span", { class: "feature-grid-text" }, description),
     ];
+    const className = "feature-grid-card home-section card";
     const card =
       href === undefined
-        ? h("div", { class: "feature-grid-card" }, ...parts)
-        : h("a", { class: "feature-grid-card", href: withBase(base, href) }, ...parts);
+        ? h("div", { class: className }, ...parts)
+        : h("a", { class: className, href: withBase(base, href) }, ...parts);
     return h("li", { class: index === wideIndex ? `${ITEM_CLASS} ${WIDE_CLASS}` : ITEM_CLASS }, card);
   });
 
-  return h("ul", { class: GRID_CLASS, "data-columns": String(columnsOf(columns)) }, items);
+  return h("ul", { class: `${GRID_CLASS} home-sections`, "data-columns": String(columnsOf(columns)) }, items);
 }
