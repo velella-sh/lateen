@@ -294,7 +294,7 @@ test("the block selector skips terminal bodies that already have their own copy 
   assert.equal(BLOCK_SELECTOR, "pre.code:not(.terminal-body)");
 });
 
-test("activate wraps each block and places one icon control at its top-right", () => {
+test("activate wraps each block with a labelled copy button and separate language label", () => {
   const block = new FakeBlock({ "data-lang": "ts" }, "const a = 1;");
   const doc = new FakeDoc([block]);
   activate(doc, { clipboard: clipboard(), schedule: timers().schedule });
@@ -311,7 +311,8 @@ test("activate wraps each block and places one icon control at its top-right", (
   assert.equal(button.tag, "button");
   assert.equal(button.attrs.type, "button");
   assert.equal(button.attrs.class, BUTTON_CLASS);
-  assert.equal(button.attrs["aria-label"], "Copy");
+  assert.equal(button.children[2], "Copy");
+  assert.equal(bar.attrs["data-lang"], "ts");
 
   const [copyIcon, checkIcon] = button.children as FakeNode[];
   assert.equal(copyIcon!.hasAttr("hidden"), false);
@@ -380,7 +381,7 @@ test("adjacent copy controls announce on their own status region, one action at 
   assert.equal(b.status.attrs.role, "status");
   assert.equal(a.status.textContent, COPIED);
   assert.equal(b.status.textContent, "");
-  assert.equal(a.button.attrs["aria-label"], DEFAULT_LABELS.copy, "the name alone does not change");
+  assert.equal(a.button.children[2], DEFAULT_LABELS.copy, "the button label stays the same");
   assert.equal(clock.pending.length, 1, "one action schedules one reset");
 
   clock.pending[0]!.callback();
@@ -391,7 +392,7 @@ test("adjacent copy controls announce on their own status region, one action at 
 
   assert.equal(a.status.textContent, "");
   assert.equal(b.status.textContent, COPIED);
-  assert.equal(b.button.attrs["aria-label"], DEFAULT_LABELS.copy, "the name alone does not change");
+  assert.equal(b.button.children[2], DEFAULT_LABELS.copy, "the button label stays the same");
   assert.equal(clock.pending.length, 2, "one action schedules one reset");
 });
 
@@ -457,7 +458,7 @@ test("a failure after a success replaces the check mark and keeps the button nam
   assert.equal(status.textContent, FAILED);
   assert.equal(checkIcon.hasAttr("hidden"), true);
   assert.equal(copyIcon.hasAttr("hidden"), false);
-  assert.equal(button.attrs["aria-label"], DEFAULT_LABELS.copy);
+  assert.equal(button.children[2], DEFAULT_LABELS.copy);
 });
 
 test("a write that throws at once shows the fallback message", async () => {
@@ -498,7 +499,7 @@ test("the control's words come from the page template", () => {
   activate(doc, { clipboard: clipboard(), schedule: timers().schedule });
 
   const button = (block.inserted[0]!.children[0] as FakeNode).children[0] as FakeNode;
-  assert.equal(button.attrs["aria-label"], "کپی");
+  assert.equal(button.children[2], "کپی");
 });
 
 test("the wrap toggle adds the wrapping class and reports its pressed state", () => {

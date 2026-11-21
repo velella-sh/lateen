@@ -84,7 +84,7 @@ The request body reads `required`, `description`, and `content`. A response read
 
 | Field | What the layout reads |
 | --- | --- |
-| `type` | The type name, or a union joined with `|`. |
+| `type` | The type name, or a union joined with `\|`. |
 | `format` | A format row, and the type cell's `(format)` note. |
 | `description` | A description above the schema rows. |
 | `enum` | One code value per allowed value. |

@@ -144,7 +144,7 @@ interface CopyUi {
  * prompts are taken off and every line stays; in a Python block the `>>> ` and `... ` prompts. Every other
  * language is copied as written.
  */
-export function copyText(text: string, lang: string | undefined): string {
+export function copyText(text: string, lang: string | null | undefined): string {
   const kind = (lang ?? "").trim().toLowerCase();
   const lines = text.split("\n");
   if (kind === "diff" || kind === "patch") return fromDiff(lines).join("\n");
@@ -296,11 +296,13 @@ function attach(
   const button = doc.createElement("button");
   button.setAttribute("type", "button");
   button.setAttribute("class", BUTTON_CLASS);
-  button.setAttribute("aria-label", labels.copy);
 
   // The source, language, and stable block id ride on the control, so a copy keeps its context.
   const lang = block.getAttribute("data-lang");
-  if (lang !== null) button.setAttribute("data-lang", lang);
+  if (lang !== null) {
+    button.setAttribute("data-lang", lang);
+    bar.setAttribute("data-lang", lang);
+  }
   const source = block.getAttribute("data-src");
   if (source !== null) button.setAttribute("data-src", source);
   const identity = block.getAttribute("id") ?? source;
@@ -309,7 +311,7 @@ function attach(
   const copyIcon = icon(doc, icons.copy);
   const checkIcon = icon(doc, icons.check);
   checkIcon.setAttribute("hidden", "");
-  button.append(copyIcon, checkIcon);
+  button.append(copyIcon, checkIcon, labels.copy);
 
   // A real button, so Enter and Space work without a key handler. It changes only the block's class.
   const wrap = doc.createElement("button");
@@ -340,7 +342,7 @@ function attach(
   button.addEventListener("click", async () => {
     if (!isLive()) return;
     const click = ++clicks;
-    const text = copyText(code.textContent ?? "", block.getAttribute("data-lang") ?? undefined);
+    const text = copyText(code.textContent ?? "", block.getAttribute("data-lang"));
     const ok = await writeClipboard(env.clipboard, text);
     if (click === clicks && isLive()) flash.show(ui, ok);
   });

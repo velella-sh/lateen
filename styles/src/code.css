@@ -99,11 +99,19 @@
     grid-template: auto / minmax(0, 1fr) auto;
   }
 
-  .code-copy[data-lang]:not([data-lang="text"])::after {
+  .code-copy-bar[data-lang]:not([data-lang="text"], :has(> .code-copy-status:not(:empty)))::before {
     content: attr(data-lang);
+    grid-area: 1 / 1;
+    justify-self: start;
+    color: var(--muted-foreground);
     font-family: var(--type-font-mono);
-    margin-inline-start: var(--space-1);
+    direction: ltr;
+    unicode-bidi: isolate;
     overflow-wrap: anywhere;
+  }
+
+  .code-copy {
+    gap: var(--space-1);
   }
 
   :is(.code-copy, .code-wrap, .terminal-copy) {
