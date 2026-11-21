@@ -50,8 +50,14 @@
 }
 
 @media (max-width: 48rem) {
-  .layout {
-    inline-size: min(100% - 2rem, 84rem);
+  .layout,
+  .header-inner,
+  .footer-inner {
+    inline-size: calc(100% - 2rem);
+  }
+
+  .footer-inner {
+    display: grid;
   }
 
   .home-sections,

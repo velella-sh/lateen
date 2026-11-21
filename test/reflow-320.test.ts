@@ -14,6 +14,28 @@ try {
 const skip = browser === undefined ? "Chromium is not installed (npx playwright install chromium)" : false;
 after(async () => browser?.close());
 
+test("the site footer reaches the viewport edge on short pages and follows long content", { skip }, async () => {
+  const site = build("integration", process.env, {
+    "short.md": "---\ntitle: Short page\nlayout: home\n---\nA short page.",
+  });
+  const server = await serve(site.out);
+  const page = await (browser as Browser).newPage({ viewport: { width: 1440, height: 1200 } });
+  try {
+    await page.goto(`${server.url}/short/`);
+    await page.evaluate(() => document.fonts.ready);
+    const footer = page.locator("body > footer");
+    assert.equal(await footer.evaluate((element) => element.getBoundingClientRect().bottom), 1200);
+
+    await page.setViewportSize({ width: 375, height: 600 });
+    await page.goto(`${server.url}/guide/install/`);
+    assert.ok(await footer.evaluate((element) => element.getBoundingClientRect().top > window.innerHeight));
+    await footer.scrollIntoViewIfNeeded();
+    assert.ok(await footer.evaluate((element) => element.getBoundingClientRect().bottom <= window.innerHeight));
+  } finally {
+    await page.close();
+  }
+});
+
 test("the mobile search trigger shows an icon and opens with the keyboard in both directions", { skip }, async () => {
   const site = build("integration");
   const server = await serve(site.out);
