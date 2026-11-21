@@ -89,6 +89,21 @@
   min-inline-size: 1.5rem;
 }
 
+/* Install-tab radios are the state; the labels are the visible control. A 24px input would sit on the pills. */
+.install-tabs-radio {
+  position: absolute;
+  inline-size: 1px;
+  block-size: 1px;
+  min-inline-size: 0;
+  min-block-size: 0;
+  margin: -1px;
+  padding: 0;
+  overflow: hidden;
+  clip-path: inset(50%);
+  border: 0;
+  opacity: 0;
+}
+
 /* The mobile selector disclosure and its options keep one 2.75rem target above the 1.5rem floor. */
 .mobile-selector-summary,
 .mobile-selector-link {

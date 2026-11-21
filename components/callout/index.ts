@@ -8,6 +8,9 @@ import { t } from "../../i18n/index.ts";
 /** Class of the title paragraph, which also names the callout for assistive technology. */
 export const TITLE_CLASS = "callout-title";
 
+/** Class of the kind label shown above an author's title, matching the mockup eyebrow. */
+export const KIND_CLASS = "callout-kind";
+
 /** The five kinds GitHub alerts and `:::callout{type=…}` directives use. */
 export type CalloutKind = "note" | "tip" | "important" | "warning" | "caution";
 
@@ -79,7 +82,8 @@ function titleId(page: Page, kind: CalloutKind): string {
 export default function callout({ props, html, page }: ComponentProps<CalloutProps>) {
   const kind = calloutKind(props.type);
   const custom = typeof props.title === "string" ? props.title.trim() : "";
-  const title = custom === "" ? t(page.lang, TITLE_KEYS[kind]) : custom;
+  const kindLabel = t(page.lang, TITLE_KEYS[kind]);
+  const title = custom === "" ? kindLabel : custom;
   const id = titleId(page, kind);
 
   return h(
@@ -89,6 +93,7 @@ export default function callout({ props, html, page }: ComponentProps<CalloutPro
     h(
       "div",
       { class: "callout-content" },
+      custom === "" ? null : h("p", { class: KIND_CLASS }, kindLabel),
       h("p", { class: TITLE_CLASS, id }, title),
       h("div", { class: "callout-body", dangerouslySetInnerHTML: { __html: html } }),
     ),
