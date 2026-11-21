@@ -89,6 +89,47 @@
     min-block-size: 1.5rem;
   }
 
+  /* The tab panel reserves a row for controls so even a long command scrolls clear of them. */
+  :is(.code-tabs-body, .install-tabs-panel) > .code-frame {
+    @apply rounded-lg border;
+    border-color: var(--border);
+    background: var(--night);
+  }
+
+  .code-tabs-body > .code,
+  .install-tabs-code,
+  :is(.code-tabs-body, .install-tabs-panel) > .code-frame > .code {
+    @apply m-0 rounded-lg px-4 py-3 text-sm;
+    font-family: var(--type-font-mono);
+    line-height: 1.6;
+  }
+
+  :is(.code-tabs-body, .install-tabs-panel) > .code-frame > .code {
+    @apply rounded-t-none;
+    outline-offset: -3px;
+  }
+
+  :is(.code-tabs-body, .install-tabs-panel) > .code-frame > .code-copy-bar {
+    @apply static flex-wrap justify-end gap-2 px-3 py-2;
+    border-block-end: 1px solid color-mix(in srgb, var(--sail) 18%, transparent);
+  }
+
+  :is(.code-tabs-body, .install-tabs-panel) .code-copy-bar > :is(.code-copy, .code-wrap) {
+    @apply h-8 rounded-md font-sans;
+    color: var(--sail);
+    background: var(--night-raised);
+    cursor: pointer;
+  }
+
+  :is(.code-tabs-body, .install-tabs-panel) .code-copy-bar > .code-copy {
+    @apply w-8;
+  }
+
+  :is(.code-tabs-body, .install-tabs-panel) .code-copy-bar > :is(button:hover, button[aria-pressed="true"]):not(:focus-visible) {
+    outline: 1px solid var(--blue-lift);
+    outline-offset: -1px;
+  }
+
   /* The wrap toggle changes presentation only: the text, its line breaks, and the copy stay as written. */
   .code.is-wrapped {
     overflow-x: hidden;
