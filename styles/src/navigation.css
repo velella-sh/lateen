@@ -85,8 +85,8 @@
     background: none;
   }
 
-  .article-tools details > summary,
-  .back-to-top {
+  .back-to-top,
+  .article-tools details > summary {
     @apply rounded px-2 py-1.5 text-[0.8125rem] font-semibold hover:bg-muted;
   }
 
