@@ -351,10 +351,13 @@ test("a copy keeps intentional indentation, tabs, and trailing spaces exactly", 
 });
 
 test("the live message is a status region that starts empty", () => {
-  const { status } = page("x", undefined, clipboard());
+  const { bar, status } = page("x", undefined, clipboard());
   assert.equal(status.attrs.class, STATUS_CLASS);
   assert.equal(status.attrs.role, "status");
   assert.equal(status.textContent, "");
+  const size = bar.children[3] as FakeNode;
+  assert.equal(size.attrs["aria-hidden"], "true");
+  assert.equal(size.textContent, FAILED);
 });
 
 test("adjacent copy controls announce on their own status region, one action at a time", async () => {

@@ -95,7 +95,8 @@
   }
 
   :is(.code-copy-bar, .terminal-bar) {
-    @apply flex flex-wrap items-center justify-end gap-1;
+    @apply grid grid-flow-col items-center gap-1;
+    grid-template: auto / minmax(0, 1fr) auto;
   }
 
   .code-copy[data-lang]:not([data-lang="text"])::after {
@@ -123,13 +124,21 @@
     color: var(--ring);
   }
 
-  :is(.code-copy-status, .terminal-status) {
-    order: -1;
-    flex: 1 1 0;
+  :is(.code-copy-status, .terminal-status, .copy-status-size) {
+    grid-area: 1 / 1;
     min-inline-size: 0;
     font-weight: 600;
     line-height: 1.25;
     overflow-wrap: anywhere;
+  }
+
+  /* The longest feedback fits the same space before and after a copy. */
+  .copy-status-size {
+    visibility: hidden;
+  }
+
+  .terminal-copy[hidden] ~ .copy-status-size {
+    display: none;
   }
 
   .code-copy-status[data-copy-result="error"] {

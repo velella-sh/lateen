@@ -350,7 +350,11 @@ function attach(doc: CopyDocument, block: CopyBlock, env: CopyEnv, labels: CopyL
     block.classList.toggle?.(WRAPPED_CLASS, wrapped);
   });
 
-  bar.append(button, status, wrap);
+  const size = doc.createElement("span");
+  size.setAttribute("class", "copy-status-size");
+  size.setAttribute("aria-hidden", "true");
+  size.textContent = labels.failed;
+  bar.append(button, status, wrap, size);
 
   const frame = doc.createElement("div");
   frame.setAttribute("class", FRAME_CLASS);
