@@ -359,8 +359,8 @@ const globals = globalThis as unknown as {
 if (globals.document) {
   activate(globals.document, {
     clipboard: globals.navigator?.clipboard,
-    schedule: setTimeout,
-    cancel: clearTimeout,
+    schedule: setTimeout.bind(globalThis),
+    cancel: clearTimeout.bind(globalThis),
   });
   const mark = (): void => {
     targetLines(globals.document!, globals.location?.hash ?? "");
