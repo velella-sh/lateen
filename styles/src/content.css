@@ -915,6 +915,7 @@
   }
 
   .trust-panel {
+    position: relative;
     margin: 0.75rem 0;
   }
 
@@ -928,6 +929,12 @@
     text-decoration: underline;
   }
 
+  .page-status,
+  .trust-panel-chip {
+    background: color-mix(in srgb, var(--card) 70%, transparent);
+    box-shadow: inset 0 0 0 1px var(--border);
+  }
+
   .trust-panel-chip {
     display: inline-flex;
     align-items: center;
@@ -935,38 +942,36 @@
     min-block-size: 1.75rem;
     padding: 0.25rem 0.625rem;
     border-radius: 999px;
-    background: color-mix(in srgb, var(--card) 70%, transparent);
-    box-shadow: inset 0 0 0 1px var(--border);
     color: var(--muted-foreground);
     cursor: pointer;
     font-size: 0.75rem;
     list-style: none;
   }
 
-  .trust-panel-chip::-webkit-details-marker {
-    display: none;
-  }
-
-  .trust-panel-icon {
-    inline-size: 0.875rem;
-    block-size: 0.875rem;
+  .trust-panel-body {
+    background: var(--card);
+    border: 1px solid var(--border);
   }
 
   .trust-panel-body {
-    max-inline-size: 40em;
-    margin-block-start: 0.5rem;
+    position: absolute;
+    z-index: 3;
+    inline-size: min(25rem, 100%);
     padding: 0.75rem;
     border-radius: 0.75rem;
     background: var(--card);
+    overflow-wrap: anywhere;
   }
 
-  .trust-panel-revision {
-    color: inherit;
-    text-decoration: underline;
+  .trust-panel-actions,
+  .trust-panel-rows {
+    display: grid;
+    grid-template-columns: 2fr 3fr;
+    gap: 0.25rem;
   }
 
-  .trust-panel-revision code {
-    font-size: 0.75rem;
+  .trust-panel-body :is(dl, p, ul) {
+    margin: 0;
   }
 
   .doc-body [data-src] {
@@ -997,8 +1002,6 @@
 
   .page-status {
     @apply flex flex-wrap items-center gap-2 rounded-xl px-3 py-2 my-4 text-sm;
-    background: color-mix(in srgb, var(--card) 70%, transparent);
-    box-shadow: inset 0 0 0 1px var(--border);
   }
 
   .page-status-message {
