@@ -170,6 +170,10 @@ export function responseFailure(
   return `HTTP ${status} ${url}`;
 }
 
+export function isTemporaryPagefindResponse(url: string, status: number, base: string): boolean {
+  return [502, 503, 504].includes(status) && url.startsWith(deployedRoute("/pagefind/", base));
+}
+
 export interface DeployedResult {
   readonly name: string;
   readonly path: string;
@@ -178,6 +182,22 @@ export interface DeployedResult {
   readonly status: number;
   readonly ok: boolean;
   readonly error?: string | undefined;
+}
+
+interface DeployedAttempt extends DeployedResult {
+  readonly temporaryPagefindFailure: string | undefined;
+}
+
+/** Retry one fresh visit after a transient Pagefind response from the Pages edge. */
+export async function retryDeployedVisit(
+  visit: () => Promise<DeployedAttempt>,
+  pause: () => Promise<void> = () => new Promise((resolve) => setTimeout(resolve, DEPLOY_POLL_MS)),
+): Promise<DeployedResult> {
+  const first = await visit();
+  if (first.ok || first.temporaryPagefindFailure === undefined) return first;
+  console.warn(`Retrying ${first.name} (${first.viewport} ${first.scheme}) after ${first.temporaryPagefindFailure}`);
+  await pause();
+  return visit();
 }
 
 export interface DeployedReportInput {
@@ -297,7 +317,7 @@ async function auditCase(
   viewport: DeployedViewport,
   size: { readonly width: number; readonly height: number },
   scheme: DeployedScheme,
-): Promise<DeployedResult> {
+): Promise<DeployedAttempt> {
   const context = await browser.newContext({
     viewport: { width: size.width, height: size.height },
     colorScheme: scheme,
@@ -308,6 +328,7 @@ async function auditCase(
     if (!errors.includes(message)) errors.push(message);
   };
   let status = 0;
+  let temporaryPagefindFailure: string | undefined;
   try {
     const page = await context.newPage();
     page.on("console", (message) => {
@@ -326,7 +347,12 @@ async function auditCase(
     });
     page.on("response", (response) => {
       const isDocument = response.request().isNavigationRequest() && response.frame() === page.mainFrame();
-      const failure = responseFailure(response.url(), response.status(), base, item.status, isDocument);
+      const url = response.url();
+      const code = response.status();
+      if (isTemporaryPagefindResponse(url, code, base)) {
+        temporaryPagefindFailure = `HTTP ${code} ${url}`;
+      }
+      const failure = responseFailure(url, code, base, item.status, isDocument);
       if (failure !== undefined) fail(failure);
     });
 
@@ -363,6 +389,7 @@ async function auditCase(
     scheme,
     status,
     ok: errors.length === 0,
+    temporaryPagefindFailure,
     ...(errors[0] === undefined ? {} : { error: errors[0] }),
   };
 }
@@ -376,19 +403,18 @@ async function main(): Promise<void> {
   const file = reportPath(argv) ?? REPORT_FILE;
   await waitForCommit(base, commit);
 
-  let browser: Browser | undefined;
   const cases: DeployedResult[] = [];
+  const browser = await chromium.launch();
   try {
-    browser = await chromium.launch();
     for (const item of DEPLOYED_CASES) {
       for (const viewport of VIEWPORTS) {
         for (const scheme of SCHEMES) {
-          cases.push(await auditCase(browser, base, item, viewport.name, viewport, scheme));
+          cases.push(await retryDeployedVisit(() => auditCase(browser, base, item, viewport.name, viewport, scheme)));
         }
       }
     }
   } finally {
-    await browser?.close();
+    await browser.close();
   }
 
   writeReport(file, schemaAt("deployed-smoke.schema.json"), buildDeployedReport({ base, commit, cases }));

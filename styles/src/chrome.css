@@ -716,6 +716,10 @@
 
   .search [role="option"][aria-selected="true"] {
     border-inline-start: 2px solid var(--link);
+
+    @media (forced-colors: active) {
+      border-inline-start-color: Highlight;
+    }
   }
 
   .search-action-hint,

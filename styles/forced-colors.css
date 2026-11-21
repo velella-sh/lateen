@@ -282,10 +282,6 @@
     color: MarkText !important;
   }
 
-  .search [role="option"][aria-selected="true"] {
-    border-inline-start-color: Highlight;
-  }
-
   /* Buttons and button-shaped links take the system button fill, border, and text. */
   .announcement-dismiss,
   .ask-agent-copy,
