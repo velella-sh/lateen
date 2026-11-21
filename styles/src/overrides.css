@@ -162,8 +162,6 @@ html[data-js] .source-mode-switch[hidden] {
 .tag a,
 .tags a,
 .breadcrumb-item a,
-.code-copy,
-.code-wrap,
 .cta-band-action,
 .chart-data-downloads a,
 .embed-link,
@@ -177,16 +175,6 @@ html[data-js] .source-mode-switch[hidden] {
   justify-content: center;
   padding-block: 0.25rem;
   padding-inline: 0.4rem;
-}
-
-.code-copy {
-  min-block-size: 1.5rem;
-  min-inline-size: 1.5rem;
-}
-
-.terminal-copy {
-  color: var(--sail);
-  background: var(--night-raised);
 }
 
 .breadcrumb-title {

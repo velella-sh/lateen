@@ -311,7 +311,8 @@ export function highlightFences(html: string, backdrops?: CodeBackdrops, lang = 
   const hl = get();
   return html
     .replace(FENCE, (match, attrs: string, fenceLang: string | undefined, body: string) => {
-      if (fenceLang === "mermaid" || /\sclass="code"/.test(attrs)) return match;
+      const classes = attribute(attrs, "class")?.split(/\s+/) ?? [];
+      if (fenceLang === "mermaid" || classes.includes(CODE_CLASS) || classes.includes("terminal-body")) return match;
       const name = fenceLang ?? "text";
       const meta = parseFenceMeta(attribute(attrs, "data-code"));
       const grammar = ALIASES[name] ?? name;

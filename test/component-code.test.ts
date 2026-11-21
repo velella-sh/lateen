@@ -149,6 +149,11 @@ test("highlightFences highlights a plain fence, keeps data-src, and gives it a s
   assert.equal(highlightFences(diagram), diagram);
 });
 
+test("highlightFences preserves the terminal rows used by its copy control", () => {
+  const session = '<pre class="terminal-body" tabindex="0"><code><span class="terminal-command"><span class="terminal-text">npm install</span></span><span class="terminal-output">added 1 package</span></code></pre>';
+  assert.equal(highlightFences(session), session);
+});
+
 /** `data-code` as rehype writes it: the JSON's quotes and ampersands escaped for the attribute, `>` left alone. */
 function dataCode(meta: Record<string, unknown>): string {
   return JSON.stringify(meta).replace(/&/g, "&amp;").replace(/"/g, "&#x22;");

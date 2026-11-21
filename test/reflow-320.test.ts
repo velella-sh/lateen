@@ -30,7 +30,8 @@ test("the site footer reaches the viewport edge on short pages and follows long 
     await page.goto(`${server.url}/guide/install/`);
     assert.ok(await footer.evaluate((element) => element.getBoundingClientRect().top > window.innerHeight));
     await footer.scrollIntoViewIfNeeded();
-    assert.ok(await footer.evaluate((element) => element.getBoundingClientRect().bottom <= window.innerHeight));
+    // The scroll position rounds to a whole pixel even when the content has a fractional height.
+    assert.ok(await footer.evaluate((element) => Math.round(element.getBoundingClientRect().bottom) <= window.innerHeight));
   } finally {
     await page.close();
   }

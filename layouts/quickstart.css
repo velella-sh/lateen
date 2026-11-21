@@ -1,25 +1,13 @@
-/* Quickstart places each copy control beside its step heading. */
 .doc-body[data-quickstart] > p:first-child {
   padding-block-start: 1rem;
   border-block-start: 1px solid var(--border);
 }
 
 .quickstart-step {
-  display: grid;
-  align-items: center;
-  column-gap: var(--space-2);
-  grid-template-columns: minmax(0, 1fr) auto;
   margin-block-start: var(--doc-section-space, 2rem);
 }
 
-.quickstart-step > *,
-.quickstart-step .code {
-  grid-column: 1 / -1;
-  min-inline-size: 0;
-}
-
 .doc-body .quickstart-step > h2 {
-  grid-area: 1 / 1;
   margin: 0;
 }
 
@@ -27,35 +15,8 @@
   margin-block: 0.5rem;
 }
 
-.quickstart-step .code-frame {
-  display: contents;
-}
-
-.quickstart-step .code-copy-bar {
-  grid-area: 1 / 2;
-  border: 0;
-  padding: 0;
-}
-
-.quickstart-step .code {
-  border: 1px solid var(--doc-code-border, var(--code-border));
-  border-radius: var(--radius-card);
+.quickstart-step > :is(.code-frame, .code) {
   margin-block-start: 0.625rem;
-}
-
-.quickstart-step .code-copy-bar .code-copy {
-  display: inline-flex;
-  align-items: center;
-  gap: 0.375rem;
-  inline-size: auto;
-  padding-inline: var(--space-2);
-  border: 1px solid var(--border);
-  background: transparent;
-  color: var(--muted-foreground);
-}
-
-.quickstart-step .code-copy::after {
-  content: attr(aria-label);
 }
 
 @media (width >= 48rem) {
