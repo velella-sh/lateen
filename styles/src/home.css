@@ -1,5 +1,90 @@
 /* Landing and 404 pages: hero, preview, home sections, lonely page. */
 @layer components {
+  .home-showpiece-hero {
+    padding-block: clamp(2.5rem, 8vw, 6.5rem) clamp(2rem, 5vw, 4rem);
+  }
+
+  .home-showpiece .hero-title {
+    max-inline-size: 23ch;
+    margin: 0;
+    font-size: clamp(2rem, 5.5vw, 4.5rem);
+    font-weight: 700;
+    line-height: 1.08;
+    letter-spacing: -0.04em;
+    text-wrap: balance;
+  }
+
+  .home-showpiece .hero-lead {
+    max-inline-size: 55ch;
+    margin-block: var(--space-4) 0;
+    color: var(--muted-foreground);
+    font-size: clamp(1rem, 1.6vw, 1.125rem);
+    line-height: 1.65;
+    text-wrap: pretty;
+  }
+
+  .home-showpiece .hero-actions {
+    @apply flex flex-wrap items-center;
+    gap: var(--space-2);
+    margin-block-start: var(--space-6);
+  }
+
+  .home-showpiece .hero-btn {
+    @apply inline-flex items-center justify-center rounded-lg px-4 text-sm font-semibold;
+    min-block-size: 2.75rem;
+  }
+
+  .home-showpiece .hero-btn-primary {
+    background: var(--primary);
+    color: var(--primary-foreground);
+    text-decoration: none;
+  }
+
+  .home-showpiece .hero-btn-primary:hover {
+    text-decoration: underline;
+  }
+
+  .home-showpiece .hero-btn-quiet {
+    color: var(--link);
+    text-decoration: underline;
+    text-underline-offset: 0.2em;
+  }
+
+  .home-showpiece > .feature-grid {
+    @apply m-0 grid list-none p-0;
+    grid-template-columns: repeat(auto-fit, minmax(min(100%, 15rem), 1fr));
+    gap: var(--space-6);
+    margin-block-end: clamp(2.5rem, 6vw, 5rem);
+  }
+
+  .home-showpiece .feature-grid-card {
+    display: grid;
+    align-content: start;
+    gap: var(--space-2);
+    block-size: 100%;
+    border-block-start: 1px solid var(--border);
+    padding: var(--space-4) var(--space-2);
+    color: var(--foreground);
+    text-decoration: none;
+  }
+
+  .home-showpiece .feature-grid-icon {
+    color: var(--link);
+  }
+
+  .home-showpiece .feature-grid-title {
+    font-weight: 700;
+  }
+
+  .home-showpiece a.feature-grid-card:hover .feature-grid-title {
+    text-decoration: underline;
+  }
+
+  .home-showpiece .feature-grid-text {
+    color: var(--muted-foreground);
+    line-height: 1.55;
+  }
+
   .home-stage {
     display: grid;
     grid-template-columns: minmax(0, 1.05fr) minmax(17.5rem, 0.95fr);

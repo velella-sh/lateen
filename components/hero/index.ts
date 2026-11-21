@@ -1,5 +1,6 @@
 import { h } from "preact";
 import type { Component } from "@velella/mizzen/contracts";
+import { baseOf, withBase } from "../../src/url.ts";
 
 /** The alignments of a hero: text at the start, centred, or text beside a visual. */
 export const ALIGNMENTS = ["start", "center", "split"] as const;
@@ -38,7 +39,7 @@ function text(value: unknown): string | undefined {
  * places the visual in a second column and never reorders it. The component renders the only `h1` it
  * knows of, so a page must not put another `h1` in the visual.
  */
-const hero: Component<HeroProps> = ({ props, html, page }) => {
+const hero: Component<HeroProps> = ({ props, html, page, site }) => {
   const title = text(props.title) ?? text(page?.title);
   const eyebrow = text(props.eyebrow);
   const lead = text(props.lead);
@@ -49,7 +50,7 @@ const hero: Component<HeroProps> = ({ props, html, page }) => {
     const l = text(label);
     const u = text(url);
     if (l === undefined || u === undefined) return [];
-    return [h("a", { class: primary === true ? "hero-btn hero-btn-primary" : "hero-btn hero-btn-quiet", href: u }, l)];
+    return [h("a", { class: primary === true ? "hero-btn hero-btn-primary" : "hero-btn hero-btn-quiet", href: withBase(baseOf(site), u) }, l)];
   });
   const hasVisual = typeof html === "string" && html.trim() !== "";
   const align = alignOf(props.align);

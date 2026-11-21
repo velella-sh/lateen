@@ -12,6 +12,7 @@ import hero from "../components/hero/index.ts";
 import motif from "../components/motif/index.ts";
 import statStrip from "../components/stat-strip/index.ts";
 import { resolveBrand } from "../src/brand.ts";
+import { baseOf } from "../src/url.ts";
 import base from "./base.ts";
 
 /**
@@ -273,7 +274,7 @@ function showpieceContent(props: LayoutProps): ComponentChildren {
   blocks.push(call(statStrip, { ...shared, props: {} }));
 
   const features = Array.isArray(fm.features) ? fm.features : recordsOf(fm.sections);
-  blocks.push(featureGrid({ features }));
+  blocks.push(featureGrid({ features, base: baseOf(site) }));
 
   let bodyUsed = false;
   const demo = fm.demo;

@@ -571,15 +571,23 @@ async function runJourney(
       await page.waitForURL((url) => url.pathname === "/ar/");
       if ((await page.locator("html").getAttribute("lang")) !== "ar") throw new Error("the Arabic page did not set lang");
     } else if (name === "copy a code block") {
-      await page.goto(`${servers.docs.url}/lateen/components/code/`, { waitUntil: "load" });
-      await focusControl(page, ".code-copy");
-      await page.keyboard.press("Space");
-      await page.waitForFunction(() => (document.querySelector(".code-copy-status")?.textContent ?? "") !== "");
-      const status = page.locator(".code-copy-status").first();
-      if ((await status.textContent())?.trim() === "") throw new Error("the copy control said nothing");
-      const copied = await page.evaluate(() => navigator.clipboard.readText());
-      if (copied.trim() === "") throw new Error("the clipboard is empty after a copy");
-      await expectFocus(page, ".code-copy");
+      await page.goto(`${servers.docs.url}/lateen/`, { waitUntil: "load" });
+      await focusControl(page, ".hero-btn-primary");
+      await page.keyboard.press("Enter");
+      await page.waitForURL((url) => url.pathname === "/lateen/install/");
+      const blocks = await page.locator(".doc-body pre.code").evaluateAll((nodes) => nodes.map((node) => node.id));
+      if (blocks.length !== 4) throw new Error("the quickstart did not render all four command blocks");
+      for (const id of blocks) {
+        const frame = `.code-frame:has(pre[id="${id}"])`;
+        const button = `${frame} .code-copy`;
+        await focusControl(page, button);
+        await page.keyboard.press("Space");
+        await page.waitForFunction((selector) => document.querySelector(selector)?.textContent === "Copied", `${frame} .code-copy-status`);
+        const copied = await page.evaluate(() => navigator.clipboard.readText());
+        const code = await page.locator(`${frame} pre code`).textContent();
+        if (copied.trimEnd() !== code?.trimEnd()) throw new Error(`the clipboard does not match ${id}`);
+        await expectFocus(page, button);
+      }
     } else if (name === "ask your agent") {
       await page.goto(`${servers.docs.url}/lateen/install/`, { waitUntil: "load" });
       await focusControl(page, "[data-search-open]");

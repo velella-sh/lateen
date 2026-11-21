@@ -1,60 +1,55 @@
 ---
 title: Install and quickstart
-description: "Install Lateen next to Mizzen and use it as the theme of a site."
+description: Install Lateen and Mizzen, write your first Markdown page, and preview it locally.
 layout: doc
 permalink: /install/
 ---
 
-Lateen is the default theme of [Mizzen](https://velella.sh/mizzen/): layouts, chrome, components, design tokens, and styles for a docs site that people and agents read. It needs Node 24 or later.
-
-:::callout{type=tip title="Check the version first"}
-The engine needs Node 24 or later. Run `node --version` before you install.
-:::
+Start in an empty project folder with Node.js 24 or later and npm. Run `node --version` and `npm --version` to check your setup.
 
 ## Install
 
-:::install-tabs{package="@velella/mizzen @velella/lateen"}
-:::
-
-## Use it
-
-Lateen is the theme Mizzen builds with unless the site names another, so a site with a `mizzen.yml` and some Markdown needs nothing more:
+Create a package and install Mizzen 0.2.5 and Lateen 0.2.3.
 
 ```sh
-npx mizzen check .
-npx mizzen dev .
-npx mizzen build . --out dist
+npm init -y
+npm install --save-exact \
+  @velella/mizzen@0.2.5 \
+  @velella/lateen@0.2.3
 ```
 
-To name the theme and hand it options, set `theme` in `mizzen.yml`:
+## Configure the site
 
-```yaml
+Run this from the project folder to create `mizzen.yml`. It sets the site title and tells Mizzen to use the installed Lateen theme.
+
+```sh
+cat > mizzen.yml <<'EOF_CONFIG'
+title: My docs
 theme:
   name: "@velella/lateen"
-  options:
-    logo:
-      light: /brand/mark-light.svg
-      dark: /brand/mark-dark.svg
+EOF_CONFIG
 ```
 
-Every option is in [Tokens and options](/tokens/). The pieces pages use in their content are in [Components](/components/), and the page shapes are in [Layouts](/layouts/).
+## Write the first page
 
-## Start from a starter
-
-Three complete sites ship with the theme, and each one installs with the same command:
+Run this from the same folder to create `index.md`. Its front matter sets the page title, and the text below it is the page body.
 
 ```sh
-npx mizzen init my-site --theme node_modules/@velella/lateen --starter docs
+cat > index.md <<'EOF_PAGE'
+---
+title: Welcome to my docs
+---
+
+My first page with Lateen.
+EOF_PAGE
 ```
 
-| Starter | What it is |
-| --- | --- |
-| `docs` | A documentation site for one tool: home page, getting started, two reference pages, a changelog and a not-found page. |
-| `changelog` | A release notes site for one product: a home page that points at the latest release, a changelog, a versions page, a feed page and a guide to adding a release. |
-| `data` | A data site for one invented catalogue: record pages, a list page, a timeline, a data explorer and a guide to changing the data. |
+## Preview the site
 
-`mizzen init --list --theme node_modules/@velella/lateen` names the starters the installed theme ships. The command copies the starter's files into the folder and leaves `starter.json` behind, so the new site is ordinary Markdown and configuration.
+```sh
+npx mizzen dev .
+```
 
-## What the theme does not do
+Open [http://127.0.0.1:3000/](http://127.0.0.1:3000/) in your browser. The home page shows **Welcome to my docs**. Leave the preview running while you edit `index.md` to see your changes.
 
-Lateen draws pages; it does not read files, parse Markdown, or write outputs. The engine does all of that and gives the theme a finished site model. The theme may only import types from `@velella/mizzen/contracts`.
+Explore [starters](/starters/) for complete sites, [layouts](/layouts/) for page types, or [tokens and options](/tokens/) to customize the theme.
