@@ -377,16 +377,19 @@ test("a previously collapsed branch unrelated to the current page stays collapse
   assert.equal(unrelated.open, false, "only the current page's branch is forced open");
 });
 
-test("the close button closes the dialog, and closing returns focus to the menu button", () => {
+test("closing returns focus before the queued close event and does not refocus the menu button afterwards", () => {
   const button = control("menu");
   const close = control("close");
   const dialog = fakeDialog();
+  dialog.close = () => { dialog.open = false; };
   activate({ dialog, button: button as unknown as DrawerControl, closeButton: close as unknown as DrawerControl });
   button.clicks[0]!();
 
   close.clicks[0]!();
 
   assert.equal(dialog.open, false);
+  assert.equal(button.focused, 1);
+  dialog.fire("close", { target: dialog, preventDefault() {} });
   assert.equal(button.attrs["aria-expanded"], "false");
   assert.equal(button.focused, 1);
 });

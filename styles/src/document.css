@@ -15,7 +15,6 @@
     top: 5.5rem;
     max-height: calc(100vh - 6.75rem);
     overflow: auto;
-    overscroll-behavior: contain;
     scrollbar-width: thin;
     font-size: 0.875rem;
   }
@@ -121,8 +120,8 @@
 
   :is(.toc, .toc-fold) a[aria-current="true"] {
     border-inline-start-color: var(--link);
-    color: var(--link);
-    background: var(--muted);
+    color: var(--foreground);
+    background: var(--state-hover-bg);
     font-weight: 600;
   }
 
