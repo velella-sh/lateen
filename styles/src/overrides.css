@@ -67,6 +67,12 @@
   }
 }
 
+@media print {
+  .site-utilities {
+    display: none !important;
+  }
+}
+
 /* Keep the 24×24 target size above the Tailwind layers for WCAG 2.5.8. The element and role
    selectors are scoped to the page-shell roots so they cannot reach an unrelated unit. */
 :where(.site-header, .layout, .site-utilities, .announcement, .footnote-popover, .skip-links) :is(

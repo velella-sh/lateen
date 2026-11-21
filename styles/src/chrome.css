@@ -585,8 +585,7 @@
   }
 
   @media print {
-    .site-footer,
-    .site-utilities {
+    .site-footer {
       display: none !important;
     }
   }

@@ -387,14 +387,12 @@ test("sailcloth utility controls stay in flow and configured logos use the brand
   assert.match(utilities.body, /display:\s*flex/);
   assert.match(utilities.body, /flex-wrap:\s*wrap/);
   assert.match(utilities.body, /justify-content:\s*flex-end/);
-  assert.match(utilities.body, /padding-block-end:\s*var\(--space-4\)/);
+  assert.match(utilities.body, /padding-block:\s*var\(--space-2\) var\(--space-4\)/);
 
-  for (const selector of [".site-utilities .shortcuts-open", ".site-utilities .source-mode-switch"]) {
-    const control = rule(ui, selector);
-    assert.ok(control, `no normal-flow rule for ${selector}`);
-    assert.match(control.body, /position:\s*static/);
-    assert.doesNotMatch(control.body, /inset-|z-index/);
-  }
+  const controls = rule(ui, ".site-utilities :is(.shortcuts-open, .source-mode-button)");
+  assert.ok(controls, "footer utility buttons share their layout");
+  assert.match(controls.body, /display:\s*flex/);
+  assert.doesNotMatch(controls.body, /position:|inset-|z-index/);
 
   const frame = rule(ui, ".brand-logo-frame");
   assert.ok(frame, "no configured logo frame");
