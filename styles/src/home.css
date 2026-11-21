@@ -14,7 +14,32 @@
 
   .home-showpiece-hero {
     max-inline-size: 52rem;
-    padding-block-start: clamp(2.5rem, 8vw, 6.5rem);
+    padding-block-start: clamp(var(--space-8), 6vw, var(--space-16));
+  }
+
+  .home-showpiece-hero .hero-title {
+    font-size: var(--type-size-display);
+    line-height: var(--type-leading-display);
+    letter-spacing: var(--type-tracking-display);
+    font-weight: var(--type-weight-bold);
+    text-wrap: balance;
+  }
+
+  .home-showpiece-hero .hero-lead {
+    max-inline-size: 48ch;
+    font-size: var(--type-size-lg);
+    line-height: var(--type-leading-body);
+  }
+
+  .home-showpiece-hero .hero-actions .hero-btn-primary {
+    padding-block: var(--space-3);
+    border-radius: var(--radius-md);
+    box-shadow: none;
+  }
+
+  .home-showpiece > .feature-grid {
+    gap: var(--space-4);
+    margin-block-start: var(--space-12);
   }
 
   .home-eyebrow {
@@ -264,10 +289,7 @@
   }
 
   .home-section > p {
-    margin: 0.4rem 0 0.9rem;
-    color: var(--muted-foreground);
-    font-size: 0.84rem;
-    line-height: 1.5;
+    @apply mb-5 mt-2 text-sm text-muted-foreground;
   }
 
   .home-section .row {
@@ -377,41 +399,6 @@
     .home-preview {
       display: none;
     }
-  }
-
-  .home-section > p {
-    @apply mb-5 mt-2 text-sm text-muted-foreground;
-  }
-
-  .home-section ul {
-    @apply m-0 grid list-none gap-0 border-t p-0;
-  }
-
-  .home-section li {
-    @apply border-b;
-  }
-
-  .home-section li:last-child {
-    @apply border-b-0;
-  }
-
-  .home-section li a {
-    @apply flex items-center justify-between py-2.5 text-sm no-underline;
-  }
-
-  .home-section li svg {
-    @apply size-3.5 text-muted-foreground opacity-0;
-    transform: translateX(-4px);
-    transition: opacity 160ms ease, transform 160ms ease;
-  }
-
-  .home-section li a:hover {
-    color: var(--primary);
-  }
-
-  .home-section li a:hover svg {
-    @apply opacity-100;
-    transform: none;
   }
 
   .home-body {
