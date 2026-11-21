@@ -232,22 +232,23 @@
     @apply sr-only;
   }
 
-  /* Install tabs: radios carry the state; only the checked panel is shown. Pills match code tabs. */
+  /* Install tabs: the checked label's next sibling is the only command. Pills stay on the first row. */
   .install-tabs {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.375rem;
     margin-block: 1.125rem;
     max-inline-size: 100%;
   }
 
-  .install-tabs-list {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 0.375rem;
-    margin: 0 0 0.5rem;
+  .install-tabs[data-single] {
+    display: block;
   }
 
   .install-tabs-tab {
     display: inline-flex;
     align-items: center;
+    order: 0;
     min-block-size: 1.5rem;
     border-radius: 999px;
     padding: 0.3rem 0.75rem;
@@ -261,11 +262,25 @@
     color: var(--foreground);
   }
 
-  .install-tabs-panel {
-    display: none;
+  .install-tabs-tab:has(.install-tabs-radio:checked) {
+    background: var(--muted);
+    color: var(--foreground);
+    font-weight: 600;
   }
 
-  .install-tabs[data-single] .install-tabs-panel {
+  .install-tabs-tab:has(.install-tabs-radio:focus-visible) {
+    outline: 2px solid var(--ring);
+    outline-offset: 2px;
+  }
+
+  .install-tabs-panel {
+    display: none;
+    order: 1;
+    flex-basis: 100%;
+  }
+
+  .install-tabs[data-single] .install-tabs-panel,
+  .install-tabs-tab:has(.install-tabs-radio:checked) + .install-tabs-panel {
     display: block;
   }
 
@@ -281,42 +296,6 @@
     font-family: var(--type-font-mono);
     font-size: 0.875rem;
     line-height: 1.6;
-  }
-
-  .install-tabs-radio:nth-of-type(1):checked ~ .install-tabs-list .install-tabs-tab:nth-child(1),
-  .install-tabs-radio:nth-of-type(2):checked ~ .install-tabs-list .install-tabs-tab:nth-child(2),
-  .install-tabs-radio:nth-of-type(3):checked ~ .install-tabs-list .install-tabs-tab:nth-child(3),
-  .install-tabs-radio:nth-of-type(4):checked ~ .install-tabs-list .install-tabs-tab:nth-child(4),
-  .install-tabs-radio:nth-of-type(5):checked ~ .install-tabs-list .install-tabs-tab:nth-child(5),
-  .install-tabs-radio:nth-of-type(6):checked ~ .install-tabs-list .install-tabs-tab:nth-child(6),
-  .install-tabs-radio:nth-of-type(7):checked ~ .install-tabs-list .install-tabs-tab:nth-child(7),
-  .install-tabs-radio:nth-of-type(8):checked ~ .install-tabs-list .install-tabs-tab:nth-child(8) {
-    background: var(--muted);
-    color: var(--foreground);
-    font-weight: 600;
-  }
-
-  .install-tabs-radio:nth-of-type(1):checked ~ .install-tabs-panels .install-tabs-panel:nth-child(1),
-  .install-tabs-radio:nth-of-type(2):checked ~ .install-tabs-panels .install-tabs-panel:nth-child(2),
-  .install-tabs-radio:nth-of-type(3):checked ~ .install-tabs-panels .install-tabs-panel:nth-child(3),
-  .install-tabs-radio:nth-of-type(4):checked ~ .install-tabs-panels .install-tabs-panel:nth-child(4),
-  .install-tabs-radio:nth-of-type(5):checked ~ .install-tabs-panels .install-tabs-panel:nth-child(5),
-  .install-tabs-radio:nth-of-type(6):checked ~ .install-tabs-panels .install-tabs-panel:nth-child(6),
-  .install-tabs-radio:nth-of-type(7):checked ~ .install-tabs-panels .install-tabs-panel:nth-child(7),
-  .install-tabs-radio:nth-of-type(8):checked ~ .install-tabs-panels .install-tabs-panel:nth-child(8) {
-    display: block;
-  }
-
-  .install-tabs-radio:nth-of-type(1):focus-visible ~ .install-tabs-list .install-tabs-tab:nth-child(1),
-  .install-tabs-radio:nth-of-type(2):focus-visible ~ .install-tabs-list .install-tabs-tab:nth-child(2),
-  .install-tabs-radio:nth-of-type(3):focus-visible ~ .install-tabs-list .install-tabs-tab:nth-child(3),
-  .install-tabs-radio:nth-of-type(4):focus-visible ~ .install-tabs-list .install-tabs-tab:nth-child(4),
-  .install-tabs-radio:nth-of-type(5):focus-visible ~ .install-tabs-list .install-tabs-tab:nth-child(5),
-  .install-tabs-radio:nth-of-type(6):focus-visible ~ .install-tabs-list .install-tabs-tab:nth-child(6),
-  .install-tabs-radio:nth-of-type(7):focus-visible ~ .install-tabs-list .install-tabs-tab:nth-child(7),
-  .install-tabs-radio:nth-of-type(8):focus-visible ~ .install-tabs-list .install-tabs-tab:nth-child(8) {
-    outline: 2px solid var(--ring);
-    outline-offset: 2px;
   }
 
   .steps-ui,

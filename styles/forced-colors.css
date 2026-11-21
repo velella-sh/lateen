@@ -255,7 +255,7 @@
   .toc a[aria-current="true"],
   .section-tab[aria-current="page"],
   .code-tabs-tab[aria-selected="true"],
-  .install-tabs-radio:checked ~ .install-tabs-list .install-tabs-tab {
+  .install-tabs-tab:has(.install-tabs-radio:checked) {
     background-color: Highlight !important;
     color: HighlightText !important;
     text-decoration: underline;

@@ -26,7 +26,7 @@ test("every manager has a radio, a tab and a panel with its own command", () => 
   const out = render({ package: "example-pkg" }, MANAGERS);
   assert.equal(out.match(/class="install-tabs-radio"/g)?.length, 3);
   for (const m of MANAGERS) {
-    assert.match(out, new RegExp(`<label class="install-tabs-tab" for="install-tabs-\\d">${m.name}</label>`));
+    assert.match(out, new RegExp(`<label class="install-tabs-tab"><input [^>]*data-manager="${m.name}"[^>]*>${m.name}</label>`));
     assert.match(out, new RegExp(`<code>${commandFor(m, "example-pkg").replace(/ /g, " ")}</code>`));
   }
   assert.equal(out.match(/ checked/g)?.length, 1);
@@ -124,7 +124,7 @@ test("the stylesheet shows only the checked install panel and hides the radios",
   ].join("\n");
   assert.match(css, /\.install-tabs-radio\s*\{[^}]*opacity:\s*0/);
   assert.match(css, /\.install-tabs-panel\s*\{[^}]*display:\s*none/);
-  assert.match(css, /\.install-tabs-radio:nth-of-type\(1\):checked[^}]*\.install-tabs-panel:nth-child\(1\)/);
+  assert.match(css, /\.install-tabs-tab:has\(\.install-tabs-radio:checked\) \+ \.install-tabs-panel/);
 });
 
 test("island: an unknown remembered manager changes nothing", () => {

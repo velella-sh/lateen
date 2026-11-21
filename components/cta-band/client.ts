@@ -5,7 +5,7 @@ import { activate, type Clipboard, type CopyButton, type CopyEnv } from "../term
 export const BUTTON_SELECTOR = "[data-cta-copy]";
 
 /** Selector for the panel the checked radio shows. */
-const COMMAND_SELECTOR = ".install-tabs-radio:checked ~ .install-tabs-panels .install-tabs-panel";
+const COMMAND_SELECTOR = ".install-tabs-tab:has(.install-tabs-radio:checked) + .install-tabs-panel";
 
 /** The part of the install tabs the island reads when the button is clicked. */
 export interface Tabs {
