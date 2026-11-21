@@ -117,6 +117,16 @@ test("island: a blocked store neither throws nor changes the choice", () => {
   assert.deepEqual(g.radios.map((r) => r.checked), [false, true]);
 });
 
+test("the stylesheet shows only the checked install panel and hides the radios", () => {
+  const css = [
+    readFileSync(new URL("../styles/src/content.css", import.meta.url), "utf8"),
+    readFileSync(new URL("../styles/src/overrides.css", import.meta.url), "utf8"),
+  ].join("\n");
+  assert.match(css, /\.install-tabs-radio\s*\{[^}]*opacity:\s*0/);
+  assert.match(css, /\.install-tabs-panel\s*\{[^}]*display:\s*none/);
+  assert.match(css, /\.install-tabs-radio:nth-of-type\(1\):checked[^}]*\.install-tabs-panel:nth-child\(1\)/);
+});
+
 test("island: an unknown remembered manager changes nothing", () => {
   const g = group(["npm", "pnpm"]);
   select([g.group], "bun");

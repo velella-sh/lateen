@@ -133,6 +133,8 @@ test("a custom title replaces the default; a blank one does not", () => {
   const titleOf = (tree: Tree) =>
     textOf(elements(tree).find((node) => node.props.class === "callout-title"));
   assert.equal(titleOf(titled), "Read first");
+  assert.equal(textOf(elements(titled).find((node) => node.props.class === "callout-kind")), "Tip");
+  assert.equal(elements(render({ type: "tip" })).some((node) => node.props.class === "callout-kind"), false);
   assert.equal(titleOf(render({ type: "tip", title: "   " })), "Tip");
 
   assert.equal(nameOf(markup({ type: "tip", title: " Read first " }, pageOf())).title, "Read first");
