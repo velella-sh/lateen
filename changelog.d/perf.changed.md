@@ -1,1 +1,1 @@
-Install commands use one stylesheet rule instead of a copy per package manager, and search no longer rebuilds plural rules on every keystroke.
+Install commands use one stylesheet rule instead of a copy per package manager, so the shared CSS is smaller on every page.

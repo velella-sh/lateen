@@ -112,28 +112,18 @@ export function fillMessage(pattern: string, values: Readonly<Record<string, str
 
 /**
  * The plural category of `count` in `lang`, chosen by the browser's CLDR rules. A language tag the
- * runtime does not know reads as `other`, and an unknown category falls back to `other`.
- * Reading time keeps its own helper: an invalid tag there falls back to English, not `other`.
+ * runtime does not know reads as English, and an unknown category falls back to `other`.
+ *
+ * shortcut: this repeats `components/reading-time`'s rules because that module imports the
+ * server-only catalog; move both into a client-safe module when a third caller needs them.
  */
-/** One `Intl.PluralRules` per language. Building it on every keystroke was the expensive part. */
-const pluralRules = new Map<string, Intl.PluralRules | null>();
-
-function rulesFor(lang: string): Intl.PluralRules | undefined {
-  if (pluralRules.has(lang)) return pluralRules.get(lang) ?? undefined;
-  try {
-    const created = new Intl.PluralRules(lang);
-    pluralRules.set(lang, created);
-    return created;
-  } catch {
-    pluralRules.set(lang, null);
-    return undefined;
-  }
-}
-
 export function pluralCategory(lang: string, count: number): PluralCategory {
-  const set = rulesFor(lang);
-  if (set === undefined) return "other";
-  const category = set.select(Math.abs(Math.trunc(count)));
+  let category: string;
+  try {
+    category = new Intl.PluralRules(lang).select(Math.abs(Math.trunc(count)));
+  } catch {
+    return "other";
+  }
   return (PLURAL_CATEGORIES as readonly string[]).includes(category) ? (category as PluralCategory) : "other";
 }
 

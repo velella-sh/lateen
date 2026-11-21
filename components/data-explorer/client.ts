@@ -166,24 +166,14 @@ export const browserEnv: ExplorerEnv = {
   cancel: (handle) => clearTimeout(handle as ReturnType<typeof setTimeout>),
 };
 
-/** One `Intl.PluralRules` per language, shared by every filter update on the page. */
-const pluralRules = new Map<string, Intl.PluralRules | null>();
-
-function rulesFor(lang: string): Intl.PluralRules | undefined {
-  if (pluralRules.has(lang)) return pluralRules.get(lang) ?? undefined;
-  try {
-    const created = new Intl.PluralRules(lang);
-    pluralRules.set(lang, created);
-    return created;
-  } catch {
-    pluralRules.set(lang, null);
-    return undefined;
-  }
-}
-
 /** The count pattern for the page language's plural category. */
 export function countText(root: ExplorerElement, lang: string, count: number): string {
-  const category = rulesFor(lang)?.select(count) ?? "other";
+  let category = "other";
+  try {
+    category = new Intl.PluralRules(lang).select(count);
+  } catch {
+    // A language without plural rules keeps the `other` pattern.
+  }
   const pattern =
     root.getAttribute(`data-explorer-count-${category}`) ?? root.getAttribute("data-explorer-count-other") ?? "";
   return pattern.replace("{n}", formatNumber(lang, count));
