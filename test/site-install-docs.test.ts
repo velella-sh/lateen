@@ -17,15 +17,19 @@ before(() => {
 test("the docs home identifies Lateen and links to onboarding, a preview, and documentation", () => {
   const home = site.document("/");
   assert.match(home.querySelector("main h1")!.textContent!, /Lateen.*documentation theme for Mizzen/);
+  assert.match(home.querySelector(".hero-lead")!.textContent!, /^Mizzen builds.*Lateen gives/);
   assert.deepEqual(all(home, ".hero-actions a").map((link) => link.getAttribute("href")), [
     "/lateen/install/",
     "/lateen/showpiece/",
-    "/lateen/layouts/",
-  ]);
-  assert.deepEqual(all(home, ".hero-btn-primary").map((link) => link.textContent), ["Quickstart"]);
-  assert.deepEqual(all(home, "a.feature-grid-card").map((link) => link.getAttribute("href")), [
-    "/lateen/components/",
     "/lateen/starters/",
+  ]);
+  const [primary, ...extraPrimary] = all(home, ".hero-btn-primary");
+  assert.equal(extraPrimary.length, 0);
+  assert.equal(primary?.textContent, "Install and quickstart");
+  assert.equal(primary?.getAttribute("href"), "/lateen/install/");
+  assert.deepEqual(all(home, "a.feature-grid-card").map((link) => link.getAttribute("href")), [
+    "/lateen/layouts/",
+    "/lateen/components/",
     "/lateen/tokens/",
   ]);
   assert.equal(home.querySelector(".home-bits, .home-preview, .home-showpiece-demo"), null);

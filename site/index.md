@@ -5,25 +5,24 @@ layout: home
 home:
   style: showpiece
 hero:
-  title: Lateen is a documentation theme for Mizzen
-  lead: Publish Markdown docs with page layouts, navigation, and search. Lateen supports light and dark themes and right-to-left languages.
+  lead: Mizzen builds your site from Markdown. Lateen gives your docs page layouts, navigation, and search.
 actions:
-  - label: Quickstart
+  - label: Install and quickstart
     url: /install/
     primary: true
   - label: Preview the theme
     url: /showpiece/
-  - label: Read the documentation
-    url: /layouts/
+  - label: Browse starters
+    url: /starters/
 features:
+  - title: Layouts
+    description: Choose page layouts for guides, API references, and changelogs.
+    icon: file
+    url: /layouts/
   - title: Components
     description: Explore live examples and copy Markdown for callouts, steps, code tabs, and more.
     icon: terminal
     url: /components/
-  - title: Starters
-    description: Preview complete documentation, changelog, and data sites you can use as a starting point.
-    icon: folder
-    url: /starters/
   - title: Tokens and options
     description: Set your site’s colors and typography, and configure theme options.
     icon: edit
