@@ -192,7 +192,7 @@ test("the mobile section list sits at the start of the article and links the rea
 
   assert.match(
     body,
-    /<details class="toc-fold"><summary>On this page<\/summary><ul><li><a href="#pick-a-mode">Pick a mode<\/a><\/li><li><a href="#gem">Gem<\/a><\/li><\/ul><\/details>/,
+    /<details class="toc-fold"><summary>On this page<\/summary><ul><li><a href="#pick-a-mode">Pick a mode<\/a><ul><li><a href="#gem">Gem<\/a><\/li><\/ul><\/li><\/ul><\/details>/,
   );
   assert.ok(body.indexOf('class="toc-fold"') < body.indexOf('class="doc-body"'), "the section list leads the body");
   assert.doesNotMatch(body, /<details[^>]*\sopen(?:=|>)/, "the list starts closed");

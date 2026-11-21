@@ -75,7 +75,7 @@ test("hidden when the page has fewer than two h2/h3 headings", () => {
   assert.equal(toc(props([heading(1, "title", "Title"), heading(2, "one", "One")])), null);
 });
 
-test("lists h2 and h3 from page.headings, nested in the landmark and flat in the fold", () => {
+test("preserves the h2 and h3 hierarchy in the landmark and fold", () => {
   const page = props([
     heading(1, "title", "Title"),
     heading(2, "pick", "Pick a mode"),
@@ -97,7 +97,7 @@ test("lists h2 and h3 from page.headings, nested in the landmark and flat in the
   );
   assert.match(
     fold,
-    /<details[\s\S]*<ul><li><a href="#pick">Pick a mode<\/a><\/li><li><a href="#gem">Gem<\/a><\/li><li><a href="#build">Build<\/a><\/li><\/ul>/,
+    /<details[\s\S]*<ul><li><a href="#pick">Pick a mode<\/a><ul><li><a href="#gem">Gem<\/a><\/li><\/ul><\/li><li><a href="#build">Build<\/a><\/li><\/ul>/,
   );
 });
 

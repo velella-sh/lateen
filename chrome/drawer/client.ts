@@ -5,12 +5,13 @@ export interface DrawerControl {
   hidden: boolean;
   setAttribute(name: string, value: string): void;
   addEventListener(type: string, listener: () => void, options?: { signal?: AbortSignal | undefined }): void;
-  focus(): void;
+  focus(options?: { preventScroll?: boolean }): void;
 }
 
 /** Anything inside the drawer that can take focus. */
 export interface DrawerFocusable {
   focus(): void;
+  checkVisibility?(): boolean;
 }
 
 /** A navigation group (`<details>`) inside the drawer. */
@@ -92,10 +93,8 @@ export interface DrawerEnv {
 /** What can take keyboard focus inside the drawer. */
 const FOCUSABLE = [
   "a[href]",
-  "button:not([disabled])",
-  "input:not([disabled])",
-  "select:not([disabled])",
-  "textarea:not([disabled])",
+  ":is(button,input,select,textarea):enabled",
+  "summary",
   "[tabindex]:not([tabindex='-1'])",
 ].join(", ");
 
@@ -124,20 +123,7 @@ function fragmentOf(href: string): string | null {
 
 /** Whether the resolved URL stays on the current page: the same address once the fragments are set aside. */
 function staysOnPage(href: string, currentHref: string): boolean {
-  const cut = (url: string): string => {
-    const at = url.indexOf("#");
-    return at === -1 ? url : url.slice(0, at);
-  };
-  return cut(href) === cut(currentHref);
-}
-
-/** The fake dialogs hand back every focusable, so a link is only a control that carries an `href` it can hear clicks on. */
-function asLink(item: DrawerFocusable): DrawerLink | undefined {
-  const candidate = item as Partial<DrawerLink>;
-  if (typeof candidate.href === "string" && candidate.href !== "" && typeof candidate.addEventListener === "function") {
-    return candidate as DrawerLink;
-  }
-  return undefined;
+  return href.split("#", 1)[0] === currentHref.split("#", 1)[0];
 }
 
 /**
@@ -146,7 +132,7 @@ function asLink(item: DrawerFocusable): DrawerLink | undefined {
  */
 export function trap(dialog: DrawerDialog, event: DrawerEvent): void {
   if (event.key !== "Tab") return;
-  const items = [...dialog.querySelectorAll(FOCUSABLE)];
+  const items = [...dialog.querySelectorAll(FOCUSABLE)].filter((item) => item.checkVisibility?.() !== false);
   const first = items[0];
   const last = items[items.length - 1];
   if (first === undefined || last === undefined) {
@@ -170,11 +156,13 @@ export function activate({ dialog, button, closeButton }: DrawerParts, env: Draw
   button.hidden = false;
   if (closeButton !== undefined) closeButton.hidden = false;
 
-  // The menu button is hidden on wide screens, so a close from a viewport change must not send focus to it.
-  let returnFocus = true;
+  // Move focus on dismissal, before a reader can reach another control while the close event is queued.
+  const dismiss = (restoreFocus = true) => {
+    dialog.close();
+    if (restoreFocus) button.focus({ preventScroll: true });
+  };
 
   button.addEventListener("click", () => {
-    returnFocus = true;
     if (!dialog.open) {
       // Reopening always shows the branch the page lives in, even if the reader collapsed it earlier.
       for (const group of dialog.querySelectorAll<DrawerGroup>(CURRENT_GROUPS)) group.open = true;
@@ -185,14 +173,10 @@ export function activate({ dialog, button, closeButton }: DrawerParts, env: Draw
     }
     button.setAttribute("aria-expanded", "true");
   }, { signal });
-  closeButton?.addEventListener("click", () => dialog.close(), { signal });
+  closeButton?.addEventListener("click", () => dismiss(), { signal });
 
-  // Closing by any route (close button, Escape, backdrop, navigation link, viewport change) ends here, so the menu
-  // button always reports the state and takes focus back while it is on screen.
   dialog.addEventListener("close", () => {
-    button.setAttribute("aria-expanded", "false");
-    if (returnFocus) button.focus();
-    returnFocus = true;
+    if (!dialog.open) button.setAttribute("aria-expanded", "false");
   }, { signal });
 
   // A chosen navigation link closes the drawer itself before the destination is revealed; the click is
@@ -203,41 +187,37 @@ export function activate({ dialog, button, closeButton }: DrawerParts, env: Draw
       fragment !== null && env.location !== undefined && staysOnPage(link.href, env.location.href)
         ? env.locate?.(fragment)
         : undefined;
-    if (destination !== undefined) returnFocus = false; // the destination takes focus, not the hidden menu button
-    dialog.close();
+    dismiss(destination === undefined);
     if (destination !== undefined) {
       destination.scrollIntoView();
       destination.focus();
     }
   };
 
-  for (const item of dialog.querySelectorAll(LINK_SELECTOR)) {
-    const link = asLink(item);
-    if (link === undefined) continue;
+  for (const link of dialog.querySelectorAll<DrawerLink>(LINK_SELECTOR)) {
+    if (typeof link.href !== "string" || !link.href) continue;
     link.addEventListener("click", (event) => {
-      if (event.ctrlKey === true || event.metaKey === true || event.shiftKey === true || event.altKey === true) return;
-      if (event.defaultPrevented === true) return;
-      if (event.button !== undefined && event.button !== 0) return;
+      if (event.ctrlKey || event.metaKey || event.shiftKey || event.altKey || event.defaultPrevented) return;
+      if ((event.button ?? 0) !== 0) return;
       closeForNavigation(link);
     }, { signal });
   }
 
   // A press on the modal backdrop lands on the dialog itself; a press on the drawer's content does not.
   dialog.addEventListener("click", (event) => {
-    if (event.target === dialog) dialog.close();
+    if (event.target === dialog) dismiss();
   }, { signal });
 
   const viewport = env.viewport;
   viewport?.addEventListener("change", () => {
     if (viewport.matches !== true || !dialog.open) return;
-    returnFocus = false;
-    dialog.close();
+    dismiss(false);
   }, { signal });
 
   dialog.addEventListener("keydown", (event) => {
     if (event.key === "Escape") {
       event.preventDefault();
-      dialog.close();
+      dismiss();
       return;
     }
     trap(dialog, event);

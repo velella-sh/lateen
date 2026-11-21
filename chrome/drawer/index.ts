@@ -1,6 +1,8 @@
 import { h, type ComponentChildren } from "preact";
 import type { Chrome } from "@velella/mizzen/contracts";
+import { X } from "lucide";
 import { t } from "../../i18n/index.ts";
+import { icon } from "../../src/icon.ts";
 import { resolveNetworkOptions } from "../../src/options.ts";
 import { mobileSelectors } from "../mobile-selectors/index.ts";
 import sidebar from "../sidebar/index.ts";
@@ -15,17 +17,23 @@ const drawer: Chrome = (props) => {
   const nav = sidebar(props);
   if (nav == null) return null;
   const lang = props.page.lang;
+  const menu = t(lang, "menu");
   const network = resolveNetworkOptions(props.site.config.theme.options);
   const selectors = mobileSelectors(props, {
     projects: props.site.network !== undefined && network.switcher,
   });
   return h(
     "dialog",
-    { class: "drawer", "data-drawer": true, "aria-label": t(lang, "menu") },
+    { class: "drawer", "data-drawer": true, "aria-label": menu },
     h(
-      "button",
-      { type: "button", class: "drawer-close", "aria-label": t(lang, "close_menu"), hidden: true, "data-drawer-close": true },
-      h("span", { "aria-hidden": "true" }, "×"),
+      "div",
+      { class: "drawer-header" },
+      h("span", null, menu),
+      h(
+        "button",
+        { type: "button", class: "drawer-close iconbtn", "aria-label": t(lang, "close_menu"), hidden: true, "data-drawer-close": true },
+        icon({ node: X }),
+      ),
     ),
     selectors,
     nav as ComponentChildren,

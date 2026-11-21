@@ -501,9 +501,32 @@ async function runJourney(
         throw new Error("the navigation trigger does not say it is expanded");
       }
       await page.waitForFunction(() => document.activeElement?.closest("dialog[data-drawer]") !== null);
+      await focusControl(page, "[data-drawer-close]");
+      await page.keyboard.press("Shift+Tab");
+      await page.waitForFunction(() => {
+        const focused = document.activeElement;
+        return focused?.closest("dialog[data-drawer]") && !focused.hasAttribute("data-drawer-close");
+      });
       await page.keyboard.press("Escape");
       await page.locator("dialog[data-drawer][open]").waitFor({ state: "hidden" });
       await expectFocus(page, "[data-drawer-open]");
+
+      await focusControl(page, ".toc-fold > summary");
+      await page.keyboard.press("Enter");
+      await focusControl(page, '.toc-fold a[href="#install"]');
+      await page.keyboard.press("Enter");
+      await page.waitForURL((url) => url.hash === "#install");
+      await page.waitForFunction(() => {
+        const heading = document.getElementById("install");
+        const header = document.querySelector("[data-site-header]");
+        if (!heading || !header) return false;
+        const top = heading.getBoundingClientRect().top;
+        return top >= header.getBoundingClientRect().bottom && top < innerHeight / 2;
+      });
+
+      await page.setViewportSize({ width: 768, height: 844 });
+      await page.locator(".sidebar .sidebar-nav").waitFor({ state: "visible" });
+      await page.locator("[data-drawer-open]").waitFor({ state: "hidden" });
     } else if (name === "search the site") {
       await page.goto(`${servers.docs.url}/lateen/install/`, { waitUntil: "load" });
       await focusControl(page, "[data-search-open]");

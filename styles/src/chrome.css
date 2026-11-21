@@ -404,7 +404,7 @@
     outline-offset: 2px;
   }
 
-  @media (max-width: 767.98px) {
+  @media (width < 768px) {
     /* The drawer carries the three selectors below this width, so the header does not repeat them. */
     .site-header .project-switcher,
     .site-header .language-switcher,
@@ -418,7 +418,7 @@
     display: none;
   }
 
-  @media (max-width: 767.98px) {
+  @media (width < 768px) {
     .drawer:not([data-enhanced]) {
       display: block;
       position: static;
@@ -446,6 +446,7 @@
     inset-block: 0;
     inset-inline: 0 auto;
     inline-size: min(20rem, 100%);
+    block-size: 100%;
     max-block-size: 100%;
     margin: 0;
     padding: var(--space-4) var(--space-3);
@@ -453,8 +454,8 @@
     border-inline-end: 1px solid var(--border-subtle);
     background: var(--background);
     color: var(--foreground);
-    box-shadow: none;
     overflow-y: auto;
+    scroll-padding-block-start: 4rem;
     translate: -100% 0;
     transition:
       translate var(--motion-base) var(--motion-ease-in),
@@ -500,42 +501,18 @@
     }
   }
 
-  /* Sticky so a long sidebar can scroll under it, and independent of the navigation list. */
-  .drawer-close {
+  .drawer-header {
     position: sticky;
-    inset-block-start: var(--space-3);
-    inset-inline-end: 0;
+    inset-block-start: 0;
     z-index: 1;
     display: flex;
-    inline-size: fit-content;
-    min-block-size: var(--space-8);
-    min-inline-size: var(--space-8);
-    margin-inline-start: auto;
-    margin-block-end: var(--space-2);
-    padding: var(--space-1);
+    justify-content: space-between;
     align-items: center;
-    justify-content: center;
-    border: 0;
-    border-radius: var(--radius-md);
+    margin-block-end: var(--space-3);
+    padding: var(--space-2) var(--space-3);
+    border-block-end: 1px solid var(--border);
     background: var(--background);
-    color: var(--muted-foreground);
-    font-size: var(--type-size-lg);
-    line-height: 1;
-    cursor: pointer;
-  }
-
-  .drawer-close[hidden] {
-    display: none;
-  }
-
-  .drawer-close:hover {
-    background: var(--state-hover-bg);
-    color: var(--foreground);
-  }
-
-  .drawer-close:focus-visible {
-    outline: 2px solid var(--state-focus-ring);
-    outline-offset: 2px;
+    font-weight: 600;
   }
 
   .drawer .sidebar-nav {
@@ -825,7 +802,7 @@
     }
   }
 
-  @media (max-width: 767.98px) {
+  @media (width < 768px) {
     .site-header .shell-menu:not([hidden]),
     html[data-js] .site-header .shell-menu[hidden] {
       display: inline-grid;

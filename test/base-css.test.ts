@@ -59,7 +59,7 @@ test("the docs shell styles use the classes the layouts render", () => {
   assert.match(bodyOf(ui, /^\.block-action$/), /pointer-events:\s*none/);
   assert.match(bodyOf(ui, /^\.block-action$/), /inset-block-start:\s*-1\.75rem/);
   assert.match(ui, /\.site-header \.shell-menu\s*\{\s*display:\s*none/);
-  assert.match(ui, /@media \(max-width: 48rem\)[\s\S]*?\.sidebar\s*\{[^}]*display:\s*none/);
+  assert.match(ui, /@media \(width < 768px\)[^{}]*\{\s*\.doc-layout\s*\{[^}]*\}\s*\.sidebar\s*\{[^}]*display:\s*none/);
 });
 
 test("home preview and mobile cards keep the Sailcloth surface contract", () => {
