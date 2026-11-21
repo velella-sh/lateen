@@ -42,12 +42,12 @@ test("layout reference keeps the complete inventory in task-based groups", () =>
   }
 });
 
-test("component reference shows executable code tabs before its complete inventory", () => {
+test("component reference leads with its complete alphabetized inventory", () => {
   const codeTabs = components.indexOf("## Code tabs");
   const inventory = components.indexOf("## In the library");
   assert.notEqual(codeTabs, -1);
   assert.notEqual(inventory, -1);
-  assert.ok(codeTabs < inventory, "code tabs come before the inventory");
+  assert.ok(inventory < codeTabs, "the inventory comes before the code tabs");
   assert.ok(components.includes(":::code-tabs{labels='[\"npm\",\"pnpm\",\"yarn\"]'}"));
   for (const command of ["npx mizzen dev .", "pnpm exec mizzen dev .", "yarn mizzen dev ."]) {
     assert.ok(components.includes(command), command);
@@ -64,8 +64,8 @@ test("component reference shows executable code tabs before its complete invento
     "cli-demo",
     "code",
     "code-tabs",
-    "data-explorer",
     "compare",
+    "data-explorer",
     "dated-list",
     "details",
     "diff-block",
@@ -83,9 +83,9 @@ test("component reference shows executable code tabs before its complete invento
     "key-value",
     "link-card",
     "mermaid",
+    "network",
     "os-tabs",
     "output-block",
-    "network",
     "page-status",
     "preset-preview",
     "reading-time",

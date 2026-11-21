@@ -24,6 +24,46 @@
     letter-spacing: 0.06em;
   }
 
+  .component-directory table {
+    table-layout: fixed;
+    line-height: 1.45;
+    overflow-wrap: anywhere;
+  }
+
+  .component-directory :is(th, td) {
+    padding: 0.5rem 0.625rem;
+  }
+
+  .component-directory th {
+    color: var(--foreground);
+    background: var(--muted);
+    font-size: 0.75rem;
+    letter-spacing: normal;
+    text-transform: none;
+  }
+
+  .component-directory th:first-child {
+    width: 28%;
+  }
+
+  @media (max-width: 48rem) {
+    .component-directory th:first-child {
+      width: 37%;
+    }
+  }
+
+  .component-directory td:first-child a {
+    font-weight: 650;
+  }
+
+  .component-directory td:nth-child(2) {
+    color: var(--muted-foreground);
+  }
+
+  .component-directory tr:focus-within {
+    background: var(--muted);
+  }
+
   /* The island marks the logical edges that hide content; a soft shade appears only there and
      recedes as the reader reaches either end. It sits behind the grid, so text keeps its contrast,
      and it is decoration: no pointer target and nothing added to the accessibility tree. */

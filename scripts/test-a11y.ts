@@ -73,6 +73,7 @@ const MOBILE = { width: 375, height: 800 } as const;
 export const CASES: readonly AuditCase[] = [
   { name: "docs home", site: "docs", path: "/lateen/", layout: "home", lang: "en", ...DESKTOP },
   { name: "docs document", site: "docs", path: "/lateen/install/", layout: "doc", lang: "en", ...DESKTOP },
+  { name: "docs component directory", site: "docs", path: "/lateen/components/", layout: "doc", lang: "en", ...MOBILE },
   { name: "docs code tabs", site: "docs", path: "/lateen/components/code-tabs/", layout: "doc", lang: "en", ...DESKTOP },
   { name: "docs variables form", site: "docs", path: "/lateen/components/variables-form/", layout: "doc", lang: "en", ...DESKTOP },
   { name: "docs details", site: "docs", path: "/lateen/components/details/", layout: "doc", lang: "en", ...DESKTOP },
