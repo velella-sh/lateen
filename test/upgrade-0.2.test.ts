@@ -41,6 +41,10 @@ const INTENDED = [
     reason: "0.2.3 draws callout icons with Lucide instead of the previous hand SVG paths.",
   },
   {
+    selector: ".callout-kind",
+    reason: "A callout with an author title also shows the kind name, matching the mockup eyebrow.",
+  },
+  {
     selector: 'template[data-code-copy]',
     reason: "The code-copy template carries its Lucide icons for the browser island.",
   },
