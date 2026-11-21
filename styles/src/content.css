@@ -43,7 +43,7 @@
   .markdown-table-scroll > table {
     margin: 0;
     line-height: 1.5;
-    overflow-wrap: anywhere;
+    overflow-wrap: break-word;
   }
 
   /* Leave room for prose in multi-column grids and let narrow viewports scroll the grid. */
@@ -69,9 +69,13 @@
     text-transform: none;
   }
 
+  .markdown-table-scroll :is(a, code) {
+    overflow-wrap: anywhere;
+  }
+
   .markdown-table-scroll td:first-child > code:only-child {
     display: inline-block;
-    max-inline-size: 32ch;
+    max-inline-size: 36ch;
     overflow-wrap: break-word;
   }
 
