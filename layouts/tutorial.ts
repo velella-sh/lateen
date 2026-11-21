@@ -21,6 +21,7 @@ import toc from "../chrome/toc/index.ts";
 import pageStatus, { type PageStatusProps } from "../components/page-status/index.ts";
 import readingTime from "../components/reading-time/index.ts";
 import versionNotice from "../components/version-notice/index.ts";
+import { articleHtml } from "../src/article-html.ts";
 
 /**
  * A tutorial step: a title and the heading id it links to. Steps come from the page's depth-2
@@ -187,7 +188,7 @@ function stepSection(
     "section",
     { class: "tutorial-step", "data-step": String(index + 1) },
     h("p", { class: "tutorial-step-progress" }, stepCount(page.lang, index, steps.length)),
-    h("div", { class: "tutorial-step-body", dangerouslySetInnerHTML: { __html: segmentHtml } }),
+    h("div", { class: "tutorial-step-body", dangerouslySetInnerHTML: { __html: articleHtml(segmentHtml) } }),
     stepNav(page, steps, index),
   );
 }
@@ -199,18 +200,18 @@ function stepSection(
  */
 function body(page: Page, steps: readonly TutorialStep[]): ComponentChildren {
   if (steps.length === 0) {
-    return h("div", { class: "doc-body", dangerouslySetInnerHTML: { __html: page.html } });
+    return h("div", { class: "doc-body", dangerouslySetInnerHTML: { __html: articleHtml(page.html) } });
   }
 
   const split = splitBody(page, steps);
   if (split === undefined) {
-    return h("div", { class: "doc-body", dangerouslySetInnerHTML: { __html: page.html } });
+    return h("div", { class: "doc-body", dangerouslySetInnerHTML: { __html: articleHtml(page.html) } });
   }
 
   return h(
     "div",
     { class: "doc-body tutorial-body" },
-    split.intro === "" ? null : h("div", { class: "tutorial-intro", dangerouslySetInnerHTML: { __html: split.intro } }),
+    split.intro === "" ? null : h("div", { class: "tutorial-intro", dangerouslySetInnerHTML: { __html: articleHtml(split.intro) } }),
     ...split.segments.map((segment, index) => stepSection(page, steps, segment.step, index, segment.html)),
   );
 }

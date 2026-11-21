@@ -38,10 +38,19 @@ pnpm add @example/widget
 export const release = "https://example.com/releases/2026/11/20/widget-darwin-arm64-standalone-archive-without-any-spaces-reflow-2026-fix.tar.gz";
 ```
 
+## Nested list
+
+1. Install the package.
+   - Pick a distribution.
+   - Read the [setup guide](/guide/install/) for `packageManager`.
+2. Check the installation.
+
+> The preview uses the same settings as the production build.
+
 ## Wide table
 
 | Option | Type | Default | What it does |
-| --- | --- | --- | --- |
+| --- | :---: | --- | --- |
 | `distributionArchive` | string | `https://example.com/releases/2026/11/20/widget-darwin-arm64-standalone-archive-without-any-spaces-reflow-2026-fix.tar.gz` | The archive the installer downloads and verifies before unpacking. |
 | `packageManager` | string | `npm` | The package manager the install steps use. |
 | `platform` | string | detected | The operating system the installer targets. |

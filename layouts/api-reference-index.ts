@@ -9,6 +9,7 @@ import shell, { footer as shellFooter } from "../chrome/shell/index.ts";
 import sidebar from "../chrome/sidebar/index.ts";
 import toc from "../chrome/toc/index.ts";
 import { t } from "../i18n/index.ts";
+import { articleHtml } from "../src/article-html.ts";
 
 /**
  * The index page of a pinned OpenAPI reference. The engine writes it at `apiReference.path` with
@@ -121,7 +122,7 @@ function fallback(props: LayoutProps): ComponentChildren {
     { class: "doc api-reference-index", "data-pagefind-body": true },
     breadcrumb(props) as ComponentChildren,
     h("h1", null, props.page.title),
-    h("div", { class: "doc-body", dangerouslySetInnerHTML: { __html: props.page.html } }),
+    h("div", { class: "doc-body", dangerouslySetInnerHTML: { __html: articleHtml(props.page.html) } }),
   );
 }
 

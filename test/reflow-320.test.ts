@@ -92,6 +92,13 @@ test("wide code and tables scroll inside the article on mobile and desktop", { s
   try {
     const page = await context.newPage();
     await page.goto(`${server.url}/reflow/`, { waitUntil: "networkidle" });
+    const list = page.locator(".doc-body > ol");
+    assert.equal(await list.evaluate((element) => getComputedStyle(element).listStyleType), "decimal");
+    const nested = list.getByRole("list");
+    assert.equal(await nested.evaluate((element) => getComputedStyle(element).listStyleType), "circle");
+    assert.ok(await nested.evaluate((element) => element.scrollWidth <= element.clientWidth));
+    assert.equal(await page.getByRole("columnheader", { name: "Type" }).evaluate((element) => getComputedStyle(element).textAlign), "center");
+
     for (const width of [320, 1280]) {
       await page.setViewportSize({ width, height: 800 });
       const widths = await page.evaluate(() => ({
@@ -101,14 +108,18 @@ test("wide code and tables scroll inside the article on mobile and desktop", { s
       }));
       assert.ok(widths.html <= width, `documentElement.scrollWidth is ${widths.html} at ${width}px`);
       assert.ok(widths.body <= width, `body.scrollWidth is ${widths.body} at ${width}px`);
-      for (const selector of [".doc-body > .code-frame > .code", ".doc-body > table"]) {
+      for (const selector of [".doc-body > .code-frame > .code", ".doc-body > .markdown-table-scroll"]) {
         const scroll = await page.locator(selector).evaluate((element) => ({
           content: element.scrollWidth,
           viewport: element.clientWidth,
           overflow: getComputedStyle(element).overflowX,
         }));
         assert.equal(scroll.overflow, "auto", selector);
-        assert.ok(scroll.content > scroll.viewport, `${selector} scrolls at ${width}px`);
+        if (selector.includes("code") || width === 320) {
+          assert.ok(scroll.content > scroll.viewport, `${selector} scrolls at ${width}px`);
+        } else {
+          assert.equal(scroll.content, scroll.viewport, "long cell values wrap on desktop");
+        }
         assert.ok(scroll.viewport <= widths.article, `${selector} fits in the article at ${width}px`);
       }
     }
@@ -142,15 +153,22 @@ test("the component directory and the Table examples fit at 320px without JavaSc
     assert.ok(widths.tableWidth <= widths.parentWidth);
 
     await page.goto(`${server.url}/components/table/`);
-    const authored = await page.getByRole("table", { name: "Deploy targets" }).evaluate((element) => ({
-      documentWidth: document.documentElement.scrollWidth,
-      tableWidth: element.clientWidth,
-      tableScrollWidth: element.scrollWidth,
+    const region = page.getByRole("region", { name: "Deploy targets" });
+    const authored = region.getByRole("table", { name: "Deploy targets" });
+    assert.equal(await authored.evaluate((element) => getComputedStyle(element).display), "table");
+    assert.equal(await authored.getByRole("columnheader", { name: "Target" }).getAttribute("colspan"), "2");
+    assert.equal(await authored.getByRole("rowheader", { name: "Staging" }).getAttribute("scope"), "rowgroup");
+    assert.equal(await page.evaluate(() => document.documentElement.scrollWidth), 320);
+    assert.equal(await region.getAttribute("tabindex"), "0");
+    const { overflow, content, viewport } = await region.evaluate((element) => ({
       overflow: getComputedStyle(element).overflowX,
+      content: element.scrollWidth,
+      viewport: element.clientWidth,
     }));
-    assert.equal(authored.documentWidth, 320);
-    assert.equal(authored.overflow, "auto");
-    assert.ok(authored.tableScrollWidth > authored.tableWidth);
+    assert.equal(overflow, "auto");
+    assert.ok(content > viewport, "the authored table scrolls within its region");
+    await region.focus();
+    assert.ok(await region.evaluate((element) => element === document.activeElement));
   } finally {
     await context.close();
   }

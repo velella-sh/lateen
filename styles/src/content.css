@@ -1,8 +1,7 @@
 /* Article components: tables, citations, callouts, tabs, steps, kbd, endpoints,
    record fields, details, file tree, terminal, timeline, cards, changelog, figures,
    media embeds, trust panel, tags, lists, swatches, gallery specimens. */
-/* Native tables can arrive without a scroll wrapper. Keep this above the Tailwind
-   utility layer so an authored `.table` class still scrolls. */
+/* Keep overflow local for custom tables that supply their own classes. */
 @media screen {
   .doc-body > table,
   .doc-body :is(.callout-body, .step-content, .tabs-body) > table {
@@ -36,30 +35,60 @@
     letter-spacing: 0.06em;
   }
 
-  .doc-body > table thead th {
+  .markdown-table-scroll {
+    margin-block: 1.125rem;
+    outline-offset: -3px;
+  }
+
+  .markdown-table-scroll > table {
+    margin: 0;
+    line-height: 1.5;
+    overflow-wrap: break-word;
+  }
+
+  /* Leave room for prose in multi-column grids and let narrow viewports scroll the grid. */
+  .markdown-table-scroll > table:has(> thead th:nth-child(3)) {
+    min-inline-size: 29rem;
+  }
+
+  .markdown-table-scroll > table > :is(thead, tbody, tfoot) > tr > :is(th, td) {
+    padding: 0.4375rem 0.625rem;
+    border-block-end-color: color-mix(in srgb, var(--border) 75%, transparent);
+  }
+
+  .markdown-table-scroll :is(th, td)[align="left"] { text-align: left; }
+  .markdown-table-scroll :is(th, td)[align="center"] { text-align: center; }
+  .markdown-table-scroll :is(th, td)[align="right"] { text-align: right; }
+
+  .markdown-table-scroll thead th {
+    background: var(--muted);
     color: var(--foreground);
-    font-size: 0.8125rem;
+    font-size: inherit;
+    font-weight: 700;
     letter-spacing: normal;
     text-transform: none;
-    border-block-end-color: var(--border);
+  }
+
+  .markdown-table-scroll :is(a, code) {
+    overflow-wrap: anywhere;
+  }
+
+  .markdown-table-scroll td:first-child > code:only-child {
+    display: inline-block;
+    max-inline-size: 36ch;
+    overflow-wrap: break-word;
+  }
+
+  .markdown-table-scroll :is(th, td) > p {
+    margin-block: 0;
+  }
+
+  .markdown-table-scroll :is(th, td) > p + p {
+    margin-block-start: 0.4em;
   }
 
   .component-directory table {
     table-layout: fixed;
-    line-height: 1.45;
-    overflow-wrap: anywhere;
-  }
-
-  .component-directory :is(th, td) {
-    padding: 0.5rem 0.625rem;
-  }
-
-  .component-directory th {
-    color: var(--foreground);
-    background: var(--muted);
-    font-size: 0.75rem;
-    letter-spacing: normal;
-    text-transform: none;
   }
 
   .component-directory th:first-child {

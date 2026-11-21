@@ -25,6 +25,7 @@ import readingTime from "../components/reading-time/index.ts";
 import versionNotice from "../components/version-notice/index.ts";
 import trustPanel from "../components/trust-panel/index.ts";
 import { codeBackgrounds } from "../src/brand.ts";
+import { articleHtml } from "../src/article-html.ts";
 
 /**
  * True when the body already supplies the page's `h1`, by the same rule as the engine's
@@ -84,7 +85,7 @@ function article(props: LayoutProps): ComponentChildren {
     ),
     staleSlot(props),
     tocFold(props) as ComponentChildren,
-    h("div", { class: "doc-body", "data-quickstart": quickstart || undefined, dangerouslySetInnerHTML: { __html: highlightFences(page.html, backdrops, page.lang) } }),
+    h("div", { class: "doc-body", "data-quickstart": quickstart || undefined, dangerouslySetInnerHTML: { __html: highlightFences(articleHtml(page.html), backdrops, page.lang) } }),
     toolUrl === undefined
       ? null
       : (pageTool({
