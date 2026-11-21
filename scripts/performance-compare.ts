@@ -160,11 +160,31 @@ function parseManifest(label: string, value: unknown): { manifest?: AssetManifes
   };
 }
 
+/** The engine renames a rebuilt file with a 16-hex content hash. The hash is not a different asset. */
+export function stablePath(path: string): string {
+  return path.replace(/-[0-9a-f]{16}(?=\.[a-z0-9]+$)/, "");
+}
+
+function indexAssets(assets: readonly ManifestAsset[], route: string, problems: string[]): Map<string, ManifestAsset> {
+  const map = new Map<string, ManifestAsset>();
+  for (const asset of assets) {
+    const key = stablePath(asset.path);
+    const previous = map.get(key);
+    if (previous !== undefined) {
+      problems.push(`route ${route}: ${previous.path} and ${asset.path} are the same asset`);
+      continue;
+    }
+    map.set(key, asset);
+  }
+  return map;
+}
+
 /**
- * Compares two manifests by `route` and then by asset `path`. An asset only on the head side is an
- * added dependency and a problem unless its path is in the reviewed log; one only on the base side
- * is a removal and passes. Growth of an asset is allowed up to `tolerance` gzip bytes, so a zlib
- * release does not fail the gate.
+ * Compares two manifests by `route` and then by asset `path`. A content hash in the file name is
+ * ignored, so a rebuilt stylesheet is the same asset as the one it replaced. An asset only on the
+ * head side is an added dependency and a problem unless its path is in the reviewed log; one only
+ * on the base side is a removal and passes. Growth of an asset is allowed up to `tolerance` gzip
+ * bytes, so a zlib release does not fail the gate.
  */
 export function compareManifests(
   base: unknown,
@@ -197,15 +217,16 @@ export function compareManifests(
       continue;
     }
 
-    const baseAssets = new Map(baseRoute.assets.map((asset) => [asset.path, asset]));
-    const headAssets = new Map(headRoute.assets.map((asset) => [asset.path, asset]));
+    const baseAssets = indexAssets(baseRoute.assets, route, problems);
+    const headAssets = indexAssets(headRoute.assets, route, problems);
     const paths = [...new Set([...baseAssets.keys(), ...headAssets.keys()])].sort();
     const delta = emptyTotals();
     const changed: ComparedAsset[] = [];
 
-    for (const path of paths) {
-      const previous = baseAssets.get(path);
-      const current = headAssets.get(path);
+    for (const key of paths) {
+      const previous = baseAssets.get(key);
+      const current = headAssets.get(key);
+      const path = current?.path ?? previous?.path ?? key;
       const assetClass = current?.class ?? previous?.class;
       if (assetClass === undefined) continue;
       const bytes = (current?.gzip ?? 0) - (previous?.gzip ?? 0);

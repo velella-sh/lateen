@@ -96,6 +96,19 @@ test("a removed asset passes and is reported as a shrink", () => {
   ]);
 });
 
+test("a rebuilt stylesheet keeps its identity when only the content hash changes", () => {
+  const hash = (mark: string) => `assets/theme/base-${mark.repeat(16)}.css`;
+  const base = manifest([route("/", [asset(hash("a"), "css/base", 5806)])]);
+  const head = manifest([route("/", [asset(hash("b"), "css/base", 5803)])]);
+
+  const result = compareManifests(base, head);
+  assert.deepEqual(result.problems, []);
+  assert.equal(result.routes[0]?.css, -3);
+  assert.equal(result.routes[0]?.assets[0]?.path, hash("b"));
+  assert.equal(result.routes[0]?.assets[0]?.base, 5806);
+  assert.equal(result.routes[0]?.assets[0]?.head, 5803);
+});
+
 test("an added asset always fails, even when the tolerance is generous", () => {
   const base = manifest([route("/", [asset("assets/theme/a.js", "js/components", 400)])]);
   const head = manifest([
