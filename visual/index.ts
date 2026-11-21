@@ -309,6 +309,9 @@ export function startServer(root: string, mount: string): Promise<StaticServer> 
   return new Promise((resolvePromise, reject) => {
     server.once("error", reject);
     server.listen(0, "127.0.0.1", () => {
+      // A test-only server never holds the process open: the suite's teardown closes it, but a test
+      // file that starts one before its first test (top-level await) can outrun that hook.
+      server.unref();
       const address = server.address();
       if (address === null || typeof address === "string") {
         reject(new Error("the static server did not get a port"));
