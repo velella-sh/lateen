@@ -212,7 +212,7 @@ function content(props: LayoutProps): ComponentChildren {
     cards.length === 0
       ? null
       : h("section", { class: "home-sections cards", "aria-label": "Explore" }, cards),
-    componentSpecimens(),
+    optionsOf(props).specimens === false ? null : componentSpecimens(),
     props.page.html.length > 0
       ? h("div", { class: "home-body", dangerouslySetInnerHTML: { __html: props.page.html } })
       : null,
