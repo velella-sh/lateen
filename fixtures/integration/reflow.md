@@ -42,7 +42,7 @@ export const release = "https://example.com/releases/2026/11/20/widget-darwin-ar
 
 | Option | Type | Default | What it does |
 | --- | --- | --- | --- |
-| `distributionArchive` | string | `https://example.com/releases/2026/11/20/widget.tar.gz` | The archive the installer downloads and verifies before unpacking. |
+| `distributionArchive` | string | `https://example.com/releases/2026/11/20/widget-darwin-arm64-standalone-archive-without-any-spaces-reflow-2026-fix.tar.gz` | The archive the installer downloads and verifies before unpacking. |
 | `packageManager` | string | `npm` | The package manager the install steps use. |
 | `platform` | string | detected | The operating system the installer targets. |
 | `integrity` | string | — | The checksum the installer verifies. |

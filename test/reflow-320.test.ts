@@ -13,37 +13,42 @@ try {
 const skip = browser === undefined ? "Chromium is not installed (npx playwright install chromium)" : false;
 after(async () => browser?.close());
 
-test("an article stays inside 320px and scrolls code and tables in place", { skip }, async () => {
+test("wide code and tables scroll inside the article on mobile and desktop", { skip }, async () => {
   const site = build("integration");
   const server = await serve(site.out);
   const context = await (browser as Browser).newContext({ viewport: { width: 320, height: 800 } });
   try {
     const page = await context.newPage();
     await page.goto(`${server.url}/reflow/`, { waitUntil: "networkidle" });
-    const widths = await page.evaluate(() => ({
-      html: document.documentElement.scrollWidth,
-      body: document.body.scrollWidth,
-    }));
-    assert.ok(widths.html <= 320, `documentElement.scrollWidth is ${widths.html}`);
-    assert.ok(widths.body <= 320, `body.scrollWidth is ${widths.body}`);
-    const overflow = await page.evaluate(() => {
-      const code = document.querySelector(".code");
-      const table = document.querySelector(".doc-body > table") ?? document.querySelector("table");
-      return {
-        code: code === null ? null : getComputedStyle(code).overflowX,
-        table: table === null ? null : getComputedStyle(table).overflowX,
-      };
-    });
-    assert.equal(overflow.code, "auto", "the code block scrolls inside itself");
-    assert.equal(overflow.table, "auto", "the table scrolls inside itself");
+    for (const width of [320, 1280]) {
+      await page.setViewportSize({ width, height: 800 });
+      const widths = await page.evaluate(() => ({
+        article: document.querySelector(".doc-body")!.getBoundingClientRect().width,
+        html: document.documentElement.scrollWidth,
+        body: document.body.scrollWidth,
+      }));
+      assert.ok(widths.html <= width, `documentElement.scrollWidth is ${widths.html} at ${width}px`);
+      assert.ok(widths.body <= width, `body.scrollWidth is ${widths.body} at ${width}px`);
+      for (const selector of [".doc-body > .code-frame > .code", ".doc-body > table"]) {
+        const scroll = await page.locator(selector).evaluate((element) => ({
+          content: element.scrollWidth,
+          viewport: element.clientWidth,
+          overflow: getComputedStyle(element).overflowX,
+        }));
+        assert.equal(scroll.overflow, "auto", selector);
+        assert.ok(scroll.content > scroll.viewport, `${selector} scrolls at ${width}px`);
+        assert.ok(scroll.viewport <= widths.article, `${selector} fits in the article at ${width}px`);
+      }
+    }
   } finally {
     await context.close();
   }
 });
 
-test("the component directory and both columns fit at 320px without JavaScript", { skip }, async () => {
-  const source = readFileSync(new URL("../site/components/index.md", import.meta.url), "utf8");
-  const site = build("integration", process.env, { "components/index.md": source });
+test("the component directory and the Table examples fit at 320px without JavaScript", { skip }, async () => {
+  const directory = readFileSync(new URL("../site/components/index.md", import.meta.url), "utf8");
+  const examples = readFileSync(new URL("../site/components/table.md", import.meta.url), "utf8");
+  const site = build("integration", process.env, { "components/index.md": directory, "components/table.md": examples });
   const server = await serve(site.out);
   const context = await (browser as Browser).newContext({
     viewport: { width: 320, height: 800 },
@@ -63,6 +68,17 @@ test("the component directory and both columns fit at 320px without JavaScript",
     assert.equal(widths.documentWidth, 320);
     assert.equal(widths.tableScrollWidth, widths.tableWidth);
     assert.ok(widths.tableWidth <= widths.parentWidth);
+
+    await page.goto(`${server.url}/components/table/`);
+    const authored = await page.getByRole("table", { name: "Deploy targets" }).evaluate((element) => ({
+      documentWidth: document.documentElement.scrollWidth,
+      tableWidth: element.clientWidth,
+      tableScrollWidth: element.scrollWidth,
+      overflow: getComputedStyle(element).overflowX,
+    }));
+    assert.equal(authored.documentWidth, 320);
+    assert.equal(authored.overflow, "auto");
+    assert.ok(authored.tableScrollWidth > authored.tableWidth);
   } finally {
     await context.close();
   }

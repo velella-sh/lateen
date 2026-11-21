@@ -1,28 +1,5 @@
 /* Code blocks: frame, copy/wrap controls, line numbers, Shiki themes. */
 @layer components {
-  .code-block {
-    @apply relative my-6 max-w-full overflow-auto rounded-xl p-5 text-sm;
-    background: var(--night);
-    color: var(--sail);
-    line-height: 1.7;
-    padding-block-start: 2.75rem;
-    tab-size: 2;
-    box-shadow: inset 0 0 0 1px color-mix(in srgb, #fff 6%, transparent);
-  }
-
-  [data-theme="dark"] .code-block {
-    background: color-mix(in srgb, var(--night-raised) 72%, #1a1822);
-  }
-
-  .code-block code {
-    @apply font-mono;
-  }
-
-  .code-block::before {
-    content: attr(data-lang);
-    @apply absolute end-3 top-2 rounded px-1.5 font-mono text-xs text-muted-foreground;
-  }
-
   .code-frame {
     @apply relative max-w-full;
   }
@@ -74,60 +51,55 @@
     overflow-x: auto;
   }
 
-  .code-copy-bar {
-    @apply absolute end-2 top-2 z-10 flex items-center gap-1;
-  }
-
-  .code-copy {
-    @apply inline-flex;
-  }
-
-  .code-wrap {
-    @apply rounded font-mono text-xs;
-    color: var(--sail);
-    background: var(--night-raised);
-    min-block-size: 1.5rem;
-  }
-
-  /* The tab panel reserves a row for controls so even a long command scrolls clear of them. */
-  :is(.code-tabs-body, .install-tabs-panel) > .code-frame {
+  /* Keep the controls in their own row, outside the code's scroll area. */
+  .code-frame:has(> .code-copy-bar) {
     @apply rounded-lg border;
+    margin-block: 1.125rem;
     border-color: var(--border);
     background: var(--night);
   }
 
+  :is(.code-tabs-body, .install-tabs-panel) > .code-frame {
+    margin-block: 0;
+  }
+
   .code-tabs-body > .code,
   .install-tabs-code,
-  :is(.code-tabs-body, .install-tabs-panel) > .code-frame > .code {
+  .code-frame > .code {
     @apply m-0 rounded-lg px-4 py-3 text-sm;
     font-family: var(--type-font-mono);
     line-height: 1.6;
   }
 
-  :is(.code-tabs-body, .install-tabs-panel) > .code-frame > .code {
+  .code-frame > .code {
     @apply rounded-t-none;
     outline-offset: -3px;
   }
 
-  :is(.code-tabs-body, .install-tabs-panel) > .code-frame > .code-copy-bar {
-    @apply static flex-wrap justify-end gap-2 px-3 py-2;
+  .code-copy-bar {
+    @apply flex flex-wrap items-center justify-end gap-2 px-3 py-2 text-xs;
+    color: var(--sail);
     border-block-end: 1px solid color-mix(in srgb, var(--sail) 18%, transparent);
   }
 
-  :is(.code-tabs-body, .install-tabs-panel) .code-copy-bar > :is(.code-copy, .code-wrap) {
-    @apply h-8 rounded-md font-sans;
+  .code-copy-bar > :is(.code-copy, .code-wrap) {
+    @apply min-h-8 rounded-md;
     color: var(--sail);
     background: var(--night-raised);
     cursor: pointer;
   }
 
-  :is(.code-tabs-body, .install-tabs-panel) .code-copy-bar > .code-copy {
+  .code-copy-bar > .code-copy {
     @apply w-8;
   }
 
-  :is(.code-tabs-body, .install-tabs-panel) .code-copy-bar > :is(button:hover, button[aria-pressed="true"]):not(:focus-visible) {
+  .code-copy-bar > :is(button:hover, button[aria-pressed="true"]):not(:focus-visible) {
     outline: 1px solid var(--blue-lift);
     outline-offset: -1px;
+  }
+
+  .code-frame :is(.code, .code-copy-bar > button):focus-visible {
+    outline-color: var(--blue-lift);
   }
 
   /* The wrap toggle changes presentation only: the text, its line breaks, and the copy stay as written. */
@@ -168,14 +140,6 @@
   .code-copy svg {
     inline-size: 0.875rem;
     block-size: 0.875rem;
-  }
-
-  .code-block {
-    padding-block-start: 2.75rem;
-  }
-
-  .code-block:has(.code-copy)::before {
-    display: none;
   }
 
   .shiki span {

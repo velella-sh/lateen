@@ -95,10 +95,6 @@
   .chart-heading {
     @apply grid;
   }
-
-  .doc-body > table {
-    @apply block overflow-x-auto;
-  }
 }
 
 /* Wide screens always show the whole trail: flatten the compact middle back into the row. */

@@ -137,8 +137,9 @@ export function numberSteps(html: string, lang: string): string {
     const label = t(lang, "guide_step", { n: digitsOf(n, lang) });
     const li = `<li id="${item.id}" class="step" data-step="${String(n)}">`;
     const number = `<span class="${NUMBER_CLASS}">${label}</span>`;
-    out += html.slice(cursor, item.tagStart) + li + number;
-    cursor = item.tagEnd;
+    const content = html.slice(item.tagEnd, item.close);
+    out += html.slice(cursor, item.tagStart) + li + number + `<div class="step-content">${content}</div>`;
+    cursor = item.close;
   }
   return out + html.slice(cursor);
 }
