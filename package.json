@@ -118,8 +118,12 @@
     "skills",
     "starters",
     "!redesign/dist",
+    "!redesign/test",
     "!skills/*-workspace",
     "!skills/**/evals",
+    "!styles/src",
+    "!components/*/README.md",
+    "!chrome/*/README.md",
     "CHANGELOG.md",
     "components/performance-chart/chart.min.js",
     "styles/generated.css"
