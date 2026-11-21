@@ -37,7 +37,7 @@ A docs theme for people and agents, built on Mizzen: layouts, chrome, components
 - **Accessible.** Tested against WCAG 2.2 AA, with a keyboard gate, a contrast gate, and an RTL gate.
 - **Right-to-left ready.** Direction, language, and mirrored icons are handled for RTL languages.
 
-Check out [Mizzen](https://github.com/velella-sh/mizzen) next to it (`../mizzen`) and run `npm ci` in both; the tests and the docs site build with it.
+Run `npm ci` to install the published [Mizzen](https://github.com/velella-sh/mizzen) used by the tests and docs site. See the [contributor setup](CONTRIBUTING.md#set-up) to test against a local engine checkout.
 
 The theme may `import type` from `@velella/mizzen/contracts`, by package name and never by relative path, and imports nothing else from the engine. Preact is a peer dependency, with `jsx: react-jsx` and `jsxImportSource: preact` in `tsconfig.json`.
 
