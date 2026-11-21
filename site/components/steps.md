@@ -26,18 +26,20 @@ None.
 ## Example
 
 :::steps
-1. **Create the project folder.**
+1. Create the folder.
 
-2. **Set the site's title and default language.**
+2. Add `mizzen.yml` with the site's title and language.
 
-   Add a `mizzen.yml` file in the project folder. The default language sets the document language and the language of the theme's interface.
+   The default language sets the document language and the language of the theme's interface. Save this example in the project folder.
 
    ```yaml
    title: My docs
    lang: en
    ```
 
-3. **Build the site and check the first page.**
+3. Run `npm create mizzen` or build the site with the engine.
+
+4. Open the output folder and check the first page.
 :::
 
 A step can end with two next paths, written as a nested bulleted list of links:
