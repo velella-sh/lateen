@@ -27,8 +27,18 @@ None.
 
 :::steps
 1. Create the folder.
+
 2. Add `mizzen.yml` with the site's title and language.
+
+   The default language sets the document language and the language of the theme's interface. Save this example in the project folder.
+
+   ```yaml
+   title: My docs
+   lang: en
+   ```
+
 3. Run `npm create mizzen` or build the site with the engine.
+
 4. Open the output folder and check the first page.
 :::
 

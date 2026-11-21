@@ -66,7 +66,7 @@ article widens. A single card needs no wrapper.
 
 ::link-card{href="/components/callout/" title="Callout" description="A note, tip, important point, warning, or caution." icon="→"}
 
-::link-card{href="/components/code-tabs/" title="Code tabs" description="The same example in several languages, as tabs."}
+::link-card{href="/components/code-tabs/" title="Show the same example in several languages" description="Let readers choose a language or package manager while keeping the related code examples in one place."}
 
 </div>
 

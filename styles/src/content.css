@@ -232,13 +232,15 @@
   }
 
   .callout {
-    @apply relative flex items-start rounded-xl;
+    display: flex;
+    align-items: flex-start;
     --callout-color: var(--muted-foreground);
-    margin-block: 1.125rem;
+    margin-block: var(--space-4);
     gap: var(--space-3);
     padding: var(--space-3) var(--space-4);
+    border-radius: var(--radius-lg);
     background: color-mix(in srgb, var(--muted) 70%, var(--card));
-    border-inline-start: 2px solid color-mix(in srgb, var(--callout-color) 42%, transparent);
+    border-inline-start: 2px solid var(--border);
   }
 
   .callout-tip {
@@ -258,7 +260,8 @@
   }
 
   .callout-icon {
-    @apply size-5;
+    @apply size-4;
+    margin-block-start: 0.125rem;
     color: var(--callout-color);
   }
 
@@ -277,7 +280,7 @@
   }
 
   .callout-content > .callout-kind + .callout-title {
-    margin-block-start: 0.25rem;
+    margin-block-start: var(--spacing);
     color: var(--foreground);
     font-size: 1rem;
     line-height: 1.4;
@@ -285,8 +288,8 @@
 
   .callout-body {
     margin-block-start: var(--space-2);
-    font-size: 0.9375rem;
-    line-height: 1.55;
+    font-size: var(--text-sm);
+    line-height: 1.6;
   }
 
   .callout-body > :first-child {
@@ -297,41 +300,66 @@
     margin-block-end: 0;
   }
 
-  .tabs,
-  .code-tabs {
-    @apply my-6;
+  :is(.tabs, .code-tabs, .os-tabs) {
+    margin-block: var(--space-6);
+    min-inline-size: 0;
   }
 
-  .code-tabs-list,
-  .tabs > [role="tablist"] {
-    @apply flex flex-wrap gap-1;
-    margin-block-end: var(--space-2);
+  :is(.tabs, .code-tabs, .os-tabs) > [role="tablist"] {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--spacing);
+    border-block-end: 1px solid var(--border);
   }
 
-  .code-tabs-tab,
-  .tabs > [role="tablist"] > [role="tab"] {
-    @apply inline-flex items-center rounded-t-md px-3 py-2 text-sm leading-6 font-medium text-muted-foreground;
-    border-block-end: 2px solid transparent;
+  :is(.tabs, .code-tabs, .os-tabs) > [role="tablist"] > [role="tab"],
+  .install-tabs-tab {
+    @apply inline-flex max-w-full items-center rounded-t-md border-b-2 border-transparent px-3 py-2 text-sm text-muted-foreground;
     cursor: pointer;
+    min-block-size: 2.5rem;
     overflow-wrap: anywhere;
   }
 
-  .code-tabs-tab:hover,
-  .tabs > [role="tablist"] > [role="tab"]:hover {
+  :is(.tabs, .code-tabs, .os-tabs) > [role="tablist"] > [role="tab"]:is(:hover, :focus-visible),
+  .install-tabs-tab:is(:hover, :has(.install-tabs-radio:focus-visible)) {
     color: var(--foreground);
-    background: var(--card);
+    background: var(--muted);
   }
 
-  .code-tabs-tab[aria-selected="true"],
-  .tabs > [role="tablist"] > [aria-selected="true"] {
+  :is(.tabs, .code-tabs, .os-tabs) > [role="tablist"] > [aria-selected="true"],
+  .install-tabs-tab:has(.install-tabs-radio:checked) {
     border-block-end-color: var(--ring);
     background: var(--muted);
     color: var(--foreground);
+    font-weight: 700;
   }
 
-  .tabs > [role="tabpanel"] > .tabs-title {
-    margin-block: var(--space-3) var(--space-2);
+  :is(.tabs, .os-tabs) > [role="tabpanel"] {
+    padding: var(--space-3) var(--space-4);
+    border: 1px solid var(--border);
+    border-block-start: 0;
+    border-end-start-radius: var(--radius-lg);
+    border-end-end-radius: var(--radius-lg);
+    background: var(--card);
+  }
+
+  :is(.tabs, .os-tabs) > [role="tabpanel"] > :is(.tabs-title, .os-tabs-title) {
+    margin-block: 0 var(--space-2);
     font-size: 1rem;
+  }
+
+  :is(.tabs-body, .os-tabs-body) > :first-child {
+    margin-block-start: 0;
+  }
+
+  :is(.tabs-body, .os-tabs-body) > :last-child {
+    margin-block-end: 0;
+  }
+
+  .code-tabs[data-enhanced] > .code-tabs-panel > .code-tabs-body > .code-frame {
+    border-block-start: 0;
+    border-start-start-radius: 0;
+    border-start-end-radius: 0;
   }
 
   .code-tabs-title {
@@ -353,23 +381,6 @@
     gap: 0 var(--space-1);
     margin-block: 1.125rem;
     overflow: clip;
-  }
-
-  .install-tabs-tab {
-    @apply inline-flex items-center border-b-2 border-transparent px-3 py-2 text-sm text-muted-foreground;
-    cursor: pointer;
-    overflow-wrap: anywhere;
-  }
-
-  .install-tabs-tab:hover,
-  .install-tabs-tab:has(.install-tabs-radio:checked) {
-    color: var(--foreground);
-    background: var(--muted);
-  }
-
-  .install-tabs-tab:has(.install-tabs-radio:checked) {
-    border-block-end-color: var(--ring);
-    font-weight: 700;
   }
 
   .install-tabs-tab:has(.install-tabs-radio:focus-visible) {
@@ -425,8 +436,9 @@
     display: grid;
     grid-template-columns: max-content minmax(0, 1fr);
     column-gap: var(--space-3);
-    row-gap: var(--space-4);
+    row-gap: var(--space-6);
     margin: 0;
+    padding: 0;
   }
 
   .steps > ol > .step {
@@ -438,16 +450,17 @@
   }
 
   .step-number {
-    @apply relative rounded-full text-xs font-bold;
+    @apply relative inline-flex items-center rounded-full text-xs font-bold;
     justify-self: start;
-    min-block-size: 1.5rem;
-    padding: 0.125rem var(--space-2);
+    min-block-size: var(--space-6);
+    padding-inline: var(--space-2);
     background: var(--muted);
     color: var(--foreground);
     line-height: 1.25rem;
   }
 
   .step-content {
+    line-height: 1.5rem;
     overflow-wrap: anywhere;
   }
 
@@ -456,7 +469,11 @@
   }
 
   .step-content > p:first-child {
-    font-weight: 600;
+    font-weight: 700;
+  }
+
+  .step-content > .code-frame {
+    margin-block: var(--space-3);
   }
 
   .step-content > :last-child {
@@ -731,8 +748,7 @@
   }
 
   .mini-cards a,
-  .mini-card,
-  .link-card {
+  .mini-card {
     text-decoration: none;
     background: color-mix(in srgb, var(--background) 70%, transparent);
     border-radius: 0.75rem;
@@ -743,7 +759,6 @@
   }
 
   .mini-card .card-description,
-  .link-card .card-description,
   .mini-cards span {
     display: block;
     color: var(--muted-foreground);

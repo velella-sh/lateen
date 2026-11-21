@@ -253,7 +253,7 @@
   .sidebar-nav h6[aria-current="true"],
   .toc a[aria-current="true"],
   .section-tab[aria-current="page"],
-  .code-tabs-tab[aria-selected="true"],
+  [role="tab"][aria-selected="true"],
   .install-tabs-tab:has(.install-tabs-radio:checked) {
     background-color: Highlight !important;
     color: HighlightText !important;
@@ -266,7 +266,7 @@
   }
 
   .section-tab[aria-current="page"],
-  .code-tabs-tab[aria-selected="true"] {
+  [role="tab"][aria-selected="true"] {
     border-block-end-color: HighlightText !important;
   }
 

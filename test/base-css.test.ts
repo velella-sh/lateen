@@ -119,8 +119,8 @@ test("document tables, reference rows, code panels, and callouts stay quiet and 
   assert.match(callout, /padding:\s*var\(--space-3\) var\(--space-4\)/);
   assert.match(callout, /border-inline-start:/);
   const calloutBody = bodyOf(ui, /^\.callout-body$/);
-  assert.match(calloutBody, /font-size:\s*0\.9375rem/);
-  assert.match(calloutBody, /line-height:\s*1\.55/);
+  assert.match(calloutBody, /font-size:\s*var\(--text-sm\)/);
+  assert.match(calloutBody, /line-height:\s*1\.6/);
 });
 
 test("the color and length helpers still catch raw values", () => {
