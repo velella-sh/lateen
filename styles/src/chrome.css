@@ -110,6 +110,11 @@
     border-color: transparent transparent var(--link) transparent;
   }
 
+  .brand-logo-frame {
+    display: grid;
+    place-items: center;
+  }
+
   [data-theme="light"] .brand-logo-dark,
   [data-theme="dark"] .brand-logo-light {
     display: none;
