@@ -953,11 +953,69 @@
   }
 
   .trust-panel-body {
-    max-inline-size: 40em;
-    margin-block-start: 0.5rem;
-    padding: 0.75rem;
+    inline-size: min(25rem, 100%);
+    margin-block-start: var(--space-2);
+    padding: var(--space-3);
+    border: 1px solid var(--border);
     border-radius: 0.75rem;
-    background: var(--card);
+    background: var(--popover);
+    color: var(--popover-foreground);
+    font-size: 0.875rem;
+    line-height: 1.5;
+    overflow-wrap: anywhere;
+  }
+
+  @media screen {
+    .trust-panel {
+      position: relative;
+    }
+
+    /* Size the header panel against the metadata row so it can fit on narrow screens. */
+    .doc-meta > .trust-panel {
+      position: static;
+    }
+
+    .trust-panel[open] > .trust-panel-body {
+      position: absolute;
+      inset-inline-start: 0;
+      z-index: 3;
+    }
+  }
+
+  .trust-panel-rows {
+    display: grid;
+    grid-template-columns: minmax(0, 2fr) minmax(0, 3fr);
+    gap: var(--space-1) var(--space-3);
+    margin-block-end: var(--space-2);
+    padding-block-end: var(--space-2);
+    border-block-end: 1px solid var(--border);
+  }
+
+  .trust-panel-label {
+    color: var(--muted-foreground);
+  }
+
+  .trust-panel-body .trust-panel-reasons-label {
+    margin: 0 0 var(--space-1);
+    font-weight: 600;
+  }
+
+  .trust-panel-reasons {
+    margin: 0;
+    padding-inline-start: 1.25em;
+    list-style: disc;
+  }
+
+  .trust-panel-actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--space-1) var(--space-3);
+    margin-block-start: var(--space-2);
+  }
+
+  .trust-panel-action {
+    color: var(--link);
+    text-decoration: underline;
   }
 
   .trust-panel-revision {
