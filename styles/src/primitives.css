@@ -46,8 +46,7 @@
   /* Badge and pill own their whole look here; no later module or override
      restates a property. Long labels grow the badge instead of clipping. */
   .badge,
-  .pill,
-  .trust-panel-chip {
+  .pill {
     @apply inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-bold;
     background: var(--shell);
     color: var(--night);
