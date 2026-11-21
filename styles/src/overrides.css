@@ -414,12 +414,6 @@ a.home-btn-primary,
   background: var(--sail);
 }
 
-.os-tabs-tab[aria-selected="true"],
-.install-tabs [role="tab"][aria-selected="true"] {
-  color: var(--foreground);
-  background: color-mix(in srgb, var(--card) 70%, var(--muted));
-}
-
 /* The screen rules above own the selectors; these print-only overrides keep paper inside the page. */
 @media print {
   /* Line-number links are screen-only; their negative margin must not widen the paper. */

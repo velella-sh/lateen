@@ -6,6 +6,8 @@
 @source "../../site";
 @source "../../redesign";
 @source "../../starters";
+/* These words occur in prose and code examples, with no matching utility classes in the theme. */
+@source not inline("blur collapse container contents filter grow inline isolate italic lowercase outline resize ring static sticky transform visible");
 
 @theme {
   --font-sans: "Geist", "Geist Sans", ui-sans-serif, system-ui, sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji";

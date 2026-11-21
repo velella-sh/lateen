@@ -39,28 +39,110 @@
     @apply hover:bg-muted hover:text-foreground;
   }
 
-  .card {
-    @apply flex flex-col gap-4 overflow-hidden rounded-xl bg-card py-4 text-sm text-card-foreground ring-1 ring-foreground/10;
+  .card,
+  .link-card {
+    @apply flex flex-col rounded-xl bg-card text-card-foreground;
   }
 
-  /* Badge and pill own their whole look here; no later module or override
-     restates a property. Long labels grow the badge instead of clipping. */
-  .badge,
+  .card {
+    @apply gap-4 overflow-hidden py-4 text-sm ring-1 ring-foreground/10;
+  }
+
+  .card:where(:has(> :is(.card-title, .card-description, .card-icon)), .feature-grid-card),
+  .link-card {
+    align-items: flex-start;
+    gap: var(--space-2);
+    padding: var(--space-4);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-lg);
+    background: var(--card);
+    color: var(--card-foreground);
+    font-size: 1rem;
+    overflow-wrap: anywhere;
+    box-shadow: none;
+  }
+
+  a.card:where(:has(> .card-title), .feature-grid-card),
+  .doc-body a.link-card {
+    color: var(--card-foreground);
+    text-decoration: none;
+  }
+
+  .card:any-link:is(:hover, :focus-visible),
+  .link-card:is(:hover, :focus-visible) {
+    background: var(--muted);
+  }
+
+  .card:any-link:is(:hover, :focus-visible) > :is(.card-title, .feature-grid-title),
+  .link-card:is(:hover, :focus-visible) > .link-card-title {
+    text-decoration: underline;
+    text-underline-offset: 0.15em;
+  }
+
+  :is(.card-title, .link-card-title, .feature-grid-title) {
+    font-weight: 700;
+    line-height: 1.4;
+  }
+
+  :is(.card-description, .link-card-description, .feature-grid-text) {
+    color: var(--muted-foreground);
+    font-size: var(--text-sm);
+    line-height: 1.5;
+  }
+
+  .link-card-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(min(100%, 15rem), 1fr));
+    gap: var(--space-3);
+  }
+
   .pill {
     @apply inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-bold;
     background: var(--shell);
     color: var(--night);
   }
 
-  .badge {
-    @apply w-fit shrink-0 justify-center gap-1 whitespace-nowrap border border-transparent focus-visible:border-ring focus-visible:ring-[3px] focus-visible:ring-ring/50 [&>svg]:pointer-events-none;
+  .badge,
+  .version-badge,
+  .status {
+    @apply inline-flex max-w-full items-center gap-1 rounded-full px-2 py-0.5 text-xs font-bold;
+    min-block-size: var(--space-6);
     line-height: 1.25;
-    min-block-size: 1.25rem;
-    overflow: visible;
+    vertical-align: middle;
+    overflow-wrap: anywhere;
+  }
+
+  .badge,
+  .status {
+    background: var(--shell);
+    color: var(--night);
+  }
+
+  .badge {
+    @apply w-fit shrink-0 justify-center border border-transparent focus-visible:border-ring focus-visible:ring-[3px] focus-visible:ring-ring/50 [&>svg]:pointer-events-none;
+  }
+
+  .version-badge {
+    background: var(--muted);
+    color: var(--foreground);
+  }
+
+  .version-badge-block {
+    display: flex;
+    inline-size: fit-content;
+    margin-block: var(--space-2);
+  }
+
+  .version-badge-sr {
+    @apply sr-only;
+  }
+
+  .status-icon > svg {
+    @apply size-3;
   }
 
   .badge[data-variant='outline'] {
-    @apply border-border text-foreground;
+    @apply border-border bg-transparent text-foreground;
   }
 
   .pill.ink,
