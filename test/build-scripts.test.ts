@@ -21,3 +21,25 @@ test("npm test builds the UI once, in pretest, and runs every gate once", () => 
     assert.equal(run?.split(gate).length, 2, `the test script runs ${gate} exactly once`);
   }
 });
+
+// Main runs `npm run test:coverage` in place of `npm test` (see .github/workflows/ci.yml), so the
+// coverage variant has to run every gate the plain suite runs. A gate added to one and not the other
+// would leave main checked less than a pull request.
+test("test:coverage runs every gate npm test runs, plus the coverage report", () => {
+  const run = pkg.scripts["test:coverage"] ?? "";
+  for (const gate of [
+    "node scripts/tokens.ts --check",
+    "node scripts/check-design.ts",
+    'node --test --experimental-test-coverage --test-coverage-exclude="test/**" --test-coverage-exclude="scripts/**"',
+    '"test/**/*.test.ts"',
+    "npm run test:redesign",
+    "npm run coverage:badge",
+  ]) {
+    assert.equal(run.split(gate).length, 2, `test:coverage runs ${gate} exactly once`);
+  }
+  assert.ok(
+    run.includes("--test-reporter=lcov --test-reporter-destination=coverage/lcov.info"),
+    "test:coverage writes the lcov report the badge reads",
+  );
+  assert.ok(run.includes("--test-reporter=spec"), "test:coverage prints the spec report");
+});

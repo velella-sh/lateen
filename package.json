@@ -59,7 +59,7 @@
     "test:mutation": "node scripts/mutation-check.ts",
     "test:search-open": "node --test test/search-open-budget.test.ts",
     "test:compare": "node --test test/performance-compare.test.ts",
-    "test:coverage": "npm run ui:build && node scripts/tokens.ts --check && mkdir -p coverage && node --test --experimental-test-coverage --test-coverage-exclude=\"test/**\" --test-coverage-exclude=\"scripts/**\" --test-reporter=spec --test-reporter-destination=stdout --test-reporter=lcov --test-reporter-destination=coverage/lcov.info \"test/**/*.test.ts\" && npm run coverage:badge",
+    "test:coverage": "npm run ui:build && node scripts/tokens.ts --check && node scripts/check-design.ts && mkdir -p coverage && node --test --experimental-test-coverage --test-coverage-exclude=\"test/**\" --test-coverage-exclude=\"scripts/**\" --test-reporter=spec --test-reporter-destination=stdout --test-reporter=lcov --test-reporter-destination=coverage/lcov.info \"test/**/*.test.ts\" && npm run test:redesign && npm run coverage:badge",
     "test:coverage:parsers": "node scripts/check-parser-coverage.ts",
     "coverage:badge": "node scripts/coverage-badge.ts coverage/lcov.info coverage/coverage.json",
     "check:design": "node scripts/check-design.ts",

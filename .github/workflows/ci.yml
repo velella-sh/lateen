@@ -18,6 +18,10 @@ permissions:
   contents: read
 
 jobs:
+  # The full suite, once per run. A push to main runs the coverage variant instead of `npm test`: it
+  # runs every gate `npm test` runs and writes coverage/coverage.json, which the coverage job
+  # publishes to the badge branch, so main no longer measures the suite twice. A pull request keeps
+  # the plain `npm test` and measures no coverage.
   test:
     runs-on: ubuntu-latest
     timeout-minutes: 20
@@ -27,9 +31,24 @@ jobs:
           path: lateen
           persist-credentials: false
       - uses: ./lateen/.github/actions/setup
+      # The two test steps exclude each other exactly: everything that is not a push to main runs
+      # `npm test`, so a manual dispatch of main still tests instead of running neither step.
       - name: Test
+        if: github.event_name != 'push' || github.ref != 'refs/heads/main'
         run: npm test
         working-directory: lateen
+      - name: Test with coverage
+        if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+        run: npm run test:coverage
+        working-directory: lateen
+      - name: Upload the coverage report
+        if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
+        with:
+          name: coverage
+          path: lateen/coverage/coverage.json
+          if-no-files-found: error
+          retention-days: 7
       - name: Component fixture inventory
         run: node --test test/visual/inventory.test.ts
         working-directory: lateen
@@ -119,8 +138,9 @@ jobs:
       - name: Accessibility gate
         run: npm run test:a11y
         working-directory: lateen
+      # The gate above already built the UI in this workspace; building it again bought nothing.
       - name: Screen-reader path audit
-        run: npm run ui:build && node scripts/audit-screen-reader.ts
+        run: node scripts/audit-screen-reader.ts
         working-directory: lateen
       - name: Upload the screen-reader audit
         if: always()
@@ -155,8 +175,9 @@ jobs:
       - name: Browser smoke gate
         run: npm run test:smoke
         working-directory: lateen
+      # The smoke gate above already built the UI in this workspace; building it again bought nothing.
       - name: Mobile search opening budget
-        run: npm run ui:build && node scripts/search-open-budget.ts --report test/smoke/out/search-open.json
+        run: node scripts/search-open-budget.ts --report test/smoke/out/search-open.json
         working-directory: lateen
       - name: Upload the search opening report
         if: always()
@@ -255,37 +276,36 @@ jobs:
           path: lateen/test/visual/out
           retention-days: 7
 
-  # Measures line coverage and publishes it for the README badge. It runs on main only and holds the
-  # only write permission in this workflow: it can push the `badges` branch and nothing else. The badge
-  # is a shields.io endpoint badge reading coverage.json from that branch, so the number follows main.
+  # Publishes the coverage the test job measured on main for the README badge. It runs on main only
+  # and holds the only write permission in this workflow: it can push the `badges` branch and nothing
+  # else. The badge is a shields.io endpoint badge reading coverage.json from that branch, so the
+  # number follows main. It measures nothing itself and installs nothing: the test job already ran the
+  # full suite with coverage, so this job passes the artifact on instead of running the suite again.
   coverage:
     name: coverage
+    needs: test
     if: github.event_name == 'push' && github.ref == 'refs/heads/main'
     runs-on: ubuntu-latest
-    timeout-minutes: 20
+    timeout-minutes: 10
     permissions:
       contents: write
     steps:
-      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - uses: actions/download-artifact@9000827ccba6bdab643e8b6fd33ac0654aef8333 # v8.0.2
         with:
-          path: lateen
-          persist-credentials: false
-      - uses: ./lateen/.github/actions/setup
-      - name: Measure coverage
-        working-directory: lateen
-        run: |
-          npm run test:coverage
-          echo "line coverage: $(node -p "require('./coverage/coverage.json').message")" >> "$GITHUB_STEP_SUMMARY"
+          name: coverage
+          path: coverage
       - name: Publish the badge
         env:
           GITHUB_TOKEN: ${{ github.token }}
         run: |
+          set -euo pipefail
+          echo "line coverage: $(node -p "require('./coverage/coverage.json').message")" >> "$GITHUB_STEP_SUMMARY"
           cd "$RUNNER_TEMP"
           rm -rf badges
           git init --quiet badges
           cd badges
           git checkout --quiet -b badges
-          cp "$GITHUB_WORKSPACE/lateen/coverage/coverage.json" coverage.json
+          cp "$GITHUB_WORKSPACE/coverage/coverage.json" coverage.json
           git add coverage.json
           git -c user.name="github-actions[bot]" -c user.email="41898282+github-actions[bot]@users.noreply.github.com" \
             commit --quiet -m "chore(badges): coverage for ${GITHUB_SHA}"
