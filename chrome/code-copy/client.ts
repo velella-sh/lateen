@@ -129,12 +129,10 @@ export interface CopyEnv {
 }
 
 /** The elements of one block's copy control. */
-export interface CopyUi {
-  button: CopyNode;
+interface CopyUi {
   copyIcon: CopyNode;
   checkIcon: CopyNode;
   status: CopyNode;
-  labels: CopyLabels;
 }
 
 /**
@@ -201,25 +199,19 @@ function fromDiff(lines: readonly string[]): string[] {
   return out;
 }
 
-/**
- * The result flash per environment: its timers drive the reset, its targets are one block's controls.
- * The success and failure words and the icon swap are this island's own; the order of events — show,
- * wait, restore, never letting a slower earlier result overwrite a newer one — is the shared one.
- */
-const flashes = new WeakMap<CopyEnv, ResultFlash<CopyUi>>();
-
-function flashOf(env: CopyEnv): ResultFlash<CopyUi> {
-  const existing = flashes.get(env);
-  if (existing !== undefined) return existing;
-  const created = createResultFlash<CopyUi>({
+/** Adds a copy button and a wrap toggle above each code block and wires them. */
+export function activate(doc: CopyDocument, env: CopyEnv): () => void {
+  const labels = labelsOf(doc);
+  const icons = iconsOf(doc);
+  const flash = createResultFlash<CopyUi>({
     timers: env,
     resetMs: RESET_MS,
     apply(ui, ok) {
-      ui.status.textContent = ok ? ui.labels.copied : ui.labels.failed;
-      if (ok) {
-        ui.copyIcon.setAttribute("hidden", "");
-        ui.checkIcon.removeAttribute("hidden");
-      }
+      ui.status.textContent = ok ? labels.copied : labels.failed;
+      const shown = ok ? ui.checkIcon : ui.copyIcon;
+      const hidden = ok ? ui.copyIcon : ui.checkIcon;
+      hidden.setAttribute("hidden", "");
+      shown.removeAttribute("hidden");
     },
     reset(ui) {
       ui.status.textContent = "";
@@ -227,31 +219,15 @@ function flashOf(env: CopyEnv): ResultFlash<CopyUi> {
       ui.copyIcon.removeAttribute("hidden");
     },
   });
-  flashes.set(env, created);
-  return created;
-}
-
-/**
- * Writes `text` to the clipboard and reports the result on the control. Without a clipboard, that
- * is a failure; the restore never runs for a click a newer one has superseded.
- */
-export function copy(text: string, ui: CopyUi, env: CopyEnv, isLatest: () => boolean): Promise<void> {
-  return writeClipboard(env.clipboard, text).then((ok) => {
-    if (isLatest()) flashOf(env).show(ui, ok);
-  });
-}
-
-/** Adds a copy button and a wrap toggle above each code block and wires them. Nothing is added to a page the island does not run on. The returned teardown cancels every pending result reset, so no callback touches a control the host has dropped. */
-export function activate(doc: CopyDocument, env: CopyEnv): () => void {
-  const labels = labelsOf(doc);
-  const icons = iconsOf(doc);
   const attached: CopyUi[] = [];
+  let live = true;
   for (const block of doc.querySelectorAll(BLOCK_SELECTOR)) {
-    const ui = attach(doc, block, env, labels, icons);
+    const ui = attach(doc, block, env, labels, icons, flash, () => live);
     if (ui !== undefined) attached.push(ui);
   }
   return () => {
-    for (const ui of attached) flashOf(env).restore(ui);
+    live = false;
+    for (const ui of attached) flash.restore(ui);
   };
 }
 
@@ -302,7 +278,10 @@ function iconsOf(doc: CopyDocument): CopyIcons {
 }
 
 /** One block's control: a bar above the block with the button and the live message. Returns the control's result target, or nothing when the block has no code. */
-function attach(doc: CopyDocument, block: CopyBlock, env: CopyEnv, labels: CopyLabels, icons: CopyIcons): CopyUi | undefined {
+function attach(
+  doc: CopyDocument, block: CopyBlock, env: CopyEnv, labels: CopyLabels, icons: CopyIcons,
+  flash: ResultFlash<CopyUi>, isLive: () => boolean,
+): CopyUi | undefined {
   const code = block.querySelector("code");
   if (code === null) return undefined;
 
@@ -345,19 +324,25 @@ function attach(doc: CopyDocument, block: CopyBlock, env: CopyEnv, labels: CopyL
     block.classList.toggle?.(WRAPPED_CLASS, wrapped);
   });
 
-  bar.append(button, status, wrap);
+  const size = doc.createElement("span");
+  size.setAttribute("class", "copy-status-size");
+  size.setAttribute("aria-hidden", "true");
+  size.textContent = labels.failed;
+  bar.append(button, status, wrap, size);
 
   const frame = doc.createElement("div");
   frame.setAttribute("class", FRAME_CLASS);
   block.before(frame);
   frame.append(bar, block);
 
-  const ui: CopyUi = { button, copyIcon, checkIcon, status, labels };
+  const ui = { copyIcon, checkIcon, status };
   let clicks = 0;
-  button.addEventListener("click", () => {
+  button.addEventListener("click", async () => {
+    if (!isLive()) return;
     const click = ++clicks;
     const text = copyText(code.textContent ?? "", block.getAttribute("data-lang") ?? undefined);
-    void copy(text, ui, env, () => click === clicks);
+    const ok = await writeClipboard(env.clipboard, text);
+    if (click === clicks && isLive()) flash.show(ui, ok);
   });
   return ui;
 }
@@ -368,16 +353,14 @@ const globals = globalThis as unknown as {
   navigator?: { clipboard?: Clipboard };
   location?: { readonly hash: string };
   addEventListener?(type: "hashchange", listener: () => void): void;
-  setTimeout(callback: () => void, ms: number): unknown;
-  clearTimeout(handle: unknown): void;
 };
 
 // The island runs when the browser loads it; nothing happens in a runtime without a document.
 if (globals.document) {
   activate(globals.document, {
     clipboard: globals.navigator?.clipboard,
-    schedule: (callback, ms) => globals.setTimeout(callback, ms),
-    cancel: (handle) => globals.clearTimeout(handle),
+    schedule: setTimeout.bind(globalThis),
+    cancel: clearTimeout.bind(globalThis),
   });
   const mark = (): void => {
     targetLines(globals.document!, globals.location?.hash ?? "");

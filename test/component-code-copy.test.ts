@@ -351,10 +351,13 @@ test("a copy keeps intentional indentation, tabs, and trailing spaces exactly", 
 });
 
 test("the live message is a status region that starts empty", () => {
-  const { status } = page("x", undefined, clipboard());
+  const { bar, status } = page("x", undefined, clipboard());
   assert.equal(status.attrs.class, STATUS_CLASS);
   assert.equal(status.attrs.role, "status");
   assert.equal(status.textContent, "");
+  const size = bar.children[3] as FakeNode;
+  assert.equal(size.attrs["aria-hidden"], "true");
+  assert.equal(size.textContent, FAILED);
 });
 
 test("adjacent copy controls announce on their own status region, one action at a time", async () => {
@@ -435,6 +438,26 @@ test("a rejected write shows the fallback message and leaves the copy icon in pl
   assert.equal(status.textContent, FAILED);
   assert.equal(copyIcon.hasAttr("hidden"), false);
   assert.equal(checkIcon.hasAttr("hidden"), true);
+});
+
+test("a failure after a success replaces the check mark and keeps the button name", async () => {
+  let reject = false;
+  const { button, status, copyIcon, checkIcon } = page("x", "ts", {
+    async writeText() {
+      if (reject) throw new Error("denied");
+    },
+  });
+  button.click();
+  await flush();
+  assert.equal(checkIcon.hasAttr("hidden"), false);
+
+  reject = true;
+  button.click();
+  await flush();
+  assert.equal(status.textContent, FAILED);
+  assert.equal(checkIcon.hasAttr("hidden"), true);
+  assert.equal(copyIcon.hasAttr("hidden"), false);
+  assert.equal(button.attrs["aria-label"], DEFAULT_LABELS.copy);
 });
 
 test("a write that throws at once shows the fallback message", async () => {

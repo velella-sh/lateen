@@ -19,7 +19,6 @@ import {
   BUTTON_SELECTOR,
   COMMAND_SELECTOR,
   commandsOf as commandsInFrame,
-  copy,
   RESET_MS,
   type Clipboard,
   type CopyButton,
@@ -349,7 +348,7 @@ test("the copy button starts hidden and carries only the commands", () => {
 
   assert.match(out, /<button type="button" class="terminal-copy" hidden data-terminal-copy="true" data-commands="npm ci\nnpm run check"/);
   assert.match(out, /data-copied="Copied"/);
-  assert.match(out, /data-copy-failed="Press Ctrl\+C"/);
+  assert.match(out, /data-copy-failed="Copy failed\. Select the text and copy it by hand\."/);
   assert.match(out, />Copy<\/button>/);
 });
 
@@ -365,7 +364,7 @@ test("the copy button takes its label and messages from the page language", () =
   const out = render(SESSION, "fa");
 
   assert.match(out, /data-copied="کپی شد"/);
-  assert.match(out, /data-copy-failed="Ctrl\+C را بزنید"/);
+  assert.match(out, /data-copy-failed="کپی نشد\. متن را انتخاب کنید و دستی کپی کنید\."/);
   assert.match(out, />کپی<\/button>/);
 });
 
@@ -384,12 +383,17 @@ test("a fenced block inside the directive is read the same way", () => {
 });
 
 /** A button with the attributes the frame renders and a click listener that tests can fire. */
-function fakeButton(hidden = true): CopyButton & { click(): void } {
+function fakeButton(hidden = true): CopyButton & {
+  click(): void;
+  textContent: string;
+  nextElementSibling: { textContent: string | null };
+} {
   const listeners: Array<() => void> = [];
   return {
     hidden,
     textContent: "Copy",
-    dataset: { commands: "npm ci\nnpm run check", copied: "Copied", copyFailed: "Press Ctrl+C" },
+    nextElementSibling: { textContent: "" },
+    dataset: { commands: "npm ci\nnpm run check", copied: "Copied", copyFailed: "Copy failed" },
     addEventListener(type, listener) {
       assert.equal(type, "click");
       listeners.push(listener);
@@ -437,26 +441,54 @@ test("with a clipboard the island reveals the button and copies only the command
   await new Promise((resolve) => setImmediate(resolve));
 
   assert.deepEqual(env.written, ["npm ci\nnpm run check"]);
-  assert.equal(button.textContent, "Copied");
+  assert.equal(button.nextElementSibling.textContent, "Copied");
+  assert.equal(button.textContent, "Copy");
 });
 
-test("the button goes back to its label after RESET_MS", async () => {
+test("the live status clears after RESET_MS without changing the button label", async () => {
   const button = fakeButton();
   const env = fakeEnv({ writeText: () => Promise.resolve() });
-  await copy(button, "Copy", env);
+  activate(button, env);
+  button.click();
+  await new Promise((resolve) => setImmediate(resolve));
 
-  assert.equal(button.textContent, "Copied");
+  assert.equal(button.nextElementSibling.textContent, "Copied");
   assert.equal(RESET_MS, 2000);
   env.resets[0]?.();
+  assert.equal(button.nextElementSibling.textContent, "");
   assert.equal(button.textContent, "Copy");
 });
 
 test("a failed copy shows the failure message", async () => {
   const button = fakeButton();
   const env = fakeEnv({ writeText: () => Promise.reject(new Error("denied")) });
-  await copy(button, "Copy", env);
+  activate(button, env);
+  button.click();
+  await new Promise((resolve) => setImmediate(resolve));
 
-  assert.equal(button.textContent, "Press Ctrl+C");
+  assert.equal(button.nextElementSibling.textContent, "Copy failed");
+  assert.equal(button.textContent, "Copy");
+});
+
+test("a newer clipboard result survives an older terminal status timer", async () => {
+  const button = fakeButton();
+  let fail = false;
+  const env = fakeEnv({
+    async writeText() {
+      if (fail) throw new Error("denied");
+    },
+  });
+  activate(button, env);
+  button.click();
+  await new Promise((resolve) => setImmediate(resolve));
+  fail = true;
+  button.click();
+  await new Promise((resolve) => setImmediate(resolve));
+
+  env.resets[0]?.();
+  assert.equal(button.nextElementSibling.textContent, "Copy failed");
+  env.resets[1]?.();
+  assert.equal(button.nextElementSibling.textContent, "");
 });
 
 test("the island never runs a command or reaches the network", () => {

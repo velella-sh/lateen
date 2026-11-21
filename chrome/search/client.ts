@@ -463,13 +463,10 @@ export function activate(parts: SearchParts, env: SearchEnv): () => void {
     const previousKey = options[active]?.key;
     // Replace stale page results immediately. Enter can only choose a row for this query.
     draw([], matched);
+    const api = index.api;
+    if (api === undefined) return;
     if (query === "") {
       status.textContent = "";
-      return;
-    }
-    const api = index.api;
-    if (api === undefined) {
-      if (index.loading) status.textContent = messages.loading;
       return;
     }
     status.textContent = messages.searching;
@@ -512,7 +509,7 @@ export function activate(parts: SearchParts, env: SearchEnv): () => void {
   const begin = (retried: boolean): void => {
     if (index.api !== undefined || index.loading) return;
     offerRetry(false);
-    if (input.value.trim() !== "") status.textContent = messages.loading;
+    status.textContent = messages.loading;
     index.load(indexUrl(base)).then(
       () => {
         if (!live || !dialog.open) return;

@@ -322,7 +322,7 @@ export default function terminal({ props, html, page }: ComponentProps<TerminalP
               "data-terminal-copy": true,
               "data-commands": commands,
               "data-copied": t(lang, "copied"),
-              "data-copy-failed": t(lang, "copy_failed"),
+              "data-copy-failed": t(lang, "copy_failed_select"),
               ...group,
             },
             t(lang, "copy"),
@@ -334,6 +334,7 @@ export default function terminal({ props, html, page }: ComponentProps<TerminalP
             [INVALID_TEXT_ATTRIBUTE]: t(lang, "variables_form_invalid_copy"),
             ...group,
           }),
+          h("span", { class: "copy-status-size", "aria-hidden": "true" }, t(lang, "copy_failed_select")),
         )
       : null,
     h(

@@ -1358,11 +1358,12 @@ test("teardown quiets an index load still in flight", async () => {
     },
   });
   button.click();
+  assert.equal(status.textContent, MESSAGES.loading);
   teardown();
   settle?.(apiOf(records));
   await tick();
   assert.equal(results.nodes.length, 0, "no draw happens after teardown");
-  assert.equal(status.textContent, "", "no announcement happens after teardown");
+  assert.equal(status.textContent, MESSAGES.loading, "no new announcement happens after teardown");
 });
 
 test("redraws reuse one activation's references: no root queries per row", async () => {
@@ -1547,7 +1548,7 @@ test("a successful retry announces its result once", async () => {
   retry.click();
   await tick();
 
-  assert.deepEqual(writes, [MESSAGES.ready], "one announcement, and it is the retried result");
+  assert.deepEqual(writes, [MESSAGES.loading, MESSAGES.ready]);
 });
 
 test("no retry is offered until an index load has failed", async () => {
@@ -2174,9 +2175,12 @@ test("typing before the index loads announces loading, then shows the current qu
   const { button, input, status, parts } = partsOf();
   activate(parts, { ...envWith(apiOf([])), load: () => loading.promise });
   button.click();
+  assert.equal(status.textContent, MESSAGES.loading, "opening shows progress before typing");
   input.type("install");
-
   assert.equal(status.textContent, MESSAGES.loading);
+  input.type("");
+  assert.equal(status.textContent, MESSAGES.loading, "clearing the query keeps progress visible");
+  input.type("install");
 
   loading.resolve(apiOf([]));
   await tick();
