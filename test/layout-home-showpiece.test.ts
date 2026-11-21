@@ -123,7 +123,7 @@ test("without the option the keys for stats, features, demo and cta change nothi
 
 test("a full showpiece page orders hero, stats, features, demo, then the call to action", () => {
   const page = out(FULL, "<p>Demo body.</p>");
-  const at = order(page, ['class="hero ', 'class="stat-strip"', 'class="feature-grid"', 'class="frame"', 'class="cta-band"']);
+  const at = order(page, ['class="hero ', 'class="stat-strip"', 'class="feature-grid ', 'class="frame"', 'class="cta-band"']);
   assert.ok(at.every((n) => n >= 0), `all sections render: ${at}`);
   assert.deepEqual([...at].sort((a, b) => a - b), at);
   assert.match(page, /class="backdrop backdrop-grid"/);

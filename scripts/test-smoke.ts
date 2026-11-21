@@ -38,6 +38,7 @@ export interface SmokeCase {
 
 /** One real built route per feature, plus the documentation page for the data explorer component. */
 export const CASES: readonly SmokeCase[] = [
+  { name: "docs home", site: "docs", category: "documentation", path: "/lateen/" },
   { name: "docs install", site: "docs", category: "documentation", path: "/lateen/install/" },
   { name: "docs data explorer", site: "docs", category: "data", path: "/lateen/components/data-explorer/" },
   { name: "fixture data explorer", site: "fixtures", category: "data", path: "/explorer/" },

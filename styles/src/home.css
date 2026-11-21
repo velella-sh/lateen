@@ -12,6 +12,11 @@
     max-width: 36rem;
   }
 
+  .home-showpiece-hero {
+    max-inline-size: 52rem;
+    padding-block-start: clamp(2.5rem, 8vw, 6.5rem);
+  }
+
   .home-eyebrow {
     @apply mb-0 inline-flex items-center gap-2 rounded-full px-3 py-1 text-xs font-semibold;
     background: color-mix(in srgb, var(--shell) 88%, var(--card));
@@ -98,6 +103,11 @@
 
   .home-btn-quiet:hover {
     background: var(--muted);
+  }
+
+  .home-actions .hero-btn-quiet {
+    color: var(--link);
+    text-decoration: underline;
   }
 
   .hero-hint {

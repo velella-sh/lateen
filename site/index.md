@@ -1,57 +1,31 @@
 ---
-title: Lateen documentation
-description: Lateen is a docs theme for people and agents, built on Mizzen.
+title: Lateen, a documentation theme for Mizzen
+description: Build a documentation site with Lateen, the documentation theme for Mizzen.
 layout: home
 home:
-  specimens: false
+  style: showpiece
 hero:
-  eyebrow: v0.2.3 · docs theme
-  title: Easy to read. Safe to edit.
-  lead: Layouts, navigation, components, and tokens for a Mizzen site. Works without JavaScript, mirrors for right-to-left languages, and is tested against WCAG 2.2 AA.
+  title: Lateen is a documentation theme for Mizzen
+  lead: Publish Markdown docs with page layouts, navigation, and search. Lateen supports light and dark themes and right-to-left languages.
 actions:
-  - label: Install Lateen
-    url: install/
+  - label: Quickstart
+    url: /install/
     primary: true
-  - label: Browse components
-    url: components/
-sections:
-  - title: Start
-    url: install/
-    description: Install the theme and build a site with it.
-    icon: "M5 4h10l4 4v12H5zM14 4v5h5M9 13h6M9 17h6"
-    links:
-      - title: Install and quickstart
-        url: install/
-        meta: guide
-      - title: Layouts
-        url: layouts/
-        meta: reference
+  - label: Preview the theme
+    url: /showpiece/
+  - label: Read the documentation
+    url: /layouts/
+features:
   - title: Components
-    url: components/
-    description: Every block the theme provides, with a live example and a copyable snippet.
-    icon: "M4 4h7v7H4zM13 4h7v7h-7zM4 13h7v7H4zM13 13h7v7h-7z"
-    links:
-      - title: Component reference
-        url: components/
-        meta: all components
-      - title: Callout
-        url: components/callout/
-        meta: component
-      - title: Code tabs
-        url: components/code-tabs/
-        meta: component
-  - title: Customize
-    url: tokens/
-    description: Tokens, options, and writing your own component.
-    icon: "M4 7h9M17 7h3M4 17h3M11 17h9M13 4v6M7 14v6"
-    links:
-      - title: Tokens and options
-        url: tokens/
-        meta: reference
-      - title: Add a component
-        url: add-component/
-        meta: guide
-      - title: Accessibility
-        url: accessibility/
-        meta: report
+    description: Explore live examples and copy Markdown for callouts, steps, code tabs, and more.
+    icon: terminal
+    url: /components/
+  - title: Starters
+    description: Preview complete documentation, changelog, and data sites you can use as a starting point.
+    icon: folder
+    url: /starters/
+  - title: Tokens and options
+    description: Set your site’s colors and typography, and configure theme options.
+    icon: edit
+    url: /tokens/
 ---

@@ -2,6 +2,7 @@ import { h } from "preact";
 import type { ComponentChild } from "preact";
 import { textOf } from "../../src/guards.ts";
 import { icon, iconByName } from "../../src/icon.ts";
+import { withBase } from "../../src/url.ts";
 import { hrefOf } from "../link-card/index.ts";
 
 /** Class on the grid (`<ul>`). `data-columns` holds the column count it fits at the widest. */
@@ -31,6 +32,7 @@ export type Feature = {
 
 export type FeatureGridProps = {
   features?: readonly unknown[];
+  base?: string;
   /** The most columns the grid uses, from 2 to 4. Fewer fit when the space is narrow. */
   columns?: unknown;
 };
@@ -48,7 +50,7 @@ export function columnsOf(value: unknown): number {
  * whole card is the target. An entry without a title is dropped, and with nothing left the grid
  * renders nothing. The icon is decoration (`aria-hidden`); a meaning is never carried by it alone.
  */
-export default function featureGrid({ features, columns }: FeatureGridProps): ComponentChild {
+export default function featureGrid({ features, columns, base = "" }: FeatureGridProps): ComponentChild {
   const entries = (Array.isArray(features) ? features : []).filter(
     (f): f is Feature => typeof f === "object" && f !== null && textOf((f as Feature).title) !== undefined,
   );
@@ -64,15 +66,16 @@ export default function featureGrid({ features, columns }: FeatureGridProps): Co
       node === undefined
         ? null
         : h("span", { class: "feature-grid-icon", "aria-hidden": "true" }, icon({ node })),
-      h("span", { class: "feature-grid-title" }, title),
+      h("strong", { class: "feature-grid-title" }, title),
       description === undefined ? null : h("span", { class: "feature-grid-text" }, description),
     ];
+    const className = "feature-grid-card home-section card";
     const card =
       href === undefined
-        ? h("div", { class: "feature-grid-card" }, ...parts)
-        : h("a", { class: "feature-grid-card", href }, ...parts);
+        ? h("div", { class: className }, ...parts)
+        : h("a", { class: className, href: withBase(base, href) }, ...parts);
     return h("li", { class: index === wideIndex ? `${ITEM_CLASS} ${WIDE_CLASS}` : ITEM_CLASS }, card);
   });
 
-  return h("ul", { class: GRID_CLASS, "data-columns": String(columnsOf(columns)) }, items);
+  return h("ul", { class: `${GRID_CLASS} home-sections`, "data-columns": String(columnsOf(columns)) }, items);
 }

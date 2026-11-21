@@ -35,10 +35,10 @@ const features = [
 
 test("renders icon, title, text and optional link per item", () => {
   const out = html(featureGrid({ features }));
-  assert.match(out, /^<ul class="feature-grid" data-columns="3">/);
+  assert.match(out, /^<ul class="feature-grid home-sections" data-columns="3">/);
   assert.equal((out.match(/<li /g) ?? []).length, 3);
-  assert.match(out, /<a class="feature-grid-card" href="\/fast\/"><span class="feature-grid-icon" aria-hidden="true"><svg/);
-  assert.match(out, /<span class="feature-grid-title">Plain<\/span><span class="feature-grid-text">No script needed\.<\/span>/);
+  assert.match(out, /<a class="feature-grid-card home-section card" href="\/fast\/"><span class="feature-grid-icon" aria-hidden="true"><svg/);
+  assert.match(out, /<strong class="feature-grid-title">Plain<\/strong><span class="feature-grid-text">No script needed\.<\/span>/);
   assert.equal((out.match(/<a /g) ?? []).length, 2);
 });
 
@@ -47,7 +47,7 @@ test("a linked card is one tab stop: one anchor holds the whole card, with no ne
   assert.equal((out.match(/<a /g) ?? []).length, 1);
   assert.match(out, /<li [^>]*><a [^>]*href="\/t\/">.*<\/a><\/li>/);
   assert.doesNotMatch(out, /tabindex|<button|<input/);
-  assert.match(out, /<span class="feature-grid-title">T<\/span>/);
+  assert.match(out, /<strong class="feature-grid-title">T<\/strong>/);
   assert.match(out, /<span class="feature-grid-text">D<\/span><\/a>/);
 });
 

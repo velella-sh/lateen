@@ -52,7 +52,7 @@ cta:
 
 A showpiece page is a `home` page with `home.style: showpiece`. These are the keys the `home`
 layout reads; a value that does not match the shape is dropped, never a broken page. Without the
-option, the same page renders as a [classic home page](/).
+option, the same page renders in the classic home layout. The [Lateen home page](/) uses the showpiece style.
 
 | Key | What it does |
 | --- | --- |

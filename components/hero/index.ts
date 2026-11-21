@@ -1,5 +1,6 @@
 import { h } from "preact";
 import type { Component } from "@velella/mizzen/contracts";
+import { baseOf, withBase } from "../../src/url.ts";
 
 /** The alignments of a hero: text at the start, centred, or text beside a visual. */
 export const ALIGNMENTS = ["start", "center", "split"] as const;
@@ -38,18 +39,20 @@ function text(value: unknown): string | undefined {
  * places the visual in a second column and never reorders it. The component renders the only `h1` it
  * knows of, so a page must not put another `h1` in the visual.
  */
-const hero: Component<HeroProps> = ({ props, html, page }) => {
+const hero: Component<HeroProps> = ({ props, html, page, site }) => {
   const title = text(props.title) ?? text(page?.title);
   const eyebrow = text(props.eyebrow);
   const lead = text(props.lead);
   const src = text(props.src);
+  const base = baseOf(site);
   const buttons = (Array.isArray(props.actions) ? props.actions : []).flatMap((entry: unknown) => {
     if (typeof entry !== "object" || entry === null) return [];
     const { label, url, primary } = entry as Record<string, unknown>;
     const l = text(label);
     const u = text(url);
     if (l === undefined || u === undefined) return [];
-    return [h("a", { class: primary === true ? "hero-btn hero-btn-primary" : "hero-btn hero-btn-quiet", href: u }, l)];
+    const variant = primary === true ? "home-btn-primary hero-btn-primary" : "hero-btn-quiet";
+    return [h("a", { class: `home-btn hero-btn ${variant}`, href: withBase(base, u) }, l)];
   });
   const hasVisual = typeof html === "string" && html.trim() !== "";
   const align = alignOf(props.align);
@@ -64,8 +67,8 @@ const hero: Component<HeroProps> = ({ props, html, page }) => {
       { class: "hero-text" },
       eyebrow === undefined ? null : h("p", { class: "hero-eyebrow" }, eyebrow),
       title === undefined ? null : h("h1", { class: "hero-title" }, title),
-      lead === undefined ? null : h("p", { class: "hero-lead" }, lead),
-      buttons.length === 0 ? null : h("div", { class: "hero-actions" }, buttons),
+      lead === undefined ? null : h("p", { class: "hero-lead home-lead" }, lead),
+      buttons.length === 0 ? null : h("div", { class: "hero-actions home-actions" }, buttons),
     ),
     hasVisual ? h("div", { class: "hero-visual", dangerouslySetInnerHTML: { __html: html } }) : null,
   );
