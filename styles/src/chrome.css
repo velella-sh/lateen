@@ -166,6 +166,7 @@
   /* Header search control (not the dialog — that also uses class "search"). */
   .site-header .search-trigger {
     display: inline-flex;
+    flex: none;
     align-items: center;
     gap: 0.5rem;
     min-block-size: 2.125rem;
@@ -177,15 +178,8 @@
     color: var(--muted-foreground);
     font-size: 0.84rem;
     font-weight: 500;
+    white-space: nowrap;
     cursor: pointer;
-  }
-
-  .site-header .search-trigger svg {
-    flex: none;
-  }
-
-  .site-header .search-trigger span {
-    @apply truncate;
   }
 
   .site-header .search-trigger:is(:hover, :focus-visible) {
@@ -751,10 +745,6 @@
     .site-header .tools {
       gap: var(--space-1);
       min-inline-size: 0;
-    }
-
-    .site-header .search-trigger {
-      flex: none;
     }
 
     .site-header .iconbtn,

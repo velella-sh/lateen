@@ -2,6 +2,7 @@ import assert from "node:assert/strict";
 import { readFileSync } from "node:fs";
 import { after, test } from "node:test";
 import { chromium, type Browser } from "playwright";
+import { t } from "../i18n/index.ts";
 import { build, serve } from "./integration-helpers.ts";
 
 let browser: Browser | undefined;
@@ -19,8 +20,8 @@ test("the mobile search trigger shows an icon and opens with the keyboard in bot
   const page = await (browser as Browser).newPage({ viewport: { width: 320, height: 800 } });
   try {
     const routes = [
-      ["/guide/install/", "Search the docs"],
-      ["/fa/guide/install/", "جست‌وجو در مستندات"],
+      ["/guide/install/", t("en", "search")],
+      ["/fa/guide/install/", t("fa", "search")],
     ] as const;
     for (const [path, name] of routes) {
       await page.goto(server.url + path);
