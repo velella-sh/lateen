@@ -1,3 +1,8 @@
+/** Layouts can omit Source mode from both the page and the command palette. */
+export interface SourceModeVisibility {
+  readonly showSourceMode?: boolean;
+}
+
 /** localStorage key for the reader's source-mode choice: `on` or `off`. One choice for the whole site. */
 export const SOURCE_MODE_KEY = "lateen-source-mode";
 

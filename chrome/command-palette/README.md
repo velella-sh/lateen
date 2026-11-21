@@ -1,7 +1,7 @@
 # Command palette
 
 The command palette extends the existing search dialog (`chrome/search/`) with actions next to page
-results: switch the theme to light, dark, or system; copy the page as Markdown; and jump to any
+results: switch the theme to light or dark; copy the page as Markdown; and jump to any
 section heading. There is one dialog, not two.
 
 `actions.ts` is pure. `paletteActions({ page, base })` returns the list, each action a stable `id`, a

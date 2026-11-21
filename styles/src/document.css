@@ -243,6 +243,31 @@
     display: none;
   }
 
+  .guide-summary {
+    margin-block: var(--space-3);
+    padding: var(--space-3);
+    border-radius: var(--radius-lg);
+    background: var(--muted);
+    font-size: 0.875rem;
+    overflow-wrap: anywhere;
+  }
+
+  .guide-summary-label {
+    color: var(--muted-foreground);
+  }
+
+  .guide-summary-value {
+    font-weight: 600;
+  }
+
+  .guide-summary .status {
+    @apply inline-flex items-baseline gap-1;
+  }
+
+  .guide-summary .status svg {
+    @apply size-4;
+  }
+
   .guide-prerequisites {
     margin-block: 1.5rem 0;
     padding: 1rem 1.125rem;

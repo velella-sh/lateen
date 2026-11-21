@@ -33,7 +33,7 @@ export function filterActions(actions: readonly PaletteAction[], query: string):
 
 /** Whether `value` is one of the theme choices the palette can apply. */
 function isThemeChoice(value: unknown): value is ThemeChoice {
-  return value === "light" || value === "dark" || value === "system";
+  return value === "light" || value === "dark";
 }
 
 /** Whether `value` is an action descriptor this module knows how to run. */

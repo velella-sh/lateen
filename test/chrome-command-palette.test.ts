@@ -33,7 +33,6 @@ import {
 import {
   activate,
   liveHandlers,
-  resolveTheme,
   THEME_KEY,
   type SearchButton,
   type SearchClose,
@@ -128,23 +127,21 @@ test("paletteActions lists the theme choices, copy, and sections in reading orde
   assert.deepEqual(actionIds(actions), [
     "theme-light",
     "theme-dark",
-    "theme-system",
     "copy-markdown",
     "section-requirements",
     "section-cache",
     "source-mode",
   ]);
   assert.deepEqual(
-    actions.slice(0, 3).map((action) => action.run),
+    actions.slice(0, 2).map((action) => action.run),
     [
       { kind: "theme", choice: "light" },
       { kind: "theme", choice: "dark" },
-      { kind: "theme", choice: "system" },
     ],
   );
-  assert.deepEqual(actions[3]?.run, { kind: "copy", url: "/guide/install/index.md" });
-  assert.deepEqual(actions[4]?.run, { kind: "section", id: "requirements" });
-  assert.deepEqual(THEME_CHOICES, ["light", "dark", "system"]);
+  assert.deepEqual(actions[2]?.run, { kind: "copy", url: "/guide/install/index.md" });
+  assert.deepEqual(actions[3]?.run, { kind: "section", id: "requirements" });
+  assert.deepEqual(THEME_CHOICES, ["light", "dark"]);
 });
 
 test("the page title is not offered as a section, and a page without a twin gets no copy action", () => {
@@ -154,7 +151,6 @@ test("the page title is not offered as a section, and a page without a twin gets
   assert.deepEqual(actionIds(actions), [
     "theme-light",
     "theme-dark",
-    "theme-system",
     "section-requirements",
     "section-cache",
     "source-mode",
@@ -189,26 +185,24 @@ test("labels and hints are localised in English, Persian, and Arabic", () => {
 
   assert.equal(en[0]?.label, "Light");
   assert.equal(en[1]?.label, "Dark");
-  assert.equal(en[2]?.label, "System");
-  assert.equal(en[3]?.label, "Copy page as Markdown");
-  assert.equal(en[4]?.label, "Requirements");
-  assert.equal(en[4]?.hint, "Go to section");
+  assert.equal(en[2]?.label, "Copy page as Markdown");
+  assert.equal(en[3]?.label, "Requirements");
+  assert.equal(en[3]?.hint, "Go to section");
 
   for (const actions of [fa, ar]) {
     assert.notEqual(actions[0]?.label, en[0]?.label);
-    assert.notEqual(actions[3]?.label, en[3]?.label);
-    assert.notEqual(actions[4]?.hint, en[4]?.hint);
+    assert.notEqual(actions[2]?.label, en[2]?.label);
+    assert.notEqual(actions[3]?.hint, en[3]?.hint);
   }
   assert.equal(fa[0]?.label, t("fa", "mode_light"));
-  assert.equal(fa[2]?.label, t("fa", "mode_system"));
-  assert.equal(ar[3]?.label, t("ar", "copy_page_md"));
-  assert.equal(ar[4]?.hint, t("ar", "command_go_to_section"));
+  assert.equal(fa[1]?.label, t("fa", "mode_dark"));
+  assert.equal(ar[2]?.label, t("ar", "copy_page_md"));
+  assert.equal(ar[3]?.hint, t("ar", "command_go_to_section"));
 
   assert.equal(stringsOf("fa").command_actions, "فرمان‌ها");
   assert.equal(stringsOf("ar").command_actions, "الإجراءات");
   for (const lang of languages) {
     assert.equal(t(lang, "command_actions"), stringsOf(lang).command_actions);
-    assert.equal(t(lang, "mode_system"), stringsOf(lang).mode_system);
   }
 });
 
@@ -229,7 +223,7 @@ test("filterActions matches labels, hints, and ids on one case-insensitive query
   assert.deepEqual(actionIds(filterActions(actions, "copy")), ["copy-markdown"]);
   assert.deepEqual(actionIds(filterActions(actions, "  ")), actionIds(actions));
   assert.deepEqual(actionIds(filterActions(actions, "nothing")), []);
-  assert.deepEqual(actionIds(filterActions(actions, "theme")), ["theme-light", "theme-dark", "theme-system"]);
+  assert.deepEqual(actionIds(filterActions(actions, "theme")), ["theme-light", "theme-dark"]);
   assert.deepEqual(actionIds(filterActions(actions, "z")), []);
   assert.equal(
     matchesAction({ id: "custom", label: "Alpha", hint: "Switch theme" }, "t"),
@@ -356,6 +350,7 @@ test("parsePalette keeps valid actions and drops malformed or unknown ones", () 
   assert.equal(parsePalette(JSON.stringify({ label: "", actions: [] })).label, ACTIONS_LABEL);
   assert.equal(isPaletteRun({ kind: "theme", choice: "light" }), true);
   assert.equal(isPaletteRun({ kind: "theme", choice: "sepia" }), false);
+  assert.equal(isPaletteRun({ kind: "theme", choice: "system" }), false);
   assert.equal(isPaletteRun({ kind: "copy", url: "" }), false);
   assert.equal(isPaletteRun({ kind: "section" }), false);
   assert.equal(isPaletteRun(null), false);
@@ -556,7 +551,7 @@ test("a redraw keeps the active option on the same action, by key rather than by
   await tick();
 
   const last = rowsOf(results).length;
-  assert.equal(last, 7, "an empty query lists every action");
+  assert.equal(last, 6, "an empty query lists every action");
   for (let step = 0; step < last - 1; step += 1) dialog.fire("keydown", key("ArrowDown", input));
   assert.equal(input.active, `search-option-${last - 1}`, "the walk ends on the section jump");
   assert.equal(rowsOf(results)[last - 2]?.attrs["data-search-option"], "action:section-cache#0");
@@ -616,7 +611,7 @@ test("closing a palette list clears the selection and restores focus to the sear
   assert.equal(button.focused, 1);
 });
 
-test("the dialog's listbox holds seven options, each one its row's own control", async () => {
+test("the dialog's listbox holds six options, each one its row's own control", async () => {
   const { button, results, parts } = partsOf(payloadOf(pageWith()));
   activate(parts, envWith(apiOf([])));
   button.click();
@@ -625,11 +620,11 @@ test("the dialog's listbox holds seven options, each one its row's own control",
   const all = walkAll(results.nodes);
   assert.equal(all.some((node) => node.tag === "script"), false);
   assert.equal(all.some((node) => node.tag === "img"), false);
-  assert.equal(all.filter((node) => node.attrs["data-palette-action"] !== undefined).length, 7);
+  assert.equal(all.filter((node) => node.attrs["data-palette-action"] !== undefined).length, 6);
 
   const rows = all.filter((node) => node.tag === "li");
-  assert.equal(rows.length, 7, "one row per action");
-  assert.equal(rowsOf(results).length, 7, "and one option per row");
+  assert.equal(rows.length, 6, "one row per action");
+  assert.equal(rowsOf(results).length, 6, "and one option per row");
   for (const [index, row] of rows.entries()) {
     assert.equal(row.attrs.role, "presentation", "the row is the list's shape, not a second choice");
     const option = row.children[0];
@@ -674,28 +669,38 @@ test("a malformed payload that repeats an id still gets one distinct option per 
   assert.equal(rows[1]?.attrs["aria-selected"], "true", "so the second row is the one that highlights");
 });
 
-test("liveHandlers writes the theme key, applies data-theme, and resolves system", () => {
+test("liveHandlers writes the theme key and applies data-theme", () => {
   const written: Array<[string, string]> = [];
   const attrs: Record<string, string> = {};
-  let prefersLight = false;
   const handlers = liveHandlers({
     localStorage: { setItem: (key, value) => written.push([key, value]) },
     document: { documentElement: { setAttribute: (key, value) => (attrs[key] = value) } },
-    matchMedia: () => ({ matches: prefersLight }),
   });
 
   handlers.theme?.("light");
   assert.deepEqual(written, [[THEME_KEY, "light"]]);
   assert.equal(attrs["data-theme"], "light");
 
-  handlers.theme?.("system");
+  handlers.theme?.("dark");
+  assert.deepEqual(written.at(-1), [THEME_KEY, "dark"]);
   assert.equal(attrs["data-theme"], "dark");
-  prefersLight = true;
-  handlers.theme?.("system");
-  assert.equal(attrs["data-theme"], "light");
-  assert.equal(resolveTheme("dark", true), "dark");
-  assert.equal(resolveTheme("system", false), "dark");
   assert.equal(THEME_KEY, "lateen-theme");
+});
+
+test("liveHandlers uses the active toggle to keep its state in sync", () => {
+  let clicked = false;
+  const handlers = liveHandlers({
+    document: {
+      querySelector: (selector) => {
+        assert.equal(selector, '[data-theme-toggle][data-choice]:not([data-choice="dark"]) .theme-toggle-button');
+        return { click: () => { clicked = true; } };
+      },
+    },
+    localStorage: { setItem: () => assert.fail("the toggle owns persistence") },
+  });
+
+  handlers.theme?.("dark");
+  assert.ok(clicked);
 });
 
 test("liveHandlers copies the Markdown twin and jumps to a heading", async () => {
@@ -1015,7 +1020,7 @@ function apiOf(data: readonly SearchRecord[]): PagefindApi {
 function envWith(
   api: PagefindApi,
   handlers?: {
-    theme?(choice: "light" | "dark" | "system"): void;
+    theme?(choice: "light" | "dark"): void;
     copy?(url: string): void | Promise<void>;
     section?(id: string): void;
   },

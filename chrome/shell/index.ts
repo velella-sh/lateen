@@ -1,7 +1,7 @@
 import { Fragment, h } from "preact";
 import type { ComponentChildren } from "preact";
 import type { Chrome, Site, SiteConfig } from "@velella/mizzen/contracts";
-import { CodeXml } from "lucide";
+import { CodeXml, Search } from "lucide";
 import type { IconNode } from "lucide";
 import { readFileSync } from "node:fs";
 import { fileURLToPath } from "node:url";
@@ -13,6 +13,7 @@ import { optionOf, resolveNetworkOptions } from "../../src/options.ts";
 import languageSwitcher from "../language-switcher/index.ts";
 import projectSwitcher from "../project-switcher/index.ts";
 import search from "../search/index.ts";
+import type { SourceModeVisibility } from "../source-mode/state.ts";
 import themeToggle from "../theme-toggle/index.ts";
 import versionSwitcher from "../version-switcher/index.ts";
 
@@ -89,7 +90,7 @@ export function isCurrentSection(url: string, pageUrl: string, base: string): bo
 }
 
 /** Sailcloth site chrome: glass header + Pagefind search, with version/language/project switchers. */
-const shell: Chrome = (props) => {
+const shell = (props: Parameters<Chrome>[0] & SourceModeVisibility) => {
   const { site, page } = props;
   const { config } = site;
   const base = config.base;
@@ -144,6 +145,7 @@ const shell: Chrome = (props) => {
               hidden: true,
               "data-search-open": true,
             },
+            icon({ node: Search }),
             `${t(page.lang, "search_placeholder")} `,
             h("kbd", null, "⌘K"),
           ),

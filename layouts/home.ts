@@ -309,11 +309,12 @@ function showpieceContent(props: LayoutProps): ComponentChildren {
 /** The home page: sailcloth shell around the hero, the section grids, and the page body. */
 const home: Layout = (props) => {
   const showpiece = isShowpiece(props);
+  const homeProps = { ...props, showSourceMode: false };
   // The standard landing page starts with prose. Code can request its font from CSS.
   if (!showpiece) props.hints?.skipFontPreload("JetBrains Mono");
   return base({
-    ...props,
-    header: h(Fragment, null, shell(props) as ComponentChildren, drawer(props) as ComponentChildren),
+    ...homeProps,
+    header: h(Fragment, null, shell(homeProps) as ComponentChildren, drawer(props) as ComponentChildren),
     footer: footer(props) as ComponentChildren,
     main: showpiece ? showpieceContent(props) : content(props),
   });

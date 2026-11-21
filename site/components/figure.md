@@ -61,7 +61,7 @@ See [the build pipeline](#pipeline).
 With `src_dark`, the figure writes both images and lets the theme choose which one to show. It still
 carries one accessible identity: the `alt` text names a wrapper with `role="img"`, and both images are
 presentational (`alt=""` and `aria-hidden`), so assistive technology meets the figure exactly once —
-in the light, dark, and system themes, in forced colors, under custom CSS, and before the stylesheet
+in the light and dark themes, in forced colors, under custom CSS, and before the stylesheet
 loads. The caption and the credit are the figure's own children, outside the wrapper, so they stay
 readable and a credit link stays operable while its image is hidden.
 
