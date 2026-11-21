@@ -71,7 +71,7 @@
   }
 
   .article-tools {
-    @apply items-center gap-x-4 border-y py-2;
+    @apply mt-8 mb-4 items-center gap-x-3 gap-y-1 border-t pt-3;
   }
 
   :is(.doc-tools, .article-tools details) {
@@ -83,6 +83,14 @@
     list-style: none;
     border: 0;
     background: none;
+  }
+
+  .article-tools details > summary {
+    @apply gap-1.5 px-2 py-1.5 text-[0.8125rem] font-semibold hover:bg-muted;
+  }
+
+  .article-tools details[open] > summary {
+    @apply bg-muted text-foreground;
   }
 
   :is(.doc-tools, .article-tools details) > summary::-webkit-details-marker {
@@ -109,26 +117,22 @@
   }
 
   .pager {
-    @apply grid grid-cols-2 rounded-lg border border-border;
+    @apply grid grid-cols-2 gap-3;
   }
 
   .pager-link {
-    @apply relative grid content-center gap-0.5 p-3 no-underline hover:bg-card;
+    @apply relative grid content-center gap-0.5 rounded-lg border border-border bg-card px-4 py-3 no-underline hover:bg-muted;
     overflow-wrap: anywhere;
   }
 
   .pager-prev {
-    padding-inline-start: 2.25rem;
+    padding-inline-start: 2.5rem;
   }
 
   .pager-next {
     grid-column: 2;
-    padding-inline-end: 2.25rem;
+    padding-inline-end: 2.5rem;
     text-align: end;
-  }
-
-  .pager-prev + .pager-next {
-    border-inline-start: 1px solid var(--border);
   }
 
   .pager-label {
@@ -149,11 +153,15 @@
   }
 
   .pager-title {
-    @apply font-semibold;
+    @apply text-sm font-bold text-foreground;
+  }
+
+  .pager-link:hover .pager-title {
+    @apply underline underline-offset-4;
   }
 
   .back-to-top {
-    @apply ms-auto flex w-fit items-center gap-1.5 text-sm font-medium text-muted-foreground no-underline hover:text-foreground;
+    @apply ms-auto flex w-fit items-center gap-1.5 rounded px-2 py-1.5 text-[0.8125rem] font-semibold text-muted-foreground no-underline hover:bg-muted hover:text-foreground;
   }
 
   .back-to-top svg {
@@ -172,11 +180,6 @@
 
   .pager-next {
     grid-column: 1;
-  }
-
-  .pager-prev + .pager-next {
-    border-inline-start: 0;
-    border-block-start: 1px solid var(--border);
   }
 
   .article-tools :is(.article-tool-panel, .page-agent-menu-panel) {

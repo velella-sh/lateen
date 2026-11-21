@@ -62,7 +62,6 @@
     display: none;
   }
 
-  .rail,
   .header-inner,
   .footer-inner,
   .layout {
@@ -70,33 +69,35 @@
     margin-inline: auto;
   }
 
-  .rail,
-  .header-inner,
-  .footer-inner {
-    display: flex;
-    align-items: center;
-    gap: 0.875rem;
-    min-height: 4.25rem;
+  .header-inner {
+    @apply flex items-center gap-4;
+    min-block-size: 4.25rem;
+  }
+
+  @media (width > 960px) {
+    .header-inner {
+      min-block-size: 3.5rem;
+      gap: 1.5rem;
+    }
   }
 
   .brand {
-    @apply flex items-center gap-2.5 font-bold no-underline;
-    font-size: 0.97rem;
+    @apply flex shrink-0 items-center gap-2 text-sm font-bold no-underline;
     letter-spacing: -0.01em;
   }
 
   .brand-mark,
-  .brand-logo-frame {
+  .brand-logo-frame,
+  .brand-logo {
     inline-size: 1.75rem;
     block-size: 1.75rem;
-    border-radius: 0.55rem;
-    background: linear-gradient(145deg, color-mix(in srgb, var(--card) 70%, var(--muted)), var(--muted));
-    box-shadow: inset 0 0 0 1px var(--border);
   }
 
   .brand-mark {
     position: relative;
     overflow: hidden;
+    border-radius: 0.55rem;
+    background: var(--muted);
   }
 
   .brand-mark::after {
@@ -109,58 +110,32 @@
     border-color: transparent transparent var(--link) transparent;
   }
 
-  .brand-logo-frame {
-    display: grid;
-    place-items: center;
-  }
-
-  .brand-logo {
-    inline-size: 1.75rem;
-    block-size: 1.75rem;
-  }
-
   [data-theme="light"] .brand-logo-dark,
   [data-theme="dark"] .brand-logo-light {
     display: none;
   }
 
-  .sections,
   .top-nav {
-    @apply flex items-center gap-0.5;
+    @apply flex flex-wrap items-center gap-1;
   }
 
-  .sections a,
   .top-nav a {
-    @apply px-3 py-1.5 text-[0.84rem] font-semibold text-muted-foreground no-underline;
-    border-radius: 999px;
+    @apply rounded-md px-2.5 py-1.5 text-sm font-medium text-muted-foreground no-underline;
   }
 
-  .sections a:hover,
-  .top-nav a:hover {
-    @apply text-foreground;
-    background: color-mix(in srgb, var(--muted) 70%, transparent);
-  }
-
-  .site-header .sections a[aria-current="page"],
+  .top-nav a:hover,
   .top-nav a[aria-current="page"] {
+    background: var(--state-hover-bg);
     color: var(--foreground);
-    background: transparent;
-    box-shadow: inset 0 -2px 0 var(--link);
-    border-radius: 0;
-    padding-bottom: 0.3rem;
   }
 
-  .site-header.is-scrolled .sections a[aria-current="page"],
-  .site-header.is-scrolled .top-nav a[aria-current="page"] {
-    border-radius: 999px;
-    box-shadow: none;
-    background: var(--muted);
-    padding-bottom: 0.4rem;
+  .top-nav a[aria-current="page"] {
+    color: var(--link);
+    font-weight: 700;
   }
 
-  .header-actions,
-  .tools {
-    @apply ms-auto flex items-center gap-1.5;
+  .header-actions {
+    @apply ms-auto flex items-center gap-2;
   }
 
   /* Header search control (not the dialog — that also uses class "search"). */
@@ -169,14 +144,14 @@
     flex: none;
     align-items: center;
     gap: 0.5rem;
-    min-block-size: 2.125rem;
-    min-inline-size: 2.125rem;
+    block-size: 2rem;
+    min-inline-size: 2rem;
     padding-inline: 0.75rem;
     border: 1px solid var(--border);
     border-radius: var(--radius-md);
-    background: transparent;
+    background: var(--card);
     color: var(--muted-foreground);
-    font-size: 0.84rem;
+    font-size: 0.8125rem;
     font-weight: 500;
     white-space: nowrap;
     cursor: pointer;
@@ -209,13 +184,15 @@
     color: var(--muted-foreground);
   }
 
-  .iconbtn:hover,
-  .site-header.is-scrolled .iconbtn {
+  .iconbtn:hover {
+    background: var(--muted);
     color: var(--foreground);
   }
 
-  .iconbtn:hover {
-    background: var(--muted);
+  .site-header .theme-toggle-button {
+    inline-size: 2rem;
+    block-size: 2rem;
+    border-radius: var(--radius-md);
   }
 
   .iconbtn svg,
@@ -474,48 +451,46 @@
   }
 
   .site-footer {
-    @apply border-t border-border py-3;
+    @apply border-t border-border py-5;
+    background: color-mix(in srgb, var(--background) 65%, var(--muted));
   }
 
   .footer-inner {
-    @apply flex-wrap gap-x-4 gap-y-2 text-sm text-muted-foreground;
-    min-height: 0;
+    @apply flex flex-wrap items-center justify-between gap-x-8 gap-y-3;
   }
 
   .footer-inner .sections,
   .footer-inner .tools {
-    @apply flex-wrap gap-2;
+    @apply flex flex-wrap items-center;
   }
 
-  .footer-inner .sections a {
-    @apply rounded-sm px-2 font-medium;
+  .footer-inner .sections {
+    @apply gap-x-5 gap-y-1;
   }
 
+  .footer-inner .sections a,
   .footer-name {
-    @apply inline-flex min-h-8 items-center font-semibold text-foreground no-underline;
+    @apply inline-flex min-h-6 items-center rounded-sm text-sm font-semibold text-muted-foreground no-underline;
   }
 
+  .footer-inner .sections a:hover,
   .footer-name:hover {
-    text-decoration: underline;
+    @apply text-foreground underline underline-offset-4;
   }
 
-  .site-footer .legal {
-    color: var(--muted-foreground);
-    font-size: 0.78rem;
+  .footer-inner .tools {
+    @apply gap-x-3 gap-y-1 text-xs text-muted-foreground;
+  }
+
+  .footer-inner .tools > span + span {
+    border-inline-start: 1px solid var(--border);
+    padding-inline-start: 0.75rem;
   }
 
   @media (max-width: 48rem) {
     .footer-inner {
       @apply grid;
       inline-size: calc(100% - 2rem);
-    }
-
-    .footer-inner .tools {
-      @apply ms-0;
-    }
-
-    .footer-inner .sections a {
-      @apply px-0;
     }
   }
 
@@ -712,7 +687,7 @@
   }
 
   @media (max-width: 960px) {
-    .site-header .sections {
+    .site-header .top-nav {
       display: none;
     }
 
@@ -736,13 +711,12 @@
 
   /* Keep the compact navigation controls inside the narrow header. */
   @media (max-width: 48rem) {
-    .site-header .rail,
     .site-header .header-inner {
       inline-size: min(100% - 2rem, 72.5rem);
       gap: var(--space-2);
     }
 
-    .site-header .tools {
+    .site-header .header-actions {
       gap: var(--space-1);
       min-inline-size: 0;
     }
@@ -756,7 +730,7 @@
       flex-wrap: wrap;
     }
 
-    .site-header .tools:has(.language-switcher) {
+    .site-header .header-actions:has(.language-switcher) {
       flex: 1 1 100%;
       flex-wrap: wrap;
       justify-content: flex-end;
