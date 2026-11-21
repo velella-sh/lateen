@@ -4,6 +4,4 @@
  */
 export const THEME_KEY = "lateen-theme";
 
-export const THEME_CHOICES = ["light", "dark"] as const;
-export type ThemeChoice = (typeof THEME_CHOICES)[number];
-export const DEFAULT_THEME: ThemeChoice = "dark";
+export type ThemeChoice = "light" | "dark";

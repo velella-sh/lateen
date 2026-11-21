@@ -10,9 +10,10 @@ import type { Page } from "@velella/mizzen/contracts";
 import { t } from "../../i18n/index.ts";
 import { twinUrl } from "../copy-markdown/index.ts";
 import type { SourceModeVisibility } from "../source-mode/state.ts";
-import { THEME_CHOICES, type ThemeChoice } from "../theme-toggle/key.ts";
+import type { ThemeChoice } from "../theme-toggle/key.ts";
 
-export { THEME_CHOICES, type ThemeChoice };
+export type { ThemeChoice };
+export const THEME_CHOICES: readonly ThemeChoice[] = ["light", "dark"];
 
 /** What an action does when it runs; data only, so the list survives serialisation. */
 export type PaletteRun =

@@ -1,4 +1,6 @@
-import { DEFAULT_THEME, THEME_KEY, type ThemeChoice } from "./key.ts";
+import { THEME_KEY, type ThemeChoice } from "./key.ts";
+
+const DEFAULT_THEME: ThemeChoice = "dark";
 
 /** The parts of `Storage` the switch uses, so tests can pass plain objects. */
 export interface ThemeStorage {

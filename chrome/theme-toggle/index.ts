@@ -2,7 +2,7 @@ import { h } from "preact";
 import type { Chrome } from "@velella/mizzen/contracts";
 import { Moon, Sun } from "lucide";
 import { icon as lucideIcon } from "../../src/icon.ts";
-import { THEME_CHOICES, type ThemeChoice } from "./key.ts";
+import type { ThemeChoice } from "./key.ts";
 
 const LABEL = "Color theme";
 
@@ -23,7 +23,8 @@ const themeToggle: Chrome = () =>
     h(
       "button",
       { class: "iconbtn theme-toggle-button", type: "button", "aria-label": LABEL },
-      ...THEME_CHOICES.map(icon),
+      icon("light"),
+      icon("dark"),
     ),
     h("span", { class: "theme-toggle-status", role: "status" }, ""),
   );

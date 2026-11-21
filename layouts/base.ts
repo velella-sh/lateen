@@ -12,12 +12,14 @@ import { resolveNetworkOptions, optionOf } from "../src/options.ts";
 import sourceMode from "../chrome/source-mode/index.ts";
 import type { SourceModeVisibility } from "../chrome/source-mode/state.ts";
 import skipLinks, { MAIN_ID, NAVIGATION_ID } from "../chrome/skip-links/index.ts";
-import { DEFAULT_THEME, THEME_KEY } from "../chrome/theme-toggle/key.ts";
+import { THEME_KEY } from "../chrome/theme-toggle/key.ts";
 import { brandCss, problemComment, resolveBrand } from "../src/brand.ts";
 
 export { MAIN_ID, NAVIGATION_ID };
 
 export { THEME_KEY };
+
+const DEFAULT_THEME = "dark";
 
 /**
  * Sets `data-theme` on `<html>` before first paint. A stored `light` or `dark` wins; otherwise the page
