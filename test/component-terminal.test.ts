@@ -470,6 +470,27 @@ test("a failed copy shows the failure message", async () => {
   assert.equal(button.textContent, "Copy");
 });
 
+test("a newer clipboard result survives an older terminal status timer", async () => {
+  const button = fakeButton();
+  let fail = false;
+  const env = fakeEnv({
+    async writeText() {
+      if (fail) throw new Error("denied");
+    },
+  });
+  activate(button, env);
+  button.click();
+  await new Promise((resolve) => setImmediate(resolve));
+  fail = true;
+  button.click();
+  await new Promise((resolve) => setImmediate(resolve));
+
+  env.resets[0]?.();
+  assert.equal(button.nextElementSibling.textContent, "Copy failed");
+  env.resets[1]?.();
+  assert.equal(button.nextElementSibling.textContent, "");
+});
+
 test("the island never runs a command or reaches the network", () => {
   const client = readFileSync(new URL("../components/terminal/client.ts", import.meta.url), "utf8");
   assert.doesNotMatch(client, /\bfetch\s*\(|\beval\s*\(|\bnew Function\b|XMLHttpRequest|sendBeacon|child_process/);

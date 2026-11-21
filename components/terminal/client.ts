@@ -1,5 +1,5 @@
 /* Terminal copy button: copies the commands of a terminal block, never its output. The button stays hidden unless the browser has a clipboard to write to, and the commands are read from the page when it is clicked, so a value the variables form changed is the one copied. */
-import { createResultFlash, writeClipboard, type Clipboard, type Timers } from "../../chrome/clipboard/result.ts";
+import { writeClipboard, type Clipboard, type Timers } from "../../chrome/clipboard/result.ts";
 
 export type { Clipboard };
 
@@ -24,7 +24,7 @@ export interface TerminalFrame {
 }
 
 /** Everything the island reads from the world; tests pass fakes, the browser supplies its own. */
-export interface CopyEnv extends Timers {
+export interface CopyEnv extends Pick<Timers, "schedule"> {
   clipboard?: Clipboard | undefined;
 }
 
@@ -45,25 +45,21 @@ export function commandsOf(frame: TerminalFrame): string {
 export function activate(button: CopyButton, env: CopyEnv, frame?: TerminalFrame): void {
   const status = button.nextElementSibling;
   if (env.clipboard === undefined || status === null) return;
-  const flash = createResultFlash<typeof status>({
-    timers: env,
-    resetMs: RESET_MS,
-    apply(target, ok) {
-      target.textContent = (ok ? button.dataset.copied : button.dataset.copyFailed) ?? "";
-    },
-    reset(target) {
-      // The variables form owns the status while its commands are invalid.
-      if (!button.disabled) target.textContent = "";
-    },
-  });
   let clicks = 0;
   button.hidden = false;
   button.addEventListener("click", () => {
+    // The variables form owns the status while its commands are invalid.
+    if (button.disabled) return;
     const click = ++clicks;
-    flash.restore(status);
+    const isCurrent = () => click === clicks && !button.disabled;
+    status.textContent = "";
     const text = frame === undefined ? button.dataset.commands ?? "" : commandsOf(frame);
     void writeClipboard(env.clipboard, text).then((ok) => {
-      if (click === clicks && !button.disabled) flash.show(status, ok);
+      if (!isCurrent()) return;
+      status.textContent = (ok ? button.dataset.copied : button.dataset.copyFailed) ?? "";
+      env.schedule(() => {
+        if (isCurrent()) status.textContent = "";
+      }, RESET_MS);
     });
   });
 }
@@ -87,7 +83,6 @@ const globals = globalThis as unknown as {
   document?: CopyDocument;
   navigator?: { clipboard?: Clipboard };
   setTimeout(callback: () => void, ms: number): unknown;
-  clearTimeout(handle: unknown): void;
 };
 
 // The island runs when the browser loads it; nothing happens in a runtime without a document.
@@ -95,6 +90,5 @@ if (globals.document) {
   activateAll(globals.document, {
     clipboard: globals.navigator?.clipboard,
     schedule: (callback, ms) => globals.setTimeout(callback, ms),
-    cancel: (handle) => globals.clearTimeout(handle),
   });
 }
