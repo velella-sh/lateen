@@ -1,6 +1,7 @@
 import { h } from "preact";
 import type { Component } from "@velella/mizzen/contracts";
 import { t } from "../../i18n/index.ts";
+import { flagOf } from "../../src/flags.ts";
 
 /** The numbers a chip shows: the reading time in whole minutes and the word count. */
 export interface ReadingTimeCounts {
@@ -30,9 +31,6 @@ export const TIME_KEY_PREFIX = "reading_time_";
 
 /** The key prefix of the "N words" sentence; the plural category is appended. */
 export const WORDS_KEY_PREFIX = "reading_words_";
-
-/** The words that turn a bare directive attribute off, matching `version-badge`'s `block`. */
-const FALSE_WORDS = new Set(["false", "no", "0", "off"]);
 
 /** Plural rules per language tag, so a page's language is looked up once. */
 const rules = new Map<string, Intl.PluralRules>();
@@ -204,12 +202,10 @@ export function countsFor(data: unknown, url: string): ReadingTimeCounts | undef
 
 /**
  * Whether a `showWords` attribute is on. It arrives as `""` for a bare word such as
- * `showWords`, and as a string for `showWords=true`. Only the explicit false words turn it off.
+ * `showWords`, and as a string for `showWords=true`; {@link flagOf} reads the one set of false words.
  */
 export function showWordsOf(value: unknown): boolean {
-  if (value === undefined || value === null || value === false) return false;
-  if (typeof value === "string") return !FALSE_WORDS.has(value.trim().toLowerCase());
-  return true;
+  return flagOf(value);
 }
 
 /**

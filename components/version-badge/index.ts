@@ -2,6 +2,7 @@ import { h } from "preact";
 import type { Component } from "@velella/mizzen/contracts";
 import { t } from "../../i18n/index.ts";
 import { knownOf } from "../../src/guards.ts";
+import { flagOf } from "../../src/flags.ts";
 
 /** The Markdown directive this component handles: `::version-badge{version=0.3}`. */
 export const directive = "version-badge";
@@ -71,14 +72,11 @@ export function variantOf(value: unknown): VersionBadgeState {
 
 /**
  * The directive attributes are strings, and a bare word such as `block` arrives as `""`. Only the
- * explicit false words turn it off, so `block`, `block=true`, and `block=""` all mean block layout.
+ * explicit false words turn it off, so `block`, `block=true`, and `block=""` all mean block layout;
+ * {@link flagOf} is the shared reading of that spelling.
  */
 export function blockOf(value: unknown): boolean {
-  if (value === undefined || value === null || value === false) return false;
-  if (typeof value === "string") {
-    return !["false", "no", "0", "off"].includes(value.trim().toLowerCase());
-  }
-  return true;
+  return flagOf(value);
 }
 
 /** Class names of a badge: `version-badge`, `version-badge-<state>`, and `version-badge-block` when block. */

@@ -65,8 +65,15 @@ test("a picker shows the accent, its palette, and the preset's ratios without Ja
 });
 
 test("a false picker value leaves the control out", () => {
-  assert.equal(render({ preset: "plum", picker: "false" }).document.querySelector("[data-preset-accent]"), null);
-  assert.equal(render({ preset: "plum", picker: "0" }).document.querySelector("[data-preset-accent]"), null);
+  for (const off of ["false", "no", "0", "off", " FALSE ", "\tOff\n"]) {
+    assert.equal(
+      render({ preset: "plum", picker: off }).document.querySelector("[data-preset-accent]"),
+      null,
+      `${JSON.stringify(off)} is off`,
+    );
+  }
+  assert.equal(render({ preset: "plum", picker: "true" }).document.querySelector("[data-preset-accent]") !== null, true);
+  assert.equal(render({ preset: "plum", picker: "" }).document.querySelector("[data-preset-accent]") !== null, true);
 });
 
 test("an unknown preset names itself instead of rendering an empty block", () => {

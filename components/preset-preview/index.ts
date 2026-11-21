@@ -1,6 +1,7 @@
 import { h, type ComponentChildren } from "preact";
 import type { ComponentProps } from "@velella/mizzen/contracts";
 import { t, patternOf } from "../../i18n/index.ts";
+import { flagOf } from "../../src/flags.ts";
 import { brandTokens, DEFAULT_COLORS, previewCss, resolveBrand, type Brand } from "../../src/brand.ts";
 import backdrop from "../backdrop/index.ts";
 import motif from "../motif/index.ts";
@@ -11,9 +12,6 @@ export const directive = "preset-preview";
 
 /** The options the component reads, in the order the documentation lists them. */
 export const OPTIONS = ["preset", "picker"] as const;
-
-/** Words that turn a bare attribute off, matching the other components. */
-const FALSE_WORDS = new Set(["false", "no", "0", "off"]);
 
 export type PresetPreviewProps = {
   /** The preset name: a JSON file in `tokens/presets/`. */
@@ -75,7 +73,7 @@ export default function presetPreview({ props, page, site }: ComponentProps<Pres
   const palette = paletteOf(brand);
   const accent = brand.accent ?? DEFAULT_COLORS.light.accent;
   const ratios = contrastRatios(accent, { light: palette.light.surfaces[0] ?? "", dark: palette.dark.surfaces[0] ?? "" });
-  const picker = props.picker !== undefined && !(typeof props.picker === "string" && FALSE_WORDS.has(props.picker.toLowerCase()));
+  const picker = flagOf(props.picker);
   return h(
     "div",
     { class: `preset-preview ${scope}`, "data-preset-preview": name },
