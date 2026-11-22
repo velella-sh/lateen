@@ -8,6 +8,7 @@ import breadcrumb from "../chrome/breadcrumb/index.ts";
 import { t } from "../i18n/index.ts";
 import { articleHtml } from "../src/article-html.ts";
 import { articleShell } from "./shared/index.ts";
+import { methodClassOf } from "./shared/api-method.ts";
 
 /**
  * The operation page of a pinned OpenAPI reference. The engine builds one doc page per operation
@@ -193,13 +194,6 @@ function operationOf(frontMatter: LayoutProps["page"]["frontMatter"]): ApiOperat
     return undefined;
   }
   return operation as unknown as ApiOperation;
-}
-
-/** The method badge colors the same methods as the endpoint component, with no script. */
-export function methodClassOf(method: string): string {
-  const known = ["get", "post", "put", "patch", "delete"];
-  const name = method.toLowerCase();
-  return `api-reference-method api-reference-method-${known.includes(name) ? name : "other"}`;
 }
 
 /** A schema's type names joined for display, or undefined when it declares none. */

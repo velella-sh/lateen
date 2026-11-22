@@ -15,7 +15,7 @@ import statStrip from "../components/stat-strip/index.ts";
 import { resolveBrand } from "../src/brand.ts";
 import { baseOf } from "../src/url.ts";
 import { pageHtml } from "../src/article-html.ts";
-import base from "./base.ts";
+import { renderBase } from "./shared/base.ts";
 
 /**
  * The docs home: sailcloth shell + mockup home stage (brand, preview pane, section cards).
@@ -316,7 +316,7 @@ const home: Layout = (props) => {
   const homeProps = { ...props, showSourceMode: false };
   // Mono is not preloaded here: the base layout preloads it only for a page body with a code block,
   // which covers both the standard landing page and a showpiece whose demo carries code.
-  return base({
+  return renderBase({
     ...homeProps,
     header: h(Fragment, null, shell(homeProps) as ComponentChildren, drawer(props) as ComponentChildren),
     footer: footer(props) as ComponentChildren,

@@ -11,9 +11,9 @@ import editPage from "../chrome/edit-page/index.ts";
 import lastUpdated from "../chrome/last-updated/index.ts";
 import pageFooter from "../chrome/page-footer/index.ts";
 import pager from "../chrome/pager/index.ts";
-import pageStatus from "../components/page-status/index.ts";
-import readingTime from "../components/reading-time/index.ts";
-import versionNotice from "../components/version-notice/index.ts";
+import { renderPageStatus } from "../components/page-status/render.ts";
+import { renderReadingTime } from "../components/reading-time/render.ts";
+import { renderVersionNotice } from "../components/version-notice/render.ts";
 import { articleHtml } from "../src/article-html.ts";
 import { articleHeader, articleShell, statusProps } from "./shared/index.ts";
 
@@ -204,13 +204,13 @@ function article(props: LayoutProps): ComponentChildren {
     { class: "doc tutorial", "data-pagefind-body": true },
     articleHeader(props, {
       notices: [
-        pageStatus({ props: statusProps(page), page, site: props.site, html: "" }) as ComponentChildren,
-        versionNotice({ props: {}, page, site: props.site, html: "" }) as ComponentChildren,
+        renderPageStatus({ props: statusProps(page), page, site: props.site, html: "" }) as ComponentChildren,
+        renderVersionNotice({ props: {}, page, site: props.site, html: "" }) as ComponentChildren,
       ],
       description: null,
       meta: [
         lastUpdated(props) as ComponentChildren,
-        readingTime({ props: {}, page, site: props.site, html: "" }) as ComponentChildren,
+        renderReadingTime({ props: {}, page, site: props.site, html: "" }) as ComponentChildren,
       ],
     }),
     staleSlot(props),

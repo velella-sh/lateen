@@ -6,7 +6,7 @@ import breadcrumb from "../chrome/breadcrumb/index.ts";
 import { t } from "../i18n/index.ts";
 import { articleHtml } from "../src/article-html.ts";
 import { articleShell } from "./shared/index.ts";
-import { methodClassOf } from "./api-reference.ts";
+import { methodClassOf } from "./shared/api-method.ts";
 
 /**
  * The index page of a pinned OpenAPI reference. The engine writes it at `apiReference.path` with

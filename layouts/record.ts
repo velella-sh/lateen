@@ -15,7 +15,7 @@ import recordHistory from "../components/record-history/index.ts";
 import { collectionDownloads } from "../src/collection-downloads.ts";
 import { t } from "../i18n/index.ts";
 import { FACTS_ID, factsOf, factsPanel, recordHeader, relatedPanel, summaryOf } from "../src/record-parts.ts";
-import doc from "./doc.ts";
+import { renderDoc } from "./shared/doc.ts";
 import { articleShell } from "./shared/index.ts";
 import { staleSlot } from "../src/stale.ts";
 import { snapshotPanel } from "../src/snapshot-panel.ts";
@@ -153,7 +153,7 @@ const record: Layout = (props) => {
     islands.push(historyIsland);
   }
   return props.record === undefined
-    ? doc(props)
+    ? renderDoc(props)
     : articleShell(props, {
         main: article(props),
         aside: toc(tocFor(props)) as ComponentChildren,

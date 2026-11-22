@@ -1,8 +1,8 @@
 import type { Layout } from "@velella/mizzen/contracts";
-import doc from "./doc.ts";
+import { renderDoc } from "./shared/doc.ts";
 
 const quickstart: Layout = (props) =>
-  doc({
+  renderDoc({
     ...props,
     page: {
       ...props.page,

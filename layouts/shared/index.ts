@@ -1,7 +1,7 @@
 import { Fragment, h } from "preact";
 import type { ComponentChildren } from "preact";
 import type { LayoutProps } from "@velella/mizzen/contracts";
-import base, { type BaseProps } from "../base.ts";
+import { renderBase, type BaseProps } from "./base.ts";
 import breadcrumb from "../../chrome/breadcrumb/index.ts";
 import drawer from "../../chrome/drawer/index.ts";
 import shell, { footer as shellFooter } from "../../chrome/shell/index.ts";
@@ -103,7 +103,7 @@ export interface ArticleSlots {
  * keep their own landmarks, sticky offsets, and width breakpoints; this only places them.
  */
 export function articleShell(props: LayoutProps, slots: ArticleSlots) {
-  return base({
+  return renderBase({
     ...props,
     ...slots.base,
     header: h(Fragment, null, shell(props) as ComponentChildren, drawer(props) as ComponentChildren),
