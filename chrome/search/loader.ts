@@ -16,9 +16,14 @@ export interface SearchHit {
   data(): Promise<SearchRecord>;
 }
 
-/** The part of Pagefind's browser API the dialog uses. */
+export interface PagefindQuery {
+  readonly filters?: Readonly<Record<string, string>>;
+  readonly sort?: Readonly<Record<string, "asc" | "desc">>;
+}
+
+/** The part of Pagefind's browser API the search surfaces share. */
 export interface PagefindApi {
-  search(term: string): Promise<{ readonly results: readonly SearchHit[] }>;
+  search(term: string | null, options?: PagefindQuery): Promise<{ readonly results: readonly SearchHit[] }>;
 }
 
 /** The index URL for a site `base`: `/pagefind/pagefind.js` at the root, `<base>/pagefind/pagefind.js` below it. */

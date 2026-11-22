@@ -87,3 +87,25 @@ test("network Pagefind can show other projects even when the current index fails
   assert.equal(found, 1);
   assert.equal(complete, true);
 });
+
+test("network facets pass the same filters to each index for a filter-only query", async () => {
+  const query = { filters: { region: "north" } };
+  const calls: unknown[] = [];
+  const api: PagefindApi = {
+    async search(term, options) {
+      calls.push([term, options]);
+      return { results: [] };
+    },
+  };
+  await searchNetwork("", {
+    base: "/alpha",
+    network,
+    query,
+    current: async () => api,
+    loadList: async () => ({ others: [{ id: "beta", title: "Beta Docs", index: "/beta/find-beta" }] }),
+    load: async () => api,
+    show() {},
+    failed: () => assert.fail("the filter-only query is valid"),
+  });
+  assert.deepEqual(calls, [[null, query], [null, query]]);
+});

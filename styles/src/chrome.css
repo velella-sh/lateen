@@ -690,6 +690,18 @@
     overscroll-behavior: contain;
   }
 
+  .search-facet-fields:not([hidden]) {
+    @apply flex flex-wrap gap-2;
+  }
+
+  .search-facet-fields label {
+    @apply grid max-w-full gap-1;
+  }
+
+  .search-facet-fields select {
+    @apply max-w-full rounded border border-border bg-background text-foreground;
+  }
+
   .search-group-title {
     position: sticky;
     inset-block-start: 0;
