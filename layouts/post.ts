@@ -1,4 +1,5 @@
 import { h } from "preact";
+import { staleSlot } from "../src/stale.ts";
 import type { ComponentChildren } from "preact";
 import type { Layout, LayoutProps } from "@velella/mizzen/contracts";
 import breadcrumb from "../chrome/breadcrumb/index.ts";
@@ -64,6 +65,7 @@ function article(props: LayoutProps, feed: string | undefined): ComponentChildre
       feed === undefined ? null : blogSubscribe(feed, page.lang),
     ),
     description === undefined ? null : h("p", { class: "post-description" }, description),
+    staleSlot(props),
     h("div", { class: "doc-body", dangerouslySetInnerHTML: body }),
     h("div", { class: "doc-actions" }, pageFooter(props) as ComponentChildren),
   );

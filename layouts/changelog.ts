@@ -1,4 +1,5 @@
 import { h } from "preact";
+import { staleSlot } from "../src/stale.ts";
 import type { ComponentChildren } from "preact";
 import type { Layout, LayoutProps, Page } from "@velella/mizzen/contracts";
 import changelogEntry, {
@@ -221,6 +222,7 @@ function article(props: LayoutProps): ComponentChildren {
       "article",
       { class: ARTICLE_CLASS, "data-pagefind-body": true },
       titleFromBody(props) ? null : h("h1", { class: "changelog-title" }, page.title),
+      staleSlot(props),
       h("div", { class: BODY_CLASS, dangerouslySetInnerHTML: { __html: mathHtml(page.html, page.lang) } }),
     );
   }
@@ -231,6 +233,7 @@ function article(props: LayoutProps): ComponentChildren {
     "article",
     { class: ARTICLE_CLASS, "data-pagefind-body": true },
     h("h1", { class: "changelog-title" }, page.title),
+    staleSlot(props),
     versionToc(entries, page.lang),
     h(
       "div",

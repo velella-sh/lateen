@@ -1,4 +1,5 @@
 import { Fragment, h } from "preact";
+import { staleSlot } from "../src/stale.ts";
 import { isRecord } from "../src/guards.ts";
 import type { ComponentChildren } from "preact";
 import type { ComponentProps, Layout, LayoutProps } from "@velella/mizzen/contracts";
@@ -197,6 +198,7 @@ function content(props: LayoutProps): ComponentChildren {
           : h("p", { class: "home-eyebrow" }, h("i", { class: "status-dot", "aria-hidden": "true" }), eyebrow),
         h("p", { class: "product" }, product),
         h("h1", { id: "home-title", class: "home-title display" }, title),
+        staleSlot(props),
         lead === undefined ? null : h("p", { class: "home-lead lead" }, lead),
         buttons.length === 0 ? null : h("div", { class: "home-actions actions" }, buttons),
         h(
@@ -272,6 +274,7 @@ function showpieceContent(props: LayoutProps): ComponentChildren {
     ),
   );
 
+  blocks.push(staleSlot(props));
   blocks.push(call(statStrip, { ...shared, props: {} }));
 
   const features = Array.isArray(fm.features) ? fm.features : recordsOf(fm.sections);
