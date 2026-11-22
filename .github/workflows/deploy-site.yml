@@ -42,7 +42,10 @@ jobs:
         run: npm run ui:build && node scripts/test-a11y.ts --report site/_data/accessibility-report.json
         working-directory: lateen
       - name: Write the performance report
-        run: node scripts/performance-budget.ts --report site/_data/performance-report.json
+        # The budget is a regression gate that CI enforces on pull requests; here the step only records the report,
+        # so a budget overrun must not block publishing. "Require both reports" below still fails if no report was written.
+        continue-on-error: true
+        run:node scripts/performance-budget.ts --report site/_data/performance-report.json
         working-directory: lateen
       - name: Require both reports
         run: test -s site/_data/accessibility-report.json && test -s site/_data/performance-report.json
