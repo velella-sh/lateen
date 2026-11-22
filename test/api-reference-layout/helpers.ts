@@ -45,8 +45,13 @@ export function pageWith(overrides: Partial<Page> = {}): Page {
   };
 }
 
-export function layoutProps(page: Page, nav: Site["nav"]["main"] = [], trail: LayoutProps["trail"] = []): LayoutProps {
-  const site: Site = { config: configWith(), pages: [page], nav: { main: nav }, data: {}, collections: {} };
+export function layoutProps(
+  page: Page,
+  nav: Site["nav"]["main"] = [],
+  trail: LayoutProps["trail"] = [],
+  pages: readonly Page[] = [page],
+): LayoutProps {
+  const site: Site = { config: configWith(), pages: [...pages], nav: { main: nav }, data: {}, collections: {} };
   return {
     site,
     page,

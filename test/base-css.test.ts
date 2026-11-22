@@ -67,6 +67,12 @@ test("home preview and mobile cards keep the Sailcloth surface contract", () => 
   assert.match(ui, /@media \(max-width: 48rem\)[\s\S]*\.home-sections,[\s\S]*grid-template-columns:\s*1fr/s);
 });
 
+test("API reference introductions keep the method text intact and let a long path wrap", () => {
+  const line = bodyOf(ui, /api-reference-line\)/);
+  assert.match(line, /overflow-wrap:\s*anywhere/);
+  assert.match(bodyOf(ui, /^\*$/), /min-inline-size:\s*0/);
+});
+
 test("document typography and metadata follow the Sailcloth prose contract", () => {
   const doc = bodyOf(ui, /^\.doc$/);
   assert.match(doc, /--type-size-doc-title:\s*clamp\(2rem, 1\.45rem \+ 2vw, 3rem\)/);
