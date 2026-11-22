@@ -12,7 +12,6 @@ import {
   type SwitchPart,
   type SwitchRoot,
 } from "../chrome/source-mode/client.ts";
-import { SOURCE_MODE_KEY } from "../chrome/source-mode/state.ts";
 
 const MESSAGES: Record<string, string> = {
   "mode-count": "{n} blocks with a source position.",
@@ -81,7 +80,7 @@ function setup(options: Options = {}) {
       contains: (name) => classes.has(name),
     },
   };
-  const store = new Map<string, string>(stored === undefined ? [] : [[SOURCE_MODE_KEY, stored]]);
+  const store = new Map<string, string>(stored === undefined ? [] : [["lateen-source-mode", stored]]);
   const env: SourceEnv = {
     root: modeRoot,
     blocks: [...document.querySelectorAll("[data-src]")] as unknown as SourceBlock[],
@@ -121,33 +120,33 @@ test("a page with no sourced blocks says so instead of showing a bare zero", () 
   assert.equal(s.count.textContent, "This page has no blocks with a source position.");
 });
 
-test("the Exit control turns the mode off, stores off, and hides the bar", () => {
-  const s = setup({ stored: "on", html: ONE_BLOCK });
-  assert.equal(s.active.hidden, false, "a stored choice shows the bar on load");
+test("the Exit control turns the mode off and hides the bar", () => {
+  const s = setup({ html: ONE_BLOCK });
+  s.button.click();
+  assert.equal(s.active.hidden, false);
   s.exit.click();
   assert.equal(s.classes.has("source-mode"), false);
-  assert.equal(s.store.get(SOURCE_MODE_KEY), "off");
   assert.equal(s.active.hidden, true);
   assert.equal(s.button.attrs["aria-pressed"], "false");
   assert.equal(s.status.textContent, "off!");
 });
 
-test("the switch toggles the mode, stores it, and announces it", () => {
+test("the switch toggles the mode and announces it", () => {
   const s = setup({ html: ONE_BLOCK });
   s.button.click();
   assert.equal(s.classes.has("source-mode"), true);
-  assert.equal(s.store.get(SOURCE_MODE_KEY), "on");
   assert.equal(s.status.textContent, "on!");
   s.button.click();
   assert.equal(s.classes.has("source-mode"), false);
-  assert.equal(s.store.get(SOURCE_MODE_KEY), "off");
 });
 
 test("turning the mode on opens the disclosure that holds the switch", () => {
   // The doc layout keeps the switch in a closed "Page tools"; the palette must not leave it hidden.
   let revealed = 0;
   const s = setup({ stored: "on", html: ONE_BLOCK, reveal: () => void (revealed += 1) });
-  assert.equal(revealed, 1, "restoring the stored choice reveals the switch too");
+  assert.equal(revealed, 0, "loading the page never opens the disclosure, even with an old stored choice");
+  s.button.click();
+  assert.equal(revealed, 1, "turning the mode on reveals the switch");
   s.exit.click();
   assert.equal(revealed, 1, "turning the mode off does not reopen a disclosure the reader closed");
   s.button.click();

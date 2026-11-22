@@ -120,9 +120,15 @@
     inset-inline-start: 0;
   }
 
+  /* The panel hugs its controls so the padding is equal on every side, and its edge lines up with
+     the Page tools trigger instead of floating wider than its content. */
   .doc-tools .article-tool-panel {
     inset-block: calc(100% + 0.375rem) auto;
     inset-inline: auto 0;
+    min-inline-size: 0;
+    inline-size: max-content;
+    max-inline-size: calc(100vw - 2rem);
+    justify-items: stretch;
   }
 
   .article-tool-panel .copy-markdown {
