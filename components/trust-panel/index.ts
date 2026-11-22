@@ -145,8 +145,8 @@ function dateRow(date: DateRowView, className: string) {
  * left out when the site configures none. Valid build and review provenance comes from the entry, then
  * `site.data.build` and `site.data.reviewers`; it is exposed on the root and as labelled `<time>` rows,
  * and it never changes the level. The doc layout places the panel under the title, so a site
- * does not write a directive; until the engine's `trust.json` output lands, `site.data.trust` is absent
- * and the panel stays hidden unless a site writes `_data/trust.yml`.
+ * does not need a directive. The panel reads reason messages from the engine and also accepts
+ * strings from hand-written `_data/trust.yml`.
  */
 const trustPanel: Component<TrustPanelProps> = ({ props, page, site }) => {
   const view = trustPanelViewOf(props, page, site);

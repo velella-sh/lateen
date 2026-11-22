@@ -125,7 +125,7 @@ export function levelOf(value: unknown): TrustLevel | undefined {
   return knownOf(LEVELS, level) ?? ALIASES[level];
 }
 
-/** A list of reasons from an array or a string split on line breaks or `|`. Blank entries are dropped. */
+/** Reason messages from engine objects, legacy strings, or a string split on line breaks or `|`. */
 export function reasonsOf(value: unknown): string[] {
   if (typeof value === "string") {
     return value
@@ -134,7 +134,8 @@ export function reasonsOf(value: unknown): string[] {
       .filter((reason) => reason !== "");
   }
   if (!Array.isArray(value)) return [];
-  return value.map(textOf).filter((reason): reason is string => reason !== undefined);
+  return value.map((reason) => textOf(isRecord(reason) ? reason.message : reason))
+    .filter((reason): reason is string => reason !== undefined);
 }
 
 /** The readable entry in a record whose level is already known. */
