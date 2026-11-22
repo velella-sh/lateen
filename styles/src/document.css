@@ -449,32 +449,32 @@
     letter-spacing: -0.018em;
   }
 
-  .tutorial-progress {
+  .tutorial-progress,
+  .tutorial-step-nav {
     margin-block-start: var(--space-6);
-  }
-
-  .tutorial-step-list {
-    list-style: none;
-  }
-
-  .tutorial-step-item + .tutorial-step-item {
-    border-block-start: 1px solid var(--border);
   }
 
   .tutorial-step-item > .tutorial-step-link {
     display: grid;
-    grid-template-columns: max-content minmax(0, 1fr);
+    grid-template-columns: max-content 1fr;
     align-items: baseline;
     column-gap: var(--space-3);
-    padding-block: var(--space-2);
   }
 
   .tutorial-step-title {
+    overflow-wrap: anywhere;
+  }
+
+  .tutorial-step-title,
+  .tutorial-step-progress {
     color: var(--link);
     font-weight: var(--type-weight-bold);
+  }
+
+  .tutorial-step-title,
+  .tutorial-step-nav-title {
     text-decoration: underline;
     text-underline-offset: 3px;
-    overflow-wrap: anywhere;
   }
 
   .tutorial-step {
@@ -485,17 +485,12 @@
 
   .doc-body .tutorial-step-progress {
     margin-block: 0 0.25rem;
-    color: var(--link);
-    font-weight: var(--type-weight-bold);
   }
 
-  .tutorial-step-body > h2:first-child {
+  .tutorial-step-body > h2[id]:first-child {
     margin-block-start: 0;
     overflow-wrap: anywhere;
-  }
-
-  /* The root scroll padding clears the header. Offset the heading by the step's band above it. */
-  .tutorial-step-body > h2[id]:first-child {
+    /* The root scroll padding clears the header. Include the rule and count above the heading. */
     scroll-margin-block-start: calc(1.5rem + var(--space-4) + 1px);
   }
 
@@ -509,32 +504,24 @@
   }
 
   .tutorial-step-nav {
-    display: grid;
-    grid-template-columns: repeat(2, minmax(0, 1fr));
+    display: flex;
     gap: var(--space-4);
-    margin-block-start: var(--space-6);
   }
 
   .tutorial-step-nav > .tutorial-step-link {
     display: grid;
+    flex: 1;
     align-content: start;
-    padding-block: var(--space-2);
     overflow-wrap: anywhere;
     text-decoration: none;
   }
 
+  .tutorial-step-link {
+    padding-block: var(--space-2);
+  }
+
   .tutorial-step-next {
-    grid-column: 2;
     text-align: end;
-  }
-
-  .tutorial-step-nav > :only-child {
-    grid-column: 1 / -1;
-  }
-
-  .tutorial-step-nav-title {
-    text-decoration: underline;
-    text-underline-offset: 3px;
   }
 
   .doc-body h3 {
