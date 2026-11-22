@@ -24,6 +24,9 @@ export type LinesOptions = {
    * so one line or a range is shareable without JavaScript.
    */
   block?: string;
+  /** Location-derived fragments kept as aliases after a block gets a stable identity. */
+  legacyBlock?: string;
+  legacyLineId?: (line: number) => string | undefined;
   /** Page language for the line link's label. */
   lang?: string;
 };
@@ -79,7 +82,12 @@ export function decorateLines(innerHtml: string, options: LinesOptions = {}): st
               t(options.lang ?? "en", "code_line_link", { line: number }),
             )}"></a>`;
       const numberAttr = options.numbers ? ` data-line="${number}"` : "";
-      const content = `${link}${target}${unwrapLine(line)}`;
+      const aliases = [
+        options.legacyBlock === undefined ? undefined : lineAnchorId(options.legacyBlock, number),
+        options.legacyLineId?.(number),
+      ].filter((alias) => alias !== undefined && alias !== id && alias !== anchorId)
+        .map((alias) => `<span id="${alias}"></span>`).join("");
+      const content = `${link}${target}${aliases}${unwrapLine(line)}`;
       const cell = options.numbers
         ? `<span class="line-number" data-line="${number}" aria-hidden="true"></span><span class="line-code">${content}</span>`
         : content;

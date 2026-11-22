@@ -73,7 +73,7 @@ test("default export is the drift banner component", () => {
   assert.equal(typeof driftBanner, "function");
   assert.equal(CLASS, "drift-banner");
   assert.equal(DETAILS_CLASS, "drift-banner-details");
-  assert.deepEqual([...STATES], ["drifting", "stale", "unavailable"]);
+  assert.deepEqual([...STATES], ["drifting", "stale", "unavailable", "unchecked"]);
   assert.deepEqual([...SEVERITIES], ["error", "warning", "info", "unknown"]);
 });
 
@@ -266,6 +266,7 @@ test("the state label, count, and next step follow the page language", () => {
     [[{ kind: "drift.missing-file" }], "drifting"],
     [[{ message: "x" }], "stale"],
     [null, "unavailable"],
+    [[{ state: "unchecked" }], "unchecked"],
   ];
   for (const lang of ["en", "fa", "ar"] as const) {
     const strings = stringsOf(lang);
@@ -548,3 +549,27 @@ test("partial evidence links exactly one part of a row, never an empty or broken
   }
 });
 
+
+test("contract claims hide matches, distinguish unchecked claims, and show a fix and target", () => {
+  const drift = (findings: unknown[]) => ({ drift: { "/guide/": findings } });
+  assert.equal(render(drift([{ state: "match", severity: "error" }])), null);
+  const unchecked = { state: "unchecked", kind: "drift.signature-unchecked", severity: "error" };
+  const only = render(drift([unchecked]))!;
+  assert.match(only, /data-drift-state="unchecked" data-drift-severity="warning"/);
+  assert.match(only, /Claim unchecked/);
+  assert.doesNotMatch(only, /code that has changed/);
+  const mixed = render(drift([unchecked, { state: "moved" }, { state: "missing" }, { state: "mismatch" }]))!;
+  assert.match(mixed, /data-drift-state="drifting"/);
+  for (const label of ["Source moved", "Source missing", "Signature mismatch"]) assert.ok(mixed.includes(label));
+
+  const input = { state: "moved", reference: "src/old.ts:10", help: "Update the cited line.",
+    target: { path: "src/new file.ts", line: 23, identity: "abc" } };
+  const site = siteOf(drift([input]));
+  const out = renderToString(driftBanner({
+    props: {}, html: "",
+    page: { lang: "en", url: "/guide/" } as ComponentProps["page"],
+    site: { ...site, config: { ...site.config, repository: { url: "https://github.com/example/docs", branch: "main" } } },
+  }) as never);
+  assert.match(out, /href="https:\/\/github\.com\/example\/docs\/edit\/main\/src\/new%20file\.ts#L23"/);
+  assert.match(out, /Update the cited line\./);
+});

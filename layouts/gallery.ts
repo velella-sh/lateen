@@ -14,7 +14,7 @@ import { patternOf, t } from "../i18n/index.ts";
 import { isPublicField, publicFieldsOf } from "../src/public-fields.ts";
 import { latestReportOf, reportRunCard } from "../src/report-archive.ts";
 import { baseOf } from "../src/url.ts";
-import { mathHtml } from "../src/math-html.ts";
+import { pageHtml } from "../src/article-html.ts";
 import { cardOf, groupsOf } from "./list.ts";
 import { articleShell, titleFromBody } from "./shared/index.ts";
 
@@ -219,7 +219,7 @@ function article(props: LayoutProps, latestId: string | undefined): ComponentChi
     { class: "gallery", "data-pagefind-body": true },
     breadcrumb(props) as ComponentChildren,
     titleFromBody(props) ? null : h("h1", null, props.page.title),
-    h("div", { class: "gallery-intro", dangerouslySetInnerHTML: { __html: mathHtml(props.page.html, props.page.lang) } }),
+    h("div", { class: "gallery-intro", dangerouslySetInnerHTML: { __html: pageHtml(props.page.html, props.page.lang) } }),
     list === undefined ? null : h(
       "div",
       { class: "gallery-body", "data-gallery": "" },

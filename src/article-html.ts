@@ -1,4 +1,5 @@
 import { JSDOM } from "jsdom";
+import { anchorMarkdownHeadings } from "../components/heading-anchor/index.ts";
 import { mathHtml } from "./math-html.ts";
 import { REGION_ATTRIBUTE, WRAPPER_CLASS } from "../components/table/index.ts";
 
@@ -9,9 +10,20 @@ function focusablePre(html: string): string {
   );
 }
 
+/** Prepare a rendered page body while keeping its source and legacy anchors. */
+export function pageHtml(source: string, lang: string): string {
+  const html = mathHtml(source, lang);
+  if (!/<h[2-4]\b/i.test(html)) return html;
+  const fragment = JSDOM.fragment(html);
+  if (!anchorMarkdownHeadings(fragment, lang)) return html;
+  const container = fragment.ownerDocument.createElement("div");
+  container.append(fragment);
+  return container.innerHTML;
+}
+
 /** Keep the table display and its header relationships while the outer box scrolls, and let a plain code fence take focus. */
 export function articleHtml(source: string, lang = "en"): string {
-  const html = mathHtml(focusablePre(source), lang);
+  const html = pageHtml(focusablePre(source), lang);
   if (!/<table[\s>]/i.test(html)) return html;
 
   const fragment = JSDOM.fragment(html);

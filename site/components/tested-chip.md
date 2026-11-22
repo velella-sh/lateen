@@ -62,7 +62,7 @@ The state is available to machine readers as the chip's class: `tested-chip-pass
   reader can open the trust-level explanation from the marker itself. Without a trust entry the chip
   stays a plain note, so a page never links to a missing panel.
 - The tooltip is `Last passed <date>`, formatted in the site's calendar and the page language. It is also available to a screen reader. A malformed report can still show a `lastPassed` tooltip because the date is separate evidence, validated independently.
-- A page can supply the result with `_data/examples.yml`, keyed by the page's URL. The engine's `examples.json` report is a separate open issue (#1465), so this fallback reads data a site writes today.
+- A page can supply a page-level result with `_data/examples.yml`, keyed by the page's URL.
 
   ```yaml
   /guide/install/:
@@ -71,5 +71,7 @@ The state is available to machine readers as the chip's class: `tested-chip-pass
     lastPassed: 2026-11-09
   ```
 
-- Automatic per-block placement needs the engine's example markers (N01/N06), which say which code blocks are runnable. Until they land, place the chip next to the block with this directive.
+- Mizzen 0.2.5 marks test fences with `data-example-id` and writes page-level counts to
+  `examples.json`. Automatic per-block chips require a result keyed by fence ID and a recorded run
+  date. To show a known result beside a specific block, place an explicit chip with the directive.
 - Use a [badge](../badge/) for a status label that is not about examples.

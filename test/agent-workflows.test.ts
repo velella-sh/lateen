@@ -92,7 +92,7 @@ test("an agent action keeps source, language, and version context", () => {
     document.querySelector(".page-agent-menu-provider")?.getAttribute("href") ?? "",
     /page=https%3A%2F%2Fexample\.com%2Fguide%2Finstall%2F&lang=en&version=v2&source=guide%2Finstall\.md/,
   );
-  assert.match(document.querySelector(".trust-panel-action")?.getAttribute("href") ?? "", /build=build-42/);
+  assert.match(document.querySelector(".trust-panel-action")?.getAttribute("href") ?? "", /build=a{64}/);
 });
 
 test("variable substitution connects the form, code, terminal, and recorded output", () => {

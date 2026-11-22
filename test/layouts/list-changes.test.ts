@@ -3,6 +3,7 @@
 // link to the record when it still exists, the changed field, and the feed. A removed or imported
 // record has no link; an empty history keeps the list's empty note.
 import assert from "node:assert/strict";
+import { JSDOM } from "jsdom";
 import { test } from "node:test";
 import { renderToString } from "preact-render-to-string";
 import type { LayoutProps, ListGroup, ListProps, Page, RecordProps, Site, SiteConfig, SourcePos } from "@velella/mizzen/contracts";
@@ -48,17 +49,19 @@ function change(id: string, fields: Record<string, unknown>, links: Record<strin
 
 const added = change("e1", { date: "2026-05-02", type: "added", record: "alpha", field: "" }, { record: "/books/alpha/" });
 const removed = change("e2", { date: "2026-04-30", type: "removed", record: "gone", field: "" });
-const renamed = change("e3", { date: "2026-04-30", type: "renamed", record: "beta", field: "" }, { record: "/books/beta/" });
-const fieldChanged = change("e4", { date: "2026-04-30", type: "changed", record: "gamma", field: "pages" }, { record: "/books/gamma/" });
+const renamed = change("e3", { date: "2026-04-30", type: "renamed", record: "beta", from: "old-beta" }, { record: "/books/beta/" });
+const fieldChanged = change("e4", { date: "2026-04-30", type: "changed", record: "gamma", field: "pages", old: 0, new: 320 }, { record: "/books/gamma/" });
+
+const imported = change("e5", { date: "2026-04-30", type: "imported", record: "books", count: 24 });
 
 function listProps(overrides: Partial<ListProps> = {}): ListProps {
   const groups: ListGroup[] = [
     { key: "2026-05-02", records: [added], count: 1 },
-    { key: "2026-04-30", records: [removed, renamed, fieldChanged], count: 3 },
+    { key: "2026-04-30", records: [removed, renamed, fieldChanged, imported], count: 4 },
   ];
   return {
     collection: "books.changes",
-    records: [added, removed, renamed, fieldChanged],
+    records: [added, removed, renamed, fieldChanged, imported],
     groups,
     pagination: { page: 1, total: 1 },
     feed: "https://example.com/feeds/books-changes.xml",
@@ -66,17 +69,17 @@ function listProps(overrides: Partial<ListProps> = {}): ListProps {
   };
 }
 
-function props(list?: ListProps): LayoutProps {
+function props(list?: ListProps, currentPage = page): LayoutProps {
   const site: Site = {
     config,
-    pages: [page],
+    pages: [currentPage],
     nav: {},
     data: {},
     collections: {},
   };
   return {
     site,
-    page,
+    page: currentPage,
     trail: [{ title: page.title, url: page.url }],
     pager: {},
     head: { title: page.title, meta: [], links: [], jsonLd: [] },
@@ -105,11 +108,23 @@ test("a removed record has no link, while a renamed record keeps one", () => {
   assert.ok(html.includes('href="/books/alpha/"'));
 });
 
-test("a changed field is named beside its record", () => {
-  const html = htmlOf(listProps());
-  assert.ok(html.includes("changes-field"));
-  assert.ok(html.includes(">pages</code>"));
-  assert.ok(html.includes('href="/books/gamma/"'));
+test("changelog rows show changed values, earlier record ids, and import counts", () => {
+  const document = new JSDOM(htmlOf(listProps())).window.document;
+  const row = document.querySelector('a[href="/books/gamma/"]')?.closest("li");
+  assert.equal(row?.querySelector(".changes-field")?.textContent, "pages");
+  assert.equal(row?.querySelector("del bdi")?.textContent, "0");
+  assert.equal(row?.querySelector("ins bdi")?.textContent, "320");
+  assert.match(document.querySelector('a[href="/books/beta/"]')?.closest("li")?.textContent ?? "", /Renamed from old-beta/);
+  assert.match([...document.querySelectorAll(".changes-item")].at(-1)?.textContent ?? "", /24 records/);
+});
+
+test("localized RTL change arrows follow reading order", () => {
+  for (const lang of ["fa", "ar"]) {
+    const html = renderToString(list(props(listProps(), { ...page, lang, dir: "rtl" })) as never);
+    const document = new JSDOM(html).window.document;
+    assert.equal(document.querySelector(".record-history-arrow")?.textContent, "←");
+    assert.equal(document.querySelector("del bdi")?.textContent, "0");
+  }
 });
 
 test("the page links its Atom feed", () => {

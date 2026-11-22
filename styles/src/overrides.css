@@ -457,3 +457,32 @@ a.home-btn-primary,
     padding-inline-start: 0.5rem;
   }
 }
+
+/* Markdown heading permalinks share the heading line without taking space from its text. */
+[data-heading-anchor] > .heading-anchor {
+  display: inline-flex;
+  align-items: center;
+  inline-size: 1.5rem;
+  block-size: 1.5rem;
+  margin-inline-end: -1.5rem;
+  padding-inline-start: 0.5rem;
+  vertical-align: middle;
+  color: var(--link);
+  opacity: 0;
+}
+
+[data-heading-anchor] > .heading-anchor svg {
+  inline-size: 1rem;
+  block-size: 1rem;
+}
+
+[data-heading-anchor]:hover > .heading-anchor,
+[data-heading-anchor] > .heading-anchor:focus-visible {
+  opacity: 1;
+}
+
+@media (pointer: coarse) {
+  [data-heading-anchor] > .heading-anchor {
+    opacity: 1;
+  }
+}
