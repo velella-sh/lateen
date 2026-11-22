@@ -22,6 +22,13 @@ test("attribution links to the full page in the top window", () => {
   assert.match(out, /From Example\./);
 });
 
+test("prints deferred scripts supplied by the engine", () => {
+  const page = pageWith();
+  const props = layoutProps(page, siteWith([page]));
+  const head = { ...props.head, scripts: [{ src: "https://stats.example/script.js" }] };
+  assert.match(html(embedded({ ...props, head })), /<script defer src="https:\/\/stats\.example\/script\.js"><\/script>/);
+});
+
 test("an absolute `of` is kept; a path without a site url stays relative", () => {
   assert.match(render({ embedded: { of: "https://other.org/x/" } }), /href="https:\/\/other\.org\/x\/" target="_top"/);
   assert.match(render({ embedded: { of: "/guide/" } }, ""), /<a href="\/guide\/" target="_top"/);
