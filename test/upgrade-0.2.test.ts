@@ -199,6 +199,15 @@ function normalize(text: string): { head: string; body: string } {
   for (const element of [...document.querySelectorAll(".mermaid-diagram[style]")]) element.removeAttribute("style");
   // The trust panel gained an id so the tested chip can link to it.
   for (const element of [...document.querySelectorAll("details.trust-panel#trust-panel")]) element.removeAttribute("id");
+  // Dates use Mizzen's calendar and long-date format, retaining their machine-readable values.
+  for (const time of document.querySelectorAll(".trust-panel time, .last-updated time")) {
+    const datetime = time.getAttribute("datetime");
+    if (datetime === null) continue;
+    time.textContent = datetime;
+    for (const attribute of ["title", "aria-label"]) {
+      if (time.hasAttribute(attribute)) time.setAttribute(attribute, datetime);
+    }
+  }
   // 0.2.3 gives the endpoint method the shared version-badge style and a space before the path;
   // the method text, its method class, and the path are unchanged.
   for (const element of [...document.querySelectorAll(".endpoint-line > .endpoint-method")]) element.classList.remove("version-badge");

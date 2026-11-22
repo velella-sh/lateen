@@ -5,7 +5,7 @@ import { formatCount, pluralCategory } from "../components/reading-time/index.ts
 import status from "../components/status/index.ts";
 import { resolveStatus } from "../components/status/values.ts";
 import { t } from "../i18n/index.ts";
-import { calendarDate } from "./dates.ts";
+import { calendarDate, configuredCalendar } from "./dates.ts";
 import { formatNumber } from "./report.ts";
 import { withBase } from "./url.ts";
 
@@ -97,8 +97,8 @@ function booleanNode(value: unknown, lang: string): ComponentChildren {
 }
 
 /** A date in the page language's calendar, with its ISO form kept in `datetime`; an invalid date reads as text. */
-function dateNode(value: unknown, lang: string): ComponentChildren {
-  const date = typeof value === "string" ? calendarDate(value, lang) : undefined;
+function dateNode(value: unknown, lang: string, config: SiteConfig | undefined): ComponentChildren {
+  const date = typeof value === "string" ? calendarDate(value, lang, configuredCalendar(config)) : undefined;
   return date === undefined ? textOf(value) : h("time", { datetime: date.datetime }, date.text);
 }
 
@@ -213,7 +213,7 @@ export function formatField(
     case "boolean":
       return booleanNode(value, lang);
     case "date":
-      return dateNode(value, lang);
+      return dateNode(value, lang, config);
     case "url":
       return urlNode(value, lang, config);
     case "list":

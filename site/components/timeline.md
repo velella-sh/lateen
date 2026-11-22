@@ -75,4 +75,4 @@ The only addition from JavaScript is the "Today" marker on the axis, drawn from 
 - Overlap is checked between the phases of one row only. Phases in different rows may share days freely.
 - A phase's label is its legend entry; the same label in several rows appears in the legend once.
 - A collection that does not exist, or a field name the records lack, shows a visible message instead of an empty timeline.
-- The axis scales to the rows it has. Wide ranges get year ticks and shorter ranges get quarters, in the page's calendar and digits.
+- The axis scales to the rows it has. Wide ranges get year ticks and shorter ranges get quarters, in the site's calendar and the page language's digits.

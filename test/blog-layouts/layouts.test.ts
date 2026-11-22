@@ -99,7 +99,7 @@ test("a post shows one title, its date, author name, description and highlighted
   );
   assert.equal((out.match(/<h1>/g) ?? []).length, 1);
   assert.match(out, /<h1>A newer post<\/h1>/);
-  assert.match(out, /<time datetime="2026-03-10">March 10, 2026<\/time>/);
+  assert.match(out, /<time datetime="2026-03-10">10 March 2026<\/time>/);
   assert.match(out, /Ada Lovelace/);
   assert.match(out, /<p class="post-description">The newest one.<\/p>/);
   assert.match(out, /<a class="post-archive" href="\/blog\/archive\/">Back to the archive<\/a>/);
@@ -124,7 +124,7 @@ test("an archive lists the posts in the engine's newest-first order, without a r
   const out = renderList(archivePage);
   assert.match(out, /<h1>Archive<\/h1>/);
   assert.ok(out.indexOf("/blog/newer/") < out.indexOf("/blog/older/"), "the archive reordered the posts");
-  assert.match(out, /<time datetime="2026-03-10">March 10, 2026<\/time>/);
+  assert.match(out, /<time datetime="2026-03-10">10 March 2026<\/time>/);
   assert.match(out, /<p class="blog-description">The newest one.<\/p>/);
   assert.match(out, /Grace Hopper/);
   assert.ok(!out.includes("<table"), "a blog page must not render the empty records table");

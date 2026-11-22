@@ -1,7 +1,7 @@
 import { publicFieldsOf } from "../../src/public-fields.ts";
 import { h } from "preact";
 import type { ComponentProps } from "@velella/mizzen/contracts";
-import { calendarDay, calendarParts, calendarYear } from "../../src/dates.ts";
+import { calendarDay, calendarParts, calendarYear, configuredCalendar, type DateCalendar } from "../../src/dates.ts";
 import { formatCount as formatNumber } from "../reading-time/index.ts";
 import {
   idBaseOf,
@@ -158,10 +158,10 @@ function round(value: number): number {
 }
 
 /** A date tick in the page's calendar and digits: the year, or the quarter within it. */
-function dateTick(date: string, unit: "year" | "quarter", lang: string): string {
-  const year = calendarYear(date, lang) ?? date.split("-")[0] ?? date;
+function dateTick(date: string, unit: "year" | "quarter", lang: string, calendar?: DateCalendar): string {
+  const year = calendarYear(date, lang, calendar) ?? date.split("-")[0] ?? date;
   if (unit === "year") return year;
-  const month = calendarParts(date, lang)?.month ?? 1;
+  const month = calendarParts(date, lang, calendar)?.month ?? 1;
   return `${year} Q${formatNumber(lang, Math.floor((month - 1) / 3) + 1)}`;
 }
 
@@ -175,6 +175,7 @@ export function viewOf(
   category: string,
   fields: readonly string[],
   lang: string,
+  calendar?: DateCalendar,
 ): LineView | undefined {
   const normalized = rows.map((row) => {
     const raw = lookup(row, category);
@@ -190,6 +191,9 @@ export function viewOf(
   const axis = dateMode
     ? scale(
         known.flatMap((entry) => (entry.date === undefined ? [] : [{ start: entry.date, end: entry.date }])),
+        {},
+        calendar === undefined ? "en" : lang,
+        calendar,
       )
     : undefined;
   if (dateMode && axis === undefined) return undefined;
@@ -232,7 +236,7 @@ export function viewOf(
             .filter((_, index) => index % step === 0)
             .map((number) => ({ position: position(number), label: formatNumber(lang, number) }));
         })()
-      : axis.ticks.map((tick) => ({ position: tick.position, label: dateTick(tick.date, axis.unit, lang) }));
+      : axis.ticks.map((tick) => ({ position: tick.position, label: dateTick(tick.date, axis.unit, lang, calendar) }));
 
   return { dateMode, rows: plotted, xTicks };
 }
@@ -258,7 +262,7 @@ export default function lineChart({ props, site, page }: ComponentProps<LineChar
   const lang = page.lang;
   const rtl = page.dir === "rtl";
 
-  const view = viewOf(rows, category, fields, lang);
+  const view = viewOf(rows, category, fields, lang, configuredCalendar(site?.config));
   if (view === undefined) {
     return h("p", { class: MISSING_CLASS, role: "note" }, `${DEFAULT_TITLE}: no values in "${from}".`);
   }

@@ -86,7 +86,7 @@ test("the embedded view renders the record's status and key facts with the recor
   assert.match(html, /<dt class="key-value-key">Id<\/dt><dd class="key-value-value record-fact" data-kind="text"><bdi dir="ltr">button<\/bdi><\/dd>/);
   assert.match(
     html,
-    /<dt class="key-value-key">Released<\/dt><dd class="key-value-value record-fact" data-kind="date"[^>]*><time datetime="2026-01-12">January 12, 2026<\/time><\/dd>/,
+    /<dt class="key-value-key">Released<\/dt><dd class="key-value-value record-fact" data-kind="date"[^>]*><time datetime="2026-01-12">12 January 2026<\/time><\/dd>/,
   );
   assert.match(html, /<dt class="key-value-key">Region<\/dt><dd class="key-value-value record-fact" data-kind="text"[^>]*>north<\/dd>/);
   assert.match(html, /<strong>button<\/strong>/, "the Markdown summary is rendered");

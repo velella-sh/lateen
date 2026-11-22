@@ -12,6 +12,7 @@
     "assets/theme/islands/components/data-explorer/contract.js",
     "assets/theme/islands/components/data-explorer/env.js",
     "assets/theme/islands/components/data-explorer/state.js",
-    "assets/theme/islands/components/data-explorer/view.js"
+    "assets/theme/islands/components/data-explorer/view.js",
+    "assets/theme/islands/src/configured-calendar.js"
   ]
 }

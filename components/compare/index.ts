@@ -1,5 +1,6 @@
 import { Fragment, h } from "preact";
 import type { ComponentProps } from "@velella/mizzen/contracts";
+import { configuredCalendar } from "../../src/dates.ts";
 import { patternOf, t } from "../../i18n/index.ts";
 import { dataValue, formatField, isEmpty, kindOf } from "../../src/fields.ts";
 import { claimsOf } from "../../src/evidence.ts";
@@ -259,6 +260,7 @@ export default function compare({ props, page, site }: ComponentProps<Readonly<R
       "data-base": baseOf(site),
       "data-collection": from,
       "data-lang": lang,
+      "data-calendar": configuredCalendar(site?.config),
       "data-fields": JSON.stringify(fields.map(({ field, kind }) => ({ field, kind }))),
           "data-compare-pick": t(lang, "compare_change_record"),
       "data-compare-loading": t(lang, "compare_loading"),

@@ -89,8 +89,8 @@ const htmlOf = (data?: ListProps): string => renderToString(list(props(data)) as
 
 test("two snapshot dates render as two sections with badges", () => {
   const html = htmlOf(listProps());
-  assert.ok(html.includes("May 2, 2026"));
-  assert.ok(html.includes("April 30, 2026"));
+  assert.ok(html.includes("2 May 2026"));
+  assert.ok(html.includes("30 April 2026"));
   assert.ok(html.includes("changes-group"));
   assert.ok(html.includes(">Added</span>"));
   assert.ok(html.includes(">Removed</span>"));

@@ -119,8 +119,8 @@ test("a full entry selects every row, date, revision, and action", () => {
       },
     },
     drift: { label: "Drift", text: "No drift findings" },
-    generated: { label: "Updated", iso: "2026-03-06", text: "March 6, 2026", exact: "March 6, 2026" },
-    reviewed: { label: "Reviewed", iso: "2026-03-04", text: "March 4, 2026", exact: "March 4, 2026" },
+    generated: { label: "Updated", iso: "2026-03-06", text: "6 March 2026", exact: "6 March 2026" },
+    reviewed: { label: "Reviewed", iso: "2026-03-04", text: "4 March 2026", exact: "4 March 2026" },
     revision: {
       label: "Reviewed revision",
       href: "https://github.com/example/docs/commit/abcdef1234567890",
@@ -183,7 +183,7 @@ test("every label and text follows the page language, dates in its calendar", ()
   assert.equal(view.reviewer.text, fa.trust_reviewer_none);
   assert.equal(view.reasonsLabel, fa.trust_reasons);
   assert.deepEqual(view.reasons, [fa.trust_why_verified]);
-  assert.deepEqual(view.generated, { label: fa.updated, iso: "2026-03-06", text: "۱۵ اسفند ۱۴۰۴", exact: "۱۵ اسفند ۱۴۰۴" });
+  assert.deepEqual(view.generated, { label: fa.updated, iso: "2026-03-06", text: "۶ مارس ۲۰۲۶", exact: "۶ مارس ۲۰۲۶" });
 });
 
 test("a written date-time keeps its exact value beside the localised day", () => {
@@ -197,7 +197,7 @@ test("a written date-time keeps its exact value beside the localised day", () =>
   assert.deepEqual(view.generated, {
     label: "Updated",
     iso: "2026-03-06T10:30:00Z",
-    text: "March 6, 2026",
+    text: "6 March 2026",
     exact: "2026-03-06T10:30:00Z",
   });
 });

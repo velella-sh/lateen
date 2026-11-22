@@ -64,7 +64,7 @@ and a status.
 ```
 
 - `label` is plain text, in the page's language.
-- `start` and `end` are ISO dates (`YYYY-MM-DD`). The page's calendar only changes how the axis is labelled
+- `start` and `end` are ISO dates (`YYYY-MM-DD`). The site's calendar sets the tick boundaries and labels
   (#259); it does not change how dates are stored.
 - `end` can be missing. The segment then runs to the axis end and is marked open in text, not only in
   shape.

@@ -722,11 +722,11 @@ test("the trust entry's build, generation, and review evidence are exposed with 
   assert.match(out, /data-trust-reviewed="2026-03-04"/);
   assert.match(
     out,
-    /<dt class="trust-panel-label">Updated<\/dt><dd class="trust-panel-value trust-panel-generated"><time datetime="2026-03-06" title="March 6, 2026" aria-label="March 6, 2026">March 6, 2026<\/time><\/dd>/,
+    /<dt class="trust-panel-label">Updated<\/dt><dd class="trust-panel-value trust-panel-generated"><time datetime="2026-03-06" title="6 March 2026" aria-label="6 March 2026">6 March 2026<\/time><\/dd>/,
   );
   assert.match(
     out,
-    /<dt class="trust-panel-label">Reviewed<\/dt><dd class="trust-panel-value trust-panel-reviewed"><time datetime="2026-03-04" title="March 4, 2026" aria-label="March 4, 2026">March 4, 2026<\/time><\/dd>/,
+    /<dt class="trust-panel-label">Reviewed<\/dt><dd class="trust-panel-value trust-panel-reviewed"><time datetime="2026-03-04" title="4 March 2026" aria-label="4 March 2026">4 March 2026<\/time><\/dd>/,
   );
   assert.match(out, /trust-panel-reviewer">Reviewed by Ada<\/dd>/);
 });
@@ -747,11 +747,11 @@ test("timed provenance keeps its full ISO value in the machine-readable time", (
   assert.match(out, /data-trust-reviewed="2026-03-04T09:30:15\+03:30"/);
   assert.match(
     out,
-    /<dt class="trust-panel-label">Updated<\/dt><dd class="trust-panel-value trust-panel-generated"><time datetime="2026-03-06T10:00:00Z" title="2026-03-06T10:00:00Z" aria-label="2026-03-06T10:00:00Z">March 6, 2026<\/time><\/dd>/,
+    /<dt class="trust-panel-label">Updated<\/dt><dd class="trust-panel-value trust-panel-generated"><time datetime="2026-03-06T10:00:00Z" title="2026-03-06T10:00:00Z" aria-label="2026-03-06T10:00:00Z">6 March 2026<\/time><\/dd>/,
   );
   assert.match(
     out,
-    /<dt class="trust-panel-label">Reviewed<\/dt><dd class="trust-panel-value trust-panel-reviewed"><time datetime="2026-03-04T09:30:15\+03:30" title="2026-03-04T09:30:15\+03:30" aria-label="2026-03-04T09:30:15\+03:30">March 4, 2026<\/time><\/dd>/,
+    /<dt class="trust-panel-label">Reviewed<\/dt><dd class="trust-panel-value trust-panel-reviewed"><time datetime="2026-03-04T09:30:15\+03:30" title="2026-03-04T09:30:15\+03:30" aria-label="2026-03-04T09:30:15\+03:30">4 March 2026<\/time><\/dd>/,
   );
 });
 

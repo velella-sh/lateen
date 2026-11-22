@@ -91,7 +91,7 @@ A field is shown by its kind. The default is `text`; `status` reads the site's s
 | `text` | The value as text, with markup escaped. |
 | `number` | A number in the page language's digits. |
 | `boolean` | `true` or `false` in the page language. |
-| `date` | A date in the page language's calendar, with its ISO form in `datetime`. |
+| `date` | A date in the site's calendar and page language, with its ISO form in `datetime`. |
 | `url` | A site path or an `https` link; anything else reads as text. |
 | `list` | A list of values. |
 | `status` | A badge from the site's `theme.options.status.values` map. |

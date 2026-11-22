@@ -51,16 +51,13 @@ A malformed value in the preferred key still falls back to the readable one (`la
 
 ## Relative and absolute dates
 
-"2 days ago" needs a date to measure from. The build reads it from data, never from the clock:
+"2 days ago" needs a date to measure from. The build uses Mizzen's effective `asOf` setting, which
+`--as-of` can override. Sites using the earlier theme settings can supply the date in
+`site.data.build.asOf`, `site.data.build.date`, or `site.data.reviewers.asOf`.
 
-- `site.data.build.date` (or `site.data.build.asOf`) from `_data/build.yml`, or
-- `site.data.reviewers.asOf` on `_data/reviewers.yml`.
-
-Without one, the line shows the absolute date ("Updated March 4, 2026") and the build still gives the
-same bytes on every machine. The absolute date always fills the `<time>` element's `datetime`, `title`,
-and `aria-label`, and is written in the page's calendar through `calendarDate` (Gregorian for English,
-Jalali for Persian, Hijri for Arabic), so the accessible value is exact even when the visible text is
-relative.
+Without an as-of date the line shows the absolute date, for example "Updated 4 March 2026". The
+`datetime` attribute keeps the ISO date. The `title` and `aria-label` carry its long form, using
+`dates.calendar` (Gregorian by default) and the page language even when the visible date is relative.
 
 The relative date is formatted for the page's BCP 47 tag, negotiated through `Intl` rather than a fixed
 map: `fa-IR`, `ar-EG`, and `en-CA` keep their region, other languages `Intl` supports (`de`, `sv-SE`)

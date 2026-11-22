@@ -100,7 +100,7 @@ test("a front matter date shows the relative date from the build's as-of date", 
   assert.match(
     out,
     new RegExp(
-      `<p class="${CLASS}"><span class="${DATE_CLASS}" data-date-source="source" data-date-status="valid">Updated <time datetime="2026-03-04" title="March 4, 2026" aria-label="March 4, 2026"><bdi>2 days ago</bdi></time></span></p>`,
+      `<p class="${CLASS}"><span class="${DATE_CLASS}" data-date-source="source" data-date-status="valid">Updated <time datetime="2026-03-04" title="4 March 2026" aria-label="4 March 2026"><bdi>2 days ago</bdi></time></span></p>`,
     ),
   );
 });
@@ -109,7 +109,7 @@ test("without an as-of date the absolute date is shown, with the same tooltip", 
   const out = render(pageWith({ last_modified_at: "2026-03-04" }));
 
   assert.ok(out);
-  assert.match(out, /<bdi>March 4, 2026<\/bdi><\/time>/);
+  assert.match(out, /<bdi>4 March 2026<\/bdi><\/time>/);
   assert.doesNotMatch(out, /days ago/);
 });
 
@@ -147,7 +147,7 @@ test("a review date is labelled as a review, with the same accessible exact valu
   assert.match(
     out,
     new RegExp(
-      `<span class="${DATE_CLASS}" data-date-source="review" data-date-status="valid">Reviewed <time datetime="2026-03-04" title="March 4, 2026" aria-label="March 4, 2026"><bdi>2 days ago</bdi></time></span>`,
+      `<span class="${DATE_CLASS}" data-date-source="review" data-date-status="valid">Reviewed <time datetime="2026-03-04" title="4 March 2026" aria-label="4 March 2026"><bdi>2 days ago</bdi></time></span>`,
     ),
   );
 });
@@ -169,7 +169,7 @@ test("a date after the build's as-of date stays absolute, so bad data never read
   const out = render(pageWith({ last_modified_at: "2026-03-08" }), build("2026-03-06"));
 
   assert.ok(out);
-  assert.match(out, /title="March 8, 2026" aria-label="March 8, 2026"><bdi>March 8, 2026<\/bdi><\/time>/);
+  assert.match(out, /title="8 March 2026" aria-label="8 March 2026"><bdi>8 March 2026<\/bdi><\/time>/);
   assert.match(out, /data-date-status="future"/);
   assert.doesNotMatch(out, /in 2 days/);
 
@@ -203,7 +203,7 @@ test("a malformed review date says the review evidence is unusable without claim
   assert.match(out, /data-date-source="source" data-date-status="valid">Updated <time datetime="2026-03-04"/);
   assert.match(out, /data-date-source="review" data-date-status="invalid"/);
   assert.equal([...out.matchAll(/<time /g)].length, 1, "only the readable date is a time element");
-  assert.doesNotMatch(out, /Reviewed|March 4(?!, 2026)/);
+  assert.doesNotMatch(out, /Reviewed|4 March(?! 2026)/);
 });
 
 test("malformed evidence is distinguishable from evidence that was never supplied", () => {
@@ -411,6 +411,14 @@ test("relativeDate is pure: it measures from the as-of date, never the clock", (
   assert.equal(relativeDate("2026-03-04", "nope", "en"), undefined);
 });
 
+test("the configured as-of date takes precedence over legacy build data", () => {
+  const input = props(pageWith({ last_modified_at: "2026-03-04" }), build("2026-03-05"));
+  const config = { ...input.site.config, asOf: "2026-03-06", dates: { calendar: "jalali" as const } };
+  const site = { ...input.site, config };
+  assert.equal(asOfOf(site), "2026-03-06");
+  assert.match(renderToString(lastUpdated({ ...input, site }) as never), /title="13 Esfand 1404"[^>]*><bdi>2 days ago/);
+});
+
 test("the relative date and the calendar are localised for Persian and Arabic", () => {
   const fa = render(pageWith({ last_modified_at: "2026-03-04" }, "fa"), {
     ...build("2026-03-06"),
@@ -419,7 +427,7 @@ test("the relative date and the calendar are localised for Persian and Arabic", 
   assert.ok(fa);
   assert.ok(fa.includes(stringsOf("fa").updated ?? ""));
   assert.match(fa, /پریروز/);
-  assert.match(fa, /۱۴۰۴/);
+  assert.match(fa, /۲۰۲۶/);
   assert.match(fa, /مشارکت‌کنندگان:/);
 
   const ar = render(pageWith({ last_modified_at: "2026-03-04" }, "ar"), {
@@ -429,7 +437,7 @@ test("the relative date and the calendar are localised for Persian and Arabic", 
   assert.ok(ar);
   assert.ok(ar.includes(stringsOf("ar").updated ?? ""));
   assert.match(ar, /أول أمس/);
-  assert.match(ar, /١٤٤٧/);
+  assert.match(ar, /٢٠٢٦/);
   assert.match(ar, /المساهمون:/);
 });
 
@@ -470,7 +478,7 @@ test("a regional page tag localises its line and calendar", () => {
   assert.ok(out.includes(stringsOf("ar").updated ?? ""));
   // Arabic-Indic digits come from ar-EG; the hardcoded `ar` locale writes Latin digits.
   assert.match(out, /><bdi>قبل ٣ أيام<\/bdi><\/time>/);
-  assert.match(out, /aria-label="[^"]*١٤٤٧[^"]*"/);
+  assert.match(out, /aria-label="[^"]*٢٠٢٦[^"]*"/);
 });
 
 test("mixed-direction contributor names are isolated, with localized separators", () => {
@@ -503,7 +511,7 @@ test("identical inputs give identical output, including duplicate and future dat
   assert.ok(future);
   assert.equal(future, render(pageWith({ last_modified_at: "2026-03-08" }), build("2026-03-06")));
   assert.doesNotMatch(future, /in 2 days|<bdi>2 days/);
-  assert.match(future, /<bdi>March 8, 2026<\/bdi>/);
+  assert.match(future, /<bdi>8 March 2026<\/bdi>/);
 });
 
 test("the review label is localised in Persian and Arabic", () => {
@@ -548,21 +556,21 @@ test("displayOf chooses relative, absolute, and neutral text without markup", ()
     text: "2 days ago",
     label: stringsOf("en").updated,
     datetime: "2026-03-04",
-    exact: "March 4, 2026",
+    exact: "4 March 2026",
   });
   assert.deepEqual(displayOf(valid, undefined, "en"), {
     kind: "date",
     source: "source",
     status: "valid",
-    text: "March 4, 2026",
+    text: "4 March 2026",
     label: stringsOf("en").updated,
     datetime: "2026-03-04",
-    exact: "March 4, 2026",
+    exact: "4 March 2026",
   });
 
   // A future date stays absolute, so bad data never reads as impending.
   const future = { date: "2026-03-08", status: "future", source: "source" } as const;
-  assert.equal(displayOf(future, "2026-03-06", "en")?.text, "March 8, 2026");
+  assert.equal(displayOf(future, "2026-03-06", "en")?.text, "8 March 2026");
 
   // Rejected evidence claims nothing: no label, no datetime, no exact value.
   const invalid = { date: undefined, status: "invalid", source: "review" } as const;

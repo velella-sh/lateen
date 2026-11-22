@@ -2,7 +2,8 @@ import { h } from "preact";
 import type { ComponentChildren } from "preact";
 import type { ComponentProps } from "@velella/mizzen/contracts";
 import { t } from "../../i18n/index.ts";
-import { calendarDate, calendarMonth, calendarYear, isoDate, type CalendarMonth } from "../../src/dates.ts";
+import { calendarDate, calendarMonth, calendarParts, calendarYear, configuredCalendar, isoDate, type CalendarMonth, type DateCalendar } from "../../src/dates.ts";
+import { dateDigits } from "../../src/configured-calendar.ts";
 import { formatField, isEmpty } from "../../src/fields.ts";
 import { isRecord, parseJson } from "../../src/guards.ts";
 import { selectRecords } from "../../src/records.ts";
@@ -164,15 +165,15 @@ const monthId = (month: CalendarMonth): string => `dated-list-${month.key.replac
 const yearId = (year: string): string => `dated-list-${year}`;
 
 /** A year's digits in the page's calendar, for grouping; its key. */
-const yearKeyOf = (iso: string, lang: string): string =>
-  (/[\p{Nd}]+/u.exec(calendarYear(iso, lang) ?? "")?.[0]) ?? iso.slice(0, 4);
+const yearKeyOf = (iso: string, lang: string, calendar?: DateCalendar): string =>
+  (/[\p{Nd}]+/u.exec(calendarYear(iso, lang, calendar) ?? "")?.[0]) ?? iso.slice(0, 4);
 
 /**
  * The first day of each month in a range of `count` months from `start`, oldest first. Walking a
  * day at a time keeps the months in the page's own calendar, whose months have other lengths.
  */
-function monthRange(start: string, count: number, lang: string): { iso: string; month: CalendarMonth }[] {
-  const first = calendarDate(start, lang);
+function monthRange(start: string, count: number, lang: string, calendar?: DateCalendar): { iso: string; month: CalendarMonth }[] {
+  const first = calendarDate(start, lang, calendar);
   if (first === undefined) return [];
 
   const months: { iso: string; month: CalendarMonth }[] = [];
@@ -180,7 +181,7 @@ function monthRange(start: string, count: number, lang: string): { iso: string; 
   let seen = "";
   for (let step = 0; step <= count * 32 && months.length < count; step++) {
     const iso = isoDate(day);
-    const month = iso === undefined ? undefined : calendarMonth(iso, lang);
+    const month = iso === undefined ? undefined : calendarMonth(iso, lang, calendar);
     if (iso !== undefined && month !== undefined && month.key !== seen) {
       seen = month.key;
       months.push({ iso, month });
@@ -193,7 +194,7 @@ function monthRange(start: string, count: number, lang: string): { iso: string; 
 /** One month's rows: a day, its label, and an optional status. */
 function items(
   entries: readonly Entry[],
-  dayFormat: Intl.DateTimeFormat,
+  dayText: (iso: string) => string,
   lang: string,
   config: Parameters<typeof formatField>[3],
 ): ComponentChildren {
@@ -204,7 +205,7 @@ function items(
       h(
         "li",
         { class: "dated-list-item" },
-        h("time", { class: "dated-list-day", datetime: entry.iso }, dayFormat.format(utcOf(entry.iso))),
+        h("time", { class: "dated-list-day", datetime: entry.iso }, dayText(entry.iso)),
         labelNode(entry.row, lang),
         isEmpty(entry.row.status) ? null : (formatField(entry.row.status, "status", lang, config) as never),
       ),
@@ -272,6 +273,7 @@ export function datedListModel(
   { page, site }: Pick<ComponentProps<Readonly<Record<string, unknown>>>, "page" | "site">,
 ): DatedListViewModel {
   const lang = page?.lang ?? "en";
+  const calendar = configuredCalendar(site?.config);
   const dateField = typeof input.date === "string" && input.date.trim() !== "" ? input.date.trim() : "date";
   const statusField = typeof input.status === "string" ? input.status.trim() : "";
   const from = typeof input.from === "string" ? input.from.trim() : "";
@@ -302,14 +304,14 @@ export function datedListModel(
 
   const start = typeof input.start === "string" ? input.start.trim() : "";
   const monthCount = typeof input.months === "number" ? input.months : Number(textOf(input.months));
-  const range = start !== "" && Number.isInteger(monthCount) && monthCount > 0 ? monthRange(start, monthCount, lang) : [];
+  const range = start !== "" && Number.isInteger(monthCount) && monthCount > 0 ? monthRange(start, monthCount, lang, calendar) : [];
   const inRange = range.length === 0 ? undefined : new Set(range.map(({ month }) => month.key));
 
   let dated: Entry[] = [];
   const invalid: InvalidRow[] = [];
   for (const row of rows) {
-    const date = typeof row.date === "string" ? calendarDate(row.date, lang) : undefined;
-    const month = date === undefined ? undefined : calendarMonth(date.datetime, lang);
+    const date = typeof row.date === "string" ? calendarDate(row.date, lang, calendar) : undefined;
+    const month = date === undefined ? undefined : calendarMonth(date.datetime, lang, calendar);
     if (date === undefined || month === undefined) {
       const written =
         typeof row.date === "string" ? row.date.trim() : typeof row.date === "number" ? String(row.date) : "";
@@ -338,7 +340,7 @@ export function datedListModel(
       months.push({
         key: month.key,
         id: monthId(month),
-        year: yearKeyOf(iso, lang),
+        year: yearKeyOf(iso, lang, calendar),
         iso,
         text: month.text,
         entries: byKey.get(month.key) ?? [],
@@ -353,7 +355,7 @@ export function datedListModel(
         months.push({
           key: entry.month.key,
           id: monthId(entry.month),
-          year: yearKeyOf(entry.iso, lang),
+          year: yearKeyOf(entry.iso, lang, calendar),
           iso: entry.iso,
           text: entry.month.text,
           entries: [entry],
@@ -373,7 +375,7 @@ export function datedListModel(
       const last = years.at(-1);
       if (last?.id === yearId(month.year)) last.months.push(month);
       else {
-        years.push({ id: yearId(month.year), text: calendarYear(month.iso, lang) ?? month.year, months: [month] });
+        years.push({ id: yearId(month.year), text: calendarYear(month.iso, lang, calendar) ?? month.year, months: [month] });
       }
     }
   }
@@ -418,6 +420,12 @@ export default function datedList({ props, page, site }: ComponentProps<Readonly
 
   const { lang, months, years, toc, level, monthLevel, invalid, outside, feedUrl, calendarUrl, config } = model;
   const dayFormat = new Intl.DateTimeFormat(lang, { day: "numeric", timeZone: "UTC" });
+  const calendar = configuredCalendar(config);
+  const dayText = (iso: string): string => {
+    if (calendar === undefined) return dayFormat.format(utcOf(iso));
+    const day = calendarParts(iso, lang, calendar)?.day;
+    return day === undefined ? iso : dateDigits(day, lang);
+  };
 
   const monthsOf = (groups: readonly MonthGroup[]): ComponentChildren =>
     groups.map((month) =>
@@ -427,7 +435,7 @@ export default function datedList({ props, page, site }: ComponentProps<Readonly
         h(`h${monthLevel}`, toc ? { id: month.id } : null, month.text),
         month.entries.length === 0
           ? h("p", { class: `dated-list-note ${EMPTY_CLASS}` }, t(lang, "dated_list_nothing"))
-          : items(month.entries, dayFormat, lang, config),
+          : items(month.entries, dayText, lang, config),
       ),
     );
 

@@ -4,6 +4,15 @@ import { calendarDate, calendarDay, calendarMonth, calendarParts, calendarYear, 
 
 const DAY = "2026-11-09";
 
+test("configured dates honor UTC instants and keep the written precision of Gregorian dates", () => {
+  assert.deepEqual(calendarDate("2026-03-20T23:30:00-05:00", "fa-IR", "jalali"), {
+    datetime: "2026-03-21",
+    text: "۱ فروردین ۱۴۰۵",
+  });
+  assert.deepEqual(calendarDate("2026-11", "ar", "gregorian"), { datetime: "2026-11", text: "نوفمبر ٢٠٢٦" });
+  assert.equal(calendarDate("2026-11", "ar", "jalali"), undefined);
+});
+
 test("a Persian page shows the Jalali calendar in Persian numerals", () => {
   assert.deepEqual(calendarDate(DAY, "fa"), { datetime: DAY, text: "۱۸ آبان ۱۴۰۵" });
 });
