@@ -46,7 +46,7 @@ function article(props: LayoutProps, feed: string | undefined): ComponentChildre
   const date = textOf(front.date);
   const author = textOf(front.author);
   const description = textOf(front.description);
-  const body = { __html: highlightFences(articleHtml(page.html), codeBackgrounds(props.site.config.theme.options)) };
+  const body = { __html: highlightFences(articleHtml(page.html, page.lang), codeBackgrounds(props.site.config.theme.options)) };
   return h(
     "article",
     { class: "doc post", "data-pagefind-body": true },

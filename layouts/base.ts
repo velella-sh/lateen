@@ -14,6 +14,7 @@ import type { SourceModeVisibility } from "../chrome/source-mode/state.ts";
 import skipLinks, { MAIN_ID, NAVIGATION_ID } from "../chrome/skip-links/index.ts";
 import { THEME_KEY } from "../chrome/theme-toggle/key.ts";
 import { brandCss, problemComment, resolveBrand } from "../src/brand.ts";
+import { mathHtml } from "../src/math-html.ts";
 
 export { MAIN_ID, NAVIGATION_ID };
 
@@ -187,7 +188,7 @@ export default function base(props: BaseProps) {
           "main",
           { id: MAIN_ID, tabIndex: -1 },
           props.showSourceMode === false ? null : (sourceMode(props) as ComponentChildren),
-          main ?? h("div", { dangerouslySetInnerHTML: { __html: page.html } }),
+          main ?? h("div", { dangerouslySetInnerHTML: { __html: mathHtml(page.html, page.lang) } }),
         ),
         aside == null ? null : h("div", { class: "aside" }, aside),
       ),

@@ -16,6 +16,7 @@ import doc from "./doc.ts";
 import { articleShell } from "./shared/index.ts";
 import { staleSlot } from "../src/stale.ts";
 import { baseOf } from "../src/url.ts";
+import { mathHtml } from "../src/math-html.ts";
 import { fieldsOf } from "../components/record-history/index.ts";
 
 /** Class on the embed code the record offers; `record.css` places it. */
@@ -76,7 +77,7 @@ function article(props: LayoutProps): ComponentChildren {
     }) as ComponentChildren,
     factsPanel(props),
     lastUpdated(props) as ComponentChildren,
-    h("div", { class: "record-body", dangerouslySetInnerHTML: { __html: props.page.html } }),
+    h("div", { class: "record-body", dangerouslySetInnerHTML: { __html: mathHtml(props.page.html, props.page.lang) } }),
     recordHistory({
       props: props.record?.changes === undefined ? {} : { changes: props.record.changes },
       page: props.page,

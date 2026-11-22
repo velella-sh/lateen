@@ -12,6 +12,32 @@
   }
 }
 
+@media screen {
+  math {
+    font-family: "STIX Two Math", "Cambria Math", "Latin Modern Math", math;
+    font-size: 1em;
+    unicode-bidi: isolate;
+  }
+
+  math[display="inline"] {
+    vertical-align: baseline;
+  }
+
+  .math-scroll {
+    max-inline-size: 100%;
+    margin-block: var(--space-4);
+    overflow-x: auto;
+    overscroll-behavior-inline: contain;
+    outline-offset: -2px;
+  }
+
+  /* Center small equations and keep both ends of wide equations reachable. */
+  .math-scroll > math {
+    min-inline-size: 100%;
+    inline-size: max-content;
+  }
+}
+
 @layer components {
   .doc-body table {
     @apply w-full text-sm;

@@ -3,6 +3,7 @@ import { isRecord } from "../src/guards.ts";
 import type { Layout, LayoutProps, LinkTag, MetaTag, Page, SiteConfig } from "@velella/mizzen/contracts";
 import { t } from "../i18n/index.ts";
 import { factsPanel, recordHeader } from "../src/record-parts.ts";
+import { mathHtml } from "../src/math-html.ts";
 
 /** Class on the page body wrapper; `embedded.css` sizes it. */
 export const EMBEDDED_CLASS = "embedded";
@@ -126,12 +127,12 @@ const embedded: Layout = (props: LayoutProps) => {
         "div",
         { class: EMBEDDED_CLASS, "data-embedded-height": String(settings.height), style: `--embedded-height:${settings.height}px` },
         record === null
-          ? h("main", { class: CONTENT_CLASS, dangerouslySetInnerHTML: { __html: page.html } })
+          ? h("main", { class: CONTENT_CLASS, dangerouslySetInnerHTML: { __html: mathHtml(page.html, page.lang) } })
           : h(
               "main",
               { class: CONTENT_CLASS },
               record,
-              h("div", { dangerouslySetInnerHTML: { __html: page.html } }),
+              h("div", { dangerouslySetInnerHTML: { __html: mathHtml(page.html, page.lang) } }),
             ),
         h(
           "p",

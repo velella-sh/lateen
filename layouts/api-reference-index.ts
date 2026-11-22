@@ -195,7 +195,7 @@ function fallback(props: LayoutProps): ComponentChildren {
     { class: "doc api-reference-index", "data-pagefind-body": true },
     breadcrumb(props) as ComponentChildren,
     h("h1", null, props.page.title),
-    h("div", { class: "doc-body", dangerouslySetInnerHTML: { __html: articleHtml(props.page.html) } }),
+    h("div", { class: "doc-body", dangerouslySetInnerHTML: { __html: articleHtml(props.page.html, props.page.lang) } }),
   );
 }
 
