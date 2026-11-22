@@ -3,7 +3,6 @@ import type { ComponentChildren } from "preact";
 import type { Layout, LayoutProps } from "@velella/mizzen/contracts";
 import { staleSlot } from "../src/stale.ts";
 import blockActions from "../chrome/block-actions/index.ts";
-import breadcrumb from "../chrome/breadcrumb/index.ts";
 import copyMarkdown from "../chrome/copy-markdown/index.ts";
 import editPage from "../chrome/edit-page/index.ts";
 import feedback from "../chrome/feedback/index.ts";
@@ -19,7 +18,7 @@ import relatedGuides from "../components/related-guides/index.ts";
 import versionNotice from "../components/version-notice/index.ts";
 import { codeBackgrounds } from "../src/brand.ts";
 import { articleHtml } from "../src/article-html.ts";
-import { articleShell, statusProps, titleFromBody } from "./shared/index.ts";
+import { articleHeader, articleShell, statusProps } from "./shared/index.ts";
 
 /**
  * The guide page: breadcrumb, status banner, title, the summary bar built from the `guide` front
@@ -33,14 +32,19 @@ function article(props: LayoutProps): ComponentChildren {
   return h(
     "article",
     { class: "doc guide", "data-pagefind-body": true },
-    breadcrumb(props) as ComponentChildren,
-    pageStatus({ props: statusProps(page), page, site: props.site, html: "" }) as ComponentChildren,
-    versionNotice({ props: {}, page, site: props.site, html: "" }) as ComponentChildren,
-    titleFromBody(props) ? null : h("h1", null, page.title),
+    articleHeader(props, {
+      notices: [
+        pageStatus({ props: statusProps(page), page, site: props.site, html: "" }) as ComponentChildren,
+        versionNotice({ props: {}, page, site: props.site, html: "" }) as ComponentChildren,
+      ],
+      description: null,
+      meta: [
+        lastUpdated(props) as ComponentChildren,
+        readingTime({ props: {}, page, site: props.site, html: "" }) as ComponentChildren,
+      ],
+    }),
     staleSlot(props),
     guideSummary({ props: {}, page, site: props.site, html: "" }) as ComponentChildren,
-    lastUpdated(props) as ComponentChildren,
-    readingTime({ props: {}, page, site: props.site, html: "" }) as ComponentChildren,
     tocFold(props) as ComponentChildren,
     guidePrerequisites({ props: {}, page, site: props.site, html: "" }) as ComponentChildren,
     h("div", { class: "doc-body guide-body", dangerouslySetInnerHTML: { __html: highlightFences(articleHtml(page.html), backdrops, page.lang) } }),
