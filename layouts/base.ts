@@ -15,6 +15,7 @@ import skipLinks, { MAIN_ID, NAVIGATION_ID } from "../chrome/skip-links/index.ts
 import { THEME_KEY } from "../chrome/theme-toggle/key.ts";
 import { brandCss, problemComment, resolveBrand } from "../src/brand.ts";
 import { mathHtml } from "../src/math-html.ts";
+import { deferredScript } from "./shared/head.ts";
 
 export { MAIN_ID, NAVIGATION_ID };
 
@@ -142,6 +143,7 @@ function headNodes(head: Head, site: Site, page: Page, hints: LayoutProps["hints
     ...links.map(linkTag),
     ...iconLinks(site.config).map(linkTag),
     ...head.jsonLd.map(jsonLd),
+    ...(head.scripts ?? []).map(deferredScript),
     brandStyle(site.config, hints),
   ];
 }
