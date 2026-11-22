@@ -255,7 +255,7 @@ function showpieceContent(props: LayoutProps): ComponentChildren {
   const seed = stringAt(options, "motif") ?? look?.motif;
   blocks.push(
     h(
-      "div",
+      "header",
       { class: "home-showpiece-hero home-hero" },
       call(backdrop, { ...shared, props: defined({ variant: stringAt(options, "backdrop") ?? look?.backdrop, intensity: look?.intensity }) }),
       seed === undefined || seed === "" ? null : h("div", { class: "home-showpiece-motif" }, call(motif, { ...shared, props: { seed } })),

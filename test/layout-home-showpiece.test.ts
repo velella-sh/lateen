@@ -141,6 +141,7 @@ test("a partial showpiece page leaves out every section without data", () => {
 
 test("a title-only showpiece page is a hero then the body", () => {
   const page = out({ home: { style: "showpiece" } }, "<p>Body.</p>");
+  assert.match(page, /<header class="home-showpiece-hero home-hero">[\s\S]*<h1 class="hero-title">Home<\/h1>[\s\S]*<\/header><div><p>Body.<\/p>/);
   assert.ok(order(page, ['class="hero ', "<p>Body.</p>"]).every((n, i, a) => n >= 0 && (i === 0 || n > a[i - 1]!)));
   assert.doesNotMatch(page, /frame|stat-strip|feature-grid|cta-band/);
 });
