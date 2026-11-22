@@ -6,7 +6,7 @@ import pageFooter from "../chrome/page-footer/index.ts";
 import { highlightFences } from "../components/code/index.ts";
 import { t } from "../i18n/index.ts";
 import { codeBackgrounds } from "../src/brand.ts";
-import { calendarDate } from "../src/dates.ts";
+import { calendarDate, configuredCalendar } from "../src/dates.ts";
 import { textOf } from "../src/guards.ts";
 import { blogFeedHref, blogSubscribe, withBlogFeed } from "./blog/feed.ts";
 import { archiveUrlOf, authorNameOf, authorPageOf } from "./blog/index.ts";
@@ -16,7 +16,7 @@ import { articleShell, titleFromBody } from "./shared/index.ts";
 /** The date line: a `<time>` in the page's calendar when the date is real, else the written text. */
 function dateOf(props: LayoutProps, value: string | undefined): ComponentChildren {
   if (value === undefined) return null;
-  const date = calendarDate(value, props.page.lang);
+  const date = calendarDate(value, props.page.lang, configuredCalendar(props.site.config));
   return date === undefined ? h("span", null, value) : h("time", { datetime: date.datetime }, date.text);
 }
 

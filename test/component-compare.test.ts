@@ -114,7 +114,7 @@ test("each field is a row header, in the fields order", () => {
 test("every cell is formatted with its field kind", () => {
   const out = render({ from: "books", ids: "a,b", fields });
   assert.match(out, new RegExp(`<td class="${CELL_CLASS}" data-kind="number" data-compare-column="0"><span class="${RECORD_CLASS}">Alpha</span>120</td>`));
-  assert.match(out, new RegExp(`<td class="${CELL_CLASS}" data-kind="date" data-compare-column="0"><span class="${RECORD_CLASS}">Alpha</span><time datetime="2026-11-09">November 9, 2026</time></td>`));
+  assert.match(out, new RegExp(`<td class="${CELL_CLASS}" data-kind="date" data-compare-column="0"><span class="${RECORD_CLASS}">Alpha</span><time datetime="2026-11-09">9 November 2026</time></td>`));
   assert.match(out, new RegExp(`<td class="${CELL_CLASS}" data-kind="boolean" data-compare-column="0"><span class="${RECORD_CLASS}">Alpha</span>No</td>`));
   assert.match(out, new RegExp(`<td class="${CELL_CLASS}" data-kind="boolean" data-compare-column="1"><span class="${RECORD_CLASS}">Beta</span>Yes</td>`));
   assert.match(out, new RegExp(`<td class="${CELL_CLASS}" data-kind="date" data-compare-column="1"><span class="${RECORD_CLASS}">Beta</span>2026-02-30</td>`));

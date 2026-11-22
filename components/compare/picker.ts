@@ -10,7 +10,7 @@ import {
   type IndexLoader,
   type IndexRow,
 } from "../data-explorer/index-loader.ts";
-import { calendarDate } from "../../src/dates.ts";
+import { calendarDate, type DateCalendar } from "../../src/dates.ts";
 import { parseJson } from "../../src/guards.ts";
 import { withParams } from "../../src/url.ts";
 import type { CompareDocument, CompareElement, CompareEnv } from "./client.ts";
@@ -103,6 +103,7 @@ interface CompareState {
   readonly fields: readonly CompareField[];
   readonly columns: readonly ColumnState[];
   readonly lang: string;
+  readonly calendar: DateCalendar | undefined;
   readonly pickLabel: string;
   readonly loading: string;
   readonly failed: string;
@@ -138,13 +139,13 @@ export function withRecords(search: string, ids: readonly string[]): string {
 function cellText(
   value: unknown,
   kind: string,
-  state: Pick<CompareState, "lang" | "empty" | "yes" | "no">,
+  state: Pick<CompareState, "lang" | "calendar" | "empty" | "yes" | "no">,
 ): string {
   if (value === null || value === undefined || value === "" || (Array.isArray(value) && value.length === 0)) {
     return state.empty;
   }
   if (kind === "date" && typeof value === "string") {
-    return calendarDate(value, state.lang)?.text ?? value;
+    return calendarDate(value, state.lang, state.calendar)?.text ?? value;
   }
   if (kind === "number") {
     const number = typeof value === "number" ? value : typeof value === "string" && value.trim() !== "" ? Number(value) : NaN;
@@ -460,6 +461,7 @@ function stateOf(doc: PickDocument, root: CompareElement, env: CompareEnv): Comp
     };
   });
 
+  const calendar = attrOf(root, "data-calendar");
   return {
     root,
     doc,
@@ -468,6 +470,7 @@ function stateOf(doc: PickDocument, root: CompareElement, env: CompareEnv): Comp
     fields,
     columns,
     lang: attrOf(root, LANG_ATTR) || "en",
+    calendar: calendar === "jalali" || calendar === "gregorian" ? calendar : undefined,
     pickLabel: attrOf(root, PICK_LABEL_ATTR),
     loading: attrOf(root, LOADING_ATTR),
     failed: attrOf(root, FAILED_ATTR),

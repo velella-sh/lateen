@@ -1,9 +1,10 @@
+import { calendarMonthName, configuredDate, configuredParts, dateDigits, type DateCalendar } from "./configured-calendar.ts";
+
+export { configuredCalendar, type DateCalendar } from "./configured-calendar.ts";
+
 /**
- * Calendar dates for the theme's "last updated" line. Persian pages show the Jalali (Persian) calendar,
- * Arabic pages the Hijri (Islamic) calendar, and English pages the Gregorian calendar. A BCP 47
- * `-u-ca-` or `-u-nu-` preference that the runtime supports overrides those defaults; other locales
- * keep their own month names on the Gregorian calendar. Formatting uses `Intl.DateTimeFormat`, so no
- * dependency is needed.
+ * Site rendering passes the configured calendar and uses the same long date as Mizzen.
+ * Callers without site configuration can format in the locale's traditional calendar.
  */
 
 /**
@@ -77,10 +78,12 @@ function utcOf(iso: string): ParsedDate | undefined {
   if (match === null) return undefined;
 
   const year = Number(match[1]);
+  if (year < 1) return undefined;
   const month = match[2] === undefined ? 1 : Number(match[2]);
   const day = match[3] === undefined ? 1 : Number(match[3]);
-  const utc = new Date(Date.UTC(year, month - 1, day));
-  // Date.UTC rolls over invalid months and days (2026-02-30 becomes 2026-03-02), so the parts must come back unchanged.
+  const utc = new Date(0);
+  utc.setUTCFullYear(year, month - 1, day);
+  // Setting the UTC date rolls over invalid months and days, so check that each part survived.
   if (utc.getUTCFullYear() !== year || utc.getUTCMonth() !== month - 1 || utc.getUTCDate() !== day) return undefined;
 
   return {
@@ -116,13 +119,14 @@ function formatter(style: DateStyle, options: Intl.DateTimeFormatOptions): Intl.
 }
 
 /**
- * Formats an ISO date (`YYYY`, `YYYY-MM`, or `YYYY-MM-DD`, or a date-time whose date part is used) for a
- * page in `lang`, keeping the precision the author wrote. Returns `undefined` when the value is not a
- * real calendar date, so the caller can show no date.
+ * Formats an ISO date or instant in `lang`. For a configured calendar, an instant is displayed as
+ * its UTC day and Jalali dates require day precision, as in Mizzen.
  */
-export function calendarDate(iso: string, lang: string): CalendarDate | undefined {
+export function calendarDate(iso: string, lang: string, calendar?: DateCalendar): CalendarDate | undefined {
   const date = utcOf(iso);
   if (date === undefined) return undefined;
+
+  if (calendar !== undefined) return configuredDate(iso, date, lang, calendar);
 
   const text = formatter(dateStyle(lang), OPTIONS[date.precision]).format(date.utc);
   return { datetime: date.iso, text };
@@ -160,9 +164,10 @@ export interface CalendarParts {
  * in Latin digits so callers can compare and step through calendar boundaries. Returns `undefined`
  * when the value is not a complete calendar date, so a missing day is never filled in.
  */
-export function calendarParts(iso: string, lang: string): CalendarParts | undefined {
+export function calendarParts(iso: string, lang: string, calendar?: DateCalendar): CalendarParts | undefined {
   const date = utcOf(iso);
   if (date === undefined || date.precision !== "day") return undefined;
+  if (calendar !== undefined) return configuredParts(date.utc, calendar);
 
   const parts = formatter(dateStyle(lang), {
     year: "numeric",
@@ -187,9 +192,14 @@ export interface CalendarMonth {
  * so a list can group by the month the page reads. Returns `undefined` when the value is not a real
  * calendar date or names only a year, so a missing month is never filled in.
  */
-export function calendarMonth(iso: string, lang: string): CalendarMonth | undefined {
+export function calendarMonth(iso: string, lang: string, calendar?: DateCalendar): CalendarMonth | undefined {
   const date = utcOf(iso);
   if (date === undefined || date.precision === "year") return undefined;
+  if (calendar !== undefined) {
+    if (calendar === "jalali" && date.precision !== "day") return undefined;
+    const { year, month } = configuredParts(date.utc, calendar);
+    return { key: `${month}/${year}`, text: `${calendarMonthName(month, lang, calendar)} ${dateDigits(year, lang)}` };
+  }
 
   const style = dateStyle(lang);
   return {
@@ -199,8 +209,9 @@ export function calendarMonth(iso: string, lang: string): CalendarMonth | undefi
 }
 
 /** The year an ISO date falls in, in the calendar and digits `calendarMonth` groups by. */
-export function calendarYear(iso: string, lang: string): string | undefined {
+export function calendarYear(iso: string, lang: string, calendar?: DateCalendar): string | undefined {
   const date = utcOf(iso);
   if (date === undefined) return undefined;
+  if (calendar !== undefined) return dateDigits(configuredParts(date.utc, calendar).year, lang);
   return formatter(dateStyle(lang), { year: "numeric" }).format(date.utc);
 }

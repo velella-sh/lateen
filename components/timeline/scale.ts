@@ -1,4 +1,4 @@
-import { calendarDay, calendarParts } from "../../src/dates.ts";
+import { calendarDay, calendarParts, type DateCalendar } from "../../src/dates.ts";
 import { percentOf } from "../chart-data/scale.ts";
 
 /** What the axis counts in: whole years, or quarters when the range is under two years. */
@@ -83,20 +83,20 @@ function monthsBetween(from: number, to: number): number {
 const UNIT_SPAN: Record<ScaleUnit, number> = { year: 400, quarter: 100 };
 
 /** A day as one number, so two days compare in the page calendar's order. */
-function calendarKey(day: number, lang: string): number {
-  const parts = calendarParts(iso(day), lang);
+function calendarKey(day: number, lang: string, calendar?: DateCalendar): number {
+  const parts = calendarParts(iso(day), lang, calendar);
   // `iso` always writes a real date, so the parts are always there.
   return parts === undefined ? Number.NaN : parts.year * 10_000 + parts.month * 100 + parts.day;
 }
 
 /** The first day in `[from, to]` whose calendar date is at or past `target`, or undefined if none is. */
-function firstDay(from: number, to: number, target: number, lang: string): number | undefined {
-  if (calendarKey(to, lang) < target) return undefined;
+function firstDay(from: number, to: number, target: number, lang: string, calendar?: DateCalendar): number | undefined {
+  if (calendarKey(to, lang, calendar) < target) return undefined;
   let low = from;
   let high = to;
   while (low < high) {
     const middle = low + Math.floor((high - low) / DAY / 2) * DAY;
-    if (calendarKey(middle, lang) >= target) high = middle;
+    if (calendarKey(middle, lang, calendar) >= target) high = middle;
     else low = middle + DAY;
   }
   return low;
@@ -130,8 +130,9 @@ function ticksOf(
   unit: ScaleUnit,
   lang: string,
   percent: (day: number) => number,
+  calendar?: DateCalendar,
 ): ScaleTick[] {
-  const parts = calendarParts(iso(from), lang);
+  const parts = calendarParts(iso(from), lang, calendar);
   if (parts === undefined) return [];
 
   const ticks: ScaleTick[] = [];
@@ -141,7 +142,7 @@ function ticksOf(
   for (;;) {
     const next = calendarNext(start, unit);
     const target = next.year * 10_000 + next.month * 100 + 1;
-    const day = firstDay(last + DAY, last + UNIT_SPAN[unit] * DAY, target, lang);
+    const day = firstDay(last + DAY, last + UNIT_SPAN[unit] * DAY, target, lang, calendar);
     if (day === undefined || day >= to) return ticks;
     ticks.push({ date: iso(day), position: percent(day) });
     start = next;
@@ -157,7 +158,7 @@ function ticksOf(
  * axis; a row with no real date is left out of the bounds rather than read as today. Undefined when
  * there is no date at all.
  */
-export function scale(rows: readonly ScaleRow[], bounds: ScaleBounds = {}, lang = "en"): Scale | undefined {
+export function scale(rows: readonly ScaleRow[], bounds: ScaleBounds = {}, lang = "en", calendar?: DateCalendar): Scale | undefined {
   const ranges: readonly ({ readonly from: number; readonly to: number } | undefined)[] = rows.map((row) => {
     const start = dayOf(row.start);
     const end = dayOf(row.end);
@@ -185,7 +186,7 @@ export function scale(rows: readonly ScaleRow[], bounds: ScaleBounds = {}, lang 
   const to = unitNext(last, unit);
   const percent = (day: number) => percentOf(day, from, to);
 
-  const ticks = ticksOf(from, to, unit, lang, percent);
+  const ticks = ticksOf(from, to, unit, lang, percent, calendar);
 
   return {
     from: iso(from),

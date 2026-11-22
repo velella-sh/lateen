@@ -2,7 +2,7 @@ import { h } from "preact";
 import type { ComponentChildren } from "preact";
 import type { ComponentProps, DataRecord, Page, Site } from "@velella/mizzen/contracts";
 import { t } from "../../i18n/index.ts";
-import { calendarDate } from "../../src/dates.ts";
+import { calendarDate, configuredCalendar } from "../../src/dates.ts";
 import { fieldValueOf } from "../../src/fields.ts";
 import { textOf as trimmed } from "../../src/guards.ts";
 import { isPublicField } from "../../src/public-fields.ts";
@@ -82,7 +82,7 @@ function recordDate(record: DataRecord | undefined, collection: string, site: Si
     if (!isPublicField(site, collection, field)) continue;
     const value = record.normalizedDates?.[field] ?? fieldValueOf(record, field);
     const written = value instanceof Date ? value.toISOString().slice(0, 10) : typeof value === "string" ? value.trim() : "";
-    if (written !== "" && calendarDate(written, lang) !== undefined) return written;
+    if (written !== "" && calendarDate(written, lang, configuredCalendar(site?.config)) !== undefined) return written;
   }
   return "";
 }
@@ -99,7 +99,7 @@ export default function citation({ props, page, site }: ComponentProps<Readonly<
   const url = urlOf(textOf(input.url), site, page);
   const source = textOf(input.source) || textOf(page?.record?.id);
   const written = textOf(input.date) || recordDate(recordOf(site, page), textOf(page?.record?.collection), site, lang);
-  const date = written === "" ? undefined : calendarDate(written, lang);
+  const date = written === "" ? undefined : calendarDate(written, lang, configuredCalendar(site?.config));
 
   const parts: ComponentChildren[] = [];
   if (title !== "") parts.push(h("span", { class: TITLE_CLASS }, title));

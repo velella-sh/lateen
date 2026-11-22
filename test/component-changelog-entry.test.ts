@@ -120,7 +120,7 @@ test("an unversioned entry has no version word and no data-version", () => {
 
 test("the date is machine readable and shows the page's calendar", () => {
   const out = entry({});
-  assert.match(out, new RegExp(`<time class="${DATE_CLASS}" datetime="2026-11-09">November 9, 2026</time>`));
+  assert.match(out, new RegExp(`<time class="${DATE_CLASS}" datetime="2026-11-09">9 November 2026</time>`));
 });
 
 test("a missing or invalid date falls back to clear text and never a time element", () => {
@@ -351,16 +351,16 @@ test("a duplicated entry on a right-to-left page keeps its date and category evi
   assert.equal(sectionId(first), "v1-2-0");
   assert.equal(sectionId(second), "v1-2-0-2");
   for (const out of [first, second]) {
-    assert.match(out, /datetime="2026-11-09">۱۸ آبان ۱۴۰۵<\/time>/);
+    assert.match(out, /datetime="2026-11-09">۹ نوامبر ۲۰۲۶<\/time>/);
     assert.equal(out.match(new RegExp(`<li class="${CATEGORY_CLASS} `, "g"))?.length, 2);
     assert.match(out, />افزوده‌شده<\/span>/);
     assert.match(out, />1\.2\.0<\/span>/);
   }
 });
 
-test("a Persian page shows the Jalali date and Persian category labels", () => {
+test("a Persian page shows the Gregorian date by default and Persian category labels", () => {
   const out = render({ version: "1.2.0", date: "2026-11-09", categories: "added" }, "<p>متن.</p>", "fa");
-  assert.match(out, /datetime="2026-11-09">۱۸ آبان ۱۴۰۵<\/time>/);
+  assert.match(out, /datetime="2026-11-09">۹ نوامبر ۲۰۲۶<\/time>/);
   assert.match(out, />افزوده‌شده<\/span>/);
 });
 

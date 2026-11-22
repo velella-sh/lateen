@@ -122,14 +122,13 @@ test("an unknown collection shows a visible note", () => {
 
 test("a Persian page groups and numbers dates in Persian", () => {
   const out = render({ from: "events" }, "fa");
-  assert.match(out, /<h2>۱۴۰۵ آبان<\/h2>/);
-  assert.match(out, /<time class="dated-list-day" datetime="2026-11-09">۱۸<\/time>/);
+  assert.match(out, /<h2>نوامبر ۲۰۲۶<\/h2>/);
+  assert.match(out, /<time class="dated-list-day" datetime="2026-11-09">۹<\/time>/);
 });
 
-test("an Arabic page groups by Hijri months, not Gregorian ones", () => {
+test("an Arabic page groups by Gregorian month and uses Arabic-Indic day digits", () => {
   const out = render({ from: "events" }, "ar");
-  assert.doesNotMatch(out, /November 2026|نوفمبر/);
-  assert.match(out, /<h2>[^<]*جمادى الأولى[^<]*<\/h2>/);
-  assert.match(out, /<time class="dated-list-day" datetime="2026-11-09">9<\/time>/);
+  assert.match(out, /<h2>[^<]*نوفمبر[^<]*<\/h2>/);
+  assert.match(out, /<time class="dated-list-day" datetime="2026-11-09">٩<\/time>/);
 });
 

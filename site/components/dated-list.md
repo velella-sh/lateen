@@ -1,11 +1,11 @@
 ---
 title: Dated list
-description: Records grouped by month in the page language's calendar, with a range, a table of contents, and feed and calendar links.
+description: Records grouped by month in the site's calendar, with a range, a table of contents, and feed and calendar links.
 layout: doc
 permalink: /components/dated-list/
 ---
 
-A dated list groups records by month, using the page language's calendar. Each group has a heading,
+A dated list groups records by month, using the site's calendar. Each group has a heading,
 each record gets a date, and records without a usable date are kept in a trailing section instead of
 disappearing. The list can also show a fixed range of months, a table of contents, and links to a feed
 or calendar of the same records.

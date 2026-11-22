@@ -2,7 +2,7 @@ import { h } from "preact";
 import type { ComponentChildren } from "preact";
 import type { ComponentProps, SiteConfig } from "@velella/mizzen/contracts";
 import { t } from "../../i18n/index.ts";
-import { calendarDate } from "../../src/dates.ts";
+import { calendarDate, configuredCalendar } from "../../src/dates.ts";
 import { formatField, isEmpty } from "../../src/fields.ts";
 import { isRecord, parseJson } from "../../src/guards.ts";
 import { selectRecords } from "../../src/records.ts";
@@ -212,7 +212,7 @@ function cell(
     return h("span", { class: ONGOING_CLASS }, t(lang, "timeline_ongoing"));
   }
   if (kind === "date") {
-    const date = typeof value === "string" ? calendarDate(value, lang) : undefined;
+    const date = typeof value === "string" ? calendarDate(value, lang, configuredCalendar(config)) : undefined;
     if (date === undefined) {
       return h(
         "span",
@@ -266,8 +266,9 @@ export default function timeline({ props, page, site }: ComponentProps<Readonly<
   }
 
   const config = site?.config;
+  const calendar = configuredCalendar(config);
   const phaseRows = rows.map((row) => phasesOf(row, fields.phases));
-  const scaled = scale(rows.map((row, index) => rangeOf(row, phaseRows[index] ?? [], fields) ?? {}), {}, lang);
+  const scaled = scale(rows.map((row, index) => rangeOf(row, phaseRows[index] ?? [], fields) ?? {}), {}, lang, calendar);
   const axis: Axis | undefined =
     scaled === undefined
       ? undefined
@@ -305,7 +306,7 @@ export default function timeline({ props, page, site }: ComponentProps<Readonly<
                   h(
                     "span",
                     { class: TICK_CLASS, style: `inset-inline-start:${pct(tick.position)}` },
-                    tickLabel(tick.date, scaled.unit, lang),
+                    tickLabel(tick.date, scaled.unit, lang, calendar),
                   ),
                 ),
               ),

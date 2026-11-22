@@ -1,4 +1,4 @@
-import { calendarParts, calendarYear } from "../../src/dates.ts";
+import { calendarParts, calendarYear, type DateCalendar } from "../../src/dates.ts";
 import { isEmpty } from "../../src/fields.ts";
 import { isRecord } from "../../src/guards.ts";
 import { percentOf } from "../chart-data/scale.ts";
@@ -106,10 +106,10 @@ export function overlaps<T extends DateRow>(phases: readonly T[], fields: DateFi
 }
 
 /** A tick's label: the year, or the year and quarter, in the page's calendar and digits. */
-export function tickLabel(date: string, unit: "year" | "quarter", lang: string): string {
-  const year = calendarYear(date, lang) ?? date.split("-")[0] ?? date;
+export function tickLabel(date: string, unit: "year" | "quarter", lang: string, calendar?: DateCalendar): string {
+  const year = calendarYear(date, lang, calendar) ?? date.split("-")[0] ?? date;
   if (unit === "year") return year;
-  const month = calendarParts(date, lang)?.month ?? 1;
+  const month = calendarParts(date, lang, calendar)?.month ?? 1;
   const quarter = new Intl.NumberFormat(lang, { useGrouping: false }).format(Math.floor((month - 1) / 3) + 1);
   return `${year} Q${quarter}`;
 }

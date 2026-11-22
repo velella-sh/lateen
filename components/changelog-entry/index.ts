@@ -3,7 +3,7 @@ import type { VNode } from "preact";
 import type { ComponentProps, Page } from "@velella/mizzen/contracts";
 import { CircleCheck, CircleMinus, CirclePlus, Link, ShieldCheck, SquarePen } from "lucide";
 import type { IconNode } from "lucide";
-import { calendarDate } from "../../src/dates.ts";
+import { calendarDate, configuredCalendar, type DateCalendar } from "../../src/dates.ts";
 import { icon } from "../../src/icon.ts";
 import { parseJson, knownOf } from "../../src/guards.ts";
 import { t } from "../../i18n/index.ts";
@@ -186,9 +186,9 @@ function categoryIcon(category: Category) {
 }
 
 /** The date, machine-readable when it is a real calendar date, and clear fallback text when it is not. */
-function dateNode(value: unknown, lang: string) {
+function dateNode(value: unknown, lang: string, calendar: DateCalendar | undefined) {
   const text = typeof value === "string" ? value.trim() : "";
-  const parsed = text === "" ? undefined : calendarDate(text, lang);
+  const parsed = text === "" ? undefined : calendarDate(text, lang, calendar);
   if (parsed === undefined) {
     return h("span", { class: DATE_CLASS }, t(lang, "changelog_date_unknown"));
   }
@@ -224,6 +224,7 @@ function categoryList(categories: readonly Category[], lang: string) {
 export default function changelogEntry({
   props,
   page,
+  site,
   html,
 }: ComponentProps<ChangelogEntryProps>): ChangelogEntryNode {
   const lang = page.lang;
@@ -259,7 +260,7 @@ export default function changelogEntry({
     h(
       "div",
       { class: META_CLASS },
-      dateNode(props.date, lang),
+      dateNode(props.date, lang, configuredCalendar(site?.config)),
       categories.length === 0 ? null : categoryList(categories, lang),
     ),
     h(

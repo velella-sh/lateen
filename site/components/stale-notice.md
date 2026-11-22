@@ -15,7 +15,7 @@ files match the review lock, renders nothing extra.
 
 ## What it shows
 
-- The review date in the page language's calendar, when the page was marked before.
+- The review date in the site's calendar and page language, when the page was marked before.
 - Each changed file, with whether it was added, changed, or removed. The first files stay in view and
   the rest go behind a native disclosure.
 - **Update this page**, when the site names a repository, links to the page's source file.

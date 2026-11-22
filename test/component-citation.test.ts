@@ -59,7 +59,7 @@ test("a record adds its id and its configured date, each labelled", () => {
   const out = render({}, page, site);
   assert.ok(out);
   assert.ok(out.includes(`<span class="${SOURCE_CLASS}">Source: <span dir="ltr">alpha</span></span>`));
-  assert.ok(out.includes(`<time class="${DATE_CLASS}" datetime="2026-01-12">January 12, 2026</time>`));
+  assert.ok(out.includes(`<time class="${DATE_CLASS}" datetime="2026-01-12">12 January 2026</time>`));
 });
 
 test("explicit props override every part", () => {

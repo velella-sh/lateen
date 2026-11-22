@@ -13,7 +13,7 @@ record template shows the `:::changes` marker. A record with no event renders no
 
 ## What it shows
 
-- The date of each event, in the page language's calendar.
+- The date of each event, in the site's calendar and page language.
 - The event type: added, removed, changed, renamed, or imported, in the page language.
 - For a changed field, the field's name and the old and new values, as `del` and `ins` so the change
   is readable without colour.
