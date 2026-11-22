@@ -559,7 +559,8 @@ function operationHeader(view: OperationView, lang: string): ComponentChildren {
     h(
       "div",
       { class: "api-reference-line" },
-      h("span", { class: view.methodClass }, view.methodLabel),
+      h("span", { class: `version-badge ${view.methodClass}` }, view.methodLabel),
+      " ",
       h("code", { class: "api-reference-path", dir: "ltr" }, view.path),
     ),
     h("h1", null, view.title),

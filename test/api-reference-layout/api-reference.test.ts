@@ -26,7 +26,7 @@ const indexCss = "" /* lateen-legacy removed: ../layouts/api-reference-index.css
 test("a full operation renders the method, path, title, description, tags, deprecated state, and server", () => {
   const page = render(operationPage(fullOperation));
   assert.match(page, /<main id="main" tabindex="-1">[\s\S]*?<article class="doc api-reference" data-pagefind-body="true">/);
-  assert.match(page, /<span class="api-reference-method api-reference-method-post">POST<\/span><code class="api-reference-path" dir="ltr">\/widgets<\/code>/);
+  assert.match(page, /<span class="version-badge api-reference-method api-reference-method-post">POST<\/span> <code class="api-reference-path" dir="ltr">\/widgets<\/code>/);
   assert.match(page, /<h1>Create a widget<\/h1>/);
   assert.match(page, /<p class="api-reference-description">Creates one widget and returns it\.<\/p>/);
   assert.match(page, /<ul class="api-reference-tags" aria-label="Tags"><li class="api-reference-tag">Widgets<\/li><\/ul>/);
@@ -70,7 +70,7 @@ test("responses render every status, its description, content, schemas, and exam
 
 test("the minimal operation still has method, path, title, and its response, and no empty optional sections", () => {
   const page = render(operationPage(minimalOperation));
-  assert.match(page, /<span class="api-reference-method api-reference-method-get">GET<\/span><code class="api-reference-path" dir="ltr">\/ping<\/code>/);
+  assert.match(page, /<span class="version-badge api-reference-method api-reference-method-get">GET<\/span> <code class="api-reference-path" dir="ltr">\/ping<\/code>/);
   assert.match(page, /<h1>GET \/ping<\/h1>/);
   assert.match(page, /<h2>Responses<\/h2><section class="api-reference-response"><h3><code class="api-reference-status" dir="ltr">200<\/code><span class="api-reference-response-description"> The service is up\.<\/span><\/h3>/);
   assert.doesNotMatch(page, /api-reference-tags|api-reference-server|api-reference-deprecated|>Parameters<|>Request body</);
@@ -148,8 +148,8 @@ test("the index renders its title, version, description, groups, and untagged op
   assert.match(page, /<span class="api-reference-index-label">Version<\/span> <code dir="ltr">1\.4\.0<\/code>/);
   assert.match(page, /<p class="api-reference-description">A small API\.<\/p>/);
   assert.match(page, /<nav class="api-reference-index-nav" aria-labelledby="api-reference-index-nav-title"><h2 id="api-reference-index-nav-title">Operations<\/h2>/);
-  assert.match(page, /<h3 class="api-reference-index-group-title">Widgets<\/h3><ul class="api-reference-index-list"><li><a class="api-reference-index-link" href="\/reference\/createWidget\/">Create a widget<\/a><\/li><\/ul>/);
-  assert.match(page, /<h3 class="api-reference-index-group-title">Other operations<\/h3><ul class="api-reference-index-list"><li><a class="api-reference-index-link" href="\/reference\/ping\/">GET \/ping<\/a><\/li><\/ul>/);
+  assert.match(page, /<h3 class="api-reference-index-group-title">Widgets<\/h3><ul class="api-reference-index-list grid gap-3"><li><a class="api-reference-index-link" href="\/reference\/createWidget\/">Create a widget<\/a><\/li><\/ul>/);
+  assert.match(page, /<h3 class="api-reference-index-group-title">Other operations<\/h3><ul class="api-reference-index-list grid gap-3"><li><a class="api-reference-index-link" href="\/reference\/ping\/">GET \/ping<\/a><\/li><\/ul>/);
   assert.equal([...page.matchAll(/<h1>/g)].length, 1);
 });
 
@@ -173,11 +173,11 @@ test("the index introduces each operation with the method, path, and description
   );
   assert.match(
     page,
-    /<li class="api-reference-index-item"><a class="api-reference-index-link api-reference-index-entry" href="\/reference\/createWidget\/"><span class="api-reference-index-line"><span class="api-reference-method api-reference-method-post">POST<\/span><code class="api-reference-path" dir="ltr">\/widgets<\/code><\/span><span class="api-reference-index-title">Create a widget<\/span><span class="api-reference-index-description">Creates one widget and returns it\.<\/span><\/a><\/li>/,
+    /<li class="api-reference-index-item"><a class="api-reference-index-link api-reference-index-entry grid" href="\/reference\/createWidget\/"><span class="endpoint-line"><span class="version-badge api-reference-method api-reference-method-post">POST<\/span> <code class="endpoint-path" dir="ltr">\/widgets<\/code><\/span><strong class="api-reference-index-title">Create a widget<\/strong><p class="api-reference-index-description">Creates one widget and returns it\.<\/p><\/a><\/li>/,
   );
   assert.match(
     page,
-    /<li class="api-reference-index-item"><a class="api-reference-index-link api-reference-index-entry" href="\/reference\/ping\/"><span class="api-reference-index-line"><span class="api-reference-method api-reference-method-get">GET<\/span><code class="api-reference-path" dir="ltr">\/ping<\/code><\/span><\/a><\/li>/,
+    /<li class="api-reference-index-item"><a class="api-reference-index-link api-reference-index-entry grid" href="\/reference\/ping\/"><span class="endpoint-line"><span class="version-badge api-reference-method api-reference-method-get">GET<\/span> <code class="endpoint-path" dir="ltr">\/ping<\/code><\/span><\/a><\/li>/,
   );
 });
 
@@ -211,7 +211,7 @@ test("an operation without a description keeps its request line and title", () =
   );
   assert.match(
     page,
-    /<span class="api-reference-method api-reference-method-get">GET<\/span><code class="api-reference-path" dir="ltr">\/widgets<\/code><\/span><span class="api-reference-index-title">List widgets<\/span><\/a>/,
+    /<span class="version-badge api-reference-method api-reference-method-get">GET<\/span> <code class="endpoint-path" dir="ltr">\/widgets<\/code><\/span><strong class="api-reference-index-title">List widgets<\/strong><\/a>/,
   );
   assert.doesNotMatch(page, /api-reference-index-description/);
 });

@@ -557,62 +557,11 @@
     background: var(--background);
   }
 
-  /* Endpoint introductions: the hand-written endpoint block and the generated operation page share
-     one line, one method badge, and one wrapping path. The method's text is its label; the hairline
-     tint only groups the verbs, so color is never the only signal. */
-  :is(.endpoint-line, .api-reference-line, .api-reference-index-line) {
-    display: flex;
-    flex-wrap: wrap;
-    align-items: center;
-    gap: 0.5rem 0.625rem;
-    min-inline-size: 0;
-  }
-
-  .endpoint-line {
-    font-family: var(--type-font-mono);
-    font-size: 0.84rem;
-  }
-
-  :is(.endpoint-method, .api-reference-method) {
-    display: inline-flex;
-    flex: none;
-    align-items: center;
-    padding-block: 0.05rem;
-    padding-inline: 0.4rem;
-    border: 1px solid var(--border);
-    border-radius: var(--radius-sm);
-    background: var(--muted);
-    color: var(--foreground);
-    font-family: var(--type-font-mono);
-    font-size: 0.75rem;
-    font-weight: var(--type-weight-bold);
-    line-height: 1.4;
-    letter-spacing: 0.04em;
-    white-space: nowrap;
-  }
-
-  :is(.endpoint-method-get, .api-reference-method-get) {
-    border-color: color-mix(in srgb, var(--link) 55%, var(--border));
-  }
-
-  :is(.endpoint-method-post, .api-reference-method-post) {
-    border-color: color-mix(in srgb, var(--mist) 70%, var(--border));
-  }
-
-  :is(.endpoint-method-put, .api-reference-method-put, .endpoint-method-patch, .api-reference-method-patch) {
-    border-color: color-mix(in srgb, var(--muted-foreground) 45%, var(--border));
-  }
-
-  :is(.endpoint-method-delete, .api-reference-method-delete) {
-    border-color: color-mix(in srgb, var(--foreground) 60%, var(--border));
-  }
-
-  :is(.endpoint-path, .api-reference-path) {
-    min-inline-size: 0;
-    max-inline-size: 100%;
+  /* Endpoint introductions: the hand-written endpoint block, the generated operation page, and
+     the reference index share one line, one method badge, and one wrapping path. The method's
+     text is its label, so color is never the only signal. */
+  :is(.endpoint-line, .api-reference-line) {
     overflow-wrap: anywhere;
-    font-family: var(--type-font-mono);
-    font-size: var(--text-sm);
   }
 
   .endpoint {
@@ -623,7 +572,6 @@
     color: var(--link);
   }
 
-  .endpoint-params,
   .key-value {
     display: grid;
     grid-template-columns: 7rem 1fr;

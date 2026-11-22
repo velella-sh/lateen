@@ -236,7 +236,7 @@ test("the reference index wraps a long path and separates operations on mobile",
 
     const order = entries.filter({ hasText: "Create an order" });
     assert.equal(await order.locator(".api-reference-method").innerText(), "POST");
-    assert.equal(await order.locator(".api-reference-path").innerText(), "/v1/orders");
+    assert.equal(await order.locator(".endpoint-path").innerText(), "/v1/orders");
     assert.equal(await order.locator(".api-reference-index-description").innerText(), "Creates one order.");
 
     const health = entries.filter({ hasText: "/v1/health" });
@@ -244,7 +244,7 @@ test("the reference index wraps a long path and separates operations on mobile",
 
     const long = entries.filter({ hasText: "/v1/accounts/" });
     assert.equal(await long.count(), 1);
-    const path = await long.locator(".api-reference-path").evaluate((element) => {
+    const path = await long.locator(".endpoint-path").evaluate((element) => {
       const range = document.createRange();
       range.selectNodeContents(element);
       const box = element.getBoundingClientRect();

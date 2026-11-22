@@ -108,17 +108,18 @@ function operationItem(link: ReferenceLink, operation: OperationSummary | undefi
     { class: "api-reference-index-item" },
     h(
       "a",
-      { class: "api-reference-index-link api-reference-index-entry", href: link.url },
+      { class: "api-reference-index-link api-reference-index-entry grid", href: link.url },
       h(
         "span",
-        { class: "api-reference-index-line" },
-        h("span", { class: methodClassOf(operation.method) }, operation.method.toUpperCase()),
-        h("code", { class: "api-reference-path", dir: "ltr" }, operation.path),
+        { class: "endpoint-line" },
+        h("span", { class: `version-badge ${methodClassOf(operation.method)}` }, operation.method.toUpperCase()),
+        " ",
+        h("code", { class: "endpoint-path", dir: "ltr" }, operation.path),
       ),
-      title === undefined ? null : h("span", { class: "api-reference-index-title" }, title),
+      title === undefined ? null : h("strong", { class: "api-reference-index-title" }, title),
       operation.description === undefined
         ? null
-        : h("span", { class: "api-reference-index-description" }, operation.description),
+        : h("p", { class: "api-reference-index-description" }, operation.description),
     ),
   );
 }
@@ -131,7 +132,7 @@ function groupSection(entry: ReferenceGroup, operations: ReadonlyMap<string, Ope
     h("h3", { class: "api-reference-index-group-title" }, entry.title),
     h(
       "ul",
-      { class: "api-reference-index-list" },
+      { class: "api-reference-index-list grid gap-3" },
       ...(entry.children ?? []).map((link) => operationItem(link, operations.get(link.url))),
     ),
   );
@@ -150,7 +151,7 @@ function otherSection(
     h("h3", { class: "api-reference-index-group-title" }, t(lang, "api_other_operations")),
     h(
       "ul",
-      { class: "api-reference-index-list" },
+      { class: "api-reference-index-list grid gap-3" },
       ...entries.map((entry) => operationItem({ title: entry.title, url: entry.url ?? "" }, operations.get(entry.url ?? ""))),
     ),
   );

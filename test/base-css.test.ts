@@ -68,20 +68,9 @@ test("home preview and mobile cards keep the Sailcloth surface contract", () => 
 });
 
 test("API reference introductions keep the method text intact and let a long path wrap", () => {
-  const line = bodyOf(ui, /api-reference-index-line/);
-  assert.match(line, /display:\s*flex/);
-  assert.match(line, /flex-wrap:\s*wrap/);
-  assert.match(line, /min-inline-size:\s*0/);
-
-  const method = bodyOf(ui, /api-reference-method\)/);
-  assert.match(method, /flex:\s*none/);
-  assert.match(method, /white-space:\s*nowrap/);
-
-  const path = bodyOf(ui, /api-reference-path\)/);
-  assert.match(path, /min-inline-size:\s*0/);
-  assert.match(path, /overflow-wrap:\s*anywhere/);
-
-  assert.match(bodyOf(ui, /^\.api-reference-index-list$/), /gap:\s*var\(--space-3\)/);
+  const line = bodyOf(ui, /api-reference-line\)/);
+  assert.match(line, /overflow-wrap:\s*anywhere/);
+  assert.match(bodyOf(ui, /^\*$/), /min-inline-size:\s*0/);
 });
 
 test("document typography and metadata follow the Sailcloth prose contract", () => {

@@ -228,60 +228,6 @@
     overflow-wrap: anywhere;
   }
 
-  .api-reference-operation-header {
-    margin-block-end: var(--space-2);
-  }
-
-  /* One operation introduction in the reference index: the request line, the title, and the
-     description, with enough space between operations to scan the list. The path uses the shared
-     code style, and the request line reuses the operation header's method badge. */
-  .api-reference-index-nav {
-    margin-block-start: var(--space-6);
-  }
-
-  .api-reference-index-group + .api-reference-index-group {
-    margin-block-start: var(--space-6);
-  }
-
-  .api-reference-index-group-title {
-    margin-block: 0 var(--space-2);
-    font-size: 1.125rem;
-    font-weight: var(--type-weight-bold);
-    line-height: 1.5;
-  }
-
-  .api-reference-index-list {
-    display: grid;
-    gap: var(--space-3);
-    margin: 0;
-    padding: 0;
-    list-style: none;
-  }
-
-  .api-reference-index-entry {
-    display: grid;
-    gap: 0.25rem;
-    color: inherit;
-    text-decoration: none;
-  }
-
-  .api-reference-index-title {
-    font-weight: 600;
-  }
-
-  .api-reference-index-description {
-    color: var(--muted-foreground);
-    font-size: var(--text-sm);
-    line-height: 1.5;
-    overflow-wrap: anywhere;
-  }
-
-  .api-reference-index-entry:hover .api-reference-index-title,
-  .api-reference-index-entry:focus-visible .api-reference-index-title {
-    text-decoration: underline;
-    text-underline-offset: 0.15em;
-  }
-
   .breadcrumb {
     @apply flex items-center gap-1.5 text-sm text-muted-foreground;
     margin: 0;

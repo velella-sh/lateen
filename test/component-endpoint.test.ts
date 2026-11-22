@@ -131,14 +131,14 @@ test("each known method gets its own badge class", () => {
   for (const method of METHODS) {
     assert.equal(methodClassOf(method), `endpoint-method endpoint-method-${method.toLowerCase()}`);
     const [badge] = withClass(render({ method, path: "/a" }), "endpoint-method");
-    assert.equal(badge?.props.class, `endpoint-method endpoint-method-${method.toLowerCase()}`);
+    assert.equal(badge?.props.class, `version-badge endpoint-method endpoint-method-${method.toLowerCase()}`);
   }
 });
 
 test("an unknown method gets the neutral badge class and keeps its text", () => {
   assert.equal(methodClassOf("PROPFIND"), "endpoint-method endpoint-method-other");
   const [badge] = withClass(render({ method: "propfind", path: "/a" }), "endpoint-method");
-  assert.equal(badge?.props.class, "endpoint-method endpoint-method-other");
+  assert.equal(badge?.props.class, "version-badge endpoint-method endpoint-method-other");
   assert.equal(textOf(badge), "PROPFIND");
 });
 
