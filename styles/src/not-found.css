@@ -36,7 +36,6 @@
   }
 
   .not-found-actions a {
-    display: block;
     max-inline-size: 100%;
     min-block-size: 2.75rem;
     padding-block: var(--space-3);
