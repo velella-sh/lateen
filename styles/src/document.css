@@ -368,6 +368,24 @@
     text-wrap: pretty;
   }
 
+  :is(.list, .post) .list-feed-link {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.4rem;
+    color: var(--link);
+    font-size: 0.875rem;
+    text-decoration: none;
+  }
+
+  :is(.list, .post) .list-feed-link:is(:hover, :focus-visible) {
+    text-decoration: underline;
+  }
+
+  :is(.list, .post) .list-feed-icon svg {
+    inline-size: 1rem;
+    block-size: 1rem;
+  }
+
   .doc-meta {
     position: relative;
     display: flex;
