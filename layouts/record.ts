@@ -15,6 +15,7 @@ import { FACTS_ID, factsOf, factsPanel, recordHeader, summaryOf } from "../src/r
 import doc from "./doc.ts";
 import { articleShell } from "./shared/index.ts";
 import { staleSlot } from "../src/stale.ts";
+import { snapshotPanel } from "../src/snapshot-panel.ts";
 import { baseOf } from "../src/url.ts";
 import { mathHtml } from "../src/math-html.ts";
 import { fieldsOf } from "../components/record-history/index.ts";
@@ -85,6 +86,7 @@ function article(props: LayoutProps): ComponentChildren {
       html: "",
     }) as ComponentChildren,
     embedPanel(props),
+    snapshotPanel(props),
     h(
       "div",
       { class: "doc-actions" },

@@ -18,6 +18,7 @@ import { icon } from "../src/icon.ts";
 import { t } from "../i18n/index.ts";
 import { calendarDate, calendarMonth } from "../src/dates.ts";
 import { formatField, isEmpty } from "../src/fields.ts";
+import { snapshotPanel } from "../src/snapshot-panel.ts";
 import { baseOf } from "../src/url.ts";
 import { mathHtml } from "../src/math-html.ts";
 import { articleShell, titleFromBody } from "./shared/index.ts";
@@ -459,6 +460,7 @@ function article(props: LayoutProps, blogFeed: string | undefined): ComponentChi
     list !== undefined && !expanded && count === 0 ? h("p", { class: "list-empty" }, t(props.page.lang, "list_empty")) : null,
     groupSummary(props),
     records === null ? null : h("div", { class: "list-records" }, records),
+    snapshotPanel(props),
     list === undefined
       ? null
       : (pagination({ url: props.page.url, lang: props.page.lang, pagination: list.pagination }) as ComponentChildren),
