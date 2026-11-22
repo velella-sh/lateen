@@ -11,7 +11,6 @@ import {
   type SwitchPart,
   type SwitchRoot,
 } from "../chrome/source-mode/client.ts";
-import { readSourceMode, saveSourceMode, SOURCE_MODE_KEY } from "../chrome/source-mode/state.ts";
 import { stringsOf } from "../i18n/index.ts";
 import { paletteActions } from "../chrome/command-palette/actions.ts";
 import { liveHandlers } from "../chrome/search/client.ts";
@@ -92,7 +91,7 @@ function setup(stored?: string, throwing = false) {
       contains: (name) => classes.has(name),
     },
   };
-  const store = new Map<string, string>(stored === undefined ? [] : [[SOURCE_MODE_KEY, stored]]);
+  const store = new Map<string, string>(stored === undefined ? [] : [["lateen-source-mode", stored]]);
   const env: SourceEnv = {
     root: modeRoot,
     blocks: [],
@@ -112,36 +111,33 @@ function setup(stored?: string, throwing = false) {
   return { root, button, status, classes, store };
 }
 
-test("activation reveals the switch and applies the stored choice to the root class", () => {
+test("activation reveals the switch and always starts off, even with an old stored choice", () => {
   const off = setup();
   assert.equal(off.root.hidden, false);
   assert.equal(off.classes.has("source-mode"), false);
   assert.equal(off.button.attrs["aria-pressed"], "false");
 
-  const on = setup("on");
-  assert.equal(on.classes.has("source-mode"), true);
-  assert.equal(on.button.attrs["aria-pressed"], "true");
-  assert.equal(on.status.textContent, "", "restoring the choice is not announced");
+  const old = setup("on");
+  assert.equal(old.classes.has("source-mode"), false, "a stored on is never restored");
+  assert.equal(old.button.attrs["aria-pressed"], "false");
+  assert.equal(old.status.textContent, "");
 });
 
-test("a click toggles the mode, stores it, and announces it", () => {
+test("a click toggles the mode and announces it, and nothing is stored", () => {
   const s = setup();
   s.button.click();
   assert.equal(s.classes.has("source-mode"), true);
-  assert.equal(s.store.get(SOURCE_MODE_KEY), "on");
+  assert.equal(s.store.size, 0);
   assert.equal(s.status.textContent, "on!");
   s.button.click();
   assert.equal(s.classes.has("source-mode"), false);
-  assert.equal(s.store.get(SOURCE_MODE_KEY), "off");
   assert.equal(s.status.textContent, "off!");
 });
 
-test("blocked storage still applies the choice to this page view", () => {
+test("blocked storage does not stop the mode from working", () => {
   const s = setup(undefined, true);
   s.button.click();
   assert.equal(s.classes.has("source-mode"), true);
-  assert.equal(readSourceMode(undefined), false);
-  saveSourceMode(undefined, true);
 });
 
 test("the command palette offers the switch and presses its button", () => {
