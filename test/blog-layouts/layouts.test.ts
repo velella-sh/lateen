@@ -157,3 +157,22 @@ test("every blog link is a plain keyboard-focusable anchor", () => {
     }
   }
 });
+
+test("blog links appear only for a published feed and reuse an existing Atom alternate", () => {
+  const props = propsOf(pageWith());
+  const url = "https://example.com";
+  const href = "/blog/feed.xml";
+  const site = { ...props.site, config: { ...props.site.config, url } };
+  const head = { ...props.head, links: [{ rel: "alternate", href: url + href, attrs: { type: "application/atom+xml" } }] };
+  const out = renderToString(post({ ...props, site, head }) as never);
+  assert.equal((out.match(/<link[^>]+application\/atom\+xml/g) ?? []).length, 1);
+  assert.match(out, /<a class="list-feed-link" href="\/blog\/feed.xml"/);
+  for (const withoutFeed of [
+    props.site,
+    { ...site, pages: [] },
+    { ...site, config: { ...site.config, outputs: { "blog-feed": false } } },
+    { ...site, config: { ...site.config, blog: { ...site.config.blog!, feed: false } } },
+  ]) {
+    assert.doesNotMatch(renderToString(post({ ...props, site: withoutFeed }) as never), /blog\/feed.xml/);
+  }
+});

@@ -401,7 +401,7 @@
     margin-block: var(--space-3) 0;
   }
 
-  .list .list-feed-link {
+  :is(.list, .post) .list-feed-link {
     display: inline-flex;
     align-items: center;
     gap: 0.4rem;
@@ -410,11 +410,11 @@
     text-decoration: none;
   }
 
-  .list .list-feed-link:is(:hover, :focus-visible) {
+  :is(.list, .post) .list-feed-link:is(:hover, :focus-visible) {
     text-decoration: underline;
   }
 
-  .list .list-feed-icon svg {
+  :is(.list, .post) .list-feed-icon svg {
     inline-size: 1rem;
     block-size: 1rem;
   }

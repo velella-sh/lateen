@@ -8,6 +8,7 @@ import { t } from "../i18n/index.ts";
 import { codeBackgrounds } from "../src/brand.ts";
 import { calendarDate } from "../src/dates.ts";
 import { textOf } from "../src/guards.ts";
+import { blogFeedHref, blogSubscribe, withBlogFeed } from "./blog/feed.ts";
 import { archiveUrlOf, authorNameOf, authorPageOf } from "./blog/index.ts";
 import { articleHtml } from "../src/article-html.ts";
 import { articleShell, titleFromBody } from "./shared/index.ts";
@@ -39,7 +40,7 @@ function authorOf(props: LayoutProps, id: string | undefined): ComponentChildren
  * description, the body with highlighted fences, and the page footer. The body's own `h1` wins,
  * as on every Lateen article layout, so a post never shows two titles.
  */
-function article(props: LayoutProps): ComponentChildren {
+function article(props: LayoutProps, feed: string | undefined): ComponentChildren {
   const { page } = props;
   const front = page.frontMatter;
   const date = textOf(front.date);
@@ -59,6 +60,8 @@ function article(props: LayoutProps): ComponentChildren {
       authorOf(props, author),
       h("span", { "aria-hidden": "true" }, " · "),
       h("a", { class: "post-archive", href: archiveUrlOf(props.site) }, t(page.lang, "post_archive")),
+      feed === undefined ? null : h("span", { "aria-hidden": "true" }, " · "),
+      feed === undefined ? null : blogSubscribe(feed, page.lang),
     ),
     description === undefined ? null : h("p", { class: "post-description" }, description),
     h("div", { class: "doc-body", dangerouslySetInnerHTML: body }),
@@ -67,7 +70,12 @@ function article(props: LayoutProps): ComponentChildren {
 }
 
 /** The post page: the base shell, header, drawer, sidebar, article, and the on-this-page column. */
-const post: Layout = (props) =>
-  articleShell(props, { main: article(props) });
+const post: Layout = (props) => {
+  const feed = blogFeedHref(props);
+  return articleShell(props, {
+    base: { head: withBlogFeed(props.head, feed, props.site.config.url) },
+    main: article(props, feed),
+  });
+};
 
 export default post;

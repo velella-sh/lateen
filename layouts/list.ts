@@ -1,6 +1,7 @@
 import { h } from "preact";
 import type { ComponentChildren } from "preact";
 import type { Heading, Island, Layout, LayoutProps, RecordProps } from "@velella/mizzen/contracts";
+import { blogFeedHref, blogSubscribe, withBlogFeed } from "./blog/feed.ts";
 import { authorNameOf, authorPageOf, blogAuthorOf, blogKindOf, blogOf, postsOf } from "./blog/index.ts";
 import breadcrumb from "../chrome/breadcrumb/index.ts";
 import pageFooter from "../chrome/page-footer/index.ts";
@@ -366,13 +367,14 @@ function blogHeading(props: LayoutProps): ComponentChildren {
  * in the engine's newest-first order. The engine gives these pages no records, so the record
  * table would be empty; the posts are the page.
  */
-function blogArticle(props: LayoutProps): ComponentChildren {
+function blogArticle(props: LayoutProps, feed: string | undefined): ComponentChildren {
   const posts = postsOf(props.page);
   return h(
     "article",
     { class: "list blog", "data-pagefind-body": true },
     breadcrumb(props) as ComponentChildren,
     titleFromBody(props) ? null : blogHeading(props),
+    feed === undefined ? null : h("p", { class: "list-feed" }, blogSubscribe(feed, props.page.lang)),
     props.page.html === ""
       ? null
       : h("div", { class: "list-intro", dangerouslySetInnerHTML: { __html: props.page.html } }),
@@ -388,8 +390,8 @@ function blogArticle(props: LayoutProps): ComponentChildren {
  * in the engine's order, one section per group when it grouped them. A page that names this layout
  * without list data renders its body alone. A blog archive or author page lists its posts instead.
  */
-function article(props: LayoutProps): ComponentChildren {
-  if (blogOf(props.page) !== undefined) return blogArticle(props);
+function article(props: LayoutProps, blogFeed: string | undefined): ComponentChildren {
+  if (blogOf(props.page) !== undefined) return blogArticle(props, blogFeed);
   const list = props.list;
   const groups = groupsOf(props);
   const expanded = expandedIndex(props);
@@ -490,9 +492,10 @@ const list: Layout = (props) => {
     props.list === undefined
       ? props.head
       : { ...props.head, links: [...props.head.links, ...paginationLinks(props.list.pagination)] };
+  const blogFeed = blogFeedHref(props);
   return articleShell(props, {
-    base: { head, islands },
-    main: article(props),
+    base: { head: withBlogFeed(head, blogFeed, props.site.config.url), islands },
+    main: article(props, blogFeed),
     aside: toc(tocFor(props)) as ComponentChildren,
   });
 };
