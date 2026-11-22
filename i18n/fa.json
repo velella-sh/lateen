@@ -363,6 +363,7 @@
   "record_calendar_add": "افزودن به تقویم",
   "record_calendar_add_named": "افزودن به تقویم: «{title}»",
   "record_calendar_download": "دانلود فایل .ics",
+  "record_calendar_download_named": "دانلود فایل .ics برای {title}",
   "record_calendar_subscribe": "اشتراک",
   "record_calendar_subscribe_named": "اشتراک «{title}» در برنامهٔ تقویم",
   "record_embed": "جاسازی این رکورد",

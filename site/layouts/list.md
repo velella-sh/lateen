@@ -61,12 +61,10 @@ feed need Mizzen 0.2.5 or later.
 
 ## Calendars and feeds
 
-When the site config declares a calendar for the page's collection, the layout adds a subscribe
-panel: the calendars' `webcal` links, each calendar's full `https` address as text, and a copy
-control that appears only when JavaScript runs and reports the result in a live region. Group
-calendars for the list's group field are offered beside the panel. The dated view also passes the
-first calendar to its Add to calendar link. A site with no calendar renders no panel, so nothing
-changes for it.
+The subscribe panel lists each published collection calendar and each calendar for the list’s group
+field. Each row has a `webcal` link, a download link, and the full `https` address. A copy control
+appears when JavaScript runs and announces the result in a live region. Dated lists use the same
+panel.
 
 ## Groups and pagination
 

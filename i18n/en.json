@@ -363,6 +363,7 @@
   "record_calendar_add": "Add to calendar",
   "record_calendar_add_named": "Add to calendar: {title}",
   "record_calendar_download": "Download the .ics file",
+  "record_calendar_download_named": "Download the .ics file for {title}",
   "record_calendar_subscribe": "Subscribe",
   "record_calendar_subscribe_named": "Subscribe to {title} in a calendar app",
   "record_embed": "Embed this record",

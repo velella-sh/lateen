@@ -1,6 +1,6 @@
 ---
 title: Add to calendar
-description: A download link for a record's .ics file and a subscribe link for the calendar it belongs to.
+description: Download a record’s .ics file and subscribe to the calendars it belongs to.
 layout: doc
 permalink: /components/add-to-calendar/
 ---
@@ -15,11 +15,10 @@ and a `webcal` subscribe address.
 ## What it shows
 
 - **Add to calendar** downloads the record's own `.ics` file, when the engine wrote one.
-- **Subscribe** opens the calendar that holds the record in the reader's calendar app, when the site
-  configured one with both an `https` file and a `webcal` address.
+- Each named calendar offers a **Subscribe** link for a calendar app and a link to download its
+  whole `.ics` file.
 
-Both are plain links in the HTML. The visible text stays short, and the accessible name carries the
-record title, so a page that shows several records never offers two links named the same thing.
+The accessible name of each action includes the record or calendar title.
 
 ## Inputs
 
@@ -28,7 +27,7 @@ The layout fills these from the record; a template does not write them.
 | Input | What it is |
 | --- | --- |
 | `calendar` | The record's own `.ics` file, root-relative. The control adds the site's base before linking it. |
-| `calendars` | The calendars the record has events in, each with a name, a title, an `https` file, and a `webcal` address. The first safe one supplies the subscribe link. |
+| `calendars` | The calendars the record has events in, each with a name, a title, an `https` file, and a `webcal` address. |
 
 ## Collection setup
 
@@ -53,15 +52,14 @@ calendars:
         title: "{title} published"
 ```
 
-A record with no date in the calendar's field gets no calendar file and no link. A calendar without a
-`webcal` address keeps the download link and drops Subscribe.
+A record with no date in the calendar's field gets no links for that calendar.
 
 ## List pages
 
 The list layout uses the same calendars on a collection's index page. It renders a subscribe panel
-with each calendar's `webcal` link, its `https` address, and a copy control that is added only when
-JavaScript runs; the result is announced in a live region. The dated view passes the first calendar
-to its own Add to calendar link. A collection with no calendar renders no panel.
+with each calendar's `webcal` link, its download link, and its `https` address. When JavaScript
+runs, a copy control appears and announces the result in a live region. The same panel covers the
+dated view and any group calendars.
 
 ## Theme options
 
@@ -79,5 +77,3 @@ remembered, or fetched in the browser.
   addresses, and a `webcal` address that is not `webcal://` are refused.
 - The icon is decorative and hidden from assistive technology; the link text and its accessible name
   carry the action.
-- A record can belong to several calendars; the control offers Subscribe for the first one whose
-  addresses are safe and does not repeat the link.

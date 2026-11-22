@@ -1,5 +1,5 @@
 // The add-to-calendar control renders only links whose address is safe: a root-relative download
-// and an https calendar's webcal subscribe address. A record with neither keeps the page unchanged.
+// plus each collection calendar's download and webcal subscription addresses.
 import assert from "node:assert/strict";
 import { test } from "node:test";
 import { JSDOM } from "jsdom";
@@ -26,29 +26,46 @@ const document = (html: string): Document => new JSDOM(`<!doctype html><html lan
 
 const links = (html: string): HTMLAnchorElement[] => [...document(html).querySelectorAll<HTMLAnchorElement>(`.${CLASS} a`)];
 
-test("both links render, in reading order, and name the record", () => {
-  const html = render({ calendar: "/items/dated/calendar.ics", calendars });
+test("every calendar has a download and subscribe link after the record’s own export", () => {
+  const html = render({
+    calendar: "/items/dated/calendar.ics",
+    calendars: [...calendars, { name: "releases", title: "Releases", url: "https://example.com/calendars/releases.ics", webcal: "webcal://example.com/calendars/releases.ics" }],
+  });
   const found = links(html);
 
-  assert.deepEqual(found.map((link) => link.textContent), ["Add to calendar", "Subscribe"]);
+  assert.deepEqual(found.map((link) => link.textContent), [
+    "Add to calendar",
+    "Subscribe to Items in a calendar app",
+    "Download the .ics file",
+    "Subscribe to Releases in a calendar app",
+    "Download the .ics file",
+  ]);
   assert.deepEqual(found.map((link) => link.getAttribute("href")), [
     "/items/dated/calendar.ics",
     "webcal://example.com/calendars/items.ics",
+    "https://example.com/calendars/items.ics",
+    "webcal://example.com/calendars/releases.ics",
+    "https://example.com/calendars/releases.ics",
   ]);
   assert.equal(found[0]!.getAttribute("aria-label"), "Add to calendar: Dated item");
   assert.equal(found[0]!.getAttribute("title"), "Download the .ics file");
-  assert.equal(found[1]!.getAttribute("aria-label"), "Subscribe to Dated item in a calendar app");
+  assert.equal(found[2]!.getAttribute("aria-label"), "Download the .ics file for Items");
+  assert.equal(found[4]!.getAttribute("aria-label"), "Download the .ics file for Releases");
+  assert.equal(found.filter((link) => link.hasAttribute("download")).length, 2);
 
   const icon = document(html).querySelector(`.${ICON_CLASS}`)!;
   assert.equal(icon.getAttribute("aria-hidden"), "true");
   assert.ok(icon.querySelector("svg") !== null);
 });
 
-test("one safe link renders on its own", () => {
+test("the record export and collection calendars render independently", () => {
   assert.deepEqual(links(render({ calendar: "/items/dated/calendar.ics" })).map((link) => link.textContent), [
     "Add to calendar",
   ]);
-  assert.deepEqual(links(render({ calendars })).map((link) => link.textContent), ["Subscribe"]);
+  assert.deepEqual(links(render({ calendars })).map((link) => link.textContent), [
+    "Subscribe to Items in a calendar app",
+    "Download the .ics file",
+  ]);
 });
 
 test("no address, or only unsafe addresses, renders nothing", () => {
@@ -83,5 +100,5 @@ test("a record with no title keeps a usable accessible name", () => {
   const html = render({ calendar: "/items/x.ics", calendars }, "en", "", "");
   const found = links(html);
   assert.equal(found[0]!.getAttribute("aria-label"), "Add to calendar");
-  assert.equal(found[1]!.getAttribute("aria-label"), "Subscribe");
+  assert.equal(found[1]!.textContent, "Subscribe to Items in a calendar app");
 });

@@ -4,7 +4,7 @@ import type { CalendarLink, Component, ListProps } from "@velella/mizzen/contrac
 import { CalendarPlus } from "lucide";
 import { icon } from "../../src/icon.ts";
 import { t } from "../../i18n/index.ts";
-import { withBase } from "../link-card/index.ts";
+import { safeHref, withBase } from "../../src/url.ts";
 
 /** Class on the line holding the calendar links. */
 export const CLASS = "add-to-calendar";
@@ -26,48 +26,23 @@ export type AddToCalendarProps = {
   readonly calendars?: readonly CalendarLink[];
 };
 
-/** A root-relative path or an `https` address; `javascript:`, `http:`, and `//host` are refused. */
-const SAFE_ADD = /^(?:\/(?![/\\])|https:\/\/)[^\s"'<>\\]*$/i;
-
-/** A calendar app's absolute subscribe address; nothing else opens a subscribe dialog. */
+/** A calendar app's absolute subscribe address. */
 const SAFE_WEBCAL = /^webcal:\/\/[^\s"'<>\\]+$/i;
 
-/** The add address, trimmed, or undefined when it is missing, blank, or unsafe. */
-function addAddressOf(value: unknown): string | undefined {
-  if (typeof value !== "string") return undefined;
-  const address = value.trim();
-  return SAFE_ADD.test(address) ? address : undefined;
-}
-
-/** The first safe calendar's webcal address: its https file and webcal address must both hold. */
-function webcalOf(calendars: readonly CalendarLink[] | undefined): string | undefined {
-  for (const link of calendars ?? []) {
-    const url = typeof link?.url === "string" ? link.url.trim() : "";
-    const webcal = typeof link?.webcal === "string" ? link.webcal.trim() : "";
-    if (/^https:\/\//i.test(url) && SAFE_WEBCAL.test(webcal)) return webcal;
-  }
-  return undefined;
-}
-
 /**
- * Add to calendar: a download link for the record's `.ics` file and, when the record belongs to a
- * calendar, a subscribe link for its `webcal` address. A record with no safe address renders
- * nothing. The visible text stays short; the accessible name carries the record title, so a page
- * with several records never offers two links named the same thing.
+ * Add to calendar: the record's own file, followed by the collection calendars that contain its
+ * events. Each calendar has a link for subscribing in an app and another for downloading its file.
  */
 const addToCalendar: Component<AddToCalendarProps> = ({ props, page, site }) => {
-  const add = addAddressOf(props.calendar);
-  const webcal = webcalOf(props.calendars);
-  if (add === undefined && webcal === undefined) return null;
+  const add = safeHref(props.calendar, ["https:"]);
+  const entries = subscribeEntries(props.calendars ?? []);
+  if (add === undefined && entries.length === 0) return null;
 
   const lang = page?.lang ?? "en";
   const title = page?.title.trim() ?? "";
   const addName = title === "" ? t(lang, "record_calendar_add") : t(lang, "record_calendar_add_named", { title });
-  const subscribeName =
-    title === "" ? t(lang, "record_calendar_subscribe") : t(lang, "record_calendar_subscribe_named", { title });
-
   return h(
-    "p",
+    "div",
     { class: CLASS },
     add === undefined
       ? null
@@ -82,13 +57,11 @@ const addToCalendar: Component<AddToCalendarProps> = ({ props, page, site }) => 
           h("span", { class: ICON_CLASS, "aria-hidden": "true" }, icon({ node: CalendarPlus })),
           t(lang, "record_calendar_add"),
         ),
-    webcal === undefined
-      ? null
-      : h(
-          "a",
-          { class: LINK_CLASS, href: webcal, "aria-label": subscribeName },
-          t(lang, "record_calendar_subscribe"),
-        ),
+    entries.length === 0 ? null : h(
+      "ul",
+      { class: "add-to-calendar-list", role: "list" },
+      entries.map((entry) => h("li", null, calendarActions(entry, lang, LINK_CLASS))),
+    ),
   );
 };
 
@@ -128,20 +101,16 @@ interface SubscribeEntry {
 
 /** A calendar as a panel row, or undefined when either address is missing or unsafe. */
 function subscribeEntry(link: CalendarLink | undefined): SubscribeEntry | undefined {
-  if (link === undefined) return undefined;
-  const url = typeof link.url === "string" ? link.url.trim() : "";
+  if (link == null) return undefined;
+  const url = safeHref(link.url, ["https:"]);
   const webcal = typeof link.webcal === "string" ? link.webcal.trim() : "";
-  if (!/^https:\/\//i.test(url) || !SAFE_WEBCAL.test(webcal)) return undefined;
+  if (url === undefined || !/^https:\/\//i.test(url) || !SAFE_WEBCAL.test(webcal)) return undefined;
   const title = typeof link.title === "string" && link.title.trim() !== "" ? link.title.trim() : link.name;
   return { title, url, webcal };
 }
 
-/** The collection's calendars and every group's, each once, in the engine's order. */
-function subscribeEntries(props: SubscribeProps): SubscribeEntry[] {
-  const links = [
-    ...(props.calendars ?? []),
-    ...props.groups.flatMap((group) => group.calendars ?? []),
-  ];
+/** The calendars in the engine's order, with repeated URLs offered once. */
+function subscribeEntries(links: readonly CalendarLink[]): SubscribeEntry[] {
   const seen = new Set<string>();
   const entries: SubscribeEntry[] = [];
   for (const link of links) {
@@ -153,13 +122,38 @@ function subscribeEntries(props: SubscribeProps): SubscribeEntry[] {
   return entries;
 }
 
+function calendarActions(entry: SubscribeEntry, lang: string, linkClass: string): ComponentChildren {
+  return h(
+    "div",
+    { class: "calendar-actions" },
+    h(
+      "a",
+      { class: linkClass, href: entry.webcal },
+      t(lang, "record_calendar_subscribe_named", { title: entry.title }),
+    ),
+    h(
+      "a",
+      {
+        class: linkClass,
+        href: entry.url,
+        download: "",
+        "aria-label": t(lang, "record_calendar_download_named", { title: entry.title }),
+      },
+      t(lang, "record_calendar_download"),
+    ),
+  );
+}
+
 /**
- * A list's subscribe panel: the webcal link that opens a calendar app, the https address as
- * selectable text, and a copy button the island reveals. Grouped lists add one row per group.
+ * A list's subscribe panel: subscribe and download links, the address as selectable text, and a
+ * copy button the island reveals. Calendars on each group also get their own rows.
  * Nothing renders for a list with no safe calendar.
  */
 export function subscribePanel(props: SubscribeProps, lang: string): ComponentChildren {
-  const entries = subscribeEntries(props);
+  const entries = subscribeEntries([
+    ...(props.calendars ?? []),
+    ...props.groups.flatMap((group) => group.calendars ?? []),
+  ]);
   if (entries.length === 0) return null;
   const heading = "list-subscribe-heading";
   return h(
@@ -179,11 +173,7 @@ export function subscribePanel(props: SubscribeProps, lang: string): ComponentCh
         h(
           "li",
           { class: SUBSCRIBE_ITEM_CLASS },
-          h(
-            "a",
-            { class: SUBSCRIBE_LINK_CLASS, href: entry.webcal },
-            t(lang, "record_calendar_subscribe_named", { title: entry.title }),
-          ),
+          calendarActions(entry, lang, SUBSCRIBE_LINK_CLASS),
           h(
             "code",
             { class: SUBSCRIBE_ADDRESS_CLASS, dir: "ltr" },

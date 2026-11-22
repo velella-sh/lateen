@@ -363,6 +363,7 @@
   "record_calendar_add": "أضف إلى التقويم",
   "record_calendar_add_named": "أضف إلى التقويم: {title}",
   "record_calendar_download": "تنزيل ملف .ics",
+  "record_calendar_download_named": "تنزيل ملف .ics لتقويم {title}",
   "record_calendar_subscribe": "اشتراك",
   "record_calendar_subscribe_named": "اشتراك في {title} في تطبيق التقويم",
   "record_embed": "تضمين هذا السجل",

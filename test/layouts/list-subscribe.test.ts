@@ -2,6 +2,7 @@
 // address as selectable text, a copy button the island reveals, and one row per group when the
 // page groups. A list without a calendar renders none of it and loads no island.
 import assert from "node:assert/strict";
+import { JSDOM } from "jsdom";
 import { test } from "node:test";
 import { renderToString } from "preact-render-to-string";
 import type { CalendarLink, LayoutProps, ListGroup, ListProps, Page, RecordProps, Site, SiteConfig, SourcePos } from "@velella/mizzen/contracts";
@@ -45,7 +46,7 @@ const book: RecordProps = {
   collection: "books",
   id: "a",
   url: "/books/a/",
-  fields: { title: "Alpha" },
+  fields: { title: "Alpha", date: "2026-04-10" },
   links: {},
 };
 
@@ -90,18 +91,36 @@ test("one calendar shows the webcal link, the address as text, and a hidden copy
   assert.ok(html.includes("assets/theme/islands/components/add-to-calendar/client.js"));
 });
 
-test("a grouped list gets one subscribe link per group", () => {
+test("a grouped dated list offers every collection and group calendar once", () => {
   const group = (key: string): ListGroup => ({
     key,
     records: [book],
     count: 1,
-    calendars: [calendar(`books-${key}`, `Books (${key})`)],
+    calendars: [
+      calendar(`books-${key}`, `Books (${key})`),
+      calendar(`releases-${key}`, `Releases (${key})`),
+    ],
   });
-  const html = renderToString(list(props(listProps({ groups: [group("novel"), group("poetry")] }))) as never);
-  assert.ok(html.includes("Books (novel)"));
-  assert.ok(html.includes("Books (poetry)"));
-  assert.ok(html.includes("books-novel.ics"));
-  assert.ok(html.includes("books-poetry.ics"));
+  const data = listProps({
+    calendars: [calendar("books", "Books"), calendar("releases", "Releases")],
+    groups: [group("novel"), group("poetry")],
+  });
+  const input = props(data);
+  const html = renderToString(list({
+    ...input,
+    page: { ...page, frontMatter: { list: { view: "dated", date: "date" } } },
+  }) as never);
+  const doc = new JSDOM(html).window.document;
+  const names = ["books", "releases", "books-novel", "releases-novel", "books-poetry", "releases-poetry"];
+  assert.deepEqual([...doc.querySelectorAll(".list-subscribe-list li")].map((row) => [
+    row.querySelector("a[href^='webcal:']")?.getAttribute("href"),
+    row.querySelector("a[download]")?.getAttribute("href"),
+  ]), names.map((name) => [
+    `webcal://example.com/calendars/${name}.ics`,
+    `https://example.com/calendars/${name}.ics`,
+  ]));
+  assert.equal(doc.querySelectorAll('a[href="https://example.com/calendars/books.ics"]').length, 1);
+  assert.match(doc.querySelector(".list-subscribe-list li:last-child")!.textContent ?? "", /Releases \(poetry\)/);
 });
 
 test("a list without a calendar renders no panel and loads no subscribe island", () => {
