@@ -36,20 +36,24 @@ export function homeHref(config: SiteConfig, lang: string): string {
 
 /** The 404 content, in the page's own language: a code, a message, and home/search actions. */
 function content(props: LayoutProps) {
+  const { config, pages } = props.site;
   const lang = props.page.lang;
+  const searchPage = config.search === false || config.outputs.search === false
+    ? undefined
+    : pages.find((page) => page.url === "/search/" || page.frontMatter.layout === "search-results");
   return h(
     "div",
-    { class: "not-found lonely" },
-    h("p", { class: "not-found-code code-mark", "aria-hidden": "true" }, "404"),
+    { class: "not-found" },
+    h("p", { class: "not-found-code", "aria-hidden": "true" }, "404"),
     h("h1", null, t(lang, "not_found_title")),
-    h("p", { class: "lead" }, t(lang, "not_found_text")),
+    h("p", { class: "not-found-description" }, t(lang, "not_found_text")),
     h(
       "div",
-      { class: "not-found-actions actions" },
-      h("a", { class: "btn home-btn-primary", href: homeHref(props.site.config, lang) }, t(lang, "home")),
-      h(
+      { class: "not-found-actions" },
+      h("a", { class: "not-found-home", href: homeHref(config, lang) }, t(lang, "not_found_home")),
+      searchPage && h(
         "a",
-        { class: "btn home-btn-quiet", href: withBase(siteBase(props.site.config), "/search/") },
+        { class: "not-found-search", href: withBase(siteBase(config), searchPage.url) },
         t(lang, "search_placeholder"),
       ),
     ),
@@ -59,7 +63,8 @@ function content(props: LayoutProps) {
 /**
  * The 404 page: the base document shell around recovery content written in the page's own language
  * (the shell carries that language's `lang` and `dir`). The home link resolves the configured
- * current language's prefix under the site base, and both plain links work without JavaScript.
+ * current language's prefix under the site base. When search is enabled and has a results page,
+ * the secondary link leads there.
  */
 const notFound: Layout = (props) =>
   base({

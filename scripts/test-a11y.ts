@@ -332,6 +332,7 @@ export const JOURNEYS = [
   "search the site",
   "change the language",
   "copy a code block",
+  "follow tutorial steps",
   "ask your agent",
   "read without JavaScript",
 ] as const;
@@ -475,8 +476,9 @@ async function runJourney(
   theme: JourneyTheme,
 ): Promise<JourneyResult> {
   const noScript = name === "read without JavaScript";
+  const mobile = name === "open the navigation" || name === "follow tutorial steps";
   const context = await browser.newContext({
-    viewport: noScript ? { width: 1280, height: 900 } : name === "open the navigation" ? { width: 390, height: 844 } : { width: 1280, height: 900 },
+    viewport: mobile ? { width: 390, height: 844 } : DESKTOP,
     ...(noScript ? { javaScriptEnabled: false } : {}),
   });
   if (name === "copy a code block" || name === "ask your agent") {
@@ -601,6 +603,32 @@ async function runJourney(
         if (copied.trimEnd() !== code?.trimEnd()) throw new Error(`the clipboard does not match ${id}`);
         await expectFocus(page, button);
       }
+    } else if (name === "follow tutorial steps") {
+      await page.emulateMedia({ reducedMotion: "reduce" });
+      await page.goto(`${servers.fixtures.url}/tutorial/`, { waitUntil: "load" });
+      await page.evaluate(() => document.fonts.ready.then(() => undefined));
+
+      const step = '.tutorial-step[data-step="2"]';
+      const heading = await page.locator(`${step} h2`).getAttribute("id");
+      if (heading === null) throw new Error("the second step has no fragment id");
+      await focusControl(page, `.tutorial-progress a[href="#${heading}"]`);
+      await page.keyboard.press("Enter");
+      await page.waitForURL((url) => url.hash === `#${heading}`);
+      await page.waitForFunction((id) => {
+        const section = document.getElementById(id)?.closest(".tutorial-step");
+        const header = document.querySelector("[data-site-header]");
+        if (!section || !header) return false;
+        const scrollPadding = Number.parseFloat(getComputedStyle(document.documentElement).scrollPaddingBlockStart);
+        const top = section.getBoundingClientRect().top;
+        return top >= header.getBoundingClientRect().bottom && top <= scrollPadding + 12;
+      }, heading);
+
+      await focusControl(page, `${step} a[rel="next"]`);
+      await page.keyboard.press("Enter");
+      await page.waitForURL((url) => url.hash === "#audit-the-result");
+      await focusControl(page, '.tutorial-step[data-step="3"] a[rel="prev"]');
+      await page.keyboard.press("Enter");
+      await page.waitForURL((url) => url.hash === `#${heading}`);
     } else if (name === "ask your agent") {
       await page.goto(`${servers.docs.url}/lateen/install/`, { waitUntil: "load" });
       await focusControl(page, "[data-search-open]");

@@ -9,6 +9,7 @@ test("the journeys the report names are the journeys the gate runs, in plain wor
     "search the site",
     "change the language",
     "copy a code block",
+    "follow tutorial steps",
     "ask your agent",
     "read without JavaScript",
   ]);
@@ -39,8 +40,8 @@ test("each journey is reported only in the themes it runs in, with its result", 
     journeys: { name: string; theme: string; result: string }[];
     summary: { journeys: Record<string, number> };
   };
-  assert.equal(report.journeys.length, 11);
-  assert.deepEqual(report.summary.journeys, { pass: 11, fail: 0, skip: 0 });
+  assert.equal(report.journeys.length, 13);
+  assert.deepEqual(report.summary.journeys, { pass: 13, fail: 0, skip: 0 });
   assert.deepEqual(
     report.journeys.filter((journey) => journey.name === "read without JavaScript").map((journey) => journey.theme),
     ["system"],

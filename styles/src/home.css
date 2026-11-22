@@ -1,4 +1,4 @@
-/* Landing and 404 pages: hero, preview, home sections, lonely page. */
+/* Landing pages: hero, preview and home sections. */
 @layer components {
   .home-stage {
     display: grid;
@@ -91,13 +91,11 @@
     line-height: 1.7;
   }
 
-  .home-actions,
-  .not-found-actions {
+  .home-actions {
     @apply mt-7 flex flex-wrap gap-2.5;
   }
 
-  .home-actions .home-btn,
-  .not-found-actions .btn {
+  .home-actions .home-btn {
     display: inline-flex;
     align-items: center;
     justify-content: center;
@@ -112,8 +110,7 @@
     transition: transform 180ms ease, background-color 180ms ease, box-shadow 180ms ease;
   }
 
-  .home-actions .home-btn:hover,
-  .not-found-actions .btn:hover {
+  .home-actions .home-btn:hover {
     transform: translateY(-1px);
   }
 
@@ -351,33 +348,6 @@
     margin: 0;
     font-family: var(--type-font-mono);
     font-size: 0.84rem;
-  }
-
-  .lonely {
-    padding: 4.5rem 0 6rem;
-    max-width: 28em;
-  }
-
-  .lonely .code-mark {
-    display: inline-block;
-    margin: 0 0 1.1rem;
-    font-family: var(--type-font-mono);
-    font-size: 0.78rem;
-    color: var(--muted-foreground);
-    background: var(--muted);
-    border-radius: 999px;
-    padding: 0.3rem 0.7rem;
-  }
-
-  .lonely h1 {
-    margin: 0;
-    font-size: clamp(2.5rem, 6vw, 3.25rem);
-    letter-spacing: -0.035em;
-  }
-
-  .lonely .lead {
-    margin-top: 1rem;
-    color: var(--muted-foreground);
   }
 
   .crumb {

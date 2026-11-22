@@ -88,11 +88,13 @@ test("no language file repeats a key", () => {
 test("the 404 recovery group is complete in every language", () => {
   const recoveryKeys = [
     "not_found_title",
+    "not_found_home",
     "not_found_text",
     "search_placeholder",
     "search",
     "home",
-  ] as const;  for (const lang of languages) {
+  ] as const;
+  for (const lang of languages) {
     const table = stringsOf(lang);
     for (const key of recoveryKeys) {
       const text = table[key];
