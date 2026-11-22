@@ -3,8 +3,8 @@
 A switch that shows `file:line` beside every top-level block, so a reader or an agent sees where each block came from.
 
 - `index.ts` renders the switch (hidden until `client.ts` runs) and its status region. `layouts/base.ts` places it once at the start of the main content.
-- `client.ts` stamps a `file:line` label as the last child of each top-level `[data-src]` block (so it follows the block's text in reading order), applies the saved choice, toggles when the reader activates the button, and announces each change in the page language. The command palette's "Source mode" action presses the same button.
-- `state.ts` holds the storage key (`lateen-source-mode`, `on` or `off`) and the root class (`source-mode`).
+- `client.ts` stamps a `file:line` label as the last child of each top-level `[data-src]` block (so it follows the block's text in reading order), starts off on every page view (the choice is never restored), toggles when the reader activates the button, and announces each change in the page language. The command palette's "Source mode" action presses the same button.
+- `state.ts` holds the root class (`source-mode`).
 - The theme hides labels until the root carries `.source-mode`, then displays them below their block in reading order.
 - The span is read by `src/source-span.ts`.
 

@@ -73,4 +73,4 @@ elsewhere open search.
 - Feedback posts to `theme.options.feedback.endpoint` only when configured. It records one answer per
   page in `sessionStorage` so a reload does not ask twice; the storage write is best-effort and a
   denied storage API does not block the vote.
-- The theme stores the color choice under `lateen-theme` and Source mode under `lateen-source-mode`.
+- The theme stores the color choice under `lateen-theme`. Source mode always starts off and is not stored.

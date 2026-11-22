@@ -1,6 +1,6 @@
 /*
- * Source mode: a switch that shows `file:line` beside every top-level block. The choice is remembered
- * for the site in local storage and set as a class on the root element; each change is announced on the
+ * Source mode: a switch that shows `file:line` beside every top-level block. The mode always starts off
+ * and is never remembered; it is set as a class on the root element while on, and each change is announced on the
  * switch's status region. The command palette clicks the same button.
  *
  * Labels are stamped once, as the last child of each block, so they follow the block's text in reading
@@ -19,8 +19,6 @@ import { locationOf, parseSpan, type Span } from "../../src/source-span.ts";
 import { acceptEditorTemplate, editorUrl, readFolder, saveFolder } from "./editor.ts";
 import { parseJson, isRecord } from "../../src/guards.ts";
 import {
-  readSourceMode,
-  saveSourceMode,
   SOURCE_MODE_CLASS,
   type SourceModeStorage,
 } from "./state.ts";
@@ -269,7 +267,7 @@ export function findJump(stamped: readonly Stamped[], value: string | null): Jum
   return before === undefined ? { kind: "none", file, line } : { kind: "block", target: before, exact: false };
 }
 
-/** Reveals the switch, applies the saved choice, and wires the toggle and the exit control. */
+/** Reveals the switch (off) and wires the toggle and the exit control. */
 export function activate(root: SwitchRoot, env: SourceEnv): void {
   const button = root.querySelector(".source-mode-button");
   const status = root.querySelector(".source-mode-status");
@@ -279,7 +277,8 @@ export function activate(root: SwitchRoot, env: SourceEnv): void {
   const active = root.querySelector(".source-mode-active");
   const count = root.querySelector(".source-mode-count");
   const exit = root.querySelector(".source-exit-button");
-  let on = readSourceMode(env.storage);
+  // Every page view starts off; the mode is never restored, so nothing opens until the reader asks.
+  let on = false;
   const note = (message: string): void => {
     if (status !== null) status.textContent = message;
   };
@@ -305,7 +304,6 @@ export function activate(root: SwitchRoot, env: SourceEnv): void {
   // mode off hides the exit control; a browser moves focus off a hidden element on its own.
   const set = (value: boolean): void => {
     on = value;
-    saveSourceMode(env.storage, on);
     show(true);
   };
 
