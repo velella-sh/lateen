@@ -1,4 +1,5 @@
 import type { Page, Site, SiteConfig } from "@velella/mizzen/contracts";
+import { evidenceRowsOf, type EvidenceRow } from "./evidence.ts";
 import { t } from "../../i18n/index.ts";
 import { calendarDate, configuredCalendar, isoDate, type DateCalendar } from "../../src/dates.ts";
 import { optionOf } from "../../src/options.ts";
@@ -182,12 +183,15 @@ export function pagesOf(trust: unknown): Record<string, unknown> | undefined {
   return isRecord(nested) ? nested : trust;
 }
 
+function rawTrustEntry(site: Site | undefined, url: string): unknown {
+  const pages = pagesOf(site?.data?.trust);
+  return pages !== undefined && Object.hasOwn(pages, url) ? pages[url] : undefined;
+}
+
 /** The page's trust evidence from `site.data.trust`, keyed by its exact URL including `base`. */
 export function trustEvidenceFor(site: Site | undefined, url: string | undefined): TrustEvidence {
   if (url === undefined) return { state: "absent" };
-  const pages = pagesOf(site?.data?.trust);
-  if (pages === undefined || !Object.hasOwn(pages, url)) return { state: "absent" };
-  return trustEvidenceOf(pages[url]);
+  return trustEvidenceOf(rawTrustEntry(site, url));
 }
 
 /** The page's trust entry from `site.data.trust`, keyed by its exact URL including `base`. */
@@ -458,6 +462,7 @@ export type TrustPanelView =
       readonly provenance: Provenance;
       /** The examples row, from `site.data.examples`. */
       readonly examples: ExamplesRowView;
+      readonly signalRows?: readonly EvidenceRow[];
       /** The drift row, from `site.data.drift`. */
       readonly drift: TextRowView;
       /** The build generation date row, when valid provenance names one. */
@@ -497,7 +502,8 @@ function dateRowView(label: string, iso: string | undefined, lang: string, calen
  * the site contracts. Pure: the same inputs always name the same view, and nothing is mutated.
  */
 export function trustPanelViewOf(props: TrustPanelProps, page: Page, site: Site | undefined): TrustPanelView {
-  const evidence = props.level === undefined ? trustEvidenceFor(site, page.url) : trustEvidenceOf(props);
+  const input = props.level === undefined ? rawTrustEntry(site, page.url) : props;
+  const evidence = trustEvidenceOf(input);
   if (evidence.state === "absent") return { state: "absent" };
 
   const lang = page.lang;
@@ -510,7 +516,13 @@ export function trustPanelViewOf(props: TrustPanelProps, page: Page, site: Site 
   }
 
   const entry = evidence.entry;
-  const provenance = provenanceOf(site, page.url, entry);
+  const signalRows = isRecord(input) ? evidenceRowsOf(input, lang) : [];
+  const report = site?.data?.trust;
+  const build = isRecord(report) && isRecord(report.pages) && isRecord(report.build) ? report.build : undefined;
+  const buildId = build?.algorithm === "sha256" ? textOf(build.id) : undefined;
+  const provenance: Provenance = signalRows.length === 0
+    ? provenanceOf(site, page.url, entry)
+    : buildId === undefined ? {} : { buildId };
   const revision =
     provenance.reviewedCommit === undefined || site?.config.repository === undefined
       ? undefined
@@ -528,6 +540,7 @@ export function trustPanelViewOf(props: TrustPanelProps, page: Page, site: Site 
     level: entry.level,
     chip: chipText(lang, entry.level),
     provenance,
+    ...(signalRows.length === 0 ? {} : { signalRows }),
     examples: {
       label: t(lang, "trust_examples"),
       text: examplesText(lang, evidenceRows),

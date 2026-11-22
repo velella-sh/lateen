@@ -54,7 +54,10 @@ pages:
     reasons: Reviewed more than 90 days ago.
 ```
 
-`buildId`, `generatedAt`, and `reviewedAt` are optional provenance. When the entry omits them, the panel
+Mizzen's computed entries show the evidence state, factors with their sources and availability, and
+review coverage. A full `trust.json` report can also supply a build digest.
+
+Handwritten entries and manual panels support `buildId`, `generatedAt`, and `reviewedAt` as optional provenance. When the entry omits them, the panel
 reads the same evidence from the documented build and reviewer shapes: `site.data.build.id` and
 `site.data.build.generatedAt` (or `.date` / `.asOf`), and `site.data.reviewers[url].date`.
 

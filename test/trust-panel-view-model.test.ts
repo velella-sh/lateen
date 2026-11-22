@@ -292,3 +292,45 @@ test("engine reason messages and legacy strings appear in order", () => {
   assert.equal(view.state, "valid");
   assert.deepEqual(view.reasons, ["Examples have not been run.", "Reviewed by hand."]);
 });
+
+test("Mizzen evidence, factors and provenance precede review coverage", () => {
+  const entry = {
+    level: "at-risk",
+    evidence: { examples: "unknown", drift: "measured", review: "missing" },
+    factors: [
+      { signal: "examples", state: "missing", value: "unknown" },
+      { signal: "drift", state: "negative", value: 2 },
+      { signal: "review", state: "missing", value: "unknown" },
+    ],
+    provenance: {
+      examples: { source: "inline", availability: "unavailable" },
+      drift: { source: "computed", availability: "available" },
+      review: { source: "none", availability: "missing" },
+    },
+    reviewCoverage: "untracked",
+    generatedAt: "2026-01-01",
+    reviewedAt: "2026-01-01",
+  };
+  const data = { trust: { [URL]: entry }, build: { id: "legacy", date: "2026-01-01" } };
+  const view = trustPanelViewOf({}, pageOf(), siteOf(data));
+  assert.equal(view.state, "valid");
+  assert.deepEqual(view.provenance, {});
+  assert.deepEqual(view.signalRows, [
+    { label: "Example evidence", text: "Unknown" },
+    { label: "Drift evidence", text: "Measured" },
+    { label: "Review evidence", text: "Evidence missing" },
+    { label: "Failed examples", text: "Unknown · Source: Inline data · Unavailable" },
+    { label: "Drift findings", text: "Negative (2) · Source: Computed check · Available" },
+    { label: "Days since review", text: "Unknown · Source: No source · Missing" },
+    { label: "Review coverage", text: "Untracked" },
+  ]);
+  for (const lang of ["fa", "ar"]) {
+    const alternate = trustPanelViewOf({}, pageOf({ lang }), siteOf(data));
+    assert.equal(alternate.state, "valid");
+    assert.equal(alternate.signalRows?.[6]?.label, stringsOf(lang).trust_review_coverage);
+  }
+  const report = { pages: { [URL]: entry }, build: { algorithm: "sha256", id: "digest" } };
+  const nested = trustPanelViewOf({}, pageOf(), siteOf({ trust: report }));
+  assert.equal(nested.state, "valid");
+  assert.deepEqual(nested.provenance, { buildId: "digest" });
+});

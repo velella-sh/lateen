@@ -36,8 +36,11 @@ The layout's panel reads the page's entry from `site.data.trust`, keyed by URL:
   reviewedAt: 2026-03-04
 ```
 
-The entry also works under a `pages` key, which wins when both shapes are present. When the engine's
-`trust.json` output (N14) lands, it will write the same shape.
+The entry also works under a `pages` key, which matches the structure of Mizzen's `trust.json` report.
+For a report entry, the disclosure starts with the evidence state for examples, drift, and review.
+It then shows each factor with its source and availability, followed by review coverage. The
+published report's build digest can identify the evidence when a site supplies the full report.
+The report does not provide generation or review timestamps.
 
 An entry that is present but unreadable — a bare string, list, number, or `null`, or a record with a
 missing or unrecognised `level` (a manual panel with an unreadable `level` behaves the same way) — is
@@ -47,7 +50,8 @@ entry never contributes its own reasons, reviewer, build, dates, or action place
 does not show the page's examples or drift beside it, so none of it can read as a valid trust record.
 A page with no entry at all stays hidden.
 
-`buildId`, `generatedAt`, and `reviewedAt` are optional. When the entry omits them, the panel reads
+For handwritten entries and manual panels, `buildId`, `generatedAt`, and `reviewedAt` are optional.
+When a handwritten entry omits them, the panel reads
 `site.data.build.id` and `site.data.build.generatedAt` (or `.date` / `.asOf`) from `_data/build.yml`, and
 the page's review date from `site.data.reviewers[url].date`. A valid build id is exposed as
 `data-trust-build`, a generation date as `data-trust-generated`, and a review date as

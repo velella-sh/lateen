@@ -192,8 +192,12 @@ const trustPanel: Component<TrustPanelProps> = ({ props, page, site }) => {
       h(
         "dl",
         { class: ROWS_CLASS },
-        ...row(view.examples.label, view.examples.text, view.examples.className, view.examples.attrs),
-        ...row(view.drift.label, view.drift.text, "trust-panel-drift"),
+        ...(view.signalRows === undefined
+          ? [
+              ...row(view.examples.label, view.examples.text, view.examples.className, view.examples.attrs),
+              ...row(view.drift.label, view.drift.text, "trust-panel-drift"),
+            ]
+          : view.signalRows.flatMap(({ label, text }) => row(label, text, "trust-panel-signal"))),
         ...(view.generated === undefined ? [] : dateRow(view.generated, "trust-panel-generated")),
         ...(view.reviewed === undefined ? [] : dateRow(view.reviewed, "trust-panel-reviewed")),
         ...(view.revision === undefined
