@@ -53,16 +53,6 @@ export const DATE_FROM_PARAM = "start";
 export const DATE_THROUGH_PARAM = "end";
 const DATES_SELECTOR = "[data-gallery-dates]";
 
-function isoDate(value: string | null): string {
-  if (value === null || !/^(?!0000)\d{4}-\d{2}-\d{2}$/.test(value)) return "";
-  const date = new Date(value);
-  return Number.isFinite(date.getTime()) && date.toISOString().startsWith(value) ? value : "";
-}
-
-function dateInput(form: GalleryElement, name: string): HTMLInputElement | null {
-  return form.querySelector(`input[name="${name}"]`) as HTMLInputElement | null;
-}
-
 export type SortDirection = "asc" | "desc";
 
 /** The sort the gallery shows: a field the collection declares and a direction. */
@@ -265,22 +255,13 @@ export function apply(
     values: valuesOf(element),
   }));
 
-  const range = root.querySelector(DATES_SELECTOR);
-  const params = new URLSearchParams(searchOf(url));
-  const from = range === null ? "" : isoDate(params.get(DATE_FROM_PARAM));
-  const through = range === null ? "" : isoDate(params.get(DATE_THROUGH_PARAM));
-  if (range !== null) {
-    const first = dateInput(range, DATE_FROM_PARAM);
-    const last = dateInput(range, DATE_THROUGH_PARAM);
-    if (first !== null) first.value = from;
-    if (last !== null) last.value = through;
-  }
+  const range = root.querySelector(DATES_SELECTOR) as unknown as HTMLFormElement | null;
+  const [from, through] = Array.from(range?.querySelectorAll<HTMLInputElement>("input") ?? [], (input) => input.value);
 
   let shown = 0;
   for (const item of items) {
     const date = item.element.getAttribute("data-gallery-date");
-    const inRange = (from === "" || (date !== null && date >= from)) &&
-      (through === "" || (date !== null && date <= through));
+    const inRange = (!from || (date !== null && date >= from)) && (!through || (date !== null && date <= through));
     const visible = inRange && matches(item.values, selected);
     item.element.hidden = !visible;
     if (visible) shown += 1;
@@ -382,20 +363,11 @@ export function activate(doc: GalleryDocument): () => void {
   };
 
   for (const root of roots) {
-    const range = root.querySelector(DATES_SELECTOR);
+    const range = root.querySelector(DATES_SELECTOR) as unknown as HTMLFormElement | null;
     if (range !== null) {
       range.hidden = false;
-      const form = range as unknown as HTMLFormElement;
-      form.addEventListener("submit", (event) => {
-        if (view === null) return;
+      range.addEventListener("submit", (event) => {
         event.preventDefault();
-        const from = isoDate(dateInput(range, DATE_FROM_PARAM)?.value ?? null);
-        const through = isoDate(dateInput(range, DATE_THROUGH_PARAM)?.value ?? null);
-        const next = withParams(view.location.href, {
-          [DATE_FROM_PARAM]: from || null,
-          [DATE_THROUGH_PARAM]: through || null,
-        });
-        view.history.replaceState(null, "", next);
         applyAll("count");
       }, { signal });
     }

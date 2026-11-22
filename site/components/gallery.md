@@ -68,8 +68,8 @@ GitHub or GitLab repository. Store that run’s snapshot with the record as `inp
 source, revision, capture time, tool, or schema. For a collection with a public-field policy, include
 the specific input fields you want readers to see. Archived record pages link to the latest list.
 
-The date controls filter the visible runs inclusively and add the range to the URL. The cards and
-their links are available before the controls load.
+The date controls filter the visible runs inclusively on the current page. The cards and their links
+are available before the controls load.
 
 ## Without JavaScript
 

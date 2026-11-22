@@ -87,8 +87,8 @@ test("each archived page links to the stable latest URL including the site base"
   assert.equal(site.document("/latest/").querySelector(".report-archive-notice"), null);
 });
 
-test("the date range filters inclusively, updates its address, and preserves browser navigation", () => {
-  const dom = new JSDOM(site.html("/gallery/"), { url: "https://example.com/docs/gallery/?start=2026-03-08" });
+test("the date range filters inclusively and updates the count without navigating", () => {
+  const dom = new JSDOM(site.html("/gallery/"), { url: "https://example.com/docs/gallery/" });
   after(() => dom.window.close());
   const { document } = dom.window;
   const teardown = activate(document as unknown as GalleryDocument);
@@ -98,21 +98,23 @@ test("the date range filters inclusively, updates its address, and preserves bro
   const last = form.querySelector<HTMLInputElement>('input[name="end"]')!;
   const dates = () => [...document.querySelectorAll("[data-gallery-date]:not([hidden]) time")].map((node) => node.getAttribute("datetime"));
 
+  const submit = () => form.dispatchEvent(new dom.window.Event("submit", { bubbles: true, cancelable: true }));
   assert.equal(form.hidden, false);
-  assert.equal(first.value, "2026-03-08");
+  assert.deepEqual(dates(), ["2026-03-08", "2026-03-01"]);
+  first.value = "2026-03-08";
+  assert.equal(submit(), false);
   assert.deepEqual(dates(), ["2026-03-08"]);
   assert.match(document.querySelector(".gallery-count")?.textContent ?? "", /1 of 2/);
 
   first.value = "2026-03-01";
   last.value = "2026-03-01";
-  form.dispatchEvent(new dom.window.Event("submit", { bubbles: true, cancelable: true }));
-  assert.equal(dom.window.location.search, "?start=2026-03-01&end=2026-03-01");
+  submit();
+  assert.equal(dom.window.location.search, "");
   assert.deepEqual(dates(), ["2026-03-01"]);
 
-  dom.window.history.replaceState(null, "", "?start=2026-02-30");
-  dom.window.dispatchEvent(new dom.window.PopStateEvent("popstate"));
-  assert.equal(first.value, "");
-  assert.equal(last.value, "");
+  first.value = "";
+  last.value = "";
+  submit();
   assert.deepEqual(dates(), ["2026-03-08", "2026-03-01"]);
 });
 
