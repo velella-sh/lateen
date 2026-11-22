@@ -4,6 +4,7 @@
  * constants only, so every other search module may import it without a cycle.
  */
 
+import type { SiteNetwork } from "@velella/mizzen/contracts";
 import type { PalettePayload, ThemeChoice } from "../command-palette/actions.ts";
 import type { PagefindApi } from "./loader.ts";
 import type { SearchRecord } from "./options.ts";
@@ -103,6 +104,13 @@ export interface SearchDialog {
   removeEventListener?(type: string, listener: (event: SearchEvent) => void): void;
 }
 
+/** The optional network scope selector inside the dialog. */
+export interface SearchScope {
+  value: string;
+  addEventListener(type: "change", listener: () => void): void;
+  removeEventListener?(type: "change", listener: () => void): void;
+}
+
 /** The elements the island wires together. */
 export interface SearchParts {
   dialog: SearchDialog;
@@ -119,6 +127,7 @@ export interface SearchParts {
   retry?: SearchAction | undefined;
   /** The link to the dedicated search page, which follows the field's query. */
   all?: SearchLink | undefined;
+  scope?: SearchScope | undefined;
 }
 
 /** Everything the island reads from the world; tests pass fakes, the browser supplies its own. */
@@ -135,6 +144,8 @@ export interface SearchEnv {
   messages?: SearchMessages | undefined;
   /** The current `scope` query parameter, kept on the all-results link. */
   scope?: string | null | undefined;
+  indexFolder?: string | undefined;
+  network?: SiteNetwork | undefined;
   /** Opens the ask panel with the question and the results the dialog currently shows. */
   ask?: ((question: string, records: readonly SearchRecord[]) => void) | undefined;
 }

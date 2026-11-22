@@ -3,8 +3,8 @@
   "source": "https://example.com/network.yml",
   "sha256": "0000000000000000000000000000000000000000000000000000000000000000",
   "projects": [
-    { "id": "alpha", "path": "alpha", "title": "Alpha", "public": true },
-    { "id": "beta", "path": "beta", "title": "Beta Docs", "public": true },
+    { "id": "alpha", "path": "alpha", "title": "Alpha", "public": true, "search": "find-alpha" },
+    { "id": "beta", "path": "beta", "title": "Beta Docs", "public": true, "search": "find-beta" },
     { "id": "gamma", "path": "gamma", "title": "Gamma", "public": true }
   ]
 }

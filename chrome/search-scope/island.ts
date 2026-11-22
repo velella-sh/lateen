@@ -5,70 +5,74 @@
  * index never holds back the others, and nothing from another project is fetched before `all`.
  */
 
-import { SCOPE_ALL } from "./index.ts";
-import { mergeResults, readMergeList, type SearchResult } from "../../src/search/merge.ts";
+import { mergeResults, readMergeList, type FailedIndex, type SearchResult } from "../../src/search/merge.ts";
+
+type Ranked = Pick<SearchResult, "score" | "current">;
 
 /** One project's search index, as the island calls it. */
-export interface SearchIndex {
-  search(term: string): Promise<readonly SearchResult[]>;
+export interface SearchIndex<Result extends Ranked = SearchResult> {
+  search(term: string): Promise<readonly Result[]>;
 }
 
 /** Everything the island reads from the page and the network; tests pass fakes. */
-export interface ScopeEnv {
+export interface ScopeEnv<Result extends Ranked = SearchResult> {
   /** The chosen scope: `project` or `all`, from the engine's contract. */
   readonly scope: string;
   /** This project's index, already loaded and searchable without another request. */
-  readonly current: SearchIndex;
+  readonly current: SearchIndex<Result>;
+  readonly currentProject?: FailedIndex | undefined;
   /** The address of the engine's merge file, `pagefind-network.json` at the site root. */
   readonly listUrl: string;
   /** Reads the merge file; only called for the `all` scope. */
   readonly loadList: (url: string) => Promise<unknown>;
   /** Loads one other project's index; only called for the `all` scope, after the merge file. */
-  readonly loadIndex: (url: string) => Promise<SearchIndex>;
+  readonly loadIndex: (url: string) => Promise<SearchIndex<Result>>;
   /** Draws the merged list: `complete` is false while another index may still add results. */
-  readonly show: (results: readonly SearchResult[], complete: boolean) => void;
+  readonly show: (results: readonly Result[], complete: boolean) => void;
   /** Announces the new count after each update. */
   readonly announce?: (count: number) => void;
-  /** Reports one other project whose index did not answer. */
-  readonly failed?: (project: { readonly id: string; readonly title: string }) => void;
+  /** Reports a project whose index did not answer, or the unavailable network manifest. */
+  readonly failed?: (project: FailedIndex) => void;
+  readonly manifestFailed?: () => void;
 }
 
 /** The query the island runs, and the project whose results rank first on a tie. */
-export async function search(term: string, env: ScopeEnv): Promise<void> {
-  const own = await env.current.search(term);
-  const loaded: (readonly SearchResult[])[] = [own];
-  let merged = mergeResults(loaded);
+export async function search<Result extends Ranked>(term: string, env: ScopeEnv<Result>): Promise<void> {
+  const own = await env.current.search(term).catch((error: unknown) => {
+    if (env.scope !== "all" || env.currentProject === undefined) throw error;
+    env.failed?.(env.currentProject);
+    return [];
+  });
+  const loaded: (readonly Result[])[] = [own];
+
+  const show = (complete: boolean): void => {
+    const merged = mergeResults(loaded);
+    env.show(merged, complete);
+    env.announce?.(merged.length);
+  };
 
   // The current project's results never wait for the network or for another index.
-  env.show(merged, env.scope !== SCOPE_ALL);
-  env.announce?.(merged.length);
-  if (env.scope !== SCOPE_ALL) return;
+  show(env.scope !== "all");
+  if (env.scope !== "all") return;
 
-  let list: ReturnType<typeof readMergeList>;
-  try {
-    list = readMergeList(await env.loadList(env.listUrl));
-  } catch {
-    list = undefined;
-  }
+  const list = await env.loadList(env.listUrl).then(readMergeList).catch(() => undefined);
+  if (list === undefined) env.manifestFailed?.();
   if (list === undefined || list.others.length === 0) {
-    env.show(merged, true);
+    show(true);
     return;
   }
 
   let done = 0;
   await Promise.all(
-    list.others.map(async (project) => {
+    list.others.map(async (project, order) => {
       try {
         const index = await env.loadIndex(project.index);
-        const results = await index.search(term);
-        loaded.push(results);
+        loaded[order + 1] = await index.search(term);
       } catch {
         env.failed?.(project);
       }
       done += 1;
-      merged = mergeResults(loaded);
-      env.show(merged, done === list.others.length);
-      env.announce?.(merged.length);
+      show(done === list.others.length);
     }),
   );
 }

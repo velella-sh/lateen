@@ -137,3 +137,16 @@ export function countMessage(count: number, lang = "en", messages: SearchMessage
   const pattern = messages.counts[pluralCategory(lang, count)] ?? messages.counts.other;
   return fillMessage(pattern, { n: count });
 }
+
+/** The result summary and any project failures share the dialog's live status. */
+export function resultsMessage(
+  count: number,
+  hasActions: boolean,
+  query: string,
+  lang: string,
+  messages: SearchMessages,
+  notice: string,
+): string {
+  const summary = count > 0 ? countMessage(count, lang, messages) : hasActions ? "" : emptyMessage(query, messages);
+  return notice === "" ? summary : [summary, notice].filter(Boolean).join(" ");
+}

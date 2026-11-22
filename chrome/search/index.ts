@@ -42,6 +42,10 @@ const search = (props: Parameters<Chrome>[0] & SourceModeVisibility) =>
       class: "search",
       "data-search": "",
       "data-base": props.site.config.base,
+      ...(props.site.network === undefined ? {} : {
+        "data-search-network": JSON.stringify(props.site.network),
+        "data-search-project-failed": patternOf(props.page.lang, "search_project_failed"),
+      }),
       "data-search-lang": props.page.lang,
       "data-search-loading": t(props.page.lang, "search_loading"),
       "data-search-searching": t(props.page.lang, "search_results_loading"),
@@ -115,6 +119,17 @@ const search = (props: Parameters<Chrome>[0] & SourceModeVisibility) =>
           icon({ node: X }),
           // A pointer with a keyboard sees the key that also closes the dialog; touch keeps the ×.
           h("kbd", { class: "search-close-key", "aria-hidden": "true" }, "Esc"),
+        ),
+      ),
+      (props.site.network?.projects.length ?? 0) < 2 ? null : h(
+        "label",
+        { class: "search-scope" },
+        t(props.page.lang, "search_scope"),
+        h(
+          "select",
+          { "data-search-scope": "" },
+          h("option", { value: "project" }, t(props.page.lang, "search_scope_project")),
+          h("option", { value: "all" }, t(props.page.lang, "search_scope_all")),
         ),
       ),
       h("p", { class: "search-status", role: "status", "data-search-status": "" }, ""),

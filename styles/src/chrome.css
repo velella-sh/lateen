@@ -641,6 +641,24 @@
     -webkit-appearance: none;
   }
 
+  .search .search-scope {
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: var(--space-2);
+    margin: var(--space-2) var(--space-3);
+    color: var(--muted-foreground);
+    font-size: 0.8rem;
+  }
+
+  .search .search-scope select {
+    color: var(--foreground);
+    background: var(--background);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-sm);
+    padding: var(--space-1) var(--space-2);
+  }
+
   /* The retry action appears under the status line only after a failed index load. */
   .search-retry {
     display: inline-flex;
@@ -732,6 +750,8 @@
     unicode-bidi: isolate;
   }
 
+  dialog.search .search-result-project,
+  .search-results-link .search-result-project,
   .search-result-language,
   .search-result-version {
     display: inline-block;

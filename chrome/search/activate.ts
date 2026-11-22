@@ -9,7 +9,7 @@ import { withBase } from "../../src/url.ts";
 import { activeIndexOf, optionList, wordCount, type SearchRecord } from "./options.ts";
 import { filterActions, parsePalette } from "./palette.ts";
 import { renderOptions, type RenderedOption } from "./render.ts";
-import { countMessage, emptyMessage, fillMessage, MESSAGES } from "./messages.ts";
+import { fillMessage, MESSAGES, resultsMessage } from "./messages.ts";
 import { createIndexLoader, indexUrl } from "./loader.ts";
 import { liveHandlers } from "./handlers.ts";
 import {
@@ -110,7 +110,7 @@ const activations = new WeakMap<SearchDialog, () => void>();
 export function activate(parts: SearchParts, env: SearchEnv): () => void {
   // One activation resolves its dialog, field, list, status, and controls once; every redraw reuses
   // these references and the site base instead of querying the root or the dialog again.
-  const { dialog, button, close, input, results, status, clear, retry, all } = parts;
+  const { dialog, button, close, input, results, status, clear, retry, all, scope } = parts;
   // A repeated initialization replaces the previous wiring rather than doubling every listener.
   activations.get(dialog)?.();
   const base = dialog.getAttribute("data-base") ?? "";
@@ -120,6 +120,10 @@ export function activate(parts: SearchParts, env: SearchEnv): () => void {
   const actions = palette.actions;
   const handlers = env.handlers ?? liveHandlers();
   const index = createIndexLoader(env.load);
+  const network = env.network;
+  const url = indexUrl(base, env.indexFolder);
+  const chosenScope = (): string | null => scope?.value ?? env.scope ?? null;
+  const scopedNetwork = () => chosenScope() === "all" ? network : undefined;
   let sequence = 0;
   // A section jump is a move inside the page: the close must not pull focus back to the search button.
   let returnFocus = true;
@@ -261,7 +265,7 @@ export function activate(parts: SearchParts, env: SearchEnv): () => void {
       return;
     }
     all.hidden = false;
-    all.setAttribute("href", resultsHref(input.value, env.scope ?? null, base));
+    all.setAttribute("href", resultsHref(input.value, chosenScope(), base));
   };
 
   /** Runs the field's current query: an empty field shows the actions and clears the status. */
@@ -274,35 +278,43 @@ export function activate(parts: SearchParts, env: SearchEnv): () => void {
     const previousKey = options[active]?.key;
     // Replace stale page results immediately. Enter can only choose a row for this query.
     draw([], matched);
+    const valid = () => live && current === sequence;
     const api = index.api;
-    if (api === undefined) return;
+    const across = scopedNetwork();
+    if (api === undefined && across === undefined) return;
     if (query === "") {
       status.textContent = "";
       return;
     }
+    const showRecords = (records: readonly SearchRecord[], notice = ""): void => {
+      draw(records, matched, previousKey);
+      status.textContent = resultsMessage(records.length, matched.length > 0, query, lang, messages, notice);
+    };
     status.textContent = messages.searching;
-    api
-      .search(query)
+    const fail = () => { if (valid()) status.textContent = messages.failed; };
+    if (across !== undefined) {
+      offerRetry(false);
+      void import("./network.ts").then(({ searchNetworkDialog }) => searchNetworkDialog(query, {
+        base,
+        network: across,
+        current: () => index.load(url),
+        load: env.load,
+        valid,
+        dialog,
+        messages,
+        showRecords,
+      })).catch(fail);
+      return;
+    }
+    api?.search(query)
       .then((page) => {
         // Pagefind resolves metadata separately for each hit. Only load it for the current query.
-        if (!live || current !== sequence) return [];
+        if (!valid()) return [];
         return Promise.all(page.results.slice(0, RESULT_LIMIT).map((hit) => hit.data()));
       })
-      .then(
-        (records) => {
-          if (!live || current !== sequence) return;
-          draw(records, matched, previousKey);
-          status.textContent =
-            records.length === 0
-              ? matched.length === 0
-                ? emptyMessage(query, messages)
-                : ""
-              : countMessage(records.length, lang, messages);
-        },
-        () => {
-          if (live && current === sequence) status.textContent = messages.failed;
-        },
-      );
+      .then((records) => {
+        if (valid()) showRecords(records);
+      }).catch(fail);
   };
 
   /** Offers the retry action only while the index is missing and a press on it can start a load. */
@@ -318,12 +330,12 @@ export function activate(parts: SearchParts, env: SearchEnv): () => void {
    * is back. The loader itself shares one in-flight promise and forgets a rejection so a retry works.
    */
   const begin = (retried: boolean): void => {
-    if (index.api !== undefined || index.loading) return;
+    if (index.api !== undefined || index.loading || scopedNetwork() !== undefined) return;
     offerRetry(false);
     status.textContent = messages.loading;
-    index.load(indexUrl(base)).then(
+    index.load(url).then(
       () => {
-        if (!live || !dialog.open) return;
+        if (!live || !dialog.open || scopedNetwork() !== undefined) return;
         if (retried && input.value.trim() === "") {
           status.textContent = messages.ready;
           return;
@@ -331,11 +343,16 @@ export function activate(parts: SearchParts, env: SearchEnv): () => void {
         run();
       },
       () => {
-        if (!live || !dialog.open) return;
+        if (!live || !dialog.open || scopedNetwork() !== undefined) return;
         status.textContent = retried ? messages.retryFailed : messages.failed;
         offerRetry(true);
       },
     );
+  };
+
+  const refresh = (): void => {
+    run();
+    begin(false);
   };
 
   /** Opens the dialog and, on the first open, loads the index; later opens reuse it. */
@@ -347,8 +364,7 @@ export function activate(parts: SearchParts, env: SearchEnv): () => void {
     input.focus();
     // A fresh open starts at the field, not on the row the last query left selected.
     markActive(-1);
-    run();
-    begin(false);
+    refresh();
   };
 
   attach(button as unknown as Listenable, "click", show);
@@ -369,6 +385,7 @@ export function activate(parts: SearchParts, env: SearchEnv): () => void {
     });
   }
   attach(input as unknown as Listenable, "input", run);
+  if (scope !== undefined) attach(scope as unknown as Listenable, "change", refresh);
   // One pointer listener for the whole list: a pointer entering a row, or any of its children, names
   // that row once. Rows are redrawn, so the handler reads the row's position rather than holding it.
   attach(results as unknown as Listenable, "pointerover", (event) => {
