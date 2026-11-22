@@ -41,7 +41,7 @@ export function evidenceRowsOf(entry: Record<string, unknown>, lang: string): Ev
         text: t(lang, "trust_factor_detail", {
           verdict,
           source: source === undefined ? t(lang, "trust_evidence_unknown") : t(lang, `trust_source_${source}`),
-          availability: availability === undefined ? t(lang, "trust_evidence_unknown") : t(lang, `trust_availability_${availability}`),
+          availability: availability === undefined ? t(lang, "trust_evidence_unknown") : t(lang, `trust_availability_${availability.replaceAll("-", "_")}`),
         }),
       });
     }

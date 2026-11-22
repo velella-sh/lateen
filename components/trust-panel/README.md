@@ -1,7 +1,7 @@
 # Trust panel
 
 A chip under the page title that opens a panel with the page's trust state, the examples it tested,
-its drift status, its build and review provenance, its last reviewer, and why it has that state. The
+its drift status, its evidence and review coverage, its last reviewer, and why it has that state. The
 chip is a native `<details>` summary, so the panel opens with Enter, Space, or a click and closes with
 Escape when JavaScript runs; without it the panel is a native disclosure. The island also puts focus
 back on the chip.
@@ -42,9 +42,6 @@ nested one wins:
     - 3 of 3 examples passed
     - No drift findings
   lastReviewer: Ada Lovelace
-  buildId: build-42
-  generatedAt: 2026-03-06
-  reviewedAt: 2026-03-04
 ```
 
 ```yaml
@@ -57,32 +54,18 @@ pages:
 Mizzen's computed entries show the evidence state, factors with their sources and availability, and
 review coverage. A full `trust.json` report can also supply a build digest.
 
-Handwritten entries and manual panels support `buildId`, `generatedAt`, and `reviewedAt` as optional provenance. When the entry omits them, the panel
-reads the same evidence from the documented build and reviewer shapes: `site.data.build.id` and
-`site.data.build.generatedAt` (or `.date` / `.asOf`), and `site.data.reviewers[url].date`.
+The published Mizzen `trust.json` report carries a SHA-256 build digest. When the site supplies
+that report as `_data/trust.json`, the panel exposes the digest as `data-trust-build`. The
+per-page entries Mizzen supplies during rendering are available before computing that digest.
 
-```yaml
-# _data/build.yml
-id: build-42
-generatedAt: 2026-03-06
-asOf: 2026-03-06
-```
+The panel reads a review date from the author's recorded date in `_data/reviewers.yml`.
+Mizzen accepts `{ date, author }` per page URL, or a `pages` list with a `url` on each entry.
+For a report entry, the inline date must agree with the review evidence and precede or match the
+report's `asOf` when supplied. The Reviewed row displays the date in the page's calendar and
+keeps the exact ISO value in `datetime` and `data-trust-reviewed`.
 
-## Provenance
-
-Valid provenance ties the recorded evidence to the build and review that produced it. The panel exposes
-it as `data-trust-build`, `data-trust-generated`, and `data-trust-reviewed` on the panel root. A build
-generation date and a human review date render as their own rows, labelled with the existing `updated`
-and `reviewed` strings, each with an exact `<time datetime>` value. A written date-time keeps its clock,
-seconds, and offset in `datetime` and the tooltip; only the visible text is localised to its calendar
-day. The build date is not a source-change date, and the review date is not a build date, so the two
-never stand in for each other.
-
-A malformed or impossible date is left out. A date after the build's as-of day is future evidence and is
-left out too, as is a review dated after the generation it describes. When an entry names a build and
-`site.data.build.id` names another, the entry's build provenance is stale and is left out. Missing
-provenance never changes the level: it only removes evidence, so it cannot turn a partial, unreviewed, or
-unknown panel into a verified one.
+A site may record a reviewed commit in `reviewedCommit` or the matching reviewer's `commit`.
+When a GitHub or GitLab repository is configured, the Reviewed revision row links to that commit.
 
 `level` names the state, strongest first:
 
@@ -125,7 +108,7 @@ recorded.
 ## Options
 
 The action links are optional and come from `theme.options.trust`. `{url}`, `{title}`, and
-`{source}` are filled from the page; `{build}`, `{generated}`, and `{reviewed}` are filled from the
+`{source}` are filled from the page; `{build}` and `{reviewed}` are filled from the
 panel's valid provenance. Every value is percent-encoded, a root-relative URL gets the site's `base`,
 and a template that asks for provenance the page does not have is left out rather than losing the
 build context it promises.
@@ -149,9 +132,3 @@ The doc layout adds the panel automatically; a page that wants a manual one writ
 :::trust-panel{level=verified reasons="3 of 3 examples passed|No drift findings" lastReviewer="Ada"}
 :::
 ```
-
-## Known gap
-
-Writing `trust.json` per page is a separate issue (N14). Until it lands, `site.data.trust` is absent
-and the layout's panel stays hidden; a site can write `_data/trust.yml` in the meantime, and the
-directive works anywhere it is placed.

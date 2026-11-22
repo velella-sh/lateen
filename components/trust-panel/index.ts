@@ -141,11 +141,9 @@ function dateRow(date: DateRowView, className: string) {
  * `site.data.examples` and `site.data.drift`; the examples row keeps partial, unrun, failed,
  * unreadable, and absent evidence visibly and structurally distinct, in the tested-chip contract's
  * states (see `examples.ts`), and example evidence never changes the declared level. The action
- * links come from `theme.options.trust` and are
- * left out when the site configures none. Valid build and review provenance comes from the entry, then
- * `site.data.build` and `site.data.reviewers`; it is exposed on the root and as labelled `<time>` rows,
- * and it never changes the level. The doc layout places the panel under the title, so a site
- * does not need a directive. The panel reads reason messages from the engine and also accepts
+ * links come from `theme.options.trust`. The published report supplies a build digest when present,
+ * and Mizzen's inline reviewer data can supply an exact review date. The doc layout places the panel
+ * under the title. The panel reads reason messages from the engine and also accepts
  * strings from hand-written `_data/trust.yml`.
  */
 const trustPanel: Component<TrustPanelProps> = ({ props, page, site }) => {
@@ -181,7 +179,6 @@ const trustPanel: Component<TrustPanelProps> = ({ props, page, site }) => {
       "data-trust-panel": "",
       "data-trust-level": view.level,
       ...(provenance.buildId === undefined ? {} : { "data-trust-build": provenance.buildId }),
-      ...(provenance.generatedAt === undefined ? {} : { "data-trust-generated": provenance.generatedAt }),
       ...(provenance.reviewedAt === undefined ? {} : { "data-trust-reviewed": provenance.reviewedAt }),
       ...(provenance.reviewedCommit === undefined ? {} : { "data-trust-reviewed-commit": provenance.reviewedCommit }),
     },
@@ -198,7 +195,6 @@ const trustPanel: Component<TrustPanelProps> = ({ props, page, site }) => {
               ...row(view.drift.label, view.drift.text, "trust-panel-drift"),
             ]
           : view.signalRows.flatMap(({ label, text }) => row(label, text, "trust-panel-signal"))),
-        ...(view.generated === undefined ? [] : dateRow(view.generated, "trust-panel-generated")),
         ...(view.reviewed === undefined ? [] : dateRow(view.reviewed, "trust-panel-reviewed")),
         ...(view.revision === undefined
           ? []

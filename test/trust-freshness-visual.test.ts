@@ -133,8 +133,8 @@ test("the trust panel's evidence is in the server-rendered page, not created by 
   assert.equal(panel?.querySelector("summary")?.tagName, "SUMMARY");
   assert.match(textOf(panel), /3 of 3 examples passed/);
   assert.match(textOf(panel), /1 drift finding/);
-  assert.equal(panel?.getAttribute("data-trust-build"), "build-42");
-  assert.equal(panel?.getAttribute("data-trust-generated"), "2026-03-06");
+  assert.equal(panel?.getAttribute("data-trust-build"), "a".repeat(64));
+  assert.equal(panel?.getAttribute("data-trust-generated"), null);
   assert.equal(panel?.getAttribute("data-trust-reviewed"), "2026-03-04");
 
   const cssText = all(clean, "link[rel='stylesheet']")

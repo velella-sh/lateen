@@ -199,6 +199,20 @@ function normalize(text: string): { head: string; body: string } {
   for (const element of [...document.querySelectorAll(".mermaid-diagram[style]")]) element.removeAttribute("style");
   // The trust panel gained an id so the tested chip can link to it.
   for (const element of [...document.querySelectorAll("details.trust-panel#trust-panel")]) element.removeAttribute("id");
+  // Trust now reads dates from inline reviews and a build digest from the published report.
+  // The old fixture supplies the retired build/date fields and an associated context pack.
+  for (const panel of document.querySelectorAll(".trust-panel")) {
+    if (panel.hasAttribute("data-trust-generated")) {
+      panel.removeAttribute("data-trust-build");
+      panel.removeAttribute("data-trust-generated");
+      panel.querySelector('.trust-panel-action[href*="build=build-42"]')?.remove();
+    }
+    panel.removeAttribute("data-trust-reviewed");
+    for (const row of panel.querySelectorAll(".trust-panel-generated,.trust-panel-reviewed")) {
+      row.previousElementSibling?.remove();
+      row.remove();
+    }
+  }
   // Dates use Mizzen's calendar and long-date format, retaining their machine-readable values.
   for (const time of document.querySelectorAll(".trust-panel time, .last-updated time")) {
     const datetime = time.getAttribute("datetime");

@@ -34,6 +34,16 @@ function pageOf(overrides: Partial<Page> = {}): Page {
 
 /** The default page's URL, the key every data shape uses. */
 const URL = "/guide/install/";
+const digest = "b".repeat(64);
+
+function report(page: Record<string, unknown>) {
+  return {
+    version: 2,
+    pages: { [URL]: page },
+    asOf: "2026-03-06T00:00:00.000Z",
+    build: { algorithm: "sha256", pages: 1, id: digest },
+  };
+}
 
 test("no entry names absent evidence, so the panel renders nothing", () => {
   assert.deepEqual(trustPanelViewOf({}, pageOf(), siteOf({})), { state: "absent" });
@@ -75,20 +85,15 @@ test("a manual panel with an unreadable level names the same invalid view", () =
 
 test("a full entry selects every row, date, revision, and action", () => {
   const data = {
-    trust: {
-      [URL]: {
-        level: "verified",
-        reasons: ["All examples passed.", "No drift."],
-        lastReviewer: "Ada",
-        buildId: "build-42",
-        generatedAt: "2026-03-06",
-        reviewedAt: "2026-03-04",
-        reviewedCommit: "ABCDEF1234567890",
-      },
-    },
+    trust: report({
+      level: "verified",
+      reasons: ["All examples passed.", "No drift."],
+      lastReviewer: "Ada",
+      reviewedCommit: "ABCDEF1234567890",
+    }),
+    reviewers: { [URL]: { date: "2026-03-04", author: "Ada" } },
     examples: { [URL]: { passed: 3, failed: 0, total: 3 } },
     drift: { [URL]: [] },
-    build: { id: "build-42", asOf: "2026-03-06" },
   };
   const options = {
     trust: {
@@ -102,8 +107,7 @@ test("a full entry selects every row, date, revision, and action", () => {
     level: "verified",
     chip: "Trust: Verified",
     provenance: {
-      buildId: "build-42",
-      generatedAt: "2026-03-06",
+      buildId: digest,
       reviewedAt: "2026-03-04",
       reviewedCommit: "abcdef1234567890",
     },
@@ -119,7 +123,6 @@ test("a full entry selects every row, date, revision, and action", () => {
       },
     },
     drift: { label: "Drift", text: "No drift findings" },
-    generated: { label: "Updated", iso: "2026-03-06", text: "6 March 2026", exact: "6 March 2026" },
     reviewed: { label: "Reviewed", iso: "2026-03-04", text: "4 March 2026", exact: "4 March 2026" },
     revision: {
       label: "Reviewed revision",
@@ -130,7 +133,7 @@ test("a full entry selects every row, date, revision, and action", () => {
     reasonsLabel: "Why this level",
     reasons: ["All examples passed.", "No drift."],
     actions: [
-      { href: "https://example.com/context?page=/guide/install/&build=build-42", label: "Copy context pack" },
+      { href: `https://example.com/context?page=/guide/install/&build=${digest}`, label: "Copy context pack" },
       { href: "/docs/edit/guide/install.md", label: "Suggest an edit" },
     ],
   });
@@ -171,7 +174,10 @@ test("the directive's props win over the site data", () => {
 
 test("every label and text follows the page language, dates in its calendar", () => {
   const fa = stringsOf("fa");
-  const data = { trust: { [URL]: { level: "verified", generatedAt: "2026-03-06" } } };
+  const data = {
+    trust: { [URL]: { level: "verified" } },
+    reviewers: { [URL]: { author: "Ada", date: "2026-03-06" } },
+  };
   const view = trustPanelViewOf({}, pageOf({ lang: "fa" }), siteOf(data));
   assert.equal(view.state, "valid");
   if (view.state !== "valid") return;
@@ -183,46 +189,32 @@ test("every label and text follows the page language, dates in its calendar", ()
   assert.equal(view.reviewer.text, fa.trust_reviewer_none);
   assert.equal(view.reasonsLabel, fa.trust_reasons);
   assert.deepEqual(view.reasons, [fa.trust_why_verified]);
-  assert.deepEqual(view.generated, { label: fa.updated, iso: "2026-03-06", text: "۶ مارس ۲۰۲۶", exact: "۶ مارس ۲۰۲۶" });
+  assert.deepEqual(view.reviewed, { label: fa.reviewed, iso: "2026-03-06", text: "۶ مارس ۲۰۲۶", exact: "۶ مارس ۲۰۲۶" });
 });
 
-test("a written date-time keeps its exact value beside the localised day", () => {
-  const data = {
-    trust: { [URL]: { level: "verified", generatedAt: "2026-03-06T10:30:00Z" } },
-    build: { asOf: "2026-03-06" },
+test("a review date agrees with the report's author, provenance, and elapsed days", () => {
+  const input = {
+    level: "verified",
+    lastReviewer: "Ada",
+    provenance: { review: { source: "inline", availability: "available" } },
+    factors: [{ signal: "review", state: "positive", value: 2 }],
   };
-  const view = trustPanelViewOf({}, pageOf(), siteOf(data));
-  assert.equal(view.state, "valid");
-  if (view.state !== "valid") return;
-  assert.deepEqual(view.generated, {
-    label: "Updated",
-    iso: "2026-03-06T10:30:00Z",
-    text: "6 March 2026",
-    exact: "2026-03-06T10:30:00Z",
-  });
-});
+  const review = { author: "Ada", date: "2026-03-04" };
+  const valid = trustPanelViewOf({}, pageOf(), siteOf({ trust: report(input), reviewers: { [URL]: review } }));
+  assert.equal(valid.state, "valid");
+  assert.equal(valid.provenance.reviewedAt, "2026-03-04");
 
-test("future provenance and stale builds are left out of the view", () => {
-  const stale = {
-    trust: { [URL]: { level: "verified", buildId: "build-41", generatedAt: "2026-03-05", reviewedAt: "2026-03-07" } },
-    build: { id: "build-42", asOf: "2026-03-06" },
-  };
-  const staleView = trustPanelViewOf({}, pageOf(), siteOf(stale));
-  assert.equal(staleView.state, "valid");
-  if (staleView.state !== "valid") return;
-  assert.deepEqual(staleView.provenance, {});
-  assert.equal(staleView.generated, undefined);
-  assert.equal(staleView.reviewed, undefined);
-
-  const afterGeneration = {
-    trust: { [URL]: { level: "verified", generatedAt: "2026-03-04", reviewedAt: "2026-03-05" } },
-    build: { asOf: "2026-03-06" },
-  };
-  const lateView = trustPanelViewOf({}, pageOf(), siteOf(afterGeneration));
-  assert.equal(lateView.state, "valid");
-  if (lateView.state !== "valid") return;
-  assert.deepEqual(lateView.provenance, { generatedAt: "2026-03-04" });
-  assert.equal(lateView.reviewed, undefined);
+  for (const [evidence, recorded] of [
+    [input, { ...review, author: "Grace" }],
+    [input, { ...review, date: "2026-03-03" }],
+    [{ ...input, provenance: { review: { source: "git", availability: "available" } } }, review],
+    [{ ...input, provenance: { review: { source: "inline", availability: "unavailable" } } }, review],
+  ] as const) {
+    const view = trustPanelViewOf({}, pageOf(), siteOf({ trust: report(evidence), reviewers: { [URL]: recorded } }));
+    assert.equal(view.state, "valid");
+    assert.deepEqual(view.provenance, { buildId: digest });
+    assert.equal(view.reviewed, undefined);
+  }
 });
 
 test("action links carry the base and drop unsafe or unfilled values", () => {
@@ -324,13 +316,12 @@ test("Mizzen evidence, factors and provenance precede review coverage", () => {
     { label: "Days since review", text: "Unknown · Source: No source · Missing" },
     { label: "Review coverage", text: "Untracked" },
   ]);
-  for (const lang of ["fa", "ar"]) {
+  for (const lang of ["fa", "ar"] as const) {
     const alternate = trustPanelViewOf({}, pageOf({ lang }), siteOf(data));
     assert.equal(alternate.state, "valid");
     assert.equal(alternate.signalRows?.[6]?.label, stringsOf(lang).trust_review_coverage);
   }
-  const report = { pages: { [URL]: entry }, build: { algorithm: "sha256", id: "digest" } };
-  const nested = trustPanelViewOf({}, pageOf(), siteOf({ trust: report }));
+  const nested = trustPanelViewOf({}, pageOf(), siteOf({ trust: report(entry) }));
   assert.equal(nested.state, "valid");
-  assert.deepEqual(nested.provenance, { buildId: "digest" });
+  assert.deepEqual(nested.provenance, { buildId: digest });
 });
