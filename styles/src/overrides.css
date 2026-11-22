@@ -92,16 +92,6 @@ html[data-js] .source-mode-switch[hidden] {
   background: var(--accent);
 }
 
-/* While the mode is on, the exit control borrows the same weight as the pressed switch. */
-.source-mode-switch .source-exit-button {
-  color: var(--foreground);
-}
-
-.source-mode-switch button:focus-visible {
-  outline: 2px solid var(--ring);
-  outline-offset: 2px;
-}
-
 /* Keep the 24×24 target size above the Tailwind layers for WCAG 2.5.8. The element and role
    selectors are scoped to the page-shell roots so they cannot reach an unrelated unit. */
 :where(.site-header, .layout, .announcement, .footnote-popover, .skip-links) :is(
@@ -277,7 +267,6 @@ html[data-js] .source-mode-switch[hidden] {
   align-items: center;
   gap: 0.25rem;
   inline-size: fit-content;
-  max-inline-size: 100%;
   margin-block-start: var(--space-2);
   padding-inline-start: 0.5rem;
   border-inline-start: 2px solid var(--border-strong);
@@ -310,7 +299,6 @@ html[data-js] .source-mode-switch[hidden] {
   border-radius: var(--radius-sm);
   color: inherit;
   font: inherit;
-  text-align: start;
   text-decoration: none;
   cursor: pointer;
 }
