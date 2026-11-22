@@ -29,7 +29,6 @@ npm run test:a11y      # axe gate; needs npx playwright install chromium
 npm run test:smoke     # production-build browser gate; needs npx playwright install chromium
 npm run test:performance
 npm run test:visual
-npm run dev:demo       # sailcloth demo site (demo/) on port 4173
 ```
 
 Before a pull request: `npm run typecheck && npm test`.

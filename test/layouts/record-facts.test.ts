@@ -373,7 +373,7 @@ test("record facts share a value column on desktop and wrap below their labels o
     const url = `https://example.org/archive/${"a".repeat(160)}`;
     const html = render(pageWith(facts), url);
     await page.setContent(html);
-    await page.addStyleTag({ path: fileURLToPath(new URL("../styles/generated.css", import.meta.url)) });
+    await page.addStyleTag({ path: fileURLToPath(new URL("../../styles/generated.css", import.meta.url)) });
 
     const panel = page.locator("#record-facts");
     const values = panel.locator("dd");

@@ -79,7 +79,6 @@
   }
 
   .gallery,
-  .mini-cards,
   .swatches {
     grid-template-columns: 1fr;
   }

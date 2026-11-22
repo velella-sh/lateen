@@ -4,7 +4,6 @@
 @source "../../components";
 @source "../../src";
 @source "../../site";
-@source "../../demo";
 @source "../../starters";
 /* These words occur in prose and code examples, with no matching utility classes in the theme. */
 @source not inline("blur collapse container contents filter grow inline isolate italic lowercase outline resize ring static sticky transform visible");
