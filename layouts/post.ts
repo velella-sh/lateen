@@ -1,4 +1,6 @@
 import { h } from "preact";
+import { staleSlot } from "../src/stale.ts";
+import { pageToolSlot } from "./shared/page-tool.ts";
 import type { ComponentChildren } from "preact";
 import type { Layout, LayoutProps } from "@velella/mizzen/contracts";
 import breadcrumb from "../chrome/breadcrumb/index.ts";
@@ -9,7 +11,7 @@ import { codeBackgrounds } from "../src/brand.ts";
 import { calendarDate, configuredCalendar } from "../src/dates.ts";
 import { textOf } from "../src/guards.ts";
 import { blogFeedHref, blogSubscribe, withBlogFeed } from "./blog/feed.ts";
-import { archiveUrlOf, authorNameOf, authorPageOf } from "./blog/index.ts";
+import { archiveUrlOf, authorOf, authorPageOf, authorProfileOf } from "./blog/index.ts";
 import { articleHtml } from "../src/article-html.ts";
 import { articleShell, titleFromBody } from "./shared/index.ts";
 
@@ -21,17 +23,20 @@ function dateOf(props: LayoutProps, value: string | undefined): ComponentChildre
 }
 
 /** The author line: the display name, linked to the author page when the site publishes one. */
-function authorOf(props: LayoutProps, id: string | undefined): ComponentChildren {
-  if (id === undefined) return null;
-  const name = authorNameOf(props.site, id);
+function byline(
+  props: LayoutProps,
+  id: string,
+  author: ReturnType<typeof authorProfileOf>,
+): ComponentChildren {
   const page = authorPageOf(props.site, id);
   const label = h("span", { class: "post-by" }, t(props.page.lang, "post_by"));
   return h(
     "span",
     { class: "post-author" },
+    author.image === undefined ? null : h("img", { src: author.image, alt: "", width: 24, height: 24 }),
     label,
     " ",
-    page === undefined ? name : h("a", { href: page.url }, name),
+    page === undefined ? author.name : h("a", { href: page.url }, author.name),
   );
 }
 
@@ -44,7 +49,8 @@ function article(props: LayoutProps, feed: string | undefined): ComponentChildre
   const { page } = props;
   const front = page.frontMatter;
   const date = textOf(front.date);
-  const author = textOf(front.author);
+  const authorId = textOf(front.author);
+  const author = authorId === undefined ? undefined : authorProfileOf(props.site, authorOf(props.site, authorId), authorId);
   const description = textOf(front.description);
   const body = { __html: highlightFences(articleHtml(page.html, page.lang), codeBackgrounds(props.site.config.theme.options)) };
   return h(
@@ -57,14 +63,19 @@ function article(props: LayoutProps, feed: string | undefined): ComponentChildre
       { class: "post-meta" },
       dateOf(props, date),
       date === undefined ? null : h("span", { "aria-hidden": "true" }, " · "),
-      authorOf(props, author),
+      authorId === undefined || author === undefined ? null : byline(props, authorId, author),
       h("span", { "aria-hidden": "true" }, " · "),
       h("a", { class: "post-archive", href: archiveUrlOf(props.site) }, t(page.lang, "post_archive")),
       feed === undefined ? null : h("span", { "aria-hidden": "true" }, " · "),
       feed === undefined ? null : blogSubscribe(feed, page.lang),
     ),
+    author?.image === undefined && author?.bio !== undefined
+      ? h("p", { class: "post-author-bio", dir: "auto" }, author.bio)
+      : null,
     description === undefined ? null : h("p", { class: "post-description" }, description),
+    staleSlot(props),
     h("div", { class: "doc-body", dangerouslySetInnerHTML: body }),
+    pageToolSlot(props),
     h("div", { class: "doc-actions" }, pageFooter(props) as ComponentChildren),
   );
 }

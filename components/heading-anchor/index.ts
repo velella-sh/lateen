@@ -1,5 +1,7 @@
 import { h } from "preact";
 import type { ComponentChildren } from "preact";
+import { renderToString } from "preact-render-to-string";
+import { t } from "../../i18n/index.ts";
 import { Link } from "lucide";
 import { icon } from "../../src/icon.ts";
 
@@ -12,7 +14,7 @@ export const TEXT_CLASS = "heading-text";
 /** Heading levels that get an anchor (design brief: h2 to h4). */
 export const LEVELS = ["h2", "h3", "h4"] as const;
 
-const DEFAULT_LABEL = "Link to this heading";
+const DEFAULT_LABEL = t("en", "heading_anchor_label");
 
 export type HeadingAnchorProps = {
   /** The heading's anchor id, from the slug stage. */
@@ -69,6 +71,27 @@ function anchorElement(id: string, label: string) {
     { class: ANCHOR_CLASS, href: `#${id}`, "aria-label": label },
     icon({ node: Link }),
   );
+}
+
+/** Adds permalinks to Markdown headings while preserving their slugs and earlier alias anchors. */
+export function anchorMarkdownHeadings(fragment: DocumentFragment, lang: string): boolean {
+  const label = t(lang, "heading_anchor_label");
+  const headings = Array.from(fragment.querySelectorAll(LEVELS.map((level) => `${level}[id][data-src]`).join(",")));
+  let changed = false;
+  for (const heading of headings) {
+    const id = heading.id;
+    if (!id || heading.querySelector(`.${ANCHOR_CLASS}`)) continue;
+    const text = fragment.ownerDocument.createElement("span");
+    text.id = textIdFor(id);
+    text.className = TEXT_CLASS;
+    text.append(...heading.childNodes);
+    heading.append(text);
+    heading.setAttribute("aria-labelledby", text.id);
+    heading.setAttribute("data-heading-anchor", "");
+    heading.insertAdjacentHTML("beforeend", renderToString(anchorElement(id, linkName(label, text.textContent ?? "", id))));
+    changed = true;
+  }
+  return changed;
 }
 
 /** Minimal hast node the rehype step walks. */

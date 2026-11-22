@@ -12,7 +12,7 @@ import pager from "../chrome/pager/index.ts";
 import { tocFold } from "../chrome/toc/index.ts";
 import { highlightFences } from "../components/code/index.ts";
 import driftBanner from "../components/drift-banner/index.ts";
-import pageTool, { toolHref } from "../components/page-tool/index.ts";
+import { pageToolSlot } from "./shared/page-tool.ts";
 import pageStatus from "../components/page-status/index.ts";
 import readingTime from "../components/reading-time/index.ts";
 import versionNotice from "../components/version-notice/index.ts";
@@ -32,8 +32,6 @@ function article(props: LayoutProps): ComponentChildren {
   const { page } = props;
   const quickstart = page.frontMatter.quickstart === true;
   const backdrops = codeBackgrounds(props.site.config.theme.options);
-  const tool = typeof page.frontMatter.tool === "string" ? page.frontMatter.tool : undefined;
-  const toolUrl = toolHref(props.site.config.base, tool);
   return h(
     "article",
     { class: "doc", "data-pagefind-body": true },
@@ -58,14 +56,7 @@ function article(props: LayoutProps): ComponentChildren {
     staleSlot(props),
     tocFold(props) as ComponentChildren,
     h("div", { class: "doc-body", "data-quickstart": quickstart || undefined, dangerouslySetInnerHTML: { __html: highlightFences(articleHtml(page.html, page.lang), backdrops, page.lang) } }),
-    toolUrl === undefined
-      ? null
-      : (pageTool({
-          props: tool === undefined ? { base: props.site.config.base } : { base: props.site.config.base, tool },
-          page,
-          site: props.site,
-          html: "",
-        }) as ComponentChildren),
+    pageToolSlot(props),
     docPageFooter(props) as ComponentChildren,
     pager(props) as ComponentChildren,
   );

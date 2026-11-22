@@ -1,4 +1,6 @@
 import { h } from "preact";
+import { staleSlot } from "../src/stale.ts";
+import { pageToolSlot } from "./shared/page-tool.ts";
 import { isRecord } from "../src/guards.ts";
 import type { ComponentChildren } from "preact";
 import type { Layout, LayoutProps } from "@velella/mizzen/contracts";
@@ -106,8 +108,10 @@ function article(props: LayoutProps): ComponentChildren {
     "article",
     { class: "doc", "data-pagefind-body": true },
     articleHeader(props, { description: null }),
+    staleSlot(props),
     tocFold(props) as ComponentChildren,
     h("div", { class: "doc-body", dangerouslySetInnerHTML: { __html: articleHtml(page.html, page.lang) } }),
+    pageToolSlot(props),
     h("div", { class: "doc-actions" }, pageFooter(props) as ComponentChildren),
   );
 }

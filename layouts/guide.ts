@@ -1,4 +1,5 @@
 import { h } from "preact";
+import { pageToolSlot } from "./shared/page-tool.ts";
 import type { ComponentChildren } from "preact";
 import type { Layout, LayoutProps } from "@velella/mizzen/contracts";
 import { staleSlot } from "../src/stale.ts";
@@ -46,6 +47,7 @@ function article(props: LayoutProps): ComponentChildren {
     tocFold(props) as ComponentChildren,
     guidePrerequisites({ props: {}, page, site: props.site, html: "" }) as ComponentChildren,
     h("div", { class: "doc-body guide-body", dangerouslySetInnerHTML: { __html: highlightFences(articleHtml(page.html, page.lang), backdrops, page.lang) } }),
+    pageToolSlot(props),
     editPage(props) as ComponentChildren,
     h("div", { class: "doc-actions" }, pageFooter(props) as ComponentChildren, copyMarkdown(props) as ComponentChildren),
     relatedGuides({ props: {}, page, site: props.site, html: "" }) as ComponentChildren,

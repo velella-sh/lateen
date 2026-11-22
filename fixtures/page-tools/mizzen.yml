@@ -3,3 +3,9 @@ description: One page that attaches a browser tool, and one that does not.
 lang: en
 url: https://example.com
 base: ""
+collections:
+  items:
+    source: _data/items.json
+    id: id
+    template: _templates/items.md
+    permalink: /items/{id}/

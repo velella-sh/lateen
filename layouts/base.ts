@@ -14,7 +14,9 @@ import type { SourceModeVisibility } from "../chrome/source-mode/state.ts";
 import skipLinks, { MAIN_ID, NAVIGATION_ID } from "../chrome/skip-links/index.ts";
 import { THEME_KEY } from "../chrome/theme-toggle/key.ts";
 import { brandCss, problemComment, resolveBrand } from "../src/brand.ts";
-import { mathHtml } from "../src/math-html.ts";
+import { t } from "../i18n/index.ts";
+import { safeHref } from "../src/url.ts";
+import { pageHtml } from "../src/article-html.ts";
 import { deferredScript } from "./shared/head.ts";
 import { previewBanner } from "./shared/preview.ts";
 
@@ -171,6 +173,7 @@ export default function base(props: BaseProps) {
             : null,
           network.footer ? (networkFooter(props) as ComponentChildren) : null,
         );
+  const recordHref = page.record?.view === undefined ? undefined : safeHref(page.frontMatter.canonical_url);
   const footerNode = footer ?? (shellFooter(props) as ComponentChildren);
   return h(
     "html",
@@ -192,7 +195,12 @@ export default function base(props: BaseProps) {
           "main",
           { id: MAIN_ID, tabIndex: -1 },
           props.showSourceMode === false ? null : (sourceMode(props) as ComponentChildren),
-          main ?? h("div", { dangerouslySetInnerHTML: { __html: mathHtml(page.html, page.lang) } }),
+          recordHref === undefined ? null : h(
+            "p",
+            { class: "record-view-back" },
+            h("a", { href: recordHref }, t(page.lang, "record_open_main")),
+          ),
+          main ?? h("div", { dangerouslySetInnerHTML: { __html: pageHtml(page.html, page.lang) } }),
         ),
         aside == null ? null : h("div", { class: "aside" }, aside),
       ),

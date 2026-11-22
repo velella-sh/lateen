@@ -219,6 +219,14 @@ export function stamp(env: Pick<SourceEnv, "blocks" | "createLabel" | "actions">
     const label = env.createLabel();
     label.setAttribute("class", "source-label");
     label.setAttribute("data-source-label", "");
+    const id = block.getAttribute("data-block");
+    if (id) {
+      const identity = env.createLabel("bdi");
+      identity.setAttribute("dir", "ltr");
+      identity.setAttribute("data-source-block-id", id);
+      identity.textContent = id;
+      label.appendChild?.(identity);
+    }
     if (env.actions === undefined) {
       // File paths read left to right in every page direction without flipping the label's layout.
       const path = env.createLabel("bdi");

@@ -2,7 +2,7 @@ import { h } from "preact";
 import type { ComponentChildren } from "preact";
 import type { Heading, Island, Layout, LayoutProps, RecordProps } from "@velella/mizzen/contracts";
 import { blogFeedHref, blogSubscribe, withBlogFeed } from "./blog/feed.ts";
-import { authorNameOf, authorPageOf, blogAuthorOf, blogKindOf, blogOf, postsOf } from "./blog/index.ts";
+import { authorNameOf, authorPageOf, authorProfileOf, blogAuthorOf, blogKindOf, blogOf, postsOf } from "./blog/index.ts";
 import breadcrumb from "../chrome/breadcrumb/index.ts";
 import pageFooter from "../chrome/page-footer/index.ts";
 import pagination, { paginationLinks } from "../chrome/pagination/index.ts";
@@ -18,11 +18,13 @@ import { icon } from "../src/icon.ts";
 import { collectionDownloads } from "../src/collection-downloads.ts";
 import { t } from "../i18n/index.ts";
 import { collectionFeeds } from "../src/collection-feeds.ts";
+import { changeDetail } from "../src/change-detail.ts";
+import { textOf } from "../src/guards.ts";
 import { calendarDate, calendarMonth, configuredCalendar } from "../src/dates.ts";
 import { formatField, isEmpty } from "../src/fields.ts";
 import { snapshotPanel } from "../src/snapshot-panel.ts";
 import { baseOf } from "../src/url.ts";
-import { mathHtml } from "../src/math-html.ts";
+import { pageHtml } from "../src/article-html.ts";
 import { articleShell, titleFromBody } from "./shared/index.ts";
 
 /** The keys under `list` front matter this layout reads. The engine reads the rest. */
@@ -284,7 +286,7 @@ function eventTypeOf(record: RecordProps): string {
   return typeof type === "string" ? type.trim() : "";
 }
 
-/** One change row: the date, the event type as a status badge, the record's link, and a changed field. */
+/** One change row: the date, the event type as a status badge, the record's link, and the event details. */
 function changeRow(props: LayoutProps, record: RecordProps): ComponentChildren {
   const lang = props.page.lang;
   const type = eventTypeOf(record);
@@ -293,14 +295,24 @@ function changeRow(props: LayoutProps, record: RecordProps): ComponentChildren {
   const id = typeof record.fields.record === "string" && record.fields.record.trim() !== "" ? record.fields.record.trim() : record.id;
   const href = typeof record.links.record === "string" && SAFE_HREF.test(record.links.record) ? record.links.record : undefined;
   const day = typeof record.fields.date === "string" ? calendarDate(record.fields.date, lang, configuredCalendar(props.site.config)) : undefined;
-  const field = typeof record.fields.field === "string" && record.fields.field.trim() !== "" ? record.fields.field.trim() : undefined;
+  const { old, new: next, count } = record.fields;
+  const field = textOf(record.fields.field);
+  const from = textOf(record.fields.from);
+  const detail = changeDetail({
+    type,
+    ...(field === undefined ? {} : { field }),
+    old,
+    new: next,
+    ...(from === undefined ? {} : { from }),
+    ...(typeof count === "number" ? { count } : {}),
+  }, lang, "changes-field");
   return h(
     "li",
     { class: "dated-list-item changes-item" },
     day === undefined ? null : h("time", { class: "dated-list-day", datetime: day.datetime }, day.text),
     status({ props: { tone, label }, html: "", page: props.page, site: props.site } as never) as ComponentChildren,
     href === undefined ? h("span", { class: "changes-record" }, id) : h("a", { class: "changes-record", href }, id),
-    field === undefined ? null : h("code", { class: "changes-field" }, field),
+    detail,
   );
 }
 
@@ -357,13 +369,24 @@ function blogItem(props: LayoutProps, post: ReturnType<typeof postsOf>[number]):
   );
 }
 
-/** The localized heading of an archive or author page. */
+/** The archive heading or the author's profile above the posts. */
 function blogHeading(props: LayoutProps): ComponentChildren {
-  const lang = props.page.lang;
-  if (blogKindOf(props.page) !== "author") return h("h1", null, t(lang, "blog_archive"));
-  const record = blogAuthorOf(props.page);
-  const id = typeof record?.id === "string" ? record.id : "";
-  return h("h1", null, t(lang, "blog_author_heading", { name: authorNameOf(props.site, id) }));
+  const { page, site } = props;
+  const showTitle = !titleFromBody(props);
+  if (blogKindOf(page) !== "author") return showTitle ? h("h1", null, t(page.lang, "blog_archive")) : null;
+  const author = authorProfileOf(site, blogAuthorOf(page), page.title);
+  return h(
+    "header",
+    { class: "blog-author-profile" },
+    author.image === undefined ? null : h("img", { src: author.image, alt: author.alt, width: 72, height: 72 }),
+    h(
+      "div",
+      null,
+      showTitle ? h("h1", null, t(page.lang, "blog_author_heading", { name: author.name })) : null,
+      author.bio === undefined ? null : h("p", { dir: "auto" }, author.bio),
+      author.link === undefined ? null : h("a", { href: author.link }, t(page.lang, "blog_author_website")),
+    ),
+  );
 }
 
 /**
@@ -377,11 +400,11 @@ function blogArticle(props: LayoutProps, feed: string | undefined): ComponentChi
     "article",
     { class: "list blog", "data-pagefind-body": true },
     breadcrumb(props) as ComponentChildren,
-    titleFromBody(props) ? null : blogHeading(props),
+    blogHeading(props),
     feed === undefined ? null : h("p", { class: "list-feed" }, blogSubscribe(feed, props.page.lang)),
     props.page.html === ""
       ? null
-      : h("div", { class: "list-intro", dangerouslySetInnerHTML: { __html: mathHtml(props.page.html, props.page.lang) } }),
+      : h("div", { class: "list-intro", dangerouslySetInnerHTML: { __html: pageHtml(props.page.html, props.page.lang) } }),
     posts.length === 0
       ? h("p", { class: "list-empty" }, t(props.page.lang, "blog_empty"))
       : h("ul", { class: "blog-list" }, posts.map((post) => blogItem(props, post))),
@@ -427,7 +450,7 @@ function article(props: LayoutProps, blogFeed: string | undefined): ComponentChi
     { class: "list", "data-pagefind-body": true },
     breadcrumb(props) as ComponentChildren,
     titleFromBody(props) ? null : h("h1", null, props.page.title),
-    h("div", { class: "list-intro", dangerouslySetInnerHTML: { __html: mathHtml(props.page.html, props.page.lang) } }),
+    h("div", { class: "list-intro", dangerouslySetInnerHTML: { __html: pageHtml(props.page.html, props.page.lang) } }),
     list === undefined ? null : summaryOf(props, count),
     collectionDownloads(props),
     list === undefined

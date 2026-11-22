@@ -5,7 +5,12 @@ import { after, test } from "node:test";
 import { chromium, type Browser } from "playwright";
 import { build, serve } from "./integration-helpers.ts";
 
-const site = build("page-tools");
+const layouts = ["post", "guide", "tutorial", "quickstart", "api", "api-reference"];
+const site = build("page-tools", process.env, Object.fromEntries(layouts.map((layout) => [
+  `${layout}.md`,
+  `---\ntitle: Tool on ${layout}\nlayout: ${layout}\ntool: tool/tool.js\n---\n\nPage content.\n`,
+])));
+
 
 test("the tool is copied once and only the opted-in page references it", () => {
   assert.ok(existsSync(join(site.out, "tool/tool.js")), "the engine copied the tool to its page URL");
@@ -16,6 +21,14 @@ test("the tool is copied once and only the opted-in page references it", () => {
   assert.match(withTool, /data-page-tool-out|page-tool-fallback/);
   assert.doesNotMatch(withoutTool, /tool\/tool\.js/);
   assert.doesNotMatch(withoutTool, /data-page-tool/);
+});
+
+test("every opted-in content layout provides one slot and one module", () => {
+  for (const route of [...layouts.map((layout) => `/${layout}/`), "/items/sample/"]) {
+    const page = site.document(route);
+    assert.equal(page.querySelectorAll("[data-page-tool]").length, 1, route);
+    assert.equal(page.querySelectorAll('script[type="module"][src="/tool/tool.js"]').length, 1, route);
+  }
 });
 
 let browser: Browser | undefined;

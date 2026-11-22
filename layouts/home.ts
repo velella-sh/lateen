@@ -1,4 +1,5 @@
 import { Fragment, h } from "preact";
+import { staleSlot } from "../src/stale.ts";
 import { isRecord } from "../src/guards.ts";
 import type { ComponentChildren } from "preact";
 import type { ComponentProps, Layout, LayoutProps } from "@velella/mizzen/contracts";
@@ -13,7 +14,7 @@ import motif from "../components/motif/index.ts";
 import statStrip from "../components/stat-strip/index.ts";
 import { resolveBrand } from "../src/brand.ts";
 import { baseOf } from "../src/url.ts";
-import { mathHtml } from "../src/math-html.ts";
+import { pageHtml } from "../src/article-html.ts";
 import base from "./base.ts";
 
 /**
@@ -197,6 +198,7 @@ function content(props: LayoutProps): ComponentChildren {
           : h("p", { class: "home-eyebrow" }, h("i", { class: "status-dot", "aria-hidden": "true" }), eyebrow),
         h("p", { class: "product" }, product),
         h("h1", { id: "home-title", class: "home-title display" }, title),
+        staleSlot(props),
         lead === undefined ? null : h("p", { class: "home-lead lead" }, lead),
         buttons.length === 0 ? null : h("div", { class: "home-actions actions" }, buttons),
         h(
@@ -214,7 +216,7 @@ function content(props: LayoutProps): ComponentChildren {
       : h("section", { class: "home-sections cards", "aria-label": "Explore" }, cards),
     optionsOf(props).specimens === false ? null : componentSpecimens(),
     props.page.html.length > 0
-      ? h("div", { class: "home-body", dangerouslySetInnerHTML: { __html: mathHtml(props.page.html, props.page.lang) } })
+      ? h("div", { class: "home-body", dangerouslySetInnerHTML: { __html: pageHtml(props.page.html, props.page.lang) } })
       : null,
   );
 }
@@ -272,6 +274,7 @@ function showpieceContent(props: LayoutProps): ComponentChildren {
     ),
   );
 
+  blocks.push(staleSlot(props));
   blocks.push(call(statStrip, { ...shared, props: {} }));
 
   const features = Array.isArray(fm.features) ? fm.features : recordsOf(fm.sections);
@@ -303,7 +306,7 @@ function showpieceContent(props: LayoutProps): ComponentChildren {
     );
   }
 
-  if (!bodyUsed && page.html.length > 0) blocks.push(h("div", { dangerouslySetInnerHTML: { __html: mathHtml(page.html, page.lang) } }));
+  if (!bodyUsed && page.html.length > 0) blocks.push(h("div", { dangerouslySetInnerHTML: { __html: pageHtml(page.html, page.lang) } }));
   return h("div", { class: "home-showpiece" }, blocks);
 }
 

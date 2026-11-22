@@ -350,6 +350,34 @@
 
   /* --- The blog archive and author pages --- */
 
+  .list .blog-author-profile {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: start;
+    gap: var(--space-4);
+  }
+
+  .list .blog-author-profile h1 {
+    margin-block-start: 0;
+  }
+
+  .list .blog-author-profile img {
+    flex: none;
+    border-radius: 50%;
+    object-fit: cover;
+  }
+
+  .list .blog-author-profile p {
+    max-inline-size: 60ch;
+    color: var(--muted-foreground);
+    overflow-wrap: anywhere;
+  }
+
+  .list .blog-author-profile a {
+    color: var(--link);
+    text-decoration: underline;
+  }
+
   .list .blog-list {
     margin: var(--space-6) 0 0;
     padding: 0;

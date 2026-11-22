@@ -1,10 +1,13 @@
-// The stale notice appears in the four article layouts through one shared slot, under the title,
-// and nowhere else. A page without `stale`, or a site that turned the notice off, is unchanged.
 import assert from "node:assert/strict";
 import { test } from "node:test";
 import { JSDOM } from "jsdom";
 import { renderToString } from "preact-render-to-string";
 import type { LayoutProps, Page, PageStale, Site, SiteConfig, SourcePos } from "@velella/mizzen/contracts";
+import api from "../layouts/api.ts";
+import apiReference from "../layouts/api-reference.ts";
+import changelog from "../layouts/changelog.ts";
+import post from "../layouts/post.ts";
+import quickstart from "../layouts/quickstart.ts";
 import doc from "../layouts/doc.ts";
 import guide from "../layouts/guide.ts";
 import home from "../layouts/home.ts";
@@ -89,8 +92,10 @@ const render = (layout: typeof doc, page: Page, config = configWith()): string =
 
 const noticeAt = (html: string): number => html.indexOf('class="stale-notice"');
 
-test("the four article layouts show the notice under the title", () => {
-  for (const layout of [doc, tutorial, guide, record]) {
+const contentLayouts = [doc, tutorial, guide, record, api, apiReference, changelog, home, post, quickstart];
+
+test("the content layouts show the notice under the title", () => {
+  for (const layout of contentLayouts) {
     const html = render(layout, pageWith({ stale }));
     const notice = noticeAt(html);
     const title = html.indexOf("</h1>");
@@ -103,7 +108,7 @@ test("the four article layouts show the notice under the title", () => {
 
 test("a page without stale renders exactly as before", () => {
   const off = configWith({ theme: { options: { stale: { show: false } } } });
-  for (const layout of [doc, tutorial, guide, record]) {
+  for (const layout of contentLayouts) {
     const plain = render(layout, pageWith({}));
     assert.equal(noticeAt(plain), -1);
     assert.equal(render(layout, pageWith({ stale }), off), plain);
@@ -111,7 +116,7 @@ test("a page without stale renders exactly as before", () => {
 });
 
 test("the site can turn the notice off", () => {
-  for (const layout of [doc, tutorial, guide, record]) {
+  for (const layout of contentLayouts) {
     const html = render(layout, pageWith({ stale }), configWith({ theme: { options: { stale: { show: false } } } }));
     assert.equal(noticeAt(html), -1);
   }
@@ -144,11 +149,10 @@ test("the notice offers the edit link and an agent prompt with the changed files
   assert.equal(noRepository.querySelector(".stale-notice-actions a")?.textContent, "Ask an agent");
 });
 
-test("other layouts ignore stale", () => {
-  const plain = renderToString(home(props(pageWith({}))) as never);
-  const marked = renderToString(home(props(pageWith({ stale }))) as never);
-  assert.equal(noticeAt(plain), -1);
-  assert.equal(plain, marked);
+test("the showpiece home displays the stale notice", () => {
+  const page = pageWith({ stale, frontMatter: { home: { style: "showpiece" } } });
+  const html = render(home, page);
+  assert.ok(noticeAt(html) > html.indexOf("</h1>"));
 });
 
 test("agent edit instructions govern article tools and stale actions", () => {

@@ -113,6 +113,15 @@ test("the active bar stays hidden and empty until the mode is on", () => {
   assert.equal(s.count.textContent, "2 blocks with a source position.");
 });
 
+test("source labels show stable block ids alongside the source position", () => {
+  const s = setup({ html: `<p data-src="a.md:8:1-8:5" data-block="stable-sample">sample</p>` });
+  s.button.click();
+  const identity = s.document.querySelector(".source-label [data-source-block-id]");
+  assert.equal(identity?.textContent, "stable-sample");
+  assert.equal(identity?.getAttribute("dir"), "ltr");
+  assert.equal(s.document.querySelector(".source-label-copy")?.textContent, "a.md:8");
+});
+
 test("a page with no sourced blocks says so instead of showing a bare zero", () => {
   const s = setup({ html: `<p>no source here</p>` });
   s.button.click();

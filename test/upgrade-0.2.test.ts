@@ -162,6 +162,13 @@ function normalize(text: string): { head: string; body: string } {
   for (const element of [...document.querySelectorAll(".doc-context")]) element.replaceWith(...element.childNodes);
   // The document metadata group changes only the wrapper, not the trust, freshness, or reading-time content.
   for (const element of [...document.querySelectorAll(".doc-meta")]) element.replaceWith(...element.childNodes);
+  // A Markdown permalink adds an accessible text wrapper. Keep the original heading and its text.
+  for (const heading of document.querySelectorAll("[data-heading-anchor]")) {
+    heading.removeAttribute("data-heading-anchor");
+    heading.removeAttribute("aria-labelledby");
+    const text = heading.querySelector(":scope > .heading-text");
+    text?.replaceWith(...text.childNodes);
+  }
   // The drawer header keeps the same close button and navigation links.
   for (const element of [...document.querySelectorAll(".drawer-header")]) element.replaceWith(...element.childNodes);
   for (const element of [...document.querySelectorAll(".drawer-close")]) element.classList.remove("iconbtn");
@@ -199,6 +206,20 @@ function normalize(text: string): { head: string; body: string } {
   for (const element of [...document.querySelectorAll(".mermaid-diagram[style]")]) element.removeAttribute("style");
   // The trust panel gained an id so the tested chip can link to it.
   for (const element of [...document.querySelectorAll("details.trust-panel#trust-panel")]) element.removeAttribute("id");
+  // Trust now reads dates from inline reviews and a build digest from the published report.
+  // The old fixture supplies the retired build/date fields and an associated context pack.
+  for (const panel of document.querySelectorAll(".trust-panel")) {
+    if (panel.hasAttribute("data-trust-generated")) {
+      panel.removeAttribute("data-trust-build");
+      panel.removeAttribute("data-trust-generated");
+      panel.querySelector('.trust-panel-action[href*="build=build-42"]')?.remove();
+    }
+    panel.removeAttribute("data-trust-reviewed");
+    for (const row of panel.querySelectorAll(".trust-panel-generated,.trust-panel-reviewed")) {
+      row.previousElementSibling?.remove();
+      row.remove();
+    }
+  }
   // Dates use Mizzen's calendar and long-date format, retaining their machine-readable values.
   for (const time of document.querySelectorAll(".trust-panel time, .last-updated time")) {
     const datetime = time.getAttribute("datetime");

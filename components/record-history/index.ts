@@ -3,7 +3,8 @@ import type { ComponentChildren } from "preact";
 import type { ChangeEvent, Component } from "@velella/mizzen/contracts";
 import { patternOf, t } from "../../i18n/index.ts";
 import { calendarDate, configuredCalendar, type DateCalendar } from "../../src/dates.ts";
-import { formatField } from "../../src/fields.ts";
+import { changeDetail } from "../../src/change-detail.ts";
+export { ARROW_CLASS, CHANGE_CLASS, FIELD_CLASS, SR_CLASS } from "../../src/change-detail.ts";
 import { optionOf } from "../../src/options.ts";
 
 /**
@@ -33,18 +34,6 @@ export const DATE_CLASS = "record-history-date";
 
 /** Class on the event type's visible label. */
 export const TYPE_CLASS = "record-history-type";
-
-/** Class on a changed field's name. */
-export const FIELD_CLASS = "record-history-field";
-
-/** Class on the old and new value wrapper. */
-export const CHANGE_CLASS = "record-history-change";
-
-/** Class on the arrow between the old and the new value. */
-export const ARROW_CLASS = "record-history-arrow";
-
-/** Class on the text only assistive technology reads. */
-export const SR_CLASS = "record-history-sr";
 
 /** Class on the disclosure that holds the events beyond the limit. */
 export const DETAILS_CLASS = "record-history-earlier";
@@ -85,39 +74,6 @@ export function limitOf(site: { config?: { theme?: { options?: Readonly<Record<s
   return typeof value === "number" && Number.isInteger(value) && value >= 1 ? value : DEFAULT_LIMIT;
 }
 
-function valueNode(value: unknown, label: string, lang: string): ComponentChildren {
-  return h("span", null, h("span", { class: SR_CLASS }, `${label}: `), formatField(value, "text", lang));
-}
-
-/** The extra detail one event type carries: a field, the old and new value, an earlier id, a count. */
-function detailOf(event: ChangeEvent, lang: string): ComponentChildren {
-  if (event.type === "changed" && event.field !== undefined) {
-    const before = event.old === undefined ? null : h("del", null, valueNode(event.old, t(lang, "history_old_value"), lang));
-    const after = event.new === undefined ? null : h("ins", null, valueNode(event.new, t(lang, "history_new_value"), lang));
-    return h(
-      "span",
-      null,
-      h("code", { class: FIELD_CLASS }, event.field),
-      before === null && after === null
-        ? null
-        : h(
-            "span",
-            { class: CHANGE_CLASS },
-            before,
-            before === null || after === null ? null : h("span", { class: ARROW_CLASS, "aria-hidden": "true" }, "→"),
-            after,
-          ),
-    );
-  }
-  if (event.type === "renamed" && event.from !== undefined) {
-    return h("span", null, t(lang, "history_renamed_from", { id: event.from }));
-  }
-  if (event.type === "imported" && event.count !== undefined) {
-    return h("span", null, t(lang, "history_records", { count: event.count }));
-  }
-  return null;
-}
-
 function eventNode(event: ChangeEvent, lang: string, calendar: DateCalendar | undefined): ComponentChildren {
   const label = t(lang, TYPE_KEYS[event.type]);
   const date = calendarDate(event.date, lang, calendar);
@@ -131,7 +87,7 @@ function eventNode(event: ChangeEvent, lang: string, calendar: DateCalendar | un
     },
     h("time", { class: DATE_CLASS, datetime: date?.datetime ?? event.date }, date?.text ?? event.date),
     h("span", { class: TYPE_CLASS }, label),
-    detailOf(event, lang),
+    changeDetail(event, lang),
   );
 }
 
