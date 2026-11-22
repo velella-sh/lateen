@@ -6,18 +6,31 @@ import breadcrumb from "../chrome/breadcrumb/index.ts";
 import { t } from "../i18n/index.ts";
 import { articleHtml } from "../src/article-html.ts";
 import { articleShell } from "./shared/index.ts";
+import { methodClassOf } from "./api-reference.ts";
 
 /**
  * The index page of a pinned OpenAPI reference. The engine writes it at `apiReference.path` with
  * the document's title, version, description, and grouped navigation in `apiReference` front
  * matter: one group per tag, then the untagged operations as top-level links. This layout renders
- * that model with one heading per group and one ordinary link per operation.
+ * that model with one heading per group and one introduction per operation.
+ *
+ * The navigation carries only a title and a URL, so the operation's method, path, and description
+ * are read from the operation page the engine built beside the index. A link whose page is not in
+ * `site.pages` (a hand-written entry) stays a plain link, and an operation without a description
+ * shows the request line and its title alone.
  */
 
 /** One navigation link the engine built. */
 interface ReferenceLink {
   readonly title: string;
   readonly url: string;
+}
+
+/** The part of an operation the index shows before a reader opens its page. */
+interface OperationSummary {
+  readonly method: string;
+  readonly path: string;
+  readonly description?: string;
 }
 
 /** One navigation group: a tag with its operations, or an untagged operation as a top-level link. */
@@ -50,8 +63,68 @@ function isLink(entry: ReferenceGroup): boolean {
   return entry.children === undefined && entry.url !== undefined;
 }
 
-/** One group of operation links under its tag. */
-function groupSection(entry: ReferenceGroup): ComponentChildren {
+/** The operation a generated page carries, or undefined for a hand-written or unrelated page. */
+function operationOf(page: LayoutProps["site"]["pages"][number] | undefined): OperationSummary | undefined {
+  const reference = page?.frontMatter.apiReference;
+  if (!isRecord(reference) || reference.kind !== "operation" || !isRecord(reference.operation)) return undefined;
+  const operation = reference.operation;
+  if (typeof operation.method !== "string" || typeof operation.path !== "string") return undefined;
+  const description =
+    typeof operation.description === "string" && operation.description.trim() !== "" ? operation.description : undefined;
+  return {
+    method: operation.method,
+    path: operation.path,
+    ...(description === undefined ? {} : { description }),
+  };
+}
+
+/** The operations this reference built, keyed by the URL the index links to. */
+function operationsByUrl(pages: LayoutProps["site"]["pages"]): ReadonlyMap<string, OperationSummary> {
+  const operations = new Map<string, OperationSummary>();
+  for (const page of pages) {
+    const operation = operationOf(page);
+    if (operation !== undefined) operations.set(page.url, operation);
+  }
+  return operations;
+}
+
+/** The request line, which is also the title the engine gives an operation without a summary. */
+function requestLine(operation: OperationSummary): string {
+  return `${operation.method.toUpperCase()} ${operation.path}`;
+}
+
+/**
+ * One operation entry: the method, path, and description read from its page, with the link title
+ * once. A link without a generated page stays a plain title link. When the engine used the request
+ * line as the title, showing it again would repeat the method and path.
+ */
+function operationItem(link: ReferenceLink, operation: OperationSummary | undefined): ComponentChildren {
+  if (operation === undefined) {
+    return h("li", null, h("a", { class: "api-reference-index-link", href: link.url }, link.title));
+  }
+  const title = link.title.trim() === requestLine(operation) ? undefined : link.title;
+  return h(
+    "li",
+    { class: "api-reference-index-item" },
+    h(
+      "a",
+      { class: "api-reference-index-link api-reference-index-entry", href: link.url },
+      h(
+        "span",
+        { class: "api-reference-index-line" },
+        h("span", { class: methodClassOf(operation.method) }, operation.method.toUpperCase()),
+        h("code", { class: "api-reference-path", dir: "ltr" }, operation.path),
+      ),
+      title === undefined ? null : h("span", { class: "api-reference-index-title" }, title),
+      operation.description === undefined
+        ? null
+        : h("span", { class: "api-reference-index-description" }, operation.description),
+    ),
+  );
+}
+
+/** One group of operation entries under its tag. */
+function groupSection(entry: ReferenceGroup, operations: ReadonlyMap<string, OperationSummary>): ComponentChildren {
   return h(
     "section",
     { class: "api-reference-index-group" },
@@ -59,15 +132,17 @@ function groupSection(entry: ReferenceGroup): ComponentChildren {
     h(
       "ul",
       { class: "api-reference-index-list" },
-      ...(entry.children ?? []).map((link) =>
-        h("li", null, h("a", { class: "api-reference-index-link", href: link.url }, link.title)),
-      ),
+      ...(entry.children ?? []).map((link) => operationItem(link, operations.get(link.url))),
     ),
   );
 }
 
 /** The untagged operations, which the engine publishes as top-level links. */
-function otherSection(entries: readonly ReferenceGroup[], lang: string): ComponentChildren {
+function otherSection(
+  entries: readonly ReferenceGroup[],
+  operations: ReadonlyMap<string, OperationSummary>,
+  lang: string,
+): ComponentChildren {
   if (entries.length === 0) return null;
   return h(
     "section",
@@ -76,7 +151,7 @@ function otherSection(entries: readonly ReferenceGroup[], lang: string): Compone
     h(
       "ul",
       { class: "api-reference-index-list" },
-      ...entries.map((entry) => h("li", null, h("a", { class: "api-reference-index-link", href: entry.url }, entry.title))),
+      ...entries.map((entry) => operationItem({ title: entry.title, url: entry.url ?? "" }, operations.get(entry.url ?? ""))),
     ),
   );
 }
@@ -86,6 +161,7 @@ function content(props: LayoutProps, model: ApiReferenceIndex): ComponentChildre
   const lang = props.page.lang;
   const groups = model.navigation.filter((entry) => !isLink(entry));
   const links = model.navigation.filter(isLink);
+  const operations = operationsByUrl(props.site.pages);
   return h(
     "article",
     { class: "doc api-reference-index", "data-pagefind-body": true },
@@ -105,8 +181,8 @@ function content(props: LayoutProps, model: ApiReferenceIndex): ComponentChildre
           "nav",
           { class: "api-reference-index-nav", "aria-labelledby": "api-reference-index-nav-title" },
           h("h2", { id: "api-reference-index-nav-title" }, t(lang, "api_operations")),
-          ...groups.map(groupSection),
-          otherSection(links, lang),
+          ...groups.map((group) => groupSection(group, operations)),
+          otherSection(links, operations, lang),
         ),
   );
 }

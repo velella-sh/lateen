@@ -153,6 +153,69 @@ test("the index renders its title, version, description, groups, and untagged op
   assert.equal([...page.matchAll(/<h1>/g)].length, 1);
 });
 
+test("the index introduces each operation with the method, path, and description from its page", () => {
+  const index = indexPage({
+    title: "Widget API",
+    version: "1.4.0",
+    navigation: [
+      { title: "Widgets", children: [{ title: "Create a widget", url: "/reference/createWidget/" }] },
+      { title: "GET /ping", url: "/reference/ping/" },
+    ],
+  });
+  const page = renderToString(
+    apiReferenceIndex(
+      layoutProps(index, [], [], [
+        index,
+        operationPage(fullOperation, { url: fullOperation.url }),
+        operationPage(minimalOperation, { url: minimalOperation.url }),
+      ]) as never,
+    ) as never,
+  );
+  assert.match(
+    page,
+    /<li class="api-reference-index-item"><a class="api-reference-index-link api-reference-index-entry" href="\/reference\/createWidget\/"><span class="api-reference-index-line"><span class="api-reference-method api-reference-method-post">POST<\/span><code class="api-reference-path" dir="ltr">\/widgets<\/code><\/span><span class="api-reference-index-title">Create a widget<\/span><span class="api-reference-index-description">Creates one widget and returns it\.<\/span><\/a><\/li>/,
+  );
+  assert.match(
+    page,
+    /<li class="api-reference-index-item"><a class="api-reference-index-link api-reference-index-entry" href="\/reference\/ping\/"><span class="api-reference-index-line"><span class="api-reference-method api-reference-method-get">GET<\/span><code class="api-reference-path" dir="ltr">\/ping<\/code><\/span><\/a><\/li>/,
+  );
+});
+
+test("an index entry without a generated page stays a plain title link", () => {
+  const page = renderIndex(
+    indexPage({ title: "Widget API", version: "1", navigation: [{ title: "Hand-written", url: "/reference/hand/" }] }),
+  );
+  assert.match(page, /<li><a class="api-reference-index-link" href="\/reference\/hand\/">Hand-written<\/a><\/li>/);
+});
+
+test("an operation without a description keeps its request line and title", () => {
+  const operation = {
+    ...fullOperation,
+    id: "listWidgets",
+    method: "get",
+    path: "/widgets",
+    url: "/reference/listWidgets/",
+    title: "List widgets",
+    description: undefined,
+    parameters: [],
+    requestBody: undefined,
+    responses: [{ status: "200", description: "OK", content: [] }],
+  };
+  const index = indexPage({
+    title: "Widget API",
+    version: "1",
+    navigation: [{ title: "Widgets", children: [{ title: "List widgets", url: "/reference/listWidgets/" }] }],
+  });
+  const page = renderToString(
+    apiReferenceIndex(layoutProps(index, [], [], [index, operationPage(operation, { url: operation.url })]) as never) as never,
+  );
+  assert.match(
+    page,
+    /<span class="api-reference-method api-reference-method-get">GET<\/span><code class="api-reference-path" dir="ltr">\/widgets<\/code><\/span><span class="api-reference-index-title">List widgets<\/span><\/a>/,
+  );
+  assert.doesNotMatch(page, /api-reference-index-description/);
+});
+
 test("an index without the engine model falls back to its title and body", () => {
   const page = renderIndex(pageWith({ title: "Reference", html: "<p>Authored.</p>" }));
   assert.match(page, /<h1>Reference<\/h1><div class="doc-body"><p>Authored\.<\/p><\/div>/);

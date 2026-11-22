@@ -217,7 +217,7 @@
   }
 
   /* An endpoint's method badge says GET or POST in text, so the method stays readable. */
-  .endpoint-method {
+  :is(.endpoint-method, .api-reference-method) {
     border-color: CanvasText !important;
     color: CanvasText !important;
   }
