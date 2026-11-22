@@ -10,5 +10,3 @@ styles/generated.css
 test/acceptance/out/
 test/visual/out/
 test/smoke/out/
-demo/dist/
-demo/.mizzen/

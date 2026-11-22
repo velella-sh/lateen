@@ -24,7 +24,7 @@ jobs:
   # touches something they read. A pull request is "light" when every changed file is one of:
   #   docs/**  changelog.d/**  a Markdown file in the repository root  test/<file>.ts (top level only)
   #   .github/CODEOWNERS  scripts/test-changed.ts  scripts/new-component.ts
-  # Markdown anywhere else (site/, fixtures/, starters/, recipes/, demo/, test/*/) is gate input,
+  # Markdown anywhere else (site/, fixtures/, starters/, recipes/, test/*/) is gate input,
   # not prose, so it runs the heavy gates. Pushes to main and manual runs always run everything.
   # A skipped job reports as passed, so no required check hangs.
   changes:
