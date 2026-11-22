@@ -161,13 +161,14 @@ test("offers Claude, ChatGPT, and Cursor by default, in that order, with the abs
   const out = html(pageAgentMenu(props(pageWith(), {}, "https://docs.example.com")));
 
   assert.match(out, /<p class="page-agent-menu-heading">Open in<\/p>/);
-  const hrefs = [...out.matchAll(/<a class="page-agent-menu-provider" href="([^"]+)" target="_blank" rel="noopener">([^<]+)<\/a>/g)].map(
+  const hrefs = [...out.matchAll(/<a class="page-agent-menu-provider" href="([^"]+)" target="_blank" rel="noopener">(?:<svg[^>]*>.*?<\/svg>)?([^<]+)<\/a>/g)].map(
     (match) => ({ href: match[1]!, title: match[2]! }),
   );
   assert.deepEqual(
     hrefs.map((provider) => provider.title),
     ["Claude", "ChatGPT", "Cursor"],
   );
+  assert.equal([...out.matchAll(/class="page-agent-menu-logo"[^>]*aria-hidden="true"/g)].length, 3);
   assert.equal(hrefs[0]!.href, `https://claude.ai/new?q=Read+${absoluteTwin}`);
   assert.equal(hrefs[1]!.href, `https://chatgpt.com?q=Read+${absoluteTwin}`);
   assert.equal(hrefs[2]!.href, `https://cursor.com/link/prompt?text=Read+${absoluteTwin}`);
