@@ -18,6 +18,8 @@ import { icon } from "../src/icon.ts";
 import { collectionDownloads } from "../src/collection-downloads.ts";
 import { t } from "../i18n/index.ts";
 import { collectionFeeds } from "../src/collection-feeds.ts";
+import { changeDetail } from "../src/change-detail.ts";
+import { textOf } from "../src/guards.ts";
 import { calendarDate, calendarMonth, configuredCalendar } from "../src/dates.ts";
 import { formatField, isEmpty } from "../src/fields.ts";
 import { snapshotPanel } from "../src/snapshot-panel.ts";
@@ -284,7 +286,7 @@ function eventTypeOf(record: RecordProps): string {
   return typeof type === "string" ? type.trim() : "";
 }
 
-/** One change row: the date, the event type as a status badge, the record's link, and a changed field. */
+/** One change row: the date, the event type as a status badge, the record's link, and the event details. */
 function changeRow(props: LayoutProps, record: RecordProps): ComponentChildren {
   const lang = props.page.lang;
   const type = eventTypeOf(record);
@@ -293,14 +295,24 @@ function changeRow(props: LayoutProps, record: RecordProps): ComponentChildren {
   const id = typeof record.fields.record === "string" && record.fields.record.trim() !== "" ? record.fields.record.trim() : record.id;
   const href = typeof record.links.record === "string" && SAFE_HREF.test(record.links.record) ? record.links.record : undefined;
   const day = typeof record.fields.date === "string" ? calendarDate(record.fields.date, lang, configuredCalendar(props.site.config)) : undefined;
-  const field = typeof record.fields.field === "string" && record.fields.field.trim() !== "" ? record.fields.field.trim() : undefined;
+  const { old, new: next, count } = record.fields;
+  const field = textOf(record.fields.field);
+  const from = textOf(record.fields.from);
+  const detail = changeDetail({
+    type,
+    ...(field === undefined ? {} : { field }),
+    old,
+    new: next,
+    ...(from === undefined ? {} : { from }),
+    ...(typeof count === "number" ? { count } : {}),
+  }, lang, "changes-field");
   return h(
     "li",
     { class: "dated-list-item changes-item" },
     day === undefined ? null : h("time", { class: "dated-list-day", datetime: day.datetime }, day.text),
     status({ props: { tone, label }, html: "", page: props.page, site: props.site } as never) as ComponentChildren,
     href === undefined ? h("span", { class: "changes-record" }, id) : h("a", { class: "changes-record", href }, id),
-    field === undefined ? null : h("code", { class: "changes-field" }, field),
+    detail,
   );
 }
 

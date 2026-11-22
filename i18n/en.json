@@ -256,6 +256,7 @@
   "guide_untagged": "Other guides",
   "history_added": "Added",
   "history_all_fields": "All fields",
+  "history_change_arrow": "→",
   "history_changed": "Changed",
   "history_earlier": "Earlier events ({count})",
   "history_filter": "Filter by field",

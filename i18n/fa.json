@@ -256,6 +256,7 @@
   "guide_untagged": "راهنمای دیگر",
   "history_added": "افزوده شد",
   "history_all_fields": "همهٔ فیلدها",
+  "history_change_arrow": "←",
   "history_changed": "تغییر کرد",
   "history_earlier": "رویدادهای پیشین ({count})",
   "history_filter": "فیلتر بر اساس فیلد",

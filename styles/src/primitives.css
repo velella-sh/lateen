@@ -133,6 +133,14 @@
     margin-block: var(--space-2);
   }
 
+  .record-history-change {
+    display: inline-flex;
+    flex-wrap: wrap;
+    gap: var(--space-1);
+    margin-inline-start: var(--space-2);
+  }
+
+  .record-history-sr,
   .version-badge-sr {
     @apply sr-only;
   }
