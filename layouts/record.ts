@@ -20,6 +20,7 @@ import { staleSlot } from "../src/stale.ts";
 import { snapshotPanel } from "../src/snapshot-panel.ts";
 import { baseOf } from "../src/url.ts";
 import { mathHtml } from "../src/math-html.ts";
+import { collectionFeeds } from "../src/collection-feeds.ts";
 import { fieldsOf } from "../components/record-history/index.ts";
 
 /** Class on the embed code the record offers; `record.css` places it. */
@@ -97,6 +98,7 @@ function article(props: LayoutProps): ComponentChildren {
       site: props.site,
       html: "",
     }) as ComponentChildren,
+    collectionFeeds(props),
     factsPanel(props),
     collectionDownloads(props),
     lastUpdated(props) as ComponentChildren,

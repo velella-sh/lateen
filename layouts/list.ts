@@ -17,6 +17,7 @@ import { Rss } from "lucide";
 import { icon } from "../src/icon.ts";
 import { collectionDownloads } from "../src/collection-downloads.ts";
 import { t } from "../i18n/index.ts";
+import { collectionFeeds } from "../src/collection-feeds.ts";
 import { calendarDate, calendarMonth, configuredCalendar } from "../src/dates.ts";
 import { formatField, isEmpty } from "../src/fields.ts";
 import { snapshotPanel } from "../src/snapshot-panel.ts";
@@ -450,6 +451,7 @@ function article(props: LayoutProps, blogFeed: string | undefined): ComponentChi
             t(props.page.lang, "dated_list_feed"),
           ),
         ),
+    collectionFeeds(props),
     list !== undefined && list.pagination.next !== undefined && viewOf(props) === "dated"
       ? h(
           "p",

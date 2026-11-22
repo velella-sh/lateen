@@ -511,7 +511,8 @@
   }
 
   .doc-body a,
-  .trust-panel-body a {
+  .trust-panel-body a,
+  .record .list-subscribe-link {
     color: var(--link);
     text-decoration: underline;
     text-decoration-thickness: 0.08em;
