@@ -151,3 +151,93 @@ fixture and checked by `test/visual/inventory.test.ts`; it is not part of the sc
   <p class="stale-notice-reviewed">Reviewed November 9, 2026.</p>
   <ul class="stale-notice-files"><li class="stale-notice-file"><code>_data/books.json</code> changed</li></ul>
 </aside>
+
+## Imported callouts
+
+:::abstract{title="Imported abstract" collapsible}
+Imported content.
+:::
+
+:::attention{title="Imported attention" collapsible}
+Imported content.
+:::
+
+:::bug{title="Imported bug" collapsible}
+Imported content.
+:::
+
+:::caution{title="Imported caution" collapsible}
+Imported content.
+:::
+
+:::check{title="Imported check" collapsible}
+Imported content.
+:::
+
+:::cite{title="Imported cite" collapsible}
+Imported content.
+:::
+
+:::done{title="Imported done" collapsible}
+Imported content.
+:::
+
+:::error{title="Imported error" collapsible}
+Imported content.
+:::
+
+:::example{title="Imported example" collapsible}
+Imported content.
+:::
+
+:::fail{title="Imported fail" collapsible}
+Imported content.
+:::
+
+:::failure{title="Imported failure" collapsible}
+Imported content.
+:::
+
+:::faq{title="Imported faq" collapsible}
+Imported content.
+:::
+
+:::help{title="Imported help" collapsible}
+Imported content.
+:::
+
+:::hint{title="Imported hint" collapsible}
+Imported content.
+:::
+
+:::important{title="Imported important" collapsible}
+Imported content.
+:::
+
+:::info{title="Imported info" collapsible}
+Imported content.
+:::
+
+:::missing{title="Imported missing" collapsible}
+Imported content.
+:::
+
+:::question{title="Imported question" collapsible}
+Imported content.
+:::
+
+:::success{title="Imported success" collapsible}
+Imported content.
+:::
+
+:::summary{title="Imported summary" collapsible}
+Imported content.
+:::
+
+:::tldr{title="Imported tldr" collapsible}
+Imported content.
+:::
+
+:::todo{title="Imported todo" collapsible}
+Imported content.
+:::

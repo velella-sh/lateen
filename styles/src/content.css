@@ -315,6 +315,32 @@
     line-height: 1.4;
   }
 
+  .callout-disclosure {
+    display: block;
+  }
+
+  .callout-summary {
+    display: flex;
+    align-items: center;
+    gap: var(--space-3);
+    color: var(--callout-color);
+    cursor: pointer;
+    font-weight: 700;
+  }
+
+  .callout-summary::-webkit-details-marker {
+    display: none;
+  }
+
+  .callout-chevron {
+    @apply size-4;
+    margin-inline-start: auto;
+  }
+
+  .callout-disclosure[open] > .callout-summary .callout-chevron {
+    transform: rotate(180deg);
+  }
+
   .callout-body {
     margin-block-start: var(--space-2);
     font-size: var(--text-sm);

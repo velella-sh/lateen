@@ -1,8 +1,9 @@
 import { h } from "preact";
 import type { ComponentProps, Page } from "@velella/mizzen/contracts";
-import { Info, Lightbulb, MessageSquare, OctagonAlert, TriangleAlert } from "lucide";
+import { ChevronDown, Info, Lightbulb, MessageSquare, OctagonAlert, TriangleAlert } from "lucide";
 import type { IconNode } from "lucide";
 import { icon as lucideIcon } from "../../src/icon.ts";
+import { flagOf } from "../../src/flags.ts";
 import { t } from "../../i18n/index.ts";
 
 /** Class of the title paragraph, which also names the callout for assistive technology. */
@@ -19,12 +20,22 @@ export type CalloutProps = {
   type?: string;
   /** Replaces the kind's default title. */
   title?: string;
+  collapsible?: string | boolean;
+  open?: string | boolean;
 };
 
 const KINDS: readonly CalloutKind[] = ["note", "tip", "important", "warning", "caution"];
 
-/** Older content says `danger` for what is now `caution`. */
-const ALIASES: ReadonlyMap<string, CalloutKind> = new Map([["danger", "caution"]]);
+/** MkDocs Material names and aliases, mapped to Lateen's five visual variants. */
+const ALIASES: ReadonlyMap<string, CalloutKind> = new Map([
+  ["info", "note"], ["todo", "note"], ["quote", "note"], ["cite", "note"], ["example", "note"],
+  ["tip", "tip"], ["hint", "tip"], ["success", "tip"], ["check", "tip"], ["done", "tip"],
+  ["abstract", "important"], ["summary", "important"], ["tldr", "important"],
+  ["question", "important"], ["help", "important"], ["faq", "important"],
+  ["attention", "warning"],
+  ["danger", "caution"], ["failure", "caution"], ["fail", "caution"], ["missing", "caution"],
+  ["error", "caution"], ["bug", "caution"],
+]);
 
 /** The i18n key with each kind's default title, used when the author gives none. */
 const TITLE_KEYS: Readonly<Record<CalloutKind, string>> = {
@@ -86,16 +97,38 @@ export default function callout({ props, html, page }: ComponentProps<CalloutPro
   const title = custom === "" ? kindLabel : custom;
   const id = titleId(page, kind);
 
+  const marker = lucideIcon({ node: ICONS[kind], class: "callout-icon" });
+  const body = h("div", { class: "callout-body", dangerouslySetInnerHTML: { __html: html } });
+  if (flagOf(props.collapsible)) {
+    return h(
+      "details",
+      { class: `callout callout-${kind} callout-disclosure`, open: flagOf(props.open) },
+      h(
+        "summary",
+        { class: "callout-summary" },
+        marker,
+        h("span", { class: TITLE_CLASS }, title),
+        lucideIcon({ node: ChevronDown, class: "callout-chevron" }),
+      ),
+      body,
+    );
+  }
+
   return h(
     "div",
     { class: `callout callout-${kind}`, role: "note", "aria-labelledby": id },
-    lucideIcon({ node: ICONS[kind], class: "callout-icon" }),
+    marker,
     h(
       "div",
       { class: "callout-content" },
       custom === "" ? null : h("p", { class: KIND_CLASS }, kindLabel),
       h("p", { class: TITLE_CLASS, id }, title),
-      h("div", { class: "callout-body", dangerouslySetInnerHTML: { __html: html } }),
+      body,
     ),
   );
+}
+
+/** A named importer directive shares the callout renderer and locks its own variant. */
+export function importedCallout(type: string) {
+  return (input: ComponentProps<CalloutProps>) => callout({ ...input, props: { ...input.props, type } });
 }
