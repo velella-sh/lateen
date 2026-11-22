@@ -122,3 +122,15 @@ test("the list page ends with the page footer under its actions", () => {
   const out = render(pageWith());
   assert.match(out, /<div class="doc-actions"><div class="page-footer">/);
 });
+
+test("the records sit in their own region after the summaries, apart from the introduction", () => {
+  const out = render(pageWith());
+  const intro = out.indexOf('class="list-intro"');
+  const records = out.indexOf('class="list-records"');
+  const table = out.indexOf("<table");
+  assert.ok(intro !== -1 && records !== -1, "the introduction and the records region both render");
+  assert.ok(records > intro, "the records follow the introduction");
+  assert.ok(records < table, "the records region wraps the table");
+  assert.match(out, /<div class="list-records">[\s\S]*<table[\s\S]*<\/table>[\s\S]*<\/div>/, "the table is inside the records region");
+  assert.equal((out.match(/class="list-records"/g) ?? []).length, 1, "the introduction's own table is not the records region");
+});

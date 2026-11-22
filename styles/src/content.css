@@ -1197,13 +1197,16 @@
     margin: 0.75rem 0;
   }
 
-  .list,
-  .item {
+  /* The prose helper an author writes as `<div class="list">` inside a page body. It is scoped to
+     `.doc-body` so it never reaches the `<article class="list">` page layout, whose rows the list
+     module (styles/src/list.css) styles instead. */
+  .doc-body .list,
+  .doc-body .item {
     display: grid;
   }
 
-  .item,
-  .list a {
+  .doc-body .item,
+  .doc-body .list a {
     display: grid;
     grid-template-columns: minmax(7.5rem, 0.4fr) minmax(0, 1fr);
     gap: 0.9rem 1.75rem;
@@ -1213,25 +1216,25 @@
     text-decoration: none;
   }
 
-  .item strong,
-  .list a strong {
+  .doc-body .item strong,
+  .doc-body .list a strong {
     font-family: var(--type-font-mono);
     font-size: 0.8125rem;
     font-weight: 500;
     line-height: 1.375rem;
   }
 
-  .item span,
-  .list a span,
-  .item em,
-  .list a em {
+  .doc-body .item span,
+  .doc-body .list a span,
+  .doc-body .item em,
+  .doc-body .list a em {
     color: var(--muted-foreground);
     font-style: normal;
     font-size: 0.9375rem;
     line-height: 1.5rem;
   }
 
-  .list a:hover strong {
+  .doc-body .list a:hover strong {
     color: var(--link);
   }
 

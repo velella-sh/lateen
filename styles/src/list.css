@@ -1,0 +1,555 @@
+/* List layout: the page index a reader scans. Records, groups, and the metadata beside them are
+   tuned for quick scanning: one column of rows, a clear title, a quieter description, and secondary
+   facts (date, status, counts) set apart from both. Every rule is scoped to the `<article
+   class="list">` root, so the shared table and dated-list components on doc and gallery pages, the
+   legacy `<div class="list">` prose helper, the Home layout, and the shared cards keep their look. */
+@layer components {
+  /* --- The page's own Markdown introduction --- */
+
+  .list .list-intro {
+    margin-block-start: var(--space-4);
+  }
+
+  .list .list-intro > :first-child {
+    margin-block-start: 0;
+  }
+
+  .list .list-intro > :last-child {
+    margin-block-end: 0;
+  }
+
+  .list .list-intro h2 {
+    margin-block: var(--space-6) var(--space-2);
+    font-size: 1.4375rem;
+    line-height: 1.875rem;
+  }
+
+  .list .list-intro h3 {
+    margin-block: var(--space-4) var(--space-2);
+    font-size: 1.125rem;
+    line-height: 1.6;
+  }
+
+  .list .list-intro p {
+    margin-block: 0.75rem;
+    max-inline-size: 64ch;
+  }
+
+  .list .list-intro ul,
+  .list .list-intro ol {
+    margin-block: 0.75rem;
+    padding-inline-start: 1.4em;
+  }
+
+  .list .list-intro a {
+    color: var(--link);
+    text-decoration: underline;
+    text-decoration-thickness: 0.08em;
+    text-underline-offset: 3px;
+  }
+
+  /* The count line above the records: the count is the fact, the page is secondary. */
+  .list .list-summary {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: baseline;
+    gap: var(--space-1) var(--space-4);
+    margin-block: var(--space-4) 0;
+    color: var(--muted-foreground);
+    font-size: 0.875rem;
+  }
+
+  .list .list-count {
+    color: var(--foreground);
+    font-weight: 600;
+  }
+
+  /* --- Records: table, cards, and groups --- */
+
+  .list .list-records {
+    margin-block-start: var(--space-4);
+  }
+
+  .list .list-records .table-scroll {
+    margin-block: 0;
+  }
+
+  .list .list-records .table {
+    inline-size: 100%;
+    min-inline-size: 44rem;
+    border-collapse: collapse;
+  }
+
+  .list .list-records .table thead th {
+    padding-block: var(--space-2);
+    border-block-end: 1px solid var(--border);
+    color: var(--muted-foreground);
+    font-size: 0.75rem;
+    font-weight: 600;
+    letter-spacing: 0.04em;
+    text-align: start;
+    text-transform: uppercase;
+    white-space: nowrap;
+  }
+
+  .list .list-records .table tbody td {
+    padding-block: 0.7rem;
+    padding-inline-end: var(--space-4);
+    border-block-end: 1px solid var(--border);
+    color: var(--muted-foreground);
+    font-size: 0.9375rem;
+    line-height: 1.5rem;
+    text-align: start;
+    vertical-align: baseline;
+  }
+
+  .list .list-records .table tbody tr:hover {
+    background: var(--muted);
+  }
+
+  /* The row's own page link is its title: the one cell that carries weight. */
+  .list .list-records .table tbody td:first-child a {
+    color: var(--link);
+    font-weight: 600;
+    text-decoration: none;
+  }
+
+  .list .list-records .table tbody td:first-child a:is(:hover, :focus-visible) {
+    text-decoration: underline;
+  }
+
+  .list .list-records .record-table-sort {
+    margin-inline-start: 0.35em;
+  }
+
+  .list .cards {
+    margin-block-start: var(--space-6);
+    padding-block-end: 0;
+    grid-template-columns: repeat(auto-fill, minmax(min(100%, 16rem), 1fr));
+  }
+
+  .list .cards .list-card-status {
+    align-self: flex-start;
+    padding: 0.1rem 0.55rem;
+    border-radius: 9999px;
+    background: var(--shell);
+    color: var(--night);
+    font-size: 0.75rem;
+    font-weight: 700;
+    line-height: 1.4;
+  }
+
+  .list .cards .list-card-facts {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--space-1) var(--space-4);
+    margin: 0;
+    padding-block-start: var(--space-2);
+    border-block-start: 1px solid var(--border);
+    font-size: 0.8125rem;
+  }
+
+  .list .cards .list-card-fact {
+    display: flex;
+    gap: 0.35rem;
+    margin: 0;
+  }
+
+  .list .cards .list-card-fact dt {
+    color: var(--muted-foreground);
+  }
+
+  .list .cards .list-card-fact dd {
+    margin: 0;
+    color: var(--foreground);
+    font-weight: 500;
+  }
+
+  .list .list-group {
+    margin-block-start: var(--space-8);
+  }
+
+  .list .list-records > .list-group:first-child {
+    margin-block-start: 0;
+  }
+
+  .list .list-group > h2 {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: baseline;
+    gap: var(--space-2);
+    margin-block: 0 var(--space-3);
+  }
+
+  .list .list-group-count {
+    color: var(--muted-foreground);
+    font-size: 0.8125rem;
+    font-variant-numeric: tabular-nums;
+    font-weight: 500;
+  }
+
+  /* The group links above the records: one quiet chip per group. */
+  .list .list-group-summary {
+    margin-block-start: var(--space-4);
+  }
+
+  .list .list-group-summary ul {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--space-2);
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+
+  .list .list-group-summary a {
+    display: inline-flex;
+    align-items: baseline;
+    gap: 0.4rem;
+    min-block-size: 2rem;
+    padding: 0.2rem 0.7rem;
+    border: 1px solid var(--border);
+    border-radius: 9999px;
+    color: var(--foreground);
+    font-size: 0.875rem;
+    text-decoration: none;
+  }
+
+  .list .list-group-summary a:is(:hover, :focus-visible) {
+    border-color: var(--link);
+    color: var(--link);
+  }
+
+  /* --- The dated list: the day set in its own column, then the title, then any status --- */
+
+  .list .dated-list {
+    margin-block-start: var(--space-2);
+  }
+
+  .list .dated-list-actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--space-4);
+    margin-block: 0 var(--space-4);
+  }
+
+  .list .dated-list-group {
+    margin-block-start: var(--space-6);
+  }
+
+  .list .dated-list-group:first-child {
+    margin-block-start: 0;
+  }
+
+  .list .dated-list-group > h2,
+  .list .dated-list-year > h2 {
+    margin-block: 0 var(--space-2);
+  }
+
+  .list .dated-list-items {
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+
+  .list .dated-list-item {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: baseline;
+    gap: 0.05rem var(--space-3);
+    padding-block: 0.65rem;
+    border-block-end: 1px solid var(--border);
+    overflow-wrap: anywhere;
+  }
+
+  .list .dated-list-day {
+    flex: 0 0 5rem;
+    color: var(--muted-foreground);
+    font-size: 0.8125rem;
+    font-variant-numeric: tabular-nums;
+    line-height: 1.5rem;
+  }
+
+  .list .dated-list-link {
+    color: var(--link);
+    font-weight: 600;
+    text-decoration: none;
+  }
+
+  .list .dated-list-link:is(:hover, :focus-visible) {
+    text-decoration: underline;
+  }
+
+  .list .dated-list-item > .status {
+    margin-inline-start: auto;
+  }
+
+  .list .dated-list-toc {
+    margin-block: var(--space-4);
+  }
+
+  .list .dated-list-toc ul {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--space-2);
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+
+  .list .dated-list-toc a {
+    display: inline-flex;
+    min-block-size: 2rem;
+    padding: 0.2rem 0.6rem;
+    border: 1px solid var(--border);
+    border-radius: 9999px;
+    color: var(--foreground);
+    font-size: 0.8125rem;
+    text-decoration: none;
+  }
+
+  .list .dated-list-toc a:is(:hover, :focus-visible) {
+    border-color: var(--link);
+    color: var(--link);
+  }
+
+  .list .dated-list-note {
+    margin-block: var(--space-2);
+    color: var(--muted-foreground);
+    font-size: 0.875rem;
+  }
+
+  /* --- The changelog view --- */
+
+  .list .changes-list {
+    margin-block-start: var(--space-2);
+  }
+
+  .list .changes-item .dated-list-day {
+    flex: 0 0 auto;
+  }
+
+  .list .changes-record {
+    color: var(--link);
+    font-weight: 600;
+    text-decoration: none;
+  }
+
+  .list .changes-record:is(:hover, :focus-visible) {
+    text-decoration: underline;
+  }
+
+  .list .changes-field {
+    padding: 0.05rem 0.4rem;
+    border-radius: 0.375rem;
+    background: var(--muted);
+    color: var(--muted-foreground);
+    font-family: var(--type-font-mono);
+    font-size: 0.8125rem;
+  }
+
+  /* --- The blog archive and author pages --- */
+
+  .list .blog-list {
+    margin: var(--space-6) 0 0;
+    padding: 0;
+    list-style: none;
+  }
+
+  .list .blog-item {
+    padding-block: var(--space-4);
+    border-block-end: 1px solid var(--border);
+  }
+
+  .list .blog-item-title {
+    margin: 0;
+    font-size: 1.1875rem;
+    font-weight: 700;
+    line-height: 1.35;
+    text-wrap: balance;
+  }
+
+  .list .blog-item-title a {
+    color: var(--link);
+    text-decoration: none;
+  }
+
+  .list .blog-item-title a:is(:hover, :focus-visible) {
+    text-decoration: underline;
+  }
+
+  .list .blog-meta {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: baseline;
+    gap: 0 var(--space-2);
+    margin-block: var(--space-1) 0;
+    color: var(--muted-foreground);
+    font-size: 0.875rem;
+  }
+
+  .list .blog-description {
+    margin-block: var(--space-1) 0;
+    max-inline-size: 60ch;
+    color: var(--muted-foreground);
+    overflow-wrap: anywhere;
+  }
+
+  /* --- Feeds, the empty note, and the dated continuation line --- */
+
+  .list .list-feed {
+    margin-block: var(--space-3) 0;
+  }
+
+  .list .list-feed-link {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.4rem;
+    color: var(--link);
+    font-size: 0.875rem;
+    text-decoration: none;
+  }
+
+  .list .list-feed-link:is(:hover, :focus-visible) {
+    text-decoration: underline;
+  }
+
+  .list .list-feed-icon svg {
+    inline-size: 1rem;
+    block-size: 1rem;
+  }
+
+  .list .list-empty {
+    margin-block: var(--space-6);
+    padding: var(--space-4);
+    border-radius: var(--radius-lg);
+    background: var(--muted);
+    color: var(--muted-foreground);
+  }
+
+  .list .list-dated-continues {
+    margin-block: var(--space-3) 0;
+    color: var(--muted-foreground);
+    font-size: 0.875rem;
+  }
+
+  /* --- The subscribe panel --- */
+
+  .list .list-subscribe {
+    margin-block: var(--space-4) 0;
+    padding: var(--space-4);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-lg);
+    background: color-mix(in srgb, var(--card) 60%, transparent);
+  }
+
+  .list .list-subscribe-heading {
+    margin: 0 0 var(--space-2);
+    color: var(--muted-foreground);
+    font-size: 0.75rem;
+    font-weight: 700;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+  }
+
+  .list .list-subscribe-list {
+    display: grid;
+    gap: var(--space-2);
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+
+  .list .list-subscribe-item {
+    display: grid;
+    gap: 0.25rem;
+  }
+
+  .list .list-subscribe-link {
+    font-weight: 600;
+    text-decoration: none;
+  }
+
+  .list .list-subscribe-link:is(:hover, :focus-visible) {
+    text-decoration: underline;
+  }
+
+  .list .list-subscribe-address {
+    color: var(--muted-foreground);
+    font-family: var(--type-font-mono);
+    font-size: 0.75rem;
+    overflow-wrap: anywhere;
+  }
+
+  /* The "Calendar address:" prefix belongs to the screen reader, not the page. */
+  .list .list-subscribe-sr {
+    position: absolute;
+    inline-size: 1px;
+    block-size: 1px;
+    overflow: hidden;
+    clip-path: inset(50%);
+    white-space: nowrap;
+  }
+
+  /* --- Pagination: one row of page chips, the current page filled --- */
+
+  .list .pagination {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: var(--space-2);
+    margin-block-start: var(--space-8);
+  }
+
+  .list .pagination-pages {
+    display: inline-flex;
+    flex-wrap: wrap;
+    gap: 0.35rem;
+  }
+
+  .list .pagination-link {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.35rem;
+    min-block-size: 2.25rem;
+    padding: 0.35rem 0.7rem;
+    border: 1px solid var(--border);
+    border-radius: var(--radius-md);
+    color: var(--foreground);
+    font-size: 0.875rem;
+    text-decoration: none;
+  }
+
+  .list .pagination-link:is(:hover, :focus-visible) {
+    border-color: var(--link);
+    color: var(--link);
+  }
+
+  .list .pagination-link[aria-current="page"] {
+    border-color: var(--foreground);
+    background: var(--foreground);
+    color: var(--background);
+  }
+
+  .list .pagination-gap {
+    padding-inline: 0.35rem;
+    color: var(--muted-foreground);
+  }
+
+  .list .pagination-arrow svg {
+    inline-size: 1rem;
+    block-size: 1rem;
+  }
+}
+
+/* A narrow screen drops the fixed date column so a long title can use the full width and wrap
+   under its date, instead of being squeezed beside it. */
+@media (max-width: 48rem) {
+  .list .dated-list-day {
+    flex-basis: auto;
+  }
+
+  .list .list-records .table tbody td {
+    padding-inline-end: var(--space-3);
+  }
+}
