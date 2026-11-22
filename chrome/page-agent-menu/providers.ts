@@ -26,9 +26,9 @@ interface PageAgentOptions {
  * twin through `{markdown}`, so an agent reads the same text as the copy button.
  */
 export const DEFAULT_PROVIDERS: readonly Provider[] = [
-  { title: "Claude", url: "https://claude.ai/new?q=Read+{markdown}" },
-  { title: "ChatGPT", url: "https://chatgpt.com?q=Read+{markdown}" },
-  { title: "Cursor", url: "https://cursor.com/link/prompt?text=Read+{markdown}" },
+  { title: "Claude", url: "https://claude.ai/new?q={read}" },
+  { title: "ChatGPT", url: "https://chatgpt.com?q={read}" },
+  { title: "Cursor", url: "https://cursor.com/link/prompt?text={read}" },
 ];
 
 /** Only these protocols are linked; a config value cannot inject `javascript:` or `data:`. */
@@ -111,22 +111,29 @@ function absolute(config: SiteConfig, url: string): string | undefined {
  * `{markdown}` and `{json}` are absolute page addresses, `{lang}` the page language, `{source}` its
  * source file, `{title}` its title, and `{version}` the version its front matter declares. A template that uses a
  * value the caller cannot supply returns nothing, so the provider is omitted rather than shown as a
- * half-filled link: `{version}` on a page that declares none, `{prompt}` in the page menu, or an
+ * half-filled link: `{version}` on a page that declares none, an edit `{prompt}` on a generated page, or an
  * absolute address when the config names no published site. One pass means a value that contains
  * braces is copied as text and never read as another placeholder.
  */
-export function expand(config: SiteConfig, page: Page, template: string, markdown: string): string | undefined {
+export function expand(
+  config: SiteConfig,
+  page: Page,
+  template: string,
+  markdown: string,
+  prompts: { prompt?: () => string | undefined; read?: (url: string) => string } = {},
+): string | undefined {
   const json = jsonUrl(page.url);
+  const document = absolute(config, markdown);
   const values: Readonly<Record<string, string | undefined>> = {
-    markdown: absolute(config, markdown),
+    markdown: document,
     json: json === undefined ? undefined : absolute(config, json),
     url: absolute(config, page.url),
     title: page.title,
     lang: text(page.lang),
-    source: text(page.source.file),
+    source: text(page.frontMatter.agent?.source) ?? text(page.source.file),
     version: text(page.frontMatter.version),
-    // A prompt is built in the browser from a query, so the page menu cannot fill one.
-    prompt: undefined,
+    prompt: template.includes("{prompt}") ? prompts.prompt?.() : undefined,
+    read: document !== undefined && template.includes("{read}") ? prompts.read?.(document) : undefined,
   };
 
   for (const [name, value] of Object.entries(values)) {
