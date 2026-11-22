@@ -415,6 +415,25 @@
     font-size: 0.875rem;
   }
 
+  .calendar-actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--space-1) var(--space-3);
+  }
+
+  .add-to-calendar-list {
+    display: grid;
+    gap: var(--space-1);
+    margin-block-start: var(--space-2);
+    padding-inline-start: 0;
+    list-style: none;
+  }
+
+  .add-to-calendar-link {
+    color: var(--link);
+    text-decoration: underline;
+  }
+
   /* --- The subscribe panel --- */
 
   .list .list-subscribe {

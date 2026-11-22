@@ -197,10 +197,9 @@ export function datedView(props: LayoutProps, records: readonly RecordProps[]): 
       ...(isEmpty(fields[STATUS_FIELD]) ? {} : { status: fields[STATUS_FIELD] }),
     };
   });
-  const calendar = props.list?.calendars?.[0]?.url;
   const toc = monthCountOf(props, records, dateField) > TOC_AFTER_MONTHS;
   return datedList({
-    props: { items, status: "status", ...(toc ? { toc: true } : {}), ...(calendar === undefined ? {} : { calendar }) },
+    props: { items, status: "status", ...(toc ? { toc: true } : {}) },
     page: props.page,
     site: props.site,
     html: "",
