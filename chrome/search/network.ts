@@ -3,7 +3,7 @@ import { fetchJson } from "../../src/fetch.ts";
 import { resultHref, resultLabel } from "../../components/search-result/model.ts";
 import type { FailedIndex } from "../../src/search/merge.ts";
 import { search, type SearchIndex } from "../search-scope/island.ts";
-import { indexUrl, loadIndex, type PagefindApi, type SearchHit } from "./loader.ts";
+import { indexUrl, loadIndex, type PagefindApi, type PagefindQuery, type SearchHit } from "./loader.ts";
 import { fillMessage, type SearchMessages } from "./messages.ts";
 import { safeHref, type SearchRecord } from "./options.ts";
 import { RESULT_LIMIT, type SearchDialog } from "./types.ts";
@@ -19,6 +19,7 @@ interface NetworkSearchOptions {
   readonly current: () => Promise<PagefindApi>;
   readonly load?: (url: string) => Promise<PagefindApi>;
   readonly loadList?: (url: string) => Promise<unknown>;
+  readonly query?: PagefindQuery;
   readonly show: (hits: readonly SearchHit[], complete: boolean) => void;
   readonly failed: (project?: FailedIndex) => void;
 }
@@ -34,7 +35,9 @@ export function searchNetwork(term: string, options: NetworkSearchOptions): Prom
   const index = (get: () => Promise<PagefindApi>, project?: NetworkProject): SearchIndex<RankedHit> => ({
     async search(query) {
       const api = await get();
-      const { results } = await api.search(query);
+      const { results } = options.query === undefined
+        ? await api.search(query)
+        : await api.search(query.trim() || null, options.query);
       const identity = { project: project?.id ?? network.current, current: project?.current ?? true };
       const projectLabel = resultLabel(identity, network, true);
       return results.map((hit) => ({

@@ -7,6 +7,7 @@ import shell, { footer as shellFooter, isCurrentSection, sectionLinks } from "..
 import { patternOf, t } from "../i18n/index.ts";
 import { indexUrl } from "../chrome/search/loader.ts";
 import { safeHrefSource, withBase } from "../src/url.ts";
+import { facetScript, searchFacetControls, searchFacetsOf, type SearchFacets } from "./shared/search-facets.ts";
 import base from "./base.ts";
 
 /** Id of the query field, which its label points to. */
@@ -37,7 +38,7 @@ export function scriptValue(value: unknown): string {
  * prose is written for exactly one result, and the empty, loading, and failure messages keep
  * their own wording.
  */
-function clientScript(props: LayoutProps): string {
+function clientScript(props: LayoutProps, facets: SearchFacets | undefined): string {
   const lang = props.page.lang;
   const network = props.site.network;
   const networkSearch = (network?.projects.length ?? 0) > 1;
@@ -53,6 +54,7 @@ function clientScript(props: LayoutProps): string {
     failed: t(lang, "search_results_failed"),
     loading: t(lang, "search_results_loading"),
     one: t(lang, "search_results_one"),
+    ...(facets === undefined ? {} : { emptyFilters: t(lang, "search_results_empty_filters") }),
     ...(networkSearch ? { projectFailed: patternOf(lang, "search_project_failed") } : {}),
     counts: {
       zero: patternOf(lang, "search_count_zero"),
@@ -89,6 +91,7 @@ if (input) input.value = query;${networkSearch ? `
 const scopeInput = root?.querySelector('input[name="scope"][value="' + scope + '"]');
 if (scopeInput) scopeInput.checked = true;
 const notices = [];` : ""}
+${facets === undefined ? "" : facetScript(facets, { any: t(lang, "search_filter_any"), collection: t(lang, "search_filter_collection") })}
 
 /* link-path:start The link guard is the theme's shared rule, so the results page cannot drift from the dialog. */
 const SAFE_HREF = new RegExp(${scriptValue(safeHrefSource(undefined, true))}, "i");
@@ -322,13 +325,13 @@ function append(records) {
   focusAfterAppend(items, remaining ? more : undefined);
 }
 
-if (status && list && query.trim() !== "") {
+if (status && list && (query.trim() !== ""${facets === undefined ? "" : " || Object.keys(filters).length > 0 || selectedSort"})) {
   status.textContent = messages.loading;
   if (more) more.hidden = true;
   const localSearch = () => import(${index})
     .then(async (api) => {
       await api.options({ baseUrl: "/" });
-      return api.search(query);
+      return api.search(${facets === undefined ? "query" : "query.trim() || null, searchOptions"});
     })
     .then((page) => page.results);
   const request = ${networkSearch ? `scope === "all"
@@ -338,6 +341,7 @@ if (status && list && query.trim() !== "") {
           await searchNetwork(query, {
             base,
             network: ${scriptValue(network)},
+            ${facets === undefined ? "" : "query: searchOptions,"}
             async current() {
               const api = await import(${index});
               await api.options({ baseUrl: "/" });
@@ -362,7 +366,7 @@ if (status && list && query.trim() !== "") {
       if (more) more.hidden = !hasMore(hits, shown);
       const empty = hits.length === 0;
       status.textContent = empty
-        ? messages.emptyScope
+        ? ${facets === undefined ? "" : '!query.trim() ? messages.emptyFilters : '}messages.emptyScope
             .replace("{query}", () => query)
             .replace("{scope}", () => (scope === "all" ? messages.scopeAll : messages.scopeProject))
         : hits.length === 1
@@ -448,6 +452,8 @@ function noJsSections(props: LayoutProps): ComponentChildren {
  */
 function content(props: LayoutProps): ComponentChildren {
   const lang = props.page.lang;
+  const facets = searchFacetsOf(props.site);
+  const submit = h("button", { class: "search-results-submit", type: "submit" }, t(lang, "search"));
   return h(
     "div",
     { class: "search-results", "data-search-page": "" },
@@ -464,8 +470,10 @@ function content(props: LayoutProps): ComponentChildren {
         autocomplete: "off",
         "data-search-input": "",
       }),
-      h("button", { class: "search-results-submit", type: "submit" }, t(lang, "search")),
+      facets === undefined ? submit : null,
       searchScope(props) as ComponentChildren,
+      facets === undefined ? null : searchFacetControls(props, facets),
+      facets === undefined ? null : submit,
     ),
     h("p", { class: "search-results-status", role: "status", "data-search-status": "" }, ""),
     h("a", { class: "search-results-scope-change", "data-search-scope-change": "", hidden: true }),
@@ -482,7 +490,7 @@ function content(props: LayoutProps): ComponentChildren {
       t(lang, "search_results_more"),
     ),
     askAgentSection(props) as ComponentChildren,
-    h("script", { type: "module", dangerouslySetInnerHTML: { __html: clientScript(props) } }),
+    h("script", { type: "module", dangerouslySetInnerHTML: { __html: clientScript(props, facets) } }),
   );
 }
 
