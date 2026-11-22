@@ -1,4 +1,5 @@
 import type { Page, Site, SiteConfig } from "@velella/mizzen/contracts";
+import { evidenceRowsOf, type EvidenceRow } from "./evidence.ts";
 import { t } from "../../i18n/index.ts";
 import { calendarDate, configuredCalendar, isoDate, type DateCalendar } from "../../src/dates.ts";
 import { optionOf } from "../../src/options.ts";
@@ -28,12 +29,6 @@ export type TrustPanelProps = {
   reasons?: string;
   /** Who reviewed the page last. */
   lastReviewer?: string;
-  /** The build that produced the evidence, for a manual panel that carries one. */
-  buildId?: string;
-  /** The build's generation date, for a manual panel that carries one. */
-  generatedAt?: string;
-  /** The page's last review date, for a manual panel that carries one. */
-  reviewedAt?: string;
   /** The reviewed commit, for a manual panel that carries one. */
   reviewedCommit?: string;
 };
@@ -46,12 +41,6 @@ export interface TrustEntry {
   readonly reasons: readonly string[];
   /** Who reviewed the page last, when the site records one. */
   readonly lastReviewer?: string;
-  /** The build that produced this evidence, when the site records it. */
-  readonly buildId?: string;
-  /** When the build that produced this evidence ran. */
-  readonly generatedAt?: string;
-  /** When a person last reviewed the page. */
-  readonly reviewedAt?: string;
   /** The commit the review covered, when the site records one. */
   readonly reviewedCommit?: string;
 }
@@ -73,8 +62,6 @@ export type TrustEvidence =
 export interface Provenance {
   /** The build the evidence came from. */
   readonly buildId?: string;
-  /** The build's generation date, in ISO 8601 form. */
-  readonly generatedAt?: string;
   /** The last human review date, in ISO 8601 form. */
   readonly reviewedAt?: string;
   /** The reviewed commit, when the entry or the reviewers data names one. */
@@ -141,17 +128,11 @@ export function reasonsOf(value: unknown): string[] {
 /** The readable entry in a record whose level is already known. */
 function entryFrom(value: Record<string, unknown>, level: TrustLevel): TrustEntry {
   const lastReviewer = textOf(value.lastReviewer);
-  const buildId = textOf(value.buildId);
-  const generatedAt = textOf(value.generatedAt);
-  const reviewedAt = textOf(value.reviewedAt);
   const reviewedCommit = textOf(value.reviewedCommit);
   return {
     level,
     reasons: reasonsOf(value.reasons),
     ...(lastReviewer === undefined ? {} : { lastReviewer }),
-    ...(buildId === undefined ? {} : { buildId }),
-    ...(generatedAt === undefined ? {} : { generatedAt }),
-    ...(reviewedAt === undefined ? {} : { reviewedAt }),
     ...(reviewedCommit === undefined ? {} : { reviewedCommit }),
   };
 }
@@ -182,12 +163,15 @@ export function pagesOf(trust: unknown): Record<string, unknown> | undefined {
   return isRecord(nested) ? nested : trust;
 }
 
+function rawTrustEntry(site: Site | undefined, url: string): unknown {
+  const pages = pagesOf(site?.data?.trust);
+  return pages !== undefined && Object.hasOwn(pages, url) ? pages[url] : undefined;
+}
+
 /** The page's trust evidence from `site.data.trust`, keyed by its exact URL including `base`. */
 export function trustEvidenceFor(site: Site | undefined, url: string | undefined): TrustEvidence {
   if (url === undefined) return { state: "absent" };
-  const pages = pagesOf(site?.data?.trust);
-  if (pages === undefined || !Object.hasOwn(pages, url)) return { state: "absent" };
-  return trustEvidenceOf(pages[url]);
+  return trustEvidenceOf(rawTrustEntry(site, url));
 }
 
 /** The page's trust entry from `site.data.trust`, keyed by its exact URL including `base`. */
@@ -205,105 +189,61 @@ export function driftFor(site: Site | undefined, url: string | undefined): numbe
   return Array.isArray(value) ? value.length : undefined;
 }
 
-/** One valid ISO date: the written value for `<time datetime>` and its calendar day for comparisons. */
-interface ProvenanceDate {
-  readonly iso: string;
-  readonly day: string;
-}
-
-/** A real ISO calendar date from a string or a `Date`, or undefined when it is impossible or malformed. */
-function provenanceDate(value: unknown): ProvenanceDate | undefined {
-  if (value instanceof Date) {
-    if (Number.isNaN(value.getTime())) return undefined;
-    const iso = value.toISOString();
-    const day = isoDate(iso);
-    return day === undefined ? undefined : { iso, day };
-  }
+/** The original ISO value, with a valid calendar day and a readable instant. */
+function provenanceDate(value: unknown): string | undefined {
   const text = textOf(value);
-  if (text === undefined) return undefined;
-  const day = isoDate(text);
-  if (day === undefined) return undefined;
-  // A written date-time must parse as ISO too, so a malformed clock or offset cannot reach `datetime`.
-  if (text !== day && Number.isNaN(Date.parse(text))) return undefined;
-  return { iso: text, day };
+  return text !== undefined && isoDate(text) !== undefined && Number.isFinite(Date.parse(text)) ? text : undefined;
 }
 
-/** The `site.data.build` block, or undefined when the site writes none. */
-function buildOf(site: Site | undefined): Record<string, unknown> | undefined {
-  const build = site?.data?.build;
-  return isRecord(build) ? build : undefined;
-}
-
-/** One page's review record from the documented reviewers shape, keyed by page URL. */
-function reviewOf(site: Site | undefined, url: string | undefined): Record<string, unknown> | undefined {
-  if (url === undefined) return undefined;
-  const reviewers = site?.data?.reviewers;
-  if (!isRecord(reviewers) || !Object.hasOwn(reviewers, url)) return undefined;
-  const review = reviewers[url];
-  return isRecord(review) ? review : undefined;
-}
-
-/** The page's review date from the documented reviewers shape, keyed by page URL. */
-function reviewDateOf(site: Site | undefined, url: string | undefined): ProvenanceDate | undefined {
-  return provenanceDate(reviewOf(site, url)?.date);
-}
-
-/** The reviewed commit from the documented reviewers shape, when it parses as a git object id. */
-function reviewCommitOf(site: Site | undefined, url: string | undefined): string | undefined {
-  const commit = textOf(reviewOf(site, url)?.commit);
-  return commit !== undefined && /^[0-9a-f]{7,64}$/i.test(commit) ? commit.toLowerCase() : undefined;
-}
-
-/** The build's as-of date, which anchors what counts as future evidence. No clock is read. */
-function buildAsOf(contents: Record<string, unknown> | undefined, site: Site | undefined): ProvenanceDate | undefined {
-  const fromBuild = provenanceDate(contents?.asOf) ?? provenanceDate(contents?.date);
-  if (fromBuild !== undefined) return fromBuild;
-  const reviewers = site?.data?.reviewers;
-  return isRecord(reviewers) ? provenanceDate(reviewers.asOf) : undefined;
-}
-
-/**
- * The panel's valid provenance, from the trust entry first, then the documented build and reviewer shapes.
- *
- * - `buildId` is the entry's `buildId`, else `site.data.build.id`.
- * - `generatedAt` is the entry's `generatedAt`, else `site.data.build.generatedAt`, `date`, or `asOf`.
- * - `reviewedAt` is the entry's `reviewedAt`, else the page's `site.data.reviewers[url].date`.
- *
- * A malformed date is omitted. A date after the build's as-of day is future evidence and is omitted too,
- * as is a review dated after the generation it claims to describe. When the entry names a build and the
- * current build names another, the entry's build provenance is stale and is left out entirely. Provenance
- * never changes the level: it only says which build and review the recorded evidence describes.
- */
-export function provenanceOf(site: Site | undefined, url: string | undefined, entry?: TrustEntry): Provenance {
-  const build = buildOf(site);
-  const buildId = textOf(build?.id);
-  const entryBuildId = entry?.buildId;
-  const mismatch = entryBuildId !== undefined && buildId !== undefined && entryBuildId !== buildId;
-  const asOf = buildAsOf(build, site);
-
-  let generated = mismatch
-    ? undefined
-    : (provenanceDate(entry?.generatedAt) ??
-      provenanceDate(build?.generatedAt) ??
-      provenanceDate(build?.date) ??
-      provenanceDate(build?.asOf));
-  let reviewed = provenanceDate(entry?.reviewedAt) ?? reviewDateOf(site, url);
-  const reviewedCommit = entry?.reviewedCommit ?? reviewCommitOf(site, url);
-
-  if (asOf !== undefined) {
-    if (generated !== undefined && generated.day > asOf.day) generated = undefined;
-    if (reviewed !== undefined && reviewed.day > asOf.day) reviewed = undefined;
+/** Mirror the reviewer formats accepted by Mizzen's trust calculation. */
+function reviewOf(data: unknown, url: string): Record<string, unknown> | undefined {
+  const records = isRecord(data) && data.pages !== undefined ? data.pages : data;
+  if (Array.isArray(records)) {
+    return records.findLast((value) => isRecord(value) && value.url === url);
   }
-  if (generated !== undefined && reviewed !== undefined && reviewed.day > generated.day) reviewed = undefined;
+  if (!isRecord(records) || !Object.hasOwn(records, url)) return undefined;
+  const record = records[url];
+  return isRecord(record) ? record : undefined;
+}
 
-  const validBuildId = mismatch ? undefined : (entryBuildId ?? buildId);
-  const validCommit =
-    reviewedCommit !== undefined && /^[0-9a-f]{7,64}$/i.test(reviewedCommit) ? reviewedCommit.toLowerCase() : undefined;
+/** Read an exact review date from the same inline evidence Mizzen used. */
+function reviewDateOf(review: Record<string, unknown> | undefined, input: Record<string, unknown>, asOf: string | undefined): string | undefined {
+  const date = provenanceDate(review?.date);
+  const author = textOf(review?.author);
+  if (date === undefined || author === undefined) return undefined;
+  if (isRecord(input.provenance)) {
+    const provenance = input.provenance.review;
+    if (!isRecord(provenance) || provenance.source !== "inline" || provenance.availability !== "available") return undefined;
+    if (input.lastReviewer !== undefined && input.lastReviewer !== author) return undefined;
+  }
+  if (asOf !== undefined && Date.parse(date) > Date.parse(asOf)) return undefined;
+  if (asOf !== undefined && Array.isArray(input.factors)) {
+    const factor = input.factors.find((value) => isRecord(value) && value.signal === "review");
+    const elapsed = Math.floor((Date.parse(asOf) - Date.parse(date)) / 86_400_000);
+    if (typeof factor?.value === "number" && elapsed !== factor.value) return undefined;
+  }
+  return date;
+}
+
+/** The build digest from a supplied trust report and review evidence for this page. */
+export function provenanceOf(site: Site | undefined, url: string | undefined, input?: unknown): Provenance {
+  if (url === undefined) return {};
+  const stored = rawTrustEntry(site, url);
+  const entry = input ?? stored;
+  if (!isRecord(entry)) return {};
+  const data = site?.data?.trust;
+  const report = entry === stored && isRecord(data) && data.version === 2 && isRecord(data.pages) ? data : undefined;
+  const build = report?.build;
+  const id = isRecord(build) && build.algorithm === "sha256" ? textOf(build.id) : undefined;
+  const buildId = id !== undefined && /^[0-9a-f]{64}$/.test(id) ? id : undefined;
+  const review = reviewOf(site?.data?.reviewers, url);
+  const reviewedAt = reviewDateOf(review, entry, provenanceDate(report?.asOf));
+  const commit = textOf(entry.reviewedCommit) ?? textOf(review?.commit);
+  const reviewedCommit = commit !== undefined && /^[0-9a-f]{7,64}$/i.test(commit) ? commit.toLowerCase() : undefined;
   return {
-    ...(validBuildId === undefined ? {} : { buildId: validBuildId }),
-    ...(generated === undefined ? {} : { generatedAt: generated.iso }),
-    ...(reviewed === undefined ? {} : { reviewedAt: reviewed.iso }),
-    ...(validCommit === undefined ? {} : { reviewedCommit: validCommit }),
+    ...(buildId === undefined ? {} : { buildId }),
+    ...(reviewedAt === undefined ? {} : { reviewedAt }),
+    ...(reviewedCommit === undefined ? {} : { reviewedCommit }),
   };
 }
 
@@ -334,34 +274,21 @@ function trustOptions(config: SiteConfig | undefined): TrustOptions | undefined 
   return isRecord(options) ? (options as TrustOptions) : undefined;
 }
 
-/**
- * Fills `{url}`, `{title}`, `{source}`, `{build}`, `{generated}`, and `{reviewed}` in a configured action
- * URL for this page. Provenance placeholders with no valid evidence return undefined, so the link is left
- * out rather than losing the build context it promises.
- */
+/** Fill page and evidence placeholders. A link needing unavailable provenance is omitted. */
 function fill(value: string, page: Page, provenance: Provenance): string | undefined {
-  const source = page.source.file
-    .split("/")
-    .map((part) => encodeURIComponent(part))
-    .join("/");
+  const source = page.source.file.split("/").map(encodeURIComponent).join("/");
   const values: Readonly<Record<string, string | undefined>> = {
     url: page.url,
     title: encodeURIComponent(page.title),
     source,
     build: provenance.buildId === undefined ? undefined : encodeURIComponent(provenance.buildId),
-    generated: provenance.generatedAt === undefined ? undefined : encodeURIComponent(provenance.generatedAt),
+    generated: undefined,
     reviewed: provenance.reviewedAt === undefined ? undefined : encodeURIComponent(provenance.reviewedAt),
   };
-
-  let filled = value;
   for (const [name, resolved] of Object.entries(values)) {
-    if (resolved === undefined) {
-      if (filled.includes(`{${name}}`)) return undefined;
-      continue;
-    }
-    filled = filled.replaceAll(`{${name}}`, resolved);
+    if (resolved === undefined && value.includes(`{${name}}`)) return undefined;
   }
-  return filled;
+  return value.replace(/\{(url|title|source|build|reviewed)\}/g, (placeholder, name: string) => values[name] ?? placeholder);
 }
 
 /**
@@ -458,10 +385,9 @@ export type TrustPanelView =
       readonly provenance: Provenance;
       /** The examples row, from `site.data.examples`. */
       readonly examples: ExamplesRowView;
+      readonly signalRows?: readonly EvidenceRow[];
       /** The drift row, from `site.data.drift`. */
       readonly drift: TextRowView;
-      /** The build generation date row, when valid provenance names one. */
-      readonly generated?: DateRowView;
       /** The human review date row, when valid provenance names one. */
       readonly reviewed?: DateRowView;
       /** The reviewed revision row, when a commit and a repository URL exist. */
@@ -497,7 +423,8 @@ function dateRowView(label: string, iso: string | undefined, lang: string, calen
  * the site contracts. Pure: the same inputs always name the same view, and nothing is mutated.
  */
 export function trustPanelViewOf(props: TrustPanelProps, page: Page, site: Site | undefined): TrustPanelView {
-  const evidence = props.level === undefined ? trustEvidenceFor(site, page.url) : trustEvidenceOf(props);
+  const input = props.level === undefined ? rawTrustEntry(site, page.url) : props;
+  const evidence = trustEvidenceOf(input);
   if (evidence.state === "absent") return { state: "absent" };
 
   const lang = page.lang;
@@ -510,7 +437,8 @@ export function trustPanelViewOf(props: TrustPanelProps, page: Page, site: Site 
   }
 
   const entry = evidence.entry;
-  const provenance = provenanceOf(site, page.url, entry);
+  const signalRows = isRecord(input) ? evidenceRowsOf(input, lang) : [];
+  const provenance = provenanceOf(site, page.url, input);
   const revision =
     provenance.reviewedCommit === undefined || site?.config.repository === undefined
       ? undefined
@@ -520,7 +448,6 @@ export function trustPanelViewOf(props: TrustPanelProps, page: Page, site: Site 
   const contextPack = actionHrefOf(site?.config, page, options?.contextPackUrl, provenance);
   const suggestEdit = actionHrefOf(site?.config, page, options?.suggestEditUrl, provenance);
   const calendar = configuredCalendar(site?.config);
-  const generated = dateRowView(t(lang, "updated"), provenance.generatedAt, lang, calendar);
   const reviewed = dateRowView(t(lang, "reviewed"), provenance.reviewedAt, lang, calendar);
 
   return {
@@ -528,6 +455,7 @@ export function trustPanelViewOf(props: TrustPanelProps, page: Page, site: Site 
     level: entry.level,
     chip: chipText(lang, entry.level),
     provenance,
+    ...(signalRows.length === 0 ? {} : { signalRows }),
     examples: {
       label: t(lang, "trust_examples"),
       text: examplesText(lang, evidenceRows),
@@ -535,7 +463,6 @@ export function trustPanelViewOf(props: TrustPanelProps, page: Page, site: Site 
       attrs: examplesAttrs(evidenceRows),
     },
     drift: { label: t(lang, "trust_drift"), text: driftText(lang, driftFor(site, page.url)) },
-    ...(generated === undefined ? {} : { generated }),
     ...(reviewed === undefined ? {} : { reviewed }),
     ...(revision === undefined
       ? {}

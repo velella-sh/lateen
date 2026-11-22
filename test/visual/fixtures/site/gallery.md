@@ -432,7 +432,7 @@ A caution callout.
 
 ## trust-panel
 
-:::trust-panel{level=verified reasons="3 of 3 examples passed|No drift findings" lastReviewer="Ada Lovelace" buildId="build-42" generatedAt="2026-03-06" reviewedAt="2026-03-04"}
+:::trust-panel{level=verified reasons="3 of 3 examples passed|No drift findings" lastReviewer="Ada Lovelace"}
 :::
 
 :::trust-panel{level=review-due reasons="Reviewed more than 90 days ago."}
