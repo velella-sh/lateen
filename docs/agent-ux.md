@@ -12,7 +12,6 @@ provider links; a reader with JavaScript gets the same content plus copy and nav
 | Copy page as Markdown | `.copy-markdown-button`, `data-markdown` | The page's Markdown twin, byte for byte | The visible `View Markdown` link to the same twin |
 | Use with an agent | `.page-agent-menu`, `theme.options.pageAgent.providers` | A provider URL built from the page's twin, URL, title, language, source, and declared version | The provider links and the Markdown link |
 | Edit with your agent | `.page-footer-copy`, `data-prompt` | A localized prompt naming the page source, its language and declared version, and its title | No button; the source context is in the page |
-| Feedback | `.feedback` when `theme.options.feedback.endpoint` is set | One vote for the page, its URL, source, language, and declared version | No widget and no request |
 
 The Markdown twin follows the page URL, so a versioned or prefixed route (`/v2/guide/install/`,
 `/fa/guide/install/`) keeps its language and version without the action having to rebuild the URL.
@@ -67,10 +66,7 @@ elsewhere open search.
   or otherwise unsafe URL is dropped rather than rendered as a link. Values interpolated into a
   provider URL are percent-encoded once, and HTML text is escaped by the renderer.
 - The only network requests a static page makes are the local Markdown twin after a click, the
-  Pagefind index after search opens, a configured feedback endpoint after a vote, and an embedded
+  Pagefind index after search opens, and an embedded
   media provider after the reader presses its load control. Thumbnails, diagrams, and fonts are
   local; Mermaid renders at build time and the browser never loads Mermaid.
-- Feedback posts to `theme.options.feedback.endpoint` only when configured. It records one answer per
-  page in `sessionStorage` so a reload does not ask twice; the storage write is best-effort and a
-  denied storage API does not block the vote.
 - The theme stores the color choice under `lateen-theme`. Source mode always starts off and is not stored.

@@ -533,15 +533,15 @@ async function runJourney(
       await page.setViewportSize({ width: 481, height: 844 });
       await page.goto(`${servers.docs.url}/lateen/components/`, { waitUntil: "load" });
       await page.evaluate(() => document.fonts.ready.then(() => undefined));
-      await focusControl(page, ".article-tools > details:last-of-type > summary");
+      await focusControl(page, ".doc-tools > summary");
       await page.keyboard.press("Enter");
-      const panel = page.locator(".article-tools > details[open] > .article-tool-panel");
+      const panel = page.locator(".doc-tools[open] > .article-tool-panel");
       await panel.waitFor({ state: "visible" });
       const fits = await panel.evaluate((element) => {
         const rect = element.getBoundingClientRect();
         return rect.left >= 0 && rect.right <= document.documentElement.clientWidth;
       });
-      if (!fits) throw new Error("the Feedback panel extends outside the viewport");
+      if (!fits) throw new Error("the Page tools panel extends outside the viewport");
     } else if (name === "search the site") {
       await page.goto(`${servers.docs.url}/lateen/install/`, { waitUntil: "load" });
       await focusControl(page, "[data-search-open]");

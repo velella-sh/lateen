@@ -4,7 +4,6 @@ import type { Layout, LayoutProps } from "@velella/mizzen/contracts";
 import { staleSlot } from "../src/stale.ts";
 import copyMarkdown from "../chrome/copy-markdown/index.ts";
 import editPage from "../chrome/edit-page/index.ts";
-import feedback from "../chrome/feedback/index.ts";
 import lastUpdated from "../chrome/last-updated/index.ts";
 import pageFooter from "../chrome/page-footer/index.ts";
 import { tocFold } from "../chrome/toc/index.ts";
@@ -21,7 +20,7 @@ import { articleHeader, articleShell, statusProps } from "./shared/index.ts";
 
 /**
  * The guide page: breadcrumb, status banner, title, the summary bar built from the `guide` front
- * matter (from, to, time, risk), the body, edit link, page footer, copy-Markdown control, feedback, and
+ * matter (from, to, time, risk), the body, edit link, page footer, copy-Markdown control, and
  * related guides, marked for Pagefind. The body holds the guide's `steps`, `before-after`, `trap`, and
  * `check-list` components. No product name appears here: the text comes from the page.
  */
@@ -49,7 +48,6 @@ function article(props: LayoutProps): ComponentChildren {
     h("div", { class: "doc-body guide-body", dangerouslySetInnerHTML: { __html: highlightFences(articleHtml(page.html), backdrops, page.lang) } }),
     editPage(props) as ComponentChildren,
     h("div", { class: "doc-actions" }, pageFooter(props) as ComponentChildren, copyMarkdown(props) as ComponentChildren),
-    feedback(props) as ComponentChildren,
     relatedGuides({ props: {}, page, site: props.site, html: "" }) as ComponentChildren,
   );
 }

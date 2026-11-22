@@ -133,8 +133,6 @@ theme:
       providers:
         - title: Claude
           url: "https://claude.ai/new?q=Read+{markdown}"
-    feedback:
-      endpoint: https://feedback.example.com/vote
 ```
 
 | Option | What it changes |
@@ -146,7 +144,6 @@ theme:
 | `footer.links[]` | Footer links with `title` and `url`; only `http`, `https`, `mailto`, and root-relative paths are shown. |
 | `gallery.addCard` | The site's own card at the end of a gallery: a `label` and a `link`. The card keeps the record cards' shape and gets the site's `base`; a blank label or an unsafe link renders nothing, and the option itself is optional. |
 | `pageAgent.providers[]` | The "Use with an agent" menu. Each provider has a `title` and a `url`; `{markdown}`, `{url}`, and `{title}` are filled per page. Without the block the menu offers Claude, ChatGPT, and Cursor. |
-| `feedback.endpoint` | The address the "Was this page helpful?" buttons POST `{url, helpful}` to. Without the block the feedback widget renders nothing. |
 | `favicon.ico`, `favicon.svg`, `favicon.apple` | The icon links, each a path from the site root. |
 | `installTabs.managers[]` | The package managers the install tabs offer, each with a `name` and a `command`; `{package}` becomes the package name. |
 | `network.switcher`, `network.footer`, `network.position` | Show or hide the project switcher and network footer, and place the switcher in the header or above the footer. |

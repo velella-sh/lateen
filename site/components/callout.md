@@ -93,4 +93,4 @@ This option changes every page in the site.
 
 - The body is Markdown, including paragraphs, lists, and code.
 - A GitHub alert takes no options; its kind comes from the marker on the first line.
-- The icon and the accent border are on the reading side in both directions, and the icons are symmetric, so no separate right-to-left markup is needed.
+- The icon sits on the reading side in both directions, the frame is the same on every edge, and the icons are symmetric, so no separate right-to-left markup is needed.

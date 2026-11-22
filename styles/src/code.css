@@ -89,7 +89,9 @@
 
   /* The title and actions stay in place while the code scrolls. */
   :is(.code-copy-bar, .terminal-bar, .api-reference-example > figcaption) {
-    padding: var(--space-1) var(--space-4);
+    min-block-size: 2.25rem;
+    padding-block: var(--space-1);
+    padding-inline: var(--space-4) var(--space-1);
     border-block-end: 1px solid var(--code-border);
     font-size: var(--text-xs);
   }
@@ -114,13 +116,20 @@
     gap: var(--space-1);
   }
 
+  /* Ghost controls: the code is the content, so its actions stay quiet until pointed at. */
   :is(.code-copy, .code-wrap, .terminal-copy) {
-    @apply inline-flex min-h-8 items-center justify-center rounded-md border border-transparent px-2;
-    background: var(--muted);
+    @apply inline-flex min-h-7 items-center justify-center rounded-md border border-transparent px-2;
+    background: transparent;
+    color: var(--muted-foreground);
     cursor: pointer;
   }
 
-  :is(.code-copy, .code-wrap, .terminal-copy):is(:hover, [aria-pressed="true"]) {
+  :is(.code-copy, .code-wrap, .terminal-copy):hover {
+    background: var(--state-hover-bg);
+    color: var(--foreground);
+  }
+
+  :is(.code-copy, .code-wrap, .terminal-copy)[aria-pressed="true"] {
     border-color: currentColor;
   }
 

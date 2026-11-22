@@ -256,7 +256,7 @@ test("no control that needs an island is visible before hydration", () => {
     "[data-search-open]",
     "[data-video-play]",
     "[data-embed-load]",
-    "[data-copy-markdown-button]",
+    "[data-page-agent-copy]",
     "[data-output-copy]",
     "[data-variables-reset]",
     "[data-terminal-copy]",
@@ -330,8 +330,8 @@ test("the static Markdown twin carries the same content as the page", () => {
   for (const expected of ["This guide installs the widget", "npm install @example/widget", "Finished {{project}} in 340 ms"]) {
     assert.ok(markdown.includes(expected), `the Markdown twin carries ${JSON.stringify(expected)}`);
   }
-  assert.equal(document.querySelector(".copy-markdown-link")?.getAttribute("href"), "/guide/install/index.md");
-  assert.equal(document.querySelector("[data-copy-markdown-button]")?.getAttribute("data-markdown"), "/guide/install/index.md");
+  assert.equal(document.querySelector(".page-agent-menu-view")?.getAttribute("href"), "/guide/install/index.md");
+  assert.equal(document.querySelector("[data-page-agent-copy]")?.getAttribute("data-markdown"), "/guide/install/index.md");
 });
 
 test("all island entry points are modules, so a blocked module leaves the document readable", () => {

@@ -43,21 +43,22 @@ test("two forms with the same variable keep independent example groups", () => {
 test("copy actions name one Markdown twin, a status region, and the same result messages", () => {
   const twin = "/guide/install/index.md";
   assert.ok(existsSync(join(site.out, "guide/install/index.md")));
-  assert.equal(document.querySelector("[data-copy-markdown-button]")?.getAttribute("data-markdown"), twin);
-  assert.equal(document.querySelector(".copy-markdown-link")?.getAttribute("href"), twin);
+  // Page tools holds one copy action and one view link, so the page never offers the same copy twice.
+  assert.equal(document.querySelector("[data-copy-markdown-button]"), null);
+  assert.equal(document.querySelector(".page-agent-menu-view")?.getAttribute("href"), twin);
   assert.equal(document.querySelector("[data-page-agent-copy]")?.getAttribute("data-markdown"), twin);
 
-  for (const selector of ["[data-copy-markdown-status]", "[data-page-agent-status]"]) {
+  for (const selector of ["[data-page-agent-status]"]) {
     const status = document.querySelector(selector);
     assert.equal(status?.getAttribute("role"), "status");
     assert.equal(textOf(status), "");
   }
 
-  const copied = document.querySelector("[data-copy-markdown-button]")?.getAttribute("data-copied");
-  const failed = document.querySelector("[data-copy-markdown-button]")?.getAttribute("data-copy-failed");
+  const copied = document.querySelector("[data-page-agent-copy]")?.getAttribute("data-copied");
+  const failed = document.querySelector("[data-page-agent-copy]")?.getAttribute("data-copy-failed");
   assert.equal(copied, "Copied");
   assert.equal(failed, "Press Ctrl+C");
-  for (const selector of ["[data-page-agent-copy]", "[data-page-footer-copy]"]) {
+  for (const selector of ["[data-page-footer-copy]"]) {
     assert.equal(document.querySelector(selector)?.getAttribute("data-copied"), copied);
     assert.equal(document.querySelector(selector)?.getAttribute("data-copy-failed"), failed);
   }

@@ -107,7 +107,7 @@ value that changes with the calendar or the release:
 
 | Masked | Where it shows |
 | --- | --- |
-| Dates and times | The last-updated line, the page footer, the feedback and report-issue details, any `<time>` element |
+| Dates and times | The last-updated line, the page footer, the report-issue link, any `<time>` element |
 | Version numbers | The version switcher, the footer's package and engine versions, the build commit |
 | Counts that follow the content of the build | The search result count and the page's reading time |
 

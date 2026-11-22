@@ -94,6 +94,43 @@
     color: var(--muted-foreground);
   }
 
+  .page-end {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    gap: var(--space-2) var(--space-6);
+    margin-block: var(--space-12) var(--space-6);
+    color: var(--muted-foreground);
+    font-size: var(--text-sm);
+  }
+
+  .page-end-edit {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--space-2);
+  }
+
+  .page-end-edit .edit-page {
+    margin: 0;
+  }
+
+  .page-end-edit .edit-page-link {
+    display: inline-flex;
+    align-items: center;
+    min-block-size: 1.5rem;
+    color: inherit;
+    text-decoration: none;
+  }
+
+  .page-end-edit:hover {
+    color: var(--foreground);
+  }
+
+  .page-end-icon {
+    @apply size-3.5 shrink-0;
+  }
+
   .back-to-top {
     @apply ms-auto flex w-fit items-center gap-1.5 rounded-md px-2 py-1.5 text-xs font-medium text-muted-foreground no-underline hover:text-foreground;
   }
@@ -127,7 +164,7 @@
     inline-size: max-content;
     max-inline-size: min(20rem, calc(100vw - 2rem));
 
-    :is(.copy-markdown-button, .copy-markdown-link, .page-agent-menu-copy, .page-agent-menu-view, .page-agent-menu-provider, .page-footer-copy, .edit-page-link, a) {
+    :is(.copy-markdown-button, .copy-markdown-link, .page-agent-menu-copy, .page-agent-menu-view, .page-agent-menu-provider, .page-footer-copy, .edit-page-link, .source-mode-button, a) {
       @apply flex w-full items-center gap-2.5 rounded-md border-0 bg-transparent px-2.5 py-1.5 text-start text-sm font-medium whitespace-nowrap text-foreground no-underline;
 
       &:hover {

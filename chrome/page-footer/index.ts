@@ -1,24 +1,12 @@
 import { h, type ComponentChildren } from "preact";
-import type { Chrome, Page, RepositoryConfig } from "@velella/mizzen/contracts";
-import { ArrowUp, ChevronDown } from "lucide";
+import type { Chrome, Page } from "@velella/mizzen/contracts";
+import { ArrowUp, SquarePen } from "lucide";
 import { t } from "../../i18n/index.ts";
 import { icon } from "../../src/icon.ts";
 import copyMarkdown from "../copy-markdown/index.ts";
 import editPage from "../edit-page/index.ts";
 import pageAgentMenu from "../page-agent-menu/index.ts";
 import { reportHref } from "../report-issue/index.ts";
-
-/*
- * Labels without a key in the string table (i18n/*.json) are English, the same as the other chrome
- * parts' labels. The strings that do have a key are read through `t()`.
- */
-const HELPFUL = "Was this helpful?";
-const FEEDBACK = "Give feedback";
-
-/** The repository's web URL without trailing slashes, or `undefined` when the site has none. */
-function webRoot(repository: RepositoryConfig | undefined): string | undefined {
-  return repository === undefined ? undefined : repository.url.replace(/\/+$/, "");
-}
 
 /** The page's source file and line, with its language and declared version, as an agent prompt names them. */
 function sourceOf(page: Page): string {
@@ -27,40 +15,10 @@ function sourceOf(page: Page): string {
   return version === "" ? location : `${location} (${page.lang}, ${version})`;
 }
 
-/** A new issue on the repository, with the page's address and source file filled in. */
-function feedbackUrl(root: string, page: Page): string {
-  const title = encodeURIComponent(`Feedback: ${page.title}`);
-  const body = encodeURIComponent(`Page: ${page.url}\nSource: ${page.source.file}\n`);
-  return `${root}/issues/new?title=${title}&body=${body}`;
-}
-
-/**
- * The actions under the article: the copy button for the agent prompt, the feedback link, and the
- * report link. The button starts `hidden` and `client.ts` reveals it, so a visitor without JavaScript
- * sees no control that would do nothing. A link is left out when the site gives it no address. The
- * edit link and the last-updated line are separate chrome units, so the doc and tutorial layouts
- * place them once.
- */
-function renderPageFooter(props: Parameters<Chrome>[0], grouped: boolean) {
-  const { site, page } = props;
+/** The button that copies a prompt asking an agent to edit this page; `client.ts` reveals it. */
+function agentAction(page: Page) {
   const lang = page.lang;
-  const repository = site.config.repository;
-  const root = webRoot(repository);
-  const report = reportHref(site, page);
-  const feedback =
-    root === undefined ? [] : [HELPFUL, " ", h("a", { href: feedbackUrl(root, page) }, FEEDBACK)];
-  const reportLink =
-    report === undefined
-      ? []
-      : [
-          h(
-            "a",
-            { href: report, rel: "noopener" },
-            t(lang, page.record === undefined ? "report_issue" : "report_data"),
-          ),
-        ];
-  const links = feedback.length > 0 && reportLink.length > 0 ? [...feedback, " · ", ...reportLink] : [...feedback, ...reportLink];
-  const agentAction = h(
+  return h(
     "button",
     {
       type: "button",
@@ -73,39 +31,61 @@ function renderPageFooter(props: Parameters<Chrome>[0], grouped: boolean) {
     },
     t(lang, "edit_label"),
   );
-  const back = h(
+}
+
+function backToTop(lang: string) {
+  return h(
     "a",
     { class: "back-to-top", href: "#main" },
     icon({ node: ArrowUp, class: "back-to-top-arrow" }),
     t(lang, "back_to_top"),
   );
-  if (!grouped) {
-    return h("div", { class: "page-footer" }, agentAction,
-      links.length === 0 ? null : h("p", { class: "page-footer-feedback" }, ...links),
-      back,
-    );
-  }
-  const markdown = copyMarkdown(props) as ComponentChildren;
+}
+
+/**
+ * The actions under the article on layouts without a Page tools menu: the copy button for the agent
+ * prompt, the report link, and Back to top. The button starts `hidden` and `client.ts` reveals it, so
+ * a visitor without JavaScript sees no control that would do nothing. The report link is left out
+ * when the site gives it no address. The edit link and the last-updated line are separate chrome
+ * units, so the layouts place them once.
+ */
+const pageFooter: Chrome = (props) => {
+  const { site, page } = props;
+  const report = reportHref(site, page);
+  const reportLink =
+    report === undefined
+      ? null
+      : h("p", { class: "page-footer-feedback" },
+          h("a", { href: report, rel: "noopener" }, t(page.lang, page.record === undefined ? "report_issue" : "report_data")),
+        );
+  return h("div", { class: "page-footer" }, agentAction(page), reportLink, backToTop(page.lang));
+};
+
+/**
+ * The doc layout's Page tools: the page's Markdown, the agent actions, and anything the layout adds
+ * (Source mode), as plain rows in one menu beside the breadcrumb, so the article end stays quiet.
+ */
+export function docPageTools(props: Parameters<Chrome>[0], ...extra: ComponentChildren[]): ComponentChildren[] {
+  const { site, page } = props;
+  const action = agentAction(page);
+  const menu = pageAgentMenu(props, action, { flat: true });
+  const report = reportHref(site, page);
+  const reportLink =
+    report === undefined
+      ? null
+      : h("a", { class: "page-tools-report", href: report, rel: "noopener" },
+          t(page.lang, page.record === undefined ? "report_issue" : "report_data"),
+        );
+  return [...(menu === null ? [copyMarkdown(props) as ComponentChildren, action] : [menu]), ...extra, reportLink];
+}
+
+/** The doc layout's article end: one quiet row with the edit link and Back to top. */
+export const docPageFooter: Chrome = (props) => {
   const edit = editPage(props) as ComponentChildren;
-  return h("div", { class: "doc-actions article-tools" },
-    markdown == null ? null : disclosure(t(lang, "ask_agent_prompt_markdown"), markdown),
-    pageAgentMenu(props, agentAction) ?? agentAction,
-    edit == null && links.length === 0 ? null : disclosure(t(lang, "article_feedback"),
-      edit,
-      ...links.filter((link) => typeof link !== "string"),
-    ),
-    back,
+  return h("div", { class: "page-end" },
+    edit == null ? null : h("div", { class: "page-end-edit" }, icon({ node: SquarePen, class: "page-end-icon" }), edit),
+    backToTop(props.page.lang),
   );
-}
-
-function disclosure(label: string, ...children: ComponentChildren[]) {
-  return h("details", { name: "article-tools" },
-    h("summary", null, label, icon({ node: ChevronDown })),
-    h("div", { class: "article-tool-panel" }, ...children),
-  );
-}
-
-export const docPageFooter: Chrome = (props) => renderPageFooter(props, true);
-const pageFooter: Chrome = (props) => renderPageFooter(props, false);
+};
 
 export default pageFooter;

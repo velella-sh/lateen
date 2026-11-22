@@ -21,11 +21,8 @@
     inset: 0;
     z-index: -1;
     pointer-events: none;
-    background:
-      radial-gradient(900px 520px at 12% -8%, var(--field-a), transparent 60%),
-      radial-gradient(760px 480px at 92% 8%, var(--field-b), transparent 58%),
-      radial-gradient(640px 420px at 70% 100%, var(--glow), transparent 65%),
-      var(--background);
+    /* One flat surface: the glow fields read as smudges behind long pages and code. */
+    background: var(--background);
   }
 
   * {

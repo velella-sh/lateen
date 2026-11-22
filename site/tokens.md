@@ -57,8 +57,6 @@ theme:
       providers:
         - title: Claude
           url: "https://claude.ai/new?q=Read+{markdown}"
-    feedback:
-      endpoint: https://feedback.example.com/vote
 ```
 
 | Option | What it changes |
@@ -69,4 +67,3 @@ theme:
 | `footer.copyright`, `footer.license` | The two lines of the site footer. |
 | `footer.links[]` | Footer links with `title` and `url`; only `http`, `https`, `mailto`, and root-relative paths are shown. |
 | `pageAgent.providers[]` | The "Use with an agent" menu. Each provider has a `title` and a `url`; `{markdown}`, `{json}`, `{url}`, and `{title}` are filled per page; `{json}` only on a record page. Without the block the menu offers Claude, ChatGPT, and Cursor. |
-| `feedback.endpoint` | The address the "Was this page helpful?" buttons POST `{url, helpful, source}` to; `source` is the page's source file. Without the block the feedback widget renders nothing. |
