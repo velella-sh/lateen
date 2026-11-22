@@ -10,6 +10,7 @@
   weight_grams: 640
   pieces: 1
   tags: [rain, overnight]
+  companions: [ground-sheet, storm-tent]
 
 - id: storm-tent
   name: Storm tent
@@ -60,6 +61,7 @@
   summary: A small alcohol stove that burns steadily in a sheltered spot.
   category: Cooking
   status: retired
+  replaced_by: cook-set
   added: 2025-02-20
   updated: 2025-06-30
   weight_grams: 190

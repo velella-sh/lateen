@@ -1,0 +1,10 @@
+north-bank:
+  title: North Bank
+  summary: The team completed every scheduled observation.
+  station: Upstream
+  samples: 18
+reed-cove:
+  title: Reed Cove
+  summary: Two observations moved to the following week after heavy rain.
+  station: Estuary
+  samples: 12

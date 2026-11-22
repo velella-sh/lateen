@@ -28,7 +28,9 @@ The site has one collection, `kits`, declared in `mizzen.yml`. Everything else i
 `/kits/head-torch/`. `added` and `updated` are dates the site reads as dates, listed under the
 collection's `dates` key. `status` is a key into the status map, not the label a reader sees.
 
-Add a record by adding one object to the list. Remove one by deleting it; its page follows.
+Add a record by adding one object to the list. To retire a kit while keeping its page, set `status` to
+`retired` and use `replaced_by` for the replacement’s id, as the [spirit stove](../../kits/spirit-stove/) does.
+The [shelter tarp](../../kits/shelter-tarp/) uses `companions` to reference two other kits by id.
 
 ## The schema
 
@@ -67,3 +69,15 @@ page at once.
 `catalogue/` uses the list layout, `explore/` uses the data explorer, and `timeline/` uses the
 timeline. Each directive names the collection and the fields it reads, so adding a field does not
 change those pages until you name it there.
+
+## Published data
+
+- The [calendar](../../calendars/kit-updates.ics) has one event per kit's update date.
+- The update feed is available as [Atom](../../feeds/kit-updates.xml),
+  [RSS](../../feeds/kit-updates.rss.xml), and [JSON Feed](../../feeds/kit-updates.json).
+- The [change history](../../changes/kits/) uses the example event in `data-changes/kits.jsonl`.
+  To record future changes, record a snapshot and run `mizzen data changes --write`.
+- The [search page](../../search/) can filter by category and status and sort by update date.
+  Those search fields are configured under `collections.kits.search`.
+- The `notes` view uses its own template for a second page for each kit. Open the
+  [shelter tarp field notes](../../kits/shelter-tarp/notes/) to see it.
