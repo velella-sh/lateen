@@ -12,8 +12,18 @@ export const root = fileURLToPath(new URL("../", import.meta.url));
 /** Repo-relative path of each generated asset, in build order. */
 export const ASSETS = ["styles/generated.css", "components/performance-chart/chart.min.js"] as const;
 
+/**
+ * Runs a locally installed tool. On Windows npm installs `<name>.cmd` shims, and Node refuses to spawn a
+ * `.cmd` file without a shell, so the command line is quoted for `cmd.exe` there; elsewhere the binary runs directly.
+ */
 function run(name: string, args: string[]): void {
-  execFileSync(join(root, "node_modules/.bin", name), args, { cwd: root, stdio: "inherit" });
+  const bin = join(root, "node_modules/.bin", name);
+  if (process.platform === "win32") {
+    const quote = (value: string): string => `"${value.replaceAll('"', '""')}"`;
+    execFileSync([`${bin}.cmd`, ...args].map(quote).join(" "), { cwd: root, stdio: "inherit", shell: true });
+    return;
+  }
+  execFileSync(bin, args, { cwd: root, stdio: "inherit" });
 }
 
 /** Writes a clean build of every generated asset into `dir`, keyed by repo-relative path. */
