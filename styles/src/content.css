@@ -557,25 +557,21 @@
     background: var(--background);
   }
 
+  /* Endpoint introductions: the hand-written endpoint block, the generated operation page, and
+     the reference index share one line, one method badge, and one wrapping path. The method's
+     text is its label, so color is never the only signal. */
+  :is(.endpoint-line, .api-reference-line) {
+    overflow-wrap: anywhere;
+  }
+
   .endpoint {
-    @apply my-4;
-  }
-
-  .endpoint-line {
-    @apply flex items-center gap-2.5;
-    font-family: var(--type-font-mono);
-    font-size: 0.84rem;
-  }
-
-  .endpoint-path {
-    @apply text-sm;
+    margin-block: var(--space-6);
   }
 
   .endpoint-param {
     color: var(--link);
   }
 
-  .endpoint-params,
   .key-value {
     display: grid;
     grid-template-columns: 7rem 1fr;
