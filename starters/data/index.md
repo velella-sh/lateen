@@ -25,6 +25,9 @@ sections:
       - title: Explorer
         url: explore/
         meta: search and filter
+      - title: Change history
+        url: changes/kits/
+        meta: by snapshot date
       - title: Timeline
         url: timeline/
         meta: by added and updated date

@@ -1,0 +1,8 @@
+ridge:
+  title: Ridge station
+  summary: An observation point on an exposed slope.
+  instrument: Wind gauge
+pond:
+  title: Pond station
+  summary: A sheltered observation point near still water.
+  instrument: Rain gauge

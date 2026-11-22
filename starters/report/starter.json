@@ -1,0 +1,11 @@
+{
+  "title": "Periodic report",
+  "description": "A gallery for the latest reporting run, dated snapshots, and an archive.",
+  "languages": {
+    "default": "en",
+    "optional": [
+      { "code": "fa", "name": "فارسی", "prefix": "/fa" },
+      { "code": "ar", "name": "العربية", "prefix": "/ar" }
+    ]
+  }
+}

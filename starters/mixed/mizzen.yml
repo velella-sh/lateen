@@ -1,0 +1,16 @@
+title: Juniper station guide
+description: A Markdown guide and a data catalogue for an invented observation network.
+lang: en
+url: https://example.com
+base: ""
+languages:
+  - { code: en, name: English, prefix: "" }
+  - { code: fa, name: فارسی, prefix: /fa }
+  - { code: ar, name: العربية, prefix: /ar }
+collections:
+  stations:
+    source: _data/stations.yml
+    template: _templates/station.md
+    permalink: /stations/{id}/
+theme:
+  name: "@velella/lateen"

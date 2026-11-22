@@ -17,8 +17,39 @@ collections:
     permalink: /kits/{id}/
     schema: _data/kits.schema.json
     dates: [added, updated]
+    references:
+      companions: kits
+    lifecycle:
+      field: status
+      states: [in-service, maintenance, retired]
+      retired: [retired]
+      replacement: replaced_by
+      url: retain
+    views:
+      notes:
+        template: _templates/kit-notes.md
+        permalink: /kits/{id}/notes/
+    search:
+      filters: [category, status]
+      sort: [updated]
+    changelog:
+      track: [status]
+      pages: true
     index:
       fields: [id, name, category, status, updated, weight_grams, pieces]
+calendars:
+  kit-updates:
+    collection: kits
+    events:
+      - name: update
+        field: updated
+        title: "{name} updated"
+feeds:
+  kit-updates:
+    collection: kits
+    title: Driftwood kit updates
+    date: updated
+    formats: [atom, rss, json]
 theme:
   name: "@velella/lateen"
   options:

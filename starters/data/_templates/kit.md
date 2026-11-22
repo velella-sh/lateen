@@ -27,6 +27,10 @@ record:
 :field[summary]
 
 Every value on this page is a field of the record in `_data/kits.yml`. The [catalogue](../../catalogue/)
-lists the whole collection.
+lists the whole collection. See the [field notes](notes/) for this kit.
+
+:::changes
+- :field[date] — :field[field] changed from :field[old] to :field[new].
+:::
 
 Change the record and rebuild; the page and its row in the list, timeline, and explorer follow.
