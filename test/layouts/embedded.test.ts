@@ -50,6 +50,18 @@ test("keeps the page language and direction", () => {
   assert.match(out, /باز کردن صفحهٔ کامل/);
 });
 
+test("a preview keeps the engine canonical and links to it in the banner", () => {
+  const page = pageWith({ frontMatter: { embedded: { of: "/guide/" } } });
+  const preview = { canonicalBase: "https://preview.example" };
+  const site = { ...siteWith([page], { url: "https://example.com" }), preview };
+  const href = "https://preview.example/embed/guide/";
+  const out = html(embedded(layoutProps(page, site, [{ rel: "canonical", href }])));
+  assert.equal(out.match(/rel="canonical"/g)?.length, 1);
+  assert.ok(out.includes(`<link rel="canonical" href="${href}">`));
+  assert.ok(out.includes(`<a href="${href}">Open the canonical page</a>`));
+  assert.match(out, /href="https:\/\/example\.com\/guide\/" target="_top"/);
+});
+
 test("embeddedOf normalises front matter", () => {
   assert.deepEqual(embeddedOf(pageWith()), { of: undefined, scheme: "auto", height: 360, transparent: false });
   assert.deepEqual(embeddedOf(pageWith({ frontMatter: { embedded: { of: " /a/ ", scheme: "dark", height: "500", transparent: true } } })), {

@@ -5,6 +5,7 @@ import { t } from "../i18n/index.ts";
 import { factsPanel, recordHeader } from "../src/record-parts.ts";
 import { mathHtml } from "../src/math-html.ts";
 import { deferredScript } from "./shared/head.ts";
+import { previewBanner } from "./shared/preview.ts";
 
 /** Class on the page body wrapper; `embedded.css` sizes it. */
 export const EMBEDDED_CLASS = "embedded";
@@ -96,8 +97,8 @@ const embedded: Layout = (props: LayoutProps) => {
   const settings = embeddedOf(page);
   const href = fullHref(site.config, settings.of);
   const canonical = settings.of === undefined ? undefined : (absoluteUrl(site.config, settings.of) ?? href);
-  const links = head.links.filter((tag) => tag.rel !== "canonical" && tag.rel !== "alternate");
-  if (canonical !== undefined) links.push({ rel: "canonical", href: canonical });
+  const links = head.links.filter((tag) => tag.rel !== "alternate" && (site.preview !== undefined || tag.rel !== "canonical"));
+  if (site.preview === undefined && canonical !== undefined) links.push({ rel: "canonical", href: canonical });
   const meta = head.meta.filter((tag) => tag.name.toLowerCase() !== "robots");
   const lang = page.lang;
   const label = t(lang, "embedded_open_full");
@@ -125,6 +126,7 @@ const embedded: Layout = (props: LayoutProps) => {
     h(
       "body",
       { class: "embedded-body" },
+      previewBanner(props),
       h(
         "div",
         { class: EMBEDDED_CLASS, "data-embedded-height": String(settings.height), style: `--embedded-height:${settings.height}px` },

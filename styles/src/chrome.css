@@ -21,6 +21,10 @@
     transform: none;
   }
 
+  .preview-banner {
+    @apply flex flex-wrap justify-center gap-x-3 bg-muted px-4 py-2 text-sm;
+  }
+
   .progress {
     position: fixed;
     top: 0;
