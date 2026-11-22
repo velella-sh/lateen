@@ -1,1 +1,0 @@
-The tarball leaves out what a consumer never reads: the Tailwind sources under `styles/src` (build input for `npm run ui:css`), the per-unit READMEs, and the redesign tests. Same exports and runtime; 46 fewer files and about 54 KB smaller packed.

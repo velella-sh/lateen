@@ -4,6 +4,13 @@ description: What changed in Lateen, release by release. Dates are UTC.
 layout: changelog
 permalink: /changelog/
 releases:
+  - version: 0.2.4
+    date: 2026-11-22
+    categories: Added,Changed,Fixed
+    body: |
+      <p>Polishes the doc chrome: callouts, sidebar and table-of-contents markers, a Page tools menu, search, and the end-of-article pager.</p>
+      <p>Removes the page feedback widget and the per-block edit button. A <code>theme.options.feedback</code> block is still accepted and ignored. Adds a <code>quote</code> component, figures with several images, and release gates for the exact candidate commit.</p>
+      <p><a href="https://github.com/velella-sh/lateen/blob/main/CHANGELOG.md">Read the complete package changelog</a>.</p>
   - version: 0.2.3
     date: 2026-11-19
     categories: Added,Changed,Fixed
