@@ -19,7 +19,8 @@ Run the installer, then restart the terminal.
 
 | Name | Type | Default | What it does |
 | --- | --- | --- | --- |
-| `summary` | string | `Details` | The text of the disclosure control. |
+| `summary` | string | `title` or `Details` | The text of the disclosure control. |
+| `title` | string | none | Fallback text, including titles from the VitePress importer. |
 | `open` | bare word | closed | Its presence starts the block expanded. |
 
 ## Example

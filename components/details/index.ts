@@ -16,6 +16,8 @@ export const BODY_CLASS = "details-body";
 export type DetailsProps = {
   /** Text of the disclosure control. */
   summary?: string;
+  /** Fallback summary used by the VitePress importer. */
+  title?: string;
   /** Present (any value, as in `:::details{open}`) when the block starts expanded. */
   open?: string;
 };
@@ -25,7 +27,7 @@ export type DetailsProps = {
  * works without JavaScript, and the browser opens it when the URL anchor is inside it.
  */
 export default function details({ props, html }: ComponentProps<DetailsProps>) {
-  const summary = props.summary?.trim() ? props.summary : DEFAULT_SUMMARY;
+  const summary = props.summary?.trim() ? props.summary : props.title?.trim() ? props.title : DEFAULT_SUMMARY;
   return h(
     "details",
     { class: DETAILS_CLASS, open: "open" in props },
