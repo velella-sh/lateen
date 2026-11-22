@@ -300,8 +300,19 @@ jobs:
     permissions:
       contents: write
     steps:
+      # The helper below is part of the repository, so the job needs a checkout. It comes from the
+      # default branch, like preflight's helper, and the job's write token is not persisted into it.
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          ref: ${{ github.event.repository.default_branch }}
+          path: lateen
+          persist-credentials: false
+      - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
+        with:
+          node-version: 24
       - name: Verify the GitHub Release carries the post-publish evidence
         id: release
+        working-directory: lateen
         env:
           GH_TOKEN: ${{ github.token }}
           VERSION: ${{ needs.acceptance.outputs.version }}
