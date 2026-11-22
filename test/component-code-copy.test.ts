@@ -539,7 +539,7 @@ test("the wrap label comes from the page language", () => {
   const template = (lang: string, quickstart = false): string =>
     renderToString(codeCopy({ page: { lang, frontMatter: { quickstart } } } as unknown as ChromeProps) as never);
 
-  assert.match(template("en", true), /data-copy="Copy command"/);
+  assert.match(template("en", true), /data-copy="Copy"/);
   assert.match(template("en"), /data-copy="Copy"/);
   assert.match(template("en"), /data-wrap="Wrap lines"/);
   assert.match(template("fa"), new RegExp(`data-wrap="${t("fa", "code_wrap")}"`));

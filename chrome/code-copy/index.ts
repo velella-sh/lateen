@@ -13,7 +13,7 @@ const codeCopy: Chrome = ({ page }) => {
   const lang = page.lang;
   return h("template", {
     "data-code-copy": true,
-    "data-copy": t(lang, page.frontMatter.quickstart === true ? "code_copy_command" : "copy"),
+    "data-copy": t(lang, "copy"),
     "data-copied": t(lang, "copied"),
     "data-failed": t(lang, "copy_failed_select"),
     "data-wrap": t(lang, "code_wrap"),
