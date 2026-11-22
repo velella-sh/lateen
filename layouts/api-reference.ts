@@ -1,4 +1,5 @@
 import { Fragment, h } from "preact";
+import { staleSlot } from "../src/stale.ts";
 import { isRecord } from "../src/guards.ts";
 import type { ComponentChildren } from "preact";
 import type { Layout, LayoutProps } from "@velella/mizzen/contracts";
@@ -598,6 +599,7 @@ function article(props: LayoutProps): ComponentChildren {
       { class: "doc api-reference", "data-pagefind-body": true },
       breadcrumb(props) as ComponentChildren,
       h("h1", null, page.title),
+      staleSlot(props),
       h("div", { class: "doc-body", dangerouslySetInnerHTML: { __html: articleHtml(page.html, page.lang) } }),
     );
   }
@@ -607,6 +609,7 @@ function article(props: LayoutProps): ComponentChildren {
     { class: "doc api-reference", "data-pagefind-body": true },
     breadcrumb(props) as ComponentChildren,
     operationHeader(view, lang),
+    staleSlot(props),
     parametersSection(view.parameters, lang),
     requestBodySection(view.requestBody, lang),
     responsesSection(view.responses, lang),
