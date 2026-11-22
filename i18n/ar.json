@@ -533,6 +533,7 @@
   "version_added": "أُضيف في الإصدار {version}",
   "version_changed": "تغيّر في الإصدار {version}",
   "version_current": "الإصدار الحالي",
+  "version_current_docs": "التوثيق الحالي",
   "version_deprecated": "متوقف",
   "version_dev": "تطوير",
   "version_diff_added": "مُضاف",

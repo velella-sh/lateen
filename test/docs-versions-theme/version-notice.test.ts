@@ -117,6 +117,15 @@ test("an old release says it is old and links the equivalent page in the default
   assert.match(html, /href="\/docs\/v2\/guide\/install\/" data-version-target="page"/);
 });
 
+test("the notice treats an alias as its release and links back to the canonical copy", () => {
+  const old = page("v1/start.md", "/docs/v1/start/");
+  const canonical = page("v2/start.md", "/docs/z-start/");
+  const alias = { ...canonical, url: "/docs/v2/start/", aliasOf: canonical.url };
+  const site = releases([old, alias, canonical]);
+  assert.equal(noticeOf(site, alias)?.version, "v2");
+  assert.equal(noticeOf(site, old)?.href, canonical.url);
+});
+
 test("a page with no equivalent links the target version's home page that the site publishes", () => {
   const site = releases();
   const legacy = site.pages.find((entry) => entry.url === "/docs/v1/guide/legacy/");
@@ -238,6 +247,7 @@ test("the built fixture shows both releases, keeps old URLs, and falls back to a
   assert.equal(oldNotice?.querySelector(".version-notice-link")?.getAttribute("data-version-target"), "page");
 
   const current = site.document("/v2/guide/install/");
+  assert.equal(current.querySelector('link[rel="canonical"]')?.getAttribute("href"), "https://example.com/guide/install/");
   const currentNotice = current.querySelector(".version-notice");
   assert.equal(currentNotice?.getAttribute("data-version-status"), "default");
   assert.equal(currentNotice?.querySelector(".version-notice-label")?.textContent, "Current version");

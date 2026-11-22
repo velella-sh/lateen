@@ -533,6 +533,7 @@
   "version_added": "افزوده شد در نسخهٔ {version}",
   "version_changed": "تغییر کرد در نسخهٔ {version}",
   "version_current": "نسخهٔ کنونی",
+  "version_current_docs": "مستندات کنونی",
   "version_deprecated": "منسوخ",
   "version_dev": "توسعه",
   "version_diff_added": "افزوده",

@@ -533,6 +533,7 @@
   "version_added": "Added in version {version}",
   "version_changed": "Changed in version {version}",
   "version_current": "Current version",
+  "version_current_docs": "Current docs",
   "version_deprecated": "Deprecated",
   "version_dev": "Dev",
   "version_diff_added": "Added",
