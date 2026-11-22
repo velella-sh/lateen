@@ -84,8 +84,8 @@
     grid-template-columns: 1fr;
   }
 
-  .item,
-  .list a {
+  .doc-body .item,
+  .doc-body .list a {
     grid-template-columns: 1fr;
     gap: 0.25rem;
   }

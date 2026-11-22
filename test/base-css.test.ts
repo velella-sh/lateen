@@ -125,7 +125,7 @@ test("document tables, reference rows, code panels, and callouts stay quiet and 
   assert.doesNotMatch(headers, /bg-muted|background/);
   assert.match(headers, /color:\s*var\(--muted-foreground\)/);
 
-  const rows = bodyOf(ui, /^\.item,\s*\.list a$/);
+  const rows = bodyOf(ui, /^\.doc-body \.item,\s*\.doc-body \.list a$/);
   assert.match(rows, /grid-template-columns:\s*minmax\(7\.5rem, 0\.4fr\) minmax\(0, 1fr\)/);
   const codeSurface = bodyOf(ui, /\.code-frame, \.terminal, \.install-tabs,/);
   assert.match(codeSurface, /border-radius:\s*var\(--radius-card\)/);
