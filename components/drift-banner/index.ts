@@ -1,10 +1,11 @@
 import { h } from "preact";
 import type { Component, Site, SiteConfig } from "@velella/mizzen/contracts";
-import { CircleQuestionMark, Clock, TriangleAlert } from "lucide";
+import { CircleQuestionMark, Clock, FileQuestionMark, TriangleAlert } from "lucide";
 import type { IconNode } from "lucide";
 import { t } from "../../i18n/index.ts";
 import { icon as lucideIcon } from "../../src/icon.ts";
 import { isRecord, textOf } from "../../src/guards.ts";
+import { editUrlOf } from "../../chrome/edit-page/index.ts";
 import { optionOf } from "../../src/options.ts";
 
 /** Class on the banner. `style.css` styles it. */
@@ -49,8 +50,8 @@ export const PLURAL_KEY = "drift_findings";
 /** The i18n key with the text of the details link. */
 export const DETAILS_KEY = "drift_details";
 
-/** The three things the banner can report about a page's drift evidence. */
-export const STATES = ["drifting", "stale", "unavailable"] as const;
+/** The states the banner can report about a page's drift evidence. */
+export const STATES = ["drifting", "stale", "unavailable", "unchecked"] as const;
 
 export type DriftState = (typeof STATES)[number];
 
@@ -64,6 +65,7 @@ export const STATE_KEYS: Readonly<Record<DriftState, string>> = {
   drifting: "drift_state_drifting",
   stale: "drift_state_stale",
   unavailable: "drift_state_unavailable",
+  unchecked: "drift_state_unavailable",
 };
 
 /** The i18n key with each state's answer to what changed, and so what to do next. */
@@ -71,6 +73,7 @@ export const WHAT_KEYS: Readonly<Record<DriftState, string>> = {
   drifting: "drift_what_source",
   stale: "drift_what_content",
   unavailable: "drift_what_unavailable",
+  unchecked: "drift_what_unchecked",
 };
 
 /**
@@ -81,6 +84,7 @@ export const ICONS: Readonly<Record<DriftState, IconNode>> = {
   drifting: TriangleAlert,
   stale: Clock,
   unavailable: CircleQuestionMark,
+  unchecked: FileQuestionMark,
 };
 
 /** One page's drift evidence: what the banner reports and how serious it is. */
@@ -100,6 +104,13 @@ interface DriftOptions {
 }
 
 /** A path on this site (not protocol-relative `//host`) or an https link. Anything else is not a link. */
+const CLAIM_STATES = ["mismatch", "missing", "moved", "unchecked"] as const;
+type ClaimState = (typeof CLAIM_STATES)[number];
+
+function claimStateOf(finding: unknown): ClaimState | undefined {
+  return isRecord(finding) ? CLAIM_STATES.find((state) => state === finding.state) : undefined;
+}
+
 const SAFE_URL = /^(?:\/(?![/\\])|https:\/\/)[^\s"<>]*$/;
 
 /**
@@ -118,7 +129,7 @@ export function findingsOf(site: Site, url: string): readonly unknown[] | undefi
   const pages = pagesOf(site.data.drift);
   if (pages === undefined || !Object.hasOwn(pages, url)) return undefined;
   const value = pages[url];
-  return Array.isArray(value) ? value : undefined;
+  return Array.isArray(value) ? value.filter((finding) => !isRecord(finding) || finding.state !== "match") : undefined;
 }
 
 /**
@@ -128,6 +139,7 @@ export function findingsOf(site: Site, url: string): readonly unknown[] | undefi
  */
 function severityOf(finding: unknown): DriftSeverity {
   if (!isRecord(finding)) return "unknown";
+  if (claimStateOf(finding) === "unchecked") return "warning";
   const severity = finding.severity;
   if (severity === undefined) return "warning";
   return severity === "error" || severity === "warning" || severity === "info" ? severity : "unknown";
@@ -166,15 +178,20 @@ export function evidenceOf(site: Site, url: string): DriftEvidence | undefined {
   if (pages === undefined || !Object.hasOwn(pages, url)) return undefined;
   const value = pages[url];
   if (isUnavailable(value)) return { state: "unavailable", count: 0, severity: "unknown" };
-  if (!Array.isArray(value) || value.length === 0) return undefined;
+  const findings = findingsOf(site, url);
+  if (findings === undefined || findings.length === 0) return undefined;
 
   let severity: DriftSeverity = "info";
   let source = false;
-  for (const finding of value) {
+  let unchecked = 0;
+  for (const finding of findings) {
     severity = worst(severity, severityOf(finding));
-    source = source || namesCode(finding);
+    const claim = claimStateOf(finding);
+    if (claim === "unchecked") unchecked++;
+    else source = source || claim !== undefined || namesCode(finding);
   }
-  return { state: source ? "drifting" : "stale", count: value.length, severity };
+  const state = source ? "drifting" : unchecked === findings.length ? "unchecked" : "stale";
+  return { state, count: findings.length, severity };
 }
 
 /** The details link from `theme.options.drift.detailsUrl`, safe and with `base` in front of a site path. */
@@ -213,6 +230,8 @@ export interface FindingDetail {
   readonly span?: FindingSpan;
   /** The finding's message, escaped as text. */
   readonly message?: string;
+  readonly state?: ClaimState;
+  readonly help?: string;
   /** A safe evidence link, with `base` in front of a site path. */
   readonly href?: string;
   /** False when the finding has nothing readable to show; the row says so instead of inventing evidence. */
@@ -319,17 +338,33 @@ export function evidenceHrefOf(config: SiteConfig | undefined, value: unknown): 
 export function findingDetailsOf(findings: readonly unknown[], config?: SiteConfig): FindingDetail[] {
   return findings.map((finding, index) => {
     const kind = kindOf(finding);
-    const span = spanOf(finding);
+    const state = claimStateOf(finding);
+    const target = isRecord(finding) && isRecord(finding.target) ? finding.target : undefined;
+    const path = textOf(target?.path);
+    const line = positionOf(target?.line);
+    const targetSpan = path === undefined || line === undefined || /^\/|[:\\]/.test(path)
+      || path.split("/").some((part) => part === "" || part === "." || part === "..")
+      ? undefined
+      : spanOfParts(path, line, positionOf(target?.endLine), positionOf(target?.column));
+    const span = targetSpan ?? spanOf(finding);
     const message = isRecord(finding) ? textOf(finding.message) : undefined;
-    const href = isRecord(finding) ? evidenceHrefOf(config, finding.url) : undefined;
+    const help = isRecord(finding) ? textOf(finding.help) : undefined;
+    const sourceUrl = targetSpan === undefined || config?.repository === undefined
+      ? undefined
+      : editUrlOf(config.repository, targetSpan.path);
+    const href = sourceUrl === undefined
+      ? isRecord(finding) ? evidenceHrefOf(config, finding.url) : undefined
+      : `${sourceUrl}#L${line}`;
     return {
       id: `${FINDING_CLASS}-${index + 1}`,
       severity: severityOf(finding),
       ...(kind === undefined ? {} : { kind }),
       ...(span === undefined ? {} : { reference: referenceOf(span), span }),
       ...(message === undefined ? {} : { message }),
+      ...(state === undefined ? {} : { state }),
+      ...(help === undefined ? {} : { help }),
       ...(href === undefined ? {} : { href }),
-      available: kind !== undefined || span !== undefined || message !== undefined || href !== undefined,
+      available: kind !== undefined || span !== undefined || message !== undefined || href !== undefined || state !== undefined || help !== undefined,
     };
   });
 }
@@ -432,6 +467,7 @@ function findingRow(detail: FindingDetail, lang: string) {
       id: detail.id,
       class: detail.available ? FINDING_CLASS : `${FINDING_CLASS} ${FINDING_UNAVAILABLE_CLASS}`,
       "data-drift-severity": detail.severity,
+      "data-drift-claim-state": detail.state,
       "data-drift-finding-available": detail.available ? "true" : "false",
       ...(span === undefined
         ? {}
@@ -443,9 +479,11 @@ function findingRow(detail: FindingDetail, lang: string) {
           }),
     },
     h("span", { class: FINDING_SEVERITY_CLASS, dir: "ltr" }, detail.severity),
+    detail.state === undefined ? null : h("strong", null, t(lang, `drift_claim_${detail.state}`)),
     kind,
     reference,
     message,
+    detail.help === undefined ? null : h("span", { class: FINDING_NOTE_CLASS }, detail.help),
     detail.available ? null : h("span", { class: FINDING_NOTE_CLASS }, t(lang, "trust_not_recorded")),
     emptyLink,
   );
