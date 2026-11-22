@@ -155,9 +155,21 @@ test("record-baselines records on the pinned runner, refuses main and commits on
   const text = readFileSync(new URL("../.github/workflows/record-baselines.yml", import.meta.url), "utf8");
   const recorder = parse(text) as { on: Record<string, unknown>; jobs: Record<string, Job & { "runs-on"?: string }> };
   const job = recorder.jobs["record"] as Job & { "runs-on"?: string };
-  assert.deepEqual(Object.keys(recorder.on), ["workflow_dispatch"]);
+  assert.deepEqual(Object.keys(recorder.on), ["workflow_dispatch", "pull_request"]);
   assert.equal(job["runs-on"], "ubuntu-24.04");
   assert.match(job.if ?? "", /refs\/heads\/main/);
   assert.match(text, /test-visual\.ts --update/);
   assert.match(text, /git add -A test\/visual\/baselines/);
+});
+
+test("the label starts a same-repository recording and the recorder starts CI itself", () => {
+  const text = readFileSync(new URL("../.github/workflows/record-baselines.yml", import.meta.url), "utf8");
+  assert.match(text, /types: \[labeled\]/);
+  assert.match(text, /github\.event\.label\.name == 'record-baselines'/);
+  assert.match(text, /head\.repo\.full_name == github\.repository/, "a fork never gets a write token run");
+  assert.match(text, /gh workflow run ci\.yml --ref/);
+});
+
+test("performance-compare allows the budget's 256 B of gzip noise", () => {
+  assert.match(stepNamed("performance-compare", "Compare").run ?? "", /--tolerance 256 /);
 });

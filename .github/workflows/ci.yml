@@ -133,7 +133,7 @@ jobs:
         run: node scripts/asset-manifest.ts --report asset-manifest.json
         working-directory: head
       - name: Compare
-        run: node head/scripts/performance-compare.ts --base base/asset-manifest.json --head head/asset-manifest.json --reviewed head/fixtures/performance/reviewed-assets.json --report reports/performance-compare.json
+        run: node head/scripts/performance-compare.ts --tolerance 256 --base base/asset-manifest.json --head head/asset-manifest.json --reviewed head/fixtures/performance/reviewed-assets.json --report reports/performance-compare.json
       - name: Upload the comparison report
         if: always()
         uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
