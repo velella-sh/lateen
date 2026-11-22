@@ -15,6 +15,7 @@ import mermaid, {
   clearDiagramCache,
   diagramKey,
   diagramRenderCount,
+  naturalWidth,
   normalizeSource,
   parseDiagramProps,
   RENDER_OPTIONS,
@@ -144,6 +145,20 @@ test("a small flowchart renders inline SVG at build time, with its source kept",
   // The only script is the inert record: the page never loads or runs a renderer.
   assert.match(out, /<script type="application\/json" data-mermaid-record[ >]/);
   assert.doesNotMatch(out, /<script(?![^>]*type="application\/json")/i);
+});
+
+test("the diagram's drawn width is published on its wrapper so styles can keep it legible", () => {
+  assert.equal(naturalWidth('<svg viewBox="4 -3.05 552 70.1"></svg>'), 552);
+  assert.equal(naturalWidth('<svg viewBox="0,0,2304.4,70"></svg>'), 2305);
+  assert.equal(naturalWidth('<svg viewBox="0 0 0 70"></svg>'), undefined);
+  assert.equal(naturalWidth('<svg viewBox="-3 -3"></svg>'), undefined);
+  assert.equal(naturalWidth("<svg></svg>"), undefined);
+
+  const out = render({ source: FLOWCHART, alt: "Start goes to end" });
+  const svg = /<svg\b[^>]*>/.exec(out)?.[0] ?? "";
+  const width = naturalWidth(svg);
+  assert.ok(width !== undefined && width > 0, "the rendered flowchart has a drawn width");
+  assert.match(out, new RegExp(`<div class="mermaid-diagram" style="--mermaid-natural: ${String(width)}px"`));
 });
 
 test("alt text may start as a Mermaid comment", () => {

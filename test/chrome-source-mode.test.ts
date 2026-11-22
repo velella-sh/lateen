@@ -30,6 +30,28 @@ test("the switch renders hidden, with a pressed state and a status region", () =
   assert.ok(out.includes(`data-on-message="${stringsOf("en").source_mode_on}"`));
 });
 
+test("the active bar renders hidden, with a count region and one Exit control", () => {
+  const out = renderFor("en");
+  assert.match(
+    out,
+    /<div class="source-mode-active" hidden><span class="source-mode-count" aria-live="polite"><\/span><button type="button" class="source-exit-button">[\s\S]*?Exit Source mode<\/button><\/div>/,
+  );
+});
+
+test("the switch carries ready SVG for the label link actions, and never their words", () => {
+  const page = { lang: "en", dir: "ltr" };
+  const withRepo = render(h("div", null, sourceMode({ site: { config: { repository: { url: "https://github.com/acme/site" }, theme: {} } }, page } as unknown as ChromeProps) as never));
+  assert.match(withRepo, /data-icon-open="&lt;svg/);
+  const withEditor = render(
+    h("div", null, sourceMode({ site: { config: { theme: { options: { sourceMode: { editor: "vscode://file/{path}:{line}" } } } } }, page } as unknown as ChromeProps) as never),
+  );
+  assert.match(withEditor, /data-icon-open="&lt;svg/);
+  assert.match(withEditor, /source-folder-button/);
+  // A site with neither has no icons and no folder control.
+  const bare = renderFor("en");
+  assert.doesNotMatch(bare, /data-icon-open=|source-folder-button/);
+});
+
 test("the switch is localized in Persian and Arabic", () => {
   for (const lang of ["fa", "ar"] as const) {
     assert.ok(renderFor(lang).includes(stringsOf(lang).source_mode_label ?? "missing"), lang);

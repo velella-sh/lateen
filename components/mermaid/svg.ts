@@ -34,3 +34,17 @@ export function accessibleSvg(svg: string, alt: string): string {
   }
   return out;
 }
+
+/**
+ * The diagram's drawn width in CSS pixels, read from its `viewBox`. The shared Mermaid stylesheet uses
+ * it so a diagram keeps the size it was drawn at: a small one stays its natural size, and one wider than
+ * the column scrolls inside its own frame instead of shrinking until its labels are unreadable.
+ * Returns `undefined` when the SVG carries no usable `viewBox`.
+ */
+export function naturalWidth(svg: string): number | undefined {
+  const match = /\bviewBox\s*=\s*"([^"]+)"/i.exec(svg);
+  if (match === null) return undefined;
+  const parts = match[1]!.trim().split(/[\s,]+/).map(Number);
+  const width = parts[2];
+  return width !== undefined && Number.isFinite(width) && width > 0 ? Math.ceil(width) : undefined;
+}

@@ -626,6 +626,72 @@
     font-weight: 600;
   }
 
+  .record > #record-facts {
+    grid-template-columns: clamp(6rem, 25%, 10rem) minmax(0, 1fr);
+    align-items: baseline;
+    gap: var(--space-3) var(--space-4);
+    margin-block: var(--space-4);
+    padding-block: var(--space-3);
+    border-block: 1px solid var(--border);
+    overflow-wrap: anywhere;
+  }
+
+  .record > #record-facts .record-fact-group {
+    grid-template-columns: subgrid;
+    gap: inherit;
+    align-items: baseline;
+  }
+
+  .record > #record-facts .record-fact-group:not(:first-child) {
+    margin-block-start: var(--space-2);
+  }
+
+  .record > #record-facts .record-fact-group-label {
+    color: var(--foreground);
+    font-weight: 700;
+  }
+
+  .record > #record-facts dt {
+    font-size: 0.8125rem;
+    font-weight: 600;
+  }
+
+  .record > #record-facts dd {
+    color: var(--foreground);
+    font-size: 0.9375rem;
+    white-space: normal;
+  }
+
+  .record > #record-facts dd a {
+    color: var(--link);
+    text-decoration: underline;
+    text-underline-offset: 0.15em;
+  }
+
+  .record > #record-facts .record-fact-report {
+    display: inline-block;
+    max-inline-size: 100%;
+    margin-inline-start: var(--space-2);
+    color: var(--muted-foreground);
+    font-size: 0.75rem;
+    font-weight: 500;
+  }
+
+  @media (max-width: 40rem) {
+    .record > #record-facts {
+      grid-template-columns: minmax(0, 1fr);
+      row-gap: 0.125rem;
+    }
+
+    .record > #record-facts dd + dt {
+      margin-block-start: var(--space-2);
+    }
+
+    .record > #record-facts .record-fact-group-label {
+      margin-block-end: 0.25rem;
+    }
+  }
+
   .record-fact-evidence {
     margin-inline-start: 0.5rem;
     color: var(--muted-foreground);
@@ -909,22 +975,29 @@
     font-weight: 600;
   }
 
-  .figure {
-    @apply my-6;
+  /* Article media: an image or a diagram with the text around it. Both share one spacing and corner
+     radius, so they read as the same kind of block. A small image keeps the size it was drawn at and
+     never stretches; a diagram keeps its labels legible rather than shrinking to fit the column. */
+  .figure,
+  .mermaid {
+    margin-block: var(--space-6);
   }
 
   .figure-img {
-    @apply block max-w-full rounded-xl;
+    display: block;
+    block-size: auto;
+    max-inline-size: 100%;
+    border-radius: var(--radius-xl);
   }
 
   .figure-images {
     display: grid;
-    gap: 0.75rem;
+    gap: var(--space-3);
     grid-template-columns: repeat(auto-fit, minmax(14rem, 1fr));
   }
 
   .figure-images .figure-img {
-    width: 100%;
+    inline-size: 100%;
   }
 
   .figure-pair {
@@ -944,17 +1017,81 @@
   }
 
   .figure-caption {
-    margin-top: 0.65rem;
+    margin-block-start: var(--space-2);
     color: var(--muted-foreground);
-    font-size: 0.875rem;
+    font-size: var(--text-sm);
+    line-height: 1.5;
     overflow-wrap: anywhere;
   }
 
   .figure-credit {
     display: block;
-    margin-top: 0.25rem;
+    margin-block-start: var(--space-1);
     color: var(--muted-foreground);
-    font-size: 0.8125rem;
+    font-size: var(--text-sm);
+  }
+
+  /* Mermaid: the diagram sits on the same plate as an image — a quiet card with one hairline edge and
+     the shared corner radius — and scrolls inside its frame when the drawing is wider than the column,
+     so it never widens the page. */
+  .mermaid-diagram {
+    overflow-x: auto;
+    overscroll-behavior-inline: contain;
+    padding: var(--space-4);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-xl);
+    background: var(--card);
+  }
+
+  /* Mermaid writes its palette as literal colors in an inline `<style>`, which would stay dark-on-dark
+     in the dark theme. These rules repaint the common shapes from the page tokens instead, so the
+     diagram follows light and dark without a second render. `!important` beats Mermaid's id-scoped
+     inline rules; every selector is scoped under `.mermaid-diagram`, so no other block is touched. */
+  .mermaid-diagram > svg {
+    display: block;
+    block-size: auto;
+    margin-inline: auto;
+    inline-size: min(var(--mermaid-natural, 100%), max(100%, calc(var(--mermaid-natural, 100%) * 0.7)));
+    font-family: var(--type-font-body);
+  }
+
+  .mermaid-diagram > svg :where(text, tspan) {
+    fill: var(--foreground) !important;
+  }
+
+  .mermaid-diagram > svg :where(rect, circle, ellipse, polygon) {
+    fill: var(--background) !important;
+    stroke: var(--border-strong) !important;
+  }
+
+  .mermaid-diagram > svg :where(line) {
+    stroke: var(--border-strong) !important;
+  }
+
+  /* The transparent halos Mermaid draws behind labels, and the canvas rectangle, keep no fill. */
+  .mermaid-diagram > svg :where(.background, .label rect) {
+    fill: none !important;
+    stroke: none !important;
+  }
+
+  .mermaid-diagram > svg :where(.flowchart-link, .edgePaths path) {
+    fill: none !important;
+    stroke: var(--muted-foreground) !important;
+  }
+
+  .mermaid-diagram > svg :where(marker path, marker polygon, marker circle, .arrowMarkerPath) {
+    fill: var(--muted-foreground) !important;
+    stroke: var(--muted-foreground) !important;
+  }
+
+  .mermaid-diagram > svg .edgeLabel rect {
+    fill: var(--card) !important;
+  }
+
+  /* Keep the source disclosure as it is: its spacing follows the diagram frame, the summary and the
+     code block stay Mermaid's existing markup and the shared `pre` styling. */
+  .mermaid-source {
+    margin-block-start: var(--space-3);
   }
 
   .video-box,
@@ -1126,13 +1263,16 @@
     margin: 0.75rem 0;
   }
 
-  .list,
-  .item {
+  /* The prose helper an author writes as `<div class="list">` inside a page body. It is scoped to
+     `.doc-body` so it never reaches the `<article class="list">` page layout, whose rows the list
+     module (styles/src/list.css) styles instead. */
+  .doc-body .list,
+  .doc-body .item {
     display: grid;
   }
 
-  .item,
-  .list a {
+  .doc-body .item,
+  .doc-body .list a {
     display: grid;
     grid-template-columns: minmax(7.5rem, 0.4fr) minmax(0, 1fr);
     gap: 0.9rem 1.75rem;
@@ -1142,25 +1282,25 @@
     text-decoration: none;
   }
 
-  .item strong,
-  .list a strong {
+  .doc-body .item strong,
+  .doc-body .list a strong {
     font-family: var(--type-font-mono);
     font-size: 0.8125rem;
     font-weight: 500;
     line-height: 1.375rem;
   }
 
-  .item span,
-  .list a span,
-  .item em,
-  .list a em {
+  .doc-body .item span,
+  .doc-body .list a span,
+  .doc-body .item em,
+  .doc-body .list a em {
     color: var(--muted-foreground);
     font-style: normal;
     font-size: 0.9375rem;
     line-height: 1.5rem;
   }
 
-  .list a:hover strong {
+  .doc-body .list a:hover strong {
     color: var(--link);
   }
 

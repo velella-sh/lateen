@@ -37,7 +37,9 @@ export interface SourceBlock {
 /** The label element the island creates. */
 export interface SourceLabel {
   textContent: string | null;
+  innerHTML?: string;
   setAttribute(name: string, value: string): void;
+  removeAttribute?(name: string): void;
   appendChild?(child: SourceLabel): unknown;
   addEventListener?(type: "click", listener: () => void): void;
   focus?(): void;
@@ -62,6 +64,9 @@ export interface SourceActions {
   /** Writes text to the clipboard; resolves false when it cannot. */
   copy(text: string): Promise<boolean>;
   announce(message: string): void;
+  /** Ready SVG markup for the two link actions, so an icon-only action shows the same glyph everywhere. */
+  readonly iconOpen?: string | undefined;
+  readonly iconEditor?: string | undefined;
 }
 
 /** A stamped block: where to scroll and what to focus. */
@@ -80,9 +85,10 @@ export interface SwitchRoot {
   querySelector(selector: string): SwitchPart | null;
 }
 
-/** The button or the status region. */
+/** The button, the status region, or the active bar. */
 export interface SwitchPart {
   textContent: string | null;
+  hidden?: boolean;
   setAttribute(name: string, value: string): void;
   addEventListener?(type: "click", listener: () => void): void;
 }
@@ -102,6 +108,12 @@ export interface SourceEnv {
   readonly actions?: SourceActions;
   /** The page's query string, for `?source=`. */
   readonly search?: string;
+  /**
+   * Opens the disclosure that holds the switch, when it has one. The doc layout keeps the switch in
+   * "Page tools", which starts closed; turning the mode on from the command palette would otherwise
+   * leave the active bar and Exit invisible. A layout with the switch in the flow has no disclosure.
+   */
+  readonly revealSwitch?: (() => void) | undefined;
 }
 
 /** Elements that cannot hold a label child without breaking their content model. */
@@ -172,9 +184,9 @@ function stampActions(label: SourceLabel, span: Span, actions: SourceActions): P
       link.setAttribute("href", href);
       link.setAttribute("target", "_blank");
       link.setAttribute("rel", "noopener noreferrer");
-      // The name says the link opens a new window.
+      // The name says the link opens a new window, since the icon shows no word.
       link.setAttribute("aria-label", fill(actions.messages("repo-label"), { location }));
-      link.textContent = actions.messages("repo-link");
+      if (link.innerHTML !== undefined && actions.iconOpen !== undefined) link.innerHTML = actions.iconOpen;
     }
   }
 
@@ -184,7 +196,7 @@ function stampActions(label: SourceLabel, span: Span, actions: SourceActions): P
     const link = add("a");
     link.setAttribute("class", "source-label-editor");
     link.setAttribute("aria-label", fill(actions.messages("editor-label"), { location }));
-    link.textContent = actions.messages("editor-link");
+    if (link.innerHTML !== undefined && actions.iconEditor !== undefined) link.innerHTML = actions.iconEditor;
     link.hidden = true;
     refresh = () => {
       const href = editorUrl(template, readFolder(actions.storage), span.file, span.line, span.column);
@@ -257,30 +269,42 @@ export function findJump(stamped: readonly Stamped[], value: string | null): Jum
   return before === undefined ? { kind: "none", file, line } : { kind: "block", target: before, exact: false };
 }
 
-/** Reveals the switch, applies the saved choice, and wires the button. */
+/** Reveals the switch, applies the saved choice, and wires the toggle and the exit control. */
 export function activate(root: SwitchRoot, env: SourceEnv): void {
   const button = root.querySelector(".source-mode-button");
   const status = root.querySelector(".source-mode-status");
   if (button === null) return;
 
   const stamped = stamp(env);
+  const active = root.querySelector(".source-mode-active");
+  const count = root.querySelector(".source-mode-count");
+  const exit = root.querySelector(".source-exit-button");
   let on = readSourceMode(env.storage);
   const note = (message: string): void => {
     if (status !== null) status.textContent = message;
   };
   const message = (name: string, values: Readonly<Record<string, string | number>>): string =>
     fill(env.actions?.messages(name) ?? "", values);
+  const countText = (): string =>
+    message(stamped.length === 0 ? "mode-empty" : "mode-count", { n: stamped.length });
 
+  // The count is the one line that says the mode is on, and opening the panel that holds the switch
+  // is what makes the active state and Exit visible on the doc layout.
   const show = (announce: boolean): void => {
     env.root.classList.toggle(SOURCE_MODE_CLASS, on);
     button.setAttribute("aria-pressed", on ? "true" : "false");
+    if (active !== null) active.hidden = !on;
+    if (count !== null) count.textContent = on ? countText() : "";
+    if (on) env.revealSwitch?.();
     if (announce && status !== null) {
       status.textContent = (on ? root.getAttribute("data-on-message") : root.getAttribute("data-off-message")) ?? "";
     }
   };
 
-  const toggle = (): void => {
-    on = !on;
+  // Both controls are real buttons, so Enter and Space drive them with no key handler. Turning the
+  // mode off hides the exit control; a browser moves focus off a hidden element on its own.
+  const set = (value: boolean): void => {
+    on = value;
     saveSourceMode(env.storage, on);
     show(true);
   };
@@ -316,7 +340,8 @@ export function activate(root: SwitchRoot, env: SourceEnv): void {
   } else if (jump.kind === "none") {
     note(message("jump-none", { file: jump.file, line: jump.line }));
   }
-  button.addEventListener?.("click", toggle);
+  button.addEventListener?.("click", () => set(!on));
+  exit?.addEventListener?.("click", () => set(false));
 }
 
 // The island runs in a browser; the theme's tsconfig has no DOM lib, so these are the globals it needs.
@@ -348,11 +373,14 @@ function actionsOf(root: SwitchRoot, storage: SourceModeStorage | undefined, ann
   const messages = (name: string): string => root.getAttribute(`data-msg-${name}`) ?? "";
   const template = root.getAttribute("data-record-template");
   const data = root.getAttribute("data-record-data");
+  const icon = (name: string): string | undefined => root.getAttribute(`data-icon-${name}`) ?? undefined;
   return {
     repository,
     editor: root.getAttribute("data-editor") ?? undefined,
     storage,
     messages,
+    iconOpen: icon("open"),
+    iconEditor: icon("editor"),
     kindOf: (file) => (file === template ? messages("kind-template") : file === data ? messages("kind-data") : undefined),
     createElement: (tag) => document.createElement(tag),
     copy: async (text) => {
@@ -377,6 +405,12 @@ if (typeof document !== "undefined") {
       root: document.documentElement,
       blocks: document.querySelectorAll("[data-src]"),
       storage,
+      revealSwitch: () => {
+        // The nearest ancestor `<details>` is "Page tools" on a doc page and absent elsewhere; opening
+        // it is what makes the switch, its count, and Exit visible once the mode is on.
+        const host = (root as unknown as { closest?(selector: string): { open?: boolean } | null }).closest?.("details");
+        if (host !== null && host !== undefined && host.open === false) host.open = true;
+      },
       createLabel: (tag = "span") => document.createElement(tag),
       actions: actionsOf(root, storage, (message) => {
         if (status !== null) status.textContent = message;
