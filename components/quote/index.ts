@@ -61,7 +61,10 @@ const quoteCallout = importedCallout("quote");
 
 export default function quote(input: ComponentProps<QuoteProps>) {
   const { props, html } = input;
-  if (props.collapsible !== undefined || props.title !== undefined) return quoteCallout(input);
+  const bareBody = props.text === undefined && props.name === undefined && props.source === undefined && html.trim() !== "";
+  if (props.collapsible !== undefined || props.title !== undefined || bareBody) {
+    return quoteCallout({ ...input, html: `<blockquote class="quote">${html}</blockquote>` });
+  }
   const written = textOf(props.text);
   const name = textOf(props.name);
   const href = sourceHref(props.source);

@@ -12,6 +12,7 @@ const fixture = build("page-tools", process.env, {
     "---\ntitle: MkDocs\n---",
     ...material.map(([type], index) =>
       `:::${type}{title="Imported ${type}" collapsible${index % 2 === 1 ? " open" : ""}}\nText for ${type}.\n:::`),
+    ":::quote\nAn untitled Material quote.\n:::",
     ':::callout{type=unknown}\nFallback.\n:::',
   ].join("\n\n"),
   "docusaurus.md": [
@@ -48,7 +49,8 @@ test("Material callouts preserve titles, bodies, icons, and their initial disclo
     assert.ok(callout.querySelector("summary .callout-icon"));
     assert.equal(callout.querySelector(".callout-body")?.textContent?.trim(), `Text for ${type}.`);
   }
-  assert.equal(html.querySelector("div.callout-note .callout-body")?.textContent?.trim(), "Fallback.");
+  assert.equal(html.querySelector("div.callout-note .callout-body blockquote")?.textContent?.trim(), "An untitled Material quote.");
+  assert.equal([...html.querySelectorAll("div.callout-note .callout-body")].at(-1)?.textContent?.trim(), "Fallback.");
 });
 
 test("Docusaurus, Starlight and VitePress output stays readable", () => {
