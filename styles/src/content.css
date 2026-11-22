@@ -875,12 +875,8 @@
    * page keeps its compact look: the version leads each release, the date follows it as the second
    * fact, and a heavier rule with generous space marks where one release ends and the next begins.
    */
-  .changelog .changelog-title {
-    margin-block-end: 1.25rem;
-  }
-
   .changelog .changelog-toc {
-    margin-block-end: 2.5rem;
+    margin-block: 1.25rem 2.5rem;
   }
 
   .changelog .changelog-toc-title {
@@ -888,8 +884,6 @@
     color: var(--muted-foreground);
     font-size: 0.75rem;
     font-weight: 600;
-    letter-spacing: 0.06em;
-    text-transform: uppercase;
   }
 
   .changelog .changelog-toc-list {
@@ -900,55 +894,23 @@
     padding: 0;
     list-style: none;
     font-variant-numeric: tabular-nums;
-  }
-
-  .changelog .changelog-toc-list li {
-    min-inline-size: 0;
-    max-inline-size: 100%;
-    margin: 0;
-    padding: 0;
-  }
-
-  .changelog .changelog-toc-list a {
-    display: inline-block;
-    max-inline-size: 100%;
     overflow-wrap: anywhere;
   }
 
-  .changelog .changelog-releases {
-    margin-block-start: 0.5rem;
-  }
-
-  .changelog .changelog-entry {
-    margin-block: 3.5rem 0;
-    padding-block-start: 2.25rem;
-    border-block-start: 1px solid var(--border-strong);
-    scroll-margin-block-start: 5rem;
-  }
-
-  .changelog .changelog-entry:first-child {
-    margin-block-start: 0;
-    padding-block-start: 0;
-    border-block-start: 0;
+  .changelog .changelog-entry + .changelog-entry {
+    margin-block-start: clamp(2.5rem, 7vw, 3.5rem);
+    padding-block-start: clamp(1.75rem, 5vw, 2.25rem);
+    border-color: var(--border-strong);
   }
 
   .changelog .changelog-entry-version {
     flex-wrap: wrap;
     margin: 0 0 0.5rem;
-    font-size: 2rem;
+    font-size: clamp(1.625rem, 5vw, 2rem);
     font-variant-numeric: tabular-nums;
     letter-spacing: -0.015em;
     line-height: 1.15;
-  }
-
-  .changelog .changelog-entry-version-text {
-    min-inline-size: 0;
     overflow-wrap: anywhere;
-  }
-
-  .changelog .changelog-entry-anchor {
-    flex: none;
-    font-size: 1rem;
   }
 
   .changelog .changelog-entry-meta {
@@ -957,7 +919,6 @@
 
   .changelog .changelog-entry-date {
     color: var(--foreground);
-    font-size: 0.9375rem;
     font-variant-numeric: tabular-nums;
     font-weight: 600;
   }
@@ -965,22 +926,6 @@
   .changelog .changelog-entry-body h3 {
     margin-block: 1.75rem 0.5rem;
     font-size: 1rem;
-    letter-spacing: 0;
-  }
-
-  .changelog .changelog-entry-body h3:first-child {
-    margin-block-start: 0;
-  }
-
-  @media (max-width: 40rem) {
-    .changelog .changelog-entry {
-      margin-block-start: 2.5rem;
-      padding-block-start: 1.75rem;
-    }
-
-    .changelog .changelog-entry-version {
-      font-size: 1.625rem;
-    }
   }
 
   .figure {
