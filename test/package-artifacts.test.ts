@@ -1,6 +1,6 @@
 // prepack must build and verify every artifact the installed theme needs, not only the chart bundle:
 // the compiled CSS ships in the tarball, and the required list covers units, islands, fonts, tokens,
-// translations, schemas, the visual export, the redesign alias, the skill, and the starters.
+// translations, schemas, the visual export, the skill, and the starters.
 import assert from "node:assert/strict";
 import { existsSync, mkdirSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
@@ -38,7 +38,6 @@ test("the required list covers sources, islands, fonts, schemas, and generated a
     "tokens/presets/harbor.json",
     "schema/options.schema.json",
     "visual/index.ts",
-    "redesign/src/index.ts",
     "skills/lateen/SKILL.md",
     "starters/docs/starter.json",
   ]) {
@@ -48,11 +47,11 @@ test("the required list covers sources, islands, fonts, schemas, and generated a
   assert.equal(new Set(required).size, required.length, "no path is required twice");
 });
 
-test("the Tailwind sources, per-unit READMEs, and redesign tests stay out of the tarball", () => {
+test("the Tailwind sources and per-unit READMEs stay out of the tarball", () => {
   // The engine bundles only the top-level `styles/*.css` sheets, so `styles/src` is build input for
   // `npm run ui:css` and a consumer never reads it. The folder READMEs the docs and the skill point at
   // (`components/README.md`, `chrome/README.md`) still ship; only the per-unit notes are left out.
-  for (const pattern of ["!styles/src", "!components/*/README.md", "!chrome/*/README.md", "!redesign/test"]) {
+  for (const pattern of ["!styles/src", "!components/*/README.md", "!chrome/*/README.md"]) {
     assert.ok(pkg.files.includes(pattern), `${pattern} is excluded from the tarball`);
   }
   const required = requiredArtifacts();

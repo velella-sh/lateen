@@ -147,7 +147,7 @@ test("only a prose-only pull request skips the heavy gates, and the test job nev
     assert.deepEqual([job.needs].flat(), ["changes"], `${name} waits for the changes job`);
     assert.match(job.if ?? "", /needs\.changes\.outputs\.code == 'true'/, `${name} runs only when code changed`);
   }
-  assert.equal((jobs["test"] as Job).if, undefined, "the test job runs for every change");
+  assert.equal((jobs["test"] as Job).if, "${{ !cancelled() }}", "the test job runs for every change, even when the changes job fails");
   assert.match(source, /\[ "\$EVENT" != "pull_request" \]; then echo "code=true"/, "pushes and manual runs run everything");
 });
 

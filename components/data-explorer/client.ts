@@ -6,10 +6,10 @@
  * language.
  *
  * Filtering, sorting, pagination, the address, and the active-row transitions live in `state.ts`;
- * this module reads the controls and applies that state to the DOM. */
+ * this module reads the controls and applies that state to the DOM through `view.ts`. `contract.ts` holds
+ * the selectors and interfaces, `env.ts` the browser's fetch and timers; both are re-exported here. */
 
-import { fetchJson, type Fetcher } from "../../src/fetch.ts";
-import { createIndexLoader, URL_COLUMN, type IndexField, type IndexRow } from "./index-loader.ts";
+import { createIndexLoader, type IndexField, type IndexRow } from "./index-loader.ts";
 import {
   columnsOf,
   createModel,
@@ -19,7 +19,6 @@ import {
   formatNumber,
   hasMore,
   hasState,
-  isEmptyCell,
   matchingRows,
   nextActive,
   pageRows,
@@ -27,248 +26,38 @@ import {
   sortablesOf,
   sortOf,
   sortValue,
-  textOf,
   writeAddress,
-  type Column,
   type ExplorerModel,
   type Facet,
   type Selection,
 } from "./state.ts";
-import { withBase } from "../../src/url.ts";
+import {
+  ACTIVE_ROW_CLASS,
+  BODY_SELECTOR,
+  CHIPS_SELECTOR,
+  DEBOUNCE_MS,
+  EMPTY_SELECTOR,
+  FILTERS_SELECTOR,
+  INPUT_SELECTOR,
+  MORE_SELECTOR,
+  optionId,
+  ROOT_SELECTOR,
+  ROW_LIMIT,
+  SORT_FIELD_SELECTOR,
+  SORT_SELECTOR,
+  STATUS_SELECTOR,
+  TABLE_SELECTOR,
+  type ExplorerDocument,
+  type ExplorerElement,
+  type ExplorerEnv,
+} from "./contract.ts";
+import { browserEnv } from "./env.ts";
+import { countText, drawFacets, rowOf, type FacetWidget } from "./view.ts";
 
 export { FILTER_PARAM, ORDER_PARAM, QUERY_PARAM, SORT_PARAM } from "./state.ts";
-
-/** The explorer root the island finds. */
-export const ROOT_SELECTOR = "[data-explorer]";
-
-/** The query field. */
-export const INPUT_SELECTOR = ".data-explorer-input";
-
-/** The live region that announces the result count. */
-export const STATUS_SELECTOR = ".data-explorer-status";
-
-/** The note that names the query when nothing matches. */
-export const EMPTY_SELECTOR = ".data-explorer-empty";
-
-/** The button that reveals the next page of matches. */
-export const MORE_SELECTOR = ".data-explorer-more";
-
-/** The sort control's wrapper and its select. */
-export const SORT_SELECTOR = "[data-explorer-sort]";
-export const SORT_FIELD_SELECTOR = ".data-explorer-sort-field";
-
-/** The filter fields the island fills after the index loads. */
-export const FILTERS_SELECTOR = "[data-explorer-filters]";
-
-/** The removable chips naming the active filters. */
-export const CHIPS_SELECTOR = "[data-explorer-chips]";
-
-/** The box that scrolls the table; hidden while an empty note shows. */
-export const TABLE_SELECTOR = ".table-scroll";
-
-/** The table body the island replaces. */
-export const BODY_SELECTOR = "tbody";
-
-/** The body row the island reads and writes. */
-export const ROW_SELECTOR = "tbody tr";
-
-/** The id prefix of a drawn result row. */
-export const OPTION_ID_PREFIX = "explorer-option-";
-
-/** The class the active result row carries. */
-export const ACTIVE_ROW_CLASS = "data-explorer-active";
-
-/** The id of the drawn row at `index`: positional, so the field's reference follows its place. */
-export function optionId(index: number): string {
-  return `${OPTION_ID_PREFIX}${index + 1}`;
-}
-
-/** How long typing rests before the query runs. */
-export const DEBOUNCE_MS = 150;
-
-/** Rows one page shows; the same number `index.ts` renders as the static table. */
-export const ROW_LIMIT = 50;
-
-/** A key press as the island reads it. */
-export interface ExplorerKeyEvent {
-  readonly key?: string | undefined;
-  preventDefault(): void;
-}
-
-/** The part of an element the island uses. */
-export interface ExplorerElement {
-  getAttribute(name: string): string | null;
-  setAttribute(name: string, value: string): void;
-  removeAttribute(name: string): void;
-  addEventListener(type: string, listener: (event: ExplorerKeyEvent) => void, options?: { signal?: AbortSignal | undefined }): void;
-  querySelector(selector: string): ExplorerElement | null;
-  querySelectorAll(selector: string): Iterable<ExplorerElement>;
-  append(...children: ExplorerElement[]): void;
-  replaceChildren(...children: ExplorerElement[]): void;
-  /** Follows a result link, as a pointer would. */
-  click?(): void;
-  /** Moves focus to the element, where the browser can. */
-  focus?(): void;
-  /** Brings the active row into view, where the browser can scroll. */
-  scrollIntoView?(options: { readonly block: "nearest" }): void;
-  textContent: string | null;
-  innerHTML: string;
-  hidden: boolean;
-  checked?: boolean;
-  value?: string;
-  ownerDocument?: ExplorerDocument | null;
-}
-
-/** The page address, read without reloading it. */
-export interface ExplorerLocation {
-  href: string;
-  search: string;
-}
-
-/** The page history, written without adding an entry. */
-export interface ExplorerHistory {
-  replaceState(data: unknown, unused: string, url?: string | null): void;
-}
-
-/** The part of the window the island uses to keep the address in step. */
-export interface ExplorerWindow {
-  location: ExplorerLocation;
-  history: ExplorerHistory;
-  addEventListener(type: "popstate", listener: () => void, options?: { signal?: AbortSignal | undefined }): void;
-  /** The window realm's own `AbortController`, so the teardown signal matches the realm the page's nodes live in. */
-  readonly AbortController?: typeof AbortController | undefined;
-}
-
-/** The part of the document the island uses. */
-export interface ExplorerDocument {
-  querySelector(selector: string): ExplorerElement | null;
-  querySelectorAll(selector: string): Iterable<ExplorerElement>;
-  createElement(tag: string): ExplorerElement;
-  documentElement?: { getAttribute(name: string): string | null } | null;
-  defaultView?: ExplorerWindow | null;
-}
-
-/** What the island reads from the world; tests pass a fake fetch and clock. */
-export interface ExplorerEnv {
-  /** Reads one index file as parsed JSON. */
-  fetchJson(url: string, signal: AbortSignal): Promise<unknown>;
-  schedule(listener: () => void, ms: number): unknown;
-  cancel(handle: unknown): void;
-}
-
-/** The browser's `fetch`, absent in a test runtime. */
-const browserFetch = (globalThis as unknown as { fetch?: Fetcher }).fetch;
-
-/** The browser environment: `fetch`, and the document's timers. */
-export const browserEnv: ExplorerEnv = {
-  fetchJson: (url, signal) => fetchJson(browserFetch, url, signal),
-  schedule: (listener, ms) => setTimeout(listener, ms),
-  cancel: (handle) => clearTimeout(handle as ReturnType<typeof setTimeout>),
-};
-
-/** The count pattern for the page language's plural category. */
-export function countText(root: ExplorerElement, lang: string, count: number): string {
-  let category = "other";
-  try {
-    category = new Intl.PluralRules(lang).select(count);
-  } catch {
-    // A language without plural rules keeps the `other` pattern.
-  }
-  const pattern =
-    root.getAttribute(`data-explorer-count-${category}`) ?? root.getAttribute("data-explorer-count-other") ?? "";
-  return pattern.replace("{n}", formatNumber(lang, count));
-}
-
-/** One drawn filter value: the checkbox and the count it shows. */
-interface FacetWidget {
-  readonly field: string;
-  readonly label: string;
-  readonly raw: string;
-  readonly input: ExplorerElement;
-  readonly count: ExplorerElement;
-}
-
-/** Fills the filter box with one checkbox per value of every facet, and returns the controls it drew. */
-function drawFacets(
-  doc: ExplorerDocument,
-  box: ExplorerElement,
-  facets: readonly Facet[],
-  pattern: string,
-  lang: string,
-): FacetWidget[] {
-  const widgets: FacetWidget[] = [];
-  for (const facet of facets) {
-    const fieldset = doc.createElement("fieldset");
-    fieldset.setAttribute("class", "data-explorer-filter");
-    const legend = doc.createElement("legend");
-    legend.setAttribute("class", "data-explorer-filter-label");
-    legend.textContent = pattern.replace("{column}", facet.label);
-    fieldset.append(legend);
-
-    for (const value of facet.values) {
-      const option = doc.createElement("label");
-      option.setAttribute("class", "data-explorer-filter-option");
-      const input = doc.createElement("input");
-      input.setAttribute("type", "checkbox");
-      input.setAttribute("value", value.raw);
-      input.checked = false;
-      const name = doc.createElement("span");
-      name.setAttribute("class", "data-explorer-filter-value");
-      name.textContent = value.raw;
-      const tally = doc.createElement("span");
-      tally.setAttribute("class", "data-explorer-filter-count");
-      tally.textContent = `(${formatNumber(lang, value.count)})`;
-      option.append(input, name, tally);
-      fieldset.append(option);
-      widgets.push({ field: facet.field, label: facet.label, raw: value.raw, input, count: tally });
-    }
-    box.append(fieldset);
-  }
-  return widgets;
-}
-
-/** One body row for one index row, in the display columns' order. */
-function rowOf(
-  doc: ExplorerDocument,
-  row: IndexRow,
-  columns: readonly Column[],
-  index: ExplorerModel["index"],
-  base: string,
-  lang: string,
-  noValue: string,
-): ExplorerElement {
-  const tr = doc.createElement("tr");
-  const urlAt = index.columns.indexOf(URL_COLUMN);
-  const url = urlAt < 0 ? "" : row[urlAt];
-
-  columns.forEach((column, at) => {
-    const position = index.columns.indexOf(column.field);
-    const value = position < 0 ? undefined : row[position];
-    const td = doc.createElement("td");
-    td.setAttribute("class", "record-table-cell");
-    td.setAttribute("data-kind", column.kind);
-
-    if (isEmptyCell(value)) {
-      const span = doc.createElement("span");
-      span.setAttribute("class", "field-empty");
-      span.textContent = noValue;
-      td.append(span);
-    } else {
-      const text = textOf(value as Exclude<IndexRow[number], null | undefined>, column.kind, lang);
-      td.setAttribute("data-value", String(value));
-      if (at === 0 && typeof url === "string" && url !== "") {
-        const link = doc.createElement("a");
-        link.setAttribute("href", withBase(base, url));
-        link.textContent = text;
-        td.append(link);
-      } else {
-        td.textContent = text;
-      }
-    }
-    tr.append(td);
-  });
-  return tr;
-}
+export * from "./contract.ts";
+export { browserEnv } from "./env.ts";
+export { countText } from "./view.ts";
 
 /**
  * One explorer: the index, the selection in hand, and the rows the table currently shows. Every

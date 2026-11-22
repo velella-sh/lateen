@@ -1,0 +1,1 @@
+**Breaking:** `@velella/lateen/redesign`, the deprecated alias of the main theme, is removed; import and configure `@velella/lateen` instead. The sailcloth demo site moves from `redesign/site` to `demo/`, and `dev:redesign`, `build:redesign` and `check:redesign` become `dev:demo`, `build:demo` and `check:demo`.

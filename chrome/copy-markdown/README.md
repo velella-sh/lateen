@@ -16,7 +16,7 @@ off or the browser has no clipboard.
   activation, writes it to the clipboard, and announces the result on the status region.
 - `client.ts`: the copy-Markdown entry point: it reveals the button when `navigator.clipboard` and
   `fetch` both exist, wires the island, and re-exports the island for tests.
-- `../../test/chrome-copy-markdown.test.ts`: the unit's tests.
+- `../../test/chrome/copy-markdown/copy-markdown.test.ts`: the unit's tests.
 
 ## Strings
 

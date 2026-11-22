@@ -1,5 +1,5 @@
 // Verifies every source and generated artifact the installed theme needs: units, islands, styles,
-// fonts, tokens, translations, schemas, the visual export, the redesign alias, the skill, and the
+// fonts, tokens, translations, schemas, the visual export, the skill, and the
 // starters. prepack runs it after `ui:build`, and scripts/smoke-package.sh runs it against the
 // installed copy, so a file the tarball leaves out fails at the pack, not in a reader's build.
 //
@@ -49,7 +49,6 @@ export function requiredArtifacts(repo: string = root): string[] {
     ...filesUnder(repo, "chrome", [".ts"]),
     ...filesUnder(repo, "components", [".ts"]),
     ...filesUnder(repo, "visual", [".ts"]),
-    ...filesUnder(repo, "redesign/src", [".ts"]),
     ...filesIn(repo, "styles", [".css"]),
     ...filesUnder(repo, "tokens", [".json"]),
     ...filesUnder(repo, "fonts", [".woff2"]),

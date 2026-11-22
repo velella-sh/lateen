@@ -32,7 +32,7 @@ Use Node 24's erasable TypeScript, `.ts` extensions in relative imports, and no 
 
 Write layouts and components as Preact elements with `h()`, not JSX or `.tsx`; Node's type stripping does not transform JSX. Layouts are one `layouts/<name>.ts` file with a default export typed by Mizzen's layout contract. Components and chrome use lowercase kebab-case folders with default-exported `index.ts`, optional `style.css`, and optional `client.ts`. Follow Mizzen's render contract for props; component bodies arrive as rendered HTML.
 
-Keep content readable and controls usable without JavaScript. Preserve semantic HTML, escaping, keyboard behavior, and source positions. Test rendered output, variants, escaping, and relevant interaction states in the nearest `test/component-*.test.ts`, `test/chrome-*.test.ts`, or layout test.
+Keep content readable and controls usable without JavaScript. Preserve semantic HTML, escaping, keyboard behavior, and source positions. Test rendered output, variants, escaping, and relevant interaction states in the nearest `test/component-*.test.ts`, `test/chrome/<name>/`, or `test/layouts/`.
 
 ## Change tokens and CSS safely
 

@@ -27,7 +27,7 @@ the page, and the note's back-link still returns them to the reference.
   shows nothing. `activate()` returns a cleanup that removes every listener and restores the page.
   It never calls `preventDefault`, adds no click handler, and takes no focus, so the plain link
   still navigates and focus order is unchanged. With no references it wires nothing.
-- `../../test/chrome-footnote-popover.test.ts`: the unit's tests.
+- `../../test/chrome/footnote-popover/footnote-popover.test.ts`: the unit's tests.
 
 ## Placement
 

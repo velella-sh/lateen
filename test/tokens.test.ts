@@ -268,7 +268,7 @@ test("the surface layers and every text and link pair reach their contrast in bo
     for (const layer of layers) {
       for (const text of texts) {
         // Dark muted text on the raised layer is known to fall short; the search dialog and the other small-text
-        // surfaces switch to `color-text` there (see test/chrome-search.test.ts), so it is not asserted here.
+        // surfaces switch to `color-text` there (see test/chrome/search/search.test.ts), so it is not asserted here.
         if (mode === "dark" && text === "color-muted" && layer === "color-surface-raised") continue;
         const ratio = contrast(schemeValue(text, mode, tokens), schemeValue(layer, mode, tokens));
         assert.ok(ratio >= 4.5, `${text} on ${layer} is ${ratio.toFixed(2)}:1 in ${mode}; it needs 4.5:1`);

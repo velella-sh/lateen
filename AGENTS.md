@@ -2,7 +2,7 @@
 
 A docs theme for people and agents, built on Mizzen: layouts, chrome, components, and the sailcloth design stack. The engine lives in Mizzen, not here.
 
-Start with the affected unit and its tests. For a new unit, read the guide in its parent folder. For visual changes, use [Sailcloth](docs/design/sailcloth.md).
+Start with the affected unit and its tests. For a new unit, read the guide in its parent folder. For visual changes, use [Sailcloth](docs/design/sailcloth.md). The decisions behind these rules are in [docs/adr/](docs/adr/README.md).
 
 ## Setup
 
@@ -29,7 +29,7 @@ npm run test:a11y      # axe gate; needs npx playwright install chromium
 npm run test:smoke     # production-build browser gate; needs npx playwright install chromium
 npm run test:performance
 npm run test:visual
-npm run dev:redesign   # sailcloth demo site on port 4173
+npm run dev:demo       # sailcloth demo site (demo/) on port 4173
 ```
 
 Before a pull request: `npm run typecheck && npm test`.
@@ -41,7 +41,6 @@ Mizzen + Node + TypeScript + Preact + **Tailwind CSS** + vanilla islands + **Luc
 - Visuals: `styles/src/ui.css` → `styles/generated.css`
 - Icons: Lucide via `src/icon.ts` (not hand SVG sheets for new work)
 - Charts: Chart.js islands under `components/charts` and `components/performance-chart`
-- `@velella/lateen/redesign` is a deprecated alias of the main theme
 
 ## Boundaries
 

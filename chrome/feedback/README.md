@@ -47,6 +47,6 @@ hidden, a built page shows nothing until chrome islands are wired.
 
 ## Test
 
-`test/chrome-feedback.test.ts` covers the rendered markup, the missing-endpoint case, localized and
+`test/chrome/feedback/feedback.test.ts` covers the rendered markup, the missing-endpoint case, localized and
 versioned POST payloads, pending/double-click races, stale responses, HTTP/network failure, retry,
 session-only storage and storage denial, an existing vote, and keyboard-native buttons.

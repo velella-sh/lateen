@@ -28,9 +28,7 @@ npm install --silent --no-audit --no-fund "$work"/tar/velella-lateen-*.tgz preac
 # belong to an optional peer this consumer deliberately leaves out.
 cat > consumer.ts <<'TS'
 import { theme } from "@velella/lateen";
-import { theme as redesign } from "@velella/lateen/redesign";
-
-if (theme.name !== redesign.name) throw new Error("the redesign alias disagrees with the theme");
+if (!theme.name) throw new Error("the theme has no name");
 TS
 cat > tsconfig.json <<'JSON'
 {
@@ -47,7 +45,7 @@ cat > tsconfig.json <<'JSON'
 }
 JSON
 "$lateen/node_modules/.bin/tsc" -p tsconfig.json
-echo "the consumer type checks @velella/lateen and @velella/lateen/redesign from the tarball"
+echo "the consumer type checks @velella/lateen from the tarball"
 
 cp -R "$lateen/site" site
 rm -rf site/.mizzen
@@ -83,13 +81,13 @@ npx mizzen build starter --out out-starter
 test -s out-starter/index.html
 
 # Every source and generated artifact the installed theme needs, checked against the packed copy:
-# a unit, island, font, schema, or redesign file the tarball leaves out fails here, not in a reader's build.
+# a unit, island, font, or schema file the tarball leaves out fails here, not in a reader's build.
 installed="$PWD/node_modules/@velella/lateen"
 node "$lateen/scripts/check-package.ts" "$installed"
 
 # The tarball carries the compiled sheet and the folder guides, and leaves out the build input: the
 # Tailwind sources under styles/src (input for `npm run ui:css`, never read by the engine or a consumer),
-# the per-unit READMEs, and the redesign tests.
+# the per-unit READMEs.
 test -s "$installed/styles/generated.css"
 test -s "$installed/styles/tokens.css"
 test -s "$installed/components/README.md"
@@ -97,7 +95,6 @@ test -s "$installed/chrome/README.md"
 test ! -e "$installed/styles/src"
 test ! -e "$installed/components/video/README.md"
 test ! -e "$installed/chrome/language-switcher/README.md"
-test ! -e "$installed/redesign/test"
 
 # The site tool (#505) is in the tarball and asks for its optional peer when Playwright is absent.
 # Node does not strip types under node_modules; Mizzen registers the same hook for the theme's sources.
