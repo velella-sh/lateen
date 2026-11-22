@@ -11,7 +11,7 @@ import addToCalendar from "../components/add-to-calendar/index.ts";
 import embedCode from "../components/embed-code/index.ts";
 import recordHistory from "../components/record-history/index.ts";
 import { t } from "../i18n/index.ts";
-import { FACTS_ID, factsOf, factsPanel, recordHeader, summaryOf } from "../src/record-parts.ts";
+import { FACTS_ID, factsOf, factsPanel, recordHeader, relatedPanel, summaryOf } from "../src/record-parts.ts";
 import doc from "./doc.ts";
 import { articleShell } from "./shared/index.ts";
 import { staleSlot } from "../src/stale.ts";
@@ -84,6 +84,7 @@ function article(props: LayoutProps): ComponentChildren {
       site: props.site,
       html: "",
     }) as ComponentChildren,
+    relatedPanel(props),
     embedPanel(props),
     h(
       "div",

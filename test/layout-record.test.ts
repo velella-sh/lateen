@@ -4,6 +4,7 @@ import { renderToString } from "preact-render-to-string";
 import type { Heading, LayoutProps, Page, Site, SiteConfig, SourcePos } from "@velella/mizzen/contracts";
 import record from "../layouts/record.ts";
 import doc from "../layouts/doc.ts";
+import { recordProps } from "./helpers/record.ts";
 
 const pos: SourcePos = { file: "components/button.md", line: 1, column: 1, endLine: 1, endColumn: 1 };
 
@@ -148,4 +149,28 @@ test("a record's data date and page review date are labelled and shown independe
   const reviewOnly = renderToString(record(input) as never);
   assert.doesNotMatch(reviewOnly, /<dt[^>]*>Published<\/dt>/, "a missing data date never renders an empty fact");
   assert.match(reviewOnly, /data-date-source="review"[\s\S]*?<time datetime="2026-03-04"/);
+});
+
+test("related records preserve relation and record order and use the target facts on RTL pages", () => {
+  const input = props(pageWith({ lang: "fa", dir: "rtl" }));
+  const first = { collection: "people", id: "zoe", url: "/base/fa/people/zoe/", fields: { title: "Zoe", active: false, detail: "<sample>" } };
+  const second = { collection: "people", id: "ada", url: "/base/fa/people/ada/", fields: {} };
+  const third = { collection: "books", id: "first", url: "/base/fa/books/first/", fields: {} };
+  const target = pageWith({
+    url: first.url,
+    title: "Zoe",
+    frontMatter: { record: { facts: [{ field: "active", label: "فعال", kind: "boolean" }] } },
+  });
+  const out = renderToString(record({
+    ...input,
+    site: { ...input.site, pages: [...input.site.pages, target] },
+    record: recordProps({ related: { writers: [first, second], empty: [], books: [third] } }),
+  }) as never);
+
+  assert.match(out, /<h2 id="record-related">رکوردهای مرتبط<\/h2>/);
+  assert.match(out, /<h3>writers<\/h3>.*href="\/base\/fa\/people\/zoe\/".*href="\/base\/fa\/people\/ada\/".*<h3>books<\/h3>.*href="\/base\/fa\/books\/first\/"/);
+  assert.match(out, /<dt[^>]*>فعال<\/dt><dd[^>]*>خیر<\/dd>/);
+  assert.match(out, /&lt;sample>/);
+  assert.doesNotMatch(out, /<h3>empty<\/h3>/);
+  assert.doesNotMatch(render(pageWith()), /id="record-related"/);
 });

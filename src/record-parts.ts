@@ -5,9 +5,10 @@ import { LINK_CLASS, reportHref } from "../chrome/report-issue/index.ts";
 import { KEY_CLASS, LIST_CLASS, VALUE_CLASS } from "../components/key-value/index.ts";
 import { t } from "../i18n/index.ts";
 import { claimsOf } from "./evidence.ts";
-import { DERIVED_PREFIX, dataValue, fieldValueOf, formatField, kindOf, valueState } from "./fields.ts";
+import { DERIVED_PREFIX, dataValue, fieldValueOf, formatField, isEmpty, kindOf, valueState } from "./fields.ts";
 import { isRecord } from "./guards.ts";
 import { languageName } from "./language.ts";
+import { safeHref } from "./url.ts";
 
 /** Id of the facts panel; the record page's table of contents links to it. */
 export const FACTS_ID = "record-facts";
@@ -250,5 +251,47 @@ export function factsPanel(props: LayoutProps): ComponentChildren {
         rows,
       );
     }),
+  );
+}
+
+/** Relations use the engine's order and the target page's field labels and kinds when available. */
+export function relatedPanel(props: LayoutProps): ComponentChildren {
+  const groups = Object.entries(props.record?.related ?? {}).filter(([, records]) => records.length > 0);
+  if (groups.length === 0) return null;
+  const { lang } = props.page;
+  return h(
+    "section",
+    { "aria-labelledby": "record-related" },
+    h("h2", { id: "record-related" }, t(lang, "record_related")),
+    groups.map(([relation, records]) => h(
+      Fragment,
+      null,
+      h("h3", null, relation),
+      h("ul", null, records.map((record) => {
+        const targetPage = props.site.pages.find((page) => page.url === record.url);
+        const configured = targetPage === undefined
+          ? []
+          : factsOf({ ...props, page: targetPage, record: { ...record, links: {} } });
+        const factsByField = new Map(configured.map((fact) => [fact.field, fact]));
+        const title = targetPage?.title ?? (isEmpty(record.fields.title) ? record.id : String(record.fields.title));
+        const href = safeHref(record.url);
+        const facts = Object.entries(record.fields).filter(([field]) => field !== "id" && field !== "title");
+        return h(
+          "li",
+          null,
+          href === undefined ? h("bdi", null, title) : h("a", { href }, h("bdi", null, title)),
+          facts.length === 0 ? null : h("dl", { class: LIST_CLASS }, facts.map(([field, value]) => {
+            const fact = factsByField.get(field);
+            const kind = fact?.kind ?? "text";
+            return h(
+              Fragment,
+              null,
+              h("dt", { class: KEY_CLASS }, fact?.label ?? field),
+              h("dd", { class: VALUE_CLASS }, dataValue(field, value, kind, formatField(value, kind, lang, props.site.config))),
+            );
+          })),
+        );
+      })),
+    )),
   );
 }
