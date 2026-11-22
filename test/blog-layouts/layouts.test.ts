@@ -176,3 +176,16 @@ test("blog links appear only for a published feed and reuse an existing Atom alt
     assert.doesNotMatch(renderToString(post({ ...props, site: withoutFeed }) as never), /blog\/feed.xml/);
   }
 });
+
+test("an RTL author profile accepts image and falls back to the author's name for its alt", () => {
+  const author = { id: "ada", name: "آدا", image: "https://example.org/portrait.jpg", url: "javascript:alert(1)" };
+  const html = renderList(pageWith({
+    ...authorPage,
+    lang: "fa",
+    dir: "rtl",
+    frontMatter: { blog: { kind: "author", author, posts: [newer] } },
+  }));
+  assert.match(html, /<h1>نوشته‌های آدا<\/h1>/);
+  assert.match(html, /src="https:\/\/example\.org\/portrait\.jpg" alt="آدا"/);
+  assert.doesNotMatch(html, /href="javascript:/);
+});

@@ -9,7 +9,16 @@ import { all, attrs, build, textOf } from "../integration-helpers.ts";
 
 const config = readFileSync(new URL("../../fixtures/blog/mizzen.yml", import.meta.url), "utf8");
 const site = build("blog");
-const based = build("blog", {}, { "mizzen.yml": config.replace('base: ""', 'base: /blog-docs') });
+const authors = readFileSync(new URL("../../fixtures/blog/_data/authors.yml", import.meta.url), "utf8");
+const based = build("blog", {}, {
+  "mizzen.yml": config.replace('base: ""', 'base: /blog-docs'),
+  "_data/authors.yml": authors.replace("grace:", [
+    "  avatar: /portraits/ada.png",
+    "  avatarAlt: Portrait of Ada",
+    "  url: https://example.org/ada/",
+    "grace:",
+  ].join("\n")),
+});
 
 const titles = (document: Document): string[] =>
   all(document, ".blog-list .blog-item-title a").map((link) => textOf(link));
@@ -87,4 +96,22 @@ test("archives and posts advertise their Atom feed in the head and article", () 
     }
     assert.deepEqual(attrs(built.document("/blog/authors/ada/"), 'head link[type="application/atom+xml"]', "href"), []);
   }
+});
+
+test("the author profile precedes the posts and the portrait is also shown in the byline", () => {
+  const document = based.document("/blog/authors/ada/");
+  const profile = document.querySelector(".blog-author-profile");
+  assert.equal(profile?.querySelector("h1")?.textContent, "Posts by Ada Lovelace");
+  assert.equal(profile?.querySelector("p")?.textContent, "Writes about engines and the people who build them.");
+  assert.equal(profile?.querySelector("a")?.getAttribute("href"), "https://example.org/ada/");
+  assert.equal(profile?.querySelector("img")?.getAttribute("src"), "/blog-docs/portraits/ada.png");
+  assert.equal(profile?.querySelector("img")?.getAttribute("alt"), "Portrait of Ada");
+  assert.ok(profile);
+  assert.ok(profile.compareDocumentPosition(document.querySelector(".blog-list")!)
+    & document.defaultView!.Node.DOCUMENT_POSITION_FOLLOWING);
+
+  const post = based.document("/blog/newer/");
+  assert.equal(post.querySelector(".post-author img")?.getAttribute("src"), "/blog-docs/portraits/ada.png");
+  assert.equal(post.querySelector(".post-author-bio"), null);
+  assert.equal(site.document("/blog/newer/").querySelector(".post-author-bio")?.textContent, "Writes about engines and the people who build them.");
 });

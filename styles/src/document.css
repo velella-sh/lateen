@@ -34,6 +34,19 @@
     padding-block-end: 0;
   }
 
+  .post-author img {
+    display: inline-block;
+    margin-inline-end: var(--space-1);
+    border-radius: 50%;
+    object-fit: cover;
+    vertical-align: middle;
+  }
+
+  .post-author-bio {
+    color: var(--muted-foreground);
+    font-size: 0.875rem;
+  }
+
   .doc-context {
     @apply flex items-center gap-2 text-sm;
     min-block-size: 1.5rem;

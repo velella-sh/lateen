@@ -203,7 +203,7 @@ test("a manual panel with an unreadable level renders the same invalid unknown e
       examples: { "/guide/install/": { passed: 9, failed: 0 } },
       build: { id: "build-1", generatedAt: "2026-03-06" },
     },
-    { props: { level: "maybe", reasons: "Manual claim", lastReviewer: "Bo", buildId: "build-1" } },
+    { props: { level: "maybe", reasons: "Manual claim", lastReviewer: "Bo" } },
   );
   assert.ok(out);
   assert.match(out, /data-trust-evidence="invalid"/);
@@ -704,250 +704,103 @@ test("actionHrefOf fills the page's placeholders and rejects unsafe values", () 
   assert.equal(actionHrefOf(undefined, page, "https://example.com/"), "https://example.com/");
 });
 
-test("the trust entry's build, generation, and review evidence are exposed with exact time values", () => {
+const digest = "a".repeat(64);
+const install = "/guide/install/";
+
+function trustReport(page: Record<string, unknown>, id = digest) {
+  return {
+    version: 2,
+    build: { algorithm: "sha256", id, pages: 1 },
+    asOf: "2026-03-06T00:00:00.000Z",
+    pages: { [install]: page },
+  };
+}
+
+test("the published digest and recorded review date are exposed with exact time values", () => {
+  const date = "2026-03-04T09:30:15+03:30";
   const out = render({
-    trust: {
-      "/guide/install/": {
-        ...entry,
-        buildId: "build-42",
-        generatedAt: "2026-03-06",
-        reviewedAt: "2026-03-04",
-      },
-    },
+    trust: trustReport(entry),
+    reviewers: { pages: [{ url: install, date, author: "Ada" }] },
   });
   assert.ok(out);
-  assert.match(out, /^<details id="trust-panel" class="trust-panel trust-panel-verified" data-trust-panel data-trust-level="verified"/);
-  assert.match(out, /data-trust-build="build-42"/);
-  assert.match(out, /data-trust-generated="2026-03-06"/);
-  assert.match(out, /data-trust-reviewed="2026-03-04"/);
-  assert.match(
-    out,
-    /<dt class="trust-panel-label">Updated<\/dt><dd class="trust-panel-value trust-panel-generated"><time datetime="2026-03-06" title="6 March 2026" aria-label="6 March 2026">6 March 2026<\/time><\/dd>/,
-  );
-  assert.match(
-    out,
-    /<dt class="trust-panel-label">Reviewed<\/dt><dd class="trust-panel-value trust-panel-reviewed"><time datetime="2026-03-04" title="4 March 2026" aria-label="4 March 2026">4 March 2026<\/time><\/dd>/,
-  );
-  assert.match(out, /trust-panel-reviewer">Reviewed by Ada<\/dd>/);
+  assert.ok(out.includes(`data-trust-build="${digest}"`));
+  assert.ok(out.includes(`data-trust-reviewed="${date}"`));
+  assert.ok(out.includes(`<time datetime="${date}" title="${date}" aria-label="${date}">4 March 2026</time>`));
+  assert.doesNotMatch(out, /data-trust-generated=|>Updated<\/dt>/);
 });
 
-test("timed provenance keeps its full ISO value in the machine-readable time", () => {
+test("legacy timestamps and build ids cannot supply report provenance", () => {
   const out = render({
-    trust: {
-      "/guide/install/": {
-        ...entry,
-        buildId: "build-42",
-        generatedAt: "2026-03-06T10:00:00Z",
-        reviewedAt: "2026-03-04T09:30:15+03:30",
-      },
-    },
+    trust: { [install]: { ...entry, buildId: "old", reviewedAt: "2026-03-04", generatedAt: "2026-03-06" } },
+    build: { id: "old", date: "2026-03-06" },
+    reviewers: { [install]: { date: "2026-03-04" } },
   });
   assert.ok(out);
-  assert.match(out, /data-trust-generated="2026-03-06T10:00:00Z"/);
-  assert.match(out, /data-trust-reviewed="2026-03-04T09:30:15\+03:30"/);
-  assert.match(
-    out,
-    /<dt class="trust-panel-label">Updated<\/dt><dd class="trust-panel-value trust-panel-generated"><time datetime="2026-03-06T10:00:00Z" title="2026-03-06T10:00:00Z" aria-label="2026-03-06T10:00:00Z">6 March 2026<\/time><\/dd>/,
-  );
-  assert.match(
-    out,
-    /<dt class="trust-panel-label">Reviewed<\/dt><dd class="trust-panel-value trust-panel-reviewed"><time datetime="2026-03-04T09:30:15\+03:30" title="2026-03-04T09:30:15\+03:30" aria-label="2026-03-04T09:30:15\+03:30">4 March 2026<\/time><\/dd>/,
-  );
-});
-
-test("build and reviewer data supply provenance the entry omits, and the dates stay localised", () => {
-  for (const [lang, updated, reviewed] of [
-    ["en", "Updated", "Reviewed"],
-    ["fa", stringsOf("fa").updated, stringsOf("fa").reviewed],
-    ["ar", stringsOf("ar").updated, stringsOf("ar").reviewed],
-  ] as const) {
-    const out = render(
-      {
-        trust: { "/guide/install/": entry },
-        build: { id: "build-9", generatedAt: "2026-03-06" },
-        reviewers: { "/guide/install/": { date: "2026-03-04", author: "Ada" } },
-      },
-      { lang },
-    );
-    assert.ok(out, lang);
-    assert.match(out, /data-trust-build="build-9"/);
-    assert.match(out, /data-trust-generated="2026-03-06"/);
-    assert.match(out, /data-trust-reviewed="2026-03-04"/);
-    assert.ok(out.includes(`${updated}</dt><dd class="trust-panel-value trust-panel-generated"><time datetime="2026-03-06"`), lang);
-    assert.ok(out.includes(`${reviewed}</dt><dd class="trust-panel-value trust-panel-reviewed"><time datetime="2026-03-04"`), lang);
-  }
-});
-
-test("provenanceOf reads the documented build and reviewer shapes without changing the level", () => {
-  const reviewed = entryOf({ level: "verified", buildId: "build-9" });
-  assert.ok(reviewed);
-  const site = siteOf({
-    build: { id: "build-9", generatedAt: "2026-03-06", asOf: "2026-03-07" },
-    reviewers: { "/guide/install/": { date: "2026-03-04" } },
-  });
-  assert.deepEqual(provenanceOf(site, "/guide/install/", reviewed), {
-    buildId: "build-9",
-    generatedAt: "2026-03-06",
-    reviewedAt: "2026-03-04",
-  });
-  assert.equal(reviewed.level, "verified");
-
+  assert.doesNotMatch(out, /data-trust-build=|data-trust-generated=|data-trust-reviewed=|<time /);
   assert.deepEqual(provenanceOf(undefined, undefined), {});
-  assert.deepEqual(provenanceOf(siteOf({ build: "2026-03-06" }), "/guide/install/"), {});
-  assert.deepEqual(provenanceOf(siteOf({ build: { date: "2026-03-06" } }), "/guide/install/"), {
-    generatedAt: "2026-03-06",
-  });
-  assert.deepEqual(
-    provenanceOf(siteOf({ build: { generatedAt: new Date("2026-03-06T12:00:00Z") } }), "/guide/install/"),
-    { generatedAt: "2026-03-06T12:00:00.000Z" },
-  );
 });
 
-test("missing or malformed provenance adds no attribute, row, or action placeholder", () => {
-  for (const evidence of [
-    {},
-    { buildId: "   " },
-    { generatedAt: "not-a-date", reviewedAt: "2026-02-30" },
-    { generatedAt: "2026-13-01", reviewedAt: "2026-00-10" },
-    { generatedAt: "2026-03-06T99:99:99Z", reviewedAt: "2026-03-04T10:00:00Zjunk" },
-  ]) {
-    const out = render({ trust: { "/guide/install/": { ...entry, ...evidence } } });
-    assert.ok(out);
-    assert.doesNotMatch(out, /data-trust-build=/);
-    assert.doesNotMatch(out, /data-trust-generated=/);
-    assert.doesNotMatch(out, /data-trust-reviewed=/);
-    assert.doesNotMatch(out, /<time /);
-    assert.doesNotMatch(out, />Updated<\/dt>/);
-    assert.doesNotMatch(out, />Reviewed<\/dt>/);
-  }
-});
-
-test("future provenance is left out, and a review after its build is not evidence", () => {
-  const future = render({
-    trust: { "/guide/install/": { ...entry, generatedAt: "2026-03-09", reviewedAt: "2026-03-08" } },
-    build: { asOf: "2026-03-06" },
-  });
-  assert.ok(future);
-  assert.doesNotMatch(future, /data-trust-generated=/);
-  assert.doesNotMatch(future, /data-trust-reviewed=/);
-  assert.doesNotMatch(future, /<time /);
-
-  const afterBuild = render({
-    trust: { "/guide/install/": { ...entry, reviewedAt: "2026-03-07" } },
-    build: { generatedAt: "2026-03-06", asOf: "2026-03-10" },
-  });
-  assert.ok(afterBuild);
-  assert.match(afterBuild, /data-trust-generated="2026-03-06"/);
-  assert.doesNotMatch(afterBuild, /data-trust-reviewed=/);
-
-  const reviewFuture = render({
-    trust: { "/guide/install/": { ...entry, reviewedAt: "2026-03-08" } },
-    build: { date: "2026-03-06" },
-  });
-  assert.ok(reviewFuture);
-  assert.doesNotMatch(reviewFuture, /data-trust-reviewed=/);
-});
-
-test("a trust entry from another build does not claim this build's provenance", () => {
-  const out = render({
-    trust: {
-      "/guide/install/": {
-        ...entry,
-        buildId: "old-build",
-        generatedAt: "2026-03-05",
-        reviewedAt: "2026-03-04",
-      },
-    },
-    build: { id: "current-build", generatedAt: "2026-03-06" },
-  });
-  assert.ok(out);
-  assert.doesNotMatch(out, /data-trust-build=/);
-  assert.doesNotMatch(out, /data-trust-generated=/);
-  assert.match(out, /data-trust-reviewed="2026-03-04"/);
-});
-
-test("all four states keep their level when provenance is present", () => {
-  for (const state of LEVELS) {
+test("future and malformed reviewer dates and digest values are dropped", () => {
+  for (const date of ["2026-03-06T01:30:00Z", "2026-02-30", "2026-03-04T99:99:99Z"]) {
     const out = render({
-      trust: {
-        "/guide/install/": {
-          level: state,
-          buildId: "build-1",
-          generatedAt: "2026-03-06",
-          reviewedAt: "2026-03-04",
-        },
-      },
+      trust: trustReport(entry, '"><script>alert(1)</script>'),
+      reviewers: { [install]: { date, author: "Ada" } },
     });
-    assert.ok(out, state);
-    assert.match(out, new RegExp(`data-trust-level="${state}"`), state);
-    assert.match(out, new RegExp(`class="trust-panel trust-panel-${state}"`), state);
-    assert.match(out, /data-trust-build="build-1"/, state);
+    assert.ok(out);
+    assert.doesNotMatch(out, /data-trust-build=|data-trust-reviewed=|<time |<script>/);
   }
 });
 
-test("action URLs carry page, source, build, and review provenance with safe encoding", () => {
+test("all four states keep their declared level when a report supplies provenance", () => {
+  for (const level of LEVELS) {
+    const out = render({ trust: trustReport({ level }) });
+    assert.ok(out);
+    assert.ok(out.includes(`data-trust-level="${level}"`));
+    assert.ok(out.includes(`class="trust-panel trust-panel-${level}"`));
+    assert.ok(out.includes(`data-trust-build="${digest}"`));
+  }
+});
+
+test("an action encodes page and provenance fields and drops an unavailable placeholder", () => {
   const config = { base: "/docs", theme: { options: {} } } as unknown as SiteConfig;
   const page = pageOf({ title: "In stall" });
   const provenance = {
-    buildId: "build/1?x=é&y",
-    generatedAt: "2026-03-06T10:00:00Z",
-    reviewedAt: "2026-03-04",
+    buildId: digest,
+    reviewedAt: "2026-03-04T09:30:15+03:30",
   };
   assert.equal(
     actionHrefOf(
       config,
       page,
-      "/context?page={url}&source={source}&title={title}&build={build}&generated={generated}&reviewed={reviewed}",
+      "/context?page={url}&source={source}&title={title}&build={build}&reviewed={reviewed}",
       provenance,
     ),
-    "/docs/context?page=/guide/install/&source=guide/install.md&title=In%20stall&build=build%2F1%3Fx%3D%C3%A9%26y&generated=2026-03-06T10%3A00%3A00Z&reviewed=2026-03-04",
+    `/docs/context?page=/guide/install/&source=guide/install.md&title=In%20stall&build=${digest}&reviewed=2026-03-04T09%3A30%3A15%2B03%3A30`,
   );
+  assert.equal(actionHrefOf(config, page, "/context?generated={generated}", provenance), undefined);
   assert.equal(actionHrefOf(config, page, "/context?build={build}", {}), undefined);
-  assert.equal(actionHrefOf(config, page, "/context?reviewed={reviewed}", { buildId: "b" }), undefined);
-  assert.equal(actionHrefOf(config, page, "javascript:open({build})", { buildId: "b" }), undefined);
+  assert.equal(actionHrefOf(config, page, "/context?reviewed={reviewed}", { buildId: digest }), undefined);
+  assert.equal(actionHrefOf(config, page, "javascript:open({build})", provenance), undefined);
 });
 
-test("the panel fills provenance placeholders only when the evidence exists", () => {
+test("the panel fills provenance placeholders from the report without borrowing its digest for a manual panel", () => {
   const options = {
     trust: {
       contextPackUrl: "https://example.com/context?build={build}&page={url}",
-      suggestEditUrl: "/edit?source={source}&generated={generated}&reviewed={reviewed}",
+      suggestEditUrl: "/edit?source={source}&reviewed={reviewed}",
     },
   };
-  const missing = render({ trust: { "/guide/install/": entry } }, { options });
-  assert.ok(missing);
-  assert.doesNotMatch(missing, /trust-panel-actions/);
-  assert.doesNotMatch(missing, /trust-panel-action/);
-
-  const present = render(
-    { trust: { "/guide/install/": { ...entry, buildId: "b 42", generatedAt: "2026-03-06", reviewedAt: "2026-03-04" } } },
-    { options, base: "/docs" },
-  );
+  const data = {
+    trust: trustReport(entry),
+    reviewers: { [install]: { date: "2026-03-04", author: "Ada" } },
+  };
+  const present = render(data, { options, base: "/docs" });
   assert.ok(present);
-  assert.match(present, /href="https:\/\/example.com\/context\?build=b%2042&amp;page=\/guide\/install\/"/);
-  assert.match(
-    present,
-    /href="\/docs\/edit\?source=guide\/install.md&amp;generated=2026-03-06&amp;reviewed=2026-03-04"/,
-  );
-});
-
-test("build ids and dates are escaped in the panel and encoded in links", () => {
-  const out = render(
-    {
-      trust: {
-        "/guide/install/": {
-          ...entry,
-          buildId: '"><script>alert(1)</script>',
-          generatedAt: "2026-03-06",
-        },
-      },
-    },
-    { options: { trust: { contextPackUrl: "https://example.com/context?build={build}" } } },
-  );
-  assert.ok(out);
-  assert.doesNotMatch(out, /<script>/);
-  assert.match(out, /data-trust-build="&quot;>&lt;script>alert\(1\)&lt;\/script>"/);
-  assert.match(out, /href="https:\/\/example.com\/context\?build=%22%3E%3Cscript%3Ealert\(1\)%3C%2Fscript%3E"/);
+  assert.ok(present.includes(`href="https://example.com/context?build=${digest}&amp;page=${install}"`));
+  assert.ok(present.includes('href="/docs/edit?source=guide/install.md&amp;reviewed=2026-03-04"'));
+  const manual = render(data, { options, props: { level: "partial" } });
+  assert.ok(manual);
+  assert.doesNotMatch(manual, /data-trust-build=|context\?build=/);
 });
 
 /** A panel, its summary, and the keydown listeners `activate` wired. */
