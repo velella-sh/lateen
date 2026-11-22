@@ -6,11 +6,9 @@ coverage/
 dist/
 node_modules/
 node_modules
-redesign/components/performance-chart/chart.umd.min.js
-redesign/dist/
-redesign/site/.mizzen/
-redesign/styles/generated.css
 styles/generated.css
 test/acceptance/out/
 test/visual/out/
 test/smoke/out/
+demo/dist/
+demo/.mizzen/

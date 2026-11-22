@@ -3,7 +3,8 @@
 //
 // Usage: node scripts/test-changed.ts [--base <ref>] [--list]
 // A changed test file runs itself. A changed source file runs every test that mentions its path
-// (a component folder, a script, a layout), found by reading the test files. A change to shared
+// (a component folder, a script, a layout), found by reading the test files, plus the tests in the
+// folder that mirrors a chrome unit (`test/chrome/<unit>/`) or a layout (`test/layouts/<layout>*.test.ts`). A change to shared
 // inputs (styles, tokens, package files, fixtures) has no narrow answer and says to run `npm test`.
 import { execFileSync, spawnSync } from "node:child_process";
 import { readFileSync, readdirSync } from "node:fs";
@@ -51,6 +52,14 @@ export function keyOf(file: string): string {
   return folder?.[1] ?? file.replace(/\.[^.]+$/, "");
 }
 
+/** Whether `test` sits in the folder that mirrors `key`: `test/chrome/<unit>/` or `test/layouts/<layout>[-part].test.ts`. */
+export function mirrors(key: string, test: string): boolean {
+  const [area, unit] = key.split("/");
+  if (area === "chrome") return test.startsWith(`test/chrome/${unit}/`);
+  if (area === "layouts") return test.startsWith(`test/layouts/${unit}.`) || test.startsWith(`test/layouts/${unit}-`);
+  return false;
+}
+
 export interface Selection {
   readonly tests: string[];
   /** Changed files that no test mentions, or that move every test. */
@@ -74,7 +83,7 @@ export function select(changed: readonly string[], tests: Readonly<Record<string
     }
     if (!/\.(ts|tsx|json|css|md)$/.test(file) || /^(docs\/|changelog\.d\/|README|CHANGELOG|CONTRIBUTING|AGENTS)/.test(file)) continue;
     const key = keyOf(file);
-    const hits = Object.entries(tests).filter(([name, text]) => name !== key && text.includes(key));
+    const hits = Object.entries(tests).filter(([name, text]) => name !== key && (text.includes(key) || mirrors(key, name)));
     if (hits.length === 0) unmatched.push(file);
     for (const [name] of hits) chosen.add(name);
   }

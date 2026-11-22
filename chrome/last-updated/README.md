@@ -1,7 +1,7 @@
 # Last updated
 
 The line under a page title: when the page last changed, as "Updated 2 days ago", and up to three
-contributor names. `index.ts` renders it, `style.css` styles it, and `test/chrome-last-updated.test.ts`
+contributor names. `index.ts` renders it, `style.css` styles it, and `test/chrome/last-updated/last-updated.test.ts`
 tests it. The doc layout places it under the `h1`.
 
 ## Data

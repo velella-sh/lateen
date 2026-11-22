@@ -8,7 +8,7 @@
 // Island                      Listeners                                Lifecycle
 // chrome/search               button/close/clear/retry click, input,   activation returns a teardown;
 //                             dialog click/close/keydown, popstate-less  abort + guarded continuations
-//                             (see chrome-search.test.ts)                (WeakMap prevents a double wire)
+//                             (see chrome/search/search.test.ts)                (WeakMap prevents a double wire)
 // chrome/drawer               button/close click, dialog close/click/  `env.signal` aborts the wiring
 //                             keydown, link click, viewport change
 // chrome/copy-markdown        button click                             `env.signal` aborts the wiring

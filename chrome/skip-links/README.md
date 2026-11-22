@@ -24,7 +24,7 @@ chrome islands (`chromeIslandsOf`), and the island does nothing on a page withou
   still updates, and a missing target or an unavailable `focus` API leaves ordinary navigation
   intact. It listens only to the links' clicks: an initial load or an unrelated `hashchange` never
   moves focus.
-- `../../test/chrome-skip-links.test.ts`: the unit's tests, including the island on a real document.
+- `../../test/chrome/skip-links/skip-links.test.ts`: the unit's tests, including the island on a real document.
 
 ## Focus without changing the markup
 

@@ -32,6 +32,8 @@ A change to behavior needs a test beside the others in `test/`. A change to the 
 
 ## Ground rules
 
+The decisions behind these rules are recorded in [`docs/adr/`](./docs/adr/README.md).
+
 - Use only erasable TypeScript syntax (no `enum`, `namespace`, or parameter properties) and import local files with their `.ts` extension.
 - Never commit compiled output.
 - Keep a pull request to one change, and describe what it fixes and how you checked it.

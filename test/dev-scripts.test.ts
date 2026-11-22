@@ -19,6 +19,18 @@ test("a changed test runs itself and a changed source runs the tests that mentio
   assert.deepEqual(select(["components/ghost/index.ts"], tests).unmatched, ["components/ghost/index.ts"]);
 });
 
+test("a changed chrome unit or layout also runs the tests in its mirrored test folder", () => {
+  const tests = {
+    "test/chrome/toc/toc.test.ts": "no path mentioned",
+    "test/chrome/toc-other/x.test.ts": "no path mentioned",
+    "test/layouts/base-brand.test.ts": "no path mentioned",
+    "test/layouts/home.test.ts": "no path mentioned",
+  };
+  assert.deepEqual(select(["chrome/toc/index.ts"], tests).tests, ["test/chrome/toc/toc.test.ts"]);
+  assert.deepEqual(select(["layouts/base.ts"], tests).tests, ["test/layouts/base-brand.test.ts"]);
+  assert.deepEqual(select(["layouts/home.ts"], tests).tests, ["test/layouts/home.test.ts"]);
+});
+
 test("shared inputs and prose select no narrow test", () => {
   const picked = select(["styles/src/ui.css", "docs/performance.md", "changelog.d/1.changed.md"], { "test/a.test.ts": "styles/src/ui" });
   assert.equal(picked.shared, true);

@@ -1,5 +1,5 @@
 import assert from "node:assert/strict";
-import { readFileSync } from "node:fs";
+import { readdirSync, readFileSync } from "node:fs";
 import { test } from "node:test";
 import type { ComponentProps } from "@velella/mizzen/contracts";
 import { renderToString } from "preact-render-to-string";
@@ -111,7 +111,11 @@ function countOf(haystack: string, needle: RegExp): number {
 }
 
 const css = "" /* lateen-legacy removed: components/variables-form/style.css */;
-const client = readFileSync(new URL("../components/variables-form/client.ts", import.meta.url), "utf8");
+const FORM_DIR = new URL("../components/variables-form/", import.meta.url);
+const client = readdirSync(FORM_DIR)
+  .filter((name) => name.endsWith(".ts"))
+  .map((name) => readFileSync(new URL(name, FORM_DIR), "utf8"))
+  .join("\n");
 const names = JSON.parse(readFileSync(new URL("../tokens/names.json", import.meta.url), "utf8")) as Record<
   string,
   Record<string, unknown>

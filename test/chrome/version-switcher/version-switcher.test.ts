@@ -1,0 +1,283 @@
+import assert from "node:assert/strict";
+import { existsSync, readFileSync } from "node:fs";
+import { test } from "node:test";
+import { renderToString } from "preact-render-to-string";
+import type { ChromeProps, Page, Pager, Site, SiteConfig, SourcePos, Trail } from "@velella/mizzen/contracts";
+import versionSwitcher, { versionsOf } from "../../../chrome/version-switcher/index.ts";
+
+const pos: SourcePos = { file: "guide/install.md", line: 3, column: 1, endLine: 9, endColumn: 1 };
+
+function configWith(overrides: Partial<SiteConfig> = {}): SiteConfig {
+  return {
+    title: "Example",
+    base: "/example",
+    lang: "en",
+    dir: "ltr",
+    languages: [],
+    source: ".",
+    include: [],
+    exclude: [],
+    navigation: "_data/navigation.yml",
+    defaults: [],
+    theme: { options: {} },
+    search: { text: 300 },
+    redirects: {},
+    outputs: {},
+    collections: {},
+    feeds: {},
+    ...overrides,
+  };
+}
+
+function pageWith(overrides: Partial<Page> = {}): Page {
+  return {
+    url: "/example/v2/guide/install/",
+    source: pos,
+    frontMatter: { title: "Install" },
+    title: "Install",
+    lang: "en",
+    dir: "ltr",
+    headings: [],
+    html: "",
+    markdown: "",
+    kind: "doc",
+    ...overrides,
+  };
+}
+
+const trail: Trail = [];
+const pager: Pager = {};
+
+function props(data: Readonly<Record<string, unknown>>, page = pageWith(), config = configWith()): ChromeProps {
+  const site: Site = { config, pages: [page], nav: {}, data, collections: {} };
+  return { site, page, trail, pager };
+}
+
+function render(input: ChromeProps): string {
+  const node = versionSwitcher(input);
+  return node == null ? "" : renderToString(node as never);
+}
+
+/** The N17 `versions.json` shape, with the page's URL in each version. */
+const n17 = {
+  pages: [
+    {
+      path: "guide/install.md",
+      versions: [
+        { version: "v1", url: "/v1/guide/install/", status: "removed" },
+        { version: "v2", url: "/v2/guide/install/" },
+      ],
+    },
+  ],
+};
+
+test("lists versions from the N17 versions.json shape and marks the current one", () => {
+  const out = render(props({ versions: n17 }));
+
+  assert.match(out, /^<nav class="version-switcher" aria-label="Versions">/);
+  assert.match(out, /<details class="version-switcher-details">/);
+  assert.match(out, /<summary class="version-switcher-summary">/);
+  assert.match(out, /<span class="version-switcher-label">Versions<\/span>/);
+  assert.match(out, /<bdi class="version-switcher-value" dir="ltr">v2<\/bdi>/);
+  assert.match(out, /<a class="version-switcher-link" href="\/example\/v1\/guide\/install\/" data-version-target="page">/);
+  assert.match(out, /<a class="version-switcher-link" href="\/example\/v2\/guide\/install\/" data-version-target="page" aria-current="true">/);
+  assert.match(out, /<span class="version-switcher-current">Current version<\/span>/);
+  assert.equal(out.match(/aria-current="true"/g)?.length, 1);
+});
+
+test("marks the default release current on its unprefixed canonical URL", () => {
+  const page = pageWith({ url: "/example/guide/install/" });
+  const data = { docsVersions: n17, versions: { default: "v2", old: ["v1"] } };
+  const links = versionsOf(props(data, page).site, page);
+
+  assert.deepEqual(links?.map((link) => [link.version, link.url, link.current]), [
+    ["v1", "/example/v1/guide/install/", false],
+    ["v2", "/example/v2/guide/install/", true],
+  ]);
+  assert.match(render(props(data, page)), /<bdi class="version-switcher-value" dir="ltr">v2<\/bdi>/);
+});
+
+test("links the same page URL from the data, adding base once", () => {
+  const out = render(props({ versions: n17 }));
+
+  assert.match(out, /href="\/example\/v1\/guide\/install\/"/);
+  assert.match(out, /href="\/example\/v2\/guide\/install\/"/);
+  assert.doesNotMatch(out, /\/example\/example/);
+
+  const prefixed = render(props({ versions: { ...n17, pages: [{ ...n17.pages[0]!, versions: n17.pages[0]!.versions.map((entry) => ({ ...entry, url: `/example${entry.url}` })) }] } }));
+  assert.match(prefixed, /href="\/example\/v1\/guide\/install\/"/);
+  assert.doesNotMatch(prefixed, /\/example\/example/);
+});
+
+test("accepts a simple page-to-versions map keyed by URL, and a terse version-to-URL map", () => {
+  const map = {
+    "/guide/install/": [
+      { version: "v1", url: "/v1/guide/install/" },
+      { version: "v2", url: "/v2/guide/install/" },
+    ],
+  };
+  const out = render(props({ versions: map }));
+  assert.match(out, /href="\/example\/v1\/guide\/install\/"/);
+  assert.match(out, /href="\/example\/v2\/guide\/install\/" data-version-target="page" aria-current="true"/);
+
+  const terse = { "/guide/install/": { v1: "/v1/guide/install/", v2: "/v2/guide/install/" } };
+  const terseOut = render(props({ versions: terse }));
+  assert.match(terseOut, /<bdi class="version-switcher-version" dir="ltr">v1<\/bdi>/);
+  assert.match(terseOut, /href="\/example\/v2\/guide\/install\/" data-version-target="page" aria-current="true"/);
+});
+
+test("falls back to the page's versions front matter without data", () => {
+  const page = pageWith({
+    frontMatter: {
+      title: "Install",
+      versions: [
+        { version: "1.0", url: "/v1/guide/install/" },
+        { version: "2.0", url: "/v2/guide/install/" },
+      ],
+    },
+  });
+  const out = render(props({}, page));
+
+  assert.match(out, /<bdi class="version-switcher-version" dir="ltr">1.0<\/bdi>/);
+  assert.match(out, /href="\/example\/v1\/guide\/install\/"/);
+  assert.match(out, /href="\/example\/v2\/guide\/install\/" data-version-target="page" aria-current="true"/);
+  assert.match(out, /<span class="version-switcher-current">Current version<\/span>/);
+});
+
+test("a page missing from another version links that version's home, derived from its folder", () => {
+  const data = {
+    pages: [
+      {
+        path: "guide/legacy.md",
+        versions: [
+          { version: "v1", url: "/v1/guide/legacy/" },
+          { version: "v2", url: "/v2/guide/legacy/" },
+        ],
+      },
+      { path: "guide/install.md", versions: [{ version: "v2", url: "/v2/guide/install/" }] },
+    ],
+  };
+  const out = render(props({ versions: data }));
+
+  assert.match(out, /<a class="version-switcher-link" href="\/example\/v1\/" data-version-target="home">/);
+  assert.match(out, /href="\/example\/v1\/" data-version-target="home"><bdi class="version-switcher-version" dir="ltr">v1<\/bdi>/);
+  assert.match(out, /href="\/example\/v2\/guide\/install\/" data-version-target="page" aria-current="true">/);
+});
+
+test("a version-home link says the page is not in that version, and keeps a distinct link state", () => {
+  const data = {
+    pages: [
+      {
+        path: "guide/legacy.md",
+        versions: [
+          { version: "v1", url: "/v1/guide/legacy/" },
+          { version: "v2", url: "/v2/guide/legacy/" },
+        ],
+      },
+      { path: "guide/install.md", versions: [{ version: "v2", url: "/v2/guide/install/" }] },
+    ],
+  };
+  const out = render(props({ versions: data }));
+
+  assert.match(out, /<span class="version-switcher-home">Not in this version<\/span>/);
+  assert.equal(out.match(/data-version-target="home"/g)?.length, 1);
+  assert.equal(out.match(/data-version-target="page"/g)?.length, 1);
+  assert.doesNotMatch(out, /href="\/example\/v1\/"[^>]*aria-current/);
+
+  const fa = render(props({ versions: data }, pageWith({ lang: "fa", dir: "rtl" })));
+  assert.match(fa, /<span class="version-switcher-home">در این نسخه نیست<\/span>/);
+
+  const ar = render(props({ versions: data }, pageWith({ lang: "ar", dir: "rtl" })));
+  assert.match(ar, /<span class="version-switcher-home">غير موجود في هذا الإصدار<\/span>/);
+
+  const links = versionsOf(props({ versions: data }).site, pageWith());
+  assert.equal(links?.find((link) => link.version === "v1")?.home, true);
+  assert.equal(links?.find((link) => link.version === "v2")?.home, false);
+});
+
+test("data can set a version home instead of deriving it", () => {
+  const data = {
+    pages: [
+      { path: "guide/legacy.md", versions: [{ version: "v1", url: "/v1/guide/legacy/", home: "/v1/" }] },
+      { path: "guide/install.md", versions: [{ version: "v2", url: "/v2/guide/install/" }] },
+    ],
+  };
+  assert.match(render(props({ versions: data })), /href="\/example\/v1\//);
+});
+
+test("renders nothing for one version, no versions, or a page the data does not list", () => {
+  const one = { pages: [{ path: "guide/install.md", versions: [{ version: "v2", url: "/v2/guide/install/" }] }] };
+  assert.equal(versionSwitcher(props({ versions: one })), null);
+  assert.equal(versionSwitcher(props({})), null);
+  assert.equal(versionSwitcher(props({ versions: { pages: [] } })), null);
+
+  const otherPage = {
+    pages: [
+      {
+        path: "guide/other.md",
+        versions: [
+          { version: "v1", url: "/v1/guide/other/" },
+          { version: "v2", url: "/v2/guide/other/" },
+        ],
+      },
+    ],
+  };
+  assert.equal(versionSwitcher(props({ versions: otherPage })), null);
+});
+
+test("escaping: version names and URLs are escaped, and an unsafe URL is dropped", () => {
+  const page = pageWith({
+    frontMatter: {
+      title: "Install",
+      versions: [
+        { version: "v<2>", url: "/v2/guide/install/" },
+        { version: "v1", url: "/v1/guide/install/" },
+      ],
+    },
+  });
+  const out = render(props({}, page));
+  assert.match(out, /v&lt;2>/);
+  assert.doesNotMatch(out, /v<2>/);
+  assert.doesNotMatch(out, /<img/);
+
+  const unsafe = pageWith({
+    frontMatter: {
+      title: "Install",
+      versions: [
+        { version: "v0", url: "javascript:alert(1)" },
+        { version: "v1", url: "/v1/guide/install/" },
+        { version: "v2", url: "/v2/guide/install/" },
+      ],
+    },
+  });
+  const safe = render(props({}, unsafe));
+  assert.doesNotMatch(safe, /javascript:/);
+  assert.match(safe, /href="\/example\/v1\/guide\/install\/"/);
+});
+
+test("the label is localised: Persian and Arabic use their own strings", () => {
+  const fa = render(props({ versions: n17 }, pageWith({ lang: "fa", dir: "rtl" })));
+  assert.match(fa, /aria-label="نسخه‌ها"/);
+  assert.match(fa, /<span class="version-switcher-current">نسخهٔ کنونی<\/span>/);
+
+  const ar = render(props({ versions: n17 }, pageWith({ lang: "ar", dir: "rtl" })));
+  assert.match(ar, /aria-label="الإصدارات"/);
+  assert.match(ar, /<span class="version-switcher-current">الإصدار الحالي<\/span>/);
+});
+
+test("versionsOf returns the links without rendering, and ignores unusable entries", () => {
+  const links = versionsOf(props({ versions: n17 }).site, pageWith());
+  assert.deepEqual(links, [
+    { version: "v1", url: "/example/v1/guide/install/", current: false, home: false },
+    { version: "v2", url: "/example/v2/guide/install/", current: true, home: false },
+  ]);
+
+  const mixed = { pages: [{ path: "guide/install.md", versions: [{ version: "v2", url: "/v2/guide/install/" }, { url: "/nope/" }] }] };
+  assert.equal(versionsOf(props({ versions: mixed }).site, pageWith())?.length, 1);
+});
+
+test("the engine's routing file is not read as switcher data", () => {
+  const routing = { versions: { default: "v2", old: ["v1"] } };
+  assert.equal(versionsOf(props(routing).site, pageWith()), undefined);
+});
+
