@@ -1,6 +1,7 @@
 import { h } from "preact";
 import type { ComponentChildren } from "preact";
 import type { ComponentProps } from "@velella/mizzen/contracts";
+import { importedCallout } from "../callout/index.ts";
 import { textOf as trimmed } from "../../src/guards.ts";
 
 /** The Markdown directive this component handles: `::quote{name="…" source="…"}`. */
@@ -23,6 +24,9 @@ export type QuoteProps = {
   name?: string;
   /** The source address. Only an absolute `http` or `https` address becomes a link; anything else is left out. */
   source?: string;
+  title?: string;
+  collapsible?: string | boolean;
+  open?: string | boolean;
 };
 
 /** An absolute `http(s)` address with no space, quote, angle bracket, or backslash. */
@@ -53,7 +57,14 @@ function captionOf(name: string, href: string | undefined) {
  * `blockquote` and a `figcaption`; without one it is a bare `blockquote`. The name is text, the source
  * is a link only when it is an absolute `http(s)` address, and the text wraps in its column.
  */
-export default function quote({ props, html }: ComponentProps<QuoteProps>) {
+const quoteCallout = importedCallout("quote");
+
+export default function quote(input: ComponentProps<QuoteProps>) {
+  const { props, html } = input;
+  const bareBody = props.text === undefined && props.name === undefined && props.source === undefined && html.trim() !== "";
+  if (props.collapsible !== undefined || props.title !== undefined || bareBody) {
+    return quoteCallout({ ...input, html: `<blockquote class="quote">${html}</blockquote>` });
+  }
   const written = textOf(props.text);
   const name = textOf(props.name);
   const href = sourceHref(props.source);

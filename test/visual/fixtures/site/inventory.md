@@ -151,3 +151,137 @@ fixture and checked by `test/visual/inventory.test.ts`; it is not part of the sc
   <p class="stale-notice-reviewed">Reviewed November 9, 2026.</p>
   <ul class="stale-notice-files"><li class="stale-notice-file"><code>_data/books.json</code> changed</li></ul>
 </aside>
+
+## Imported callouts
+
+### Imported abstract
+
+:::abstract{title="Imported abstract" collapsible}
+Imported content.
+:::
+
+### Imported attention
+
+:::attention{title="Imported attention" collapsible}
+Imported content.
+:::
+
+### Imported bug
+
+:::bug{title="Imported bug" collapsible}
+Imported content.
+:::
+
+### Imported caution
+
+:::caution{title="Imported caution" collapsible}
+Imported content.
+:::
+
+### Imported check
+
+:::check{title="Imported check" collapsible}
+Imported content.
+:::
+
+### Imported cite
+
+:::cite{title="Imported cite" collapsible}
+Imported content.
+:::
+
+### Imported done
+
+:::done{title="Imported done" collapsible}
+Imported content.
+:::
+
+### Imported error
+
+:::error{title="Imported error" collapsible}
+Imported content.
+:::
+
+### Imported example
+
+:::example{title="Imported example" collapsible}
+Imported content.
+:::
+
+### Imported fail
+
+:::fail{title="Imported fail" collapsible}
+Imported content.
+:::
+
+### Imported failure
+
+:::failure{title="Imported failure" collapsible}
+Imported content.
+:::
+
+### Imported faq
+
+:::faq{title="Imported faq" collapsible}
+Imported content.
+:::
+
+### Imported help
+
+:::help{title="Imported help" collapsible}
+Imported content.
+:::
+
+### Imported hint
+
+:::hint{title="Imported hint" collapsible}
+Imported content.
+:::
+
+### Imported important
+
+:::important{title="Imported important" collapsible}
+Imported content.
+:::
+
+### Imported info
+
+:::info{title="Imported info" collapsible}
+Imported content.
+:::
+
+### Imported missing
+
+:::missing{title="Imported missing" collapsible}
+Imported content.
+:::
+
+### Imported question
+
+:::question{title="Imported question" collapsible}
+Imported content.
+:::
+
+### Imported success
+
+:::success{title="Imported success" collapsible}
+Imported content.
+:::
+
+### Imported summary
+
+:::summary{title="Imported summary" collapsible}
+Imported content.
+:::
+
+### Imported tldr
+
+:::tldr{title="Imported tldr" collapsible}
+Imported content.
+:::
+
+### Imported todo
+
+:::todo{title="Imported todo" collapsible}
+Imported content.
+:::

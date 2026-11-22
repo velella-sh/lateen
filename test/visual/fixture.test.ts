@@ -40,8 +40,14 @@ test("the fixture reuses the accessibility pages instead of copying them", () =>
   assert.ok(statSync(join(ROOT, "test/visual/fixtures/mizzen.yml")).isFile());
 });
 
-test("the gallery shows every component directory in every language", () => {
-  const names = componentNames();
+/** Import directive aliases share the callout specimen and have separate inventory coverage. */
+function galleryComponentNames(): string[] {
+  return componentNames().filter((name) =>
+    !readFileSync(join(ROOT, "components", name, "index.ts"), "utf8").includes('export default importedCallout('));
+}
+
+test("the gallery shows each distinct component in every language", () => {
+  const names = galleryComponentNames();
   assert.ok(names.length > 50);
   for (const page of GALLERY_PAGES) {
     const source = readFileSync(join(GALLERY_SITE, page.file), "utf8");
@@ -70,7 +76,7 @@ test("the fixture builds twice to identical files, and the gallery has a section
   for (const page of GALLERY_PAGES) {
     const html = readFileSync(join(OUT, "one", page.path, "index.html"), "utf8");
     assert.match(html, new RegExp(`<html[^>]*lang="${page.lang}"`));
-    for (const name of componentNames()) assert.match(html, new RegExp(`<h2[^>]*id="${name}"`), `${page.path} shows ${name}`);
+    for (const name of galleryComponentNames()) assert.match(html, new RegExp(`<h2[^>]*id="${name}"`), `${page.path} shows ${name}`);
     assert.doesNotMatch(html, /Invalid Date|undefined|\[object Object\]/);
   }
 });
