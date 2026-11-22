@@ -286,6 +286,12 @@ function attribute(attrs: string, name: string): string | undefined {
   return new RegExp(`\\s${name}="([^"]*)"`).exec(attrs)?.[1];
 }
 
+/** Mizzen block ids are ASCII slugs. Unrecognized attributes leave the older identity in use. */
+function stableId(attrs: string): string | undefined {
+  const value = attribute(attrs, "data-block");
+  return value !== undefined && /^[a-z0-9][a-z0-9-]{0,63}$/.test(value) ? blockId(value) : undefined;
+}
+
 /**
  * The attributes the replacement `<pre>` keeps: class merges with the theme's own, and the names the
  * replacement writes are dropped so the tag never carries a duplicate attribute. A component's `<pre>`
@@ -328,30 +334,38 @@ export function highlightFences(html: string, backdrops?: CodeBackdrops, lang = 
       );
       const inner = /<code[^>]*>([\s\S]*)<\/code>/.exec(out)?.[1] ?? "";
       const src = attribute(attrs, "data-src");
-      const block = blockId(src ?? "");
+      const sourceId = src === undefined ? undefined : blockId(src);
+      const stable = stableId(attrs);
       const kept = keptAttributes(attrs);
-      const lineBase = kept.originalId ?? (src === undefined ? undefined : block);
+      const oldId = kept.originalId ?? sourceId;
+      const lineBase = stable ?? oldId;
+      const block = stable ?? blockId(src ?? "");
+      const legacy = oldId !== undefined && oldId !== lineBase ? oldId : undefined;
       let decorated = inner;
       if (meta !== undefined || lineBase !== undefined) {
         const annotations = meta?.annotations ?? [];
         decorated = decorateLines(inner, {
           ...(meta === undefined ? {} : { highlight: meta.highlight, numbers: meta.showLineNumbers }),
           ...(lineBase === undefined ? {} : { block: lineBase, lang }),
-          ...(annotations.length === 0 ? {} : { lineId: annotationLineId(block, annotations) }),
+          ...(legacy === undefined ? {} : { legacyBlock: legacy }),
+          ...(annotations.length === 0 ? {} : {
+            lineId: annotationLineId(block, annotations),
+            ...(stable === undefined || sourceId === undefined ? {} : { legacyLineId: annotationLineId(sourceId, annotations) }),
+          }),
         });
       }
       if (meta !== undefined) {
         if (isDiffLang(name) || meta.diff) decorated = stripDiffMarkers(decorated);
         decorated = markDiffLines(decorated, { ins: meta.ins, del: meta.del });
       }
-      const id = kept.originalId ?? (src === undefined ? undefined : block);
-      const idAttr = id === undefined ? "" : ` id="${id}"`;
+      const idAttr = lineBase === undefined ? "" : ` id="${lineBase}"`;
+      const alias = legacy === undefined ? "" : `<span id="${legacy}"></span>`;
       const className = kept.extraClass === "" ? CODE_CLASS : `${CODE_CLASS} ${kept.extraClass}`;
       const titleId = meta === undefined || (meta.title ?? "").trim() === "" ? undefined : `${block}-title`;
       const title = meta === undefined ? "" : codeTitleHtml(meta.title, titleId);
       const labelled = titleId === undefined ? "" : ` aria-labelledby="${titleId}"`;
       const notes = meta === undefined ? "" : renderAnnotations(meta.annotations, block, lang);
-      const pre = `<pre class="${className}" tabindex="0"${idAttr}${labelled} data-lang="${name}"${kept.rest}><code${codeData}>${decorated}</code></pre>`;
+      const pre = `<pre class="${className}" tabindex="0"${idAttr}${labelled} data-lang="${name}"${kept.rest}><code${codeData}>${alias}${decorated}</code></pre>`;
       if (decorated.split("\n").length <= COLLAPSE_AFTER) return `${title}${pre}${notes}`;
       const summary = `<summary class="${COLLAPSE_SUMMARY_CLASS}">${escapeHtml(t(lang, "cli_demo_show_all"))}</summary>`;
       return `${title}<details class="${COLLAPSE_CLASS}">${summary}${pre}</details>${notes}`;
@@ -359,7 +373,7 @@ export function highlightFences(html: string, backdrops?: CodeBackdrops, lang = 
     .replace(IDENTIFY, (match, attrs: string) => {
       if (/\sid=/.test(attrs)) return match;
       const src = attribute(attrs, "data-src");
-      if (src === undefined) return match;
-      return `<pre class="${CODE_CLASS}" id="${blockId(src)}"${attrs}>`;
+      const id = stableId(attrs) ?? (src === undefined ? undefined : blockId(src));
+      return id === undefined ? match : `<pre class="${CODE_CLASS}" id="${id}"${attrs}>`;
     });
 }

@@ -162,6 +162,13 @@ function normalize(text: string): { head: string; body: string } {
   for (const element of [...document.querySelectorAll(".doc-context")]) element.replaceWith(...element.childNodes);
   // The document metadata group changes only the wrapper, not the trust, freshness, or reading-time content.
   for (const element of [...document.querySelectorAll(".doc-meta")]) element.replaceWith(...element.childNodes);
+  // A Markdown permalink adds an accessible text wrapper. Keep the original heading and its text.
+  for (const heading of document.querySelectorAll("[data-heading-anchor]")) {
+    heading.removeAttribute("data-heading-anchor");
+    heading.removeAttribute("aria-labelledby");
+    const text = heading.querySelector(":scope > .heading-text");
+    text?.replaceWith(...text.childNodes);
+  }
   // The drawer header keeps the same close button and navigation links.
   for (const element of [...document.querySelectorAll(".drawer-header")]) element.replaceWith(...element.childNodes);
   for (const element of [...document.querySelectorAll(".drawer-close")]) element.classList.remove("iconbtn");

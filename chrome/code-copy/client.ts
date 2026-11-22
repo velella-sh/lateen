@@ -105,6 +105,7 @@ export interface CopyBlock {
 export interface CopyLine extends CopyBlock {
   classList: { add(name: string): void; remove(name: string): void };
   scrollIntoView?(options?: { block?: "center" }): void;
+  closest?(selector: ".line"): CopyLine | null;
 }
 
 /** The part of the document the island uses. */
@@ -242,7 +243,8 @@ export function targetLines(doc: CopyDocument, hash: string): CopyLine[] {
   if (fragment === undefined) return [];
   const lines: CopyLine[] = [];
   for (let number = fragment.from; number <= fragment.to; number += 1) {
-    const line = doc.getElementById?.(`${fragment.block}-L${number}`) ?? null;
+    const anchor = doc.getElementById?.(`${fragment.block}-L${number}`) ?? null;
+    const line = anchor?.closest?.(".line") ?? anchor;
     if (line === null) break;
     line.classList.add(TARGET_CLASS);
     lines.push(line);
@@ -305,7 +307,7 @@ function attach(
   }
   const source = block.getAttribute("data-src");
   if (source !== null) button.setAttribute("data-src", source);
-  const identity = block.getAttribute("id") ?? source;
+  const identity = block.getAttribute("data-block") ?? block.getAttribute("id") ?? source;
   if (identity !== null) button.setAttribute("data-block-id", identity);
 
   const copyIcon = icon(doc, icons.copy);
