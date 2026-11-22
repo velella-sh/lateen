@@ -1,0 +1,11 @@
+{
+  "title": "Guide and catalogue",
+  "description": "Markdown documentation next to a catalogue generated from data.",
+  "languages": {
+    "default": "en",
+    "optional": [
+      { "code": "fa", "name": "فارسی", "prefix": "/fa" },
+      { "code": "ar", "name": "العربية", "prefix": "/ar" }
+    ]
+  }
+}

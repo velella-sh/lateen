@@ -1,5 +1,6 @@
 import { h } from "preact";
 import { isRecord, knownOf, textOf as text } from "../src/guards.ts";
+import { mathHtml } from "../src/math-html.ts";
 import type { ComponentChildren } from "preact";
 import type { Layout, LayoutProps, Page, Site } from "@velella/mizzen/contracts";
 import shell, { footer as shellFooter } from "../chrome/shell/index.ts";
@@ -318,7 +319,7 @@ function content(props: LayoutProps): ComponentChildren {
     ),
     page.html.length === 0
       ? null
-      : h("div", { class: "versions-body", dangerouslySetInnerHTML: { __html: page.html } }),
+      : h("div", { class: "versions-body", dangerouslySetInnerHTML: { __html: mathHtml(page.html, page.lang) } }),
   ];
 }
 

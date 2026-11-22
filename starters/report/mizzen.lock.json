@@ -1,0 +1,8 @@
+{
+  "version": 1,
+  "sources": {},
+  "snapshots": {
+    "current": { "source": "_data/2026-06.yml", "capturedAt": "2026-06-30" },
+    "may": { "source": "_data/2026-05.yml", "capturedAt": "2026-05-31" }
+  }
+}

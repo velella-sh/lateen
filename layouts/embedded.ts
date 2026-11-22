@@ -3,6 +3,8 @@ import { isRecord } from "../src/guards.ts";
 import type { Layout, LayoutProps, LinkTag, MetaTag, Page, SiteConfig } from "@velella/mizzen/contracts";
 import { t } from "../i18n/index.ts";
 import { factsPanel, recordHeader } from "../src/record-parts.ts";
+import { mathHtml } from "../src/math-html.ts";
+import { deferredScript } from "./shared/head.ts";
 
 /** Class on the page body wrapper; `embedded.css` sizes it. */
 export const EMBEDDED_CLASS = "embedded";
@@ -81,8 +83,8 @@ function linkTag(tag: LinkTag) {
 }
 
 /**
- * The embedded view: the page body alone, with no header, sidebar, footer, search or islands, and no
- * `<script>` of any kind, not even the theme script. A record view adds the record's title, status and
+ * The embedded view: the page body alone, with no header, sidebar, footer, search, islands or theme script.
+ * A record view adds the record's title, status and
  * key facts from the same formatters the record page uses. A one-line attribution links to the full page in the
  * top window. The view is `noindex` and its canonical link is the full page named in `embedded.of`, or the
  * canonical address the engine gave a record view. The colour scheme, height and transparent canvas come
@@ -118,6 +120,7 @@ const embedded: Layout = (props: LayoutProps) => {
       h("title", null, head.title),
       ...meta.map(metaTag),
       ...links.map(linkTag),
+      ...(head.scripts ?? []).map(deferredScript),
     ),
     h(
       "body",
@@ -126,12 +129,12 @@ const embedded: Layout = (props: LayoutProps) => {
         "div",
         { class: EMBEDDED_CLASS, "data-embedded-height": String(settings.height), style: `--embedded-height:${settings.height}px` },
         record === null
-          ? h("main", { class: CONTENT_CLASS, dangerouslySetInnerHTML: { __html: page.html } })
+          ? h("main", { class: CONTENT_CLASS, dangerouslySetInnerHTML: { __html: mathHtml(page.html, page.lang) } })
           : h(
               "main",
               { class: CONTENT_CLASS },
               record,
-              h("div", { dangerouslySetInnerHTML: { __html: page.html } }),
+              h("div", { dangerouslySetInnerHTML: { __html: mathHtml(page.html, page.lang) } }),
             ),
         h(
           "p",

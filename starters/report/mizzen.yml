@@ -1,0 +1,19 @@
+title: Tidemark report
+description: Invented monthly measurements from a coastal monitoring team.
+lang: en
+url: https://example.com
+base: ""
+languages:
+  - { code: en, name: English, prefix: "" }
+  - { code: fa, name: فارسی, prefix: /fa }
+  - { code: ar, name: العربية, prefix: /ar }
+collections:
+  current:
+    source: _data/2026-06.yml
+    search:
+      filters: [station]
+      sort: [samples]
+  may:
+    source: _data/2026-05.yml
+theme:
+  name: "@velella/lateen"

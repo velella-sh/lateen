@@ -57,7 +57,7 @@ The theme may `import type` from `@velella/mizzen/contracts`, by package name an
 - `npm test`
 - `npm run typecheck`
 - `npm run tokens` writes `styles/tokens.css` from `tokens/*.json`; `tokens:check` fails when it is stale.
-- `npx mizzen init my-site --theme node_modules/@velella/lateen --starter docs` starts a site from one of the three starters in `starters/`; `--list` names them.
+- `npx mizzen init my-site --theme node_modules/@velella/lateen --starter docs` starts a site from one of the starters in `starters/`; `--list` names them.
 
 ## Layouts
 

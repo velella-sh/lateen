@@ -17,8 +17,9 @@ test("the demo config sets the base and marks every page noindex", () => {
 test("every starter builds as a noindex demo under its own base", () => {
   const out = mkdtempSync(join(tmpdir(), "lateen-demos-"));
   try {
-    assert.deepEqual(buildDemos(out, "/lateen"), ["changelog", "data", "docs"]);
-    for (const name of ["changelog", "data", "docs"]) {
+    const names = ["changelog", "data", "docs", "mixed", "report"];
+    assert.deepEqual(buildDemos(out, "/lateen"), names);
+    for (const name of names) {
       const html = readFileSync(join(out, "starters", name, "index.html"), "utf8");
       assert.match(html, /<meta name="robots" content="noindex"\s*\/?>/, `${name} is indexed`);
       assert.ok(html.includes(`/lateen/starters/${name}/assets/`), `${name} assets leave the demo base`);

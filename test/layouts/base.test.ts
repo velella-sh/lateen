@@ -103,6 +103,16 @@ test("theme script runs in head before the title and any stylesheet", () => {
   assert.ok(html.indexOf("</head>") > script);
 });
 
+test("deferred head scripts follow JSON-LD with sorted, escaped attributes", () => {
+  const props = layoutProps();
+  const head = { ...props.head, scripts: [{
+    src: 'https://stats.example/script.js?a=1&b=2',
+    attrs: { "data-z": "<end>", "data-a": '"label"', SRC: "ignored", defer: "ignored" },
+  }, { src: "https://stats.example/second.js" }] };
+  const output = renderToString(base({ ...props, head }));
+  assert.match(output, /application\/ld\+json.*?<\/script><script defer src="https:\/\/stats\.example\/script\.js\?a=1&amp;b=2" data-a="&quot;label&quot;" data-z="&lt;end>"><\/script><script defer src="https:\/\/stats\.example\/second\.js"><\/script>/s);
+});
+
 function runThemeScript(stored: string | null | "throw", systemLight: boolean): string | null {
   const attrs: Record<string, string> = {};
   const g = globalThis as Record<string, unknown>;
