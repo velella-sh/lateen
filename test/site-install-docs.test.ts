@@ -14,14 +14,13 @@ before(() => {
   });
 });
 
-test("the docs home identifies Lateen and links to onboarding, a preview, and documentation", () => {
+test("the docs home identifies Lateen and links to onboarding and the components", () => {
   const home = site.document("/");
   assert.match(home.querySelector("main h1")!.textContent!, /Lateen.*documentation theme for Mizzen/);
   assert.match(home.querySelector(".hero-lead")!.textContent!, /^Mizzen builds.*Lateen gives/);
   assert.deepEqual(all(home, ".hero-actions a").map((link) => link.getAttribute("href")), [
     "/lateen/install/",
-    "/lateen/showpiece/",
-    "/lateen/starters/",
+    "/lateen/components/",
   ]);
   const [primary, ...extraPrimary] = all(home, ".hero-btn-primary");
   assert.equal(extraPrimary.length, 0);
