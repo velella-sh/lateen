@@ -262,6 +262,7 @@
   "guide_untagged": "أدلة أخرى",
   "history_added": "أُضيف",
   "history_all_fields": "كل الحقول",
+  "history_change_arrow": "←",
   "history_changed": "تغيّر",
   "history_earlier": "أحداث سابقة ({count})",
   "history_filter": "تصفية حسب الحقل",
