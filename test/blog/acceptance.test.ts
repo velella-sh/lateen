@@ -76,3 +76,15 @@ test("a base path moves the post URLs, archive and author links, and asset links
   for (const href of styles) assert.ok(href.startsWith("/blog-docs/"), `stylesheet ${href} ignores the base`);
   assert.match(based.file("blog/feed.xml"), /<link href="https:\/\/example\.com\/blog-docs\/blog\/newer\/"/);
 });
+
+test("archives and posts advertise their Atom feed in the head and article", () => {
+  for (const [built, base] of [[site, ""], [based, "/blog-docs"]] as const) {
+    for (const path of ["/blog/newer/", "/blog/archive/"]) {
+      const document = built.document(path);
+      const href = `${base}/blog/feed.xml`;
+      assert.deepEqual(attrs(document, 'head link[rel="alternate"][type="application/atom+xml"]', "href"), [href]);
+      assert.equal(document.querySelector(`main a[type="application/atom+xml"][href="${href}"]`)?.textContent, "Subscribe");
+    }
+    assert.deepEqual(attrs(built.document("/blog/authors/ada/"), 'head link[type="application/atom+xml"]', "href"), []);
+  }
+});
