@@ -16,3 +16,9 @@ test("the source mode page covers the switch, the deep link, the no-script case 
   }
   assert.match(page, /^## Live example$/m);
 });
+
+test("the source mode page covers the active bar, the block count, and the way out", () => {
+  for (const phrase of ["number of sourced", "Exit control", "Press Escape", "out of the tab order"]) {
+    assert.ok(page.includes(phrase), `the page does not mention ${phrase}`);
+  }
+});
