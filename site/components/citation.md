@@ -22,7 +22,7 @@ A citation names the work a record or article comes from: its title, a visible a
 | `title` | string | the page title | The work's title. |
 | `url` | string | the page's absolute URL | The address shown and copied. An `http(s)` URL or a root-relative path; an unsafe value is left out. |
 | `source` | string | the record id | The source's identifier, such as a record slug. |
-| `date` | ISO date | the record's first configured date | The work's date, formatted in the page language's calendar. |
+| `date` | ISO date | the record's first configured date | The work's date, formatted in the site's calendar and page language. |
 
 The page title and address fill `title` and `url`, so `::citation` alone already cites the page. On a record page the record's id and its collection's first readable date fill `source` and `date`; a part with no value is left out rather than shown empty.
 

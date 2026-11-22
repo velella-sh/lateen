@@ -39,7 +39,7 @@ redirect_from:
 | [Code tabs](./code-tabs/) | The same example in several languages or package managers, as tabs. |
 | [Compare](./compare/) | Records side by side, with the differing rows marked. |
 | [Data explorer](./data-explorer/) | Search, filter, and sort a collection in the browser, with a search page fallback. |
-| [Dated list](./dated-list/) | Records grouped by month in the page language's calendar. |
+| [Dated list](./dated-list/) | Records grouped by month in the site's calendar. |
 | [Details](./details/) | A native disclosure that the reader can open and close. |
 | [Diff block](./diff-block/) | Added, removed, and context lines, with a copy of the new file. |
 | [Drift banner](./drift-banner/) | A warning above a page whose documentation has drifted from the code. |

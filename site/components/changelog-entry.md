@@ -48,4 +48,4 @@ The old theme's `blocks` folder is gone. Every block has a component page under 
 - A version with no Latin characters falls back to `vunversioned`; give it an `id` when you want a readable, stable link target.
 - An empty body keeps the heading, date, and categories, and adds a short "No details for this release" paragraph, so a stub is visibly a stub.
 - Each category is an icon and a text label. The icon and label carry the meaning, so the difference between categories does not depend on color.
-- Dates use the page's calendar: English shows Gregorian, Persian Jalali, and Arabic Hijri.
+- Dates use `dates.calendar` (Gregorian by default) and the page language.

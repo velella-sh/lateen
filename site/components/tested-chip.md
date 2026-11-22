@@ -61,7 +61,7 @@ The state is available to machine readers as the chip's class: `tested-chip-pass
 - When the page has a trust panel, the chip is a link to that panel (`#trust-panel`), so a keyboard
   reader can open the trust-level explanation from the marker itself. Without a trust entry the chip
   stays a plain note, so a page never links to a missing panel.
-- The tooltip is `Last passed <date>`, in the page's calendar: Gregorian in English, Jalali in Persian, and Hijri in Arabic. It is also available to a screen reader. A malformed report can still show a `lastPassed` tooltip because the date is separate evidence, validated independently.
+- The tooltip is `Last passed <date>`, formatted in the site's calendar and the page language. It is also available to a screen reader. A malformed report can still show a `lastPassed` tooltip because the date is separate evidence, validated independently.
 - A page can supply the result with `_data/examples.yml`, keyed by the page's URL. The engine's `examples.json` report is a separate open issue (#1465), so this fallback reads data a site writes today.
 
   ```yaml
