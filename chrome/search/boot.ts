@@ -5,6 +5,8 @@
 
 import { activateShortcuts, type ShortcutEvent, type ShortcutHint } from "./shortcut.ts";
 import { activateAskAgent, parseAskConfig, type AskDocument, type AskElement, type AskResult } from "../ask-agent/client.ts";
+import { parseJson } from "../../src/guards.ts";
+import type { SiteNetwork } from "@velella/mizzen/contracts";
 import { browserFetch } from "../copy-markdown/island.ts";
 import { parsePalette } from "./palette.ts";
 import type { SearchElement, SearchNode, SearchResults } from "./render.ts";
@@ -71,6 +73,10 @@ if (typeof document !== "undefined") {
             fetchText: browserFetch,
             lang: langFrom(source),
           });
+    const network = parseJson(source.getAttribute("data-search-network") ?? "") as SiteNetwork | undefined;
+    const scope = (within("[data-search-scope]") ?? undefined) as SearchParts["scope"];
+    const initialScope = new URLSearchParams(location.search).get("scope");
+    if (scope !== undefined && initialScope === "all") scope.value = "all";
     activate(
       {
         dialog: dialog as SearchDialog,
@@ -82,6 +88,7 @@ if (typeof document !== "undefined") {
         clear: (clear ?? undefined) as SearchParts["clear"],
         retry: (retry ?? undefined) as SearchParts["retry"],
         all: (all ?? undefined) as SearchParts["all"],
+        scope,
       },
       {
         document,
@@ -89,7 +96,9 @@ if (typeof document !== "undefined") {
         palette: parsePalette(palette?.textContent ?? null, messages.actions),
         lang: langFrom(source),
         messages,
-        scope: new URLSearchParams(location.search).get("scope"),
+        scope: initialScope,
+        indexFolder: network?.projects.find((project) => project.current)?.search,
+        network: (network?.projects.length ?? 0) > 1 ? network : undefined,
         ask: askAgent?.open,
       },
     );

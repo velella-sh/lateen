@@ -3,7 +3,8 @@ import { test } from "node:test";
 import { renderToString } from "preact-render-to-string";
 import type { NetworkProject, SiteNetwork } from "@velella/mizzen/contracts";
 import { searchFailure, searchResult } from "../components/search-result/index.ts";
-import { resultHeading, resultHref, resultLabel, sectionPaths, type SearchResult } from "../src/search/merge.ts";
+import { resultHref, resultLabel } from "../components/search-result/model.ts";
+import { resultHeading, sectionPaths, type SearchResult } from "../src/search/merge.ts";
 
 function project(id: string, title: string, current = false): NetworkProject {
   return { id, path: id, title, current };
@@ -41,6 +42,7 @@ test("the link is built from the network's path, so another project's base is ke
   assert.equal(resultHref(result(), network), "/beta/guide/install/");
   assert.equal(resultHref(result({ url: "guide/install/" }), network), "/beta/guide/install/");
   assert.equal(resultHref(result({ url: "/beta/guide/install/" }), network), "/beta/guide/install/");
+  assert.equal(resultHref(result({ url: "https://example.org/beta/" }), network), "https://example.org/beta/");
   assert.equal(resultHref(result({ project: "alpha", current: true, url: "/alpha/guide/" }), network), "/alpha/guide/");
   assert.equal(resultHref(result({ project: "gone", url: "/guide/" }), network), "/guide/");
 

@@ -12,6 +12,7 @@ import type { SearchRecord } from "./options.ts";
 
 /** One hit in a Pagefind result list. */
 export interface SearchHit {
+  readonly score?: number;
   data(): Promise<SearchRecord>;
 }
 
@@ -21,8 +22,8 @@ export interface PagefindApi {
 }
 
 /** The index URL for a site `base`: `/pagefind/pagefind.js` at the root, `<base>/pagefind/pagefind.js` below it. */
-export function indexUrl(base: string): string {
-  return `${base.replace(/\/$/, "")}/pagefind/pagefind.js`;
+export function indexUrl(base: string, folder = "pagefind"): string {
+  return `${base.replace(/\/$/, "")}/${folder}/pagefind.js`;
 }
 
 /** Imports the Pagefind module from the built index. */

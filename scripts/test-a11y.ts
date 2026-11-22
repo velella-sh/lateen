@@ -58,6 +58,7 @@ export interface AuditCase {
   readonly lang: "en" | "fa" | "ar";
   readonly width: number;
   readonly height: number;
+  readonly networkSearch?: "results" | "dialog";
   readonly open?: "drawer" | "search" | "ask" | "term" | "symbol";
 }
 
@@ -180,7 +181,8 @@ export const CASES: readonly AuditCase[] = [
   { name: "network alpha", site: "network", path: "/alpha/", layout: "doc", lang: "en", ...DESKTOP },
   { name: "network alpha persian", site: "network", path: "/alpha/fa/", layout: "doc", lang: "fa", ...DESKTOP },
   { name: "network alpha arabic", site: "network", path: "/alpha/ar/", layout: "doc", lang: "ar", ...DESKTOP },
-  { name: "network search", site: "network", path: "/alpha/search/", layout: "search-results", lang: "en", ...DESKTOP },
+  { name: "network search", site: "network", path: "/alpha/search/?q=project&scope=all", layout: "search-results", lang: "en", ...DESKTOP, networkSearch: "results" },
+  { name: "network search dialog", site: "network", path: "/alpha/", layout: "doc", lang: "en", ...DESKTOP, networkSearch: "dialog", open: "search" },
   { name: "network drawer open", site: "network", path: "/alpha/", layout: "doc", lang: "en", ...MOBILE, open: "drawer" },
   { name: "docs drawer open", site: "docs", path: "/lateen/install/", layout: "doc", lang: "en", ...MOBILE, open: "drawer" },
   { name: "docs search open", site: "docs", path: "/lateen/install/", layout: "doc", lang: "en", ...DESKTOP, open: "search" },
@@ -459,6 +461,33 @@ async function openOverlay(page: Page, overlay: NonNullable<AuditCase["open"]>):
   const trigger = overlay === "drawer" ? "[data-drawer-open]" : "[data-search-open]";
   await page.locator(trigger).click();
   await page.locator(`dialog[data-${overlay}][open]`).waitFor({ state: "visible" });
+}
+
+/** The fixture builds Alpha's real index. Beta answers through a fake index, and Gamma is offline. */
+async function routeNetworkIndexes(page: Page): Promise<void> {
+  await page.route("**/beta/find-beta/pagefind.js", (route) => route.fulfill({
+    contentType: "text/javascript",
+    body: 'export function options() {} export function search() { return { results: [{ score: 10, data: () => ({ url: "/guide/", meta: { title: "Other project" }, excerpt: "Beta guide" }) }] }; }',
+  }));
+  await page.route("**/gamma/pagefind/pagefind.js", (route) => route.abort());
+}
+
+async function checkNetworkSearch(page: Page, view: "dialog" | "results"): Promise<void> {
+  const root = page.locator(view === "dialog" ? "dialog[data-search]" : "[data-search-page]");
+  if (view === "dialog") {
+    await root.locator("[data-search-input]").fill("project");
+    await root.locator('a[href^="/alpha/"][role="option"]').first().waitFor();
+    if (await root.getByText("Beta Docs", { exact: true }).count() > 0) {
+      throw new Error("the dialog searched other indexes before selecting All projects");
+    }
+    await root.locator("[data-search-scope]").selectOption("all");
+    await root.locator('[data-search-all][href*="scope=all"]').waitFor();
+  } else if (!await root.locator('input[name="scope"][value="all"]').isChecked()) {
+    throw new Error("the scope control did not restore All projects from the URL");
+  }
+  await root.locator('a[href^="/alpha/"] .search-result-project').getByText("Alpha", { exact: true }).first().waitFor();
+  await root.locator('a[href="/beta/guide/"] .search-result-project').getByText("Beta Docs", { exact: true }).first().waitFor();
+  await root.getByRole("status").filter({ hasText: "Results from Gamma did not load." }).waitFor();
 }
 
 /** Fails unless `selector` is the focused element. */
@@ -784,6 +813,7 @@ async function main(): Promise<void> {
             { key: THEME_KEY, value: theme },
           );
           const page = await context.newPage();
+          if (item.networkSearch !== undefined) await routeNetworkIndexes(page);
           const response = await page.goto(`${servers[item.site].url}${item.path}`, { waitUntil: "load" });
           if (response === null || response.status() !== 200) {
             throw new Error(`${item.name}: ${item.path} did not load (HTTP ${response?.status() ?? "none"})`);
@@ -797,6 +827,7 @@ async function main(): Promise<void> {
             throw new Error(`${item.name}: expected the ${theme} theme, got ${await html.getAttribute("data-theme")}`);
           }
           if (item.open !== undefined) await openOverlay(page, item.open);
+          if (item.networkSearch !== undefined) await checkNetworkSearch(page, item.networkSearch);
           await page.evaluate(async () => {
             const fonts = (globalThis as unknown as { document?: { fonts?: Promise<unknown> } }).document?.fonts;
             if (fonts !== undefined) await fonts;

@@ -5,7 +5,8 @@ import { askAgentSection } from "../chrome/ask-agent/index.ts";
 import searchScope from "../chrome/search-scope/index.ts";
 import shell, { footer as shellFooter, isCurrentSection, sectionLinks } from "../chrome/shell/index.ts";
 import { patternOf, t } from "../i18n/index.ts";
-import { safeHrefSource } from "../src/url.ts";
+import { indexUrl } from "../chrome/search/loader.ts";
+import { safeHrefSource, withBase } from "../src/url.ts";
 import base from "./base.ts";
 
 /** Id of the query field, which its label points to. */
@@ -38,6 +39,12 @@ export function scriptValue(value: unknown): string {
  */
 function clientScript(props: LayoutProps): string {
   const lang = props.page.lang;
+  const network = props.site.network;
+  const networkSearch = (network?.projects.length ?? 0) > 1;
+  const folder = network?.projects.find((project) => project.current)?.search;
+  const index = folder === undefined
+    ? 'base.replace(/\\/$/, "") + "/pagefind/pagefind.js"'
+    : scriptValue(indexUrl(props.site.config.base, folder));
   const messages = {
     empty: patternOf(lang, "search_results_empty"),
     emptyScope: patternOf(lang, "search_results_empty_scope"),
@@ -46,6 +53,7 @@ function clientScript(props: LayoutProps): string {
     failed: t(lang, "search_results_failed"),
     loading: t(lang, "search_results_loading"),
     one: t(lang, "search_results_one"),
+    ...(networkSearch ? { projectFailed: patternOf(lang, "search_project_failed") } : {}),
     counts: {
       zero: patternOf(lang, "search_count_zero"),
       one: patternOf(lang, "search_count_one"),
@@ -77,7 +85,10 @@ const scope = new URLSearchParams(location.search).get("scope") === "all" ? "all
 let hits = [];
 let shown = 0;
 let pending = false;
-if (input) input.value = query;
+if (input) input.value = query;${networkSearch ? `
+const scopeInput = root?.querySelector('input[name="scope"][value="' + scope + '"]');
+if (scopeInput) scopeInput.checked = true;
+const notices = [];` : ""}
 
 /* link-path:start The link guard is the theme's shared rule, so the results page cannot drift from the dialog. */
 const SAFE_HREF = new RegExp(${scriptValue(safeHrefSource(undefined, true))}, "i");
@@ -277,7 +288,15 @@ function itemOf(record, path) {
   copyExcerpt(template.content, excerpt);
   link.append(excerpt);
   const item = document.createElement("li");
-  item.append(link);
+  ${networkSearch ? `if (record.projectLabel !== undefined) {
+    const project = document.createElement("span");
+    project.className = "search-result-project";
+    const label = document.createElement("bdi");
+    label.textContent = record.projectLabel;
+    project.append(label);
+    link.prepend(project);
+  }
+  ` : ""}item.append(link);
   return item;
 }
 
@@ -306,13 +325,35 @@ function append(records) {
 if (status && list && query.trim() !== "") {
   status.textContent = messages.loading;
   if (more) more.hidden = true;
-  import(base.replace(/\\/$/, "") + "/pagefind/pagefind.js")
+  const localSearch = () => import(${index})
     .then(async (api) => {
       await api.options({ baseUrl: "/" });
       return api.search(query);
     })
-    .then((page) => {
-      hits = page.results;
+    .then((page) => page.results);
+  const request = ${networkSearch ? `scope === "all"
+    ? import(${scriptValue(withBase(props.site.config.base, "/assets/theme/islands/chrome/search/network.js"))})
+        .then(async ({ searchNetwork }) => {
+          let found = [];
+          await searchNetwork(query, {
+            base,
+            network: ${scriptValue(network)},
+            async current() {
+              const api = await import(${index});
+              await api.options({ baseUrl: "/" });
+              return api;
+            },
+            show: (results) => { found = results; },
+            failed: (project) => notices.push(project === undefined
+              ? messages.failed
+              : messages.projectFailed.replace("{project}", () => project.title)),
+          });
+          return found;
+        })
+    : localSearch()` : "localSearch()"};
+  request
+    .then((results) => {
+      hits = results;
       return Promise.all(nextBatch(hits, 0, ${RESULT_LIMIT}).map((hit) => hit.data()));
     })
     .then((records) => {
@@ -326,7 +367,8 @@ if (status && list && query.trim() !== "") {
             .replace("{scope}", () => (scope === "all" ? messages.scopeAll : messages.scopeProject))
         : hits.length === 1
           ? messages.one
-          : countMessage(hits.length);
+          : countMessage(hits.length);${networkSearch ? `
+      if (notices.length > 0) status.textContent += " " + notices.join(" ");` : ""}
       if (scopeLink) {
         scopeLink.hidden = !empty;
         if (empty) {

@@ -44,6 +44,7 @@ export type OptionKind = "result" | "action" | "ask";
 export interface SearchRecord extends HeadingSource {
   readonly url: string;
   readonly excerpt: string;
+  readonly projectLabel?: string | undefined;
   readonly meta?: { readonly title?: string | undefined };
   readonly filters?: Readonly<Record<string, readonly string[]>>;
 }

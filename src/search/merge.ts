@@ -1,5 +1,4 @@
 import { isRecord, textOf } from "../guards.ts";
-import type { SiteNetwork } from "@velella/mizzen/contracts";
 
 /** One heading Pagefind lists for a page, and the id its fragment points at. */
 export interface PagefindAnchor {
@@ -152,7 +151,9 @@ export function readMergeList(value: unknown): MergeList | undefined {
  * project's result stays first; the rest keep the order they arrived in, so the list never jumps
  * between an update that added no ordering information.
  */
-export function mergeResults(groups: readonly (readonly SearchResult[])[]): readonly SearchResult[] {
+export function mergeResults<Result extends Pick<SearchResult, "score" | "current">>(
+  groups: readonly (readonly Result[])[],
+): readonly Result[] {
   return groups
     .flatMap((group) => group)
     .map((result, order) => ({ result, order }))
@@ -171,28 +172,4 @@ export interface FailedIndex {
   readonly id: string;
   /** The label the failure notice shows. */
   readonly title: string;
-}
-
-/** The network project a result came from, when the network still lists it. */
-function projectOf(network: SiteNetwork | undefined, id: string): SiteNetwork["projects"][number] | undefined {
-  return network?.projects.find((project) => project.id === id);
-}
-
-/**
- * The address of one result under its project's base path. The index gives a project-relative URL;
- * the network's `path` supplies the base, and a URL that already carries it is left alone. A project
- * the network no longer lists keeps the URL the index returned.
- */
-export function resultHref(result: SearchResult, network: SiteNetwork | undefined): string {
-  const project = projectOf(network, result.project);
-  if (project === undefined) return result.url;
-  const base = `/${project.path.replace(/^\/+|\/+$/g, "")}`;
-  if (result.url === base || result.url.startsWith(`${base}/`)) return result.url;
-  return `${base}${result.url.startsWith("/") ? result.url : `/${result.url}`}`;
-}
-
-/** The project label a result shows: only another project's results are labelled, never this one's. */
-export function resultLabel(result: SearchResult, network: SiteNetwork | undefined): string | undefined {
-  if (result.current) return undefined;
-  return projectOf(network, result.project)?.title;
 }
