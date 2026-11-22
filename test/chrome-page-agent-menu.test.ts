@@ -169,9 +169,25 @@ test("offers Claude, ChatGPT, and Cursor by default, in that order, with the abs
     ["Claude", "ChatGPT", "Cursor"],
   );
   assert.equal([...out.matchAll(/class="page-agent-menu-logo"[^>]*aria-hidden="true"/g)].length, 3);
-  assert.equal(hrefs[0]!.href, `https://claude.ai/new?q=Read+${absoluteTwin}`);
-  assert.equal(hrefs[1]!.href, `https://chatgpt.com?q=Read+${absoluteTwin}`);
-  assert.equal(hrefs[2]!.href, `https://cursor.com/link/prompt?text=Read+${absoluteTwin}`);
+  assert.equal(hrefs[0]!.href, `https://claude.ai/new?q=Read%20${absoluteTwin}`);
+  assert.equal(hrefs[1]!.href, `https://chatgpt.com?q=Read%20${absoluteTwin}`);
+  assert.equal(hrefs[2]!.href, `https://cursor.com/link/prompt?text=Read%20${absoluteTwin}`);
+});
+
+test("a generated page keeps localized reading prompts with the agent notes", () => {
+  const page = {
+    ...pageWith(),
+    lang: "fa",
+    dir: "rtl" as const,
+    frontMatter: { agent: { edit: false, notes: "راهنمای ساخت را هم ببین." } },
+  };
+  const out = html(pageAgentMenu(props(page, {}, "https://docs.example.com")));
+  const href = /href="(https:\/\/claude\.ai\/new[^"]+)"/.exec(out)?.[1];
+  assert.ok(href);
+  const prompt = new URL(href).searchParams.get("q") ?? "";
+  assert.ok(prompt.includes("را بخوان"));
+  assert.ok(prompt.includes(page.frontMatter.agent.notes));
+  assert.ok(!out.includes(page.frontMatter.agent.notes));
 });
 
 test("the provider list comes from theme options, which replace the defaults", () => {

@@ -1,4 +1,5 @@
 import { h } from "preact";
+import { agentSource } from "../../src/agent.ts";
 import { isRecord, textOf as text } from "../../src/guards.ts";
 import type { Chrome, Heading, Page, RepositoryConfig, Site, SiteConfig, SourcePos } from "@velella/mizzen/contracts";
 import { t } from "../../i18n/index.ts";
@@ -116,10 +117,13 @@ function lineAnchor(start: number, end: number): string {
  * page points at the record's data file and line range, not at its template, so the reader lands on the data.
  */
 export function editHref(site: Site, page: Page): string | undefined {
+  if (page.frontMatter.agent?.edit === false) return undefined;
+  const repository = site.config.repository;
+  const source = agentSource(page);
+  if (source !== undefined) return repository === undefined ? undefined : editUrlOf(repository, source);
   const data = site.data["edit-links"] ?? site.data.editLinks;
   const fromData = editLinkFromData(data, page.url, page.source.file);
   if (fromData !== undefined) return fromData;
-  const repository = site.config.repository;
   if (repository === undefined) return undefined;
   const record = recordSource(page);
   const url = editUrlOf(repository, record?.file ?? page.source.file);
@@ -144,12 +148,12 @@ function titleOf(page: Page, heading: Heading): string {
 }
 
 /** The issue body: the page, its source file and line, and the heading anchor, each on its own line. */
-function bodyOf(page: Page, heading: Heading, source: { file: string; line: number }): string {
+function bodyOf(page: Page, heading: Heading, source: { file: string; line?: number }): string {
   return [
     "Suggest an edit to this heading.",
     "",
     `Page: ${page.url}`,
-    `Source: ${source.file}:${source.line}`,
+    `Source: ${source.file}${source.line === undefined ? "" : `:${source.line}`}`,
     `Heading: ${heading.id}`,
     "",
   ].join("\n");
@@ -170,6 +174,7 @@ export function suggestEditUrl(
   heading: Heading | undefined,
 ): string | undefined {
   if (repository === undefined || heading === undefined) return undefined;
+  if (page.frontMatter.agent?.edit === false) return undefined;
   if (page.url === "") return undefined;
   const host = hostOf(repository);
   if (host === undefined) return undefined;
@@ -177,7 +182,8 @@ export function suggestEditUrl(
 
   const found = page.headings.find((candidate) => candidate.id === heading.id);
   if (found === undefined || found.id === "") return undefined;
-  const source = headingSource(found);
+  const override = agentSource(page);
+  const source = override === undefined ? headingSource(found) : { file: override };
   if (source === undefined) return undefined;
 
   return fitUrl(root, host, titleOf(page, found), bodyOf(page, found, source));

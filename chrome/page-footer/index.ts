@@ -3,20 +3,15 @@ import type { Chrome, Page } from "@velella/mizzen/contracts";
 import { ArrowUp, SquarePen } from "lucide";
 import { t } from "../../i18n/index.ts";
 import { icon } from "../../src/icon.ts";
+import { editPrompt } from "../../src/agent.ts";
 import copyMarkdown from "../copy-markdown/index.ts";
 import editPage from "../edit-page/index.ts";
 import pageAgentMenu from "../page-agent-menu/index.ts";
 import { reportHref } from "../report-issue/index.ts";
 
-/** The page's source file and line, with its language and declared version, as an agent prompt names them. */
-function sourceOf(page: Page): string {
-  const version = typeof page.frontMatter.version === "string" ? page.frontMatter.version.trim() : "";
-  const location = `${page.source.file}:${page.source.line}`;
-  return version === "" ? location : `${location} (${page.lang}, ${version})`;
-}
-
 /** The button that copies a prompt asking an agent to edit this page; `client.ts` reveals it. */
 function agentAction(page: Page) {
+  if (page.frontMatter.agent?.edit === false) return null;
   const lang = page.lang;
   return h(
     "button",
@@ -25,7 +20,7 @@ function agentAction(page: Page) {
       class: "page-footer-copy",
       hidden: true,
       "data-page-footer-copy": true,
-      "data-prompt": t(lang, "edit_prompt", { source: sourceOf(page), text: page.title }),
+      "data-prompt": editPrompt(page),
       "data-copied": t(lang, "copied"),
       "data-copy-failed": t(lang, "copy_failed"),
     },

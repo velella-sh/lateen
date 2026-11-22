@@ -150,3 +150,34 @@ test("other layouts ignore stale", () => {
   assert.equal(noticeAt(plain), -1);
   assert.equal(plain, marked);
 });
+
+test("agent edit instructions govern article tools and stale actions", () => {
+  const config = configWith({
+    theme: { options: { pageAgent: { providers: [
+      { title: "Agent", url: "https://agent.example/ask?q={prompt}" },
+      { title: "Read", url: "https://agent.example/read?url={markdown}" },
+    ] } } },
+  });
+  const agent = { source: "templates/install source.md", notes: "Refresh generated fixtures." };
+  const actions = (edit: boolean) => new JSDOM(render(doc, pageWith({ stale, frontMatter: { agent: { ...agent, edit } } }), config)).window.document;
+
+  const readonly = actions(false);
+  assert.equal(readonly.querySelector(".edit-page-link, [data-page-footer-copy], .stale-notice-actions"), null);
+  assert.equal(readonly.querySelector(".page-agent-menu-provider")?.textContent, "Read");
+  assert.ok(readonly.querySelector(".page-agent-menu-view"));
+
+  const editable = actions(true);
+  const href = "https://github.com/example/repo/edit/main/templates/install%20source.md";
+  assert.equal(editable.querySelector(".edit-page-link")?.getAttribute("href"), href);
+  assert.equal(editable.querySelector(".stale-notice-actions a")?.getAttribute("href"), href);
+  const copy = editable.querySelector("[data-page-footer-copy]")?.getAttribute("data-prompt") ?? "";
+  assert.match(copy, /templates\/install source\.md/);
+  assert.ok(copy.includes(agent.notes));
+  for (const link of editable.querySelectorAll<HTMLAnchorElement>('a[href^="https://agent.example/ask"]')) {
+    const prompt = new URL(link.href).searchParams.get("q") ?? "";
+    assert.ok(prompt.includes(agent.source));
+    assert.ok(prompt.includes(agent.notes));
+  }
+  assert.equal(editable.querySelectorAll('a[href^="https://agent.example/ask"]').length, 2);
+  assert.ok(!editable.body.textContent.includes(agent.notes));
+});
