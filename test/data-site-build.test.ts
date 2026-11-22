@@ -3,7 +3,7 @@ import { createHash } from "node:crypto";
 import { readFileSync } from "node:fs";
 import { join } from "node:path";
 import { test } from "node:test";
-import { dataSite, root } from "./integration-helpers.ts";
+import { attrs, dataSite, root } from "./integration-helpers.ts";
 
 /** The engine release the fixture was copied from; `fixtures/data-site/README.md` records it too. */
 const ENGINE_COMMIT = "86f2871f6b917f67717b64645be4de49103dd2ea";
@@ -37,4 +37,17 @@ test("the helper builds the fixture once and every record gets a page", () => {
   assert.match(site.html("/releases/4.0.0/"), /<h1[^>]*>[\s\S]*?4\.0\.0[\s\S]*?<\/h1>/);
   assert.match(site.html("/regions/north/"), /<h1[^>]*>[\s\S]*?North[\s\S]*?<\/h1>/);
   assert.match(site.html("/regions/north/"), /Code: [^<]*<[^>]*>NO</);
+});
+
+test("record downloads link to the engine's raw data and verifiable checksums", () => {
+  const site = dataSite();
+  const page = site.document("/components/button/");
+  const files = attrs(page, 'section[aria-labelledby="collection-downloads"] a[download]', "href");
+  assert.deepEqual(files, ["/data/components.raw.json", "/data/components.csv", "/data/components.sha256"]);
+  const lines = site.file("data/components.sha256").trimEnd().split("\n");
+  for (const href of files.slice(0, -1)) {
+    const filename = href.split("/").at(-1);
+    const hash = createHash("sha256").update(site.file(href.slice(1))).digest("hex");
+    assert.ok(lines.includes(`${hash}  ${filename}`));
+  }
 });

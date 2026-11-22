@@ -15,6 +15,7 @@ import recordTable, { columnsOf as tableColumnsOf, type RecordColumn } from "../
 import status, { type StatusTone } from "../components/status/index.ts";
 import { Rss } from "lucide";
 import { icon } from "../src/icon.ts";
+import { collectionDownloads } from "../src/collection-downloads.ts";
 import { t } from "../i18n/index.ts";
 import { calendarDate, calendarMonth } from "../src/dates.ts";
 import { formatField, isEmpty } from "../src/fields.ts";
@@ -426,6 +427,7 @@ function article(props: LayoutProps, blogFeed: string | undefined): ComponentChi
     titleFromBody(props) ? null : h("h1", null, props.page.title),
     h("div", { class: "list-intro", dangerouslySetInnerHTML: { __html: mathHtml(props.page.html, props.page.lang) } }),
     list === undefined ? null : summaryOf(props, count),
+    collectionDownloads(props),
     list === undefined
       ? null
       : subscribePanel(
