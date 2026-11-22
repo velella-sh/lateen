@@ -107,7 +107,7 @@ function article(props: LayoutProps): ComponentChildren {
     { class: "doc", "data-pagefind-body": true },
     articleHeader(props, { description: null }),
     tocFold(props) as ComponentChildren,
-    h("div", { class: "doc-body", dangerouslySetInnerHTML: { __html: articleHtml(page.html) } }),
+    h("div", { class: "doc-body", dangerouslySetInnerHTML: { __html: articleHtml(page.html, page.lang) } }),
     h("div", { class: "doc-actions" }, pageFooter(props) as ComponentChildren),
   );
 }

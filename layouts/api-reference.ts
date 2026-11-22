@@ -598,7 +598,7 @@ function article(props: LayoutProps): ComponentChildren {
       { class: "doc api-reference", "data-pagefind-body": true },
       breadcrumb(props) as ComponentChildren,
       h("h1", null, page.title),
-      h("div", { class: "doc-body", dangerouslySetInnerHTML: { __html: articleHtml(page.html) } }),
+      h("div", { class: "doc-body", dangerouslySetInnerHTML: { __html: articleHtml(page.html, page.lang) } }),
     );
   }
   const lang = page.lang;

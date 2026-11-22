@@ -19,6 +19,7 @@ import { t } from "../i18n/index.ts";
 import { calendarDate, calendarMonth } from "../src/dates.ts";
 import { formatField, isEmpty } from "../src/fields.ts";
 import { baseOf } from "../src/url.ts";
+import { mathHtml } from "../src/math-html.ts";
 import { articleShell, titleFromBody } from "./shared/index.ts";
 
 /** The keys under `list` front matter this layout reads. The engine reads the rest. */
@@ -377,7 +378,7 @@ function blogArticle(props: LayoutProps, feed: string | undefined): ComponentChi
     feed === undefined ? null : h("p", { class: "list-feed" }, blogSubscribe(feed, props.page.lang)),
     props.page.html === ""
       ? null
-      : h("div", { class: "list-intro", dangerouslySetInnerHTML: { __html: props.page.html } }),
+      : h("div", { class: "list-intro", dangerouslySetInnerHTML: { __html: mathHtml(props.page.html, props.page.lang) } }),
     posts.length === 0
       ? h("p", { class: "list-empty" }, t(props.page.lang, "blog_empty"))
       : h("ul", { class: "blog-list" }, posts.map((post) => blogItem(props, post))),
@@ -423,7 +424,7 @@ function article(props: LayoutProps, blogFeed: string | undefined): ComponentChi
     { class: "list", "data-pagefind-body": true },
     breadcrumb(props) as ComponentChildren,
     titleFromBody(props) ? null : h("h1", null, props.page.title),
-    h("div", { class: "list-intro", dangerouslySetInnerHTML: { __html: props.page.html } }),
+    h("div", { class: "list-intro", dangerouslySetInnerHTML: { __html: mathHtml(props.page.html, props.page.lang) } }),
     list === undefined ? null : summaryOf(props, count),
     list === undefined
       ? null

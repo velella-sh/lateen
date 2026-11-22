@@ -92,6 +92,8 @@ export const CASES: readonly AuditCase[] = [
   { name: "fixture showpiece mobile", site: "fixtures", path: "/showpiece/", layout: "home", lang: "en", ...MOBILE },
   { name: "fixture document", site: "fixtures", path: "/doc/", layout: "doc", lang: "en", ...DESKTOP },
   { name: "fixture document mobile", site: "fixtures", path: "/doc/", layout: "doc", lang: "en", ...MOBILE },
+  { name: "fixture equations", site: "fixtures", path: "/math/", layout: "doc", lang: "en", ...MOBILE },
+  { name: "fixture equations persian", site: "fixtures", path: "/fa/math/", layout: "doc", lang: "fa", ...MOBILE },
   { name: "fixture guide", site: "fixtures", path: "/guide/install/", layout: "guide", lang: "en", ...DESKTOP },
   { name: "fixture guide persian", site: "fixtures", path: "/fa/guide/install/", layout: "guide", lang: "fa", ...DESKTOP },
   { name: "fixture guide arabic", site: "fixtures", path: "/ar/guide/install/", layout: "guide", lang: "ar", ...DESKTOP },
