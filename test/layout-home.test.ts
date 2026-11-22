@@ -99,6 +99,12 @@ test("the hero renders the brand, eyebrow, title, and lead from front matter", (
   assert.match(page, /class="hero-hint"/);
 });
 
+test("a classic home without a site title leaves out the product label", () => {
+  const props = layoutProps();
+  const site = { ...props.site, config: configWith({ title: "" }) };
+  assert.doesNotMatch(html(home({ ...props, site })), /class="product"/);
+});
+
 test("the hero title falls back to the page title", () => {
   const page = out({ hero: { lead: "One line." } });
   assert.match(page, /<h1 id="home-title" class="home-title display">Home<\/h1>/);

@@ -172,7 +172,7 @@ function content(props: LayoutProps): ComponentChildren {
   const eyebrow = stringAt(fields, "eyebrow");
   const lead = stringAt(fields, "lead");
   const title = stringAt(fields, "title") ?? props.page.title;
-  const product = props.site.config.title || "Lateen";
+  const product = props.site.config.title;
 
   const buttons: ComponentChildren[] = [];
   for (const action of recordsOf(props.page.frontMatter.actions)) {
@@ -194,7 +194,7 @@ function content(props: LayoutProps): ComponentChildren {
         eyebrow === undefined
           ? null
           : h("p", { class: "home-eyebrow" }, h("i", { class: "status-dot", "aria-hidden": "true" }), eyebrow),
-        h("p", { class: "product" }, product),
+        product ? h("p", { class: "product" }, product) : null,
         h("h1", { id: "home-title", class: "home-title display" }, title),
         lead === undefined ? null : h("p", { class: "home-lead lead" }, lead),
         buttons.length === 0 ? null : h("div", { class: "home-actions actions" }, buttons),
