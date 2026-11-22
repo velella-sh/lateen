@@ -108,6 +108,14 @@ test("wide code and tables scroll inside the article on mobile and desktop", { s
       }));
       assert.ok(widths.html <= width, `documentElement.scrollWidth is ${widths.html} at ${width}px`);
       assert.ok(widths.body <= width, `body.scrollWidth is ${widths.body} at ${width}px`);
+      const checksum = page.getByRole("cell", { name: /^sha256:/ });
+      assert.ok(await checksum.evaluate((cell) => {
+        const text = document.createRange();
+        text.selectNodeContents(cell);
+        const bounds = cell.getBoundingClientRect();
+        return Array.from(text.getClientRects()).every((line) => line.right <= bounds.right);
+      }), `the checksum stays inside its cell at ${width}px`);
+
       for (const selector of [".doc-body > .code-frame > .code", ".doc-body > .markdown-table-scroll"]) {
         const scroll = await page.locator(selector).evaluate((element) => ({
           content: element.scrollWidth,

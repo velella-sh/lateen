@@ -54,4 +54,4 @@ export const release = "https://example.com/releases/2026/11/20/widget-darwin-ar
 | `distributionArchive` | string | `https://example.com/releases/2026/11/20/widget-darwin-arm64-standalone-archive-without-any-spaces-reflow-2026-fix.tar.gz` | The archive the installer downloads and verifies before unpacking. |
 | `packageManager` | string | `npm` | The package manager the install steps use. |
 | `platform` | string | detected | The operating system the installer targets. |
-| `integrity` | string | — | The checksum the installer verifies. |
+| `integrity` | string | sha256:81c32b7aee61ea4f48af3901f1b231a93e0f16beb9800c05e8409825551de87b | The checksum the installer verifies. |

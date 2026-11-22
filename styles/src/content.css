@@ -42,8 +42,7 @@
 
   .markdown-table-scroll > table {
     margin: 0;
-    line-height: 1.5;
-    overflow-wrap: break-word;
+    line-height: 1.6;
   }
 
   /* Leave room for prose in multi-column grids and let narrow viewports scroll the grid. */
@@ -52,8 +51,13 @@
   }
 
   .markdown-table-scroll > table > :is(thead, tbody, tfoot) > tr > :is(th, td) {
-    padding: 0.4375rem 0.625rem;
-    border-block-end-color: color-mix(in srgb, var(--border) 75%, transparent);
+    padding-block: var(--space-2);
+    padding-inline: var(--space-3);
+    overflow-wrap: anywhere;
+  }
+
+  .markdown-table-scroll > table > thead > tr > th {
+    border-block-end-color: var(--border-strong);
   }
 
   .markdown-table-scroll :is(th, td)[align="left"] { text-align: left; }
@@ -64,13 +68,18 @@
     background: var(--muted);
     color: var(--foreground);
     font-size: inherit;
-    font-weight: 700;
+    font-weight: 750;
     letter-spacing: normal;
     text-transform: none;
   }
 
-  .markdown-table-scroll :is(a, code) {
-    overflow-wrap: anywhere;
+  .markdown-table-scroll :is(th, td) a[href] {
+    font-weight: 650;
+    text-underline-offset: 0.2em;
+  }
+
+  .markdown-table-scroll :is(th, td) code:not(pre code) {
+    background: var(--muted);
   }
 
   .markdown-table-scroll td:first-child > code:only-child {
@@ -87,6 +96,10 @@
     margin-block-start: 0.4em;
   }
 
+  .markdown-table-scroll tbody tr:focus-within {
+    background: var(--muted);
+  }
+
   .component-directory table {
     table-layout: fixed;
   }
@@ -101,16 +114,8 @@
     }
   }
 
-  .component-directory td:first-child a {
-    font-weight: 650;
-  }
-
   .component-directory td:nth-child(2) {
     color: var(--muted-foreground);
-  }
-
-  .component-directory tr:focus-within {
-    background: var(--muted);
   }
 
   /* The island marks the logical edges that hide content; a soft shade appears only there and
