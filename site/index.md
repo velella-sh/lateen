@@ -10,10 +10,8 @@ actions:
   - label: Install and quickstart
     url: /install/
     primary: true
-  - label: Preview the theme
-    url: /showpiece/
-  - label: Browse starters
-    url: /starters/
+  - label: Browse components
+    url: /components/
 features:
   - title: Layouts
     description: Choose page layouts for guides, API references, and changelogs.
