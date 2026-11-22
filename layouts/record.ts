@@ -20,7 +20,7 @@ import { articleShell } from "./shared/index.ts";
 import { staleSlot } from "../src/stale.ts";
 import { snapshotPanel } from "../src/snapshot-panel.ts";
 import { baseOf, safeHref } from "../src/url.ts";
-import { mathHtml } from "../src/math-html.ts";
+import { pageHtml } from "../src/article-html.ts";
 import { collectionFeeds } from "../src/collection-feeds.ts";
 import { fieldsOf } from "../components/record-history/index.ts";
 
@@ -118,7 +118,7 @@ function article(props: LayoutProps): ComponentChildren {
     factsPanel(props),
     collectionDownloads(props),
     lastUpdated(props) as ComponentChildren,
-    h("div", { class: "record-body", dangerouslySetInnerHTML: { __html: mathHtml(props.page.html, props.page.lang) } }),
+    h("div", { class: "record-body", dangerouslySetInnerHTML: { __html: pageHtml(props.page.html, props.page.lang) } }),
     pageToolSlot(props),
     recordHistory({
       props: props.record?.changes === undefined ? {} : { changes: props.record.changes },

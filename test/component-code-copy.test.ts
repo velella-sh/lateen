@@ -332,6 +332,14 @@ test("the copy control keeps the block's language, source, and stable id", () =>
   assert.equal(button.attrs["data-block-id"], "code-docs-a-md-3-1-9-2");
 });
 
+test("the copy control prefers the engine's block identity", () => {
+  const block = new FakeBlock({ "data-block": "sample-fence", id: "code-sample-fence" }, "const a = 1;");
+  activate(new FakeDoc([block]), { clipboard: clipboard(), schedule: timers().schedule });
+
+  const button = (block.inserted[0]!.children[0] as FakeNode).children[0] as FakeNode;
+  assert.equal(button.attrs["data-block-id"], "sample-fence");
+});
+
 test("a block with no id still carries its source span as the control's identity", () => {
   const block = new FakeBlock({ "data-lang": "ts", "data-src": "docs/a.md:3:1-9:2" }, "x");
   activate(new FakeDoc([block]), { clipboard: clipboard(), schedule: timers().schedule });

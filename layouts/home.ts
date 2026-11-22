@@ -14,7 +14,7 @@ import motif from "../components/motif/index.ts";
 import statStrip from "../components/stat-strip/index.ts";
 import { resolveBrand } from "../src/brand.ts";
 import { baseOf } from "../src/url.ts";
-import { mathHtml } from "../src/math-html.ts";
+import { pageHtml } from "../src/article-html.ts";
 import base from "./base.ts";
 
 /**
@@ -216,7 +216,7 @@ function content(props: LayoutProps): ComponentChildren {
       : h("section", { class: "home-sections cards", "aria-label": "Explore" }, cards),
     optionsOf(props).specimens === false ? null : componentSpecimens(),
     props.page.html.length > 0
-      ? h("div", { class: "home-body", dangerouslySetInnerHTML: { __html: mathHtml(props.page.html, props.page.lang) } })
+      ? h("div", { class: "home-body", dangerouslySetInnerHTML: { __html: pageHtml(props.page.html, props.page.lang) } })
       : null,
   );
 }
@@ -306,7 +306,7 @@ function showpieceContent(props: LayoutProps): ComponentChildren {
     );
   }
 
-  if (!bodyUsed && page.html.length > 0) blocks.push(h("div", { dangerouslySetInnerHTML: { __html: mathHtml(page.html, page.lang) } }));
+  if (!bodyUsed && page.html.length > 0) blocks.push(h("div", { dangerouslySetInnerHTML: { __html: pageHtml(page.html, page.lang) } }));
   return h("div", { class: "home-showpiece" }, blocks);
 }
 

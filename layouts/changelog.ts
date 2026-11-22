@@ -8,7 +8,7 @@ import changelogEntry, {
   type ChangelogEntryProps,
 } from "../components/changelog-entry/index.ts";
 import { isRecord } from "../src/guards.ts";
-import { mathHtml } from "../src/math-html.ts";
+import { pageHtml } from "../src/article-html.ts";
 import { t } from "../i18n/index.ts";
 import { articleShell, titleFromBody } from "./shared/index.ts";
 
@@ -223,7 +223,7 @@ function article(props: LayoutProps): ComponentChildren {
       { class: ARTICLE_CLASS, "data-pagefind-body": true },
       titleFromBody(props) ? null : h("h1", { class: "changelog-title" }, page.title),
       staleSlot(props),
-      h("div", { class: BODY_CLASS, dangerouslySetInnerHTML: { __html: mathHtml(page.html, page.lang) } }),
+      h("div", { class: BODY_CLASS, dangerouslySetInnerHTML: { __html: pageHtml(page.html, page.lang) } }),
     );
   }
 
