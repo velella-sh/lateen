@@ -1,5 +1,7 @@
 import assert from "node:assert/strict";
 import { test } from "node:test";
+import { fileURLToPath } from "node:url";
+import { chromium } from "playwright";
 import { renderToString } from "preact-render-to-string";
 import type { ComponentProps, LayoutProps, Page, Site, SiteConfig, SourcePos } from "@velella/mizzen/contracts";
 import record from "../layouts/record.ts";
@@ -354,4 +356,50 @@ test("missing, not applicable, and zero read distinctly in facts and table cells
   assert.match(faTable, /data-state="not-applicable"><span class="field-na" data-state="not-applicable">ناموجود<\/span>/);
   assert.match(faTable, /data-kind="number" data-value="0">۰<\/td>/);
   assert.match(faTable, /data-state="not-applicable"[^>]*><span class="field-na"[^>]*>ناموجود<\/span><\/td>/);
+});
+
+test("record facts share a value column on desktop and wrap below their labels on mobile", async (t) => {
+  const browser = await chromium.launch().catch(() => undefined);
+  if (browser === undefined) {
+    t.skip("Chromium is not installed (npx playwright install chromium)");
+    return;
+  }
+  try {
+    const page = await browser.newPage({ viewport: { width: 1440, height: 900 } });
+    const facts = [
+      { field: "pages", label: "Pages", kind: "number" },
+      { field: "id", label: "Archive reference", kind: "url", group: "Sources" },
+    ];
+    const url = `https://example.org/archive/${"a".repeat(160)}`;
+    const html = render(pageWith(facts), url);
+    await page.setContent(html);
+    await page.addStyleTag({ path: fileURLToPath(new URL("../styles/generated.css", import.meta.url)) });
+
+    const panel = page.locator("#record-facts");
+    const values = panel.locator("dd");
+    const firstValue = await values.first().boundingBox();
+    const groupedValue = await values.last().boundingBox();
+    const label = await panel.locator("dt").first().boundingBox();
+    assert.ok(firstValue && groupedValue && label);
+    assert.ok(firstValue.x > label.x);
+    assert.equal(firstValue.x, groupedValue.x);
+
+    for (const dir of ["ltr", "rtl"]) {
+      await page.setViewportSize({ width: 320, height: 800 });
+      await page.locator("html").evaluate((element, dir) => element.setAttribute("dir", dir), dir);
+      const archived = panel.locator("dd[data-kind=url] a");
+      assert.equal(await archived.getAttribute("href"), url);
+      const fits = await archived.evaluate((link) => {
+        const value = link.closest("dd")!;
+        const term = value.previousElementSibling!.getBoundingClientRect();
+        const bounds = value.getBoundingClientRect();
+        const lines = [...link.getClientRects()];
+        return bounds.top >= term.bottom && lines.length > 1 &&
+          lines.every((line) => line.left >= bounds.left - 1 && line.right <= bounds.right + 1);
+      });
+      assert.ok(fits, `the long link wraps within its value below the label in ${dir}`);
+    }
+  } finally {
+    await browser.close();
+  }
 });
