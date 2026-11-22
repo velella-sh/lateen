@@ -133,33 +133,34 @@ test("the layout skips its h1 when a depth-1 heading exists, even with a front-m
   assert.doesNotMatch(page, /<h1>/);
 });
 
-test("the body, page footer, and pager follow the title inside the article", () => {
+test("the body, page end, and pager follow the title inside the article", () => {
   const page = out(pageWith());
   const article = /<article class="doc"[^>]*>(.*?)<\/article>/s.exec(page);
   assert.ok(article, "article present");
   assert.match(
     article[1] ?? "",
-    /<div class="doc-body"><p>Run the build.<\/p><\/div><div class="doc-actions article-tools">[\s\S]*<nav class="pager" aria-label="Previous and next"><a class="pager-link pager-prev" href="\/guide\/" rel="prev">/,
+    /<div class="doc-body"><p>Run the build.<\/p><\/div><div class="page-end">[\s\S]*<nav class="pager" aria-label="Previous and next"><a class="pager-link pager-prev" href="\/guide\/" rel="prev">/,
   );
 });
 
-test("the Markdown disclosure groups copy and view before the pager", () => {
+test("Page tools holds the Markdown and agent actions, and the article end repeats none of them", () => {
   const page = out(pageWith());
-  const article = /<article class="doc"[^>]*>(.*?)<\/article>/s.exec(page);
-  assert.ok(article, "article present");
   assert.match(
-    article[1] ?? "",
-    /<details name="article-tools"><summary>Markdown[\s\S]*<div class="copy-markdown" data-copy-markdown>[\s\S]*data-copy-markdown-button[\s\S]*class="copy-markdown-link"[\s\S]*<\/details>[\s\S]*<nav class="pager"/,
+    page,
+    /<details class="doc-tools"[^>]*>[\s\S]*?<div class="page-agent-menu" data-page-agent-menu>[\s\S]*?data-page-agent-copy[\s\S]*?class="page-agent-menu-view"[\s\S]*?<\/details>/,
   );
+  const article = /<article class="doc"[^>]*>(.*?)<\/article>/s.exec(page);
+  const end = /<div class="page-end">[\s\S]*$/.exec(article?.[1] ?? "")?.[0] ?? "";
+  assert.doesNotMatch(end, /<details|copy-markdown|page-agent-menu|Feedback|helpful/i);
 });
 
-test("the back-to-top link remains directly available after the grouped controls", () => {
+test("the back-to-top link remains directly available at the article end", () => {
   const page = out(pageWith());
   const article = /<article class="doc"[^>]*>(.*?)<\/article>/s.exec(page);
   assert.ok(article, "article present");
   assert.match(
     article[1] ?? "",
-    /<div class="doc-actions article-tools">[\s\S]*<\/details><a class="back-to-top" href="#main">[\s\S]*<\/a><\/div><nav class="pager"/,
+    /<div class="page-end">[\s\S]*<a class="back-to-top" href="#main">[\s\S]*<\/a><\/div><nav class="pager"/,
   );
   assert.ok((article[1] ?? "").indexOf('class="back-to-top"') < (article[1] ?? "").indexOf('<nav class="pager"'));
 });
@@ -296,7 +297,7 @@ test("the metadata group keeps trust, freshness, and reading time under the titl
 test("Source mode appears once inside Page tools", () => {
   const page = out(pageWith());
   assert.equal((page.match(/class="source-mode-button"/g) ?? []).length, 1);
-  assert.match(page, /<details class="doc-tools"[^>]*><summary>Page tools[\s\S]*?class="source-mode-button"[\s\S]*?<\/details>/);
+  assert.match(page, /<details class="doc-tools"[^>]*><summary>(?:<svg[\s\S]*?<\/svg>)?Page tools[\s\S]*?class="source-mode-button"[\s\S]*?<\/details>/);
 });
 
 test("a quickstart prioritizes the prerequisites over reading metadata", () => {
@@ -313,15 +314,17 @@ test("the status banner from front matter sits between the breadcrumb and the ti
   );
 });
 
-test("the feedback disclosure includes edit and report links when a repository is configured", () => {
+test("the edit link sits at the article end and the report link in Page tools when a repository is configured", () => {
   const page = pageWith();
   const rendered = html(doc(layoutProps(page, [], [], {}, { url: "https://github.com/o/r" })));
 
   assert.match(
     rendered,
-    /<summary>Feedback[\s\S]*?<div class="edit-page" data-edit-page><a class="edit-page-link" href="https:\/\/github\.com\/o\/r\/edit\/main\/guide\/install\.md" rel="noopener">Edit this page<\/a><\/div>[\s\S]*?Report a problem/,
+    /<div class="page-end"><div class="page-end-edit">[\s\S]*?<div class="edit-page" data-edit-page><a class="edit-page-link" href="https:\/\/github\.com\/o\/r\/edit\/main\/guide\/install\.md" rel="noopener">Edit this page<\/a><\/div>/,
   );
-  assert.doesNotMatch(html(doc(layoutProps(page))), /class="edit-page"|<summary>Feedback/);
+  assert.match(rendered, /<details class="doc-tools"[\s\S]*?class="page-tools-report"[^>]*>Report a problem[\s\S]*?<\/details>/);
+  assert.doesNotMatch(rendered, /<summary>Feedback|Give feedback/);
+  assert.doesNotMatch(html(doc(layoutProps(page))), /class="edit-page"|page-tools-report/);
 });
 
 test("a page date and edit link appear once, not again in the footer", () => {

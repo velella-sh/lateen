@@ -122,7 +122,7 @@ test("holds the query field, a close button, the status region, and the result c
   assert.match(out, /class="search-input" id="search-input"/);
   assert.match(
     out,
-    /<button type="button" class="search-close iconbtn" aria-label="Close search" data-search-close=""><svg[^>]+aria-hidden="true"/,
+    /<button type="button" class="search-close iconbtn" aria-label="Close search, Esc" data-search-close=""><svg[^>]+aria-hidden="true"[\s\S]*?<kbd class="search-close-key" aria-hidden="true">Esc<\/kbd>/,
   );
   assert.match(out, /<p class="search-status" role="status" data-search-status=""><\/p>/);
   assert.match(
@@ -225,7 +225,7 @@ test("the dialog reads right to left and speaks Persian without JavaScript", () 
 
   assert.match(out, /aria-label="جست‌وجو"/);
   assert.match(out, /placeholder="جست‌وجو در مستندات"/);
-  assert.match(out, /aria-label="بستن جست‌وجو"/);
+  assert.match(out, /aria-label="بستن جست‌وجو, Esc"/);
   assert.match(out, /data-search-ask-heading="از دستیار خود بپرسید"/);
   assert.match(out, /data-search-lang="fa"/);
   assert.match(out, /data-search-empty="نتیجه‌ای برای «\{query\}» پیدا نشد\."/);

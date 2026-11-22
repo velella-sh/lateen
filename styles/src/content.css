@@ -231,32 +231,40 @@
     color: var(--foreground);
   }
 
+  /* One shape for every kind: a hairline frame and a faint wash in the kind's colour, which also
+     carries the icon and the label, so a reader tells a warning from a tip before reading it. */
   .callout {
     display: flex;
     align-items: flex-start;
-    --callout-color: var(--muted-foreground);
+    --callout-color: var(--link);
     margin-block: var(--space-4);
     gap: var(--space-3);
     padding: var(--space-3) var(--space-4);
+    border: 1px solid color-mix(in srgb, var(--callout-color) 26%, var(--border));
     border-radius: var(--radius-lg);
-    background: color-mix(in srgb, var(--muted) 70%, var(--card));
-    border-inline-start: 2px solid var(--border);
+    background: color-mix(in srgb, var(--callout-color) 6%, var(--card));
   }
 
   .callout-tip {
-    /* Mist alone fails contrast on Foam; mix toward Night for the label and icon. */
-    --callout-color: color-mix(in srgb, var(--mist) 42%, var(--night));
+    --callout-color: var(--status-positive-fg);
   }
 
-  [data-theme="dark"] .callout-tip {
-    --callout-color: color-mix(in srgb, var(--mist) 70%, var(--sail));
-  }
   .callout-important {
-    --callout-color: var(--link);
+    --callout-color: light-dark(color-mix(in srgb, var(--mist) 55%, var(--night)), color-mix(in srgb, var(--mist) 55%, var(--sail)));
   }
-  .callout-warning,
+
+  .callout-warning {
+    --callout-color: var(--status-caution-fg);
+  }
+
   .callout-caution {
-    --callout-color: var(--foreground);
+    --callout-color: var(--status-negative-fg);
+  }
+
+  @media (forced-colors: active) {
+    .callout {
+      border-color: CanvasText;
+    }
   }
 
   .callout-icon {

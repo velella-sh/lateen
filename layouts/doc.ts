@@ -1,13 +1,13 @@
 import { h } from "preact";
 import type { ComponentChildren } from "preact";
-import { ChevronDown } from "lucide";
+import { ChevronDown, Copy } from "lucide";
 import { t } from "../i18n/index.ts";
 import { icon } from "../src/icon.ts";
 import type { Layout, LayoutProps } from "@velella/mizzen/contracts";
 import { staleSlot } from "../src/stale.ts";
 import feedback from "../chrome/feedback/index.ts";
 import lastUpdated from "../chrome/last-updated/index.ts";
-import { docPageFooter } from "../chrome/page-footer/index.ts";
+import { docPageFooter, docPageTools } from "../chrome/page-footer/index.ts";
 import sourceMode from "../chrome/source-mode/index.ts";
 import pager from "../chrome/pager/index.ts";
 import { tocFold } from "../chrome/toc/index.ts";
@@ -24,7 +24,7 @@ import { articleHeader, articleShell, statusProps } from "./shared/index.ts";
 
 /**
  * The page itself: breadcrumb, drift banner, status banner, title, description, grouped trust,
- * freshness and reading-time metadata, body, edit link, page footer, copy-Markdown control, feedback, and pager, marked for
+ * freshness and reading-time metadata, body, edit link and Back to top, opt-in feedback, and pager, marked for
  * Pagefind. The drift banner reads `site.data.drift` and keeps itself out of the page when the site
  * has no findings for this URL; the trust chip reads `site.data.trust` and stays out until the site
  * has an entry for this URL; the edit link is likewise left out when the repository gives no URL.
@@ -40,8 +40,8 @@ function article(props: LayoutProps): ComponentChildren {
     { class: "doc", "data-pagefind-body": true },
     articleHeader(props, {
       tools: h("details", { class: "doc-tools", "data-pagefind-ignore": true },
-        h("summary", null, t(page.lang, "article_page_tools"), icon({ node: ChevronDown })),
-        h("div", { class: "article-tool-panel" }, sourceMode(props) as ComponentChildren),
+        h("summary", null, icon({ node: Copy }), t(page.lang, "article_page_tools"), icon({ node: ChevronDown, class: "doc-tools-chevron" })),
+        h("div", { class: "article-tool-panel" }, ...docPageTools(props, sourceMode(props) as ComponentChildren)),
       ),
       notices: [
         driftBanner({ props: {}, page, site: props.site, html: "" }) as ComponentChildren,

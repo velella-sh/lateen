@@ -52,12 +52,12 @@ test("top-level entries breathe more than nested ones, and both read as one list
   );
 });
 
-test("the active section is a filled marker with a heavier weight, not colour alone", () => {
+test("the active section is one bar on the rail with a heavier weight, not colour alone", () => {
   const active = declarations(bodyOf('.toc a[aria-current="true"]'));
-  assert.equal(active.get("border-inline-start-color"), "var(--link)", "the current section keeps the rail on the link colour");
-  assert.match(active.get("background") ?? "", /var\(--link\)/, "the current section has a tinted fill");
+  assert.equal(active.get("border-inline-start-color"), "var(--foreground)", "the current section draws a solid bar on the rail");
+  assert.equal(active.get("background"), undefined, "the bar is the only marker, with no filled pill");
   assert.equal(active.get("color"), "var(--foreground)");
-  assert.equal(active.get("font-weight"), "700");
+  assert.equal(active.get("font-weight"), "600");
 
   const activeNested = declarations(bodyOf('.toc ul ul a[aria-current="true"]'));
   assert.equal(activeNested.get("font-weight"), "600", "a current subsection is bolder than its siblings");

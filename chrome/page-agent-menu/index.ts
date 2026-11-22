@@ -24,7 +24,11 @@ function chevron() {
  * actions copy the same twin and announce the same loading, success, and failure. The provider list comes from
  * `theme.options.pageAgent.providers`.
  */
-function pageAgentMenu({ site, page }: Parameters<Chrome>[0], editAction?: ComponentChildren) {
+function pageAgentMenu(
+  { site, page }: Parameters<Chrome>[0],
+  editAction?: ComponentChildren,
+  options: { flat?: boolean } = {},
+) {
   if (page.kind !== "doc") return null;
   const markdown = twinUrl(page.url);
   if (markdown === undefined) return null;
@@ -37,56 +41,59 @@ function pageAgentMenu({ site, page }: Parameters<Chrome>[0], editAction?: Compo
     if (href !== undefined) providers.push({ title: provider.title, href });
   }
 
+  const actions: ComponentChildren[] = [
+    editAction,
+    h(
+      "button",
+      {
+        type: "button",
+        class: "page-agent-menu-copy",
+        hidden: true,
+        "data-page-agent-copy": true,
+        "data-markdown": markdown,
+        "data-copied": t(lang, "copied"),
+        "data-copy-failed": t(lang, "copy_failed"),
+      },
+      t(lang, "copy_page_md"),
+    ),
+    h("a", { class: "page-agent-menu-view", href: markdown }, t(lang, "view_markdown")),
+    json === undefined
+      ? null
+      : h(
+          "a",
+          { class: "page-agent-menu-view", href: json, "data-page-agent-json": true },
+          t(lang, "view_json"),
+        ),
+    providers.length === 0 ? null : h("p", { class: "page-agent-menu-heading" }, t(lang, "page_agent_open_in")),
+    providers.length === 0
+      ? null
+      : h(
+          "ul",
+          { class: "page-agent-menu-providers" },
+          ...providers.map((provider) =>
+            h(
+              "li",
+              null,
+              h(
+                "a",
+                { class: "page-agent-menu-provider", href: provider.href, target: "_blank", rel: "noopener" },
+                providerLogo(provider.title),
+                provider.title,
+              ),
+            ),
+          ),
+        ),
+    h("p", { class: "page-agent-menu-status", role: "status", "data-page-agent-status": true }, ""),
+  ];
+
+  // Inside the Page tools panel the actions are plain rows, so a second disclosure would only add a click.
+  if (options.flat === true) return h("div", { class: "page-agent-menu", "data-page-agent-menu": true }, ...actions);
+
   return h(
     "details",
     { class: "page-agent-menu", "data-page-agent-menu": true, name: editAction === undefined ? undefined : "article-tools" },
     h("summary", { class: "page-agent-menu-summary" }, h("span", { class: "page-agent-menu-summary-text" }, t(lang, "page_agent_summary")), chevron()),
-    h(
-      "div",
-      { class: "page-agent-menu-panel" },
-      editAction,
-      h(
-        "button",
-        {
-          type: "button",
-          class: "page-agent-menu-copy",
-          hidden: true,
-          "data-page-agent-copy": true,
-          "data-markdown": markdown,
-          "data-copied": t(lang, "copied"),
-          "data-copy-failed": t(lang, "copy_failed"),
-        },
-        t(lang, "copy_page_md"),
-      ),
-      h("a", { class: "page-agent-menu-view", href: markdown }, t(lang, "view_markdown")),
-      json === undefined
-        ? null
-        : h(
-            "a",
-            { class: "page-agent-menu-view", href: json, "data-page-agent-json": true },
-            t(lang, "view_json"),
-          ),
-      providers.length === 0 ? null : h("p", { class: "page-agent-menu-heading" }, t(lang, "page_agent_open_in")),
-      providers.length === 0
-        ? null
-        : h(
-            "ul",
-            { class: "page-agent-menu-providers" },
-            ...providers.map((provider) =>
-              h(
-                "li",
-                null,
-                h(
-                  "a",
-                  { class: "page-agent-menu-provider", href: provider.href, target: "_blank", rel: "noopener" },
-                  providerLogo(provider.title),
-                  provider.title,
-                ),
-              ),
-            ),
-          ),
-      h("p", { class: "page-agent-menu-status", role: "status", "data-page-agent-status": true }, ""),
-    ),
+    h("div", { class: "page-agent-menu-panel" }, ...actions),
   );
 }
 

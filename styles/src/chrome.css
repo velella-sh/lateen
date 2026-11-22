@@ -141,17 +141,27 @@
   }
 
   .top-nav a {
-    @apply rounded-md px-2.5 py-1.5 text-sm font-medium text-muted-foreground no-underline;
+    @apply relative rounded-md px-2.5 py-1.5 text-sm font-medium text-muted-foreground no-underline;
   }
 
-  .top-nav a:is(:hover, [aria-current="page"]) {
-    background: var(--state-hover-bg);
+  .top-nav a:hover {
     color: var(--foreground);
   }
 
+  /* The current section reads by weight and a short rule under the label, not a filled pill. */
   .top-nav a[aria-current="page"] {
-    color: var(--link);
-    font-weight: 700;
+    color: var(--foreground);
+    font-weight: 600;
+  }
+
+  .top-nav a[aria-current="page"]::after {
+    content: "";
+    position: absolute;
+    inset-inline: 0.625rem;
+    inset-block-end: -0.2rem;
+    block-size: 2px;
+    border-radius: 2px;
+    background: currentColor;
   }
 
   .header-actions {
@@ -166,7 +176,7 @@
     gap: 0.5rem;
     block-size: 2rem;
     min-inline-size: 2rem;
-    padding-inline: 0.75rem;
+    padding-inline: 0.65rem 0.35rem;
     border: 1px solid var(--border);
     border-radius: var(--radius-md);
     background: var(--card);
@@ -178,8 +188,29 @@
   }
 
   .site-header .search-trigger:is(:hover, :focus-visible) {
-    background: var(--muted);
+    border-color: var(--border-strong);
     color: var(--foreground);
+  }
+
+  @media screen and (width > 960px) {
+    .site-header .search-trigger {
+      min-inline-size: 12rem;
+    }
+  }
+
+  .search-trigger-key {
+    margin-inline-start: auto;
+    padding: 0.1rem 0.35rem;
+    border: 1px solid var(--border);
+    border-radius: var(--radius-sm);
+    color: var(--muted-foreground);
+    font-family: var(--type-font-mono);
+    font-size: 0.6875rem;
+    line-height: 1.2;
+  }
+
+  .search-trigger-key:empty {
+    display: none;
   }
 
   dialog.search {
@@ -579,6 +610,32 @@
     outline-offset: -3px;
   }
 
+  .search-close-key {
+    display: none;
+  }
+
+  @media (hover: hover) and (pointer: fine) {
+    .search-close {
+      inline-size: auto;
+      padding-inline: var(--space-1);
+      border-radius: var(--radius-sm);
+    }
+
+    .search-close > svg {
+      display: none;
+    }
+
+    .search-close-key {
+      display: inline;
+      padding: 0.15rem 0.4rem;
+      border: 1px solid var(--border);
+      border-radius: var(--radius-sm);
+      font-family: var(--type-font-mono);
+      font-size: 0.6875rem;
+      line-height: 1.2;
+    }
+  }
+
   /* The island's clear button is the only one: no second native × in WebKit. */
   .search-field input[type="search"]::-webkit-search-cancel-button {
     -webkit-appearance: none;
@@ -781,11 +838,12 @@
     overflow-wrap: anywhere;
   }
 
-  /* A count sits in a slim bar above the ranked list it counts. */
+  /* A count is a quiet line above the ranked list it counts. */
   .search-status:not(:empty) {
-    padding: 0.625rem 0.875rem;
-    border-block-end: 1px solid var(--border);
-    background: var(--muted);
+    padding: 0.625rem 1.15rem 0;
+    color: var(--muted-foreground);
+    font-size: 0.75rem;
+    font-weight: 500;
   }
 
   /* Waiting, empty, and failed all leave the list with nothing to show, so they share one calm
@@ -834,6 +892,10 @@
 
     .site-header .search-trigger span {
       @apply sr-only;
+    }
+
+    .site-header .search-trigger-key {
+      display: none;
     }
   }
 

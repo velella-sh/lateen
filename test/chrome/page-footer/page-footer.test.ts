@@ -106,14 +106,11 @@ test("the button carries the copied and failure messages for the island", () => 
   assert.match(out, /data-copy-failed="Press Ctrl\+C"/);
 });
 
-test("the feedback link opens a new issue with the page's address and source", () => {
+test("the footer asks for no feedback, and keeps the report link", () => {
   const out = html(pageFooter(props(pageWith(), repository)));
 
-  assert.match(
-    out,
-    /<p class="page-footer-feedback">Was this helpful\? <a href="https:\/\/github\.com\/velella-sh\/lateen\/issues\/new\?title=Feedback%3A%20Install&body=Page%3A%20%2Fexample%2Fguide%2Finstall%2F%0ASource%3A%20docs%2Fguide%2Finstall\.md%0A">Give feedback<\/a> · <a /,
-  );
-  assert.match(out, /rel="noopener">Report a problem with this page<\/a><\/p>/);
+  assert.doesNotMatch(out, /Was this helpful|Give feedback/);
+  assert.match(out, /<p class="page-footer-feedback"><a href="https:\/\/github\.com\/velella-sh\/lateen\/issues\/new\?[^"]*" rel="noopener">Report a problem with this page<\/a><\/p>/);
 });
 
 test("the report link fills an issue with the page, source, language and version", () => {
@@ -146,7 +143,7 @@ test("a custom tracker template works without a repository", () => {
   assert.doesNotMatch(out, /Was this helpful/);
 });
 
-test("reportIssue false turns the report link off, and the feedback link stays", () => {
+test("reportIssue false turns the report link off", () => {
   const config = siteConfig(repository);
   const site: Site = {
     config: { ...config, theme: { options: { reportIssue: false } } },
@@ -158,8 +155,7 @@ test("reportIssue false turns the report link off, and the feedback link stays",
   const page = pageWith();
   const out = html(pageFooter({ site, page, trail, pager }));
 
-  assert.doesNotMatch(out, /Report a problem/);
-  assert.match(out, /Give feedback/);
+  assert.doesNotMatch(out, /Report a problem|Give feedback/);
 });
 
 test("without a repository or a tracker, both links are left out and the prompt stays", () => {

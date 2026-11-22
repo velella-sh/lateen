@@ -49,13 +49,27 @@ function onGitHub(url: string): boolean {
 }
 
 /** The site's top-level sections in navigation order; a group counts as its first link under the group's title. */
-export function sectionLinks(site: Site): readonly { readonly title: string; readonly url: string }[] {
+export function sectionLinks(
+  site: Site,
+): readonly { readonly title: string; readonly url: string; readonly pages?: readonly string[] }[] {
   return (site.nav.main ?? []).flatMap((item) => {
     if (typeof item.title !== "string") return [];
     if ("url" in item && typeof item.url === "string") return [{ title: item.title, url: item.url }];
     if (!("children" in item) || !Array.isArray(item.children)) return [];
     const first = item.children.find((child) => "url" in child && typeof child.url === "string");
-    return first && "url" in first && typeof first.url === "string" ? [{ title: item.title, url: first.url }] : [];
+    return first && "url" in first && typeof first.url === "string"
+      ? [{ title: item.title, url: first.url, pages: urlsUnder(item.children) }]
+      : [];
+  });
+}
+
+/** Every page URL a nav group lists, at any depth, so a section stays current on all of its pages. */
+function urlsUnder(children: readonly unknown[]): string[] {
+  return children.flatMap((child) => {
+    if (typeof child !== "object" || child === null) return [];
+    const own = "url" in child && typeof child.url === "string" ? [child.url] : [];
+    const nested = "children" in child && Array.isArray(child.children) ? urlsUnder(child.children) : [];
+    return [...own, ...nested];
   });
 }
 
@@ -77,7 +91,11 @@ const shell = (props: Parameters<Chrome>[0] & SourceModeVisibility) => {
 
   const fromNav = sectionLinks(site);
   const sections = fromNav.length > 0 ? fromNav : [{ title: "Start", url: `${base}/` }];
-  const currentSection = sections.find((item) => isCurrentSection(item.url, page.url, base));
+  // A group that lists the page wins over a URL prefix, so "Start" is current on its own pages and
+  // not only on its first one (often the home page).
+  const currentSection =
+    sections.find((item) => "pages" in item && item.pages?.includes(page.url) === true) ??
+    sections.find((item) => isCurrentSection(item.url, page.url, base));
 
   const bar = h(
     Fragment,
@@ -121,6 +139,8 @@ const shell = (props: Parameters<Chrome>[0] & SourceModeVisibility) => {
             },
             icon({ node: Search }),
             h("span", null, t(page.lang, "search")),
+            // The island writes ⌘K or Ctrl+K for the platform; hidden from the name, which stays "Search".
+            h("kbd", { class: "search-trigger-key", "aria-hidden": "true" }),
           ),
           languageSwitcher(props) as ComponentChildren,
           themeToggle(props) as ComponentChildren,

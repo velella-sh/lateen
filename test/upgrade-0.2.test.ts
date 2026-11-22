@@ -82,6 +82,14 @@ const INTENDED = [
     reason: "The sailcloth search control uses its visible label as the accessible name (no separate aria-label).",
   },
   {
+    selector: ".search-close",
+    reason: "0.3.0 shows the Esc key on the search close button and names it in the label.",
+  },
+  {
+    selector: ".page-end",
+    reason: "0.3.0 ends a doc page with one quiet row: the edit link and Back to top.",
+  },
+  {
     selector: ".search-clear",
     reason: "0.2.3 adds a clear control to the search field.",
   },

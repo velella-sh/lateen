@@ -43,6 +43,27 @@
     margin-inline-start: auto;
   }
 
+  .doc-context .doc-tools > summary {
+    min-block-size: 2rem;
+    padding-inline: 0.65rem;
+    border: 1px solid var(--border);
+    border-radius: var(--radius-md);
+    background: var(--card);
+    color: var(--muted-foreground);
+    font-weight: 500;
+    white-space: nowrap;
+  }
+
+  .doc-context .doc-tools > summary:hover,
+  .doc-context .doc-tools[open] > summary {
+    border-color: var(--border-strong);
+    color: var(--foreground);
+  }
+
+  .doc-tools[open] > summary .doc-tools-chevron {
+    rotate: 180deg;
+  }
+
   :root:not([data-js]) .doc-tools {
     display: none;
   }
@@ -96,18 +117,18 @@
   .sidebar-nav a:is([aria-current="page"], [aria-current="true"]) {
     position: relative;
     color: var(--foreground);
-    background: color-mix(in srgb, var(--muted) 55%, transparent);
+    background: transparent;
     font-weight: 600;
   }
 
   .sidebar-nav a:is([aria-current="page"], [aria-current="true"])::before {
     content: "";
     position: absolute;
-    inset-inline-start: 0;
-    inset-block: 0.5rem;
+    inset-inline-start: calc(-1 * var(--space-1) - 1px);
+    inset-block: 0.25rem;
     inline-size: 2px;
     border-radius: 2px;
-    background: var(--link);
+    background: var(--foreground);
   }
 
   .sidebar-group > summary,
@@ -147,6 +168,11 @@
     border-inline-start: 1px solid var(--border);
   }
 
+  /* A top-level page link reads as a peer of the group titles beside it. */
+  .sidebar-nav > ul > li > a {
+    font-weight: 600;
+  }
+
   .sidebar-group[data-current] > summary {
     color: var(--foreground);
   }
@@ -171,9 +197,8 @@
   }
 
   :is(.toc, .toc-fold) a[aria-current="true"] {
-    border-inline-start-color: var(--link);
+    border-inline-start-color: var(--foreground);
     color: var(--foreground);
-    background: var(--state-hover-bg);
     font-weight: 600;
   }
 
@@ -191,8 +216,8 @@
   .toc a {
     padding-block: 0.3125rem;
     padding-inline: 0.5rem;
+    margin-inline-start: -1px;
     border-inline-start-width: 2px;
-    border-radius: var(--radius-sm);
     font-size: 0.875rem;
     font-weight: 500;
     line-height: 1.25rem;
@@ -200,14 +225,13 @@
   }
 
   .toc a:hover {
-    background: var(--state-hover-bg);
+    border-inline-start-color: var(--border-strong);
   }
 
   .toc a[aria-current="true"] {
-    border-inline-start-color: var(--link);
-    background: color-mix(in srgb, var(--link) 16%, transparent);
+    border-inline-start-color: var(--foreground);
     color: var(--foreground);
-    font-weight: 700;
+    font-weight: 600;
   }
 
   /* A nested section is a size smaller and steps in on its own rail, so depth reads at a glance. */

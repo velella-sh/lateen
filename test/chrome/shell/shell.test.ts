@@ -238,3 +238,53 @@ test("shell does not share a reading position between paths", (t) => {
   assert.deepEqual(scrolled, []);
   assert.equal(historyNavigation(window as unknown as Window), true);
 });
+
+test("a header section stays current on every page its nav group lists, and shows a search key slot", () => {
+  const pos2: SourcePos = { file: "install.md", line: 1, column: 1, endLine: 1, endColumn: 1 };
+  const page: Page = {
+    url: "/install/",
+    source: pos2,
+    frontMatter: {},
+    title: "Install",
+    lang: "en",
+    dir: "ltr",
+    headings: [],
+    html: "",
+    markdown: "",
+    kind: "doc",
+  };
+  const config = {
+    title: "Lateen",
+    base: "",
+    lang: "en",
+    dir: "ltr",
+    languages: [],
+    source: ".",
+    include: [],
+    exclude: [],
+    navigation: "_data/navigation.yml",
+    defaults: [],
+    theme: { options: {} },
+    search: { text: 300 },
+    redirects: {},
+    outputs: {},
+    collections: {},
+    feeds: {},
+  } as unknown as SiteConfig;
+  const site: Site = {
+    config,
+    pages: [page],
+    nav: {
+      main: [
+        { title: "Start", children: [{ title: "Overview", url: "/" }, { title: "Install", url: "/install/" }] },
+        { title: "Components", children: [{ title: "Component reference", url: "/components/" }] },
+      ],
+    },
+    data: {},
+    collections: {},
+  };
+  const out = html(shell({ site, page, trail: [], pager: {} }));
+  assert.match(out, /<a href="\/" aria-current="page">Start<\/a>/);
+  assert.doesNotMatch(out, /<a href="\/components\/" aria-current="page">/);
+  assert.match(out, /<kbd class="search-trigger-key" aria-hidden="true"><\/kbd>/);
+});

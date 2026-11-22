@@ -108,10 +108,13 @@ const search = (props: Parameters<Chrome>[0] & SourceModeVisibility) =>
           {
             type: "button",
             class: "search-close iconbtn",
-            "aria-label": t(props.page.lang, "search_close"),
+            // The visible Esc chip is part of the name, so speech input can say what it sees.
+            "aria-label": `${t(props.page.lang, "search_close")}, Esc`,
             "data-search-close": "",
           },
           icon({ node: X }),
+          // A pointer with a keyboard sees the key that also closes the dialog; touch keeps the ×.
+          h("kbd", { class: "search-close-key", "aria-hidden": "true" }, "Esc"),
         ),
       ),
       h("p", { class: "search-status", role: "status", "data-search-status": "" }, ""),

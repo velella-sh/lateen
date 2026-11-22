@@ -3,7 +3,7 @@
  * the dialog, and registers the keyboard shortcut. Nothing happens in a runtime without a document.
  */
 
-import { activateShortcuts, type ShortcutEvent } from "./shortcut.ts";
+import { activateShortcuts, type ShortcutEvent, type ShortcutHint } from "./shortcut.ts";
 import { activateAskAgent, parseAskConfig, type AskDocument, type AskElement, type AskResult } from "../ask-agent/client.ts";
 import { browserFetch } from "../copy-markdown/island.ts";
 import { parsePalette } from "./palette.ts";
@@ -129,8 +129,11 @@ if (typeof document !== "undefined") {
       fill();
     }
     // ⌘K/Ctrl+K presses this button from anywhere, exactly as a pointer would.
+    const hint = document.querySelector("[data-search-open] .search-trigger-key");
     activateShortcuts(
-      { button: button as unknown as SearchButton },
+      hint === null
+        ? { button: button as unknown as SearchButton }
+        : { button: button as unknown as SearchButton, hint: hint as unknown as ShortcutHint },
       { platform: navigator.platform, addEventListener: (type, listener) => document.addEventListener(type, listener) },
     );
   }

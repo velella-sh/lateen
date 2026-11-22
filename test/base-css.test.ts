@@ -131,7 +131,7 @@ test("document tables, reference rows, code panels, and callouts stay quiet and 
 
   const callout = bodyOf(ui, /^\.callout$/);
   assert.match(callout, /padding:\s*var\(--space-3\) var\(--space-4\)/);
-  assert.match(callout, /border-inline-start:/);
+  assert.match(callout, /border:\s*1px solid color-mix\(in srgb, var\(--callout-color\)/);
   const calloutBody = bodyOf(ui, /^\.callout-body$/);
   assert.match(calloutBody, /font-size:\s*var\(--text-sm\)/);
   assert.match(calloutBody, /line-height:\s*1\.6/);
