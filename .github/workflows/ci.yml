@@ -18,6 +18,33 @@ permissions:
   contents: read
 
 jobs:
+  # Tells the browser and size gates whether a pull request touches anything but prose. A pull
+  # request that changes only Markdown, `docs/` or `changelog.d/` skips performance-compare, a11y,
+  # smoke, acceptance and visual; the test job still runs for every change. Pushes to main and
+  # manual runs always run everything. A skipped job reports as passed, so no required check hangs.
+  changes:
+    name: changes
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    outputs:
+      code: ${{ steps.diff.outputs.code }}
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          fetch-depth: 0
+          persist-credentials: false
+      - name: Look for changes outside prose
+        id: diff
+        env:
+          EVENT: ${{ github.event_name }}
+          BASE: ${{ github.event.pull_request.base.sha }}
+          HEAD: ${{ github.event.pull_request.head.sha }}
+        run: |
+          set -euo pipefail
+          if [ "$EVENT" != "pull_request" ]; then echo "code=true" >> "$GITHUB_OUTPUT"; exit 0; fi
+          other="$(git diff --name-only "$BASE...$HEAD" | grep -v -E '^(docs/|changelog\.d/)|\.md$' || true)"
+          if [ -n "$other" ]; then echo "code=true" >> "$GITHUB_OUTPUT"; echo "$other"; else echo "code=false" >> "$GITHUB_OUTPUT"; echo "prose-only change: heavy gates skipped" >> "$GITHUB_STEP_SUMMARY"; fi
+
   # The full suite, once per run. A push to main runs the coverage variant instead of `npm test`: it
   # runs every gate `npm test` runs and writes coverage/coverage.json, which the coverage job
   # publishes to the badge branch, so main no longer measures the suite twice. A pull request keeps
@@ -73,7 +100,8 @@ jobs:
   # tolerance fails. The report uploads even when the comparison fails.
   performance-compare:
     name: performance-compare
-    if: github.event_name == 'pull_request'
+    needs: changes
+    if: github.event_name == 'pull_request' && needs.changes.outputs.code == 'true'
     runs-on: ubuntu-latest
     timeout-minutes: 20
     steps:
@@ -119,6 +147,8 @@ jobs:
   # serious violation that test/accessibility/baseline.json does not list.
   a11y:
     name: a11y
+    needs: changes
+    if: needs.changes.outputs.code == 'true'
     runs-on: ubuntu-latest
     timeout-minutes: 20
     steps:
@@ -156,6 +186,8 @@ jobs:
   # The JSON report is kept as CI evidence.
   smoke:
     name: smoke
+    needs: changes
+    if: needs.changes.outputs.code == 'true'
     runs-on: ubuntu-latest
     timeout-minutes: 20
     steps:
@@ -199,6 +231,8 @@ jobs:
   # release workflow runs the same gate and publishes only the tarball it passed.
   acceptance:
     name: acceptance
+    needs: changes
+    if: needs.changes.outputs.code == 'true'
     runs-on: ubuntu-latest
     timeout-minutes: 25
     steps:
@@ -224,6 +258,8 @@ jobs:
   # changes a baseline must carry the `visual-change` label; without it the job turns red.
   visual:
     name: visual
+    needs: changes
+    if: needs.changes.outputs.code == 'true'
     runs-on: ubuntu-24.04
     timeout-minutes: 10
     steps:
