@@ -1331,3 +1331,37 @@
     font-size: 0.84rem;
   }
 }
+
+/* Keep the inline labels and definitions readable without the Popover API. */
+@supports not selector(:popover-open) {
+  :is(.term, .symbol-popover) > button[popovertarget] { display: none; }
+}
+
+@supports selector(:popover-open) {
+  .inline-popover-fallback { display: none; }
+
+  :is(.term, .symbol-popover) > button[popovertarget] {
+    cursor: pointer;
+    text-decoration: underline dotted;
+  }
+
+  :is(.term-panel, .symbol-popover-panel) {
+    max-inline-size: min(25rem, calc(100vi - 1rem));
+    max-block-size: calc(100vb - 1rem);
+    overflow: auto;
+    overflow-wrap: anywhere;
+    padding: var(--space-3);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-lg);
+    background: var(--popover);
+    color: var(--popover-foreground);
+  }
+
+  @supports (position-area: block-end) {
+    :is(.term-panel, .symbol-popover-panel) {
+      margin: var(--space-2);
+      position-area: block-end span-inline-end;
+      position-try-fallbacks: flip-inline, flip-block, flip-block flip-inline;
+    }
+  }
+}

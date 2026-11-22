@@ -81,8 +81,8 @@ test("an external glossary page address is left as written", () => {
 
 test("neither a page option nor a record page renders no link", () => {
   const out = render(siteWith());
-  assert.match(out, /<details class="term" data-term="network">/);
-  assert.match(out, /<p class="term-definition">Two or more computers that talk\.<\/p>/);
+  assert.match(out, /<span class="term" data-term="network">/);
+  assert.match(out, /<span class="term-definition">Two or more computers that talk\.<\/span>/);
   assert.doesNotMatch(out, /<a\b|term-link/);
 });
 

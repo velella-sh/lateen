@@ -172,6 +172,16 @@
     max-inline-size: none;
   }
 
+  .symbol-popover-panel[popover],
+  .term-panel[popover] {
+    display: inline;
+    margin: 0;
+    padding: 0;
+    border: 0;
+    background: transparent;
+    color: inherit;
+  }
+
   /* Evidence surfaces stay with the sentence they qualify, so a break never separates them. */
   .trust-panel,
   .drift-banner,

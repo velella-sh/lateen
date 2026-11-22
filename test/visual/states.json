@@ -221,6 +221,12 @@
       ]
     },
     {
+      "name": "symbol",
+      "selector": "p .symbol-popover-chip",
+      "page": "/inventory/",
+      "states": []
+    },
+    {
       "name": "symbol-popover",
       "selector": ".symbol-popover-chip",
       "states": [

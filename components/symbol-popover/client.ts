@@ -2,7 +2,7 @@
  * Symbol popover island: Escape closes the open disclosure and returns focus to its chip, and a
  * click outside closes it without moving focus. Only open disclosures are tracked, so a click or a
  * key costs work proportional to what is open, not to every symbol on the page. The disclosure is a
- * native `<details>`, so it already opens with Enter, Space, or a tap and closes with a tap on its
+ * native popover, so it already opens with Enter, Space, or a tap and closes with a tap on its
  * chip without this script; the island never traps focus or changes the tab order.
  */
 
@@ -18,10 +18,10 @@ import {
 } from "../../src/popover.ts";
 
 /** Selector of every symbol disclosure; the island finds them by it. Static chips have no panel. */
-export const PANEL_SELECTOR = "details[data-symbol]";
+export const PANEL_SELECTOR = ".symbol-popover[data-symbol]:has(> [popover])";
 
 /** Selector of the chip inside a disclosure, which takes focus back when Escape closes it. */
-export const SUMMARY_SELECTOR = "summary";
+export const TRIGGER_SELECTOR = "button[popovertarget]";
 
 /** The chip as the island touches it. */
 export interface SymbolChip {
@@ -35,7 +35,7 @@ export interface SymbolEvent {
   preventDefault(): void;
 }
 
-/** A disclosure as the island touches it: a `<details>` element. */
+/** A disclosure as the island touches it: a wrapper around a native popover. */
 export interface SymbolNode {
   open: boolean;
   querySelector(selector: string): SymbolChip | null;
@@ -116,7 +116,7 @@ export function closePanel(panel: SymbolNode, focusChip: boolean): void {
   const wiring = wired.get(panel);
   if (wiring === undefined) open.delete(panel);
   else sync(wiring);
-  if (focusChip) panel.querySelector(SUMMARY_SELECTOR)?.focus();
+  if (focusChip) panel.querySelector(TRIGGER_SELECTOR)?.focus();
 }
 
 /**
@@ -178,16 +178,23 @@ export function activate(panel: SymbolNode): () => void {
   };
 }
 
-declare const document:
-  | {
-      querySelectorAll(selector: string): Iterable<unknown>;
-      addEventListener(type: string, listener: (event: SymbolEvent) => void): void;
-    }
-  | undefined;
+/** Adapt the native popover to the island's open state and dismissal handlers. */
+function connect(root: HTMLElement): void {
+  const panel = root.querySelector<HTMLElement>("[popover]");
+  if (panel === null || typeof panel.hidePopover !== "function") return;
+  activate({
+    get open() { return panel.matches(":popover-open"); },
+    set open(value) { if (!value) panel.hidePopover(); },
+    lastElementChild: panel,
+    querySelector: () => root.querySelector<HTMLButtonElement>(TRIGGER_SELECTOR),
+    contains: (target) => target instanceof Node && root.contains(target),
+    addEventListener: (type, listener) => root.addEventListener(type, listener, true),
+    removeEventListener: (type, listener) => root.removeEventListener(type, listener, true),
+  });
+}
 
-// The island runs when the browser loads it; importing it in a build or a test without a document does nothing.
+// The island runs only in the browser.
 if (typeof document !== "undefined") {
-  const panels = [...document.querySelectorAll(PANEL_SELECTOR)] as SymbolNode[];
-  for (const panel of panels) activate(panel);
+  for (const root of document.querySelectorAll<HTMLElement>(PANEL_SELECTOR)) connect(root);
   document.addEventListener("click", (event) => handleClick(event.target));
 }

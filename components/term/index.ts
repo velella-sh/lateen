@@ -2,8 +2,11 @@ import { h } from "preact";
 import type { ComponentProps, Page, Site } from "@velella/mizzen/contracts";
 import { t } from "../../i18n/index.ts";
 import { textOf as trimmed } from "../../src/guards.ts";
+import { inlinePopoverId, labelText } from "../../src/inline-popover.ts";
 import { glossaryCollectionName, glossaryPage, selectTerms, findTerm, type Term } from "../../src/terms.ts";
 import { baseOf, withBase } from "../../src/url.ts";
+
+export { labelText } from "../../src/inline-popover.ts";
 
 /** The Markdown directive this component handles: `:term[Network]{id=network}`. */
 export const directive = "term";
@@ -14,7 +17,7 @@ export const TERM_OPTIONS = ["id"] as const;
 /** Class on the disclosure, or on the plain text of an unknown term. */
 export const TERM_CLASS = "term";
 
-/** Class on the `<summary>`: the label as the author wrote it. */
+/** Class on the trigger: the label as the author wrote it. */
 export const LABEL_CLASS = "term-label";
 
 /** Class on the panel that holds the definition and the link. */
@@ -46,22 +49,6 @@ function textOf(value: unknown): string {
   return trimmed(value) ?? "";
 }
 
-const ENTITIES: Readonly<Record<string, string>> = {
-  "&amp;": "&",
-  "&lt;": "<",
-  "&gt;": ">",
-  "&quot;": '"',
-  "&#39;": "'",
-};
-
-/** The label as text, for lookup and for the unknown-term fallback: tags drop, entities decode. */
-export function labelText(html: string): string {
-  return html
-    .replace(/<[^>]*>/g, "")
-    .replace(/&(?:amp|lt|gt|quot|#39);/g, (entity) => ENTITIES[entity] ?? entity)
-    .trim();
-}
-
 /** The term the directive names: by `id`, else by the label's text, name, or another name. */
 export function termOf(terms: readonly Term[], id: string, label: string): Term | undefined {
   return id === "" ? findTerm(terms, label) : findTerm(terms, id);
@@ -84,10 +71,8 @@ export function termHref(site: Site, page: Page, term: Term): string | undefined
 }
 
 /**
- * A term in running text: the label is the `<summary>` of a native `<details>`, so a tap, click,
- * Enter, or Space opens the definition without JavaScript. The panel is ordinary content, never a
- * tooltip, and its link is reachable by keyboard. An unknown term stays the label as plain text with
- * a visible marker, so a missing glossary entry never hides the words the author wrote.
+ * A term in running text. Its button opens the definition without JavaScript, and the link is
+ * reachable by keyboard. An unknown term keeps its label visible with a marker.
  */
 export default function term({ props, html, page, site }: ComponentProps<TermProps>) {
   const id = textOf(props.id);
@@ -106,17 +91,19 @@ export default function term({ props, html, page, site }: ComponentProps<TermPro
   }
 
   const href = termHref(site, page, found);
+  const panelId = inlinePopoverId(page);
   return h(
-    "details",
+    "span",
     { class: TERM_CLASS, "data-term": found.id },
     // The label is the engine's rendered children HTML; props above are text, never markup.
-    h("summary", { class: LABEL_CLASS, dangerouslySetInnerHTML: { __html: html } }),
+    h("button", { type: "button", class: LABEL_CLASS, popovertarget: panelId, dangerouslySetInnerHTML: { __html: html } }),
+    h("span", { class: "inline-popover-fallback", dangerouslySetInnerHTML: { __html: `${html} ` } }),
     h(
-      "div",
-      { class: PANEL_CLASS },
+      "span",
+      { class: PANEL_CLASS, id: panelId, popover: "auto" },
       // shortcut: the definition is escaped text because the engine hands components no rendered Markdown; upgrade when a render contract lands.
-      h("p", { class: DEFINITION_CLASS }, found.definition),
-      href === undefined ? null : h("a", { class: LINK_CLASS, href }, t(page.lang, "term_link")),
+      h("span", { class: DEFINITION_CLASS }, found.definition),
+      href === undefined ? null : [" ", h("a", { class: LINK_CLASS, href }, t(page.lang, "term_link"))],
     ),
   );
 }

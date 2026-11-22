@@ -23,15 +23,15 @@ import {
   handleClick,
   openPanels,
   PANEL_SELECTOR,
-  SUMMARY_SELECTOR,
+  TRIGGER_SELECTOR,
   type SymbolChip,
   type SymbolEvent,
   type SymbolNode,
 } from "../components/symbol-popover/client.ts";
 
 /** Render the chip the way the render host calls it: directive props and the page's language. */
-function render(props: SymbolPopoverProps, lang = "en"): string | null {
-  const input = { props, html: "", page: { lang }, site: {} } as unknown as ComponentProps<SymbolPopoverProps>;
+function render(props: SymbolPopoverProps, lang = "en", page = { lang }): string | null {
+  const input = { props, html: "", page, site: {} } as unknown as ComponentProps<SymbolPopoverProps>;
   const node = symbolPopover(input);
   return node === null ? null : renderToString(node as never);
 }
@@ -61,7 +61,7 @@ class FakeNode implements SymbolNode {
   }
 
   querySelector(selector: string): SymbolChip | null {
-    assert.equal(selector, SUMMARY_SELECTOR);
+    assert.equal(selector, TRIGGER_SELECTOR);
     return this.chip;
   }
 
@@ -113,13 +113,17 @@ test("default export is the component and the directive is symbol-popover", () =
   assert.equal(PANEL_CLASS, "symbol-popover-panel");
 });
 
-test("renders a native disclosure with the summary as its first child", () => {
+test("a button targets the native popover beside it", () => {
   const out = render({ name: "runExample", signature: "runExample(input: Input): Promise<Result>" });
   assert.ok(out);
-  assert.match(out, /^<details class="symbol-popover" data-symbol="runExample">/);
-  assert.match(out, /^<details[^>]*><summary class="symbol-popover-chip"/);
-  assert.match(out, /<\/summary><div class="symbol-popover-panel">/);
-  assert.match(out, /runExample<\/summary>/);
+  const root = domOf(out).querySelector('span.symbol-popover[data-symbol="runExample"]');
+  assert.ok(root);
+  const button = root.querySelector("button");
+  const panel = root.querySelector("span[popover]");
+  assert.ok(button && panel);
+  assert.equal(button.textContent, "runExample");
+  assert.equal(button.getAttribute("popovertarget"), panel.id);
+  assert.equal(panel.getAttribute("popover"), "auto");
 });
 
 test("the tooltip role and its aria relationship are gone", () => {
@@ -160,7 +164,7 @@ test("the copy value is the signature, or the name when there is no signature", 
   assert.equal(copyValueOf("run", ""), "run");
   const out = render({ name: "runExample", signature: "runExample(): void", href: "/reference/" });
   assert.ok(out);
-  assert.match(out, /^<details[^>]*><summary class="symbol-popover-chip" data-copy-value="runExample\(\): void">/);
+  assert.match(out, /^<span[^>]*><button[^>]*class="symbol-popover-chip"[^>]*data-copy-value="runExample\(\): void">/);
   assert.doesNotMatch(out, /data-copy-value="[^"]*Reference/);
 });
 
@@ -197,37 +201,26 @@ test("textOf trims strings and ignores every other value", () => {
   assert.equal(textOf(undefined), "");
 });
 
-test("repeated names and explicit ids cannot duplicate ids or relationships", () => {
+test("repeated names and explicit ids get independent popover targets", () => {
   const props = { name: "Result", signature: "type Result = string", href: "/reference/", id: "result" };
-  const out = [render(props as SymbolPopoverProps), render(props as SymbolPopoverProps)].join("");
-  assert.equal(out.match(/<details\b/g)?.length, 2);
-  assert.doesNotMatch(out, /\bid="/);
-  assert.doesNotMatch(out, /aria-describedby|aria-controls|role="tooltip"/);
+  const page = { lang: "en" };
+  const doc = domOf([render(props, page.lang, page), render(props, page.lang, page)].join(""));
+  const targets = [...doc.querySelectorAll("button")].map((button) => button.getAttribute("popovertarget")!);
+  assert.equal(targets.length, 2);
+  assert.equal(new Set(targets).size, 2);
+  for (const id of targets) assert.ok(doc.getElementById(id)?.hasAttribute("popover"));
 });
 
-test("the disclosure is closed and complete before any JavaScript runs", () => {
+test("the panel and its reference link ship in HTML", () => {
   const doc = domOf(render({ name: "runExample", signature: "runExample(): void", href: "/reference/runner/" })!);
-  const details = doc.querySelector("details.symbol-popover");
-  assert.ok(details);
-  assert.equal(details.hasAttribute("open"), false);
-  assert.equal(details.firstElementChild?.tagName, "SUMMARY");
-  assert.equal(doc.querySelectorAll('[role="tooltip"]').length, 0);
-  assert.equal(doc.querySelectorAll("[aria-describedby], [aria-controls]").length, 0);
-
-  const panel = details.querySelector(".symbol-popover-panel");
-  assert.ok(panel);
-  assert.equal(panel.hasAttribute("hidden"), false);
-  assert.ok(details.querySelector("a[href='/reference/runner/']"), "the link is ordinary content inside the details");
+  const root = doc.querySelector("span.symbol-popover");
+  assert.ok(root);
+  assert.equal(root.querySelectorAll("button").length, 1);
+  assert.equal(root.querySelectorAll("[tabindex]").length, 0);
+  assert.ok(root.querySelector("[popover] a[href='/reference/runner/']"));
 });
 
-test("the native summary is the only control, so tap, click, Enter, and Space need no island", () => {
-  const doc = domOf(render({ name: "runExample", signature: "runExample(): void", href: "/reference/" })!);
-  const details = doc.querySelector("details.symbol-popover");
-  assert.ok(details);
-  assert.equal(details.querySelectorAll("summary").length, 1);
-  assert.equal(details.hasAttribute("tabindex"), false);
-  assert.equal(details.querySelector("summary")?.hasAttribute("tabindex"), false);
-
+test("the island tracks only toggle events for a closed popover", () => {
   const node = new FakeNode();
   const off = activate(node);
   assert.deepEqual([...node.listeners.keys()], ["toggle"], "the island adds no pointer, touch, or key handler while closed");
@@ -408,7 +401,7 @@ test("the island never traps focus or changes the tab order", () => {
   assert.equal(node.open, true);
   assert.equal(node.chip.focused, false);
   assert.deepEqual([...node.listeners.keys()], ["toggle", "keydown"]);
-  assert.equal(PANEL_SELECTOR, "details[data-symbol]");
+  assert.equal(PANEL_SELECTOR, ".symbol-popover[data-symbol]:has(> [popover])");
   off();
 });
 
@@ -425,7 +418,15 @@ test("closeOnEscape is the same behaviour without activate", () => {
 test("a static chip has no disclosure, no island wiring, and no tab stop", () => {
   const doc = domOf(render({ name: "runExample" })!);
   assert.ok(doc.querySelector("span.symbol-popover-chip"));
-  assert.equal(doc.querySelectorAll(PANEL_SELECTOR).length, 0, "the island finds only details disclosures");
-  assert.equal(doc.querySelectorAll("summary, [tabindex]").length, 0);
+  assert.equal(doc.querySelectorAll(PANEL_SELECTOR).length, 0, "the island finds only interactive symbols");
+  assert.equal(doc.querySelectorAll("button, [tabindex]").length, 0);
 });
 
+
+test("the symbol chip and its surrounding text stay in one paragraph", () => {
+  const out = render({ name: "runExample", signature: "runExample(): void", href: "/reference/" });
+  const doc = domOf(`<p>Call ${out} to run the example.</p>`);
+  assert.equal(doc.querySelectorAll("p").length, 1);
+  assert.ok(doc.querySelector("p .symbol-popover"));
+  assert.match(doc.querySelector("p")!.textContent, / to run the example\.$/);
+});

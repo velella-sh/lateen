@@ -47,7 +47,7 @@
           "theme": { "type": "string", "enum": ["light", "dark"] },
           "width": { "type": "integer" },
           "height": { "type": "integer" },
-          "open": { "type": "string", "enum": ["drawer", "search", "ask"] }
+          "open": { "type": "string", "enum": ["drawer", "search", "ask", "term", "symbol"] }
         }
       }
     },

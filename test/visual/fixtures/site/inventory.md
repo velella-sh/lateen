@@ -151,3 +151,5 @@ fixture and checked by `test/visual/inventory.test.ts`; it is not part of the sc
   <p class="stale-notice-reviewed">Reviewed November 9, 2026.</p>
   <ul class="stale-notice-files"><li class="stale-notice-file"><code>_data/books.json</code> changed</li></ul>
 </aside>
+
+Call :symbol[runExample]{signature="runExample(): void" href="/gallery/"} to run the example.
