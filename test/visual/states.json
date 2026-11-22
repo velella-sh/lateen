@@ -223,8 +223,7 @@
     {
       "name": "symbol",
       "selector": "p .symbol-popover-chip",
-      "page": "/inventory/",
-      "states": []
+      "states": ["focus"]
     },
     {
       "name": "symbol-popover",

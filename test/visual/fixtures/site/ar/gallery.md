@@ -366,6 +366,10 @@ A page outside the default version states its version and links to the equivalen
 3. اقرأ المخرجات.
 :::
 
+## symbol
+
+استخدم :symbol[runExample]{signature="runExample(): void" href="/ar/gallery/"} لتشغيل المثال.
+
 ## symbol-popover
 
 ::symbol-popover{name="runExample" signature="runExample(input: Input): Promise<Result>" href="/ar/gallery/"}

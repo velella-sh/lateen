@@ -369,6 +369,10 @@ The text wraps inside the column instead of being clipped on a narrow screen.
 3. Read the output.
 :::
 
+## symbol
+
+Call :symbol[runExample]{signature="runExample(): void" href="/gallery/"} to run the example.
+
 ## symbol-popover
 
 ::symbol-popover{name="runExample" signature="runExample(input: Input): Promise<Result>" href="/gallery/"}
