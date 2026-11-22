@@ -180,6 +180,9 @@ function normalize(text: string): { head: string; body: string } {
   }
   // The search field gains its own direction so a mixed-script query reads correctly.
   for (const element of [...document.querySelectorAll('.search-input[dir="auto"]')]) element.removeAttribute("dir");
+  // The diagram wrapper gains its drawn width as a custom property, consumed only by the shared
+  // stylesheet; the SVG, the source disclosure, and the record are unchanged.
+  for (const element of [...document.querySelectorAll(".mermaid-diagram[style]")]) element.removeAttribute("style");
   // The trust panel gained an id so the tested chip can link to it.
   for (const element of [...document.querySelectorAll("details.trust-panel#trust-panel")]) element.removeAttribute("id");
   // The Sailcloth shell adds style-only class hooks to the existing grid and recovery content.
