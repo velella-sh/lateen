@@ -29,7 +29,7 @@ Returns one user.
 
 | Name | Type | Default | What it does |
 | --- | --- | --- | --- |
-| `method` | string | no badge | The HTTP method, in any case. Known methods get their own badge color; any other method gets the neutral one. |
+| `method` | string | no badge | The HTTP method, in any case. The method text is the badge; known methods keep their own class for styling, and any other method uses the neutral class. |
 | `path` | string | empty | The path. Write parameters as `{id}` (OpenAPI) or `:id` (Express); both are highlighted and listed. |
 | `parameters` | string | — | A JSON array of parameter metadata: `{"name":"id","type":"string","required":true,"description":"…"}`. Entries are matched to the path by name; the first entry for a name wins. |
 

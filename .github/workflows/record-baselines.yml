@@ -1,0 +1,85 @@
+name: record-baselines
+
+# Records the visual baselines on the pinned CI runner and commits them to a pull request branch.
+# Baselines made on a developer machine are never stored (docs/design/visual-gates.md), so this is
+# the one-click way to update them: run the workflow on the branch, then wait for the pushed commit.
+# It refuses `main` and any branch from a fork, labels the pull request `visual-change`, and
+# commits only files under test/visual/baselines.
+on:
+  workflow_dispatch:
+  # Adding the `record-baselines` label to a pull request from this repository does the same, so a
+  # visual change needs one click instead of a trip to the Actions tab.
+  pull_request:
+    types: [labeled]
+
+permissions:
+  contents: write
+  pull-requests: write
+  actions: write
+
+concurrency:
+  group: record-baselines-${{ github.head_ref || github.ref }}
+  cancel-in-progress: false
+
+jobs:
+  record:
+    name: record
+    if: >-
+      github.ref != 'refs/heads/main' &&
+      (github.event_name == 'workflow_dispatch' ||
+      (github.event.label.name == 'record-baselines' &&
+      github.event.pull_request.head.repo.full_name == github.repository))
+    runs-on: ubuntu-24.04
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          path: lateen
+          ref: ${{ github.head_ref || github.ref_name }}
+          # The push below needs the token, and nothing else in this job runs untrusted code
+          # with write access: the branch is one a maintainer chose to dispatch on.
+          persist-credentials: true
+      - uses: ./lateen/.github/actions/setup
+      - name: Cache the Playwright browser
+        uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
+        with:
+          path: ~/.cache/ms-playwright
+          key: ${{ runner.os }}-playwright-${{ hashFiles('lateen/package-lock.json') }}
+      - name: Install Chromium
+        run: npx playwright install chromium
+        working-directory: lateen
+      - name: Record the baselines
+        run: npm run ui:build && node scripts/test-visual.ts --update
+        working-directory: lateen
+        env:
+          CI: "true"
+      - name: Commit the changed baselines
+        id: commit
+        working-directory: lateen
+        env:
+          BRANCH: ${{ github.head_ref || github.ref_name }}
+        run: |
+          set -euo pipefail
+          git add -A test/visual/baselines
+          if git diff --cached --quiet; then
+            echo "changed=false" >> "$GITHUB_OUTPUT"
+            echo "The baselines already match this branch; nothing to commit." >> "$GITHUB_STEP_SUMMARY"
+            exit 0
+          fi
+          echo "changed=true" >> "$GITHUB_OUTPUT"
+          git diff --cached --stat >> "$GITHUB_STEP_SUMMARY"
+          git -c user.name="github-actions[bot]" -c user.email="41898282+github-actions[bot]@users.noreply.github.com" \
+            commit --quiet -m "test(visual): record the baselines on the CI runner"
+          git push origin "HEAD:${BRANCH}"
+      - name: Label the pull request and start the checks
+        if: steps.commit.outputs.changed == 'true'
+        working-directory: lateen
+        env:
+          GH_TOKEN: ${{ github.token }}
+          BRANCH: ${{ github.head_ref || github.ref_name }}
+        run: |
+          # Best effort: a branch with no pull request yet has nothing to label.
+          gh pr edit "$BRANCH" --add-label visual-change || echo "no pull request for $BRANCH yet; add the visual-change label when you open it"
+          # A push made with the workflow token does not start CI, but a dispatched run does, and
+          # its checks attach to the new head commit shown on the pull request.
+          gh workflow run ci.yml --ref "$BRANCH"

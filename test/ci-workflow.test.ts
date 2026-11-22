@@ -139,3 +139,37 @@ test("the gates that must not weaken are still in the workflow", () => {
   assert.match(stepNamed("visual", "Require the visual-change label for baseline edits").run ?? "", /visual-change/);
   assert.equal(stepNamed("test", "Component fixture inventory").run, "node --test test/visual/inventory.test.ts");
 });
+
+test("only a prose-only pull request skips the heavy gates, and the test job never skips", () => {
+  const jobs = workflow.jobs as Record<string, Job>;
+  for (const name of ["a11y", "smoke", "acceptance", "visual", "performance-compare"]) {
+    const job = jobs[name] as Job;
+    assert.deepEqual([job.needs].flat(), ["changes"], `${name} waits for the changes job`);
+    assert.match(job.if ?? "", /needs\.changes\.outputs\.code == 'true'/, `${name} runs only when code changed`);
+  }
+  assert.equal((jobs["test"] as Job).if, undefined, "the test job runs for every change");
+  assert.match(source, /\[ "\$EVENT" != "pull_request" \]; then echo "code=true"/, "pushes and manual runs run everything");
+});
+
+test("record-baselines records on the pinned runner, refuses main and commits only baselines", () => {
+  const text = readFileSync(new URL("../.github/workflows/record-baselines.yml", import.meta.url), "utf8");
+  const recorder = parse(text) as { on: Record<string, unknown>; jobs: Record<string, Job & { "runs-on"?: string }> };
+  const job = recorder.jobs["record"] as Job & { "runs-on"?: string };
+  assert.deepEqual(Object.keys(recorder.on), ["workflow_dispatch", "pull_request"]);
+  assert.equal(job["runs-on"], "ubuntu-24.04");
+  assert.match(job.if ?? "", /refs\/heads\/main/);
+  assert.match(text, /test-visual\.ts --update/);
+  assert.match(text, /git add -A test\/visual\/baselines/);
+});
+
+test("the label starts a same-repository recording and the recorder starts CI itself", () => {
+  const text = readFileSync(new URL("../.github/workflows/record-baselines.yml", import.meta.url), "utf8");
+  assert.match(text, /types: \[labeled\]/);
+  assert.match(text, /github\.event\.label\.name == 'record-baselines'/);
+  assert.match(text, /head\.repo\.full_name == github\.repository/, "a fork never gets a write token run");
+  assert.match(text, /gh workflow run ci\.yml --ref/);
+});
+
+test("performance-compare allows the budget's 256 B of gzip noise", () => {
+  assert.match(stepNamed("performance-compare", "Compare").run ?? "", /--tolerance 256 /);
+});

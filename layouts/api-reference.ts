@@ -194,7 +194,7 @@ function operationOf(frontMatter: LayoutProps["page"]["frontMatter"]): ApiOperat
 }
 
 /** The method badge colors the same methods as the endpoint component, with no script. */
-function methodClassOf(method: string): string {
+export function methodClassOf(method: string): string {
   const known = ["get", "post", "put", "patch", "delete"];
   const name = method.toLowerCase();
   return `api-reference-method api-reference-method-${known.includes(name) ? name : "other"}`;
@@ -559,7 +559,8 @@ function operationHeader(view: OperationView, lang: string): ComponentChildren {
     h(
       "div",
       { class: "api-reference-line" },
-      h("span", { class: view.methodClass }, view.methodLabel),
+      h("span", { class: `version-badge ${view.methodClass}` }, view.methodLabel),
+      " ",
       h("code", { class: "api-reference-path", dir: "ltr" }, view.path),
     ),
     h("h1", null, view.title),

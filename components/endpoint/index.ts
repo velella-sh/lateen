@@ -193,7 +193,8 @@ export default function endpoint({ props, html, page }: ComponentProps<EndpointP
     h(
       "div",
       { class: "endpoint-line" },
-      method === null ? null : h("span", { class: methodClassOf(method) }, method),
+      method === null ? null : h("span", { class: `version-badge ${methodClassOf(method)}` }, method),
+      method === null ? null : " ",
       h(
         "code",
         { class: "endpoint-path", dir: "ltr" },
