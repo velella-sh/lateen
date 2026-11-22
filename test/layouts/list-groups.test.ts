@@ -205,3 +205,16 @@ test("the summaries are ordinary server-rendered links that work without JavaScr
   assert.match(summary, /<a href="#poetry">Poetry <span class="list-group-count">9<\/span><\/a>/);
   assert.doesNotMatch(summary, /<script|onclick|data-island/, "no client code is needed");
 });
+
+test("an expanded index counts records and links to group pages without empty sections", () => {
+  const out = render(pageWith(), groups([
+    { key: "Fiction", records: [], count: 4, url: "/books/fiction/" },
+    { key: "Poetry", records: [], count: 9, url: "/books/poetry/" },
+  ]));
+  assert.match(out, /class="list-count">13 records</);
+  assert.deepEqual(summaryLinks(out), [
+    { href: "/books/fiction/", name: "Fiction", count: "4" },
+    { href: "/books/poetry/", name: "Poetry", count: "9" },
+  ]);
+  assert.doesNotMatch(out, /class="list-empty"|<section class="list-group"|href="#fiction"/);
+});

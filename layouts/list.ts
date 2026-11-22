@@ -62,6 +62,13 @@ export function groupsOf(props: LayoutProps): ListGroupView[] {
   }));
 }
 
+/** Expanded list indexes carry links and counts instead of the groups' records. */
+function expandedIndex(props: LayoutProps): boolean {
+  const list = props.list;
+  return list !== undefined && list.records.length === 0 && list.groups.length > 0 &&
+    list.groups.every((group) => !!group.url && group.count !== undefined && group.records.length === 0);
+}
+
 /** The columns the page names with `list.columns`, else the first record's field order. */
 function columnsOf(props: LayoutProps, records: readonly RecordProps[]): RecordColumn[] {
   const front = props.page.frontMatter.list;
@@ -385,27 +392,30 @@ function article(props: LayoutProps): ComponentChildren {
   if (blogOf(props.page) !== undefined) return blogArticle(props);
   const list = props.list;
   const groups = groupsOf(props);
-  const records: ComponentChildren = isChanges(props)
-    ? changesView(props)
-    : groups.length > 0
-      ? groups.map((group) =>
-          h(
-            "section",
-            { class: "list-group" },
+  const expanded = expandedIndex(props);
+  const records: ComponentChildren = expanded
+    ? null
+    : isChanges(props)
+      ? changesView(props)
+      : groups.length > 0
+        ? groups.map((group) =>
             h(
-              "h2",
-              { id: group.id },
-              group.key,
-              " ",
-              h("span", { class: "list-group-count" }, String(group.count)),
+              "section",
+              { class: "list-group" },
+              h(
+                "h2",
+                { id: group.id },
+                group.key,
+                " ",
+                h("span", { class: "list-group-count" }, String(group.count)),
+              ),
+              recordsView(props, group.records),
             ),
-            recordsView(props, group.records),
-          ),
-        )
-      : list === undefined
-        ? null
-        : recordsView(props, list.records);
-  const count = list?.records.length ?? 0;
+          )
+        : list === undefined
+          ? null
+          : recordsView(props, list.records);
+  const count = expanded ? groups.reduce((total, group) => total + group.count, 0) : list?.records.length ?? 0;
   return h(
     "article",
     { class: "list", "data-pagefind-body": true },
@@ -443,7 +453,7 @@ function article(props: LayoutProps): ComponentChildren {
           }),
         )
       : null,
-    list !== undefined && count === 0 ? h("p", { class: "list-empty" }, t(props.page.lang, "list_empty")) : null,
+    list !== undefined && !expanded && count === 0 ? h("p", { class: "list-empty" }, t(props.page.lang, "list_empty")) : null,
     groupSummary(props),
     records === null ? null : h("div", { class: "list-records" }, records),
     list === undefined
@@ -456,7 +466,7 @@ function article(props: LayoutProps): ComponentChildren {
 /** The page's own headings plus one `h2` per group, on a copy so the page itself stays untouched. */
 function tocFor(props: LayoutProps): LayoutProps {
   const groups = groupsOf(props);
-  if (groups.length === 0) return props;
+  if (groups.length === 0 || expandedIndex(props)) return props;
   const headings: Heading[] = [
     ...props.page.headings,
     ...groups.map((group) => ({ depth: 2 as const, id: group.id, text: group.key, pos: props.page.source })),
