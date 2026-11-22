@@ -52,7 +52,7 @@ function article(props: LayoutProps, feed: string | undefined): ComponentChildre
   const authorId = textOf(front.author);
   const author = authorId === undefined ? undefined : authorProfileOf(props.site, authorOf(props.site, authorId), authorId);
   const description = textOf(front.description);
-  const body = { __html: highlightFences(articleHtml(page.html, page.lang), codeBackgrounds(props.site.config.theme.options)) };
+  const body = { __html: highlightFences(articleHtml(page.html, page.lang), codeBackgrounds(props.site.config.theme.options), page.lang, page.source.file) };
   return h(
     "article",
     { class: "doc post", "data-pagefind-body": true },

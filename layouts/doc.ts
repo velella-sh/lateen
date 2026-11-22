@@ -55,7 +55,7 @@ function article(props: LayoutProps): ComponentChildren {
     }),
     staleSlot(props),
     tocFold(props) as ComponentChildren,
-    h("div", { class: "doc-body", "data-quickstart": quickstart || undefined, dangerouslySetInnerHTML: { __html: highlightFences(articleHtml(page.html, page.lang), backdrops, page.lang) } }),
+    h("div", { class: "doc-body", "data-quickstart": quickstart || undefined, dangerouslySetInnerHTML: { __html: highlightFences(articleHtml(page.html, page.lang), backdrops, page.lang, page.source.file) } }),
     pageToolSlot(props),
     docPageFooter(props) as ComponentChildren,
     pager(props) as ComponentChildren,

@@ -32,8 +32,8 @@ export function lineId(block: string, line: number): string {
 }
 
 /** A line-id callback that names only lines an annotation covers, so the code gets no text and no extra ids. */
-export function annotationLineId(block: string, annotations: readonly CodeAnnotation[]): (line: number) => string | undefined {
-  return (line) => (annotations.some((note) => line >= note.from && line <= note.to) ? lineId(block, line) : undefined);
+export function annotationLineId(block: string, annotations: readonly CodeAnnotation[], firstLine = 1): (line: number) => string | undefined {
+  return (line) => (annotations.some((note) => line >= note.from && line <= note.to) ? lineId(block, line + firstLine - 1) : undefined);
 }
 
 /**
@@ -41,15 +41,17 @@ export function annotationLineId(block: string, annotations: readonly CodeAnnota
  * line or range in a link to that line's span, followed by its text. Every value is escaped; nothing here
  * enters the `<pre>`, so copied code stays clean. Returns an empty string when there are no notes.
  */
-export function renderAnnotations(annotations: readonly CodeAnnotation[], block: string, lang: string): string {
+export function renderAnnotations(annotations: readonly CodeAnnotation[], block: string, lang: string, firstLine = 1): string {
   if (annotations.length === 0) return "";
   const items = annotations
     .map((note) => {
+      const from = note.from + firstLine - 1;
+      const to = note.to + firstLine - 1;
       const label =
-        note.from === note.to
-          ? t(lang, "code_annotation_line", { line: note.from })
-          : t(lang, "code_annotation_lines", { from: note.from, to: note.to });
-      const link = `<a class="${LINK_CLASS}" href="#${lineId(block, note.from)}">${escapeHtml(label)}</a>`;
+        from === to
+          ? t(lang, "code_annotation_line", { line: from })
+          : t(lang, "code_annotation_lines", { from, to });
+      const link = `<a class="${LINK_CLASS}" href="#${lineId(block, from)}">${escapeHtml(label)}</a>`;
       return `<li class="${ITEM_CLASS}">${link} <span class="${TEXT_CLASS}">${escapeHtml(note.text)}</span></li>`;
     })
     .join("");

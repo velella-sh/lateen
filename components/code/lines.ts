@@ -10,6 +10,8 @@ import { escapeHtml } from "./escape.ts";
 export type LineRange = { readonly from: number; readonly to: number };
 
 export type LinesOptions = {
+  /** Displayed number of the first code line, when a block comes from an external source. */
+  firstLine?: number;
   /** Lines to highlight, from the fence's `{1,3-5}`. */
   highlight?: readonly LineRange[];
   /**
@@ -69,9 +71,10 @@ export function decorateLines(innerHtml: string, options: LinesOptions = {}): st
   return innerHtml
     .split("\n")
     .map((line, index) => {
-      const number = index + 1;
-      const classes = isHighlighted(number, ranges) ? `${LINE_CLASS} ${HIGHLIGHT_CLASS}` : LINE_CLASS;
-      const id = options.lineId?.(number);
+      const relative = index + 1;
+      const number = index + (options.firstLine ?? 1);
+      const classes = isHighlighted(relative, ranges) ? `${LINE_CLASS} ${HIGHLIGHT_CLASS}` : LINE_CLASS;
+      const id = options.lineId?.(relative);
       const target = id === undefined ? "" : `<span id="${id}"></span>`;
       const anchorId = block === undefined ? undefined : lineAnchorId(block, number);
       const idAttr = anchorId === undefined ? "" : ` id="${anchorId}"`;
@@ -83,8 +86,8 @@ export function decorateLines(innerHtml: string, options: LinesOptions = {}): st
             )}"></a>`;
       const numberAttr = options.numbers ? ` data-line="${number}"` : "";
       const aliases = [
-        options.legacyBlock === undefined ? undefined : lineAnchorId(options.legacyBlock, number),
-        options.legacyLineId?.(number),
+        options.legacyBlock === undefined ? undefined : lineAnchorId(options.legacyBlock, relative),
+        options.legacyLineId?.(relative),
       ].filter((alias) => alias !== undefined && alias !== id && alias !== anchorId)
         .map((alias) => `<span id="${alias}"></span>`).join("");
       const content = `${link}${target}${aliases}${unwrapLine(line)}`;
