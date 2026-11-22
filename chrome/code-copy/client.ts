@@ -334,24 +334,15 @@ function attach(
     block.classList.toggle?.(WRAPPED_CLASS, wrapped);
   });
 
-  const size = doc.createElement("span");
-  size.setAttribute("class", "copy-status-size");
-  size.setAttribute("aria-hidden", "true");
-  size.textContent = labels.failed;
-  bar.append(button, status, wrap, size);
+  bar.append(button, status, wrap);
 
-  // A titled block already has a header row. Its controls join that row, so the name, the language,
-  // and Copy/Wrap read as one bar instead of two stacked strips. Read the heading before the frame
-  // takes its place beside the block.
-  const headingBefore = block.previousElementSibling ?? null;
-
+  // A titled block's controls join its file-name strip, so name, language and buttons share a row.
+  const heading = block.previousElementSibling;
   const frame = doc.createElement("div");
   frame.setAttribute("class", FRAME_CLASS);
   block.before(frame);
   frame.append(bar, block);
-
-  const title = headingBefore === null ? "" : headingBefore.getAttribute("class") ?? "";
-  if (title.split(/\s+/).includes("code-title")) headingBefore!.append(bar);
+  if (heading?.getAttribute("class")?.includes("code-title")) heading.append(bar);
 
   const ui = { copyIcon, checkIcon, status };
   let clicks = 0;

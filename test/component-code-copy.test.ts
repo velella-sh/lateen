@@ -356,9 +356,9 @@ test("the live message is a status region that starts empty", () => {
   assert.equal(status.attrs.class, STATUS_CLASS);
   assert.equal(status.attrs.role, "status");
   assert.equal(status.textContent, "");
-  const size = bar.children[3] as FakeNode;
-  assert.equal(size.attrs["aria-hidden"], "true");
-  assert.equal(size.textContent, FAILED);
+  // The bar holds the button, the status and the wrap toggle, in that order; no hidden spacer.
+  assert.equal(bar.children.length, 3);
+  assert.equal((bar.children[2] as FakeNode).attrs.class, WRAP_BUTTON_CLASS);
 });
 
 test("adjacent copy controls announce on their own status region, one action at a time", async () => {

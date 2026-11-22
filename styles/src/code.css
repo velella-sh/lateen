@@ -167,11 +167,7 @@
     text-overflow: ellipsis;
   }
 
-  /* The flexible status reserves its own room; the hidden spacer is no longer a column. */
-  .copy-status-size {
-    display: none;
-  }
-
+  /* The flexible status reserves its own room, so the controls never shift when a result appears. */
   .code-copy:has(> svg:last-child[hidden]) + .code-copy-status {
     color: var(--color-danger);
   }
