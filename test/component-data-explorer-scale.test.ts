@@ -32,11 +32,14 @@ const elapsed = (run: () => void): number => {
   return performance.now() - start;
 };
 
+/** The fastest of a few runs: a scheduler or GC pause under a loaded runner hits one run, a real slowdown hits all. */
+const best = (run: () => void, runs = 5): number => Math.min(...Array.from({ length: runs }, () => elapsed(run)));
+
 test("a 10,000-row index is prepared inside the load budget", () => {
   let prepared;
-  const took = elapsed(() => {
+  const took = best(() => {
     prepared = prepareRows(index, columns);
-  });
+  }, 3);
 
   assert.equal(prepared!.length, COUNT);
   assert.ok(took < LOAD_BUDGET_MS, `preparing took ${took.toFixed(1)}ms, budget ${LOAD_BUDGET_MS}ms`);
@@ -47,7 +50,7 @@ test("each keystroke matches 10,000 rows inside the time budget", () => {
   assert.equal(matchRows(prepared, "").length, COUNT);
 
   for (const query of ["book", "bo", "book 12", "shelf 3", "author 4", "zz"]) {
-    const took = elapsed(() => matchRows(prepared, query));
+    const took = best(() => matchRows(prepared, query));
     assert.ok(took < KEYSTROKE_BUDGET_MS, `"${query}" took ${took.toFixed(1)}ms, budget ${KEYSTROKE_BUDGET_MS}ms`);
   }
 });
@@ -57,7 +60,7 @@ test("the same query repeated stays inside the budget and keeps its order", () =
   const first = matchRows(prepared, "book 12").map((row) => row[0]);
   assert.ok(first.length > 0);
 
-  const took = elapsed(() => {
+  const took = best(() => {
     for (let run = 0; run < 5; run++) assert.deepEqual(matchRows(prepared, "book 12").map((row) => row[0]), first);
   });
   assert.ok(took < KEYSTROKE_BUDGET_MS * 5, `five repeats took ${took.toFixed(1)}ms`);

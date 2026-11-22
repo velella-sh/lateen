@@ -1,0 +1,266 @@
+{
+  "quickstart": {
+    "clip": {
+      "x": 392,
+      "y": 64,
+      "width": 624,
+      "height": 600
+    },
+    "title": {
+      "text": "Install and quickstart",
+      "lines": 1,
+      "lineHeight": 53.76,
+      "height": 53.75,
+      "width": 576,
+      "overflowsArticle": false,
+      "overflowsViewport": false,
+      "whiteSpace": "normal",
+      "textWrap": "balance",
+      "textOverflow": "clip"
+    },
+    "focus": [
+      {
+        "tag": "a",
+        "class": "skip-link",
+        "label": null,
+        "text": "Skip to content"
+      },
+      {
+        "tag": "a",
+        "class": "skip-link",
+        "label": null,
+        "text": "Skip to navigation"
+      },
+      {
+        "tag": "a",
+        "class": "brand",
+        "label": null,
+        "text": "Lateen"
+      },
+      {
+        "tag": "a",
+        "class": "",
+        "label": null,
+        "text": "Start"
+      },
+      {
+        "tag": "a",
+        "class": "",
+        "label": null,
+        "text": "Components"
+      },
+      {
+        "tag": "a",
+        "class": "",
+        "label": null,
+        "text": "Customize"
+      },
+      {
+        "tag": "button",
+        "class": "search-trigger",
+        "label": null,
+        "text": "Search"
+      },
+      {
+        "tag": "button",
+        "class": "iconbtn theme-toggle-button",
+        "label": "Color theme: Dark. Switch to light.",
+        "text": ""
+      },
+      {
+        "tag": "summary",
+        "class": "",
+        "label": null,
+        "text": "Start"
+      },
+      {
+        "tag": "a",
+        "class": "",
+        "label": null,
+        "text": "Overview"
+      },
+      {
+        "tag": "a",
+        "class": "",
+        "label": null,
+        "text": "Install and quickstart"
+      },
+      {
+        "tag": "a",
+        "class": "",
+        "label": null,
+        "text": "Starters"
+      }
+    ],
+    "headerFocus": [
+      {
+        "tag": "a",
+        "class": "",
+        "label": null,
+        "text": "Start"
+      },
+      {
+        "tag": "summary",
+        "class": "",
+        "label": null,
+        "text": "Page tools"
+      },
+      {
+        "tag": "button",
+        "class": "block-action",
+        "label": "Edit with your agent (site/install.md:9:1-9:146)",
+        "text": "Edit with your agent"
+      },
+      {
+        "tag": "button",
+        "class": "block-action",
+        "label": "Edit with your agent (site/install.md:13:1-13:10)",
+        "text": "Edit with your agent"
+      },
+      {
+        "tag": "button",
+        "class": "block-action",
+        "label": "Edit with your agent (site/install.md:15:1-15:59)",
+        "text": "Edit with your agent"
+      },
+      {
+        "tag": "button",
+        "class": "code-copy",
+        "label": null,
+        "text": "Copy command"
+      }
+    ]
+  },
+  "long-title": {
+    "clip": {
+      "x": 392,
+      "y": 64,
+      "width": 624,
+      "height": 720
+    },
+    "title": {
+      "text": "Reading a page header when the title is long enough to wrap across several lines and still keep its hierarchy",
+      "lines": 5,
+      "lineHeight": 53.76,
+      "height": 268.75,
+      "width": 576,
+      "overflowsArticle": false,
+      "overflowsViewport": false,
+      "whiteSpace": "normal",
+      "textWrap": "balance",
+      "textOverflow": "clip"
+    },
+    "focus": [
+      {
+        "tag": "a",
+        "class": "skip-link",
+        "label": null,
+        "text": "Skip to content"
+      },
+      {
+        "tag": "a",
+        "class": "skip-link",
+        "label": null,
+        "text": "Skip to navigation"
+      },
+      {
+        "tag": "a",
+        "class": "brand",
+        "label": null,
+        "text": "Lateen"
+      },
+      {
+        "tag": "a",
+        "class": "",
+        "label": null,
+        "text": "Start"
+      },
+      {
+        "tag": "a",
+        "class": "",
+        "label": null,
+        "text": "Components"
+      },
+      {
+        "tag": "a",
+        "class": "",
+        "label": null,
+        "text": "Customize"
+      },
+      {
+        "tag": "a",
+        "class": "",
+        "label": null,
+        "text": "Samples"
+      },
+      {
+        "tag": "button",
+        "class": "search-trigger",
+        "label": null,
+        "text": "Search"
+      },
+      {
+        "tag": "button",
+        "class": "iconbtn theme-toggle-button",
+        "label": "Color theme: Dark. Switch to light.",
+        "text": ""
+      },
+      {
+        "tag": "summary",
+        "class": "",
+        "label": null,
+        "text": "Start"
+      },
+      {
+        "tag": "a",
+        "class": "",
+        "label": null,
+        "text": "Components"
+      },
+      {
+        "tag": "summary",
+        "class": "",
+        "label": null,
+        "text": "Customize"
+      }
+    ],
+    "headerFocus": [
+      {
+        "tag": "a",
+        "class": "",
+        "label": null,
+        "text": "Samples"
+      },
+      {
+        "tag": "summary",
+        "class": "",
+        "label": null,
+        "text": "Page tools"
+      },
+      {
+        "tag": "summary",
+        "class": "trust-panel-chip",
+        "label": null,
+        "text": "Trust: Unreviewed"
+      },
+      {
+        "tag": "button",
+        "class": "block-action",
+        "label": "Edit with your agent (site/header-sample.md:11:1-11:24)",
+        "text": "Edit with your agent"
+      },
+      {
+        "tag": "button",
+        "class": "block-action",
+        "label": "Edit with your agent (site/header-sample.md:13:1-13:91)",
+        "text": "Edit with your agent"
+      },
+      {
+        "tag": "summary",
+        "class": "",
+        "label": null,
+        "text": "Markdown"
+      }
+    ]
+  }
+}

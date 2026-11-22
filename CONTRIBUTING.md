@@ -22,11 +22,13 @@ npm run typecheck
 npm test
 ```
 
+While you work, `npm run test:changed` runs only the tests that mention the files you changed (against `origin/main`); it is not a gate, so run `npm test` before you push. `npm run new:component <name>` creates a component folder and its test.
+
 A change to behavior needs a test beside the others in `test/`. A change to the docs site is checked with `npx mizzen check site --theme .` and must report 0 errors.
 
 ## Visual baselines
 
-`npm run test:visual` takes the screenshots and compares each with `test/visual/baselines/<case>.png`. A failure writes the before, after, diff and a side-by-side image into `test/visual/out/review/` and prints their paths; a screenshot with no baseline fails and says how to create one. Baselines change only with `node scripts/test-visual.ts --update`, and only in a pull request labeled `visual-change` that says what changed. The CI `visual` job runs both checks on `ubuntu-24.04`, fails when a baseline changes without that label, and writes the page, matrix entry and changed share to the step summary. Record them on CI, not on your machine: fonts and the rasteriser differ locally. The published page is [Visual gates](https://velella.sh/lateen/visual-gates/). See `docs/design/visual-gates.md`.
+`npm run test:visual` takes the screenshots and compares each with `test/visual/baselines/<case>.png`. A failure writes the before, after, diff and a side-by-side image into `test/visual/out/review/` and prints their paths; a screenshot with no baseline fails and says how to create one. Baselines change only with `node scripts/test-visual.ts --update`, and only in a pull request labeled `visual-change` that says what changed. The CI `visual` job runs both checks on `ubuntu-24.04`, fails when a baseline changes without that label, and writes the page, matrix entry and changed share to the step summary. Record them on CI, not on your machine: fonts and the rasteriser differ locally, so add the `record-baselines` label to your pull request (or run the workflow on your branch) and it commits them and starts the checks for you. The published page is [Visual gates](https://velella.sh/lateen/visual-gates/). See `docs/design/visual-gates.md`.
 
 ## Ground rules
 

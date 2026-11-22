@@ -2,12 +2,11 @@ import { h } from "preact";
 import { isRecord } from "../src/guards.ts";
 import type { ComponentChildren } from "preact";
 import type { Layout, LayoutProps } from "@velella/mizzen/contracts";
-import breadcrumb from "../chrome/breadcrumb/index.ts";
 import pageFooter from "../chrome/page-footer/index.ts";
 import { tocFold } from "../chrome/toc/index.ts";
 import { t } from "../i18n/index.ts";
 import { articleHtml } from "../src/article-html.ts";
-import { articleShell, titleFromBody } from "./shared/index.ts";
+import { articleHeader, articleShell } from "./shared/index.ts";
 
 /**
  * The API reference layout: the docs article (breadcrumb, title, body) beside a sticky panel of
@@ -106,8 +105,7 @@ function article(props: LayoutProps): ComponentChildren {
   return h(
     "article",
     { class: "doc", "data-pagefind-body": true },
-    breadcrumb(props) as ComponentChildren,
-    titleFromBody(props) ? null : h("h1", null, page.title),
+    articleHeader(props, { description: null }),
     tocFold(props) as ComponentChildren,
     h("div", { class: "doc-body", dangerouslySetInnerHTML: { __html: articleHtml(page.html) } }),
     h("div", { class: "doc-actions" }, pageFooter(props) as ComponentChildren),

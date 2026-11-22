@@ -557,25 +557,21 @@
     background: var(--background);
   }
 
+  /* Endpoint introductions: the hand-written endpoint block, the generated operation page, and
+     the reference index share one line, one method badge, and one wrapping path. The method's
+     text is its label, so color is never the only signal. */
+  :is(.endpoint-line, .api-reference-line) {
+    overflow-wrap: anywhere;
+  }
+
   .endpoint {
-    @apply my-4;
-  }
-
-  .endpoint-line {
-    @apply flex items-center gap-2.5;
-    font-family: var(--type-font-mono);
-    font-size: 0.84rem;
-  }
-
-  .endpoint-path {
-    @apply text-sm;
+    margin-block: var(--space-6);
   }
 
   .endpoint-param {
     color: var(--link);
   }
 
-  .endpoint-params,
   .key-value {
     display: grid;
     grid-template-columns: 7rem 1fr;
@@ -870,6 +866,49 @@
     margin-block-start: 0;
   }
 
+  /*
+   * The changelog layout's release list. Scoped to the layout's article so the directive on a docs
+   * page keeps its compact look: the version leads each release, the date follows it as the second
+   * fact, and a heavier rule with generous space marks where one release ends and the next begins.
+   */
+  .changelog .changelog-toc {
+    margin-block: 1.25rem 2.5rem;
+  }
+
+  .changelog .changelog-toc-list {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.25rem 1rem;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+    overflow-wrap: anywhere;
+  }
+
+  .changelog .changelog-entry + .changelog-entry {
+    margin-block-start: clamp(2.5rem, 7vw, 3.5rem);
+    padding-block-start: clamp(1.75rem, 5vw, 2.25rem);
+    border-color: var(--border-strong);
+  }
+
+  .changelog .changelog-entry-version {
+    flex-wrap: wrap;
+    margin: 0 0 0.5rem;
+    font-size: clamp(1.625rem, 5vw, 2rem);
+    line-height: 1.15;
+    overflow-wrap: anywhere;
+  }
+
+  .changelog .changelog-entry-meta {
+    margin-block-end: 1.25rem;
+  }
+
+  .changelog .changelog-entry-date {
+    color: var(--foreground);
+    font-variant-numeric: tabular-nums;
+    font-weight: 600;
+  }
+
   .figure {
     @apply my-6;
   }
@@ -969,7 +1008,8 @@
     @apply inline-flex items-center gap-1;
     margin: 0;
     color: var(--muted-foreground);
-    font-size: 0.8125rem;
+    font-size: 0.75rem;
+    line-height: 1.25rem;
   }
 
   .trust-panel {
@@ -1059,7 +1099,12 @@
   }
 
   .page-status {
-    @apply flex flex-wrap items-center gap-2 rounded-xl px-3 py-2 my-4 text-sm;
+    @apply flex flex-wrap items-center rounded-lg;
+    gap: 0.375rem;
+    margin-block: 0.5rem;
+    padding: 0.375rem 0.625rem;
+    font-size: 0.8125rem;
+    line-height: 1.4;
   }
 
   .page-status-message {
@@ -1081,13 +1126,16 @@
     margin: 0.75rem 0;
   }
 
-  .list,
-  .item {
+  /* The prose helper an author writes as `<div class="list">` inside a page body. It is scoped to
+     `.doc-body` so it never reaches the `<article class="list">` page layout, whose rows the list
+     module (styles/src/list.css) styles instead. */
+  .doc-body .list,
+  .doc-body .item {
     display: grid;
   }
 
-  .item,
-  .list a {
+  .doc-body .item,
+  .doc-body .list a {
     display: grid;
     grid-template-columns: minmax(7.5rem, 0.4fr) minmax(0, 1fr);
     gap: 0.9rem 1.75rem;
@@ -1097,25 +1145,25 @@
     text-decoration: none;
   }
 
-  .item strong,
-  .list a strong {
+  .doc-body .item strong,
+  .doc-body .list a strong {
     font-family: var(--type-font-mono);
     font-size: 0.8125rem;
     font-weight: 500;
     line-height: 1.375rem;
   }
 
-  .item span,
-  .list a span,
-  .item em,
-  .list a em {
+  .doc-body .item span,
+  .doc-body .list a span,
+  .doc-body .item em,
+  .doc-body .list a em {
     color: var(--muted-foreground);
     font-style: normal;
     font-size: 0.9375rem;
     line-height: 1.5rem;
   }
 
-  .list a:hover strong {
+  .doc-body .list a:hover strong {
     color: var(--link);
   }
 

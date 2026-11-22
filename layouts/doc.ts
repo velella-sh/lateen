@@ -6,7 +6,6 @@ import { icon } from "../src/icon.ts";
 import type { Layout, LayoutProps } from "@velella/mizzen/contracts";
 import { staleSlot } from "../src/stale.ts";
 import blockActions from "../chrome/block-actions/index.ts";
-import breadcrumb from "../chrome/breadcrumb/index.ts";
 import feedback from "../chrome/feedback/index.ts";
 import lastUpdated from "../chrome/last-updated/index.ts";
 import { docPageFooter } from "../chrome/page-footer/index.ts";
@@ -22,7 +21,7 @@ import versionNotice from "../components/version-notice/index.ts";
 import trustPanel from "../components/trust-panel/index.ts";
 import { codeBackgrounds } from "../src/brand.ts";
 import { articleHtml } from "../src/article-html.ts";
-import { articleShell, statusProps, titleFromBody } from "./shared/index.ts";
+import { articleHeader, articleShell, statusProps } from "./shared/index.ts";
 
 /**
  * The page itself: breadcrumb, drift banner, status banner, title, description, grouped trust,
@@ -40,27 +39,24 @@ function article(props: LayoutProps): ComponentChildren {
   return h(
     "article",
     { class: "doc", "data-pagefind-body": true },
-    h("div", { class: "doc-context" },
-      breadcrumb(props) as ComponentChildren,
-      h("details", { class: "doc-tools", "data-pagefind-ignore": true },
+    articleHeader(props, {
+      tools: h("details", { class: "doc-tools", "data-pagefind-ignore": true },
         h("summary", null, t(page.lang, "article_page_tools"), icon({ node: ChevronDown })),
         h("div", { class: "article-tool-panel" }, sourceMode(props) as ComponentChildren),
       ),
-    ),
-    driftBanner({ props: {}, page, site: props.site, html: "" }) as ComponentChildren,
-    pageStatus({ props: statusProps(page), page, site: props.site, html: "" }) as ComponentChildren,
-    versionNotice({ props: {}, page, site: props.site, html: "" }) as ComponentChildren,
-    titleFromBody(props) ? null : h("h1", null, page.title),
-    typeof page.frontMatter.description === "string" && page.frontMatter.description.trim() !== ""
-      ? h("p", { class: "doc-description dek" }, page.frontMatter.description)
-      : null,
-    quickstart ? null : h(
-      "div",
-      { class: "doc-meta" },
-      trustPanel({ props: {}, page, site: props.site, html: "" }) as ComponentChildren,
-      lastUpdated(props) as ComponentChildren,
-      readingTime({ props: {}, page, site: props.site, html: "" }) as ComponentChildren,
-    ),
+      notices: [
+        driftBanner({ props: {}, page, site: props.site, html: "" }) as ComponentChildren,
+        pageStatus({ props: statusProps(page), page, site: props.site, html: "" }) as ComponentChildren,
+        versionNotice({ props: {}, page, site: props.site, html: "" }) as ComponentChildren,
+      ],
+      meta: quickstart
+        ? undefined
+        : [
+            trustPanel({ props: {}, page, site: props.site, html: "" }) as ComponentChildren,
+            lastUpdated(props) as ComponentChildren,
+            readingTime({ props: {}, page, site: props.site, html: "" }) as ComponentChildren,
+          ],
+    }),
     staleSlot(props),
     tocFold(props) as ComponentChildren,
     h("div", { class: "doc-body", "data-quickstart": quickstart || undefined, dangerouslySetInnerHTML: { __html: highlightFences(articleHtml(page.html), backdrops, page.lang) } }),

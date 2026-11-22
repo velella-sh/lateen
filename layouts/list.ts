@@ -445,7 +445,7 @@ function article(props: LayoutProps): ComponentChildren {
       : null,
     list !== undefined && count === 0 ? h("p", { class: "list-empty" }, t(props.page.lang, "list_empty")) : null,
     groupSummary(props),
-    records,
+    records === null ? null : h("div", { class: "list-records" }, records),
     list === undefined
       ? null
       : (pagination({ url: props.page.url, lang: props.page.lang, pagination: list.pagination }) as ComponentChildren),

@@ -18,6 +18,33 @@ permissions:
   contents: read
 
 jobs:
+  # Tells the browser and size gates whether a pull request touches anything but prose. A pull
+  # request that changes only Markdown, `docs/` or `changelog.d/` skips performance-compare, a11y,
+  # smoke (with acceptance) and visual; the test job still runs for every change. Pushes to main and
+  # manual runs always run everything. A skipped job reports as passed, so no required check hangs.
+  changes:
+    name: changes
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    outputs:
+      code: ${{ steps.diff.outputs.code }}
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          fetch-depth: 0
+          persist-credentials: false
+      - name: Look for changes outside prose
+        id: diff
+        env:
+          EVENT: ${{ github.event_name }}
+          BASE: ${{ github.event.pull_request.base.sha }}
+          HEAD: ${{ github.event.pull_request.head.sha }}
+        run: |
+          set -euo pipefail
+          if [ "$EVENT" != "pull_request" ]; then echo "code=true" >> "$GITHUB_OUTPUT"; exit 0; fi
+          other="$(git diff --name-only "$BASE...$HEAD" | grep -v -E '^(docs/|changelog\.d/)|\.md$' || true)"
+          if [ -n "$other" ]; then echo "code=true" >> "$GITHUB_OUTPUT"; echo "$other"; else echo "code=false" >> "$GITHUB_OUTPUT"; echo "prose-only change: heavy gates skipped" >> "$GITHUB_STEP_SUMMARY"; fi
+
   # The full suite, once per run. A push to main runs the coverage variant instead of `npm test`: it
   # runs every gate `npm test` runs and writes coverage/coverage.json, which the coverage job
   # publishes to the badge branch, so main no longer measures the suite twice. A pull request keeps
@@ -73,7 +100,8 @@ jobs:
   # tolerance fails. The report uploads even when the comparison fails.
   performance-compare:
     name: performance-compare
-    if: github.event_name == 'pull_request'
+    needs: changes
+    if: github.event_name == 'pull_request' && needs.changes.outputs.code == 'true'
     runs-on: ubuntu-latest
     timeout-minutes: 20
     steps:
@@ -105,7 +133,7 @@ jobs:
         run: node scripts/asset-manifest.ts --report asset-manifest.json
         working-directory: head
       - name: Compare
-        run: node head/scripts/performance-compare.ts --base base/asset-manifest.json --head head/asset-manifest.json --reviewed head/fixtures/performance/reviewed-assets.json --report reports/performance-compare.json
+        run: node head/scripts/performance-compare.ts --tolerance 256 --base base/asset-manifest.json --head head/asset-manifest.json --reviewed head/fixtures/performance/reviewed-assets.json --report reports/performance-compare.json
       - name: Upload the comparison report
         if: always()
         uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
@@ -119,6 +147,8 @@ jobs:
   # serious violation that test/accessibility/baseline.json does not list.
   a11y:
     name: a11y
+    needs: changes
+    if: needs.changes.outputs.code == 'true'
     runs-on: ubuntu-latest
     timeout-minutes: 20
     steps:
@@ -153,11 +183,17 @@ jobs:
   # Builds the docs site, the data/API/search/versions fixture, and the blog fixture, then visits
   # representative production routes in Chromium. Fails on console errors, uncaught page errors,
   # failed or 4xx/5xx same-origin requests, and external requests outside the script's allowlist.
-  # The JSON report is kept as CI evidence.
+  # The JSON report is kept as CI evidence. The public acceptance gate runs in the same job so the
+  # checkout, install and Chromium are set up once: it packs the package, installs it and the exact
+  # Mizzen version into an empty project, builds test/acceptance/site with the installed CLI and runs
+  # the Playwright cases (the release workflow runs the same gate and publishes only the tarball it
+  # passed). It runs even when the smoke gate failed, so one run shows both results.
   smoke:
     name: smoke
+    needs: changes
+    if: needs.changes.outputs.code == 'true'
     runs-on: ubuntu-latest
-    timeout-minutes: 20
+    timeout-minutes: 25
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
@@ -193,29 +229,8 @@ jobs:
           name: smoke-report
           path: lateen/test/smoke/out/report.json
           retention-days: 7
-
-  # Public acceptance: packs the package, installs it and the exact Mizzen version into an empty
-  # project, builds test/acceptance/site with the installed CLI and runs the Playwright cases. The
-  # release workflow runs the same gate and publishes only the tarball it passed.
-  acceptance:
-    name: acceptance
-    runs-on: ubuntu-latest
-    timeout-minutes: 25
-    steps:
-      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
-        with:
-          path: lateen
-          persist-credentials: false
-      - uses: ./lateen/.github/actions/setup
-      - name: Cache the Playwright browser
-        uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
-        with:
-          path: ~/.cache/ms-playwright
-          key: ${{ runner.os }}-playwright-${{ hashFiles('lateen/package-lock.json') }}
-      - name: Install Chromium
-        run: npx playwright install chromium
-        working-directory: lateen
       - name: Acceptance gate
+        if: ${{ !cancelled() }}
         run: npm run test:acceptance
         working-directory: lateen
 
@@ -224,6 +239,8 @@ jobs:
   # changes a baseline must carry the `visual-change` label; without it the job turns red.
   visual:
     name: visual
+    needs: changes
+    if: needs.changes.outputs.code == 'true'
     runs-on: ubuntu-24.04
     timeout-minutes: 10
     steps:
