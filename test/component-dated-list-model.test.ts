@@ -84,9 +84,9 @@ test("toc is on only when asked for and there is something to link", () => {
   assert.equal(list({ items, toc: "false" }).toc, false);
 });
 
-test("a Persian page groups in its own calendar", () => {
+test("a Persian page groups in the default calendar with Persian month names", () => {
   const result = list({ items }, "fa");
-  assert.deepEqual(result.months.map((month) => month.text), ["۱۴۰۵ آبان", "۱۴۰۵ آذر"]);
+  assert.deepEqual(result.months.map((month) => month.text), ["نوامبر ۲۰۲۶", "دسامبر ۲۰۲۶"]);
 });
 
 test("safe feed and calendar addresses are kept, trimmed; unsafe ones are dropped", () => {

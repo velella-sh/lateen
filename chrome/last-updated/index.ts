@@ -2,7 +2,7 @@ import { h } from "preact";
 import { isRecord } from "../../src/guards.ts";
 import type { Chrome, Page, Site } from "@velella/mizzen/contracts";
 import { t } from "../../i18n/index.ts";
-import { calendarDate, calendarDay, isoDate } from "../../src/dates.ts";
+import { calendarDate, calendarDay, configuredCalendar, isoDate, type DateCalendar } from "../../src/dates.ts";
 
 /** Class on the line. `style.css` styles it. */
 export const CLASS = "last-updated";
@@ -119,11 +119,12 @@ function reviewOf(site: Site, url: string): Record<string, unknown> | undefined 
 }
 
 /**
- * The build's as-of date from the site's data: `site.data.build.date` (or `site.data.build.asOf`) when a
- * site writes `_data/build.yml`, else `site.data.reviewers.asOf` on `_data/reviewers.yml`. Nothing else is
- * used: reading the clock would make two builds of the same source differ.
+ * The build's configured as-of date, falling back to `site.data.build` and then
+ * `site.data.reviewers.asOf` for sites with the older date settings.
  */
 export function asOfOf(site: Site): string | undefined {
+  const configured = isoDate(site.config?.asOf);
+  if (configured !== undefined) return configured;
   const build = site.data.build;
   if (typeof build === "string") return isoDate(build);
   if (isRecord(build)) {
@@ -251,7 +252,7 @@ export interface DateDisplay {
  * `datetime`, and no exact value, so a date the build could not read never becomes a freshness claim,
  * a review claim, or machine-readable provenance. The same model serves the markup and the tests.
  */
-export function displayOf(entry: PageDate, asOf: string | undefined, lang: string): DateDisplay | undefined {
+export function displayOf(entry: PageDate, asOf: string | undefined, lang: string, calendar: DateCalendar = "gregorian"): DateDisplay | undefined {
   if (entry.date === undefined) {
     return {
       kind: "unavailable",
@@ -264,7 +265,7 @@ export function displayOf(entry: PageDate, asOf: string | undefined, lang: strin
     };
   }
 
-  const absolute = calendarDate(entry.date, lang);
+  const absolute = calendarDate(entry.date, lang, calendar);
   if (absolute === undefined) return undefined;
 
   // ISO calendar dates compare correctly as strings, so a later day sorts after the build's as-of day.
@@ -285,8 +286,8 @@ export function displayOf(entry: PageDate, asOf: string | undefined, lang: strin
  * whose `title` and `aria-label` carry the exact date; rejected evidence is a neutral span marked with
  * `data-date-source` and `data-date-status`, and never a `<time>` element.
  */
-function datePart(entry: PageDate, asOf: string | undefined, lang: string) {
-  const display = displayOf(entry, asOf, lang);
+function datePart(entry: PageDate, asOf: string | undefined, lang: string, calendar: DateCalendar | undefined) {
+  const display = displayOf(entry, asOf, lang, calendar);
   if (display === undefined) return null;
 
   if (display.kind === "unavailable") {
@@ -345,7 +346,8 @@ const lastUpdated: Chrome = ({ site, page }) => {
   if (dates.length === 0 && names.length === 0) return null;
 
   const asOf = asOfOf(site);
-  const dateNodes = dates.map((entry) => datePart(entry, asOf, page.lang)).filter((node) => node !== null);
+  const calendar = configuredCalendar(site.config);
+  const dateNodes = dates.map((entry) => datePart(entry, asOf, page.lang, calendar)).filter((node) => node !== null);
   if (dateNodes.length === 0 && names.length === 0) return null;
 
   return h(

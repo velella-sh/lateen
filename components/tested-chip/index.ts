@@ -4,7 +4,7 @@ import { Check, CircleDashed, CircleQuestionMark, Minus, X } from "lucide";
 import type { IconNode } from "lucide";
 import { t } from "../../i18n/index.ts";
 import { icon as lucideIcon } from "../../src/icon.ts";
-import { calendarDate } from "../../src/dates.ts";
+import { calendarDate, configuredCalendar } from "../../src/dates.ts";
 
 /** The Markdown directive this component handles: `::tested-chip{passed=2 failed=0}`. */
 export const directive = "tested-chip";
@@ -256,7 +256,7 @@ const testedChip: Component<TestedChipProps> = ({ props, page, site }) => {
   const lang = page?.lang ?? "en";
   const state = stateOf(counts);
   const unavailable = state === "unavailable";
-  const date = counts.lastPassed === undefined ? undefined : calendarDate(counts.lastPassed, lang);
+  const date = counts.lastPassed === undefined ? undefined : calendarDate(counts.lastPassed, lang, configuredCalendar(site?.config));
   const tooltip = date === undefined ? undefined : t(lang, "tested_last_passed", { date: date.text });
 
   const linked = hasTrustPanel(site, page);

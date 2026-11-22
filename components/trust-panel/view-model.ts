@@ -1,6 +1,6 @@
 import type { Page, Site, SiteConfig } from "@velella/mizzen/contracts";
 import { t } from "../../i18n/index.ts";
-import { calendarDate, isoDate } from "../../src/dates.ts";
+import { calendarDate, configuredCalendar, isoDate, type DateCalendar } from "../../src/dates.ts";
 import { optionOf } from "../../src/options.ts";
 import { commitUrlOf } from "../../src/repository.ts";
 import { isRecord, knownOf, textOf } from "../../src/guards.ts";
@@ -482,9 +482,9 @@ function chipText(lang: string, level: TrustLevel): string {
 }
 
 /** One provenance date row, or undefined when the date is missing or cannot be localised. */
-function dateRowView(label: string, iso: string | undefined, lang: string): DateRowView | undefined {
+function dateRowView(label: string, iso: string | undefined, lang: string, calendar: DateCalendar | undefined): DateRowView | undefined {
   if (iso === undefined) return undefined;
-  const date = calendarDate(iso, lang);
+  const date = calendarDate(iso, lang, calendar);
   if (date === undefined) return undefined;
   // The visible text stays localised; `datetime` and the tooltip keep every part of the written timestamp.
   const exact = iso === date.datetime ? date.text : iso;
@@ -519,8 +519,9 @@ export function trustPanelViewOf(props: TrustPanelProps, page: Page, site: Site 
   const options = trustOptions(site?.config);
   const contextPack = actionHrefOf(site?.config, page, options?.contextPackUrl, provenance);
   const suggestEdit = actionHrefOf(site?.config, page, options?.suggestEditUrl, provenance);
-  const generated = dateRowView(t(lang, "updated"), provenance.generatedAt, lang);
-  const reviewed = dateRowView(t(lang, "reviewed"), provenance.reviewedAt, lang);
+  const calendar = configuredCalendar(site?.config);
+  const generated = dateRowView(t(lang, "updated"), provenance.generatedAt, lang, calendar);
+  const reviewed = dateRowView(t(lang, "reviewed"), provenance.reviewedAt, lang, calendar);
 
   return {
     state: "valid",

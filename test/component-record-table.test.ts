@@ -45,7 +45,7 @@ test("columns keep their order and labels, and every cell uses its kind", () => 
   const out = render({ from: "books", columns });
   assert.match(out, /<th scope="col"[^>]*>Title<button[^>]*>[\s\S]*?<\/button><\/th><th scope="col"[^>]*>Pages<button[^>]*>[\s\S]*?<\/button><\/th><th scope="col"[^>]*>Published<button[^>]*>[\s\S]*?<\/button><\/th><th scope="col">Draft<\/th>/);
   assert.match(out, /<td class="record-table-cell" data-kind="number"[^>]*>120<\/td>/);
-  assert.match(out, /<td class="record-table-cell" data-kind="date"[^>]*><time datetime="2026-11-09">November 9, 2026<\/time><\/td>/);
+  assert.match(out, /<td class="record-table-cell" data-kind="date"[^>]*><time datetime="2026-11-09">9 November 2026<\/time><\/td>/);
   assert.match(out, /<td class="record-table-cell" data-kind="boolean"[^>]*>No<\/td>/);
   assert.match(out, /data-kind="boolean"[^>]*>Yes<\/td>/);
   assert.match(out, /<td class="record-table-cell" data-kind="date"[^>]*>2026-02-30<\/td>/);
@@ -95,7 +95,7 @@ test("a missing collection or columns shows a setup message", () => {
 test("a Persian page formats numbers, dates and booleans in Persian", () => {
   const out = render({ from: "books", columns }, "fa");
   assert.match(out, /data-kind="number"[^>]*>۱۲۰<\/td>/);
-  assert.match(out, /<time datetime="2026-11-09">۱۸ آبان ۱۴۰۵<\/time>/);
+  assert.match(out, /<time datetime="2026-11-09">۹ نوامبر ۲۰۲۶<\/time>/);
   assert.match(out, /data-kind="boolean"[^>]*>خیر<\/td>/);
 });
 

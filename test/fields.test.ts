@@ -54,10 +54,10 @@ test("a boolean reads yes or no in the page language", () => {
   assert.equal(render("maybe", "boolean", "en"), "maybe");
 });
 
-test("a date uses the page language's calendar and keeps its ISO form", () => {
+test("a date uses the site's calendar and the page language and keeps its ISO form", () => {
   const en = render("2026-11-09", "date", "en");
-  assert.equal(en, '<time datetime="2026-11-09">November 9, 2026</time>');
-  assert.match(render("2026-11-09", "date", "fa"), /^<time datetime="2026-11-09">۱۸ آبان ۱۴۰۵<\/time>$/);
+  assert.equal(en, '<time datetime="2026-11-09">9 November 2026</time>');
+  assert.match(render("2026-11-09", "date", "fa"), /^<time datetime="2026-11-09">۹ نوامبر ۲۰۲۶<\/time>$/);
   assert.match(render("2026-11-09", "date", "ar"), /^<time datetime="2026-11-09">.+<\/time>$/);
   assert.equal(render("2026-02-30", "date", "en"), "2026-02-30");
 });

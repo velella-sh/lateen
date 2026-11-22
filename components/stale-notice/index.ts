@@ -5,7 +5,7 @@ import { TriangleAlert } from "lucide";
 import { icon } from "../../src/icon.ts";
 import { fileUrlOf } from "../../src/repository.ts";
 import { t } from "../../i18n/index.ts";
-import { calendarDate } from "../../src/dates.ts";
+import { calendarDate, configuredCalendar } from "../../src/dates.ts";
 import { optionOf } from "../../src/options.ts";
 
 /**
@@ -103,7 +103,7 @@ const staleNotice: Component<StaleNoticeProps> = ({ props, page, site }) => {
   const lang = page?.lang ?? "en";
   const head = stale.files.slice(0, maxFiles);
   const rest = stale.files.slice(maxFiles);
-  const reviewed = stale.reviewed === undefined ? undefined : calendarDate(stale.reviewed, lang);
+  const reviewed = stale.reviewed === undefined ? undefined : calendarDate(stale.reviewed, lang, configuredCalendar(site?.config));
 
   return h(
     "aside",

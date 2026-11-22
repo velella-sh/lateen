@@ -2,7 +2,7 @@ import { h } from "preact";
 import type { ComponentChildren } from "preact";
 import type { ChangeEvent, Component } from "@velella/mizzen/contracts";
 import { patternOf, t } from "../../i18n/index.ts";
-import { calendarDate } from "../../src/dates.ts";
+import { calendarDate, configuredCalendar, type DateCalendar } from "../../src/dates.ts";
 import { formatField } from "../../src/fields.ts";
 import { optionOf } from "../../src/options.ts";
 
@@ -118,9 +118,9 @@ function detailOf(event: ChangeEvent, lang: string): ComponentChildren {
   return null;
 }
 
-function eventNode(event: ChangeEvent, lang: string): ComponentChildren {
+function eventNode(event: ChangeEvent, lang: string, calendar: DateCalendar | undefined): ComponentChildren {
   const label = t(lang, TYPE_KEYS[event.type]);
-  const date = calendarDate(event.date, lang);
+  const date = calendarDate(event.date, lang, calendar);
   return h(
     "li",
     {
@@ -135,8 +135,8 @@ function eventNode(event: ChangeEvent, lang: string): ComponentChildren {
   );
 }
 
-function listOf(events: readonly ChangeEvent[], lang: string): ComponentChildren {
-  return h("ol", { class: LIST_CLASS }, events.map((event) => eventNode(event, lang)));
+function listOf(events: readonly ChangeEvent[], lang: string, calendar: DateCalendar | undefined): ComponentChildren {
+  return h("ol", { class: LIST_CLASS }, events.map((event) => eventNode(event, lang, calendar)));
 }
 
 /** The changed fields in first-seen order; new entries in `ChangeEvent` that carry no field are skipped. */
@@ -178,6 +178,7 @@ const recordHistory: Component<RecordHistoryProps> = ({ props, page, site }) => 
 
   const lang = page?.lang ?? "en";
   const limit = limitOf(site as never);
+  const calendar = configuredCalendar(site?.config);
   const head = events.slice(0, limit);
   const rest = events.slice(limit);
 
@@ -195,14 +196,14 @@ const recordHistory: Component<RecordHistoryProps> = ({ props, page, site }) => 
       },
       t(lang, "history_shown", { count: events.length }),
     ),
-    listOf(head, lang),
+    listOf(head, lang, calendar),
     rest.length === 0
       ? null
       : h(
           "details",
           { class: DETAILS_CLASS },
           h("summary", null, t(lang, "history_earlier", { count: rest.length })),
-          listOf(rest, lang),
+          listOf(rest, lang, calendar),
         ),
   );
 };

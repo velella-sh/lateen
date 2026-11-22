@@ -197,7 +197,7 @@ test("a release renders its date, categories, and body through the changelog ent
 
   assert.match(page, /<section class="changelog-entry" id="v2-0-0"/);
   assert.match(page, /<h2 class="changelog-entry-version"[^>]*><span[^>]*>(?:<span[^>]*>Version <\/span>)?2\.0\.0<\/span>/);
-  assert.match(page, /<time class="changelog-entry-date" datetime="2026-02-01">February 1, 2026<\/time>/);
+  assert.match(page, /<time class="changelog-entry-date" datetime="2026-02-01">1 February 2026<\/time>/);
   assert.match(page, />Added<\/span>/);
   assert.match(page, />Fixed<\/span>/);
   assert.match(page, /<div class="changelog-entry-body"><div><p>See <a href="#v2-0-0">the notes<\/a>\.<\/p><\/div><\/div>/);
@@ -307,8 +307,8 @@ test("a duplicated section keeps its evidence and names itself with its shared i
     assert.ok(page.includes(`aria-labelledby="changelog-version-${id}"`), `accessible name of ${id}`);
     assert.ok(page.includes(`<span id="changelog-version-${id}"`), `version text id of ${id}`);
   }
-  assert.match(page, /datetime="2026-01-01">January 1, 2026<\/time>/);
-  assert.match(page, /datetime="2026-02-01">February 1, 2026<\/time>/);
+  assert.match(page, /datetime="2026-01-01">1 January 2026<\/time>/);
+  assert.match(page, /datetime="2026-02-01">1 February 2026<\/time>/);
   assert.match(page, />Added<\/span>/);
   assert.match(page, />Fixed<\/span>/);
   assert.match(page, /<p>One\.<\/p>/);
@@ -389,7 +389,7 @@ test("a Persian page renders the component's Persian labels", () => {
     "fa",
   );
   assert.match(page, /<html lang="fa" dir="rtl"/);
-  assert.match(page, /datetime="2026-11-09">۱۸ آبان ۱۴۰۵<\/time>/);
+  assert.match(page, /datetime="2026-11-09">۹ نوامبر ۲۰۲۶<\/time>/);
   assert.match(page, />افزوده‌شده<\/span>/);
 });
 

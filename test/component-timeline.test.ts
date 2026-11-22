@@ -51,11 +51,11 @@ test("a collection renders label, start, end and status as a table", () => {
   );
   assert.match(
     out,
-    /<td class="timeline-cell" data-field="start"><time datetime="2026-03-01">March 1, 2026<\/time><\/td>/,
+    /<td class="timeline-cell" data-field="start"><time datetime="2026-03-01">1 March 2026<\/time><\/td>/,
   );
   assert.match(
     out,
-    /<td class="timeline-cell" data-field="end"><time datetime="2026-03-05">March 5, 2026<\/time><\/td>/,
+    /<td class="timeline-cell" data-field="end"><time datetime="2026-03-05">5 March 2026<\/time><\/td>/,
   );
   assert.match(out, /<td class="timeline-cell" data-field="status"><span class="field-status" data-value="done">/);
 });
@@ -68,14 +68,14 @@ test("an items JSON attribute renders rows without a collection", () => {
     ]),
   });
   assert.match(out, /<td class="timeline-cell" data-field="label">Kickoff<\/td>/);
-  assert.match(out, /<time datetime="2026-01-12">January 12, 2026<\/time>/);
-  assert.match(out, /<time datetime="2026-02-06">February 6, 2026<\/time>/);
+  assert.match(out, /<time datetime="2026-01-12">12 January 2026<\/time>/);
+  assert.match(out, /<time datetime="2026-02-06">6 February 2026<\/time>/);
   assert.match(out, /data-value="late"/);
 });
 
 test("ISO dates and date-times render as time, anything else is a visible message", () => {
   const out = render({ from: "events" });
-  assert.match(out, /<time datetime="2026-04-10">April 10, 2026<\/time>/);
+  assert.match(out, /<time datetime="2026-04-10">10 April 2026<\/time>/);
   assert.equal((out.match(new RegExp(INVALID_CLASS, "g")) ?? []).length, 1);
   assert.match(out, new RegExp(`class="${INVALID_CLASS}"`));
   assert.match(out, /&quot;2026-02-30&quot; in field &quot;end&quot; is not an ISO 8601 date\./);
@@ -92,7 +92,7 @@ test("a field the rows do not have is a visible message in its cell", () => {
 
   const custom = render({ items: JSON.stringify([{ name: "Atlas", begins: "2026-05-01" }]), label: "name", start: "begins", end: "ends", status: "state" });
   assert.match(custom, /data-field="label">Atlas<\/td>/);
-  assert.match(custom, /data-field="start"><time datetime="2026-05-01">May 1, 2026<\/time>/);
+  assert.match(custom, /data-field="start"><time datetime="2026-05-01">1 May 2026<\/time>/);
   assert.equal((custom.match(new RegExp(MISSING_CLASS, "g")) ?? []).length, 2);
   assert.match(custom, /No field named &quot;ends&quot;\./);
 });
@@ -100,7 +100,7 @@ test("a field the rows do not have is a visible message in its cell", () => {
 test("custom field names read the same values from a collection", () => {
   const out = render({ from: "projects", label: "name", start: "begins", end: "ends", status: "state" });
   assert.match(out, /data-field="label">Atlas<\/td>/);
-  assert.match(out, /<time datetime="2026-05-01">May 1, 2026<\/time>/);
+  assert.match(out, /<time datetime="2026-05-01">1 May 2026<\/time>/);
   assert.match(out, /data-value="draft"/);
 });
 
@@ -125,16 +125,16 @@ test("a caption is rendered and names the scroll region", () => {
 
 test("a Persian page formats dates in Persian", () => {
   const out = render({ from: "events" }, "fa");
-  assert.match(out, /<time datetime="2026-03-01">۱۰ اسفند ۱۴۰۴<\/time>/);
+  assert.match(out, /<time datetime="2026-03-01">۱ مارس ۲۰۲۶<\/time>/);
   assert.match(out, /<th scope="col">برچسب<\/th>/);
 });
 
 test("start and end both render in the page calendar for English, Persian and Arabic", () => {
   const items = JSON.stringify([{ label: "Release", start: "2026-11-09", end: "2026-11-12" }]);
   const expected = [
-    ["en", "November 9, 2026", "November 12, 2026"],
-    ["fa", "۱۸ آبان ۱۴۰۵", "۲۱ آبان ۱۴۰۵"],
-    ["ar", "٣٠ جمادى الأولى ١٤٤٨ هـ", "٣ جمادى الآخرة ١٤٤٨ هـ"],
+    ["en", "9 November 2026", "12 November 2026"],
+    ["fa", "۹ نوامبر ۲۰۲۶", "۱۲ نوامبر ۲۰۲۶"],
+    ["ar", "٩ نوفمبر ٢٠٢٦", "١٢ نوفمبر ٢٠٢٦"],
   ] as const;
   for (const [lang, start, end] of expected) {
     const out = render({ items }, lang);
@@ -150,9 +150,9 @@ test("month-only, year-only and mixed endpoints keep the precision they were wri
     { label: "Mixed", start: "2026", end: "2026-11-12" },
   ]);
   const expected: readonly (readonly [string, readonly string[]])[] = [
-    ["en", ["November 2026", "January 2027", "2025", "2027", "2026", "November 12, 2026"]],
-    ["fa", ["۱۴۰۵ آبان", "۱۴۰۵ دی", "۱۴۰۳", "۱۴۰۵", "۱۴۰۴", "۲۱ آبان ۱۴۰۵"]],
-    ["ar", ["جمادى الأولى ١٤٤٨ هـ", "رجب ١٤٤٨ هـ", "١٤٤٦ هـ", "١٤٤٨ هـ", "١٤٤٧ هـ", "٣ جمادى الآخرة ١٤٤٨ هـ"]],
+    ["en", ["November 2026", "January 2027", "2025", "2027", "2026", "12 November 2026"]],
+    ["fa", ["نوامبر ۲۰۲۶", "ژانویه ۲۰۲۷", "۲۰۲۵", "۲۰۲۷", "۲۰۲۶", "۱۲ نوامبر ۲۰۲۶"]],
+    ["ar", ["نوفمبر ٢٠٢٦", "يناير ٢٠٢٧", "٢٠٢٥", "٢٠٢٧", "٢٠٢٦", "١٢ نوفمبر ٢٠٢٦"]],
   ];
   for (const [lang, texts] of expected) {
     const out = render({ items }, lang);
@@ -180,7 +180,7 @@ test("an invalid endpoint keeps its message and the other endpoint still renders
   const badEnd = render({
     items: JSON.stringify([{ label: "Bad end", start: "2026-11-09", end: "2026-02-30" }]),
   });
-  assert.ok(badEnd.includes(`data-field="start"><time datetime="2026-11-09">November 9, 2026</time>`));
+  assert.ok(badEnd.includes(`data-field="start"><time datetime="2026-11-09">9 November 2026</time>`));
   assert.ok(badEnd.includes(`&quot;2026-02-30&quot; in field &quot;end&quot; is not an ISO 8601 date.`));
 });
 
@@ -191,7 +191,7 @@ test("a Persian row keeps start before end in the DOM and dates machine-readable
   const end = row.indexOf(`data-field="end"`);
 
   assert.ok(start >= 0 && end > start, "start cell comes before end cell in DOM order");
-  assert.ok(row.includes(`<time datetime="2026-11-09">۱۸ آبان ۱۴۰۵</time>`));
-  assert.ok(row.includes(`<time datetime="2026-11-12">۲۱ آبان ۱۴۰۵</time>`));
+  assert.ok(row.includes(`<time datetime="2026-11-09">۹ نوامبر ۲۰۲۶</time>`));
+  assert.ok(row.includes(`<time datetime="2026-11-12">۱۲ نوامبر ۲۰۲۶</time>`));
   assert.ok(!row.includes(`dir="ltr"`), "the row follows the page direction");
 });

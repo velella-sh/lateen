@@ -16,7 +16,7 @@ import status, { type StatusTone } from "../components/status/index.ts";
 import { Rss } from "lucide";
 import { icon } from "../src/icon.ts";
 import { t } from "../i18n/index.ts";
-import { calendarDate, calendarMonth } from "../src/dates.ts";
+import { calendarDate, calendarMonth, configuredCalendar } from "../src/dates.ts";
 import { formatField, isEmpty } from "../src/fields.ts";
 import { baseOf } from "../src/url.ts";
 import { articleShell, titleFromBody } from "./shared/index.ts";
@@ -170,7 +170,7 @@ function monthCountOf(props: LayoutProps, records: readonly RecordProps[], dateF
   const months = new Set<string>();
   for (const record of records) {
     const value = record.fields[dateField];
-    const month = typeof value === "string" ? calendarMonth(value, props.page.lang) : undefined;
+    const month = typeof value === "string" ? calendarMonth(value, props.page.lang, configuredCalendar(props.site.config)) : undefined;
     if (month !== undefined) months.add(month.key);
   }
   return months.size;
@@ -288,7 +288,7 @@ function changeRow(props: LayoutProps, record: RecordProps): ComponentChildren {
   const label = type in EVENT_TONES ? t(lang, `history_${type}`) : type;
   const id = typeof record.fields.record === "string" && record.fields.record.trim() !== "" ? record.fields.record.trim() : record.id;
   const href = typeof record.links.record === "string" && SAFE_HREF.test(record.links.record) ? record.links.record : undefined;
-  const day = typeof record.fields.date === "string" ? calendarDate(record.fields.date, lang) : undefined;
+  const day = typeof record.fields.date === "string" ? calendarDate(record.fields.date, lang, configuredCalendar(props.site.config)) : undefined;
   const field = typeof record.fields.field === "string" && record.fields.field.trim() !== "" ? record.fields.field.trim() : undefined;
   return h(
     "li",
@@ -311,7 +311,7 @@ function changesView(props: LayoutProps): ComponentChildren {
   const groups = groupsOf(props);
   if (groups.length === 0) return h("ol", { class: "dated-list-items changes-list" }, list.records.map((record) => changeRow(props, record)));
   return groups.map((group) => {
-    const day = calendarDate(group.key, props.page.lang);
+    const day = calendarDate(group.key, props.page.lang, configuredCalendar(props.site.config));
     return h(
       "section",
       { class: "list-group changes-group" },
@@ -323,7 +323,7 @@ function changesView(props: LayoutProps): ComponentChildren {
 
 /** The date in a blog row: a `<time>` when the engine wrote a real date, else the text as written. */
 function blogDate(props: LayoutProps, iso: string): ComponentChildren {
-  const date = calendarDate(iso, props.page.lang);
+  const date = calendarDate(iso, props.page.lang, configuredCalendar(props.site.config));
   return date === undefined ? h("span", null, iso) : h("time", { datetime: date.datetime }, date.text);
 }
 

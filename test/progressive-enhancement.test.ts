@@ -100,7 +100,7 @@ test("the record layout states the record before its islands run", () => {
   const article = page.querySelector("article.record");
   assert.ok(article, "the record layout renders its article");
   const text = textOf(article);
-  for (const expected of ["Alpha", "Id", "alpha", "Author", "Ada", "Published", "January 12, 2026"]) {
+  for (const expected of ["Alpha", "Id", "alpha", "Author", "Ada", "Published", "12 January 2026"]) {
     assert.ok(text.includes(expected), `the server-rendered record contains ${JSON.stringify(expected)}`);
   }
   assert.equal(all(page, ".key-value dt").length, 3, "every front-matter fact renders");
@@ -132,7 +132,7 @@ test("the timeline draws its rows and bars before its island runs", () => {
   const article = page.querySelector("article");
   assert.ok(article, "the doc layout renders its article");
   const text = textOf(article);
-  for (const expected of ["Kickoff", "Design review", "Release", "January 12, 2026", "March 6, 2026"]) {
+  for (const expected of ["Kickoff", "Design review", "Release", "12 January 2026", "6 March 2026"]) {
     assert.ok(text.includes(expected), `the server-rendered timeline contains ${JSON.stringify(expected)}`);
   }
   assert.equal(all(page, ".timeline tbody tr").length, 3, "every row renders");
@@ -163,7 +163,7 @@ test("the data explorer draws its table and fallback form before the island runs
   const article = page.querySelector("article");
   assert.ok(article, "the doc layout renders its article");
   const text = textOf(article);
-  for (const expected of ["Data explorer", "Alpha", "Ada", "January 12, 2026"]) {
+  for (const expected of ["Data explorer", "Alpha", "Ada", "12 January 2026"]) {
     assert.ok(text.includes(expected), `the server-rendered explorer contains ${JSON.stringify(expected)}`);
   }
 
