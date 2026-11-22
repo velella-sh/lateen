@@ -187,7 +187,7 @@ function normalize(text: string): { head: string; body: string } {
   for (const element of [...document.querySelectorAll(".endpoint-line > .endpoint-method")]) element.classList.remove("version-badge");
   for (const line of [...document.querySelectorAll(".endpoint-line")]) {
     for (const node of [...line.childNodes]) {
-      if (node.nodeType === 3 && node.textContent.trim() === "") node.remove();
+      if (node.nodeType === 3 && (node.textContent ?? "").trim() === "") node.remove();
     }
   }
   // The Sailcloth shell adds style-only class hooks to the existing grid and recovery content.
