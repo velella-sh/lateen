@@ -55,7 +55,7 @@ const stepsUsing = (jobName: string, action: string): readonly Step[] =>
   job(jobName).steps.filter((step) => step.uses?.startsWith(`${action}@`));
 
 test("every required check keeps its job name", () => {
-  for (const name of ["test", "performance-compare", "a11y", "smoke", "acceptance", "visual", "coverage"]) {
+  for (const name of ["test", "performance-compare", "a11y", "smoke", "visual", "coverage"]) {
     assert.ok(workflow.jobs[name], `the ${name} check still exists`);
   }
   // The coverage job is the required check name, so its display name stays `coverage`.
@@ -142,7 +142,7 @@ test("the gates that must not weaken are still in the workflow", () => {
 
 test("only a prose-only pull request skips the heavy gates, and the test job never skips", () => {
   const jobs = workflow.jobs as Record<string, Job>;
-  for (const name of ["a11y", "smoke", "acceptance", "visual", "performance-compare"]) {
+  for (const name of ["a11y", "smoke", "visual", "performance-compare"]) {
     const job = jobs[name] as Job;
     assert.deepEqual([job.needs].flat(), ["changes"], `${name} waits for the changes job`);
     assert.match(job.if ?? "", /needs\.changes\.outputs\.code == 'true'/, `${name} runs only when code changed`);
@@ -172,4 +172,11 @@ test("the label starts a same-repository recording and the recorder starts CI it
 
 test("performance-compare allows the budget's 256 B of gzip noise", () => {
   assert.match(stepNamed("performance-compare", "Compare").run ?? "", /--tolerance 256 /);
+});
+
+test("the acceptance gate runs inside the smoke job, even after a smoke failure", () => {
+  assert.equal(workflow.jobs["acceptance"], undefined);
+  const gate = stepNamed("smoke", "Acceptance gate");
+  assert.equal(gate.run, "npm run test:acceptance");
+  assert.match(gate.if ?? "", /!cancelled\(\)/);
 });

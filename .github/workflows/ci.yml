@@ -20,7 +20,7 @@ permissions:
 jobs:
   # Tells the browser and size gates whether a pull request touches anything but prose. A pull
   # request that changes only Markdown, `docs/` or `changelog.d/` skips performance-compare, a11y,
-  # smoke, acceptance and visual; the test job still runs for every change. Pushes to main and
+  # smoke (with acceptance) and visual; the test job still runs for every change. Pushes to main and
   # manual runs always run everything. A skipped job reports as passed, so no required check hangs.
   changes:
     name: changes
@@ -183,13 +183,17 @@ jobs:
   # Builds the docs site, the data/API/search/versions fixture, and the blog fixture, then visits
   # representative production routes in Chromium. Fails on console errors, uncaught page errors,
   # failed or 4xx/5xx same-origin requests, and external requests outside the script's allowlist.
-  # The JSON report is kept as CI evidence.
+  # The JSON report is kept as CI evidence. The public acceptance gate runs in the same job so the
+  # checkout, install and Chromium are set up once: it packs the package, installs it and the exact
+  # Mizzen version into an empty project, builds test/acceptance/site with the installed CLI and runs
+  # the Playwright cases (the release workflow runs the same gate and publishes only the tarball it
+  # passed). It runs even when the smoke gate failed, so one run shows both results.
   smoke:
     name: smoke
     needs: changes
     if: needs.changes.outputs.code == 'true'
     runs-on: ubuntu-latest
-    timeout-minutes: 20
+    timeout-minutes: 25
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
@@ -225,31 +229,8 @@ jobs:
           name: smoke-report
           path: lateen/test/smoke/out/report.json
           retention-days: 7
-
-  # Public acceptance: packs the package, installs it and the exact Mizzen version into an empty
-  # project, builds test/acceptance/site with the installed CLI and runs the Playwright cases. The
-  # release workflow runs the same gate and publishes only the tarball it passed.
-  acceptance:
-    name: acceptance
-    needs: changes
-    if: needs.changes.outputs.code == 'true'
-    runs-on: ubuntu-latest
-    timeout-minutes: 25
-    steps:
-      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
-        with:
-          path: lateen
-          persist-credentials: false
-      - uses: ./lateen/.github/actions/setup
-      - name: Cache the Playwright browser
-        uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
-        with:
-          path: ~/.cache/ms-playwright
-          key: ${{ runner.os }}-playwright-${{ hashFiles('lateen/package-lock.json') }}
-      - name: Install Chromium
-        run: npx playwright install chromium
-        working-directory: lateen
       - name: Acceptance gate
+        if: ${{ !cancelled() }}
         run: npm run test:acceptance
         working-directory: lateen
 
