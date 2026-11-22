@@ -7,7 +7,7 @@ redirect_from:
   - /blocks/badge/
 ---
 
-A badge is a short label on its own line: a version, a status, or a beta marker. It is a leaf directive, so it has no body and takes its text from `label`.
+A badge is a short label for a version, a status, or a beta marker. It uses `label` first, then inline Markdown, then `text`.
 
 ## Syntax
 
@@ -20,6 +20,7 @@ A badge is a short label on its own line: a version, a status, or a beta marker.
 | Name | Type | Default | What it does |
 | --- | --- | --- | --- |
 | `label` | string | empty | The text shown in the badge. |
+| `text` | string | empty | Fallback text, including badges from the VitePress importer. |
 | `variant` | `note`, `tip`, `important`, `warning`, or `caution` | `note` | The color and tone. An unknown value is a note. |
 
 Quote a label that has spaces: `label="Requires 0.3"`.
@@ -38,6 +39,5 @@ Quote a label that has spaces: `label="Requires 0.3"`.
 
 ## Notes
 
-- The directive is block-level: put it on its own line, with a blank line before and after.
-- The inline `:badge[New]{variant=tip}` form is not an engine directive. Use the leaf form above.
+- Use `::badge{label="New"}` on its own line or `:badge[New]{variant=tip}` in running text.
 - A badge is a label, not a link. Link to the thing it names in the sentence around it.

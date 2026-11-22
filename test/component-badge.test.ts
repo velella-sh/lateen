@@ -60,3 +60,10 @@ test("every callout variant gets its own class", () => {
   }
 });
 
+
+test("an imported badge uses text after label and inline Markdown", () => {
+  const props = { text: "Beta" };
+  assert.equal(render(props as BadgeProps).props.children, "Beta");
+  assert.deepEqual(render(props as BadgeProps, "<em>New</em>").props.dangerouslySetInnerHTML, { __html: "<em>New</em>" });
+  assert.equal(render({ ...props, label: "Stable" }, "New").props.children, "Stable");
+});

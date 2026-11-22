@@ -12,8 +12,10 @@ export const DEFAULT_VARIANT: BadgeVariant = "note";
 /** Props from the directive: `:badge[New]{variant=tip}` or `::badge{label=new}`. */
 export type BadgeProps = {
   variant?: string;
-  /** Text shown when the directive has no body. */
+  /** Text that overrides the directive body. */
   label?: string;
+  /** Fallback text used by the VitePress importer. */
+  text?: string;
 };
 
 /** Class names of a badge: `badge` plus `badge-<variant>`. */
@@ -31,7 +33,7 @@ export function variantOf(value: unknown): BadgeVariant {
 /** Small inline label for a version or status. */
 const badge: Component<BadgeProps> = ({ props, html }) => {
   const className = classNameOf(variantOf(props.variant));
-  if (html === "") return h("span", { class: className }, props.label ?? "");
+  if (props.label !== undefined || html === "") return h("span", { class: className }, props.label ?? props.text ?? "");
   return h("span", { class: className, dangerouslySetInnerHTML: { __html: html } });
 };
 
