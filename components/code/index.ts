@@ -11,6 +11,7 @@ import { decorateLines, type LineRange } from "./lines.ts";
 import { codeTitleHtml } from "./title.ts";
 import { escapeHtml } from "./escape.ts";
 import { t } from "../../i18n/index.ts";
+import { parseSpan } from "../../src/source-span.ts";
 import { createHighlighterCoreSync } from "shiki/core";
 import { createJavaScriptRegexEngine } from "shiki/engine/javascript";
 import { bundledLanguages } from "shiki/langs";
@@ -304,6 +305,17 @@ function keptAttributes(attrs: string): { readonly extraClass: string; readonly 
   return originalId === undefined ? { extraClass, rest } : { extraClass, rest, originalId };
 }
 
+/** First displayed source line for a code block read from another file. */
+function snippetStart(src: string | undefined, pageSource: string | undefined, text: string): number | undefined {
+  if (src === undefined) return undefined;
+  const span = parseSpan(decodeEntities(src));
+  if (span === undefined || span.file === pageSource) return undefined;
+  if (pageSource === undefined && /\.(?:md|markdown)$/i.test(span.file)) return undefined;
+  // Raw snippets span exactly their code. Included Markdown fences also span their opening marker.
+  const hasFence = span.endLine - span.line + 1 > text.split("\n").length;
+  return span.line + (hasFence ? 1 : 0);
+}
+
 /**
  * Highlights the plain fences in a rendered body, so a fence and the `:::code` directive look the same.
  * Each fence becomes the markup {@link code} writes, with its language as `data-lang` and its `data-src` kept.
@@ -312,7 +324,7 @@ function keptAttributes(attrs: string): { readonly extraClass: string; readonly 
  * span the engine stamped after the component ran. A `mermaid` fence is left alone: the engine sends it to
  * the diagram component.
  */
-export function highlightFences(html: string, backdrops?: CodeBackdrops, lang = "en"): string {
+export function highlightFences(html: string, backdrops?: CodeBackdrops, lang = "en", pageSource?: string): string {
   if (!html.includes("<pre")) return html;
   const hl = get();
   return html
@@ -328,12 +340,14 @@ export function highlightFences(html: string, backdrops?: CodeBackdrops, lang = 
       const meta = parseFenceMeta(attribute(attrs, "data-code"));
       const grammar = ALIASES[name] ?? name;
       const known = hl.getLoadedLanguages().includes(grammar);
+      const text = sourceText(body);
       const out = adjustShiki(
-        hl.codeToHtml(sourceText(body), { lang: known ? grammar : "text", themes: { light: "lateen-light", dark: "lateen-dark" }, defaultColor: false }),
+        hl.codeToHtml(text, { lang: known ? grammar : "text", themes: { light: "lateen-light", dark: "lateen-dark" }, defaultColor: false }),
         backdrops,
       );
       const inner = /<code[^>]*>([\s\S]*)<\/code>/.exec(out)?.[1] ?? "";
       const src = attribute(attrs, "data-src");
+      const firstLine = snippetStart(src, pageSource, text);
       const sourceId = src === undefined ? undefined : blockId(src);
       const stable = stableId(attrs);
       const kept = keptAttributes(attrs);
@@ -345,11 +359,13 @@ export function highlightFences(html: string, backdrops?: CodeBackdrops, lang = 
       if (meta !== undefined || lineBase !== undefined) {
         const annotations = meta?.annotations ?? [];
         decorated = decorateLines(inner, {
-          ...(meta === undefined ? {} : { highlight: meta.highlight, numbers: meta.showLineNumbers }),
+          ...(meta === undefined ? {} : { highlight: meta.highlight }),
+          numbers: meta?.showLineNumbers === true || firstLine !== undefined,
+          ...(firstLine === undefined ? {} : { firstLine }),
           ...(lineBase === undefined ? {} : { block: lineBase, lang }),
           ...(legacy === undefined ? {} : { legacyBlock: legacy }),
           ...(annotations.length === 0 ? {} : {
-            lineId: annotationLineId(block, annotations),
+            lineId: annotationLineId(block, annotations, firstLine),
             ...(stable === undefined || sourceId === undefined ? {} : { legacyLineId: annotationLineId(sourceId, annotations) }),
           }),
         });
@@ -364,7 +380,7 @@ export function highlightFences(html: string, backdrops?: CodeBackdrops, lang = 
       const titleId = meta === undefined || (meta.title ?? "").trim() === "" ? undefined : `${block}-title`;
       const title = meta === undefined ? "" : codeTitleHtml(meta.title, titleId);
       const labelled = titleId === undefined ? "" : ` aria-labelledby="${titleId}"`;
-      const notes = meta === undefined ? "" : renderAnnotations(meta.annotations, block, lang);
+      const notes = meta === undefined ? "" : renderAnnotations(meta.annotations, block, lang, firstLine);
       const pre = `<pre class="${className}" tabindex="0"${idAttr}${labelled} data-lang="${name}"${kept.rest}><code${codeData}>${alias}${decorated}</code></pre>`;
       if (decorated.split("\n").length <= COLLAPSE_AFTER) return `${title}${pre}${notes}`;
       const summary = `<summary class="${COLLAPSE_SUMMARY_CLASS}">${escapeHtml(t(lang, "cli_demo_show_all"))}</summary>`;
