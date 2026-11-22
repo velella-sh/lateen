@@ -82,7 +82,7 @@ export const CASES: readonly AcceptanceCase[] = [
     expect: [
       { selector: ".blog-item", count: 2 },
       { selector: ".blog-item-title a", text: "A newer post" },
-      { selector: "time[datetime]", text: "March 10, 2026" },
+      { selector: "time[datetime]", text: "10 March 2026" },
     ],
   },
   {
