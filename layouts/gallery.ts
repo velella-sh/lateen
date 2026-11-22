@@ -15,7 +15,7 @@ import { isPublicField, publicFieldsOf } from "../src/public-fields.ts";
 import { latestReportOf, reportRunCard } from "../src/report-archive.ts";
 import { baseOf } from "../src/url.ts";
 import { pageHtml } from "../src/article-html.ts";
-import { cardOf, groupsOf } from "./list.ts";
+import { cardOf, groupsOf } from "./shared/record-list.ts";
 import { articleShell, titleFromBody } from "./shared/index.ts";
 
 /* A gallery page names no directive, so the engine does not ship its island. The island reads only

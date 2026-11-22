@@ -1,6 +1,6 @@
 import assert from "node:assert/strict";
 import { spawnSync } from "node:child_process";
-import { cpSync, existsSync, mkdtempSync, readFileSync, rmSync, symlinkSync, writeFileSync } from "node:fs";
+import { cpSync, existsSync, mkdirSync, mkdtempSync, readFileSync, rmSync, symlinkSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { test } from "node:test";
@@ -120,4 +120,66 @@ test("the invalid fixture fails the build with every named diagnostic", (t) => {
   }
   assert.match(result.output, /site-nav/);
   assert.match(result.output, /missing-doc\.ts/);
+});
+
+test("the doc and page-tool overrides apply at their registered render boundaries", (t) => {
+  const work = mkdtempSync(join(tmpdir(), "lateen-overrides-scoped-"));
+  t.after(() => rmSync(work, { recursive: true, force: true }));
+  const copy = copySite(work);
+  const config = join(copy, "mizzen.yml");
+  writeFileSync(config, readFileSync(config, "utf8").replace(
+    "    components:",
+    "    components:\n      page-tool: overrides/page-tool.ts",
+  ) + `collections:
+  items:
+    source: _data/items.json
+    id: id
+    template: _templates/items.md
+    permalink: /items/{id}/
+`);
+  mkdirSync(join(copy, "_data"), { recursive: true });
+  mkdirSync(join(copy, "_templates"), { recursive: true });
+  writeFileSync(join(copy, "_data", "items.json"), '[{"id":"sample","title":"Sample record"}]\n');
+  writeFileSync(join(copy, "_templates", "items.md"), `---
+title: "{title}"
+layout: record
+tool: tool.js
+---
+
+::page-tool
+`);
+  writeFileSync(join(copy, "overrides", "page-tool.ts"), `
+import { h } from "preact";
+export default function tool() {
+  return h("p", { class: "site-tool-override" }, "Custom tool");
+}
+`);
+  writeFileSync(join(copy, "tool.js"), 'export {};\n');
+  for (const layout of ["quickstart", "record"]) {
+    writeFileSync(join(copy, `${layout}.md`), `---
+title: ${layout}
+layout: ${layout}
+tool: tool.js
+---
+
+::page-tool
+`);
+  }
+
+  const out = join(work, "out");
+  const result = build(copy, out);
+  assert.equal(result.status, 0, result.output);
+  assert.match(readFileSync(join(out, "index.html"), "utf8"), /class="site-shell"/);
+  const record = readFileSync(join(out, "items", "sample", "index.html"), "utf8");
+  assert.match(record, /<article class="record"/, "generated records keep the record layout");
+  assert.doesNotMatch(record, /class="site-shell"/);
+  assert.match(record, /class="site-tool-override"/, "the registered directive override reaches generated records");
+  assert.match(record, /class="page-tool-slot"/, "the generated record retains its automatic tool slot");
+  for (const layout of ["quickstart", "record"]) {
+    const html = readFileSync(join(out, layout, "index.html"), "utf8");
+    assert.match(html, /<article class="doc"/, `${layout} uses the shared doc article`);
+    assert.doesNotMatch(html, /class="site-shell"/, `${layout} keeps its own layout`);
+    assert.match(html, /class="site-tool-override"/, "the explicit directive uses the component override");
+    assert.match(html, /class="page-tool-slot"/, "the front matter tool uses the layout's renderer");
+  }
 });

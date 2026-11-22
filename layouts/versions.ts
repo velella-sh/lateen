@@ -5,7 +5,7 @@ import type { ComponentChildren } from "preact";
 import type { Layout, LayoutProps, Page, Site } from "@velella/mizzen/contracts";
 import shell, { footer as shellFooter } from "../chrome/shell/index.ts";
 import { t } from "../i18n/index.ts";
-import base from "./base.ts";
+import { renderBase } from "./shared/base.ts";
 import { titleFromBody } from "./shared/index.ts";
 
 /**
@@ -329,7 +329,7 @@ function content(props: LayoutProps): ComponentChildren {
  */
 const versions: Layout = (props) => {
   const entries = versionsOf(props.site, props.page);
-  return base({
+  return renderBase({
     ...props,
     header: shell(props) as ComponentChildren,
     footer: shellFooter(props) as ComponentChildren,

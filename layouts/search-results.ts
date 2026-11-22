@@ -8,7 +8,7 @@ import { patternOf, t } from "../i18n/index.ts";
 import { indexUrl } from "../chrome/search/loader.ts";
 import { safeHrefSource, withBase } from "../src/url.ts";
 import { facetScript, searchFacetControls, searchFacetsOf, type SearchFacets } from "./shared/search-facets.ts";
-import base from "./base.ts";
+import { renderBase } from "./shared/base.ts";
 
 /** Id of the query field, which its label points to. */
 export const SEARCH_RESULTS_INPUT_ID = "search-results-input";
@@ -502,7 +502,7 @@ function content(props: LayoutProps): ComponentChildren {
  * the word `search`. Renaming the layout keeps that gate honest about the boundary.
  */
 const searchResults: Layout = (props) =>
-  base({
+  renderBase({
     ...props,
     header: shell(props) as ComponentChildren,
     footer: shellFooter(props) as ComponentChildren,

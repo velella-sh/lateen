@@ -11,10 +11,10 @@ import { tocFold } from "../chrome/toc/index.ts";
 import { highlightFences } from "../components/code/index.ts";
 import guidePrerequisites from "../components/guide-prerequisites/index.ts";
 import guideSummary from "../components/guide-summary/index.ts";
-import pageStatus from "../components/page-status/index.ts";
-import readingTime from "../components/reading-time/index.ts";
+import { renderPageStatus } from "../components/page-status/render.ts";
+import { renderReadingTime } from "../components/reading-time/render.ts";
 import relatedGuides from "../components/related-guides/index.ts";
-import versionNotice from "../components/version-notice/index.ts";
+import { renderVersionNotice } from "../components/version-notice/render.ts";
 import { codeBackgrounds } from "../src/brand.ts";
 import { articleHtml } from "../src/article-html.ts";
 import { articleHeader, articleShell, statusProps } from "./shared/index.ts";
@@ -33,13 +33,13 @@ function article(props: LayoutProps): ComponentChildren {
     { class: "doc guide", "data-pagefind-body": true },
     articleHeader(props, {
       notices: [
-        pageStatus({ props: statusProps(page), page, site: props.site, html: "" }) as ComponentChildren,
-        versionNotice({ props: {}, page, site: props.site, html: "" }) as ComponentChildren,
+        renderPageStatus({ props: statusProps(page), page, site: props.site, html: "" }) as ComponentChildren,
+        renderVersionNotice({ props: {}, page, site: props.site, html: "" }) as ComponentChildren,
       ],
       description: null,
       meta: [
         lastUpdated(props) as ComponentChildren,
-        readingTime({ props: {}, page, site: props.site, html: "" }) as ComponentChildren,
+        renderReadingTime({ props: {}, page, site: props.site, html: "" }) as ComponentChildren,
       ],
     }),
     staleSlot(props),

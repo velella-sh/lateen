@@ -5,7 +5,7 @@ import { hrefFor, resolvedLanguages } from "../chrome/language-switcher/index.ts
 import shell, { footer } from "../chrome/shell/index.ts";
 import { t } from "../i18n/index.ts";
 import { baseOf, withBase } from "../src/url.ts";
-import base from "./base.ts";
+import { renderBase } from "./shared/base.ts";
 
 /** The configured site base without trailing slashes, so joining a root path never doubles one. */
 function siteBase(config: SiteConfig): string {
@@ -67,7 +67,7 @@ function content(props: LayoutProps) {
  * the secondary link leads there.
  */
 const notFound: Layout = (props) =>
-  base({
+  renderBase({
     ...props,
     header: shell(props) as ComponentChildren,
     footer: footer(props) as ComponentChildren,
