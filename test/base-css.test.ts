@@ -67,6 +67,18 @@ test("home preview and mobile cards keep the Sailcloth surface contract", () => 
   assert.match(ui, /@media \(max-width: 48rem\)[\s\S]*\.home-sections,[\s\S]*grid-template-columns:\s*1fr/s);
 });
 
+test("the shared docs grid gives prose and wide blocks separate width limits", () => {
+  const layout = bodyOf(ui, /^\.layout$/);
+  assert.match(layout, /--doc-reading-width:\s*min\(36rem, 58ch\)/);
+  assert.match(layout, /--doc-content-width:\s*44rem/);
+
+  const grid = bodyOf(ui, /^\.doc-layout$/);
+  assert.match(grid, /grid-template-columns:\s*12\.5rem minmax\(0, var\(--doc-content-width\)\) 10\.5rem/);
+  assert.match(bodyOf(ui, /\.doc,\s*\.doc-layout main > article$/), /max-inline-size:\s*var\(--doc-content-width\)/);
+  const prose = bodyOf(ui, /^\.doc-body > :is\(p, ul, ol\),\s*\.quickstart-step > p,\s*\.api-reference-operation-header > \.api-reference-description$/);
+  assert.match(prose, /max-inline-size:\s*var\(--doc-reading-width\)/);
+});
+
 test("document typography and metadata follow the Sailcloth prose contract", () => {
   const doc = bodyOf(ui, /^\.doc$/);
   assert.match(doc, /--type-size-doc-title:\s*clamp\(2\.125rem, 1\.5rem \+ 2\.2vw, 3\.25rem\)/);
@@ -89,7 +101,6 @@ test("document typography and metadata follow the Sailcloth prose contract", () 
   const section = bodyOf(ui, /^\.doc-body h2,\s*\.api-reference-section > h2$/);
   assert.match(section, /font-size:\s*1\.4375rem/);
   assert.match(section, /line-height:\s*1\.875rem/);
-  assert.match(bodyOf(ui, /^\.doc-body > :is\(p, ul, ol\),/), /max-inline-size:\s*58ch/);
   assert.match(bodyOf(ui, /^\.doc-body > :first-child$/), /margin-block-start:\s*0/);
   assert.match(bodyOf(ui, /^\.code-copy svg$/), /inline-size:\s*0\.875rem/);
   assert.match(bodyOf(ui, /^\.code-copy svg$/), /block-size:\s*0\.875rem/);

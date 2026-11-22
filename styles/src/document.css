@@ -1,8 +1,14 @@
 /* Document frame: doc layout, sidebar, toc, breadcrumb, doc header, prose. */
 @layer components {
+  .layout {
+    --doc-reading-width: min(36rem, 58ch);
+    --doc-content-width: 44rem;
+  }
+
   .doc-layout {
     display: grid;
-    grid-template-columns: 12.5rem minmax(0, 44rem) 10.5rem;
+    /* Keep the 72rem desktop span and the 12.5rem navigation track. */
+    grid-template-columns: 12.5rem minmax(0, var(--doc-content-width)) 10.5rem;
     gap: 2.5rem;
     align-items: start;
     justify-content: center;
@@ -10,19 +16,15 @@
   }
 
   @media screen and (width > 74rem) {
-    /* Both grids span 72rem so navigation keeps its alignment.
-       API examples and field comparisons use the wider track. */
-    .doc-layout:has(> main > .doc:not(.api-reference, .api-reference-index)):not(:has(> main [data-compare])) {
-      grid-template-columns: 12.5rem minmax(0, 36rem) minmax(10.5rem, 14.5rem);
-      column-gap: 4.5rem;
-      --doc-aside-offset: 2.875rem;
-    }
-
     .doc-layout > .aside {
       position: sticky;
       inset-block-start: 4.75rem;
       max-inline-size: 12rem;
-      margin-block-start: var(--doc-aside-offset, 0rem);
+    }
+
+    .doc-layout:has(> main > .doc:not(.api-reference, .api-reference-index)):not(:has(> main [data-compare])) > .aside {
+      /* Align the section list below the article chrome. */
+      margin-block-start: 2.875rem;
     }
   }
 
@@ -200,7 +202,7 @@
   .doc,
   .doc-layout main > article {
     @apply min-w-0 pb-16;
-    max-width: 44rem;
+    max-inline-size: var(--doc-content-width);
   }
 
   .doc {
@@ -420,7 +422,7 @@
     overflow-wrap: anywhere;
   }
 
-  .doc-body > :is(p, ul, ol, h1, h2, h3) {
+  .doc-body > :is(h1, h2, h3) {
     max-inline-size: var(--type-measure-min);
     overflow-wrap: anywhere;
   }
@@ -428,7 +430,8 @@
   .doc-body > :is(p, ul, ol),
   .quickstart-step > p,
   .api-reference-operation-header > .api-reference-description {
-    max-inline-size: 58ch;
+    max-inline-size: var(--doc-reading-width);
+    overflow-wrap: anywhere;
     line-height: 1.7;
   }
 
