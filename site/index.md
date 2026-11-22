@@ -10,8 +10,6 @@ actions:
   - label: Install and quickstart
     url: /install/
     primary: true
-  - label: Browse components
-    url: /components/
 features:
   - title: Layouts
     description: Choose page layouts for guides, API references, and changelogs.
