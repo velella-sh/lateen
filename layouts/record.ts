@@ -8,6 +8,7 @@ import pageAgentMenu from "../chrome/page-agent-menu/index.ts";
 import pageFooter from "../chrome/page-footer/index.ts";
 import toc, { tocFold } from "../chrome/toc/index.ts";
 import addToCalendar from "../components/add-to-calendar/index.ts";
+import { classNameOf, replacementOf } from "../components/page-status/index.ts";
 import embedCode from "../components/embed-code/index.ts";
 import recordHistory from "../components/record-history/index.ts";
 import { t } from "../i18n/index.ts";
@@ -51,6 +52,24 @@ function embedPanel(props: LayoutProps): ComponentChildren {
   );
 }
 
+/** A retained record links to the replacement the engine resolved. */
+function replacementNotice(props: LayoutProps): ComponentChildren {
+  const href = replacementOf(props.page.record?.replacementUrl);
+  if (href === undefined) return null;
+  const label = props.site.pages.find((page) => page.url === href)?.title ?? href;
+  return h(
+    "p",
+    { class: classNameOf("deprecated"), role: "note" },
+    h(
+      "span",
+      { class: "page-status-message" },
+      t(props.page.lang, "record_replaced_by"),
+      " ",
+      h("a", { class: "page-status-replacement", href }, h("bdi", null, label)),
+    ),
+  );
+}
+
 /**
  * One record: breadcrumb, the title when the template does not carry it, the key facts the page asks
  * for, the template's rendered body, the embed code when the record has an embedded view, and the
@@ -65,6 +84,7 @@ function article(props: LayoutProps): ComponentChildren {
     recordHeader(props),
     tocFold(tocFor(props)) as ComponentChildren,
     staleSlot(props),
+    replacementNotice(props),
     summaryOf(props),
     addToCalendar({
       props: {

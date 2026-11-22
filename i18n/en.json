@@ -348,6 +348,7 @@
   "record_embed": "Embed this record",
   "record_facts": "Key facts",
   "record_related": "Related",
+  "record_replaced_by": "This record was replaced by",
   "record_table_filter": "Filter rows",
   "record_table_filter_all": "All",
   "record_table_filter_clear": "Clear filters",
