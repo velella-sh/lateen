@@ -58,7 +58,7 @@ export interface AuditCase {
   readonly lang: "en" | "fa" | "ar";
   readonly width: number;
   readonly height: number;
-  readonly open?: "drawer" | "search" | "ask";
+  readonly open?: "drawer" | "search" | "ask" | "term" | "symbol";
 }
 
 const DESKTOP = { width: 1280, height: 900 } as const;
@@ -135,6 +135,8 @@ export const CASES: readonly AuditCase[] = [
   { name: "fixture timeline arabic", site: "fixtures", path: "/ar/timeline/", layout: "doc", lang: "ar", ...DESKTOP },
   { name: "fixture glossary", site: "fixtures", path: "/glossary/", layout: "doc", lang: "en", ...DESKTOP },
   { name: "fixture glossary persian", site: "fixtures", path: "/fa/glossary/", layout: "doc", lang: "fa", ...DESKTOP },
+  { name: "fixture inline term open", site: "fixtures", path: "/glossary/", layout: "doc", lang: "en", open: "term", ...MOBILE },
+  { name: "fixture inline symbol open", site: "fixtures", path: "/fa/glossary/", layout: "doc", lang: "fa", open: "symbol", ...MOBILE },
   { name: "fixture glossary arabic", site: "fixtures", path: "/ar/glossary/", layout: "doc", lang: "ar", ...DESKTOP },
   { name: "fixture charts", site: "fixtures", path: "/charts/", layout: "doc", lang: "en", ...DESKTOP },
   { name: "fixture charts persian", site: "fixtures", path: "/fa/charts/", layout: "doc", lang: "fa", ...DESKTOP },
@@ -424,7 +426,25 @@ function readBaseline(file: string): readonly BaselineEntry[] {
 }
 
 /** Reveals the island, opens the overlay, and waits for the dialog to report itself open. */
-async function openOverlay(page: Page, overlay: "drawer" | "search" | "ask"): Promise<void> {
+async function openOverlay(page: Page, overlay: NonNullable<AuditCase["open"]>): Promise<void> {
+  if (overlay === "term" || overlay === "symbol") {
+    const root = overlay === "term" ? ".term:has(> button)" : ".symbol-popover:has(> button)";
+    const trigger = page.locator(`${root} > button`).first();
+    const panel = page.locator(`${root} > [popover]`).first();
+    await trigger.focus();
+    await page.keyboard.press("Enter");
+    await panel.waitFor({ state: "visible" });
+    await page.keyboard.press("Tab");
+    const linkFocused = await panel.locator("a").evaluate((link) => link === document.activeElement);
+    if (!linkFocused) throw new Error(`${overlay}: Tab did not focus the link`);
+    await page.keyboard.press("Escape");
+    await panel.waitFor({ state: "hidden" });
+    const triggerFocused = await trigger.evaluate((button) => button === document.activeElement);
+    if (!triggerFocused) throw new Error(`${overlay}: Escape did not return focus to the trigger`);
+    await page.keyboard.press("Space");
+    await panel.waitFor({ state: "visible" });
+    return;
+  }
   if (overlay === "ask") {
     await page.locator("[data-search-open]").click();
     await page.locator("dialog[data-search][open]").waitFor({ state: "visible" });

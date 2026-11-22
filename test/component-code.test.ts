@@ -280,3 +280,21 @@ test("the dark theme comes from code.dark.json (#1096)", () => {
   assert.ok(buildTheme("dark").settings?.some((s) => s.scope?.includes("keyword")));
 });
 
+
+test("highlights real Mizzen test fences and keeps the example metadata", async () => {
+  const mizzen = import.meta.resolve("@velella/mizzen/package.json");
+  const { parseMarkdown } = await import(new URL("dist/markdown/parse.js", mizzen).href);
+  const { markdownToHtml } = await import(new URL("dist/markdown/to-html.js", mizzen).href);
+  const markdown = ['```sh test title="Example"', "echo hello", "```"].join("\n");
+  const { html } = await markdownToHtml(await parseMarkdown(markdown), "examples.md");
+  const out = highlightFences(html);
+  const reordered = html.replace(/<code class="language-sh"([^>]*)>/, "<code$1 data-extra='x > y' class='language-sh'>");
+  assert.match(highlightFences(reordered), /data-lang="sh"[^>]*><code[^>]*data-extra='x > y'/);
+  assert.match(out, /<pre class="code"[^>]*id="[^"]+"[^>]*data-lang="sh"/);
+  assert.match(out, /class="code-title-name"[^>]*>Example</);
+  for (const name of ["data-example", "data-example-lang", "data-example-id"]) {
+    const attribute = html.match(new RegExp(` ${name}="[^"]*"`))?.[0];
+    assert.ok(attribute, name);
+    assert.ok(out.includes(attribute), name);
+  }
+});

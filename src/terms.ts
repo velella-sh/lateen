@@ -1,3 +1,4 @@
+import { publicFieldsOf } from "./public-fields.ts";
 import type { Site } from "@velella/mizzen/contracts";
 import { optionOf } from "./options.ts";
 
@@ -122,7 +123,7 @@ export function selectTerms(site: Site, pageLang: string): readonly Term[] {
   const lang = pageLang.trim() === "" ? defaultLang : pageLang.trim();
 
   return collection.records.flatMap((record) => {
-    const fields = record.fields;
+    const fields = publicFieldsOf(site, name, record.fields);
     const term = textOf(localized(fields.term, lang, defaultLang)).trim();
     if (term === "") return [];
     return [

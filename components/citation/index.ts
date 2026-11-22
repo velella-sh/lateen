@@ -5,6 +5,7 @@ import { t } from "../../i18n/index.ts";
 import { calendarDate } from "../../src/dates.ts";
 import { fieldValueOf } from "../../src/fields.ts";
 import { textOf as trimmed } from "../../src/guards.ts";
+import { isPublicField } from "../../src/public-fields.ts";
 import { baseOf, withBase } from "../../src/url.ts";
 
 /** The Markdown directive this component handles: `::citation{source="handbook"}`. */
@@ -78,6 +79,7 @@ function recordDate(record: DataRecord | undefined, collection: string, site: Si
   if (record === undefined) return "";
   const fields = site?.config.collections[collection]?.dates ?? [];
   for (const field of fields) {
+    if (!isPublicField(site, collection, field)) continue;
     const value = record.normalizedDates?.[field] ?? fieldValueOf(record, field);
     const written = value instanceof Date ? value.toISOString().slice(0, 10) : typeof value === "string" ? value.trim() : "";
     if (written !== "" && calendarDate(written, lang) !== undefined) return written;

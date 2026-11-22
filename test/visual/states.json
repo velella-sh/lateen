@@ -221,6 +221,11 @@
       ]
     },
     {
+      "name": "symbol",
+      "selector": "p .symbol-popover-chip",
+      "states": ["focus"]
+    },
+    {
       "name": "symbol-popover",
       "selector": ".symbol-popover-chip",
       "states": [

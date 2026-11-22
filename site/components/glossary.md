@@ -60,7 +60,7 @@ The :term[Latency]{id=latency} of a request is separate from its :term[throughpu
 
 ## Without JavaScript
 
-The label is the `<summary>` of a `<details>` element. A tap, a click, Enter, or Space opens the definition, and the link inside the panel is ordinary content that a keyboard reaches. No script is needed to read a term, and no part of the panel has a tooltip role. A closed term never hides the definition from search engines or from the page's Markdown twin.
+The label is a button. A tap, a click, Enter, or Space opens the definition in a native popover, and Tab can reach the glossary link. Escape or an outside click dismisses it. Browsers without native popovers show the definition and link inline.
 
 ## Accessibility
 

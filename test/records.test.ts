@@ -86,3 +86,15 @@ test("an unknown filter or sort field is a typed error", () => {
     }
   }
 });
+
+test("selection exposes only public record fields and ignores private filter values", () => {
+  const restricted = { ...site, config: { ...site.config, collections: { books: {
+    source: "books.yml", public: ["title"],
+  } } } } as Site;
+  const selection = selectRecords(restricted, page, { collection: "books" });
+  assert.ok(selection.ok);
+  assert.deepEqual(selection.records[0]?.fields, { title: "Alpha" });
+  assert.deepEqual(ids(selectRecords(restricted, page, {
+    collection: "books", filter: { field: "author", equals: "ada" },
+  })), []);
+});

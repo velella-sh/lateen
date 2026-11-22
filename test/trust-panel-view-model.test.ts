@@ -282,3 +282,13 @@ test("the view model is pure: repeated calls agree and the inputs are untouched"
   assert.deepEqual(first, second);
   assert.equal(JSON.stringify({ props, page, site }), before);
 });
+test("engine reason messages and legacy strings appear in order", () => {
+  const data = { trust: { [URL]: { level: "partial", reasons: [
+    { code: "unrun", message: "  Examples have not been run.  " },
+    "Reviewed by hand.",
+    { code: "missing-message" },
+  ] } } };
+  const view = trustPanelViewOf({}, pageOf(), siteOf(data));
+  assert.equal(view.state, "valid");
+  assert.deepEqual(view.reasons, ["Examples have not been run.", "Reviewed by hand."]);
+});

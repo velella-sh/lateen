@@ -73,3 +73,12 @@ test("an empty or unknown query finds no term", () => {
   assert.equal(findTerm(en, " "), undefined);
   assert.equal(findTerm(en, "nobody"), undefined);
 });
+
+test("the glossary exposes only the allowed translation and hides private aliases", () => {
+  const restricted = { ...site, config: { ...site.config, collections: { glossary: {
+    source: "glossary.yml", public: ["term", "definition.en"],
+  } } } } as Site;
+  const [network] = selectTerms(restricted, "fa");
+  assert.equal(network?.definition, "Two or more computers that talk.");
+  assert.deepEqual(network?.aliases, []);
+});

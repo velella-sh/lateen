@@ -276,7 +276,7 @@ export default function code({ props, html, page, site }: ComponentProps<CodePro
  * Only quoted values are matched, so a `>` inside `data-code`'s JSON (an annotation may hold one) is not
  * mistaken for the end of the tag.
  */
-const FENCE = /<pre((?:\s[^\s=>]+="[^"]*")*)><code(?:\s+class="language-([\w+#-]+)")?>([\s\S]*?)<\/code><\/pre>/g;
+const FENCE = /<pre((?:\s[^\s=>]+="[^"]*")*)><code((?:\s+[^\s=>]+=(?:"[^"]*"|'[^']*'))*)>([\s\S]*?)<\/code><\/pre>/g;
 
 /** A stable id on any highlighted `<pre class="code">` that has a source span but no id yet. */
 const IDENTIFY = /<pre class="code"((?:\s[^\s=>]+="[^"]*")*)>/g;
@@ -310,7 +310,12 @@ export function highlightFences(html: string, backdrops?: CodeBackdrops, lang = 
   if (!html.includes("<pre")) return html;
   const hl = get();
   return html
-    .replace(FENCE, (match, attrs: string, fenceLang: string | undefined, body: string) => {
+    .replace(FENCE, (match, attrs: string, codeAttrs: string, body: string) => {
+      const codeAttributes = [...codeAttrs.matchAll(/\s+([^\s=>]+)=(?:"([^"]*)"|'([^']*)')/g)];
+      const classAttr = codeAttributes.find(([, name]) => name === "class");
+      const fenceLang = (classAttr?.[2] ?? classAttr?.[3])?.match(/(?:^|\s)language-([\w+#-]+)(?=\s|$)/)?.[1];
+      const codeData = codeAttributes.filter(([, name]) => /^data-[\w-]+$/.test(name ?? ""))
+        .map(([raw]) => raw).join("");
       const classes = attribute(attrs, "class")?.split(/\s+/) ?? [];
       if (fenceLang === "mermaid" || classes.includes(CODE_CLASS) || classes.includes("terminal-body")) return match;
       const name = fenceLang ?? "text";
@@ -346,7 +351,7 @@ export function highlightFences(html: string, backdrops?: CodeBackdrops, lang = 
       const title = meta === undefined ? "" : codeTitleHtml(meta.title, titleId);
       const labelled = titleId === undefined ? "" : ` aria-labelledby="${titleId}"`;
       const notes = meta === undefined ? "" : renderAnnotations(meta.annotations, block, lang);
-      const pre = `<pre class="${className}" tabindex="0"${idAttr}${labelled} data-lang="${name}"${kept.rest}><code>${decorated}</code></pre>`;
+      const pre = `<pre class="${className}" tabindex="0"${idAttr}${labelled} data-lang="${name}"${kept.rest}><code${codeData}>${decorated}</code></pre>`;
       if (decorated.split("\n").length <= COLLAPSE_AFTER) return `${title}${pre}${notes}`;
       const summary = `<summary class="${COLLAPSE_SUMMARY_CLASS}">${escapeHtml(t(lang, "cli_demo_show_all"))}</summary>`;
       return `${title}<details class="${COLLAPSE_CLASS}">${summary}${pre}</details>${notes}`;

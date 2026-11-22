@@ -23,6 +23,10 @@ const INTENDED = [
   { selector: ".doc-tools", reason: "Documentation moves Source mode into a Page tools disclosure." },
   { selector: ".source-mode-switch", reason: "Source mode is new in 0.2.3." },
   { selector: "template[data-block-actions]", reason: "The per-block edit button was removed in 0.2.3." },
+  {
+    selector: "pre:has(> code[data-placeholders])",
+    reason: "The code highlighter now keeps and highlights Mizzen fences with variable placeholders, which 0.2.2 omitted in this fixture.",
+  },
   { selector: "pre:not(.code)", reason: "A plain scrolling code block is keyboard focusable in 0.2.3." },
   { selector: ".ask-agent", reason: "The ask-your-agent panel is new in 0.2.3." },
   { selector: ".steps", reason: "Steps number each item and keep a progress state in 0.2.3." },

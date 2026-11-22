@@ -1,4 +1,5 @@
 import type { DataRecord, Page, Site } from "@velella/mizzen/contracts";
+import { isPublicField, publicFieldsOf } from "./public-fields.ts";
 
 /** One field compared to a value, or to a field of the page's own record so a record can list its children. */
 export interface RecordFilter {
@@ -108,11 +109,13 @@ export function selectRecords(site: Site, page: Page, query: RecordQuery): Recor
     };
   }
 
-  const records = collection.records;
+  const records = collection.records.map((record) => ({
+    ...record, fields: publicFieldsOf(site, query.collection, record.fields),
+  }));
   const names = fieldNamesOf(records);
   const { filter, sort } = query;
-  const wanted = filter?.from ?? filter?.field ?? sort?.field;
-  if (wanted !== undefined && !names.has(wanted)) {
+  const wanted = [filter?.field, sort?.field].find((field) => field !== undefined && !names.has(field));
+  if (wanted !== undefined) {
     return {
       ok: false,
       error: {
@@ -122,21 +125,12 @@ export function selectRecords(site: Site, page: Page, query: RecordQuery): Recor
       },
     };
   }
-  if (sort !== undefined && !names.has(sort.field)) {
-    return {
-      ok: false,
-      error: {
-        code: "unknown-field",
-        name: sort.field,
-        message: `The collection "${query.collection}" has no field named "${sort.field}".`,
-      },
-    };
-  }
-
   let selected = records.slice();
 
   if (filter !== undefined) {
     const expected = filter.from === undefined ? filter.equals : (() => {
+      const reference = page.record;
+      if (reference === undefined || !isPublicField(site, reference.collection, filter.from)) return undefined;
       const current = currentRecord(site, page);
       return current === undefined ? undefined : valueOf(current, filter.from);
     })();
@@ -168,7 +162,7 @@ export function selectRecords(site: Site, page: Page, query: RecordQuery): Recor
       return {
         id: record.id,
         fields: record.fields,
-        ...(record.derived === undefined ? {} : { derived: record.derived }),
+        ...(record.derived === undefined ? {} : { derived: publicFieldsOf(site, query.collection, record.derived) }),
         ...(url === undefined ? {} : { url }),
       };
     }),

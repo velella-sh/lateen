@@ -9,3 +9,5 @@ The :term[Network]{id=network} connects two hosts, and :term[Latency] is the del
 An unknown :term[Quantum flux] stays as the words the author wrote.
 
 ::glossary
+
+Call :symbol[runExample]{signature="runExample(): void" href="/reference/"} to run the example.

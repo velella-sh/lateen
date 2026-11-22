@@ -9,6 +9,7 @@ import { searchOf, selectedOf, sortOf, type GallerySort } from "../components/ga
 import { formatCount } from "../components/reading-time/index.ts";
 import { addCardOf } from "../components/gallery-card/add-card.ts";
 import { patternOf, t } from "../i18n/index.ts";
+import { isPublicField, publicFieldsOf } from "../src/public-fields.ts";
 import { baseOf } from "../src/url.ts";
 import { cardOf, groupsOf } from "./list.ts";
 import { articleShell, titleFromBody } from "./shared/index.ts";
@@ -43,10 +44,11 @@ function valuesOf(value: unknown): string[] {
 function facetsOf(props: LayoutProps, list: NonNullable<LayoutProps["list"]>): GalleryFacet[] {
   const collection = props.site.config.collections?.[list.collection];
   const records = props.site.collections[list.collection]?.records ?? list.records;
+  const fields: Readonly<Record<string, unknown>>[] = records.map((record) => ({ ...publicFieldsOf(props.site, list.collection, record.fields), id: record.id }));
   return fieldsOf(collection?.search?.filters).flatMap((field) => {
     const counts = new Map<string, number>();
-    for (const record of records) {
-      for (const value of valuesOf(record.fields[field])) counts.set(value, (counts.get(value) ?? 0) + 1);
+    for (const recordFields of fields) {
+      for (const value of valuesOf(recordFields[field])) counts.set(value, (counts.get(value) ?? 0) + 1);
     }
     const values = [...counts.entries()]
       .sort(([a], [b]) => (a < b ? -1 : a > b ? 1 : 0))
@@ -57,7 +59,8 @@ function facetsOf(props: LayoutProps, list: NonNullable<LayoutProps["list"]>): G
 
 /** The sort fields the collection declares, first as the default. */
 function sortFieldsOf(props: LayoutProps, list: NonNullable<LayoutProps["list"]>): string[] {
-  return fieldsOf(props.site.config.collections?.[list.collection]?.search?.sort);
+  return fieldsOf(props.site.config.collections?.[list.collection]?.search?.sort)
+    .filter((field) => isPublicField(props.site, list.collection, field));
 }
 
 /** The values one card carries for filtering and sorting, as JSON for the island. */

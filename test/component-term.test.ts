@@ -64,33 +64,33 @@ test("the directive is term and it reads one option", () => {
   assert.equal(PANEL_CLASS, "term-panel");
 });
 
-test("a known term is a native disclosure with the label as its summary", () => {
+test("a known term is a native popover with the label as its button", () => {
   const out = render("Network", { id: "network" });
-  assert.match(out, /^<details class="term" data-term="network">/);
-  assert.match(out, new RegExp(`^<details[^>]*><summary class="${LABEL_CLASS}">Network</summary>`));
-  assert.match(out, /<p class="term-definition">Two or more computers that talk\.<\/p>/);
+  assert.match(out, /^<span class="term" data-term="network">/);
+  assert.match(out, new RegExp(`^<span[^>]*><button type="button" class="${LABEL_CLASS}" popovertarget="[^"]+">Network</button>`));
+  assert.match(out, /<span class="term-definition">Two or more computers that talk\.<\/span>/);
 });
 
 test("the label is the engine's HTML, kept as markup", () => {
   const out = render("the <strong>Network</strong> layer", { id: "network" });
-  assert.match(out, /<summary class="term-label">the <strong>Network<\/strong> layer<\/summary>/);
+  assert.match(out, /<button type="button" class="term-label" popovertarget="[^"]+">the <strong>Network<\/strong> layer<\/button>/);
 });
 
 test("without an id the label text finds the term by name or by another name", () => {
   const byName = render("Latency");
-  assert.match(byName, /^<details class="term" data-term="latency">/);
+  assert.match(byName, /^<span class="term" data-term="latency">/);
   assert.match(byName, /The time a packet takes to arrive\./);
 
   const byAlias = render("Net");
-  assert.match(byAlias, /^<details class="term" data-term="network">/);
+  assert.match(byAlias, /^<span class="term" data-term="network">/);
 
   const markupLabel = render("<em>Net</em>");
-  assert.match(markupLabel, /^<details class="term" data-term="network">/);
+  assert.match(markupLabel, /^<span class="term" data-term="network">/);
 });
 
 test("the id wins over the label, and a failed id is an unknown term", () => {
   const out = render("Latency", { id: "network" });
-  assert.match(out, /^<details class="term" data-term="network">/);
+  assert.match(out, /^<span class="term" data-term="network">/);
   assert.match(out, /Two or more computers that talk\./);
 
   const typo = render("Network", { id: "nettwork" });
@@ -124,7 +124,7 @@ test("the Persian page reads its terms and its strings in Persian", () => {
     lang: "fa",
     site: siteWith([terms[2]!], { glossary: { collection: "glossary", page } }),
   });
-  assert.match(known, /^<details class="term" data-term="شبکه">/);
+  assert.match(known, /^<span class="term" data-term="شبکه">/);
   assert.match(known, /<a class="term-link" href="\/fa\/glossary\/#شبکه">واژه‌نامه<\/a>/);
 
   const unknown = render("نامعلوم", { lang: "fa" });

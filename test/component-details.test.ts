@@ -168,3 +168,9 @@ test("a fragment with no target changes nothing", () => {
   assert.equal(reveal(doc, "#"), false);
 });
 
+
+test("an imported details title is used when the summary is blank", () => {
+  const props = { title: "How it works" };
+  assert.match(render({ ...props, summary: " " }), />How it works<\/summary>/);
+  assert.match(render({ ...props, summary: "Overview" }), />Overview<\/summary>/);
+});

@@ -116,3 +116,16 @@ test("the direction is read from the directive, with a safe fallback", () => {
   assert.equal(directionOf("sideways"), "horizontal");
   assert.equal(directionOf(undefined), "horizontal");
 });
+
+test("collection bars omit a private value and keep a public nested category", () => {
+  const site = {
+    config: { collections: { regions: { public: ["labels.display"] } } },
+    collections: { regions: { records: [{ id: "north", fields: {
+      labels: { display: "North", private: "Private label" }, total: 938471,
+    } }] } },
+  };
+  const html = render({ from: "regions", category: "labels.display", value: "total" }, site);
+  assert.match(html, />North</);
+  assert.doesNotMatch(html, /938471|Private label/);
+  assert.equal(bars(html), 0);
+});

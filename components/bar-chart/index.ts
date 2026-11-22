@@ -1,3 +1,4 @@
+import { publicFieldsOf } from "../../src/public-fields.ts";
 import { h } from "preact";
 import type { ComponentProps } from "@velella/mizzen/contracts";
 import { formatCount as formatNumber } from "../reading-time/index.ts";
@@ -126,7 +127,7 @@ export function rowsOf(
   const collection = Object.hasOwn(collections, from) ? collections[from] : undefined;
   if (collection !== undefined) {
     return collection.records.map((record) =>
-      rowOf(record.id, { ...record.fields, id: record.id }, category, value),
+      rowOf(record.id, { ...publicFieldsOf(site, from, record.fields), id: record.id }, category, value),
     );
   }
   const found = lookup(site.data, from);
