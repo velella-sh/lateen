@@ -16,6 +16,10 @@ main:
         url: /changelog/
       - title: List layout
         url: /layouts/list/
+      - title: Grouped list
+        url: /layouts/list-grouped/
+      - title: Dated list
+        url: /layouts/list-dated/
       - title: Record layout
         url: /layouts/record/
       - title: Blog layout
