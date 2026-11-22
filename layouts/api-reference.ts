@@ -1,5 +1,6 @@
 import { Fragment, h } from "preact";
 import { staleSlot } from "../src/stale.ts";
+import { pageToolSlot } from "./shared/page-tool.ts";
 import { isRecord } from "../src/guards.ts";
 import type { ComponentChildren } from "preact";
 import type { Layout, LayoutProps } from "@velella/mizzen/contracts";
@@ -601,6 +602,7 @@ function article(props: LayoutProps): ComponentChildren {
       h("h1", null, page.title),
       staleSlot(props),
       h("div", { class: "doc-body", dangerouslySetInnerHTML: { __html: articleHtml(page.html, page.lang) } }),
+      pageToolSlot(props),
     );
   }
   const lang = page.lang;
@@ -613,6 +615,7 @@ function article(props: LayoutProps): ComponentChildren {
     parametersSection(view.parameters, lang),
     requestBodySection(view.requestBody, lang),
     responsesSection(view.responses, lang),
+    pageToolSlot(props),
   );
 }
 

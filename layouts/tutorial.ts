@@ -1,4 +1,5 @@
 import { h } from "preact";
+import { pageToolSlot } from "./shared/page-tool.ts";
 import { isRecord } from "../src/guards.ts";
 import { headingSlug } from "../src/slug.ts";
 import type { ComponentChildren } from "preact";
@@ -215,6 +216,7 @@ function article(props: LayoutProps): ComponentChildren {
     staleSlot(props),
     steps.length === 0 ? null : progress(page, steps),
     body(page, steps),
+    pageToolSlot(props),
     editPage(props) as ComponentChildren,
     h("div", { class: "doc-actions" }, pageFooter(props) as ComponentChildren, copyMarkdown(props) as ComponentChildren),
     pager(props) as ComponentChildren,

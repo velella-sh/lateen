@@ -1,5 +1,6 @@
 import { h } from "preact";
 import { staleSlot } from "../src/stale.ts";
+import { pageToolSlot } from "./shared/page-tool.ts";
 import type { ComponentChildren } from "preact";
 import type { Layout, LayoutProps } from "@velella/mizzen/contracts";
 import breadcrumb from "../chrome/breadcrumb/index.ts";
@@ -67,6 +68,7 @@ function article(props: LayoutProps, feed: string | undefined): ComponentChildre
     description === undefined ? null : h("p", { class: "post-description" }, description),
     staleSlot(props),
     h("div", { class: "doc-body", dangerouslySetInnerHTML: body }),
+    pageToolSlot(props),
     h("div", { class: "doc-actions" }, pageFooter(props) as ComponentChildren),
   );
 }

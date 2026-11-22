@@ -1,4 +1,5 @@
 import { h } from "preact";
+import { pageToolSlot } from "./shared/page-tool.ts";
 import type { ComponentChildren } from "preact";
 import type { DataRecord, Heading, Island, Layout, LayoutProps, RecordPos } from "@velella/mizzen/contracts";
 import breadcrumb from "../chrome/breadcrumb/index.ts";
@@ -103,6 +104,7 @@ function article(props: LayoutProps): ComponentChildren {
     collectionDownloads(props),
     lastUpdated(props) as ComponentChildren,
     h("div", { class: "record-body", dangerouslySetInnerHTML: { __html: mathHtml(props.page.html, props.page.lang) } }),
+    pageToolSlot(props),
     recordHistory({
       props: props.record?.changes === undefined ? {} : { changes: props.record.changes },
       page: props.page,
