@@ -113,6 +113,16 @@ test("deferred head scripts follow JSON-LD with sorted, escaped attributes", () 
   assert.match(output, /application\/ld\+json.*?<\/script><script defer src="https:\/\/stats\.example\/script\.js\?a=1&amp;b=2" data-a="&quot;label&quot;" data-z="&lt;end>"><\/script><script defer src="https:\/\/stats\.example\/second\.js"><\/script>/s);
 });
 
+test("the preview banner uses the page language and links to the engine canonical", () => {
+  const props = layoutProps({ lang: "fa", dir: "rtl" });
+  const head = { ...props.head, meta: [{ name: "robots", content: "noindex" }] };
+  const preview = { canonicalBase: "https://preview.example", commit: "abc1234ffff" };
+  assert.doesNotMatch(out(props), /preview-banner/);
+  const output = out({ ...props, head, site: { ...props.site, preview } });
+  assert.match(output, /name="robots" content="noindex"/);
+  assert.match(output, /<p class="preview-banner" role="note">این نسخهٔ پیش‌نمایش است\. <bdi dir="ltr">abc1234<\/bdi> <a href="https:\/\/example\.com\/">باز کردن صفحهٔ اصلی<\/a><\/p>/);
+});
+
 function runThemeScript(stored: string | null | "throw", systemLight: boolean): string | null {
   const attrs: Record<string, string> = {};
   const g = globalThis as Record<string, unknown>;

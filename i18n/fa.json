@@ -331,6 +331,8 @@
   "preset_preview_sample_link": "یک پیوند",
   "preset_preview_sample_muted": "متن کم‌رنگ",
   "preset_preview_unknown": "پیش‌تنظیم ناشناخته {name}.",
+  "preview_build": "این نسخهٔ پیش‌نمایش است.",
+  "preview_canonical": "باز کردن صفحهٔ اصلی",
   "previous": "قبلی",
   "projects": "پروژه‌ها",
   "reading_time_few": "{minutes} دقیقه مطالعه",

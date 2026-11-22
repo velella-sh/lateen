@@ -331,6 +331,8 @@
   "preset_preview_sample_link": "A link",
   "preset_preview_sample_muted": "Muted text",
   "preset_preview_unknown": "Unknown preset {name}.",
+  "preview_build": "This is a preview build.",
+  "preview_canonical": "Open the canonical page",
   "previous": "Previous",
   "projects": "Projects",
   "reading_time_few": "{minutes} minutes read",

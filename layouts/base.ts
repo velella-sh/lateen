@@ -16,6 +16,7 @@ import { THEME_KEY } from "../chrome/theme-toggle/key.ts";
 import { brandCss, problemComment, resolveBrand } from "../src/brand.ts";
 import { mathHtml } from "../src/math-html.ts";
 import { deferredScript } from "./shared/head.ts";
+import { previewBanner } from "./shared/preview.ts";
 
 export { MAIN_ID, NAVIGATION_ID };
 
@@ -179,6 +180,7 @@ export default function base(props: BaseProps) {
       "body",
       null,
       skipLinks({ ...props, navigation: sidebar != null }),
+      previewBanner(props),
       announcement(props) as ComponentChildren,
       codeCopy(props) as ComponentChildren,
       header,

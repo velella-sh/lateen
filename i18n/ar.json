@@ -331,6 +331,8 @@
   "preset_preview_sample_link": "رابط",
   "preset_preview_sample_muted": "نص باهت",
   "preset_preview_unknown": "إعداد مسبق غير معروف {name}.",
+  "preview_build": "هذه نسخة معاينة.",
+  "preview_canonical": "افتح الصفحة الأصلية",
   "previous": "السابق",
   "projects": "المشاريع",
   "reading_time_few": "قراءة {minutes} دقائق",
