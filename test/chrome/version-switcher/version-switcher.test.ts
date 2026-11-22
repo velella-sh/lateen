@@ -97,6 +97,32 @@ test("marks the default release current on its unprefixed canonical URL", () => 
   assert.match(render(props(data, page)), /<bdi class="version-switcher-value" dir="ltr">v2<\/bdi>/);
 });
 
+test("discovers snapshot pages from routing alone, including the default release alias", () => {
+  const canonical = pageWith({ url: "/example/guide/install/", source: { ...pos, file: "v2/guide/install.md" } });
+  const alias = { ...canonical, url: "/example/v2/guide/install/", aliasOf: canonical.url };
+  const earlier = pageWith({ url: "/example/v1/guide/install/", source: { ...pos, file: "v1/guide/install.md" } });
+  const home = pageWith({ url: "/example/v10/", source: { ...pos, file: "v10/index.md" } });
+  const input = props({ versions: { default: "v2", old: ["v1"] } }, canonical);
+  const site = { ...input.site, pages: [earlier, alias, canonical, home] };
+  const expected = [
+    { version: "v1", url: earlier.url, current: false, home: false },
+    { version: "v2", url: alias.url, current: true, home: false },
+    { version: "v10", url: home.url, current: false, home: true },
+  ];
+  assert.deepEqual(versionsOf(site, canonical), expected);
+  assert.deepEqual(versionsOf(site, alias), expected);
+});
+
+test("shows the published current docs with a translated label beside snapshots", () => {
+  const page = pageWith({ url: "/example/guide/install/", lang: "fa", dir: "rtl" });
+  const release = pageWith({ source: { ...pos, file: "v2/guide/install.md" } });
+  const input = props({}, page);
+  const site = { ...input.site, pages: [page, release] };
+  const output = render({ ...input, site });
+  assert.match(output, /dir="auto">مستندات کنونی</);
+  assert.match(output, /href="\/example\/guide\/install\/"[^>]*aria-current="true"/);
+});
+
 test("links the same page URL from the data, adding base once", () => {
   const out = render(props({ versions: n17 }));
 

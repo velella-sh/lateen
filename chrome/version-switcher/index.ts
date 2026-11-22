@@ -3,6 +3,7 @@ import { isRecord, textOf } from "../../src/guards.ts";
 import type { Chrome, Page, Site } from "@velella/mizzen/contracts";
 import { t } from "../../i18n/index.ts";
 import { basePath, safeHref, withBase } from "../../src/url.ts";
+import { CURRENT, INDEX_FILE, versionOf, versionPath } from "../../src/docs-versions.ts";
 
 /** Class on the navigation landmark. */
 export const NAV_CLASS = "version-switcher";
@@ -192,7 +193,7 @@ function normalizedPath(value: string): string {
  */
 function pageOf(data: VersionsData, base: string, page: Page, defaultVersion: string | undefined): DataPage | undefined {
   const pageUrl = page.url;
-  const path = data.byUrl.get(pageUrl);
+  const path = data.byUrl.get(pageUrl) ?? (page.aliasOf === undefined ? undefined : data.byUrl.get(page.aliasOf));
   if (path !== undefined) {
     const found = data.pages.find((candidate) => candidate.key === path);
     if (found !== undefined) return found;
@@ -200,7 +201,8 @@ function pageOf(data: VersionsData, base: string, page: Page, defaultVersion: st
   const urlMatch = data.pages.find(
     (candidate) =>
       candidate.entries.some((entry) => withBase(base, entry.url) === pageUrl) ||
-      withBase(base, candidate.key) === pageUrl,
+      withBase(base, candidate.key) === pageUrl ||
+      withBase(base, candidate.key) === page.aliasOf,
   );
   if (urlMatch !== undefined) return urlMatch;
 
@@ -251,17 +253,61 @@ function defaultVersionOf(site: Site): string | undefined {
   const value = site.data.versions;
   if (!isRecord(value)) return undefined;
   const name = textOf(value.default);
-  return name === undefined || name === "current" ? undefined : name;
+  return name === CURRENT ? undefined : name;
 }
 
-/** The versions a page can switch between, from `site.data.docsVersions` first and its front matter second. */
+interface Release {
+  readonly pages: Map<string, Page>;
+  home?: Page;
+}
+
+const published = new WeakMap<Site, ReadonlyMap<string, Release>>();
+
+/** Index each published release once. Its versioned URL stays stable when the default changes. */
+function releasesOf(site: Site): ReadonlyMap<string, Release> {
+  const cached = published.get(site);
+  if (cached !== undefined) return cached;
+  const releases = new Map<string, Release>();
+  const defaultVersion = defaultVersionOf(site);
+  for (const page of site.pages) {
+    if (page.kind !== "doc") continue;
+    const version = versionOf(page) ?? CURRENT;
+    if (version === CURRENT && defaultVersion !== undefined) continue;
+    const release = releases.get(version) ?? { pages: new Map<string, Page>() };
+    const path = versionPath(page);
+    if (page.aliasOf !== undefined || !release.pages.has(path)) {
+      release.pages.set(path, page);
+      if (INDEX_FILE.test(path)) release.home = page;
+    }
+    releases.set(version, release);
+  }
+  const compare = new Intl.Collator("en", { numeric: true }).compare;
+  const ordered = new Map([...releases].sort(([a], [b]) => compare(a, b)));
+  published.set(site, ordered);
+  return ordered;
+}
+
+function publishedLinks(site: Site, page: Page): readonly VersionLink[] | undefined {
+  const releases = releasesOf(site);
+  const current = versionOf(page) ?? CURRENT;
+  const path = versionPath(page);
+  if (releases.size < 2 || !releases.get(current)?.pages.has(path)) return undefined;
+  if (current === CURRENT && ![...releases].some(([name, release]) => name !== CURRENT && release.pages.has(path))) return undefined;
+  return [...releases].flatMap(([version, release]) => {
+    const peer = release.pages.get(path);
+    const url = safeHref((peer ?? release.home)?.url, ["https:"]);
+    return url === undefined ? [] : [{ version, url, current: current === version, home: peer === undefined }];
+  });
+}
+
+/** The versions a page can switch between, from explicit data, front matter, or published releases. */
 export function versionsOf(site: Site, page: Page): readonly VersionLink[] | undefined {
   const base = basePath(site.config.base);
   const data = dataOf(site.data.docsVersions) ?? (isRouting(site.data.versions) ? undefined : dataOf(site.data.versions));
 
   if (data !== undefined) {
     const current = pageOf(data, base, page, defaultVersionOf(site));
-    if (current === undefined) return undefined;
+    if (current === undefined) return publishedLinks(site, page);
 
     const homes = homesOf(data, base);
     const links: VersionLink[] = [];
@@ -279,7 +325,7 @@ export function versionsOf(site: Site, page: Page): readonly VersionLink[] | und
     // The default release answers at both its canonical and versioned URLs; the canonical page matches no entry,
     // so mark the release the routing file names as default.
     if (!links.some((link) => link.current) && !links.some((link) => link.url === page.url)) {
-      const fallback = defaultVersionOf(site);
+      const fallback = versionOf(page) ?? defaultVersionOf(site);
       const index = links.findIndex((link) => link.version === fallback);
       if (index >= 0) links[index] = { ...links[index]!, current: true };
     }
@@ -287,13 +333,18 @@ export function versionsOf(site: Site, page: Page): readonly VersionLink[] | und
   }
 
   const entries = entriesOf(page.frontMatter.versions);
-  if (entries.length === 0) return undefined;
+  if (entries.length === 0) return publishedLinks(site, page);
 
   const links: VersionLink[] = [];
   for (const entry of entries) {
     const url = withBase(base, entry.url);
     if (safeHref(url, ["https:"]) === undefined) continue;
-    links.push({ version: entry.version, url, current: url === page.url, home: false });
+    links.push({
+      version: entry.version,
+      url,
+      current: url === page.url || (page.aliasOf !== undefined && entry.version === versionOf(page)),
+      home: false,
+    });
   }
   return links.length === 0 ? undefined : links;
 }
@@ -311,6 +362,7 @@ const versionSwitcher: Chrome = ({ site, page }) => {
   if (versions === undefined || versions.length < 2) return null;
 
   const current = versions.find((version) => version.current);
+  const versionLabel = (version: string) => version === CURRENT ? t(page.lang, "version_current_docs") : version;
 
   return h(
     "nav",
@@ -322,7 +374,7 @@ const versionSwitcher: Chrome = ({ site, page }) => {
         "summary",
         { class: SUMMARY_CLASS },
         h("span", { class: LABEL_CLASS }, t(page.lang, LABEL_KEY)),
-        current === undefined ? null : h("bdi", { class: VALUE_CLASS, dir: "ltr" }, current.version),
+        current === undefined ? null : h("bdi", { class: VALUE_CLASS, dir: current.version === CURRENT ? "auto" : "ltr" }, versionLabel(current.version)),
         h("span", { class: MARKER_CLASS, "aria-hidden": "true" }, "▾"),
       ),
       h(
@@ -340,7 +392,7 @@ const versionSwitcher: Chrome = ({ site, page }) => {
                 "data-version-target": version.home ? "home" : "page",
                 ...(version.current ? { "aria-current": "true" } : {}),
               },
-              h("bdi", { class: VERSION_CLASS, dir: "ltr" }, version.version),
+              h("bdi", { class: VERSION_CLASS, dir: version.version === CURRENT ? "auto" : "ltr" }, versionLabel(version.version)),
               version.current
                 ? h("span", { class: CURRENT_CLASS }, t(page.lang, CURRENT_KEY))
                 : version.home
