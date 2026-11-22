@@ -26,12 +26,16 @@
 /* The pseudo-element draws the sign, so the visible marker span is not painted twice. */
 .diff-block-marker { display: none; }
 
+/* Source mode: the switch, its active bar, and the file:line markers under each block.
+   The switch reads as a quiet control at rest; while the mode is on it turns into a filled, labelled
+   state, and the active bar carries the block count and one clear way out. */
 .source-mode-switch {
   display: flex;
   flex-wrap: wrap;
-  justify-content: flex-end;
-  gap: var(--space-1);
+  gap: var(--space-2);
   margin-block-end: var(--space-2);
+  color: var(--muted-foreground);
+  font-size: var(--text-xs);
 }
 
 /* Reserve the toolbar's space during startup on script-enabled pages. */
@@ -40,48 +44,52 @@ html[data-js] .source-mode-switch[hidden] {
   visibility: hidden;
 }
 
-.source-mode-switch button {
+/* The bar is a plain block, so `hidden` takes it out of the layout and the tab order on its own. */
+.source-mode-controls,
+.source-mode-active {
   display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--space-2);
+}
+
+.source-mode-active[hidden] {
+  display: none;
+}
+
+/* Every button inside the switch is a source-mode control. */
+.source-mode-switch button {
+  display: inline-flex;
   align-items: center;
   gap: var(--space-2);
   min-block-size: 2rem;
-  padding-inline: var(--space-2);
-  border: 1px solid transparent;
-  border-radius: 0.375rem;
-  color: var(--muted-foreground);
-  font-size: 0.8125rem;
+  padding: 0.25rem 0.625rem;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-ctl);
+  background: transparent;
+  color: inherit;
+  font: inherit;
   font-weight: 600;
   cursor: pointer;
 }
 
 .source-mode-switch button:hover {
+  border-color: var(--border-strong);
   color: var(--foreground);
   background: var(--muted);
 }
 
-.source-mode-button svg {
+.source-mode-switch svg {
   inline-size: 1rem;
   block-size: 1rem;
   flex: none;
 }
 
-.source-mode-button::after {
-  content: "";
-  inline-size: 0.5rem;
-  block-size: 0.5rem;
-  flex: none;
-  border: 1px solid currentColor;
-  border-radius: 50%;
-}
-
+/* The on state is filled and tinted, so it reads as active without colour alone. */
 .source-mode-switch .source-mode-button[aria-pressed="true"] {
-  border-color: currentColor;
+  border-color: var(--link);
   color: var(--link);
-  background: var(--muted);
-}
-
-.source-mode-button[aria-pressed="true"]::after {
-  background: currentColor;
+  background: var(--accent);
 }
 
 /* Keep the 24×24 target size above the Tailwind layers for WCAG 2.5.8. The element and role
@@ -246,7 +254,8 @@ html[data-js] .source-mode-switch[hidden] {
   outline-offset: 2px;
 }
 
-/* Reveal source labels in reading order below their own block. */
+/* Reveal source labels in reading order below their own block. When the mode is off the label stays
+   `display: none`, so its buttons and links never enter the tab order. */
 .source-label {
   display: none;
 }
@@ -256,48 +265,62 @@ html[data-js] .source-mode-switch[hidden] {
   grid-column: 1 / -1;
   flex-wrap: wrap;
   align-items: center;
-  gap: var(--space-1);
-  margin-block-start: var(--space-1);
+  gap: 0.25rem;
+  inline-size: fit-content;
+  margin-block-start: var(--space-2);
+  padding-inline-start: 0.5rem;
+  border-inline-start: 2px solid var(--border-strong);
   overflow-wrap: anywhere;
-  white-space: normal;
   unicode-bidi: isolate;
   color: var(--muted-foreground);
   font-family: var(--type-font-mono);
   font-size: var(--text-xs);
-  font-weight: 400;
   line-height: 1.25;
 }
 
 .source-label-kind {
+  color: var(--mist-edge);
   font-family: var(--type-font-ui, var(--font-sans));
-  font-weight: 500;
+  font-size: 0.6875rem;
+  font-weight: 600;
 }
 
 .source-label-copy,
 .source-label-link,
 .source-label-editor {
-  padding-block: 0.25rem;
-  padding-inline: 0.4rem;
-  border: 0;
-  background: none;
-  color: inherit;
-  font: inherit;
-  text-align: start;
-  text-decoration: underline;
-  text-decoration-style: dotted;
-  cursor: pointer;
-  box-sizing: border-box;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.25rem;
   min-block-size: 1.5rem;
   min-inline-size: 1.5rem;
+  padding: 0.125rem 0.3125rem;
+  border: 1px solid transparent;
+  border-radius: var(--radius-sm);
+  color: inherit;
+  font: inherit;
+  text-decoration: none;
+  cursor: pointer;
+}
+
+.source-label-copy {
+  text-decoration: underline dotted;
+}
+
+.source-label svg {
+  inline-size: 0.875rem;
+  block-size: 0.875rem;
+  flex: none;
 }
 
 .source-label-editor[hidden] {
   display: none;
 }
 
-.source-label-copy:hover,
 .source-label-link:hover,
 .source-label-editor:hover {
+  border-color: var(--border);
+  background: var(--muted);
   color: var(--foreground);
 }
 

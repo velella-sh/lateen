@@ -12,6 +12,10 @@ when the site names a repository or an editor template, links the same lines the
 Use the Source mode switch above the page content or choose “Source mode” in the command palette.
 The choice is remembered per browser. Labels appear beneath the blocks they describe.
 
+While the mode is on, the switch shows its pressed state and a small bar adds the number of sourced
+blocks with one Exit control, so the mode and the way out are both visible at a glance. Press Escape
+to leave the mode from anywhere on the page, or press the switch again.
+
 ## Live example
 
 This page is the example. Turn on Source mode to see the file and line next to the code fence below. The switch is hidden until the island runs, so a reader without JavaScript never sees a
@@ -43,4 +47,5 @@ page simply opens at the top.
 
 The switch is a button with `aria-pressed`, the label actions are buttons and links with their own
 names, and every change is announced in a live region in the page language. The labels are decorative
-for the article text and are neither focusable nor read until the mode is on.
+for the article text and are neither focusable nor read until the mode is on; the active bar and its
+Exit control are `hidden` while the mode is off, so they stay out of the tab order too.
