@@ -352,6 +352,7 @@
   "record_embed": "تضمين هذا السجل",
   "record_facts": "حقائق أساسية",
   "record_related": "السجلات ذات الصلة",
+  "record_replaced_by": "استُبدل هذا السجل بـ",
   "record_table_filter": "تصفية الصفوف",
   "record_table_filter_all": "الكل",
   "record_table_filter_clear": "مسح عوامل التصفية",
