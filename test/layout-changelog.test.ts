@@ -448,3 +448,17 @@ function tokenNames(): Set<string> {
 
 const changelogCss = () => "" /* lateen-legacy removed: layouts/changelog.css */;
 
+
+test("the release list styles are scoped to the changelog layout's article", () => {
+  const css = readFileSync(new URL("../styles/src/content.css", import.meta.url), "utf8");
+  const scoped = [
+    ".changelog .changelog-entry + .changelog-entry {",
+    ".changelog .changelog-entry-version {",
+    ".changelog .changelog-entry-date {",
+    ".changelog .changelog-toc-list {",
+  ];
+  for (const selector of scoped) assert.ok(css.includes(selector), `${selector} is missing`);
+  // A long version or id wraps instead of widening the page, in the heading and in the contents.
+  assert.match(css, /\.changelog \.changelog-entry-version \{[^}]*overflow-wrap: anywhere/);
+  assert.match(css, /\.changelog \.changelog-toc-list \{[^}]*overflow-wrap: anywhere/);
+});

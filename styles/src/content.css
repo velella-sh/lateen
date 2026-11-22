@@ -866,6 +866,49 @@
     margin-block-start: 0;
   }
 
+  /*
+   * The changelog layout's release list. Scoped to the layout's article so the directive on a docs
+   * page keeps its compact look: the version leads each release, the date follows it as the second
+   * fact, and a heavier rule with generous space marks where one release ends and the next begins.
+   */
+  .changelog .changelog-toc {
+    margin-block: 1.25rem 2.5rem;
+  }
+
+  .changelog .changelog-toc-list {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.25rem 1rem;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+    overflow-wrap: anywhere;
+  }
+
+  .changelog .changelog-entry + .changelog-entry {
+    margin-block-start: clamp(2.5rem, 7vw, 3.5rem);
+    padding-block-start: clamp(1.75rem, 5vw, 2.25rem);
+    border-color: var(--border-strong);
+  }
+
+  .changelog .changelog-entry-version {
+    flex-wrap: wrap;
+    margin: 0 0 0.5rem;
+    font-size: clamp(1.625rem, 5vw, 2rem);
+    line-height: 1.15;
+    overflow-wrap: anywhere;
+  }
+
+  .changelog .changelog-entry-meta {
+    margin-block-end: 1.25rem;
+  }
+
+  .changelog .changelog-entry-date {
+    color: var(--foreground);
+    font-variant-numeric: tabular-nums;
+    font-weight: 600;
+  }
+
   .figure {
     @apply my-6;
   }
