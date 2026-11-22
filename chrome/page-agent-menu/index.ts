@@ -5,6 +5,7 @@ import { t } from "../../i18n/index.ts";
 import { icon } from "../../src/icon.ts";
 import { expand, jsonUrl, providersOf, safeAgentHref } from "./providers.ts";
 import { twinUrl } from "../copy-markdown/twin.ts";
+import { providerLogo } from "./logos.ts";
 
 // The Markdown twin rule is the copy-Markdown unit's, so both page actions name the same file.
 export { twinUrl };
@@ -78,6 +79,7 @@ function pageAgentMenu({ site, page }: Parameters<Chrome>[0], editAction?: Compo
                 h(
                   "a",
                   { class: "page-agent-menu-provider", href: provider.href, target: "_blank", rel: "noopener" },
+                  providerLogo(provider.title),
                   provider.title,
                 ),
               ),

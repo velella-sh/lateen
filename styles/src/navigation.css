@@ -120,6 +120,41 @@
     inset-inline-start: 0;
   }
 
+  /* Inside an end-of-article menu the actions are plain rows, not boxed buttons: one left-aligned
+     column that sizes to its longest label, with a hover wash and a rule above the agent list. */
+  :is(.article-tool-panel, .article-tools .page-agent-menu-panel) {
+    @apply min-w-56 gap-0.5 p-1.5;
+    inline-size: max-content;
+    max-inline-size: min(20rem, calc(100vw - 2rem));
+
+    :is(.copy-markdown-button, .copy-markdown-link, .page-agent-menu-copy, .page-agent-menu-view, .page-agent-menu-provider, .page-footer-copy, .edit-page-link, a) {
+      @apply flex w-full items-center gap-2.5 rounded-md border-0 bg-transparent px-2.5 py-1.5 text-start text-sm font-medium whitespace-nowrap text-foreground no-underline;
+
+      &:hover {
+        background: var(--muted);
+      }
+    }
+
+    .copy-markdown,
+    .edit-page,
+    .page-agent-menu-providers {
+      @apply grid gap-0.5;
+    }
+
+    .page-agent-menu-heading {
+      @apply mt-1 border-t px-2.5 pt-2 pb-1 text-xs font-semibold text-muted-foreground;
+      border-color: var(--border);
+    }
+
+    .page-agent-menu-status:not(:empty) {
+      @apply px-2.5 py-1 text-xs text-muted-foreground;
+    }
+  }
+
+  .page-agent-menu-logo {
+    @apply size-4 shrink-0;
+  }
+
   /* The panel hugs its controls so the padding is equal on every side, and its edge lines up with
      the Page tools trigger instead of floating wider than its content. */
   .doc-tools .article-tool-panel {
