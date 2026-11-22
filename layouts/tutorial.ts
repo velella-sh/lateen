@@ -6,7 +6,6 @@ import type { Layout, LayoutProps, Page } from "@velella/mizzen/contracts";
 import { t } from "../i18n/index.ts";
 import { staleSlot } from "../src/stale.ts";
 import blockActions from "../chrome/block-actions/index.ts";
-import breadcrumb from "../chrome/breadcrumb/index.ts";
 import copyMarkdown from "../chrome/copy-markdown/index.ts";
 import feedback from "../chrome/feedback/index.ts";
 import editPage from "../chrome/edit-page/index.ts";
@@ -17,7 +16,7 @@ import pageStatus from "../components/page-status/index.ts";
 import readingTime from "../components/reading-time/index.ts";
 import versionNotice from "../components/version-notice/index.ts";
 import { articleHtml } from "../src/article-html.ts";
-import { articleShell, statusProps, titleFromBody } from "./shared/index.ts";
+import { articleHeader, articleShell, statusProps } from "./shared/index.ts";
 
 /**
  * A tutorial step: a title and the heading id it links to. Steps come from the page's depth-2
@@ -204,13 +203,18 @@ function article(props: LayoutProps): ComponentChildren {
   return h(
     "article",
     { class: "doc tutorial", "data-pagefind-body": true },
-    breadcrumb(props) as ComponentChildren,
-    pageStatus({ props: statusProps(page), page, site: props.site, html: "" }) as ComponentChildren,
-    versionNotice({ props: {}, page, site: props.site, html: "" }) as ComponentChildren,
-    titleFromBody(props) ? null : h("h1", null, page.title),
+    articleHeader(props, {
+      notices: [
+        pageStatus({ props: statusProps(page), page, site: props.site, html: "" }) as ComponentChildren,
+        versionNotice({ props: {}, page, site: props.site, html: "" }) as ComponentChildren,
+      ],
+      description: null,
+      meta: [
+        lastUpdated(props) as ComponentChildren,
+        readingTime({ props: {}, page, site: props.site, html: "" }) as ComponentChildren,
+      ],
+    }),
     staleSlot(props),
-    lastUpdated(props) as ComponentChildren,
-    readingTime({ props: {}, page, site: props.site, html: "" }) as ComponentChildren,
     steps.length === 0 ? null : progress(page, steps),
     body(page, steps),
     editPage(props) as ComponentChildren,

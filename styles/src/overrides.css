@@ -178,7 +178,12 @@ html[data-js] .source-mode-switch[hidden] {
 }
 
 .breadcrumb-title {
+  color: inherit;
+}
+
+.breadcrumb [aria-current="page"] .breadcrumb-title {
   color: var(--foreground);
+  font-weight: 600;
 }
 
 .code .highlighted,
