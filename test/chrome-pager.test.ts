@@ -17,6 +17,25 @@ import type {
 import pager from "../chrome/pager/index.ts";
 import { siteConfig } from "./helpers/site.ts";
 import { pageWith } from "./helpers/page.ts";
+import { readUiCss } from "./ui-css-helpers.ts";
+
+/** The shared stylesheet without comments, so a rule body can be read by selector. */
+const uiCss = readUiCss().replace(/\/\*[\s\S]*?\*\//g, (comment) => comment.replace(/[^\n]/g, " "));
+
+/** Every `selector { body }` block of the shared stylesheet. */
+function cssBlocks(text: string): { selector: string; body: string }[] {
+  return [...text.matchAll(/([^{}]+)\{([^{}]*)\}/g)].map((match) => ({
+    selector: (match[1] ?? "").trim(),
+    body: match[2] ?? "",
+  }));
+}
+
+/** The declaration bodies whose selector matches `pattern`, joined. */
+const cssBodyOf = (pattern: RegExp): string =>
+  cssBlocks(uiCss)
+    .filter((block) => pattern.test(block.selector))
+    .map((block) => block.body)
+    .join("\n");
 
 const pos: SourcePos = { file: "docs/guide/install.md", line: 3, column: 1, endLine: 9, endColumn: 1 };
 
@@ -272,4 +291,45 @@ test("the section label is server-rendered into plain links that work without Ja
   assert.match(out, /<span class="pager-section"> · <bdi>Components<\/bdi><\/span>/);
   assert.doesNotMatch(out, /onclick|onkeydown|tabindex|<script/);
 });
+
+test("the pager puts the direction word and its arrow on one line above the destination", () => {
+  // The card keeps label-then-title order in the DOM; the stylesheet places the arrow inline with the
+  // word instead of absolutely beside the whole card, so the destination gets the full line.
+  const out = output({ prev, next });
+  assert.match(out, /<span class="pager-label"><svg class="pager-arrow"[^>]*>[\s\S]*?<\/svg>Previous<\/span><span class="pager-title">/);
+  const label = cssBodyOf(/^\.pager-label$/);
+  assert.match(label, /@apply[^;]*\bflex\b/, "the label row lays the arrow beside the word");
+  assert.doesNotMatch(label, /position:\s*absolute/, "the arrow is in the label flow, not pinned to the card");
+
+  const arrow = cssBodyOf(/^\.pager-arrow$/);
+  assert.doesNotMatch(arrow, /position:\s*absolute/, "the arrow no longer floats beside the card");
+  const title = cssBodyOf(/^\.pager-title$/);
+  assert.match(title, /@apply[^;]*\bfont-bold\b/, "the destination carries the weight");
+});
+
+test("a lone previous or next card fills the row instead of leaving a dead half", () => {
+  // `grid-column: 2` pins a next-only card to the second column of a two-column grid; the
+  // `:only-child` rule overrides it so one destination spans both columns.
+  const nextColumn = cssBodyOf(/^\.pager-next$/);
+  assert.match(nextColumn, /grid-column:\s*2/, "a next card sits in the second column when both exist");
+
+  const onlyChild = cssBodyOf(/\.pager-link:only-child/);
+  assert.match(onlyChild, /grid-column:\s*1\s*\/\s*-1/, "a single card spans the whole row");
+
+  const onlyNext = output({ next });
+  const onlyPrev = output({ prev });
+  assert.equal((onlyNext.match(/class="pager-link/g) ?? []).length, 1);
+  assert.equal((onlyPrev.match(/class="pager-link/g) ?? []).length, 1);
+});
+
+test("the end-of-article tool chips stay quieter than the continue-reading links", () => {
+  const tools = cssBodyOf(/^\.article-tools details > summary$/);
+  assert.match(tools, /font-size:\s*0?\.75rem|text-xs/, "the chips use the small size");
+  assert.match(tools, /color:\s*var\(--muted-foreground\)/, "the chips stay muted until hover");
+  assert.match(tools, /background:\s*transparent/, "the chips do not compete with the pager card fill");
+
+  const toolsRow = cssBodyOf(/^\.article-tools$/);
+  assert.doesNotMatch(toolsRow, /text-base|text-lg/, "the tools row does not grow into the pager's weight");
+});
+
 
