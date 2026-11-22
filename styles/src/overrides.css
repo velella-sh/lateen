@@ -460,8 +460,10 @@ a.home-btn-primary,
 
 /* Markdown heading permalinks share the heading line without taking space from its text. */
 [data-heading-anchor] > .heading-anchor {
-  display: inline-block;
+  display: inline-flex;
+  align-items: center;
   inline-size: 1.5rem;
+  block-size: 1.5rem;
   margin-inline-end: -1.5rem;
   padding-inline-start: 0.5rem;
   vertical-align: middle;
