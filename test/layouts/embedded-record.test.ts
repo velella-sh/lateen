@@ -21,6 +21,14 @@ const CONFIG = readFileSync(join(root, "fixtures/data-site/mizzen.yml"), "utf8")
       "        template: _templates/components-embed.md",
       "        permalink: /components/{slug}/embed/",
       "        layout: embedded",
+      "      summary:",
+      "        template: _templates/components-summary.md",
+      "        permalink: /components/{slug}/summary/",
+      "        layout: doc",
+      "      compact:",
+      "        template: _templates/components-summary.md",
+      "        permalink: /components/{slug}/compact/",
+      "        layout: record",
       "",
     ].join("\n"),
   );
@@ -55,6 +63,7 @@ before(() => {
   site = build("data-site", process.env, {
     "mizzen.yml": CONFIG,
     "_templates/components-embed.md": VIEW,
+    "_templates/components-summary.md": '---\ntitle: "{name} summary"\n---\n:field[summary]\n',
   });
 });
 
@@ -98,4 +107,22 @@ test("the embedded view has no script and points search engines and readers at t
   assert.match(html, /<meta name="robots" content="noindex"\s*\/?>/);
   assert.match(html, /<link rel="canonical" href="https:\/\/example\.com\/components\/button\/"\s*\/?>/);
   assert.match(html, /<a href="https:\/\/example\.com\/components\/button\/" target="_top" rel="noopener">Open the full page<\/a>/);
+});
+
+test("links to named views show on the record and the views link back in either layout", () => {
+  const document = site.document("/components/button/");
+  const views = document.querySelector('main nav[aria-label="Record views"]');
+  assert.deepEqual([...views!.querySelectorAll("a")].map((link) => [link.textContent, link.getAttribute("href")]), [
+    ["summary", "/components/button/summary/"],
+    ["compact", "/components/button/compact/"],
+  ]);
+  assert.equal(document.querySelector(".sidebar a[href='/components/button/summary/']"), null);
+
+  for (const name of ["summary", "compact"]) {
+    const view = site.document(`/components/button/${name}/`);
+    const link = view.querySelector("main .record-view-back a");
+    assert.equal(link?.getAttribute("href"), "/components/button/");
+    assert.equal(link?.textContent, "Open the full record");
+    assert.equal(view.querySelector(".record-views"), null);
+  }
 });

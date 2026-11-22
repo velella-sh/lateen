@@ -19,7 +19,7 @@ import doc from "./doc.ts";
 import { articleShell } from "./shared/index.ts";
 import { staleSlot } from "../src/stale.ts";
 import { snapshotPanel } from "../src/snapshot-panel.ts";
-import { baseOf } from "../src/url.ts";
+import { baseOf, safeHref } from "../src/url.ts";
 import { mathHtml } from "../src/math-html.ts";
 import { collectionFeeds } from "../src/collection-feeds.ts";
 import { fieldsOf } from "../components/record-history/index.ts";
@@ -53,6 +53,21 @@ function embedPanel(props: LayoutProps): ComponentChildren {
     { class: EMBED_CLASS, "aria-labelledby": "record-embed" },
     h("h2", { id: "record-embed" }, label),
     embedCode({ props: { src, title: props.page.title }, page: props.page, site: props.site, html: "" }) as ComponentChildren,
+  );
+}
+
+/** Named views other than the embed, which has its own snippet. */
+function namedViews(props: LayoutProps): ComponentChildren {
+  const links = Object.entries(props.record?.views ?? {}).flatMap(([name, url]) => {
+    const href = safeHref(url);
+    return name === "embed" || href === undefined
+      ? []
+      : [h("li", null, h("a", { href }, h("bdi", null, name)))];
+  });
+  return links.length === 0 ? null : h(
+    "nav",
+    { class: "record-views", "aria-label": t(props.page.lang, "record_views") },
+    h("ul", { role: "list" }, links),
   );
 }
 
@@ -112,6 +127,7 @@ function article(props: LayoutProps): ComponentChildren {
       html: "",
     }) as ComponentChildren,
     relatedPanel(props),
+    namedViews(props),
     embedPanel(props),
     snapshotPanel(props),
     h(
