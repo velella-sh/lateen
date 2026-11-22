@@ -1188,28 +1188,6 @@
     position: relative;
   }
 
-  .block-action {
-    position: absolute;
-    inset-block-start: -1.75rem;
-    inset-inline-end: 0.25rem;
-    pointer-events: none;
-    z-index: 2;
-    min-block-size: 1.5rem;
-    padding: 0.25rem 0.5rem;
-    border-radius: 999px;
-    background: var(--muted);
-    color: var(--muted-foreground);
-    font-size: 0.7rem;
-    line-height: 1rem;
-    opacity: 0;
-  }
-
-  [data-src]:hover > .block-action,
-  [data-src]:focus-within > .block-action {
-    opacity: 1;
-    pointer-events: auto;
-  }
-
   .page-status {
     @apply flex flex-wrap items-center rounded-lg;
     gap: 0.375rem;

@@ -1,7 +1,7 @@
 # Clipboard result path
 
 The one clipboard write→result→restore sequence the clipboard chrome shares. `code-copy`,
-`block-actions`, `copy-markdown`, and `ask-agent` keep their own localized words and their own
+`copy-markdown`, and `ask-agent` keep their own localized words and their own
 place to show them; this folder owns only the order of events: a failed write is never reported
 as a success, a slower earlier write never overwrites a newer result, and a pending restore can
 be cancelled. This folder has no component and no island of its own.

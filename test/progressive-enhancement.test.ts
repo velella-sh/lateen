@@ -274,10 +274,6 @@ test("no control that needs an island is visible before hydration", () => {
   assert.equal(document.querySelector("[data-ask-agent-open]"), null, "no ask row is drawn without the island");
   assert.equal(document.querySelector(".ask-agent-panel"), null, "no prompt panel is drawn without the island");
 
-  // The block action is inert until the island clones it out of the template.
-  const template = document.querySelector("template[data-block-actions]") as HTMLTemplateElement | null;
-  assert.ok(template);
-  assert.equal(template.content.querySelector("[data-block-action]")?.hasAttribute("hidden"), true);
 });
 
 test("slow media stays local and makes no provider request until the reader asks", () => {

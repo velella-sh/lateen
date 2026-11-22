@@ -1,11 +1,10 @@
-import { Fragment, h } from "preact";
+import { h } from "preact";
 import { isRecord } from "../src/guards.ts";
 import { headingSlug } from "../src/slug.ts";
 import type { ComponentChildren } from "preact";
 import type { Layout, LayoutProps, Page } from "@velella/mizzen/contracts";
 import { t } from "../i18n/index.ts";
 import { staleSlot } from "../src/stale.ts";
-import blockActions from "../chrome/block-actions/index.ts";
 import copyMarkdown from "../chrome/copy-markdown/index.ts";
 import feedback from "../chrome/feedback/index.ts";
 import editPage from "../chrome/edit-page/index.ts";
@@ -229,6 +228,6 @@ function article(props: LayoutProps): ComponentChildren {
  * replaced by the step-by-step one. `tutorial.css` styles the progress list and the step links.
  */
 const tutorial: Layout = (props) =>
-  articleShell(props, { main: h(Fragment, null, article(props), blockActions(props) as ComponentChildren) });
+  articleShell(props, { main: article(props) });
 
 export default tutorial;

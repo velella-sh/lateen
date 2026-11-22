@@ -86,11 +86,6 @@ test("source navigation keeps a real, exact span for every block", () => {
 });
 
 test("an agent action keeps source, language, and version context", () => {
-  const template = document.querySelector("template[data-block-actions]");
-  assert.equal(template?.getAttribute("data-lang"), "en");
-  assert.equal(template?.getAttribute("data-version"), "v2");
-  assert.match(template?.getAttribute("data-prompt") ?? "", /\{source\}.*\{text\}/);
-
   assert.match(document.querySelector("[data-page-footer-copy]")?.getAttribute("data-prompt") ?? "", /guide\/install\.md:11 \(en, v2\)/);
   assert.match(
     document.querySelector(".page-agent-menu-provider")?.getAttribute("href") ?? "",
@@ -175,7 +170,7 @@ test("keyboard and pointer meet the same native controls, with unique ids and no
 
 test("the action contracts and clipboard limits are documented", () => {
   const doc = readFileSync(join(root, "docs/agent-ux.md"), "utf8");
-  for (const expected of ["data-source", "data-version", "data-prompt", "role=\"status\"", "clipboard", "secure context", "javascript:", "executes a command", "provider"]) {
+  for (const expected of ["data-prompt", "role=\"status\"", "clipboard", "secure context", "javascript:", "executes a command", "provider"]) {
     assert.ok(doc.includes(expected), `docs/agent-ux.md covers ${JSON.stringify(expected)}`);
   }
   assert.match(doc, /shortcut|keyboard/i);

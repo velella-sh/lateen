@@ -1,6 +1,6 @@
-# Agent and block action contracts
+# Agent action contracts
 
-Lateen's page and block actions are progressive enhancements: every piece of documentation is in the
+Lateen's page actions are progressive enhancements: every piece of documentation is in the
 server-rendered HTML and every action is hidden until the island that can perform it is running. A
 reader without JavaScript keeps the prose, the code, the recorded output, the Markdown link, and the
 provider links; a reader with JavaScript gets the same content plus copy and navigation commands.
@@ -18,27 +18,6 @@ The Markdown twin follows the page URL, so a versioned or prefixed route (`/v2/g
 `/fa/guide/install/`) keeps its language and version without the action having to rebuild the URL.
 `data-markdown` is the same address the link uses, and the command palette, page copy control, and
 provider menu share the twin rule.
-
-## Block actions
-
-Every top-level block with a `data-src` span gets one cloned button from the page's
-`template[data-block-actions]`. The template carries the localized prompt pattern and the page's
-`data-lang` and, when the page declares one, `data-version`. A cloned button carries:
-
-- `data-source` — the exact `path:line:column-endLine:column` span, as written by the engine;
-- `data-file` — the source file without its span;
-- `data-lang` — the block's language, when it has one;
-- `data-block-id` — the stable id also used by the heading and code anchors;
-- `data-text`, `data-text-total`, `data-text-omitted` — the block text as copied, and whether it was
-  bounded;
-- `data-prompt` — the localized prompt, with `{source}` filled by the source plus language/version
-  context and `{text}` by the block text.
-
-A prompt carries at most `MAX_TEXT` (8,000) code points. A longer block is cut at a code-point
-boundary and the prompt says how much it left out; `data-text-total` and `data-text-omitted` expose
-the counts without forcing an agent to parse the sentence. Control characters and bidi overrides are
-removed from the text before it reaches the prompt, so a block cannot forge another prompt field.
-The copied block text is never changed by the action.
 
 Code, output, terminal, endpoint, and schema blocks also publish their canonical values as inert
 JSON or data attributes: `data-placeholders`, `data-output-deps`, `data-output-evidence`,
@@ -71,8 +50,7 @@ elsewhere open search.
 - Every copy result is written to a `role="status"` region. The same localized success and failure
   strings are used by the page copy control, the agent menu, the page footer, and the code/output
   copy islands, so a reader hears one vocabulary wherever the action was started.
-- Buttons are native `<button>`s, disclosures use `<details>`/`<summary>`, and block actions are
-  cloned from an inert `<template>` only after the clipboard is known to exist.
+- Buttons are native `<button>`s, disclosures use `<details>`/`<summary>`.
 
 ## Clipboard and security limits
 
@@ -96,7 +74,3 @@ elsewhere open search.
   page in `sessionStorage` so a reload does not ask twice; the storage write is best-effort and a
   denied storage API does not block the vote.
 - The theme stores the color choice under `lateen-theme`. Source mode always starts off and is not stored.
-
-Known limit: a block action's prompt names the page's declared version only when the page declares
-one. A page without a `version` front-matter value has no version claim to make, and the action never
-invents one.

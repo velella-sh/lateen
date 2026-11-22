@@ -1,8 +1,16 @@
 import { JSDOM } from "jsdom";
 import { REGION_ATTRIBUTE, WRAPPER_CLASS } from "../components/table/index.ts";
 
-/** Keep the table display and its header relationships while the outer box scrolls. */
-export function articleHtml(html: string): string {
+/** A plain fence scrolls sideways, so the keyboard must be able to reach it. */
+function focusablePre(html: string): string {
+  return html.replace(/<pre((?:\s[^\s=>]+(?:="[^"]*")?)*)>/g, (tag, attrs: string) =>
+    /\stabindex[=\s]/.test(`${attrs} `) ? tag : `<pre${attrs} tabindex="0">`,
+  );
+}
+
+/** Keep the table display and its header relationships while the outer box scrolls, and let a plain code fence take focus. */
+export function articleHtml(source: string): string {
+  const html = focusablePre(source);
   if (!/<table[\s>]/i.test(html)) return html;
 
   const fragment = JSDOM.fragment(html);
