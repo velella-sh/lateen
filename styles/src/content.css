@@ -252,6 +252,25 @@
     color: var(--foreground);
   }
 
+  .calendar-actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--space-1) var(--space-3);
+  }
+
+  .add-to-calendar-list {
+    display: grid;
+    gap: var(--space-1);
+    margin-block-start: var(--space-2);
+    padding-inline-start: 0;
+    list-style: none;
+  }
+
+  .add-to-calendar-link {
+    color: var(--link);
+    text-decoration: underline;
+  }
+
   /* One shape for every kind: a hairline frame and a faint wash in the kind's colour, which also
      carries the icon and the label, so a reader tells a warning from a tip before reading it. */
   .callout {
