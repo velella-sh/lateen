@@ -75,6 +75,8 @@ checkouts must compress to the same number. The job fails when a route appears o
 route lists the same path twice (two downloads of one file), when an asset is added that the reviewed
 log does not list — a new dependency, whatever its size — or when an existing asset grows past the
 tolerance. Removed assets and shrinks pass.
+
+CI passes `--tolerance 256`, the same headroom the budget gives each class, so a few bytes of gzip noise from an honest edit do not turn the pull request red. A new asset and a larger step still fail.
 A changed global CSS bundle is counted and named under `css/base` on every route that loads it.
 
 `--reviewed <file>` reads `fixtures/performance/reviewed-assets.json`, the log of new dependencies a

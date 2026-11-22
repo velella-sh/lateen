@@ -98,7 +98,7 @@ change to this note.
 Baselines are recorded **only on CI**, on the pinned image, and committed from there. A baseline made
 on a developer machine is never stored: fonts, rasteriser and OS differ, and a local baseline would
 make CI red or, worse, hide a change. A developer who wants a local look runs the gate and reads the
-diff images; to update, they run the `record-baselines` workflow on their branch (Actions → record-baselines → Run workflow). It records on the pinned runner, commits only `test/visual/baselines`, and adds the `visual-change` label. A push made with the workflow token does not start CI, so push an empty commit to get the checks to run on the new baselines. A pull request that changes only Markdown, `docs/` or `changelog.d/` skips the browser and size gates (visual, a11y, smoke, acceptance, performance-compare); the `test` job still runs.
+diff images; to update, they add the `record-baselines` label to the pull request, or run the workflow on the branch (Actions → record-baselines → Run workflow). It records on the pinned runner, commits only `test/visual/baselines`, and adds the `visual-change` label. A push made with the workflow token does not start CI, so the workflow also dispatches `ci.yml` on the branch; its checks appear on the new head commit. A pull request that changes only Markdown, `docs/` or `changelog.d/` skips the browser and size gates (visual, a11y, smoke, acceptance, performance-compare); the `test` job still runs.
 
 ## What is masked
 
