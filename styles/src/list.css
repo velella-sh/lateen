@@ -319,6 +319,45 @@
     font-size: 0.875rem;
   }
 
+  .report-archive-dates:not([hidden]) {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: end;
+    gap: var(--space-3);
+    margin-block: var(--space-3);
+  }
+
+  .report-archive-dates label {
+    display: grid;
+    gap: var(--space-1);
+  }
+
+  .report-archive-dates input {
+    padding: var(--space-1) var(--space-2);
+    border: 1px solid var(--border-strong);
+    border-radius: var(--radius-md);
+    background: var(--card);
+    color: var(--foreground);
+  }
+
+  :is(.report-run, .report-archive-notice) a {
+    color: var(--link);
+    text-decoration: underline;
+  }
+
+  .report-run-inputs {
+    max-inline-size: 100%;
+  }
+
+  .report-run-inputs dl {
+    overflow-wrap: anywhere;
+  }
+
+  .report-run-inputs dd {
+    margin-block-end: var(--space-2);
+    margin-inline-start: 0;
+  }
+
   /* --- The changelog view --- */
 
   .list .changes-list {

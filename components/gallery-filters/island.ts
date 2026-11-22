@@ -38,7 +38,7 @@ export const COUNT_SELECTOR = ".gallery-count";
 export const EMPTY_SELECTOR = ".gallery-empty";
 
 /** The link inside one card, and the element focus lands on after a filter. */
-export const CARD_SELECTOR = "a.card, a.gallery-card";
+export const CARD_SELECTOR = "a.card, a.gallery-card, [data-report-run-link]";
 
 /** The query parameter prefix of one filter field. */
 export const FILTER_PREFIX = "filter.";
@@ -48,6 +48,20 @@ export const SORT_PARAM = "sort";
 
 /** The query parameter that names the sort direction. */
 export const ORDER_PARAM = "order";
+
+export const DATE_FROM_PARAM = "start";
+export const DATE_THROUGH_PARAM = "end";
+const DATES_SELECTOR = "[data-gallery-dates]";
+
+function isoDate(value: string | null): string {
+  if (value === null || !/^(?!0000)\d{4}-\d{2}-\d{2}$/.test(value)) return "";
+  const date = new Date(value);
+  return Number.isFinite(date.getTime()) && date.toISOString().startsWith(value) ? value : "";
+}
+
+function dateInput(form: GalleryElement, name: string): HTMLInputElement | null {
+  return form.querySelector(`input[name="${name}"]`) as HTMLInputElement | null;
+}
 
 export type SortDirection = "asc" | "desc";
 
@@ -251,9 +265,23 @@ export function apply(
     values: valuesOf(element),
   }));
 
+  const range = root.querySelector(DATES_SELECTOR);
+  const params = new URLSearchParams(searchOf(url));
+  const from = range === null ? "" : isoDate(params.get(DATE_FROM_PARAM));
+  const through = range === null ? "" : isoDate(params.get(DATE_THROUGH_PARAM));
+  if (range !== null) {
+    const first = dateInput(range, DATE_FROM_PARAM);
+    const last = dateInput(range, DATE_THROUGH_PARAM);
+    if (first !== null) first.value = from;
+    if (last !== null) last.value = through;
+  }
+
   let shown = 0;
   for (const item of items) {
-    const visible = matches(item.values, selected);
+    const date = item.element.getAttribute("data-gallery-date");
+    const inRange = (from === "" || (date !== null && date >= from)) &&
+      (through === "" || (date !== null && date <= through));
+    const visible = inRange && matches(item.values, selected);
     item.element.hidden = !visible;
     if (visible) shown += 1;
   }
@@ -354,6 +382,23 @@ export function activate(doc: GalleryDocument): () => void {
   };
 
   for (const root of roots) {
+    const range = root.querySelector(DATES_SELECTOR);
+    if (range !== null) {
+      range.hidden = false;
+      const form = range as unknown as HTMLFormElement;
+      form.addEventListener("submit", (event) => {
+        if (view === null) return;
+        event.preventDefault();
+        const from = isoDate(dateInput(range, DATE_FROM_PARAM)?.value ?? null);
+        const through = isoDate(dateInput(range, DATE_THROUGH_PARAM)?.value ?? null);
+        const next = withParams(view.location.href, {
+          [DATE_FROM_PARAM]: from || null,
+          [DATE_THROUGH_PARAM]: through || null,
+        });
+        view.history.replaceState(null, "", next);
+        applyAll("count");
+      }, { signal });
+    }
     // One click listener per gallery: the filter links, the sort links, and the clear button share it,
     // so a page with many filter values registers one listener instead of one per value.
     root.addEventListener("click", (event) => {

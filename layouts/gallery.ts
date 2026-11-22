@@ -5,11 +5,14 @@ import breadcrumb from "../chrome/breadcrumb/index.ts";
 import toc from "../chrome/toc/index.ts";
 import cards from "../components/cards/index.ts";
 import galleryFilters, { type GalleryFacet } from "../components/gallery-filters/index.ts";
-import { searchOf, selectedOf, sortOf, type GallerySort } from "../components/gallery-filters/island.ts";
+import {
+  actionOf, DATE_FROM_PARAM, DATE_THROUGH_PARAM, searchOf, selectedOf, sortOf, type GallerySort,
+} from "../components/gallery-filters/island.ts";
 import { formatCount } from "../components/reading-time/index.ts";
 import { addCardOf } from "../components/gallery-card/add-card.ts";
 import { patternOf, t } from "../i18n/index.ts";
 import { isPublicField, publicFieldsOf } from "../src/public-fields.ts";
+import { latestReportOf, reportRunCard } from "../src/report-archive.ts";
 import { baseOf } from "../src/url.ts";
 import { mathHtml } from "../src/math-html.ts";
 import { cardOf, groupsOf } from "./list.ts";
@@ -26,6 +29,7 @@ export const GALLERY_OPTIONS = [
   "collection.search.filters",
   "collection.search.sort",
   "theme.options.gallery.addCard",
+  "reportArchive.latest",
 ] as const;
 
 /** The configured fields as a list, ignoring a malformed value. */
@@ -75,11 +79,23 @@ function cardValues(record: RecordProps, fields: readonly string[]): string {
 }
 
 /** One record as the list layout's card, wrapped with the values its filters read. */
-function cardItem(props: LayoutProps, record: RecordProps, fields: readonly string[]): ComponentChildren {
+function cardItem(
+  props: LayoutProps,
+  record: RecordProps,
+  fields: readonly string[],
+  latestId: string | undefined,
+  inputs: unknown,
+): ComponentChildren {
+  const run = latestId === undefined ? undefined : reportRunCard(props, record, latestId, inputs);
   return h(
     "div",
-    { class: "gallery-item", "data-gallery-item": "", "data-gallery-values": cardValues(record, fields) },
-    cardOf(props, record),
+    {
+      class: "gallery-item",
+      "data-gallery-item": "",
+      "data-gallery-values": cardValues(record, fields),
+      "data-gallery-date": run?.date,
+    },
+    run?.card ?? cardOf(props, record),
   );
 }
 
@@ -106,12 +122,23 @@ function sorted(records: readonly RecordProps[], sort: GallerySort | undefined, 
     .map(({ record }) => record);
 }
 
+function reportDates(props: LayoutProps): ComponentChildren {
+  const lang = props.page.lang;
+  return h(
+    "form",
+    { class: "report-archive-dates", "data-gallery-dates": "", method: "get", action: actionOf(props.page.url), hidden: true },
+    h("label", null, t(lang, "report_archive_from"), h("input", { type: "date", name: DATE_FROM_PARAM })),
+    h("label", null, t(lang, "report_archive_through"), h("input", { type: "date", name: DATE_THROUGH_PARAM })),
+    h("button", { type: "submit", class: "btn" }, t(lang, "report_archive_apply")),
+  );
+}
+
 /**
  * The records as a gallery: one responsive grid of the list layout's cards, in the chosen order,
  * inside a section per group when the list groups them. The filters and sort links are ordinary
  * addresses, and the island only filters in place when it runs.
  */
-function article(props: LayoutProps): ComponentChildren {
+function article(props: LayoutProps, latestId: string | undefined): ComponentChildren {
   const list = props.list;
   const groups = groupsOf(props);
   const add = addCardOf(props.site.config);
@@ -126,11 +153,16 @@ function article(props: LayoutProps): ComponentChildren {
   const visible = sorted(shownRecords.filter((record) => passes(record, selected)), sort, props.page.lang);
   const total = shownRecords.length;
   const shown = visible.length;
+  const inputs = new Map(
+    latestId === undefined || list === undefined ? [] : (props.site.collections[list.collection]?.records ?? []).map(
+      (record) => [record.id, publicFieldsOf(props.site, list.collection, record.fields).inputs],
+    ),
+  );
 
   /** The cards for one group; the site's own card closes the last group, or the one grid. */
   const view = (records: readonly RecordProps[], last: boolean): ComponentChildren => {
     const items = sorted(records.filter((record) => passes(record, selected)), sort, props.page.lang).map((record) =>
-      cardItem(props, record, filterFields),
+      cardItem(props, record, filterFields, latestId, inputs.get(record.id)),
     );
     if (add !== undefined && last) items.push(add as never);
     return items.length === 0 ? null : (cards({ children: items }) as ComponentChildren);
@@ -188,7 +220,15 @@ function article(props: LayoutProps): ComponentChildren {
     breadcrumb(props) as ComponentChildren,
     titleFromBody(props) ? null : h("h1", null, props.page.title),
     h("div", { class: "gallery-intro", dangerouslySetInnerHTML: { __html: mathHtml(props.page.html, props.page.lang) } }),
-    list === undefined ? null : h("div", { class: "gallery-body", "data-gallery": "" }, controls, count, empty, grid),
+    list === undefined ? null : h(
+      "div",
+      { class: "gallery-body", "data-gallery": "" },
+      controls,
+      latestId === undefined ? null : reportDates(props),
+      count,
+      empty,
+      grid,
+    ),
   );
 }
 
@@ -217,13 +257,16 @@ function hasControls(props: LayoutProps): boolean {
  */
 const gallery: Layout = (props) => {
   const islands = props.islands as Island[];
-  if (hasControls(props)) {
+  const collection = props.list?.collection;
+  const latest = collection === undefined ? undefined : latestReportOf(props, collection);
+  const latestId = latest?.list?.records[0]?.id;
+  if (latestId !== undefined || hasControls(props)) {
     const filterIsland: Island = { name: "gallery-filters", src: `${baseOf(props.site)}/${FILTER_ISLAND}` };
     if (!islands.some((island) => island.src === filterIsland.src)) islands.push(filterIsland);
   }
   return articleShell(props, {
     base: { islands },
-    main: article(props),
+    main: article(props, latestId),
     aside: toc(tocFor(props)) as ComponentChildren,
   });
 };
