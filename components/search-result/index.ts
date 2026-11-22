@@ -1,7 +1,8 @@
 import { h } from "preact";
 import type { SiteNetwork } from "@velella/mizzen/contracts";
 import { t } from "../../i18n/index.ts";
-import { resultHeading, resultHref, resultLabel, type FailedIndex, type SearchResult } from "../../src/search/merge.ts";
+import { resultHeading, type FailedIndex, type SearchResult } from "../../src/search/merge.ts";
+import { resultHref, resultLabel } from "./model.ts";
 import { languageName } from "../../src/language.ts";
 
 /** Class on one result's item. */

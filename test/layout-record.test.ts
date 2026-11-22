@@ -4,7 +4,7 @@ import { renderToString } from "preact-render-to-string";
 import type { Heading, LayoutProps, Page, Site, SiteConfig, SourcePos } from "@velella/mizzen/contracts";
 import record from "../layouts/record.ts";
 import doc from "../layouts/doc.ts";
-import { recordProps } from "./helpers/record.ts";
+import { pageRecord, recordProps } from "./helpers/record.ts";
 
 const pos: SourcePos = { file: "components/button.md", line: 1, column: 1, endLine: 1, endColumn: 1 };
 
@@ -173,4 +173,21 @@ test("related records preserve relation and record order and use the target fact
   assert.match(out, /&lt;sample>/);
   assert.doesNotMatch(out, /<h3>empty<\/h3>/);
   assert.doesNotMatch(render(pageWith()), /id="record-related"/);
+});
+
+test("a retained record links to its resolved replacement using the target title", () => {
+  const href = "/base/fa/components/new/";
+  const page = pageWith({ lang: "fa", dir: "rtl", record: pageRecord({ replacementUrl: href }) });
+  const input = props(page);
+  const out = renderToString(record({
+    ...input,
+    site: { ...input.site, pages: [page, pageWith({ url: href, title: "دکمهٔ تازه" })] },
+  }) as never);
+  assert.match(out, /role="note".*جایگزین این رکورد <a class="page-status-replacement" href="\/base\/fa\/components\/new\/"><bdi>دکمهٔ تازه<\/bdi><\/a>/);
+});
+
+test("a retained record without a safe replacement has no replacement notice", () => {
+  for (const record of [pageRecord(), pageRecord({ replacementUrl: "//evil.example/" }), pageRecord({ replacementUrl: "javascript:alert(1)" })]) {
+    assert.doesNotMatch(render(pageWith({ record })), /This record was replaced by|class="page-status-replacement"/);
+  }
 });

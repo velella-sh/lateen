@@ -1,10 +1,12 @@
 {
   "reviewed": [
+    "assets/theme/islands/chrome/search-scope/island.js",
     "assets/theme/islands/chrome/search/activate.js",
     "assets/theme/islands/chrome/search/boot.js",
     "assets/theme/islands/chrome/search/handlers.js",
     "assets/theme/islands/chrome/search/loader.js",
     "assets/theme/islands/chrome/search/messages.js",
+    "assets/theme/islands/chrome/search/network.js",
     "assets/theme/islands/chrome/search/options.js",
     "assets/theme/islands/chrome/search/palette.js",
     "assets/theme/islands/chrome/search/render.js",
@@ -13,6 +15,7 @@
     "assets/theme/islands/components/data-explorer/env.js",
     "assets/theme/islands/components/data-explorer/state.js",
     "assets/theme/islands/components/data-explorer/view.js",
+    "assets/theme/islands/components/search-result/model.js",
     "assets/theme/islands/src/configured-calendar.js"
   ]
 }

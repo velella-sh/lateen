@@ -144,6 +144,14 @@ function resultContent(row: OptionRow, record: SearchRecord, doc: SearchDocument
   if (row.href !== undefined) link.setAttribute("href", row.href);
   // The control is the option, so a pointer, a keyboard, and assistive tech all meet the same element.
   optionAttributes(link, row);
+  if (record.projectLabel !== undefined) {
+    const project = doc.createElement("span");
+    project.setAttribute("class", "search-result-project");
+    const label = doc.createElement("bdi");
+    label.append(doc.createTextNode(record.projectLabel));
+    project.append(label);
+    link.append(project);
+  }
   link.append(titleNode(record, doc));
   if (row.heading !== undefined) link.append(headingNode(row.heading, doc));
   if (row.path !== undefined && row.path !== "") link.append(pathNode(row.path, doc));

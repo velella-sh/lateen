@@ -3,14 +3,9 @@ import { isRecord, textOf } from "../../src/guards.ts";
 import type { Component, Page, Site } from "@velella/mizzen/contracts";
 import { t } from "../../i18n/index.ts";
 
-/** A version folder name, by the engine's rule: `v1`, `v1.2`, or `v1.2.3`. */
-const VERSION_FOLDER = /^v\d+(?:\.\d+){0,2}$/;
+import { CURRENT, INDEX_FILE, versionOf, versionPath as pathOf } from "../../src/docs-versions.ts";
 
-/** A version's home page source: `index.md`, `index.mdx`, or `index.markdown`. */
-const INDEX_FILE = /^index\.(?:md|mdx|markdown)$/i;
-
-/** The version name that means the current docs rather than a released folder. */
-export const CURRENT = "current";
+export { CURRENT, versionOf };
 
 /** Where the notice's link goes. `none` is a notice without a link, for a site with no reachable home. */
 export type NoticeTarget = "page" | "home" | "site" | "none";
@@ -53,47 +48,30 @@ function settingsOf(value: unknown): Settings | undefined {
   return { default: fallback, old };
 }
 
-/** The page's source path with `./` and `\` normalized, so the first segment is the version folder. */
-function sourcePath(page: Page): string {
-  return page.source.file.replace(/\\/g, "/").replace(/^\.\//, "");
-}
-
-/** The page's version folder, or undefined for the current docs. */
-export function versionOf(page: Page): string | undefined {
-  const first = sourcePath(page).split("/")[0] ?? "";
-  return VERSION_FOLDER.test(first) ? first : undefined;
-}
-
-/** The path inside the page's version, such as `guide/install.md`; the current docs keep their whole path. */
-function pathOf(page: Page): string {
-  const source = sourcePath(page);
-  const version = versionOf(page);
-  return version === undefined ? source : source.slice(version.length + 1);
-}
-
-/** Compares by code point, never by locale, so the first page of a set is stable. */
-function byCodePoint(a: Page, b: Page): number {
+/** Prefer the canonical page when routing published two URLs for one source. */
+function canonicalFirst(a: Page, b: Page): number {
+  if ((a.aliasOf === undefined) !== (b.aliasOf === undefined)) return a.aliasOf === undefined ? -1 : 1;
   return a.url < b.url ? -1 : a.url > b.url ? 1 : 0;
 }
 
 /** The first page in `version` (or the current docs when undefined) at `path`, when one exists. */
 function pageAt(site: Site, version: string | undefined, path: string): Page | undefined {
   return [...site.pages]
-    .sort(byCodePoint)
+    .sort(canonicalFirst)
     .find((candidate) => versionOf(candidate) === version && pathOf(candidate) === path);
 }
 
 /** The version's home page when the site publishes one, such as `v2/index.md` at `/v2/`. */
 function versionHome(site: Site, version: string): Page | undefined {
   return [...site.pages]
-    .sort(byCodePoint)
+    .sort(canonicalFirst)
     .find((candidate) => versionOf(candidate) === version && INDEX_FILE.test(pathOf(candidate)));
 }
 
 /** The site's home page, used when the target version publishes no home of its own. */
 function siteHome(site: Site): Page | undefined {
   return [...site.pages]
-    .sort(byCodePoint)
+    .sort(canonicalFirst)
     .find((candidate) => versionOf(candidate) === undefined && INDEX_FILE.test(pathOf(candidate)));
 }
 

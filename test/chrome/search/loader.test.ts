@@ -11,6 +11,7 @@ test("the index URL follows the site base, with no double slash at the root", ()
   assert.equal(indexUrl("/"), "/pagefind/pagefind.js");
   assert.equal(indexUrl("/example"), "/example/pagefind/pagefind.js");
   assert.equal(indexUrl("/example/"), "/example/pagefind/pagefind.js");
+  assert.equal(indexUrl("/example/", "find"), "/example/find/pagefind.js");
 });
 
 /** A load function the test settles by hand, recording every request it receives. */

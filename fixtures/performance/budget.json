@@ -3,8 +3,8 @@
   "routes": {
     "/alpha/": {
       "css/base": {
-        "raw": 142064,
-        "gzip": 26584,
+        "raw": 143662,
+        "gzip": 26890,
         "count": 1
       },
       "css/page": {
@@ -13,14 +13,14 @@
         "count": 0
       },
       "js/chrome": {
-        "raw": 83224,
-        "gzip": 31199,
-        "count": 36
+        "raw": 88136,
+        "gzip": 33184,
+        "count": 38
       },
       "js/components": {
-        "raw": 13965,
-        "gzip": 5573,
-        "count": 9
+        "raw": 14068,
+        "gzip": 5730,
+        "count": 10
       },
       "js/inline": {
         "raw": 203,
@@ -133,8 +133,8 @@
     },
     "/alpha/books/": {
       "css/base": {
-        "raw": 142064,
-        "gzip": 26584,
+        "raw": 143662,
+        "gzip": 26890,
         "count": 1
       },
       "css/page": {
@@ -143,14 +143,14 @@
         "count": 0
       },
       "js/chrome": {
-        "raw": 83224,
-        "gzip": 31199,
-        "count": 36
+        "raw": 88136,
+        "gzip": 33184,
+        "count": 38
       },
       "js/components": {
-        "raw": 23696,
-        "gzip": 8997,
-        "count": 12
+        "raw": 23799,
+        "gzip": 9154,
+        "count": 13
       },
       "js/inline": {
         "raw": 203,
@@ -263,8 +263,8 @@
     },
     "/alpha/books/alpha/": {
       "css/base": {
-        "raw": 142064,
-        "gzip": 26584,
+        "raw": 143662,
+        "gzip": 26890,
         "count": 1
       },
       "css/page": {
@@ -273,14 +273,14 @@
         "count": 0
       },
       "js/chrome": {
-        "raw": 83224,
-        "gzip": 31199,
-        "count": 36
+        "raw": 88136,
+        "gzip": 33184,
+        "count": 38
       },
       "js/components": {
-        "raw": 13965,
-        "gzip": 5573,
-        "count": 9
+        "raw": 14068,
+        "gzip": 5730,
+        "count": 10
       },
       "js/inline": {
         "raw": 203,
@@ -393,8 +393,8 @@
     },
     "/alpha/books/alpha/embed/": {
       "css/base": {
-        "raw": 142064,
-        "gzip": 26584,
+        "raw": 143662,
+        "gzip": 26890,
         "count": 1
       },
       "css/page": {
@@ -523,8 +523,8 @@
     },
     "/alpha/books/beta/": {
       "css/base": {
-        "raw": 142064,
-        "gzip": 26584,
+        "raw": 143662,
+        "gzip": 26890,
         "count": 1
       },
       "css/page": {
@@ -533,14 +533,14 @@
         "count": 0
       },
       "js/chrome": {
-        "raw": 83224,
-        "gzip": 31199,
-        "count": 36
+        "raw": 88136,
+        "gzip": 33184,
+        "count": 38
       },
       "js/components": {
-        "raw": 16886,
-        "gzip": 6870,
-        "count": 12
+        "raw": 16989,
+        "gzip": 7027,
+        "count": 13
       },
       "js/inline": {
         "raw": 203,
@@ -653,8 +653,8 @@
     },
     "/alpha/books/beta/embed/": {
       "css/base": {
-        "raw": 142064,
-        "gzip": 26584,
+        "raw": 143662,
+        "gzip": 26890,
         "count": 1
       },
       "css/page": {
@@ -783,8 +783,8 @@
     },
     "/alpha/books/delta/": {
       "css/base": {
-        "raw": 142064,
-        "gzip": 26584,
+        "raw": 143662,
+        "gzip": 26890,
         "count": 1
       },
       "css/page": {
@@ -793,14 +793,14 @@
         "count": 0
       },
       "js/chrome": {
-        "raw": 83224,
-        "gzip": 31199,
-        "count": 36
+        "raw": 88136,
+        "gzip": 33184,
+        "count": 38
       },
       "js/components": {
-        "raw": 13965,
-        "gzip": 5573,
-        "count": 9
+        "raw": 14068,
+        "gzip": 5730,
+        "count": 10
       },
       "js/inline": {
         "raw": 203,
@@ -913,8 +913,8 @@
     },
     "/alpha/books/delta/embed/": {
       "css/base": {
-        "raw": 142064,
-        "gzip": 26584,
+        "raw": 143662,
+        "gzip": 26890,
         "count": 1
       },
       "css/page": {
@@ -1043,8 +1043,8 @@
     },
     "/alpha/books/gamma/": {
       "css/base": {
-        "raw": 142064,
-        "gzip": 26584,
+        "raw": 143662,
+        "gzip": 26890,
         "count": 1
       },
       "css/page": {
@@ -1053,14 +1053,14 @@
         "count": 0
       },
       "js/chrome": {
-        "raw": 83224,
-        "gzip": 31199,
-        "count": 36
+        "raw": 88136,
+        "gzip": 33184,
+        "count": 38
       },
       "js/components": {
-        "raw": 13965,
-        "gzip": 5573,
-        "count": 9
+        "raw": 14068,
+        "gzip": 5730,
+        "count": 10
       },
       "js/inline": {
         "raw": 203,
@@ -1173,8 +1173,8 @@
     },
     "/alpha/books/gamma/embed/": {
       "css/base": {
-        "raw": 142064,
-        "gzip": 26584,
+        "raw": 143662,
+        "gzip": 26890,
         "count": 1
       },
       "css/page": {
@@ -1303,8 +1303,8 @@
     },
     "/alpha/changes/books/": {
       "css/base": {
-        "raw": 142064,
-        "gzip": 26584,
+        "raw": 143662,
+        "gzip": 26890,
         "count": 1
       },
       "css/page": {
@@ -1313,14 +1313,14 @@
         "count": 0
       },
       "js/chrome": {
-        "raw": 83224,
-        "gzip": 31199,
-        "count": 36
+        "raw": 88136,
+        "gzip": 33184,
+        "count": 38
       },
       "js/components": {
-        "raw": 22479,
-        "gzip": 8461,
-        "count": 11
+        "raw": 22582,
+        "gzip": 8618,
+        "count": 12
       },
       "js/inline": {
         "raw": 203,
@@ -1433,8 +1433,8 @@
     },
     "/alpha/changes/books/2026-05-01/": {
       "css/base": {
-        "raw": 142064,
-        "gzip": 26584,
+        "raw": 143662,
+        "gzip": 26890,
         "count": 1
       },
       "css/page": {
@@ -1443,14 +1443,14 @@
         "count": 0
       },
       "js/chrome": {
-        "raw": 83224,
-        "gzip": 31199,
-        "count": 36
+        "raw": 88136,
+        "gzip": 33184,
+        "count": 38
       },
       "js/components": {
-        "raw": 22479,
-        "gzip": 8461,
-        "count": 11
+        "raw": 22582,
+        "gzip": 8618,
+        "count": 12
       },
       "js/inline": {
         "raw": 203,
@@ -1563,8 +1563,8 @@
     },
     "/alpha/changes/books/2026-05-15/": {
       "css/base": {
-        "raw": 142064,
-        "gzip": 26584,
+        "raw": 143662,
+        "gzip": 26890,
         "count": 1
       },
       "css/page": {
@@ -1573,14 +1573,14 @@
         "count": 0
       },
       "js/chrome": {
-        "raw": 83224,
-        "gzip": 31199,
-        "count": 36
+        "raw": 88136,
+        "gzip": 33184,
+        "count": 38
       },
       "js/components": {
-        "raw": 22479,
-        "gzip": 8461,
-        "count": 11
+        "raw": 22582,
+        "gzip": 8618,
+        "count": 12
       },
       "js/inline": {
         "raw": 203,
@@ -1693,8 +1693,8 @@
     },
     "/alpha/charts/": {
       "css/base": {
-        "raw": 142064,
-        "gzip": 26584,
+        "raw": 143662,
+        "gzip": 26890,
         "count": 1
       },
       "css/page": {
@@ -1703,14 +1703,14 @@
         "count": 0
       },
       "js/chrome": {
-        "raw": 83224,
-        "gzip": 31199,
-        "count": 36
+        "raw": 88136,
+        "gzip": 33184,
+        "count": 38
       },
       "js/components": {
-        "raw": 13965,
-        "gzip": 5573,
-        "count": 9
+        "raw": 14068,
+        "gzip": 5730,
+        "count": 10
       },
       "js/inline": {
         "raw": 203,
@@ -1823,8 +1823,8 @@
     },
     "/alpha/cli-demo/": {
       "css/base": {
-        "raw": 142064,
-        "gzip": 26584,
+        "raw": 143662,
+        "gzip": 26890,
         "count": 1
       },
       "css/page": {
@@ -1833,14 +1833,14 @@
         "count": 0
       },
       "js/chrome": {
-        "raw": 83224,
-        "gzip": 31199,
-        "count": 36
+        "raw": 88136,
+        "gzip": 33184,
+        "count": 38
       },
       "js/components": {
-        "raw": 18896,
-        "gzip": 7553,
-        "count": 12
+        "raw": 18999,
+        "gzip": 7710,
+        "count": 13
       },
       "js/inline": {
         "raw": 203,
@@ -1953,8 +1953,8 @@
     },
     "/alpha/compare/": {
       "css/base": {
-        "raw": 142064,
-        "gzip": 26584,
+        "raw": 143662,
+        "gzip": 26890,
         "count": 1
       },
       "css/page": {
@@ -1963,14 +1963,14 @@
         "count": 0
       },
       "js/chrome": {
-        "raw": 83224,
-        "gzip": 31199,
-        "count": 36
+        "raw": 88136,
+        "gzip": 33184,
+        "count": 38
       },
       "js/components": {
-        "raw": 45719,
-        "gzip": 16549,
-        "count": 15
+        "raw": 45822,
+        "gzip": 16706,
+        "count": 16
       },
       "js/inline": {
         "raw": 203,
@@ -2083,8 +2083,8 @@
     },
     "/alpha/data-time/": {
       "css/base": {
-        "raw": 142064,
-        "gzip": 26584,
+        "raw": 143662,
+        "gzip": 26890,
         "count": 1
       },
       "css/page": {
@@ -2093,14 +2093,14 @@
         "count": 0
       },
       "js/chrome": {
-        "raw": 83224,
-        "gzip": 31199,
-        "count": 36
+        "raw": 88136,
+        "gzip": 33184,
+        "count": 38
       },
       "js/components": {
-        "raw": 23696,
-        "gzip": 8997,
-        "count": 12
+        "raw": 23799,
+        "gzip": 9154,
+        "count": 13
       },
       "js/inline": {
         "raw": 203,
@@ -2213,8 +2213,8 @@
     },
     "/alpha/dated-list/": {
       "css/base": {
-        "raw": 142064,
-        "gzip": 26584,
+        "raw": 143662,
+        "gzip": 26890,
         "count": 1
       },
       "css/page": {
@@ -2223,14 +2223,14 @@
         "count": 0
       },
       "js/chrome": {
-        "raw": 83224,
-        "gzip": 31199,
-        "count": 36
+        "raw": 88136,
+        "gzip": 33184,
+        "count": 38
       },
       "js/components": {
-        "raw": 16011,
-        "gzip": 6491,
-        "count": 10
+        "raw": 16114,
+        "gzip": 6648,
+        "count": 11
       },
       "js/inline": {
         "raw": 203,
@@ -2343,8 +2343,8 @@
     },
     "/alpha/explorer/": {
       "css/base": {
-        "raw": 142064,
-        "gzip": 26584,
+        "raw": 143662,
+        "gzip": 26890,
         "count": 1
       },
       "css/page": {
@@ -2353,14 +2353,14 @@
         "count": 0
       },
       "js/chrome": {
-        "raw": 83224,
-        "gzip": 31199,
-        "count": 36
+        "raw": 88136,
+        "gzip": 33184,
+        "count": 38
       },
       "js/components": {
-        "raw": 41019,
-        "gzip": 14887,
-        "count": 17
+        "raw": 41122,
+        "gzip": 15044,
+        "count": 18
       },
       "js/inline": {
         "raw": 203,
@@ -2473,8 +2473,8 @@
     },
     "/alpha/gallery-layout/": {
       "css/base": {
-        "raw": 142064,
-        "gzip": 26584,
+        "raw": 143662,
+        "gzip": 26890,
         "count": 1
       },
       "css/page": {
@@ -2483,14 +2483,14 @@
         "count": 0
       },
       "js/chrome": {
-        "raw": 83224,
-        "gzip": 31199,
-        "count": 36
+        "raw": 88136,
+        "gzip": 33184,
+        "count": 38
       },
       "js/components": {
-        "raw": 22727,
-        "gzip": 8420,
-        "count": 12
+        "raw": 22830,
+        "gzip": 8577,
+        "count": 13
       },
       "js/inline": {
         "raw": 203,
@@ -2603,8 +2603,8 @@
     },
     "/alpha/guide/": {
       "css/base": {
-        "raw": 142064,
-        "gzip": 26584,
+        "raw": 143662,
+        "gzip": 26890,
         "count": 1
       },
       "css/page": {
@@ -2613,14 +2613,14 @@
         "count": 0
       },
       "js/chrome": {
-        "raw": 83224,
-        "gzip": 31199,
-        "count": 36
+        "raw": 88136,
+        "gzip": 33184,
+        "count": 38
       },
       "js/components": {
-        "raw": 19020,
-        "gzip": 8043,
-        "count": 15
+        "raw": 19123,
+        "gzip": 8200,
+        "count": 16
       },
       "js/inline": {
         "raw": 203,
@@ -2733,8 +2733,8 @@
     },
     "/alpha/guide/upgrade/": {
       "css/base": {
-        "raw": 142064,
-        "gzip": 26584,
+        "raw": 143662,
+        "gzip": 26890,
         "count": 1
       },
       "css/page": {
@@ -2743,14 +2743,14 @@
         "count": 0
       },
       "js/chrome": {
-        "raw": 83224,
-        "gzip": 31199,
-        "count": 36
+        "raw": 88136,
+        "gzip": 33184,
+        "count": 38
       },
       "js/components": {
-        "raw": 16378,
-        "gzip": 6604,
-        "count": 10
+        "raw": 16481,
+        "gzip": 6761,
+        "count": 11
       },
       "js/inline": {
         "raw": 203,
@@ -2863,8 +2863,8 @@
     },
     "/alpha/network/": {
       "css/base": {
-        "raw": 142064,
-        "gzip": 26584,
+        "raw": 143662,
+        "gzip": 26890,
         "count": 1
       },
       "css/page": {
@@ -2873,14 +2873,14 @@
         "count": 0
       },
       "js/chrome": {
-        "raw": 83224,
-        "gzip": 31199,
-        "count": 36
+        "raw": 88136,
+        "gzip": 33184,
+        "count": 38
       },
       "js/components": {
-        "raw": 13965,
-        "gzip": 5573,
-        "count": 9
+        "raw": 14068,
+        "gzip": 5730,
+        "count": 10
       },
       "js/inline": {
         "raw": 203,
@@ -2993,8 +2993,8 @@
     },
     "/alpha/reference/": {
       "css/base": {
-        "raw": 142064,
-        "gzip": 26584,
+        "raw": 143662,
+        "gzip": 26890,
         "count": 1
       },
       "css/page": {
@@ -3003,14 +3003,14 @@
         "count": 0
       },
       "js/chrome": {
-        "raw": 83224,
-        "gzip": 31199,
-        "count": 36
+        "raw": 88136,
+        "gzip": 33184,
+        "count": 38
       },
       "js/components": {
-        "raw": 43879,
-        "gzip": 16669,
-        "count": 19
+        "raw": 43982,
+        "gzip": 16826,
+        "count": 20
       },
       "js/inline": {
         "raw": 203,
@@ -3123,8 +3123,8 @@
     },
     "/alpha/reports/": {
       "css/base": {
-        "raw": 142064,
-        "gzip": 26584,
+        "raw": 143662,
+        "gzip": 26890,
         "count": 1
       },
       "css/page": {
@@ -3133,14 +3133,14 @@
         "count": 0
       },
       "js/chrome": {
-        "raw": 83224,
-        "gzip": 31199,
-        "count": 36
+        "raw": 88136,
+        "gzip": 33184,
+        "count": 38
       },
       "js/components": {
-        "raw": 13965,
-        "gzip": 5573,
-        "count": 9
+        "raw": 14068,
+        "gzip": 5730,
+        "count": 10
       },
       "js/inline": {
         "raw": 203,
@@ -3253,8 +3253,8 @@
     },
     "/alpha/showpiece/": {
       "css/base": {
-        "raw": 142064,
-        "gzip": 26584,
+        "raw": 143662,
+        "gzip": 26890,
         "count": 1
       },
       "css/page": {
@@ -3263,14 +3263,14 @@
         "count": 0
       },
       "js/chrome": {
-        "raw": 83224,
-        "gzip": 31199,
-        "count": 36
+        "raw": 88136,
+        "gzip": 33184,
+        "count": 38
       },
       "js/components": {
-        "raw": 13965,
-        "gzip": 5573,
-        "count": 9
+        "raw": 14068,
+        "gzip": 5730,
+        "count": 10
       },
       "js/inline": {
         "raw": 203,
@@ -3383,8 +3383,8 @@
     },
     "/alpha/source-mode/": {
       "css/base": {
-        "raw": 142064,
-        "gzip": 26584,
+        "raw": 143662,
+        "gzip": 26890,
         "count": 1
       },
       "css/page": {
@@ -3393,14 +3393,14 @@
         "count": 0
       },
       "js/chrome": {
-        "raw": 83224,
-        "gzip": 31199,
-        "count": 36
+        "raw": 88136,
+        "gzip": 33184,
+        "count": 38
       },
       "js/components": {
-        "raw": 13965,
-        "gzip": 5573,
-        "count": 9
+        "raw": 14068,
+        "gzip": 5730,
+        "count": 10
       },
       "js/inline": {
         "raw": 203,
@@ -3513,8 +3513,8 @@
     },
     "/alpha/stale/": {
       "css/base": {
-        "raw": 142064,
-        "gzip": 26584,
+        "raw": 143662,
+        "gzip": 26890,
         "count": 1
       },
       "css/page": {
@@ -3523,14 +3523,14 @@
         "count": 0
       },
       "js/chrome": {
-        "raw": 83224,
-        "gzip": 31199,
-        "count": 36
+        "raw": 88136,
+        "gzip": 33184,
+        "count": 38
       },
       "js/components": {
-        "raw": 13965,
-        "gzip": 5573,
-        "count": 9
+        "raw": 14068,
+        "gzip": 5730,
+        "count": 10
       },
       "js/inline": {
         "raw": 203,
@@ -3643,8 +3643,8 @@
     },
     "/alpha/status/": {
       "css/base": {
-        "raw": 142064,
-        "gzip": 26584,
+        "raw": 143662,
+        "gzip": 26890,
         "count": 1
       },
       "css/page": {
@@ -3653,14 +3653,14 @@
         "count": 0
       },
       "js/chrome": {
-        "raw": 83224,
-        "gzip": 31199,
-        "count": 36
+        "raw": 88136,
+        "gzip": 33184,
+        "count": 38
       },
       "js/components": {
-        "raw": 13965,
-        "gzip": 5573,
-        "count": 9
+        "raw": 14068,
+        "gzip": 5730,
+        "count": 10
       },
       "js/inline": {
         "raw": 203,
@@ -3773,8 +3773,8 @@
     },
     "/alpha/timeline/": {
       "css/base": {
-        "raw": 142064,
-        "gzip": 26584,
+        "raw": 143662,
+        "gzip": 26890,
         "count": 1
       },
       "css/page": {
@@ -3783,14 +3783,14 @@
         "count": 0
       },
       "js/chrome": {
-        "raw": 83224,
-        "gzip": 31199,
-        "count": 36
+        "raw": 88136,
+        "gzip": 33184,
+        "count": 38
       },
       "js/components": {
-        "raw": 16135,
-        "gzip": 6433,
-        "count": 10
+        "raw": 16238,
+        "gzip": 6590,
+        "count": 11
       },
       "js/inline": {
         "raw": 203,
