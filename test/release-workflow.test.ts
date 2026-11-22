@@ -117,6 +117,13 @@ test("the GitHub Release step verifies the release instead of exiting early", ()
   assert.match(step.run, /node scripts\/release-result\.ts --tag "\$TAG" --exists/);
   assert.match(step.run, /--accepted "\$ACCEPTED" --published "\$PUBLISHED"/);
   assert.match(step.run, /GITHUB_STEP_SUMMARY/);
+  // The helper lives in the repository, so the job checks it out first (v0.2.4 failed without it).
+  const steps = job("github-release").steps;
+  assert.ok(steps.findIndex((item) => item.uses?.startsWith("actions/checkout@")) >= 0 &&
+    steps.findIndex((item) => item.uses?.startsWith("actions/checkout@")) < steps.indexOf(step),
+    "the release job checks the repository out before it runs the helper");
+  assert.equal(steps.find((item) => item.uses?.startsWith("actions/checkout@"))?.with?.["persist-credentials"], false);
+  assert.equal(step.run && (step as { "working-directory"?: string })["working-directory"], "lateen");
 });
 
 test("the workflow consumes the plan instead of repeating its rules", () => {
