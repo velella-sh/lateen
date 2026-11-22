@@ -100,11 +100,14 @@ test("renders a 404 heading and message inside main", () => {
   assert.match(page, /<main id="main" tabindex="-1">[\s\S]*?<div class="not-found"><p class="not-found-code" aria-hidden="true">404<\/p><h1>Page not found<\/h1><p class="not-found-description">/i);
 });
 
-test("404 offers base-aware home and search actions without JavaScript", () => {
+test("404 puts the base-aware home link first and both actions work without JavaScript", () => {
   const page = out(layoutProps({ base: "/docs" }));
-  assert.match(page, /<div class="not-found-actions">/);
-  assert.match(page, /<a class="not-found-home" href="\/docs\/">Back to docs<\/a>/);
-  assert.match(page, /<a class="not-found-search" href="\/docs\/search\/">Search the docs<\/a>/);
+  const links = page.match(/<div class="not-found-actions">(.*?)<\/div>/s)?.[1];
+  assert.equal(
+    links,
+    '<a class="not-found-home" href="/docs/">Back to docs</a>' +
+      '<a class="not-found-search" href="/docs/search/">Search the docs</a>',
+  );
   assert.ok(!page.includes("type=\"module\""));
   assert.ok(!page.includes("not-found-sections"));
 });
