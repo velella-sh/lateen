@@ -125,6 +125,7 @@ test("the workflow consumes the plan instead of repeating its rules", () => {
     meta.includes('node scripts/release-plan.ts --tag "$TAG" --version "$VERSION" --served "$served" --github-output "$GITHUB_OUTPUT"'),
     "the helper owns the tag, dist-tag and published decisions",
   );
+  assert.doesNotMatch(meta, /\$version\b|\$\{version\}/, "the step only reads the VERSION env, so a lowercase variable is unbound under set -u");
   assert.doesNotMatch(meta, /case "\$version"/, "the dist-tag is not a shell case");
   assert.doesNotMatch(meta, /= "\$version"/, "the published check is not shell string equality");
   assert.equal(ifOf("publish"), "needs.acceptance.outputs.publish == 'true'");

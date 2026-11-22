@@ -137,7 +137,7 @@ jobs:
             echo "::error::$TAG is not on main. Merge the release commit first."
             exit 1
           fi
-          served="$(npm view "$name@$version" version 2>/dev/null || true)"
+          served="$(npm view "$name@$VERSION" version 2>/dev/null || true)"
           node scripts/release-plan.ts --tag "$TAG" --version "$VERSION" --served "$served" --github-output "$GITHUB_OUTPUT"
       # The gate runs on a retry too: an already-published version still needs fresh acceptance
       # evidence from the tagged commit before the published package can be verified against it.
