@@ -209,3 +209,12 @@ test("claimsOf skips malformed claims and keeps only safe, titled ones in order"
     { id: "second", title: "Second", url: "https://example.org/second" },
   ]);
 });
+
+test("claims from a private evidence field are omitted", () => {
+  const raw = siteWith({ evidence: { name: [{ id: "private", title: "Private claim", url: "/private/" }] } });
+  assert.equal(claimsOf(raw, "components", "button", "name").length, 1);
+  const site = { ...raw, config: { ...raw.config, collections: { components: {
+    ...raw.config.collections.components!, public: ["name"],
+  } } } };
+  assert.deepEqual(claimsOf(site, "components", "button", "name"), []);
+});

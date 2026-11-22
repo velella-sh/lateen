@@ -158,3 +158,16 @@ test("a copy control copies the visible text and restores its label", async () =
   assert.equal(button.textContent, "Copy citation");
   assert.equal(labelAfterCopy(false, "Copy citation", "Citation copied"), "Copy citation");
 });
+
+test("a citation omits a private normalized date and uses the next public date", () => {
+  const page = pageOf({ record: { collection: "books", id: "alpha" } } as unknown as Partial<Page>);
+  const site = baseSite({
+    config: { collections: { books: { dates: ["internal", "published"], public: ["published"] } } },
+    collections: { books: { records: [{ id: "alpha", fields: { published: "2026-01-12" },
+      normalizedDates: { internal: "2026-02-13" } }] } },
+  });
+  const out = render({}, page, site);
+  assert.ok(out);
+  assert.match(out, /datetime="2026-01-12"/);
+  assert.doesNotMatch(out, /2026-02-13/);
+});

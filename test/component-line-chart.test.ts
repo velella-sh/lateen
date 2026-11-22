@@ -171,3 +171,15 @@ test("a line chart whose category is a word shows a note instead of an empty fra
   );
   assert.match(words, new RegExp(`class="${MISSING_CLASS}"`));
 });
+
+test("collection lines keep public nested values while omitting the private series", () => {
+  const site = {
+    config: { collections: { growth: { public: ["month", "totals.public"] } } },
+    collections: { growth: { records: [{ id: "north", fields: {
+      month: 1, totals: { public: 3, private: 938471 },
+    } }] } },
+  };
+  const html = render({ from: "growth", category: "month", value: "totals.public, totals.private" }, site);
+  assert.equal(count(html, POINT_CLASS), 1);
+  assert.doesNotMatch(html, /938471/);
+});

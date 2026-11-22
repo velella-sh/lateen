@@ -3,6 +3,7 @@ import { test } from "node:test";
 import { renderToString } from "preact-render-to-string";
 import type { LayoutProps, ListProps, Page, RecordProps, Site, SiteConfig, SourcePos } from "@velella/mizzen/contracts";
 import gallery from "../../layouts/gallery.ts";
+import { dataRecord } from "../helpers/record.ts";
 import { build } from "../integration-helpers.ts";
 
 const pos: SourcePos = { file: "gallery.md", line: 1, column: 1, endLine: 1, endColumn: 1 };
@@ -129,4 +130,19 @@ test("the data site builds a gallery page with a card per record", () => {
   assert.match(html, /<div class="cards">/);
   assert.match(html, /<a class="card" href="\/components\/button\/">/);
   assert.equal((html.match(/<a class="card"/g) ?? []).length, 12, "one card per component record");
+});
+
+test("gallery facets omit private fields from the raw collection", () => {
+  const raw = record("alpha", { title: "Alpha", genre: "History", internal: "Private gallery value" });
+  const subject = props({}, list([{ ...raw, fields: { title: "Alpha", genre: "History" } }]));
+  const out = render({ ...subject, site: { ...subject.site,
+    config: { ...config, collections: { books: {
+      source: "books.yml", public: ["title", "genre"], search: { filters: ["genre", "internal"] },
+    } } } as SiteConfig,
+    collections: { books: { name: "books", source: "books.yml", records: [
+      dataRecord({ id: raw.id, fields: raw.fields }),
+    ] } },
+  } });
+  assert.match(out, /History/);
+  assert.doesNotMatch(out, /Private gallery value/);
 });

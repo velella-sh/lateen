@@ -1,3 +1,4 @@
+import { publicFieldsOf } from "../../src/public-fields.ts";
 import { h } from "preact";
 import type { ComponentProps } from "@velella/mizzen/contracts";
 import { calendarDay, calendarParts, calendarYear } from "../../src/dates.ts";
@@ -118,7 +119,7 @@ export function rowsOf(
   const collections = site.collections ?? {};
   const collection = Object.hasOwn(collections, from) ? collections[from] : undefined;
   if (collection !== undefined) {
-    return collection.records.map((record) => ({ ...record.fields, id: record.id }));
+    return collection.records.map((record) => ({ ...publicFieldsOf(site, from, record.fields), id: record.id }));
   }
   const found = lookup(site.data, from);
   if (Array.isArray(found)) {

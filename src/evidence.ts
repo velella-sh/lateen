@@ -1,3 +1,4 @@
+import { isPublicField, publicFieldsOf } from "./public-fields.ts";
 import { isRecord } from "./guards.ts";
 import type { Site } from "@velella/mizzen/contracts";
 
@@ -33,7 +34,8 @@ export function claimsOf(
   if (record === undefined) return [];
   const evidenceField = evidenceFieldOf(site, collection);
   if (evidenceField === undefined) return [];
-  const value = record.fields[evidenceField];
+  if (!isPublicField(site, collection, field)) return [];
+  const value = publicFieldsOf(site, collection, record.fields)[evidenceField];
   if (!isRecord(value)) return [];
   const entries = value[field];
   if (!Array.isArray(entries)) return [];
