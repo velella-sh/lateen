@@ -127,7 +127,6 @@
   "code_annotation_line": "خط {line}",
   "code_annotation_lines": "خطوط {from}–{to}",
   "code_annotations": "توضیحات ({count})",
-  "code_copy_command": "کپی دستور",
   "code_line_link": "پیوند به خط {line}",
   "code_wrap": "شکستن خطوط",
   "comma": "،",

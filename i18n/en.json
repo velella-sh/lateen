@@ -127,7 +127,6 @@
   "code_annotation_line": "Line {line}",
   "code_annotation_lines": "Lines {from}–{to}",
   "code_annotations": "Annotations ({count})",
-  "code_copy_command": "Copy command",
   "code_line_link": "Link to line {line}",
   "code_wrap": "Wrap lines",
   "comma": ",",
