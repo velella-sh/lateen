@@ -575,10 +575,20 @@
   }
 
   .search-group-title {
-    padding: 0.5rem 0.875rem 0.25rem;
+    position: sticky;
+    inset-block-start: 0;
+    z-index: 1;
+    margin: 0;
+    padding: 0.7rem 0.875rem 0.35rem;
+    border-block-end: 1px solid var(--border);
+    /* The heading stays legible over the rows it scrolls past, so it repeats the dialog's surface. */
+    background: color-mix(in srgb, var(--background) 92%, var(--card));
     color: var(--muted-foreground);
-    font-size: 0.8rem;
-    font-weight: 600;
+    font-size: 0.72rem;
+    font-weight: 700;
+    letter-spacing: 0.06em;
+    line-height: 1.4;
+    text-transform: uppercase;
   }
 
   .search-result-link {
@@ -636,6 +646,38 @@
     font-size: 0.72rem;
   }
 
+  /* The dialog's rows, scoped to the modal so the standalone result demo keeps its own metrics.
+     A reader comparing similar results reads down the titles and the section paths, so the title
+     leads as its own line, the heading and path share one quiet meta line under it, and the excerpt
+     follows as one block. The row is a block rather than a flex column, so the inline heading and
+     path sit together on one line without a wrapper element. */
+  dialog.search .search-result-link {
+    display: block;
+    padding: 0.7rem 0.9rem;
+    border-inline-start-width: 3px;
+  }
+
+  dialog.search .search-result-title {
+    display: block;
+    font-size: 0.95rem;
+  }
+
+  /* The heading and the path read as one quiet line, a hairline between them, whether the index
+     supplies one, the other, or both. */
+  dialog.search :is(.search-result-heading, .search-result-path) {
+    display: inline;
+  }
+
+  dialog.search .search-result-heading + .search-result-path {
+    padding-inline-start: 0.55rem;
+    border-inline-start: 1px solid var(--border);
+  }
+
+  dialog.search .search-result-excerpt {
+    display: block;
+    margin-block-start: 0.3rem;
+  }
+
   .search :is(.search-action-button, .search-ask-button) {
     display: flex;
     align-items: baseline;
@@ -671,6 +713,21 @@
     font-size: 0.825rem;
   }
 
+  /* The dialog's action and ask rows line up with the result rows above them: one label, one hint,
+     the same inset, and the same hairline between rows. */
+  dialog.search :is(.search-action-button, .search-ask-button) {
+    padding: 0.7rem 0.9rem;
+    border-block-end: 1px solid var(--border);
+    border-inline-start-width: 3px;
+    font-size: 0.9rem;
+    font-weight: 600;
+  }
+
+  dialog.search .search-action-hint {
+    font-size: 0.78rem;
+    font-weight: 400;
+  }
+
   .search-status {
     flex: none;
     margin: 0;
@@ -680,10 +737,26 @@
     overflow-wrap: anywhere;
   }
 
+  /* A count sits in a slim bar above the ranked list it counts. */
   .search-status:not(:empty) {
     padding: 0.625rem 0.875rem;
     border-block-end: 1px solid var(--border);
     background: var(--muted);
+  }
+
+  /* Waiting, empty, and failed all leave the list with nothing to show, so they share one calm
+     state block instead of a bare bar: the same height, centering, and type whichever message the
+     state puts there. A count bar never becomes a block, because its list has rows under it. */
+  dialog.search .search-panel:has(> .search-results:empty) > .search-status:not(:empty) {
+    display: grid;
+    place-items: center;
+    min-block-size: 7.5rem;
+    padding: 1.75rem 1.5rem;
+    background: transparent;
+    color: var(--muted-foreground);
+    font-weight: 500;
+    text-align: center;
+    text-wrap: balance;
   }
 
   .search-foot {
