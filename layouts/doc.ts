@@ -5,7 +5,6 @@ import { t } from "../i18n/index.ts";
 import { icon } from "../src/icon.ts";
 import type { Layout, LayoutProps } from "@velella/mizzen/contracts";
 import { staleSlot } from "../src/stale.ts";
-import feedback from "../chrome/feedback/index.ts";
 import lastUpdated from "../chrome/last-updated/index.ts";
 import { docPageFooter, docPageTools } from "../chrome/page-footer/index.ts";
 import sourceMode from "../chrome/source-mode/index.ts";
@@ -24,7 +23,7 @@ import { articleHeader, articleShell, statusProps } from "./shared/index.ts";
 
 /**
  * The page itself: breadcrumb, drift banner, status banner, title, description, grouped trust,
- * freshness and reading-time metadata, body, edit link and Back to top, opt-in feedback, and pager, marked for
+ * freshness and reading-time metadata, body, edit link and Back to top, and pager, marked for
  * Pagefind. The drift banner reads `site.data.drift` and keeps itself out of the page when the site
  * has no findings for this URL; the trust chip reads `site.data.trust` and stays out until the site
  * has an entry for this URL; the edit link is likewise left out when the repository gives no URL.
@@ -68,7 +67,6 @@ function article(props: LayoutProps): ComponentChildren {
           html: "",
         }) as ComponentChildren),
     docPageFooter(props) as ComponentChildren,
-    feedback(props) as ComponentChildren,
     pager(props) as ComponentChildren,
   );
 }

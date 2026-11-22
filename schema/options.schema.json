@@ -135,12 +135,13 @@
       }
     },
     "feedback": {
-      "description": "The page feedback widget. Without an endpoint it renders nothing.",
+      "description": "Removed in 0.3.0: Lateen no longer renders a page feedback widget. The key is still accepted so an existing config validates, and it is ignored.",
+      "deprecated": true,
       "type": "object",
       "additionalProperties": false,
       "properties": {
         "endpoint": {
-          "description": "The address the helpful/not-helpful vote is POSTed to.",
+          "description": "Ignored since 0.3.0.",
           "type": "string",
           "minLength": 1
         }

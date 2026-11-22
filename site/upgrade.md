@@ -34,7 +34,7 @@ The `doc`, `tutorial`, `home`, `api`, `changelog`, `versions`, `search-results`,
 - **Announcement bar.** `theme.options.announcement` adds a dismissible bar with an `id`, `text`, `href`, and `tone`. See [Tokens and options](/tokens/).
 - **Footer and logo.** `theme.options.footer` and `theme.options.logo` add the site footer, its links, and the header mark. `theme.options.favicon` adds the icon links. See [Tokens and options](/tokens/).
 - **Network.** `theme.options.network` adds a project switcher, a network footer, and a search scope for a family of sites. See [Network chrome](/components/network/).
-- **Feedback.** `theme.options.feedback.endpoint` turns on the "Was this page helpful?" vote. See [Tokens and options](/tokens/).
+- **Feedback.** The "Was this page helpful?" widget is removed in 0.3.0. A `theme.options.feedback` block is still accepted and ignored, so you can delete it at your own pace.
 - **Report an issue.** The report link opens a prefilled issue with the page title, address, source, language, and version. Configure it with `theme.options.reportIssue` or `repository.url`. See [Report issue](/components/report-issue/).
 - **Edit by heading.** `theme.options.editPage.headingLinks: true` adds a suggest-an-edit link under every heading. See [Tokens and options](/tokens/).
 - **Source mode.** A switch shows `file:line` beside every block, remembers the choice, and opens the file in a configured editor. See [Source mode](/source-mode/).

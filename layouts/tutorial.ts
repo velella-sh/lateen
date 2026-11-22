@@ -6,7 +6,6 @@ import type { Layout, LayoutProps, Page } from "@velella/mizzen/contracts";
 import { t } from "../i18n/index.ts";
 import { staleSlot } from "../src/stale.ts";
 import copyMarkdown from "../chrome/copy-markdown/index.ts";
-import feedback from "../chrome/feedback/index.ts";
 import editPage from "../chrome/edit-page/index.ts";
 import lastUpdated from "../chrome/last-updated/index.ts";
 import pageFooter from "../chrome/page-footer/index.ts";
@@ -193,7 +192,7 @@ function body(page: Page, steps: readonly TutorialStep[]): ComponentChildren {
 
 /**
  * The tutorial page: breadcrumb, status banner, title, last-updated line, progress list, the steps
- * with adjacent links, edit link, page footer, copy-Markdown control, feedback, and pager, marked for
+ * with adjacent links, edit link, page footer, copy-Markdown control, and pager, marked for
  * Pagefind.
  */
 function article(props: LayoutProps): ComponentChildren {
@@ -218,7 +217,6 @@ function article(props: LayoutProps): ComponentChildren {
     body(page, steps),
     editPage(props) as ComponentChildren,
     h("div", { class: "doc-actions" }, pageFooter(props) as ComponentChildren, copyMarkdown(props) as ComponentChildren),
-    feedback(props) as ComponentChildren,
     pager(props) as ComponentChildren,
   );
 }
