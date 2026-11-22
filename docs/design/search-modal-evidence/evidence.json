@@ -1,0 +1,11 @@
+{
+  "site": "the real Lateen docs site, built with mizzen build site --theme .",
+  "viewport": { "width": 1440, "height": 1000 },
+  "harness": "Playwright Chromium, one context per theme; the dialog opened from the real header trigger",
+  "queries": {
+    "multi": "search",
+    "empty": "zzzzqqqq-nothing-here-9999",
+    "keyboard": "lates, then ArrowDown twice from the field"
+  },
+  "unchanged": "The site header and navigation are the same in every pair; only the search dialog differs."
+}

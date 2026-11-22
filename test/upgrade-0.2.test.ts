@@ -185,6 +185,14 @@ function normalize(text: string): { head: string; body: string } {
   for (const element of [...document.querySelectorAll(".mermaid-diagram[style]")]) element.removeAttribute("style");
   // The trust panel gained an id so the tested chip can link to it.
   for (const element of [...document.querySelectorAll("details.trust-panel#trust-panel")]) element.removeAttribute("id");
+  // 0.2.3 gives the endpoint method the shared version-badge style and a space before the path;
+  // the method text, its method class, and the path are unchanged.
+  for (const element of [...document.querySelectorAll(".endpoint-line > .endpoint-method")]) element.classList.remove("version-badge");
+  for (const line of [...document.querySelectorAll(".endpoint-line")]) {
+    for (const node of [...line.childNodes]) {
+      if (node.nodeType === 3 && (node.textContent ?? "").trim() === "") node.remove();
+    }
+  }
   // The Sailcloth shell adds style-only class hooks to the existing grid and recovery content.
   for (const element of [...document.querySelectorAll(".layout")]) element.classList.remove("doc-layout");
   for (const element of [...document.querySelectorAll(".not-found")]) element.classList.remove("lonely");
