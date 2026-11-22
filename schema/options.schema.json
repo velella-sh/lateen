@@ -135,13 +135,13 @@
       }
     },
     "feedback": {
-      "description": "Removed in 0.3.0: Lateen no longer renders a page feedback widget. The key is still accepted so an existing config validates, and it is ignored.",
+      "description": "Removed in 0.2.4: Lateen no longer renders a page feedback widget. The key is still accepted so an existing config validates, and it is ignored.",
       "deprecated": true,
       "type": "object",
       "additionalProperties": false,
       "properties": {
         "endpoint": {
-          "description": "Ignored since 0.3.0.",
+          "description": "Ignored since 0.2.4.",
           "type": "string",
           "minLength": 1
         }

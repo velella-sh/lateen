@@ -1,1 +1,0 @@
-A page without a code block no longer preloads JetBrains Mono, so the first load of a prose, search, or home page skips two font requests (about 43 KB) while the stylesheet keeps the face for inline code.
