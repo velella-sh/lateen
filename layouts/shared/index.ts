@@ -2,6 +2,7 @@ import { Fragment, h } from "preact";
 import type { ComponentChildren } from "preact";
 import type { LayoutProps } from "@velella/mizzen/contracts";
 import base, { type BaseProps } from "../base.ts";
+import breadcrumb from "../../chrome/breadcrumb/index.ts";
 import drawer from "../../chrome/drawer/index.ts";
 import shell, { footer as shellFooter } from "../../chrome/shell/index.ts";
 import sidebar from "../../chrome/sidebar/index.ts";
@@ -34,6 +35,50 @@ export function statusProps(page: LayoutProps["page"]): PageStatusProps {
     ...(typeof since === "string" ? { since } : {}),
     ...(typeof replaced_by === "string" ? { replaced_by } : {}),
   };
+}
+
+/** The optional slots of the shared article header. */
+export interface ArticleHeaderOptions {
+  /** Controls at the end of the breadcrumb row, such as the page tools disclosure. */
+  readonly tools?: ComponentChildren;
+  /** Notices between the breadcrumb row and the title, such as drift, status, or version notices. */
+  readonly notices?: ComponentChildren;
+  /** The title; `undefined` reads the page title and `null` leaves the body's own h1 in place. */
+  readonly title?: string | null;
+  /** The description; `undefined` reads front matter and `null` leaves it out. */
+  readonly description?: string | null;
+  /** The secondary facts under the description, such as trust, dates, and reading time. */
+  readonly meta?: ComponentChildren;
+}
+
+/** The authored description, trimmed to nothing when the front matter has no usable text. */
+function descriptionOf(page: LayoutProps["page"]): string | null {
+  const description = page.frontMatter.description;
+  return typeof description === "string" && description.trim() !== "" ? description : null;
+}
+
+/**
+ * The header every article layout shares, from the breadcrumb to the secondary facts: the trail and
+ * optional tools, the notices a page carries, the title unless the body supplies its own `h1`, the
+ * authored description, and one quiet metadata row. Each piece is optional, so a quickstart without
+ * metadata and a page with no description skip that slot instead of inventing content.
+ *
+ * The markup is the order the layouts already used; this only names the seam. `styles/src/document.css`
+ * and `styles/src/content.css` own the visual hierarchy, so every consumer of the theme gets the
+ * tightened spacing, wrapping title, and compact metadata without touching its own Markdown or CSS.
+ */
+export function articleHeader(props: LayoutProps, options: ArticleHeaderOptions = {}): ComponentChildren {
+  const title = options.title === undefined ? props.page.title : options.title;
+  const description = options.description === undefined ? descriptionOf(props.page) : options.description;
+  return [
+    options.tools === undefined
+      ? (breadcrumb(props) as ComponentChildren)
+      : h("div", { class: "doc-context" }, breadcrumb(props) as ComponentChildren, options.tools),
+    options.notices ?? null,
+    title === null || titleFromBody(props) ? null : h("h1", null, title),
+    description === null ? null : h("p", { class: "doc-description dek" }, description),
+    options.meta === undefined ? null : h("div", { class: "doc-meta" }, options.meta),
+  ];
 }
 
 /** The columns and base overrides a layout fills in the shared shell. */

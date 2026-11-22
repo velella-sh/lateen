@@ -75,22 +75,32 @@ test("API reference introductions keep the method text intact and let a long pat
 
 test("document typography and metadata follow the Sailcloth prose contract", () => {
   const doc = bodyOf(ui, /^\.doc$/);
-  assert.match(doc, /--type-size-doc-title:\s*clamp\(2\.125rem, 1\.5rem \+ 2\.2vw, 3\.25rem\)/);
+  assert.match(doc, /--type-size-doc-title:\s*clamp\(2rem, 1\.45rem \+ 2vw, 3rem\)/);
+  assert.match(doc, /--type-weight-doc-title:\s*720/);
+  assert.match(doc, /--type-leading-doc-title:\s*1\.12/);
+  assert.match(doc, /--doc-title-space:\s*0\.5rem/);
   const title = bodyOf(ui, /\.doc-body > h1:first-child,/);
   assert.match(title, /font-size:\s*var\(--type-size-doc-title,/);
+  assert.match(title, /line-height:\s*var\(--type-leading-doc-title,/);
+  assert.match(title, /text-wrap:\s*balance/);
 
   const description = bodyOf(ui, /^\.doc-description$/);
-  assert.match(description, /margin-block:\s*0\.875rem 0/);
-  assert.match(description, /max-inline-size:\s*46ch/);
-  assert.match(description, /line-height:\s*1\.5/);
+  assert.match(description, /margin-block:\s*0\.5rem 0/);
+  assert.match(description, /max-inline-size:\s*60ch/);
+  assert.match(description, /font-size:\s*1\.0625rem/);
+  assert.match(description, /line-height:\s*1\.55/);
 
   const meta = bodyOf(ui, /^\.doc-meta$/);
   assert.match(meta, /display:\s*flex/);
   assert.match(meta, /flex-wrap:\s*wrap/);
-  assert.match(meta, /margin-block-start:\s*0\.75rem/);
+  assert.match(meta, /margin-block-start:\s*0\.5rem/);
+  assert.match(meta, /font-size:\s*0\.75rem/);
   assert.match(bodyOf(ui, /^\.doc-meta:empty$/), /display:\s*none/);
   assert.match(bodyOf(ui, /^\.doc-meta \.trust-panel$/), /margin:\s*0/);
+  assert.match(bodyOf(ui, /^\.doc-meta \.trust-panel-chip$/), /min-block-size:\s*1\.5rem/);
+  assert.match(bodyOf(ui, /^\.doc-meta \.trust-panel-body$/), /font-size:\s*0\.875rem/);
   assert.match(bodyOf(ui, /^\.reading-time,\s*\.doc-meta \.last-updated$/), /margin:\s*0/);
+  assert.match(bodyOf(ui, /^\.reading-time,\s*\.doc-meta \.last-updated$/), /font-size:\s*0\.75rem/);
 
   const section = bodyOf(ui, /^\.doc-body h2,\s*\.api-reference-section > h2$/);
   assert.match(section, /font-size:\s*1\.4375rem/);
