@@ -1,9 +1,11 @@
 /* Code blocks: frame, copy/wrap controls, line numbers, Shiki themes. */
 @layer components {
   /* The file name stays outside the code, wraps instead of overflowing, and keeps a technical name
-     readable in a right-to-left page. */
+     readable in a right-to-left page. It is the block's header row when the block is titled: the
+     name at the start and the copy/wrap controls at the end. */
   .code-title {
-    @apply flex items-center gap-2;
+    @apply flex flex-wrap items-center gap-2;
+    min-block-size: 2.5rem;
     color: var(--muted-foreground);
     padding: var(--space-2) var(--space-4);
   }
@@ -13,7 +15,7 @@
   }
 
   .code-title-name {
-    @apply min-w-0 font-mono text-xs;
+    @apply min-w-0 flex-initial font-mono text-xs;
     overflow-wrap: anywhere;
     direction: ltr;
     unicode-bidi: isolate;
@@ -45,7 +47,7 @@
     overflow-x: auto;
   }
 
-  :is(.code-frame, .terminal, .install-tabs, .code-title, .api-example-code, .api-reference-example),
+  :is(.code-frame, .terminal, .code-title, .api-example-code, .api-reference-example),
   .quickstart-step > .code,
   .code-title + .code {
     border: 1px solid var(--code-border);
@@ -64,17 +66,18 @@
     overflow: clip;
   }
 
-  :is(.code-tabs-body, .install-tabs-panel) > .code-frame {
-    margin-block: 0;
-  }
-
-  .install-tabs-panel > .code-frame {
-    border: 0;
-  }
-
   :is(.code-frame > .code, .install-tabs-panel > .code, .terminal-body, .api-reference-example-code) {
     margin: 0;
     outline-offset: -3px;
+  }
+
+  /* A tabbed panel is the body of its selected tab: the tab strip above supplies the top edge, so
+     the panel's frame drops its top border and top rounding to sit flush under it. */
+  :is(.code-tabs-body, .install-tabs-panel) > .code-frame {
+    margin-block: 0;
+    border-block-start: 0;
+    border-start-start-radius: 0;
+    border-start-end-radius: 0;
   }
 
   .code-title:has(+ :is(.code-frame, .code)) {
@@ -87,27 +90,37 @@
     margin-block-start: 0;
   }
 
-  /* The title and actions stay in place while the code scrolls. */
+  /* One header per block: the block's identity at the start, its controls at the end. The identity
+     stays legible while a copy result is announced, and the controls keep their place, because the
+     result fills the room between them instead of pushing either one. */
   :is(.code-copy-bar, .terminal-bar, .api-reference-example > figcaption) {
+    display: flex;
+    align-items: center;
+    gap: var(--space-2);
+    min-block-size: 2.5rem;
     padding: var(--space-1) var(--space-4);
     border-block-end: 1px solid var(--code-border);
     font-size: var(--text-xs);
   }
 
-  :is(.code-copy-bar, .terminal-bar) {
-    @apply grid grid-flow-col items-center gap-1;
-    grid-template: auto / minmax(0, 1fr) auto;
-  }
-
-  .code-copy-bar[data-lang]:not([data-lang="text"], :has(> .code-copy-status:not(:empty)))::before {
+  /* The language token: a technical label, left to right, never a sentence. It may shrink and wrap
+     rather than push the controls off a narrow bar. */
+  .code-copy-bar[data-lang]:not([data-lang="text"])::before {
     content: attr(data-lang);
-    grid-area: 1 / 1;
-    justify-self: start;
+    flex: 0 1 auto;
+    min-inline-size: 0;
     color: var(--muted-foreground);
     font-family: var(--type-font-mono);
+    letter-spacing: 0.02em;
     direction: ltr;
     unicode-bidi: isolate;
     overflow-wrap: anywhere;
+  }
+
+  /* A titled block already names itself in the file strip, so its header does not repeat the
+     language underneath. A tab label names the example, not the language, so its panel keeps it. */
+  .code-title .code-copy-bar[data-lang]::before {
+    content: none;
   }
 
   .code-copy {
@@ -118,6 +131,15 @@
     @apply inline-flex min-h-8 items-center justify-center rounded-md border border-transparent px-2;
     background: var(--muted);
     cursor: pointer;
+  }
+
+  .code-copy,
+  .terminal-copy {
+    order: 2;
+  }
+
+  .code-wrap {
+    order: 3;
   }
 
   :is(.code-copy, .code-wrap, .terminal-copy):is(:hover, [aria-pressed="true"]) {
@@ -132,25 +154,98 @@
     color: var(--ring);
   }
 
-  :is(.code-copy-status, .terminal-status, .copy-status-size) {
-    grid-area: 1 / 1;
+  /* The live result owns the middle column, so its length never moves the controls. */
+  :is(.code-copy-status, .terminal-status) {
+    flex: 1 1 auto;
+    order: 1;
     min-inline-size: 0;
+    text-align: end;
     font-weight: 600;
     line-height: 1.25;
-    overflow-wrap: anywhere;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
   }
 
-  /* The longest feedback fits the same space before and after a copy. */
+  /* The flexible status reserves its own room; the hidden spacer is no longer a column. */
   .copy-status-size {
-    visibility: hidden;
-  }
-
-  .terminal-copy[hidden] ~ .copy-status-size {
     display: none;
   }
 
   .code-copy:has(> svg:last-child[hidden]) + .code-copy-status {
     color: var(--color-danger);
+  }
+
+  /* A terminal is one dark window: its header shares the inverse surface, so the bar and the body
+     read as the same object rather than a light strip over a dark block. */
+  .terminal-bar {
+    background: var(--night-raised);
+    border-block-end-color: var(--night);
+    color: var(--sail);
+  }
+
+  .terminal-bar .terminal-copy {
+    background: color-mix(in srgb, var(--sail) 14%, var(--night-raised));
+    color: var(--sail);
+  }
+
+  .terminal-bar .terminal-status {
+    color: var(--sail-soft);
+  }
+
+  .terminal-label {
+    display: inline-flex;
+    flex: none;
+    align-items: center;
+    gap: var(--space-1);
+    color: var(--sail-soft);
+    font-family: var(--type-font-mono);
+    letter-spacing: 0.02em;
+  }
+
+  .terminal-label svg {
+    inline-size: 0.875rem;
+    block-size: 0.875rem;
+  }
+
+  /* A titled block has one header. The island moves the copy bar into the file-name strip, so the
+     block's identity and its controls share a row instead of stacking two thin bars. */
+  .code-title .code-copy-bar {
+    flex: 0 1 auto;
+    margin-inline-start: auto;
+    min-block-size: 0;
+    padding: 0;
+    border: 0;
+  }
+
+  .code-title .code-copy-bar > .code-copy-status {
+    max-inline-size: 14rem;
+  }
+
+  /* Inside a tabbed panel the toolbar belongs to the panel: no second rule between the tab and its
+     code, so the active tab reads as the lid of the block below it. */
+  :is(.code-tabs-body, .install-tabs-panel) .code-copy-bar {
+    border-block-end: 0;
+    min-block-size: 2.25rem;
+  }
+
+  /* The install-tabs group is one object: a single frame around the tab strip and the selected
+     panel, matching the code-tabs group, so the two tab widgets read the same at a glance. */
+  .install-tabs {
+    border: 1px solid var(--code-border);
+    border-radius: var(--radius-card);
+    background: var(--doc-code-bg);
+    margin-block: 1.125rem;
+    overflow: clip;
+  }
+
+  .install-tabs .install-tabs-panel {
+    border-block-start: 1px solid var(--code-border);
+  }
+
+  .install-tabs .install-tabs-panel > .code-frame {
+    border: 0;
+    border-radius: 0;
   }
 
   .cta-band-copy-status {

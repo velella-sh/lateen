@@ -57,4 +57,5 @@ pnpm add mizzen
 - Choosing a label in an ungrouped group switches every ungrouped group on the page that offers it, and the choice is remembered on later pages. A grouped choice is not remembered and does not move ungrouped groups.
 - A chosen label in an ungrouped group is also written to `?lang=` in the address bar, replacing the current history entry, so a copied URL reopens that example in every ungrouped group that offers it. Grouped choices are page-local, so they write no URL. Other query parameters and any unrelated fragment stay as they were.
 - A fragment that points into a closed panel — a heading inside one, or the panel itself — opens that panel on load and whenever the fragment changes. The reader is not scrolled twice when the panel was already visible.
-- The blocks are plain fenced code inside the group; the `code` component does not run inside code tabs yet, so the tabs show the fence without Shiki colors.
+- Each block inside a group carries the same header anatomy as a standalone block: the fence language at the start of its toolbar and Copy and Wrap at the end. The active tab is the lid of the panel, so the tab strip and the toolbar sit flush under it without a second rule between them.
+- The blocks are plain fenced code inside the group; the theme highlights them like any other fence.

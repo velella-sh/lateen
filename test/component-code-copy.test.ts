@@ -565,6 +565,35 @@ test("the wrap toggle is a focusable native button that keyboard users can press
   assert.ok(document.querySelector("pre.code")?.classList.contains(WRAPPED_CLASS));
 });
 
+test("a titled block joins the copy bar to its file-name header instead of stacking a second bar", () => {
+  const dom = new JSDOM(
+    '<div class="code-title"><span class="code-title-name">a.ts</span></div>' +
+      '<pre class="code" data-lang="ts"><code>const a = 1;</code></pre>',
+  );
+  const document = dom.window.document;
+  const block = document.querySelector<HTMLElement>("pre.code")!;
+  activate(document as unknown as CopyDocument, { clipboard: clipboard(), schedule: timers().schedule });
+
+  const title = document.querySelector<HTMLElement>(".code-title")!;
+  const bar = title.querySelector<HTMLElement>(`.${BAR_CLASS}`);
+  assert.ok(bar, "the copy bar moves into the title strip");
+  assert.equal(title.querySelector(".code-title-name")?.textContent, "a.ts", "the name stays");
+  assert.equal(block.parentElement?.className, FRAME_CLASS, "the block keeps its frame");
+  assert.equal(title.querySelectorAll(`.${BAR_CLASS}`).length, 1, "one bar, not two");
+  assert.equal(title.querySelector(`.${BUTTON_CLASS}`)?.textContent?.includes(DEFAULT_LABELS.copy), true);
+});
+
+test("a block with no title keeps the copy bar above the frame", () => {
+  const dom = new JSDOM('<pre class="code" data-lang="ts"><code>const a = 1;</code></pre>');
+  const document = dom.window.document;
+  activate(document as unknown as CopyDocument, { clipboard: clipboard(), schedule: timers().schedule });
+
+  const frame = document.querySelector<HTMLElement>(`.${FRAME_CLASS}`)!;
+  const bar = frame.firstElementChild as HTMLElement;
+  assert.equal(bar.className, BAR_CLASS);
+  assert.equal(frame.querySelector(".code-title"), null);
+});
+
 test("the wrap rule is presentation-only and leaves direction to the RTL sheet", () => {
   const ui = readUiCss();
   const code = /\.code\.is-wrapped code \{([^}]*)\}/.exec(ui)?.[1] ?? "";

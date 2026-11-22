@@ -1,6 +1,8 @@
 import { h } from "preact";
+import { Terminal } from "lucide";
 import type { ComponentProps } from "@velella/mizzen/contracts";
 import { t } from "../../i18n/index.ts";
+import { icon } from "../../src/icon.ts";
 import { GROUP_ATTRIBUTE, GROUP_EXPLICIT_ATTRIBUTE, groupIdOf } from "../variables-form/group.ts";
 
 /** The Markdown directive this component handles: `:::terminal`. */
@@ -313,6 +315,12 @@ export default function terminal({ props, html, page }: ComponentProps<TerminalP
       ? h(
           "div",
           { class: "terminal-bar" },
+          h(
+            "span",
+            { class: "terminal-label" },
+            icon({ node: Terminal }),
+            t(lang, "terminal_label"),
+          ),
           h(
             "button",
             {

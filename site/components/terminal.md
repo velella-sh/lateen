@@ -89,6 +89,7 @@ The session publishes one record per command, in document order, in an inert JSO
 
 ## Notes
 
+- A terminal is one dark window: its header shares the inverse surface with the session below it, so the two read as a single object. The header names the block with a terminal icon and a short "Shell session" label, and carries the Copy control at the end, matching the code block's header anatomy.
 - A line that starts with `$` opens a command; the prompt and one space after it are not part of the copied text. A `% ` line is read the same way, while a `%` without a following space (such as `100% done`) stays output. Every other line is output, kept as written.
 - Continuation and heredoc lines show no prompt, so the prompt marks only where a command begins.
 - Use a fenced block for a multiline command. In plain text Markdown removes a trailing backslash as a hard line break before the theme reads the session.

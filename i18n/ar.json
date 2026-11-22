@@ -457,6 +457,7 @@
   "tags": "الوسوم",
   "term_link": "المعجم",
   "term_unknown": "لا يوجد مدخل في المعجم",
+  "terminal_label": "جلسة الصدفة",
   "tested": "مُختبَر",
   "tested_failed": "{n} فاشل",
   "tested_last_passed": "آخر نجاح {date}",

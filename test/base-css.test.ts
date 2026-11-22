@@ -111,9 +111,12 @@ test("document tables, reference rows, code panels, and callouts stay quiet and 
 
   const rows = bodyOf(ui, /^\.item,\s*\.list a$/);
   assert.match(rows, /grid-template-columns:\s*minmax\(7\.5rem, 0\.4fr\) minmax\(0, 1fr\)/);
-  const codeSurface = bodyOf(ui, /\.code-frame, \.terminal, \.install-tabs,/);
+  const codeSurface = bodyOf(ui, /\.code-frame, \.terminal, \.code-title,/);
   assert.match(codeSurface, /border-radius:\s*var\(--radius-card\)/);
   assert.match(codeSurface, /border:\s*1px solid var\(--code-border\)/);
+  const tabGroup = bodyOf(ui, /^\.install-tabs$/);
+  assert.match(tabGroup, /border-radius:\s*var\(--radius-card\)/);
+  assert.match(tabGroup, /border:\s*1px solid var\(--code-border\)/);
 
   const callout = bodyOf(ui, /^\.callout$/);
   assert.match(callout, /padding:\s*var\(--space-3\) var\(--space-4\)/);

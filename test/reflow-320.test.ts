@@ -37,6 +37,62 @@ test("the site footer reaches the viewport edge on short pages and follows long 
   }
 });
 
+test("copy feedback and a tab change never move the copy or wrap controls", { skip }, async () => {
+  const site = build("integration");
+  const server = await serve(site.out);
+  const page = await (browser as Browser).newPage({ viewport: { width: 1440, height: 900 } });
+  try {
+    await page.goto(`${server.url}/guide/install/`, { waitUntil: "networkidle" });
+    const block = page.locator(".quickstart-step > .code-frame, .doc-body > .code-frame").first();
+    const bar = block.locator(".code-copy-bar").first();
+    const copy = bar.locator(".code-copy");
+    const wrap = bar.locator(".code-wrap");
+    const geometry = async () => ({
+      copy: await copy.evaluate((element) => {
+        const rect = element.getBoundingClientRect();
+        return { x: Math.round(rect.x), y: Math.round(rect.y), w: Math.round(rect.width) };
+      }),
+      wrap: await wrap.evaluate((element) => {
+        const rect = element.getBoundingClientRect();
+        return { x: Math.round(rect.x), y: Math.round(rect.y), w: Math.round(rect.width) };
+      }),
+    });
+
+    const atRest = await geometry();
+    // Announce a result without touching the clipboard: the status text is what the island writes.
+    await bar.locator(".code-copy-status").evaluate((element) => {
+      element.textContent = "Copied";
+    });
+    assert.deepEqual(await geometry(), atRest, "a copy result leaves the controls where they were");
+    await bar.locator(".code-copy-status").evaluate((element) => {
+      element.textContent = "";
+    });
+    assert.deepEqual(await geometry(), atRest);
+
+    const tabs = page.locator(".code-tabs").first();
+    if ((await tabs.count()) > 0) {
+      // Position inside the bar, so a page scroll from focus does not read as a jump.
+      const offset = () =>
+        tabs.locator(".code-tabs-panel:not([hidden]) .code-copy-bar").first().evaluate((bar) => {
+          const button = bar.querySelector(".code-copy")!.getBoundingClientRect();
+          const wrap = bar.querySelector(".code-wrap")!.getBoundingClientRect();
+          const box = bar.getBoundingClientRect();
+          return {
+            copyRight: Math.round(box.right - button.right),
+            copyBaseline: Math.round(button.top - box.top),
+            wrapRight: Math.round(box.right - wrap.right),
+            wrapBaseline: Math.round(wrap.top - box.top),
+          };
+        });
+      const before = await offset();
+      await tabs.getByRole("tab").nth(1).click();
+      assert.deepEqual(await offset(), before, "switching a tab keeps the controls in the same place");
+    }
+  } finally {
+    await page.close();
+  }
+});
+
 test("the mobile search trigger shows an icon and opens with the keyboard in both directions", { skip }, async () => {
   const site = build("integration");
   const server = await serve(site.out);

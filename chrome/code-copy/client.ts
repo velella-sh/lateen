@@ -99,6 +99,14 @@ export interface CopyBlock {
   classList: { toggle?(name: string, force?: boolean): unknown; add?(name: string): void; remove?(name: string): void };
   querySelector(selector: string): { textContent: string | null } | null;
   before(node: CopyNode): void;
+  /** The element just before the block: a titled block puts its file-name strip here. */
+  readonly previousElementSibling?: CopyHeading | null;
+}
+
+/** The file-name strip above a titled block; the controls join it when it is there. */
+export interface CopyHeading {
+  getAttribute(name: string): string | null;
+  append(...children: unknown[]): void;
 }
 
 /** A line the fragment names. */
@@ -332,10 +340,18 @@ function attach(
   size.textContent = labels.failed;
   bar.append(button, status, wrap, size);
 
+  // A titled block already has a header row. Its controls join that row, so the name, the language,
+  // and Copy/Wrap read as one bar instead of two stacked strips. Read the heading before the frame
+  // takes its place beside the block.
+  const headingBefore = block.previousElementSibling ?? null;
+
   const frame = doc.createElement("div");
   frame.setAttribute("class", FRAME_CLASS);
   block.before(frame);
   frame.append(bar, block);
+
+  const title = headingBefore === null ? "" : headingBefore.getAttribute("class") ?? "";
+  if (title.split(/\s+/).includes("code-title")) headingBefore!.append(bar);
 
   const ui = { copyIcon, checkIcon, status };
   let clicks = 0;

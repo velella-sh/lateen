@@ -457,6 +457,7 @@
   "tags": "Tags",
   "term_link": "Glossary",
   "term_unknown": "No glossary entry",
+  "terminal_label": "Shell session",
   "tested": "Tested",
   "tested_failed": "{n} failed",
   "tested_last_passed": "Last passed {date}",

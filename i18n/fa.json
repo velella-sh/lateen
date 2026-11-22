@@ -457,6 +457,7 @@
   "tags": "برچسب‌ها",
   "term_link": "واژه‌نامه",
   "term_unknown": "مدخلی در واژه‌نامه نیست",
+  "terminal_label": "نشست پوسته",
   "tested": "آزموده",
   "tested_failed": "{n} ناموفق",
   "tested_last_passed": "آخرین اجرای موفق {date}",
