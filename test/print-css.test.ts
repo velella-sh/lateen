@@ -159,9 +159,6 @@ test("print.css hides every piece of chrome and every screen-only control", () =
     ".page-footer",
     ".page-agent-menu",
     "[data-page-agent-menu]",
-    ".block-actions",
-    ".block-action",
-    "[data-block-actions]",
     ".search",
     "[data-search]",
     ".theme-toggle",
@@ -403,10 +400,9 @@ test("the Source mode toolbar stays in flow and configured logos use the brand f
   assert.match(frame, /block-size:\s*1\.75rem/);
 });
 
-test("sailcloth ui.css also hides shell chrome and block-action labels in print", () => {
+test("sailcloth ui.css also hides shell chrome and source labels in print", () => {
   const ui = stripComments(readUiCss());
   const print = ui.slice(ui.indexOf("@media print"));
   assert.match(print, /\.site-header/);
-  assert.match(print, /button\.block-action/);
   assert.match(print, /\.source-label/);
 });

@@ -1,7 +1,7 @@
 /*
  * The one clipboard result path the clipboard islands share: write, learn whether it worked, show
  * that answer, and put the control's resting state back a moment later. `code-copy`,
- * `block-actions`, `copy-markdown`, and `ask-agent` each keep their own localized words and their
+ * `copy-markdown`, and `ask-agent` each keep their own localized words and their
  * own place to show them; this module owns only the order of events they all repeat — a failed
  * write is never reported as a success, a slower earlier write never overwrites a newer result,
  * and a pending restore can always be cancelled.

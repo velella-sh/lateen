@@ -143,10 +143,6 @@
   }
 
   /* print.css forces closed-details children to `display:block`; beat that for chrome we hide. */
-  details:not([open]) > button.block-action,
-  details > button.block-action,
-  button.block-action,
-  .block-action,
   details:not([open]) > .source-label,
   details > .source-label,
   .source-label,

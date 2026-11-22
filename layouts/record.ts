@@ -1,7 +1,6 @@
-import { Fragment, h } from "preact";
+import { h } from "preact";
 import type { ComponentChildren } from "preact";
 import type { DataRecord, Heading, Island, Layout, LayoutProps, RecordPos } from "@velella/mizzen/contracts";
-import blockActions from "../chrome/block-actions/index.ts";
 import breadcrumb from "../chrome/breadcrumb/index.ts";
 import copyMarkdown from "../chrome/copy-markdown/index.ts";
 import lastUpdated from "../chrome/last-updated/index.ts";
@@ -110,7 +109,7 @@ const record: Layout = (props) => {
   return props.record === undefined
     ? doc(props)
     : articleShell(props, {
-        main: h(Fragment, null, article(props), blockActions(props) as ComponentChildren),
+        main: article(props),
         aside: toc(tocFor(props)) as ComponentChildren,
       });
 };

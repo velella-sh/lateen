@@ -1,11 +1,10 @@
-import { Fragment, h } from "preact";
+import { h } from "preact";
 import type { ComponentChildren } from "preact";
 import { ChevronDown } from "lucide";
 import { t } from "../i18n/index.ts";
 import { icon } from "../src/icon.ts";
 import type { Layout, LayoutProps } from "@velella/mizzen/contracts";
 import { staleSlot } from "../src/stale.ts";
-import blockActions from "../chrome/block-actions/index.ts";
 import feedback from "../chrome/feedback/index.ts";
 import lastUpdated from "../chrome/last-updated/index.ts";
 import { docPageFooter } from "../chrome/page-footer/index.ts";
@@ -82,7 +81,7 @@ function article(props: LayoutProps): ComponentChildren {
 const doc: Layout = (props) =>
   articleShell(props, {
     base: { showSourceMode: false },
-    main: h(Fragment, null, article(props), blockActions(props) as ComponentChildren),
+    main: article(props),
   });
 
 export default doc;

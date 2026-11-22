@@ -14,7 +14,6 @@
 // chrome/copy-markdown        button click                             `env.signal` aborts the wiring
 // chrome/code-copy            created button clicks, window hashchange listeners live on created nodes;
 //                             (module scope)                           the hashchange mark lives for the page
-// chrome/block-actions        created button clicks                    listeners live on created nodes
 // chrome/ask-agent            panel button/link listeners              listeners live on the panel it builds
 // chrome/toc                  IntersectionObserver only                `scrollspy()` returns a stop function
 // components/data-explorer    input, keydown, filter change, more      `activate()` returns a teardown

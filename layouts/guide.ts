@@ -1,8 +1,7 @@
-import { Fragment, h } from "preact";
+import { h } from "preact";
 import type { ComponentChildren } from "preact";
 import type { Layout, LayoutProps } from "@velella/mizzen/contracts";
 import { staleSlot } from "../src/stale.ts";
-import blockActions from "../chrome/block-actions/index.ts";
 import copyMarkdown from "../chrome/copy-markdown/index.ts";
 import editPage from "../chrome/edit-page/index.ts";
 import feedback from "../chrome/feedback/index.ts";
@@ -60,6 +59,6 @@ function article(props: LayoutProps): ComponentChildren {
  * the summary bar. `guide.css` holds the few rules the frame needs beyond `doc.css`.
  */
 const guide: Layout = (props) =>
-  articleShell(props, { main: h(Fragment, null, article(props), blockActions(props) as ComponentChildren) });
+  articleShell(props, { main: article(props) });
 
 export default guide;

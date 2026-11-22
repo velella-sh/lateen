@@ -22,6 +22,7 @@ const INTENDED = [
   { selector: ".doc-actions", reason: "0.2.3 adds the page actions, copy-Markdown and agent menu to every doc layout." },
   { selector: ".doc-tools", reason: "Documentation moves Source mode into a Page tools disclosure." },
   { selector: ".source-mode-switch", reason: "Source mode is new in 0.2.3." },
+  { selector: "template[data-block-actions]", reason: "The per-block edit button was removed in 0.2.3." },
   { selector: ".ask-agent", reason: "The ask-your-agent panel is new in 0.2.3." },
   { selector: ".steps", reason: "Steps number each item and keep a progress state in 0.2.3." },
   { selector: ".output-block", reason: "Output blocks share the code highlighter's markup in 0.2.3." },
