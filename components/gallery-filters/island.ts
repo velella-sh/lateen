@@ -38,7 +38,7 @@ export const COUNT_SELECTOR = ".gallery-count";
 export const EMPTY_SELECTOR = ".gallery-empty";
 
 /** The link inside one card, and the element focus lands on after a filter. */
-export const CARD_SELECTOR = "a.card, a.gallery-card";
+export const CARD_SELECTOR = "a.card, a.gallery-card, [data-report-run-link]";
 
 /** The query parameter prefix of one filter field. */
 export const FILTER_PREFIX = "filter.";
@@ -48,6 +48,10 @@ export const SORT_PARAM = "sort";
 
 /** The query parameter that names the sort direction. */
 export const ORDER_PARAM = "order";
+
+export const DATE_FROM_PARAM = "start";
+export const DATE_THROUGH_PARAM = "end";
+const DATES_SELECTOR = "[data-gallery-dates]";
 
 export type SortDirection = "asc" | "desc";
 
@@ -251,9 +255,14 @@ export function apply(
     values: valuesOf(element),
   }));
 
+  const range = root.querySelector(DATES_SELECTOR) as unknown as HTMLFormElement | null;
+  const [from, through] = Array.from(range?.querySelectorAll<HTMLInputElement>("input") ?? [], (input) => input.value);
+
   let shown = 0;
   for (const item of items) {
-    const visible = matches(item.values, selected);
+    const date = item.element.getAttribute("data-gallery-date");
+    const inRange = (!from || (date !== null && date >= from)) && (!through || (date !== null && date <= through));
+    const visible = inRange && matches(item.values, selected);
     item.element.hidden = !visible;
     if (visible) shown += 1;
   }
@@ -354,6 +363,14 @@ export function activate(doc: GalleryDocument): () => void {
   };
 
   for (const root of roots) {
+    const range = root.querySelector(DATES_SELECTOR) as unknown as HTMLFormElement | null;
+    if (range !== null) {
+      range.hidden = false;
+      range.addEventListener("submit", (event) => {
+        event.preventDefault();
+        applyAll("count");
+      }, { signal });
+    }
     // One click listener per gallery: the filter links, the sort links, and the clear button share it,
     // so a page with many filter values registers one listener instead of one per value.
     root.addEventListener("click", (event) => {

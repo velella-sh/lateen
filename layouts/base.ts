@@ -16,6 +16,7 @@ import { THEME_KEY } from "../chrome/theme-toggle/key.ts";
 import { brandCss, problemComment, resolveBrand } from "../src/brand.ts";
 import { t } from "../i18n/index.ts";
 import { safeHref } from "../src/url.ts";
+import { reportArchiveNotice } from "../src/report-archive.ts";
 import { pageHtml } from "../src/article-html.ts";
 import { deferredScript } from "./shared/head.ts";
 import { previewBanner } from "./shared/preview.ts";
@@ -200,6 +201,7 @@ export default function base(props: BaseProps) {
             { class: "record-view-back" },
             h("a", { href: recordHref }, t(page.lang, "record_open_main")),
           ),
+          reportArchiveNotice(props),
           main ?? h("div", { dangerouslySetInnerHTML: { __html: pageHtml(page.html, page.lang) } }),
         ),
         aside == null ? null : h("div", { class: "aside" }, aside),
