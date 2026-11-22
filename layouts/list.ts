@@ -2,7 +2,7 @@ import { h } from "preact";
 import type { ComponentChildren } from "preact";
 import type { Heading, Island, Layout, LayoutProps, RecordProps } from "@velella/mizzen/contracts";
 import { blogFeedHref, blogSubscribe, withBlogFeed } from "./blog/feed.ts";
-import { authorNameOf, authorPageOf, blogAuthorOf, blogKindOf, blogOf, postsOf } from "./blog/index.ts";
+import { authorNameOf, authorPageOf, authorProfileOf, blogAuthorOf, blogKindOf, blogOf, postsOf } from "./blog/index.ts";
 import breadcrumb from "../chrome/breadcrumb/index.ts";
 import pageFooter from "../chrome/page-footer/index.ts";
 import pagination, { paginationLinks } from "../chrome/pagination/index.ts";
@@ -357,13 +357,24 @@ function blogItem(props: LayoutProps, post: ReturnType<typeof postsOf>[number]):
   );
 }
 
-/** The localized heading of an archive or author page. */
+/** The archive heading or the author's profile above the posts. */
 function blogHeading(props: LayoutProps): ComponentChildren {
-  const lang = props.page.lang;
-  if (blogKindOf(props.page) !== "author") return h("h1", null, t(lang, "blog_archive"));
-  const record = blogAuthorOf(props.page);
-  const id = typeof record?.id === "string" ? record.id : "";
-  return h("h1", null, t(lang, "blog_author_heading", { name: authorNameOf(props.site, id) }));
+  const { page, site } = props;
+  const showTitle = !titleFromBody(props);
+  if (blogKindOf(page) !== "author") return showTitle ? h("h1", null, t(page.lang, "blog_archive")) : null;
+  const author = authorProfileOf(site, blogAuthorOf(page), page.title);
+  return h(
+    "header",
+    { class: "blog-author-profile" },
+    author.image === undefined ? null : h("img", { src: author.image, alt: author.alt, width: 72, height: 72 }),
+    h(
+      "div",
+      null,
+      showTitle ? h("h1", null, t(page.lang, "blog_author_heading", { name: author.name })) : null,
+      author.bio === undefined ? null : h("p", { dir: "auto" }, author.bio),
+      author.link === undefined ? null : h("a", { href: author.link }, t(page.lang, "blog_author_website")),
+    ),
+  );
 }
 
 /**
@@ -377,7 +388,7 @@ function blogArticle(props: LayoutProps, feed: string | undefined): ComponentChi
     "article",
     { class: "list blog", "data-pagefind-body": true },
     breadcrumb(props) as ComponentChildren,
-    titleFromBody(props) ? null : blogHeading(props),
+    blogHeading(props),
     feed === undefined ? null : h("p", { class: "list-feed" }, blogSubscribe(feed, props.page.lang)),
     props.page.html === ""
       ? null

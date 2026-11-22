@@ -50,8 +50,7 @@ draft: false
 ```
 
 - `date` is a real calendar date written `YYYY-MM-DD`; a missing or invalid date is a build error.
-- `author` is an id in `_data/authors.yml`. Each entry needs a `name`; the theme reads any other key
-  it is given.
+- `author` is an id in `_data/authors.yml`. Each entry needs a `name`.
 - `slug` is one URL segment. Without it the file name is the slug.
 - `draft: true` keeps the post out of every public route and the feed.
 - `description` is optional.
@@ -60,6 +59,10 @@ draft: false
 # _data/authors.yml
 ada:
   name: Ada Lovelace
+  bio: Writes about engines and the people who build them.
+  url: https://example.org/ada/
+  avatar: /images/ada.jpg
+  avatarAlt: Portrait of Ada Lovelace
 ```
 
 Posts sort newest first. Two posts on the same date sort by slug, so a rebuild keeps the same order.
@@ -68,12 +71,14 @@ Posts sort newest first. Two posts on the same date sort by slug, so a rebuild k
 
 The post page uses the docs shell: header, navigation sidebar, the on-this-page column, and the
 article. The article shows the title, the date as `<time datetime>`, the author's display name linked
-to the author page, the optional description, the body with highlighted code fences, and a link back
+to the author page, the author’s image or bio when available, the optional description, the body with highlighted code fences, and a link back
 to the archive. A body that already starts with an `h1` keeps its own title and the layout adds none.
 
 The archive and author pages use the `list` layout. When `page.frontMatter.blog` is present the layout
 draws the posts as one list, with each title linked, its date, author, and description; it never draws
-the records table. The author heading and the empty state are localized.
+the records table. Above their posts, author pages show the author's name and optional `bio`, `url`,
+and portrait. The portrait comes from `avatar` or `image`; use `avatarAlt` or `imageAlt` for its alt
+text, which defaults to the author's name. A root-relative portrait path follows the site's base.
 
 Every URL already carries the site's `base`, so a blog under `/docs` links `/docs/blog/...` without a
 second prefix. Links are plain anchors, so they work without JavaScript and from the keyboard.

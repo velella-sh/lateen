@@ -1,4 +1,6 @@
 import type { Page, Site } from "@velella/mizzen/contracts";
+import { textOf } from "../../src/guards.ts";
+import { safeHref, withBase } from "../../src/url.ts";
 
 /** One public post, as the engine's blog front matter carries it. */
 export interface BlogPost {
@@ -62,6 +64,21 @@ export function authorOf(site: Site, id: string): Readonly<Record<string, unknow
 /** The author's display name: the record's `name`, else the id the post wrote. */
 export function authorNameOf(site: Site, id: string): string {
   return stringOf(authorOf(site, id)?.name) ?? id;
+}
+
+/** Display fields from the engine's author record, with local assets under the site's base. */
+export function authorProfileOf(site: Site, record: Readonly<Record<string, unknown>> | undefined, fallbackName: string) {
+  const name = textOf(record?.name) ?? fallbackName;
+  const avatar = safeHref(record?.avatar);
+  const image = avatar ?? safeHref(record?.image);
+  const link = safeHref(record?.url);
+  return {
+    name,
+    bio: textOf(record?.bio),
+    image: image === undefined ? undefined : withBase(site.config.base, image),
+    alt: textOf(avatar === undefined ? record?.imageAlt : record?.avatarAlt) ?? name,
+    link: link === undefined ? undefined : withBase(site.config.base, link),
+  };
 }
 
 /** The page that lists a post's author, when the site publishes one. */
