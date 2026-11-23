@@ -4,6 +4,7 @@
  * the two ratio lines. Values stay in the browser: no request, no storage, and the rest of the page
  * keeps the site's own look. */
 
+import { parseHex } from "../../src/color.ts";
 import { accentTokens, tokenCssValue } from "../../src/accent.ts";
 import { contrastRatios, fill, formatRatio, parsePalette } from "./ratios.ts";
 
@@ -49,8 +50,12 @@ export function update(picker: AccentPicker, root: PreviewRoot): void {
   const onAccentTemplate = attribute(picker, "data-ratio-on-accent");
   const palette = parsePalette(attribute(picker, "data-palette"));
   if (template === undefined || onAccentTemplate === undefined || palette === undefined) return;
-  const canvas = { light: palette.light.surfaces[0] ?? "", dark: palette.dark.surfaces[0] ?? "" };
-  const ratios = contrastRatios(picker.value, canvas);
+  if (parseHex(picker.value) === undefined) return;
+  const tokens = accentTokens(picker.value, { light: palette.light.surfaces, dark: palette.dark.surfaces }, {
+    light: palette.light.text,
+    dark: palette.dark.text,
+  });
+  const ratios = contrastRatios(tokens, palette);
   if (ratios === undefined) return;
   const accent = root.querySelector(`${RATIO_SELECTOR}[data-preset-ratio="accent"]`);
   const onAccent = root.querySelector(`${RATIO_SELECTOR}[data-preset-ratio="on-accent"]`);
@@ -63,16 +68,11 @@ export function update(picker: AccentPicker, root: PreviewRoot): void {
       dark: formatRatio(ratios.onAccentDark),
     });
   }
-  const tokens = accentTokens(picker.value, { light: palette.light.surfaces, dark: palette.dark.surfaces }, {
-    light: palette.light.text,
-    dark: palette.dark.text,
-  });
   for (const [name, token] of Object.entries(tokens)) root.style.setProperty(`--${name}`, tokenCssValue(token));
 }
 
-/** Wires one picker: applies its current value, then updates on every input. */
+/** Wires one picker: keeps the server palette until the first input. */
 export function activate(picker: AccentPicker, root: PreviewRoot): boolean {
-  update(picker, root);
   picker.addEventListener("input", () => update(picker, root));
   return true;
 }

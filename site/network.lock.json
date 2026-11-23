@@ -1,0 +1,31 @@
+{
+  "version": 1,
+  "source": "https://velella.sh/lateen/brand/network.json",
+  "sha256": "ceade03a87bcad076b64d63ad14ce471ea64f4778844b2ee08f27890678b68da",
+  "projects": [
+    {
+      "id": "mizzen",
+      "path": "mizzen",
+      "title": "Mizzen",
+      "public": true
+    },
+    {
+      "id": "lateen",
+      "path": "lateen",
+      "title": "Lateen",
+      "public": true
+    },
+    {
+      "id": "offing",
+      "path": "offing",
+      "title": "Offing",
+      "public": true
+    },
+    {
+      "id": "ebb",
+      "path": "ebb",
+      "title": "Ebb",
+      "public": true
+    }
+  ]
+}

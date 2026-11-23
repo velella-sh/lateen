@@ -18,6 +18,8 @@ export interface NetworkOptions {
   readonly switcher: boolean;
   /** Whether the network footer renders. */
   readonly footer: boolean;
+  /** Whether the search UI offers the entire network. */
+  readonly search: boolean;
   /** Where the project switcher renders. */
   readonly position: SwitcherPosition;
 }
@@ -26,6 +28,7 @@ export interface NetworkOptions {
 export const DEFAULT_NETWORK_OPTIONS: NetworkOptions = {
   switcher: true,
   footer: true,
+  search: true,
   position: "header",
 };
 
@@ -58,8 +61,8 @@ function flag(value: unknown, option: string, fallback: boolean): boolean {
 
 /**
  * Reads `theme.options.network`: `switcher` and `footer` each turn one part off, and `position` moves
- * the switcher to the header (the default) or the footer. A missing block, or a missing member, keeps
- * its default; an unknown value throws with the `theme.options.network.<key>` path in the message.
+ * the switcher to the header (the default) or the footer. Setting search to false limits search to
+ * the current project. A missing block or member keeps its default; an unknown value throws with the `theme.options.network.<key>` path in the message.
  */
 export function resolveNetworkOptions(options: unknown): NetworkOptions {
   if (!isRecord(options)) return DEFAULT_NETWORK_OPTIONS;
@@ -75,6 +78,7 @@ export function resolveNetworkOptions(options: unknown): NetworkOptions {
   return {
     switcher: flag(network.switcher, "theme.options.network.switcher", DEFAULT_NETWORK_OPTIONS.switcher),
     footer: flag(network.footer, "theme.options.network.footer", DEFAULT_NETWORK_OPTIONS.footer),
+    search: flag(network.search, "theme.options.network.search", DEFAULT_NETWORK_OPTIONS.search),
     position: (position ?? DEFAULT_NETWORK_OPTIONS.position) as SwitcherPosition,
   };
 }
@@ -108,4 +112,5 @@ export const NETWORK_OPTION_PATHS = [
   "theme.options.network.switcher",
   "theme.options.network.footer",
   "theme.options.network.position",
+  "theme.options.network.search",
 ] as const;

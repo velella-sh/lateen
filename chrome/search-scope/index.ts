@@ -1,6 +1,7 @@
 import { h } from "preact";
 import type { Chrome } from "@velella/mizzen/contracts";
 import { t } from "../../i18n/index.ts";
+import { resolveNetworkOptions } from "../../src/options.ts";
 
 /** Class on the fieldset that holds the two choices. */
 export const SCOPE_CLASS = "search-scope";
@@ -31,7 +32,7 @@ export const SCOPE_ALL = "all";
  */
 const searchScope: Chrome = ({ site, page }) => {
   const projects = site.network?.projects.length ?? 0;
-  if (projects < 2) return null;
+  if (projects < 2 || !resolveNetworkOptions(site.config.theme.options).search) return null;
 
   const lang = page.lang;
   return h(
