@@ -26,6 +26,7 @@ function layoutProps(overrides: Partial<Page> = {}): LayoutProps {
   };
   const site: Site = { config, pages: [page], nav: {}, data: {}, collections: {} };
   return {
+    renderComponent: () => "",
     site,
     page,
     trail: [],

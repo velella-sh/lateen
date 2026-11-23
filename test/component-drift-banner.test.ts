@@ -566,6 +566,7 @@ test("contract claims hide matches, distinguish unchecked claims, and show a fix
     target: { path: "src/new file.ts", line: 23, identity: "abc" } };
   const site = siteOf(drift([input]));
   const out = renderToString(driftBanner({
+    inline: false, renderComponent: () => "",
     props: {}, html: "",
     page: { lang: "en", url: "/guide/" } as ComponentProps["page"],
     site: { ...site, config: { ...site.config, repository: { url: "https://github.com/example/docs", branch: "main" } } },

@@ -10,6 +10,8 @@ export interface ShippedFeature {
   readonly feature: string;
   readonly issues: readonly number[];
   readonly case: string;
+  /** Implementation PR when the approved work has no separate issue. */
+  readonly pullRequest?: number;
 }
 
 /** One feature that is not externally usable yet. */
@@ -76,7 +78,10 @@ export function ledgerProblems(ledger: FeatureLedger, cases: readonly Acceptance
     if (!names.has(feature.case)) problems.push(`"${feature.feature}" names the missing acceptance case "${feature.case}"`);
     if (used.has(feature.case)) problems.push(`"${feature.case}" is used by more than one shipped feature`);
     used.add(feature.case);
-    if (feature.issues.length === 0) problems.push(`"${feature.feature}" names no issue`);
+    const pull = feature.pullRequest;
+    if (feature.issues.length === 0 && (pull === undefined || !Number.isSafeInteger(pull) || pull < 1)) {
+      problems.push(`"${feature.feature}" names no issue or implementation PR`);
+    }
   }
   for (const feature of ledger.deferred) {
     if (feature.reason.trim() === "") problems.push(`deferred feature "${feature.feature}" has no reason`);

@@ -113,6 +113,10 @@
     display: block !important;
   }
 
+  details:not([open])::details-content {
+    content-visibility: visible;
+  }
+
   .details-summary {
     break-after: avoid;
     page-break-after: avoid;

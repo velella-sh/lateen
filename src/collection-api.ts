@@ -5,7 +5,7 @@ import collectionApiSchema from "../components/collection-api-schema/index.ts";
 import { t } from "../i18n/index.ts";
 
 /** Links to Mizzen's newest active API version for this collection, with a deprecated fallback. */
-export function collectionApi({ page, site, record, list, islands }: LayoutProps): ComponentChildren {
+export function collectionApi({ page, site, record, list, islands, renderComponent }: LayoutProps): ComponentChildren {
   const api = site.config?.api;
   const name = record?.collection ?? list?.collection;
   if (api === undefined || name === undefined || site.config.outputs?.api === false) return null;
@@ -35,6 +35,7 @@ export function collectionApi({ page, site, record, list, islands }: LayoutProps
   const segment = encodeURIComponent(name);
   const schema = record === undefined && collection?.schema !== undefined
     ? collectionApiSchema({
+        inline: false, renderComponent,
         page,
         site,
         html: "",

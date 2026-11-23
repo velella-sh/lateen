@@ -248,7 +248,7 @@ function optionsOf(props: LayoutProps): Readonly<Record<string, unknown>> {
 
 /** The showpiece content: hero, stat strip, feature grid, framed demo, call to action, then the body. */
 function showpieceContent(props: LayoutProps): ComponentChildren {
-  const { page, site } = props;
+  const { page, site, renderComponent } = props;
   const fm = page.frontMatter;
   const options = optionsOf(props);
   const shared = { page, site, html: "" };
@@ -260,9 +260,10 @@ function showpieceContent(props: LayoutProps): ComponentChildren {
     h(
       "div",
       { class: "home-showpiece-hero home-hero" },
-      call(backdrop, { ...shared, props: defined({ variant: stringAt(options, "backdrop") ?? look?.backdrop, intensity: look?.intensity }) }),
-      seed === undefined || seed === "" ? null : h("div", { class: "home-showpiece-motif" }, call(motif, { ...shared, props: { seed } })),
+      call(backdrop, { inline: false, renderComponent, ...shared, props: defined({ variant: stringAt(options, "backdrop") ?? look?.backdrop, intensity: look?.intensity }) }),
+      seed === undefined || seed === "" ? null : h("div", { class: "home-showpiece-motif" }, call(motif, { inline: false, renderComponent, ...shared, props: { seed } })),
       call(hero, {
+        inline: false, renderComponent,
         ...shared,
         props: {
           ...(isRecord(fm.hero)
@@ -275,7 +276,7 @@ function showpieceContent(props: LayoutProps): ComponentChildren {
   );
 
   blocks.push(staleSlot(props));
-  blocks.push(call(statStrip, { ...shared, props: {} }));
+  blocks.push(call(statStrip, { inline: false, renderComponent, ...shared, props: {} }));
 
   const features = Array.isArray(fm.features) ? fm.features : recordsOf(fm.sections);
   blocks.push(featureGrid({ features, base: baseOf(site) }));
@@ -285,7 +286,7 @@ function showpieceContent(props: LayoutProps): ComponentChildren {
   if (isRecord(demo) && page.html.trim() !== "") {
     bodyUsed = true;
     blocks.push(
-      h("div", { class: "home-showpiece-demo" }, call(frame, { page, site, html: page.html, props: defined({ title: stringAt(demo, "title"), caption: stringAt(demo, "caption") }) })),
+      h("div", { class: "home-showpiece-demo" }, call(frame, { inline: false, renderComponent, page, site, html: page.html, props: defined({ title: stringAt(demo, "title"), caption: stringAt(demo, "caption") }) })),
     );
   }
 
@@ -294,6 +295,7 @@ function showpieceContent(props: LayoutProps): ComponentChildren {
     const action = recordsOf(cta.actions).find((a) => stringAt(a, "label") !== undefined && stringAt(a, "url") !== undefined);
     blocks.push(
       call(ctaBand, {
+        inline: false, renderComponent,
         ...shared,
         props: defined({
           title: stringAt(cta, "title"),

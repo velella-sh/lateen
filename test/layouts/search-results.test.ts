@@ -46,6 +46,7 @@ function layoutProps(config: Partial<SiteConfig> = {}, pageOverrides: Partial<Pa
   };
   const site: Site = { config: configWith(config), pages: [page], nav, data: {}, collections: {} };
   return {
+    renderComponent: () => "",
     site,
     page,
     trail: [],

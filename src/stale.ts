@@ -43,6 +43,7 @@ export function staleSlot(props: LayoutProps): ComponentChildren {
   const editUrl = editHref(props.site, props.page);
   const agentUrl = agentUrlOf(props);
   return staleNotice({
+    inline: false, renderComponent: props.renderComponent,
     props: {
       stale: props.page.stale,
       ...(props.site.config.repository === undefined ? {} : { repository: props.site.config.repository }),

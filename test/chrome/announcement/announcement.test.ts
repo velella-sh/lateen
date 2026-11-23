@@ -54,7 +54,7 @@ function props(options: Readonly<Record<string, unknown>>, lang = "en"): ChromeP
 const head: Head = { title: "Home · Example", meta: [], links: [], jsonLd: [] };
 
 function layoutProps(options: Readonly<Record<string, unknown>>, lang = "en"): LayoutProps {
-  return { ...props(options, lang), head, islands: [] };
+  return { renderComponent: () => "", ...props(options, lang), head, islands: [] };
 }
 
 /** The bar's HTML, or an empty string when it renders nothing. */

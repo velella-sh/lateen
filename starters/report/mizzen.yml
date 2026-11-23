@@ -15,5 +15,6 @@ collections:
       sort: [samples]
   may:
     source: _data/2026-05.yml
+outputs: { check-report: true }
 theme:
   name: "@velella/lateen"

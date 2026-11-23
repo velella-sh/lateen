@@ -33,24 +33,24 @@ function article(props: LayoutProps): ComponentChildren {
     { class: "doc guide", "data-pagefind-body": true },
     articleHeader(props, {
       notices: [
-        renderPageStatus({ props: statusProps(page), page, site: props.site, html: "" }) as ComponentChildren,
-        renderVersionNotice({ props: {}, page, site: props.site, html: "" }) as ComponentChildren,
+        renderPageStatus({ inline: false, renderComponent: props.renderComponent, props: statusProps(page), page, site: props.site, html: "" }) as ComponentChildren,
+        renderVersionNotice({ inline: false, renderComponent: props.renderComponent, props: {}, page, site: props.site, html: "" }) as ComponentChildren,
       ],
       description: null,
       meta: [
         lastUpdated(props) as ComponentChildren,
-        renderReadingTime({ props: {}, page, site: props.site, html: "" }) as ComponentChildren,
+        renderReadingTime({ inline: false, renderComponent: props.renderComponent, props: {}, page, site: props.site, html: "" }) as ComponentChildren,
       ],
     }),
     staleSlot(props),
-    guideSummary({ props: {}, page, site: props.site, html: "" }) as ComponentChildren,
+    guideSummary({ inline: false, renderComponent: props.renderComponent, props: {}, page, site: props.site, html: "" }) as ComponentChildren,
     tocFold(props) as ComponentChildren,
-    guidePrerequisites({ props: {}, page, site: props.site, html: "" }) as ComponentChildren,
+    guidePrerequisites({ inline: false, renderComponent: props.renderComponent, props: {}, page, site: props.site, html: "" }) as ComponentChildren,
     h("div", { class: "doc-body guide-body", dangerouslySetInnerHTML: { __html: highlightFences(articleHtml(page.html, page.lang), backdrops, page.lang, page.source.file) } }),
     pageToolSlot(props),
     editPage(props) as ComponentChildren,
     h("div", { class: "doc-actions" }, pageFooter(props) as ComponentChildren, copyMarkdown(props) as ComponentChildren),
-    relatedGuides({ props: {}, page, site: props.site, html: "" }) as ComponentChildren,
+    relatedGuides({ inline: false, renderComponent: props.renderComponent, props: {}, page, site: props.site, html: "" }) as ComponentChildren,
   );
 }
 

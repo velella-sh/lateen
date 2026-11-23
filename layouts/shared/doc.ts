@@ -14,6 +14,7 @@ import { highlightFences } from "../../components/code/index.ts";
 import { renderDriftBanner } from "../../components/drift-banner/render.ts";
 import { pageToolSlot } from "./page-tool.ts";
 import { renderPageStatus } from "../../components/page-status/render.ts";
+import reportViewer from "./report-viewer.ts";
 import { renderReadingTime } from "../../components/reading-time/render.ts";
 import { renderVersionNotice } from "../../components/version-notice/render.ts";
 import { renderTrustPanel } from "../../components/trust-panel/render.ts";
@@ -41,21 +42,23 @@ function article(props: LayoutProps): ComponentChildren {
         h("div", { class: "article-tool-panel" }, ...docPageTools(props, sourceMode(props) as ComponentChildren)),
       ),
       notices: [
-        renderDriftBanner({ props: {}, page, site: props.site, html: "" }) as ComponentChildren,
-        renderPageStatus({ props: statusProps(page), page, site: props.site, html: "" }) as ComponentChildren,
-        renderVersionNotice({ props: {}, page, site: props.site, html: "" }) as ComponentChildren,
+        renderDriftBanner({ inline: false, renderComponent: props.renderComponent, props: {}, page, site: props.site, html: "" }) as ComponentChildren,
+        renderPageStatus({ inline: false, renderComponent: props.renderComponent, props: statusProps(page), page, site: props.site, html: "" }) as ComponentChildren,
+        renderVersionNotice({ inline: false, renderComponent: props.renderComponent, props: {}, page, site: props.site, html: "" }) as ComponentChildren,
       ],
       meta: quickstart
         ? undefined
         : [
-            renderTrustPanel({ props: {}, page, site: props.site, html: "" }) as ComponentChildren,
+            renderTrustPanel({ inline: false, renderComponent: props.renderComponent, props: {}, page, site: props.site, html: "" }) as ComponentChildren,
             lastUpdated(props) as ComponentChildren,
-            renderReadingTime({ props: {}, page, site: props.site, html: "" }) as ComponentChildren,
+            renderReadingTime({ inline: false, renderComponent: props.renderComponent, props: {}, page, site: props.site, html: "" }) as ComponentChildren,
           ],
     }),
     staleSlot(props),
     tocFold(props) as ComponentChildren,
-    h("div", { class: "doc-body", "data-quickstart": quickstart || undefined, dangerouslySetInnerHTML: { __html: highlightFences(articleHtml(page.html, page.lang), backdrops, page.lang, page.source.file) } }),
+    page.reportView === undefined
+      ? h("div", { class: "doc-body", "data-quickstart": quickstart || undefined, dangerouslySetInnerHTML: { __html: highlightFences(articleHtml(page.html, page.lang), backdrops, page.lang, page.source.file) } })
+      : h("div", { class: "doc-body" }, reportViewer(props)),
     pageToolSlot(props),
     docPageFooter(props) as ComponentChildren,
     pager(props) as ComponentChildren,

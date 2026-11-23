@@ -15,7 +15,7 @@ import {
   type Json,
 } from "../chart-data/input.ts";
 import { scale } from "../timeline/scale.ts";
-import chartData from "../chart-data/index.ts";
+import chartData, { type ChartDataRow } from "../chart-data/index.ts";
 import { evenTicksOf, extentOf, paddedDomain, percentOf, percentScaleOf, ratioOf } from "../chart-data/scale.ts";
 import { labelMark, lineMark, svgFrame, textMark } from "../chart-data/svg.ts";
 
@@ -257,6 +257,22 @@ export default function lineChart({ props, site, page }: ComponentProps<LineChar
     return h("p", { class: MISSING_CLASS, role: "note" }, `${DEFAULT_TITLE}: no rows in "${from}".`);
   }
 
+  return renderLineChart(props, rows, { site, page });
+}
+
+/** Renders prepared rows using the same chart as the public directive. */
+export function renderLineChart(
+  props: LineChartProps,
+  rows: readonly Json[],
+  { site, page, data }: Pick<ComponentProps<LineChartProps>, "site" | "page"> & {
+    readonly data?: {
+      readonly labelHeading: string;
+      readonly columns: readonly string[];
+      readonly rows: readonly ChartDataRow[];
+    };
+  },
+) {
+  const from = text(props.from);
   const category = text(props.category) || "id";
   const fields = seriesOf(text(props.value));
   const lang = page.lang;
@@ -270,7 +286,7 @@ export default function lineChart({ props, site, page }: ComponentProps<LineChar
 
   const series: Series[] = fields.map((field, index) => ({
     field,
-    label: field,
+    label: data?.columns[index] ?? field,
     points: view.rows
       .map((row) => ({ position: row.position, value: row.values[index] }))
       .sort((a, b) => a.position - b.position),
@@ -374,18 +390,18 @@ export default function lineChart({ props, site, page }: ComponentProps<LineChar
     svgFrame(SVG_CLASS, width, height, titleId, name, marks),
     chartData({
       title: name,
-      description: `Values of ${fields.join(", ")} by ${category}, ${view.rows.length} ${
+      description: `Values of ${series.map(({ label }) => label).join(", ")} by ${category}, ${view.rows.length} ${
         view.rows.length === 1 ? "row" : "rows"
       }.`,
-      labelHeading: CATEGORY_HEADING,
+      labelHeading: data?.labelHeading ?? CATEGORY_HEADING,
       columns: series.map((entry) => entry.label),
-      rows: view.rows.map(({ label, values: rowValues }, index) => ({
+      rows: data?.rows ?? view.rows.map(({ label, values: rowValues }, index) => ({
         id: `${base}-${index + 1}`,
         label,
         values: rowValues,
       })),
       lang,
-      id: base,
+      ...(data === undefined ? { id: base } : {}),
     }),
   );
 }

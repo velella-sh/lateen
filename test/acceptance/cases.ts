@@ -1,3 +1,6 @@
+import assert from "node:assert/strict";
+import type { Page } from "playwright";
+
 /**
  * The public acceptance cases: one small, data-driven Playwright check per shipped feature.
  *
@@ -40,6 +43,8 @@ export interface AcceptanceCase {
   readonly action?: Action;
   /** Expectations checked after the action. */
   readonly after?: readonly Expectation[];
+  readonly javaScript?: boolean;
+  readonly verify?: (page: Page) => Promise<void>;
 }
 
 export const CASES: readonly AcceptanceCase[] = [
@@ -120,5 +125,60 @@ export const CASES: readonly AcceptanceCase[] = [
     ],
     action: { selector: "details.code-annotations summary", click: true },
     after: [{ selector: "details.code-annotations a", hrefIncludes: "-line-2" }],
+  },
+  {
+    name: "check-report-run",
+    path: "/checks/runs/after/",
+    javaScript: false,
+    expect: [
+      { selector: "[data-report-view=run] tbody", text: "Unknown" },
+      { selector: "[data-report-view=run] tbody", text: "The sample has no recorded signature result." },
+    ],
+    async verify(page) {
+      const download = page.getByRole("link", { name: "Download report data (JSON)" });
+      const href = await download.getAttribute("href");
+      assert(href);
+      const response = await page.request.get(new URL(href, page.url()).href);
+      assert.equal(response.ok(), true);
+      const report = await response.json();
+      assert.equal(report.runs.find((run: { id: string }) => run.id === "after").findings[0].severity, "unknown");
+      const real = report.runs.find((run: { id: string }) => run.id === "installed-run");
+      assert(real.checks.some((check: { id: string }) => check.id === "content"));
+      await page.emulateMedia({ media: "print" });
+      assert.equal(await page.getByRole("table", { name: "Recorded findings" }).isVisible(), true);
+    },
+  },
+  {
+    name: "check-report-comparison",
+    path: "/checks/compare/before/after/",
+    javaScript: false,
+    expect: [{ selector: "[data-report-view=comparison] tbody", text: "Resolved" }],
+    async verify(page) {
+      const before = page.getByRole("link", { name: "Before: before" });
+      await before.focus();
+      await page.keyboard.press("Enter");
+      await page.waitForURL("**/checks/runs/before/");
+      assert.equal(await page.getByText("The guide points to a removed page.").isVisible(), true);
+      await page.goto(new URL("/checks/compare/after/partial/", page.url()).href);
+      assert.equal(await page.getByText("At least one run has incomplete coverage.", { exact: false }).isVisible(), true);
+      assert.equal(await page.getByRole("table", { name: "Finding comparison" }).count(), 0);
+    },
+  },
+  {
+    name: "check-report-trend",
+    path: "/checks/",
+    javaScript: false,
+    expect: [{ selector: "[data-report-view=overview] .line-chart" }],
+    async verify(page) {
+      const chart = page.locator("figure").filter({ hasText: "HTML size (KiB)" });
+      const table = chart.getByRole("table");
+      await chart.locator("summary").focus();
+      await page.keyboard.press("Enter");
+      assert.equal(await table.getByRole("cell", { name: "35" }).isVisible(), true, "Enter reveals the metric value");
+      assert.equal(await table.getByRole("cell", { name: "No value" }).isVisible(), true, "Missing measurements remain visible in the table");
+      await page.keyboard.press("Enter");
+      await page.emulateMedia({ media: "print" });
+      assert.equal(await table.isVisible(), true, "The trend table prints from a closed disclosure");
+    },
   },
 ];

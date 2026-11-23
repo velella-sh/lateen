@@ -95,7 +95,7 @@ async function eventually(page: Page, expectation: Expectation): Promise<string 
 async function run(browser: Browser, base: string): Promise<AcceptanceReport["cases"]> {
   const results: AcceptanceReport["cases"] = [];
   for (const testCase of CASES) {
-    const page = await browser.newPage();
+    const page = await browser.newPage({ javaScriptEnabled: testCase.javaScript !== false });
     try {
       await page.goto(`${base}${testCase.path}`, { waitUntil: "load" });
       let problem: string | undefined;
@@ -112,6 +112,7 @@ async function run(browser: Browser, base: string): Promise<AcceptanceReport["ca
           if (problem !== undefined) break;
         }
       }
+      if (problem === undefined) await testCase.verify?.(page);
       results.push(problem === undefined ? { name: testCase.name, ok: true } : { name: testCase.name, ok: false, error: problem });
     } catch (error) {
       results.push({ name: testCase.name, ok: false, error: error instanceof Error ? error.message : String(error) });
@@ -162,6 +163,14 @@ await withCleanup(async (cleanup) => {
   writeFileSync(join(project, "package.json"), `${JSON.stringify({ name: "lateen-acceptance", private: true, type: "module" }, null, 2)}\n`);
   sh("npm", ["install", "--no-audit", "--no-fund", "--no-save", tarball, `@velella/mizzen@${mizzen}`], project);
   cpSync(SITE, join(project, "site"), { recursive: true });
+  // Package the same generic report a user installs with the starter, then add one actual
+  // producer run using the installed engine's adapter.
+  cpSync(
+    join(project, "node_modules/@velella/lateen/starters/report/_data/report-set.json"),
+    join(project, "site/_data/report-set.json"),
+  );
+  cpSync(join(ROOT, "test/acceptance/collect-report.mjs"), join(project, "collect-report.mjs"));
+  sh(process.execPath, ["collect-report.mjs"], project);
   sh(join(project, "node_modules/.bin/mizzen"), ["build", "site", "--out", "dist"], project);
 
   const server = await startServer(join(project, "dist"), "");

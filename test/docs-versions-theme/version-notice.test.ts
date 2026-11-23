@@ -69,7 +69,7 @@ function defaultPages(): Page[] {
 }
 
 function render(site: Site, target: Page): string {
-  const node = versionNotice({ props: {}, page: target, site, html: "" });
+  const node = versionNotice({ inline: false, renderComponent: () => "", props: {}, page: target, site, html: "" });
   return node == null ? "" : renderToString(node as never);
 }
 

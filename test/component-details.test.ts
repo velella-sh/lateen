@@ -16,7 +16,7 @@ const page = pageWith({ url: "/example/guide/setup/", source: pos, frontMatter: 
 const site: Site = { config, pages: [page], nav: {}, data: {}, collections: {} };
 
 function render(props: DetailsProps, body = "<p>Body text.</p>"): string {
-  return html(details({ props, page, site, html: body }));
+  return html(details({ inline: false, renderComponent: () => "", props, page, site, html: body }));
 }
 
 type VNode = { type: unknown; props: { children?: unknown; [key: string]: unknown } };

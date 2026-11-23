@@ -68,6 +68,7 @@ function props(nav: NavTree, lang = "en"): LayoutProps {
   const page = pageAt(lang);
   const site: Site = { config: configWith({ lang, dir: lang === "en" ? "ltr" : "rtl" }), pages: [page], nav, data: {}, collections: {} };
   return {
+    renderComponent: () => "",
     site,
     page,
     trail: [],

@@ -40,7 +40,7 @@ function layoutProps(frontMatter: Record<string, unknown>, body = ""): LayoutPro
     kind: "doc",
   };
   const site: Site = { config, pages: [page], nav: {}, data: {}, collections: {} };
-  return { site, page, trail: [], pager: {}, head: { title: "Home · Example", meta: [], links: [], jsonLd: [] }, islands: [] };
+  return { renderComponent: () => "", site, page, trail: [], pager: {}, head: { title: "Home · Example", meta: [], links: [], jsonLd: [] }, islands: [] };
 }
 
 type VNode = { type: unknown; props: { children?: unknown; dangerouslySetInnerHTML?: { __html: string }; [key: string]: unknown } };

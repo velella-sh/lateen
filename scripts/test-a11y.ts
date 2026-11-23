@@ -6,7 +6,7 @@
 // Setup: npm ci && npx playwright install chromium   (add --with-deps on Linux CI)
 // Usage: node scripts/test-a11y.ts [--only <case name substring>] [--report <file>]
 import { spawnSync } from "node:child_process";
-import { readFileSync } from "node:fs";
+import { appendFileSync, cpSync, readFileSync } from "node:fs";
 import { createRequire } from "node:module";
 import { dirname, join } from "node:path";
 import { fileURLToPath } from "node:url";
@@ -72,6 +72,9 @@ const MOBILE = { width: 375, height: 800 } as const;
  * and the search palette are part of the gate.
  */
 export const CASES: readonly AuditCase[] = [
+  { name: "check report overview", site: "fixtures", path: "/checks/", layout: "doc", lang: "en", ...MOBILE },
+  { name: "check report run", site: "fixtures", path: "/checks/runs/after/", layout: "doc", lang: "en", ...MOBILE },
+  { name: "check report comparison", site: "fixtures", path: "/checks/compare/before/after/", layout: "doc", lang: "en", ...MOBILE },
   { name: "docs home", site: "docs", path: "/lateen/", layout: "home", lang: "en", ...DESKTOP },
   { name: "docs document", site: "docs", path: "/lateen/install/", layout: "doc", lang: "en", ...DESKTOP },
   { name: "docs component directory", site: "docs", path: "/lateen/components/", layout: "doc", lang: "en", ...MOBILE },
@@ -778,10 +781,6 @@ async function main(): Promise<void> {
   const cases = selectCases(CASES, only);
   if (cases.length === 0) throw new Error("no case matches --only; see CASES in scripts/test-a11y.ts");
 
-  build("site", ".mizzen/a11y/docs");
-  build("test/accessibility/fixtures/site", ".mizzen/a11y/fixtures");
-  build("test/accessibility/fixtures/network", ".mizzen/a11y/network");
-
   let chromiumVersion = "unknown";
   const findings: Finding[] = [];
   const reported: ReportFinding[] = [];
@@ -789,6 +788,13 @@ async function main(): Promise<void> {
   // Each server is registered as it starts, so a later startup failure still closes the earlier
   // ones; the browser and the servers are released on success, failure and interruption.
   await withCleanup(async (cleanup) => {
+    const fixtureSource = cleanup.tempDir("lateen-a11y-fixture-");
+    cpSync(join(ROOT, "test/accessibility/fixtures/site"), fixtureSource, { recursive: true });
+    cpSync(join(ROOT, "starters/report/_data/report-set.json"), join(fixtureSource, "_data/report-set.json"));
+    appendFileSync(join(fixtureSource, "mizzen.yml"), "\noutputs: { check-report: true }\n");
+    build("site", ".mizzen/a11y/docs");
+    build(fixtureSource, ".mizzen/a11y/fixtures");
+    build("test/accessibility/fixtures/network", ".mizzen/a11y/network");
     const serve = async (dir: string, base: string): Promise<StaticServer> => {
       const server = await startServer(dir, base);
       cleanup.add(() => server.close());

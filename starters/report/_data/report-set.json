@@ -1,0 +1,38 @@
+{
+  "schemaVersion": 1,
+  "title": "Check reports",
+  "route": "/checks/",
+  "runs": [
+    {
+      "id": "before",
+      "tool": "Example checker",
+      "scope": "Docs",
+      "date": "2026-11-20",
+      "coverage": "complete",
+      "checks": [{ "id": "links", "status": "failed" }],
+      "findings": [{ "id": "guide-link", "rule": "link-target", "severity": "warning", "message": "The guide points to a removed page." }],
+      "metrics": [{ "id": "HTML size", "unit": "KiB", "value": 32, "limit": 40 }]
+    },
+    {
+      "id": "after",
+      "tool": "Example checker",
+      "scope": "Docs",
+      "date": "2026-11-21",
+      "coverage": "complete",
+      "checks": [{ "id": "links", "status": "passed" }, { "id": "sample-signature", "status": "unknown" }],
+      "findings": [{ "id": "sample-signature", "severity": "unknown", "message": "The sample has no recorded signature result." }],
+      "metrics": [{ "id": "HTML size", "unit": "KiB", "value": 35, "limit": 40 }]
+    },
+    {
+      "id": "partial",
+      "tool": "Example checker",
+      "scope": "Docs",
+      "date": "2026-11-22",
+      "coverage": "partial",
+      "checks": [{ "id": "links", "status": "skipped" }],
+      "findings": [],
+      "metrics": []
+    }
+  ],
+  "comparisons": [{ "base": "before", "head": "after" }, { "base": "after", "head": "partial" }]
+}

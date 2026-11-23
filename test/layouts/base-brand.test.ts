@@ -49,6 +49,7 @@ function layoutProps(config: SiteConfig = configWith(), hints?: LayoutProps["hin
   };
   const site: Site = { config, pages: [page], nav: {}, data: {}, collections: {} };
   return {
+    renderComponent: () => "",
     site,
     page,
     trail: [],

@@ -204,13 +204,13 @@ function article(props: LayoutProps): ComponentChildren {
     { class: "doc tutorial", "data-pagefind-body": true },
     articleHeader(props, {
       notices: [
-        renderPageStatus({ props: statusProps(page), page, site: props.site, html: "" }) as ComponentChildren,
-        renderVersionNotice({ props: {}, page, site: props.site, html: "" }) as ComponentChildren,
+        renderPageStatus({ inline: false, renderComponent: props.renderComponent, props: statusProps(page), page, site: props.site, html: "" }) as ComponentChildren,
+        renderVersionNotice({ inline: false, renderComponent: props.renderComponent, props: {}, page, site: props.site, html: "" }) as ComponentChildren,
       ],
       description: null,
       meta: [
         lastUpdated(props) as ComponentChildren,
-        renderReadingTime({ props: {}, page, site: props.site, html: "" }) as ComponentChildren,
+        renderReadingTime({ inline: false, renderComponent: props.renderComponent, props: {}, page, site: props.site, html: "" }) as ComponentChildren,
       ],
     }),
     staleSlot(props),
