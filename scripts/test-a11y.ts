@@ -449,6 +449,11 @@ async function openOverlay(page: Page, overlay: NonNullable<AuditCase["open"]>):
     if (!triggerFocused) throw new Error(`${overlay}: Escape did not return focus to the trigger`);
     await page.keyboard.press("Space");
     await panel.waitFor({ state: "visible" });
+    // The panel is placed by anchor positioning after it opens; let that layout settle so axe measures the final position.
+    await page.evaluate(() => new Promise<void>((resolve) => {
+      const frame = (globalThis as unknown as { requestAnimationFrame: (callback: () => void) => number }).requestAnimationFrame;
+      frame(() => frame(() => resolve()));
+    }));
     return;
   }
   if (overlay === "ask") {
