@@ -278,26 +278,23 @@
   }
 
   .doc {
-    --type-size-doc-title: clamp(2rem, 1.45rem + 2vw, 3rem);
-    --type-weight-doc-title: 720;
-    --type-leading-doc-title: 1.12;
-    --doc-title-space: 0.5rem;
-    --doc-section-space: 2.25rem;
+    --doc-title-space: var(--space-2);
+    --doc-section-space: 2.5rem;
   }
 
   .doc-layout main > article > h1,
   .doc > h1,
   .api-reference-operation-header > h1 {
-    margin-block: var(--doc-title-space, 0.5rem) 0;
+    margin-block: var(--doc-title-space) 0;
   }
 
   .doc-layout main > article > h1,
   .doc > h1,
   .doc-body > h1:first-child,
   .api-reference-operation-header > h1 {
-    font-size: var(--type-size-doc-title, clamp(1.875rem, 1.5rem + 1.6vw, 2.75rem));
-    font-weight: var(--type-weight-doc-title, 680);
-    line-height: var(--type-leading-doc-title, var(--type-leading-display));
+    font-size: var(--type-size-3xl);
+    font-weight: var(--type-weight-bold);
+    line-height: var(--type-leading-display);
     letter-spacing: var(--type-tracking-display);
     overflow-wrap: anywhere;
     text-wrap: balance;
@@ -372,11 +369,11 @@
   }
 
   .doc-description {
-    margin-block: 0.5rem 0;
-    max-inline-size: 60ch;
+    margin-block: var(--space-2) 0;
+    max-inline-size: var(--type-measure);
     color: var(--muted-foreground);
-    font-size: 1.0625rem;
-    line-height: 1.55;
+    font-size: var(--type-size-base);
+    line-height: var(--type-leading-ui);
     overflow-wrap: anywhere;
     text-wrap: pretty;
   }
@@ -497,15 +494,22 @@
   .doc-body h2,
   .api-reference-section > h2 {
     position: relative;
-    margin: var(--doc-section-space) 0 0.75rem;
-    font-size: 1.4375rem;
+    margin: var(--doc-section-space) 0 var(--space-3);
+    font-size: var(--type-size-xl);
     font-weight: var(--type-weight-bold);
-    line-height: 1.875rem;
-    letter-spacing: -0.018em;
+    line-height: var(--type-leading-snug);
+    letter-spacing: var(--type-tracking-heading);
   }
 
   .doc-body h3 {
-    @apply mb-3 mt-8 text-xl;
+    margin-block: var(--space-8) var(--space-2);
+    font-size: var(--type-size-lg);
+    line-height: var(--type-leading-snug);
+  }
+
+  /* A heading straight after a heading keeps the lower one close to it. */
+  .doc-body :is(h2, h3, h4) + :is(h2, h3, h4) {
+    margin-block-start: var(--space-4);
   }
 
   .doc-body > :first-child {
@@ -533,21 +537,15 @@
   }
 
   .doc-body p {
-    margin: 0.6875rem 0;
-    max-inline-size: 40em;
+    margin-block: 0 var(--space-5);
     overflow-wrap: anywhere;
   }
 
-  .doc-body > :is(p, ul, ol, h1, h2, h3) {
-    max-inline-size: var(--type-measure-min);
-    overflow-wrap: anywhere;
-  }
-
-  .doc-body > :is(p, ul, ol),
+  .doc-body > :is(p, ul, ol, h1, h2, h3),
   .quickstart-step > p,
   .api-reference-operation-header > .api-reference-description {
-    max-inline-size: 58ch;
-    line-height: 1.7;
+    max-inline-size: var(--type-measure);
+    overflow-wrap: anywhere;
   }
 
   .doc-body > p {
@@ -556,7 +554,7 @@
 
   .doc-body :where(blockquote, li, .callout-body, .details-body, .tabs-body, .tutorial-intro, .tutorial-step-body) > :is(ul, ol):not([class]),
   .doc-body > :is(ul, ol):not([class]) {
-    margin-block: 0.75rem 1rem;
+    margin-block: 0 var(--space-5);
     padding-inline-start: 1.45em;
     list-style: disc outside;
     overflow-wrap: anywhere;
@@ -567,7 +565,7 @@
   }
 
   .doc-body li > :is(ul, ol):not([class]) {
-    margin-block: 0.3em 0;
+    margin-block: var(--space-1) 0;
   }
 
   .doc-body li > ul:not([class]) {
@@ -579,7 +577,7 @@
   }
 
   .doc-body blockquote:not([class]):not(.quote *) {
-    margin-block: 1.125rem;
+    margin-block: 0 var(--space-5);
     padding-block: 0.125rem;
     padding-inline: 1rem 0;
     border-inline-start: 2px solid var(--border-strong);
@@ -596,15 +594,15 @@
   }
 
   .doc-body figure:not([class]) {
-    margin-block: 1.125rem;
+    margin-block: 0 var(--space-5);
   }
 
   .doc-body :is(figure:not([class]) > figcaption, .figure-caption) {
-    margin-block-start: 0.5rem;
-    max-inline-size: 50ch;
+    margin-block-start: var(--space-2);
+    max-inline-size: var(--type-measure);
     color: var(--muted-foreground);
-    font-size: 0.875rem;
-    line-height: 1.5;
+    font-size: var(--type-size-sm);
+    line-height: var(--type-leading-ui);
     overflow-wrap: anywhere;
   }
 
@@ -625,7 +623,7 @@
   }
 
   .doc-body li + li {
-    margin-block-start: 0.35rem;
+    margin-block-start: var(--space-1);
   }
 
   :not(pre) > code {

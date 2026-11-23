@@ -46,7 +46,7 @@
   }
 
   :is(.tutorial-step-count, .tutorial-step-progress, .tutorial-step-nav-label) {
-    font-size: var(--text-sm);
+    font-size: var(--type-size-sm);
     line-height: 1.25rem;
   }
 

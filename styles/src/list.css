@@ -20,19 +20,19 @@
 
   .list .list-intro h2 {
     margin-block: var(--space-6) var(--space-2);
-    font-size: 1.4375rem;
-    line-height: 1.875rem;
+    font-size: var(--type-size-xl);
+    line-height: var(--type-leading-snug);
   }
 
   .list .list-intro h3 {
     margin-block: var(--space-4) var(--space-2);
-    font-size: 1.125rem;
-    line-height: 1.6;
+    font-size: var(--type-size-lg);
+    line-height: var(--type-leading-snug);
   }
 
   .list .list-intro p {
-    margin-block: 0.75rem;
-    max-inline-size: 64ch;
+    margin-block: 0 var(--space-5);
+    max-inline-size: var(--type-measure);
   }
 
   .list .list-intro ul,

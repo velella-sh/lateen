@@ -36,15 +36,15 @@
 @layer components {
   .doc-body table {
     @apply w-full text-sm;
-    margin: 1.125rem 0 0.625rem;
+    margin: 0 0 var(--space-5);
     border-collapse: collapse;
   }
 
   .doc-body th,
   .doc-body td {
     @apply align-top;
-    padding-block: 0.75rem;
-    padding-inline: 0 1rem;
+    padding-block: var(--space-3);
+    padding-inline: 0 var(--space-4);
     border-bottom: 1px solid var(--border);
     text-align: start;
   }
@@ -52,7 +52,7 @@
   .doc-body th {
     @apply font-bold uppercase;
     color: var(--muted-foreground);
-    font-size: 0.6875rem;
+    font-size: var(--type-size-xs);
     letter-spacing: 0.06em;
   }
 
@@ -73,7 +73,7 @@
   }
 
   .markdown-table-scroll > table > :is(thead, tbody, tfoot) > tr > :is(th, td) {
-    padding: 0.4375rem 0.625rem;
+    padding: var(--space-2) var(--space-3);
     border-block-end-color: color-mix(in srgb, var(--border) 75%, transparent);
   }
 
@@ -322,7 +322,7 @@
   .callout-content > :is(.callout-kind, .callout-title) {
     margin: 0;
     color: var(--callout-color);
-    font-size: var(--text-sm);
+    font-size: var(--type-size-sm);
     font-weight: 700;
     line-height: 1.25rem;
   }
@@ -362,7 +362,7 @@
 
   .callout-body {
     margin-block-start: var(--space-2);
-    font-size: var(--text-sm);
+    font-size: var(--type-size-sm);
     line-height: 1.6;
   }
 
@@ -503,7 +503,7 @@
   .steps > .steps-progress {
     margin-block: 0 var(--space-3);
     color: var(--muted-foreground);
-    font-size: var(--text-sm);
+    font-size: var(--type-size-sm);
   }
 
   .steps > ol {
@@ -1080,7 +1080,7 @@
   .figure-caption {
     margin-block-start: var(--space-2);
     color: var(--muted-foreground);
-    font-size: var(--text-sm);
+    font-size: var(--type-size-sm);
     line-height: 1.5;
     overflow-wrap: anywhere;
   }
@@ -1089,7 +1089,7 @@
     display: block;
     margin-block-start: var(--space-1);
     color: var(--muted-foreground);
-    font-size: var(--text-sm);
+    font-size: var(--type-size-sm);
   }
 
   /* Mermaid: the diagram sits on the same plate as an image — a quiet card with one hairline edge and
@@ -1480,5 +1480,87 @@
       position-area: block-end span-inline-end;
       position-try-fallbacks: flip-inline, flip-block, flip-block flip-inline;
     }
+  }
+
+
+  /* Stat strip and data explorer: type and rhythm only, from the same roles as the prose around them. */
+  .stat-strip {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--space-4) var(--space-8);
+    margin-block: 0 var(--space-5);
+    padding: 0;
+    list-style: none;
+  }
+
+  .stat-strip .stat {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-1);
+    min-inline-size: 7rem;
+  }
+
+  .stat-strip .stat-value {
+    font-size: var(--type-size-2xl);
+    font-weight: var(--type-weight-bold);
+    line-height: var(--type-leading-heading);
+    letter-spacing: var(--type-tracking-heading);
+    font-variant-numeric: tabular-nums;
+  }
+
+  .stat-strip .stat-label {
+    color: var(--muted-foreground);
+    font-size: var(--type-size-sm);
+    line-height: var(--type-leading-ui);
+    text-decoration: none;
+  }
+
+  .stat-strip a.stat-label {
+    text-decoration: underline;
+    text-underline-offset: 3px;
+  }
+
+  .data-explorer {
+    display: grid;
+    gap: var(--space-4);
+    margin-block: 0 var(--space-5);
+    font-size: var(--type-size-sm);
+    line-height: var(--type-leading-ui);
+  }
+
+  .data-explorer-form,
+  .data-explorer-sort,
+  .data-explorer-filters,
+  .data-explorer-chips {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: var(--space-2) var(--space-3);
+  }
+
+  .data-explorer-label,
+  .data-explorer-sort-label,
+  .data-explorer-filter-label {
+    font-weight: var(--type-weight-medium);
+  }
+
+  .data-explorer-input,
+  .data-explorer-sort-field {
+    min-block-size: 2.25rem;
+    padding-inline: var(--space-3);
+    font-size: var(--type-size-sm);
+  }
+
+  .data-explorer-status,
+  .data-explorer-empty,
+  .data-explorer-filter-count {
+    color: var(--muted-foreground);
+  }
+
+  .data-explorer-filter-option {
+    display: flex;
+    align-items: center;
+    gap: var(--space-2);
+    min-block-size: 1.5rem;
   }
 }

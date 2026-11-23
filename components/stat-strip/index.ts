@@ -1,7 +1,7 @@
 import { h } from "preact";
 import type { ComponentProps } from "@velella/mizzen/contracts";
 
-/** Class on the list. `style.css` styles it. */
+/** Class on the list. `styles/src/content.css` styles it. */
 export const STAT_STRIP_CLASS = "stat-strip";
 
 /** The fewest and most figures a strip shows. Fewer than the minimum renders nothing; extras are dropped. */

@@ -172,7 +172,7 @@ test("the shared header keeps the breadcrumb quiet, the title balanced, and the 
   assert.match(title, /text-wrap:\s*balance/);
   assert.match(title, /overflow-wrap:\s*anywhere/);
 
-  assert.match(bodyOf(".doc-description"), /margin-block:\s*0?\.5rem 0/);
+  assert.match(bodyOf(".doc-description"), /margin-block:\s*var\(--space-2\) 0/);
   assert.match(bodyOf(".doc-meta"), /margin-block-start:\s*0?\.5rem/);
   assert.match(bodyOf(".doc-meta"), /font-size:\s*0?\.75rem/);
   assert.match(bodyOf(".page-status"), /margin-block:\s*0?\.5rem/);

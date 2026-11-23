@@ -3,8 +3,8 @@
   "routes": {
     "/alpha/": {
       "css/base": {
-        "raw": 145606,
-        "gzip": 27143,
+        "raw": 149217,
+        "gzip": 27419,
         "count": 1
       },
       "css/page": {
@@ -14,12 +14,12 @@
       },
       "js/chrome": {
         "raw": 88710,
-        "gzip": 33259,
+        "gzip": 33343,
         "count": 38
       },
       "js/components": {
         "raw": 14068,
-        "gzip": 5715,
+        "gzip": 5730,
         "count": 10
       },
       "js/inline": {
@@ -29,13 +29,13 @@
       },
       "font/self-hosted": {
         "raw": 150048,
-        "gzip": 150239,
+        "gzip": 150240,
         "count": 8,
         "assets": [
           {
             "path": "assets/theme/fonts/jetbrains-mono/jetbrains-mono-latin-400-normal-14425ba9c695763c.woff2",
             "url": "/alpha/assets/theme/fonts/jetbrains-mono/jetbrains-mono-latin-400-normal-14425ba9c695763c.woff2",
-            "stylesheet": "assets/theme/base-6fd28af880012706.css",
+            "stylesheet": "assets/theme/base-c67b24ddc2b27581.css",
             "family": "JetBrains Mono",
             "weight": "400",
             "style": "normal",
@@ -47,7 +47,7 @@
           {
             "path": "assets/theme/fonts/jetbrains-mono/jetbrains-mono-latin-700-normal-d0d4e818808f2a0b.woff2",
             "url": "/alpha/assets/theme/fonts/jetbrains-mono/jetbrains-mono-latin-700-normal-d0d4e818808f2a0b.woff2",
-            "stylesheet": "assets/theme/base-6fd28af880012706.css",
+            "stylesheet": "assets/theme/base-c67b24ddc2b27581.css",
             "family": "JetBrains Mono",
             "weight": "700",
             "style": "normal",
@@ -59,7 +59,7 @@
           {
             "path": "assets/theme/fonts/manrope/manrope-latin-400-normal-849290ef12a2eeb9.woff2",
             "url": "/alpha/assets/theme/fonts/manrope/manrope-latin-400-normal-849290ef12a2eeb9.woff2",
-            "stylesheet": "assets/theme/base-6fd28af880012706.css",
+            "stylesheet": "assets/theme/base-c67b24ddc2b27581.css",
             "family": "Manrope",
             "weight": "400",
             "style": "normal",
@@ -71,7 +71,7 @@
           {
             "path": "assets/theme/fonts/manrope/manrope-latin-500-normal-19874318747181a6.woff2",
             "url": "/alpha/assets/theme/fonts/manrope/manrope-latin-500-normal-19874318747181a6.woff2",
-            "stylesheet": "assets/theme/base-6fd28af880012706.css",
+            "stylesheet": "assets/theme/base-c67b24ddc2b27581.css",
             "family": "Manrope",
             "weight": "500",
             "style": "normal",
@@ -83,7 +83,7 @@
           {
             "path": "assets/theme/fonts/manrope/manrope-latin-700-normal-d2a12c85a831e4b5.woff2",
             "url": "/alpha/assets/theme/fonts/manrope/manrope-latin-700-normal-d2a12c85a831e4b5.woff2",
-            "stylesheet": "assets/theme/base-6fd28af880012706.css",
+            "stylesheet": "assets/theme/base-c67b24ddc2b27581.css",
             "family": "Manrope",
             "weight": "700",
             "style": "normal",
@@ -95,7 +95,7 @@
           {
             "path": "assets/theme/fonts/vazirmatn/vazirmatn-arabic-400-normal-e31830d3a52e0259.woff2",
             "url": "/alpha/assets/theme/fonts/vazirmatn/vazirmatn-arabic-400-normal-e31830d3a52e0259.woff2",
-            "stylesheet": "assets/theme/base-6fd28af880012706.css",
+            "stylesheet": "assets/theme/base-c67b24ddc2b27581.css",
             "family": "Vazirmatn",
             "weight": "400",
             "style": "normal",
@@ -107,7 +107,7 @@
           {
             "path": "assets/theme/fonts/vazirmatn/vazirmatn-arabic-500-normal-d3bc3b18900b5655.woff2",
             "url": "/alpha/assets/theme/fonts/vazirmatn/vazirmatn-arabic-500-normal-d3bc3b18900b5655.woff2",
-            "stylesheet": "assets/theme/base-6fd28af880012706.css",
+            "stylesheet": "assets/theme/base-c67b24ddc2b27581.css",
             "family": "Vazirmatn",
             "weight": "500",
             "style": "normal",
@@ -119,22 +119,22 @@
           {
             "path": "assets/theme/fonts/vazirmatn/vazirmatn-arabic-700-normal-aa79f9419fa0f5ef.woff2",
             "url": "/alpha/assets/theme/fonts/vazirmatn/vazirmatn-arabic-700-normal-aa79f9419fa0f5ef.woff2",
-            "stylesheet": "assets/theme/base-6fd28af880012706.css",
+            "stylesheet": "assets/theme/base-c67b24ddc2b27581.css",
             "family": "Vazirmatn",
             "weight": "700",
             "style": "normal",
             "display": "optional",
             "format": "woff2",
             "raw": 21728,
-            "gzip": 21738
+            "gzip": 21739
           }
         ]
       }
     },
     "/alpha/books/": {
       "css/base": {
-        "raw": 145606,
-        "gzip": 27143,
+        "raw": 149217,
+        "gzip": 27419,
         "count": 1
       },
       "css/page": {
@@ -144,12 +144,12 @@
       },
       "js/chrome": {
         "raw": 88710,
-        "gzip": 33259,
+        "gzip": 33343,
         "count": 38
       },
       "js/components": {
         "raw": 23799,
-        "gzip": 9128,
+        "gzip": 9154,
         "count": 13
       },
       "js/inline": {
@@ -159,13 +159,13 @@
       },
       "font/self-hosted": {
         "raw": 150048,
-        "gzip": 150239,
+        "gzip": 150240,
         "count": 8,
         "assets": [
           {
             "path": "assets/theme/fonts/jetbrains-mono/jetbrains-mono-latin-400-normal-14425ba9c695763c.woff2",
             "url": "/alpha/assets/theme/fonts/jetbrains-mono/jetbrains-mono-latin-400-normal-14425ba9c695763c.woff2",
-            "stylesheet": "assets/theme/base-6fd28af880012706.css",
+            "stylesheet": "assets/theme/base-c67b24ddc2b27581.css",
             "family": "JetBrains Mono",
             "weight": "400",
             "style": "normal",
@@ -177,7 +177,7 @@
           {
             "path": "assets/theme/fonts/jetbrains-mono/jetbrains-mono-latin-700-normal-d0d4e818808f2a0b.woff2",
             "url": "/alpha/assets/theme/fonts/jetbrains-mono/jetbrains-mono-latin-700-normal-d0d4e818808f2a0b.woff2",
-            "stylesheet": "assets/theme/base-6fd28af880012706.css",
+            "stylesheet": "assets/theme/base-c67b24ddc2b27581.css",
             "family": "JetBrains Mono",
             "weight": "700",
             "style": "normal",
@@ -189,7 +189,7 @@
           {
             "path": "assets/theme/fonts/manrope/manrope-latin-400-normal-849290ef12a2eeb9.woff2",
             "url": "/alpha/assets/theme/fonts/manrope/manrope-latin-400-normal-849290ef12a2eeb9.woff2",
-            "stylesheet": "assets/theme/base-6fd28af880012706.css",
+            "stylesheet": "assets/theme/base-c67b24ddc2b27581.css",
             "family": "Manrope",
             "weight": "400",
             "style": "normal",
@@ -201,7 +201,7 @@
           {
             "path": "assets/theme/fonts/manrope/manrope-latin-500-normal-19874318747181a6.woff2",
             "url": "/alpha/assets/theme/fonts/manrope/manrope-latin-500-normal-19874318747181a6.woff2",
-            "stylesheet": "assets/theme/base-6fd28af880012706.css",
+            "stylesheet": "assets/theme/base-c67b24ddc2b27581.css",
             "family": "Manrope",
             "weight": "500",
             "style": "normal",
@@ -213,7 +213,7 @@
           {
             "path": "assets/theme/fonts/manrope/manrope-latin-700-normal-d2a12c85a831e4b5.woff2",
             "url": "/alpha/assets/theme/fonts/manrope/manrope-latin-700-normal-d2a12c85a831e4b5.woff2",
-            "stylesheet": "assets/theme/base-6fd28af880012706.css",
+            "stylesheet": "assets/theme/base-c67b24ddc2b27581.css",
             "family": "Manrope",
             "weight": "700",
             "style": "normal",
@@ -225,7 +225,7 @@
           {
             "path": "assets/theme/fonts/vazirmatn/vazirmatn-arabic-400-normal-e31830d3a52e0259.woff2",
             "url": "/alpha/assets/theme/fonts/vazirmatn/vazirmatn-arabic-400-normal-e31830d3a52e0259.woff2",
-            "stylesheet": "assets/theme/base-6fd28af880012706.css",
+            "stylesheet": "assets/theme/base-c67b24ddc2b27581.css",
             "family": "Vazirmatn",
             "weight": "400",
             "style": "normal",
@@ -237,7 +237,7 @@
           {
             "path": "assets/theme/fonts/vazirmatn/vazirmatn-arabic-500-normal-d3bc3b18900b5655.woff2",
             "url": "/alpha/assets/theme/fonts/vazirmatn/vazirmatn-arabic-500-normal-d3bc3b18900b5655.woff2",
-            "stylesheet": "assets/theme/base-6fd28af880012706.css",
+            "stylesheet": "assets/theme/base-c67b24ddc2b27581.css",
             "family": "Vazirmatn",
             "weight": "500",
             "style": "normal",
@@ -249,22 +249,22 @@
           {
             "path": "assets/theme/fonts/vazirmatn/vazirmatn-arabic-700-normal-aa79f9419fa0f5ef.woff2",
             "url": "/alpha/assets/theme/fonts/vazirmatn/vazirmatn-arabic-700-normal-aa79f9419fa0f5ef.woff2",
-            "stylesheet": "assets/theme/base-6fd28af880012706.css",
+            "stylesheet": "assets/theme/base-c67b24ddc2b27581.css",
             "family": "Vazirmatn",
             "weight": "700",
             "style": "normal",
             "display": "optional",
             "format": "woff2",
             "raw": 21728,
-            "gzip": 21738
+            "gzip": 21739
           }
         ]
       }
     },
     "/alpha/books/alpha/": {
       "css/base": {
-        "raw": 145606,
-        "gzip": 27143,
+        "raw": 149217,
+        "gzip": 27419,
         "count": 1
       },
       "css/page": {
@@ -274,12 +274,12 @@
       },
       "js/chrome": {
         "raw": 88710,
-        "gzip": 33259,
+        "gzip": 33343,
         "count": 38
       },
       "js/components": {
         "raw": 14068,
-        "gzip": 5715,
+        "gzip": 5730,
         "count": 10
       },
       "js/inline": {
@@ -289,13 +289,13 @@
       },
       "font/self-hosted": {
         "raw": 150048,
-        "gzip": 150239,
+        "gzip": 150240,
         "count": 8,
         "assets": [
           {
             "path": "assets/theme/fonts/jetbrains-mono/jetbrains-mono-latin-400-normal-14425ba9c695763c.woff2",
             "url": "/alpha/assets/theme/fonts/jetbrains-mono/jetbrains-mono-latin-400-normal-14425ba9c695763c.woff2",
-            "stylesheet": "assets/theme/base-6fd28af880012706.css",
+            "stylesheet": "assets/theme/base-c67b24ddc2b27581.css",
             "family": "JetBrains Mono",
             "weight": "400",
             "style": "normal",
@@ -307,7 +307,7 @@
           {
             "path": "assets/theme/fonts/jetbrains-mono/jetbrains-mono-latin-700-normal-d0d4e818808f2a0b.woff2",
             "url": "/alpha/assets/theme/fonts/jetbrains-mono/jetbrains-mono-latin-700-normal-d0d4e818808f2a0b.woff2",
-            "stylesheet": "assets/theme/base-6fd28af880012706.css",
+            "stylesheet": "assets/theme/base-c67b24ddc2b27581.css",
             "family": "JetBrains Mono",
             "weight": "700",
             "style": "normal",
@@ -319,7 +319,7 @@
           {
             "path": "assets/theme/fonts/manrope/manrope-latin-400-normal-849290ef12a2eeb9.woff2",
             "url": "/alpha/assets/theme/fonts/manrope/manrope-latin-400-normal-849290ef12a2eeb9.woff2",
-            "stylesheet": "assets/theme/base-6fd28af880012706.css",
+            "stylesheet": "assets/theme/base-c67b24ddc2b27581.css",
             "family": "Manrope",
             "weight": "400",
             "style": "normal",
@@ -331,7 +331,7 @@
           {
             "path": "assets/theme/fonts/manrope/manrope-latin-500-normal-19874318747181a6.woff2",
             "url": "/alpha/assets/theme/fonts/manrope/manrope-latin-500-normal-19874318747181a6.woff2",
-            "stylesheet": "assets/theme/base-6fd28af880012706.css",
+            "stylesheet": "assets/theme/base-c67b24ddc2b27581.css",
             "family": "Manrope",
             "weight": "500",
             "style": "normal",
@@ -343,7 +343,7 @@
           {
             "path": "assets/theme/fonts/manrope/manrope-latin-700-normal-d2a12c85a831e4b5.woff2",
             "url": "/alpha/assets/theme/fonts/manrope/manrope-latin-700-normal-d2a12c85a831e4b5.woff2",
-            "stylesheet": "assets/theme/base-6fd28af880012706.css",
+            "stylesheet": "assets/theme/base-c67b24ddc2b27581.css",
             "family": "Manrope",
             "weight": "700",
             "style": "normal",
@@ -355,7 +355,7 @@
           {
             "path": "assets/theme/fonts/vazirmatn/vazirmatn-arabic-400-normal-e31830d3a52e0259.woff2",
             "url": "/alpha/assets/theme/fonts/vazirmatn/vazirmatn-arabic-400-normal-e31830d3a52e0259.woff2",
-            "stylesheet": "assets/theme/base-6fd28af880012706.css",
+            "stylesheet": "assets/theme/base-c67b24ddc2b27581.css",
             "family": "Vazirmatn",
             "weight": "400",
             "style": "normal",
@@ -367,7 +367,7 @@
           {
             "path": "assets/theme/fonts/vazirmatn/vazirmatn-arabic-500-normal-d3bc3b18900b5655.woff2",
             "url": "/alpha/assets/theme/fonts/vazirmatn/vazirmatn-arabic-500-normal-d3bc3b18900b5655.woff2",
-            "stylesheet": "assets/theme/base-6fd28af880012706.css",
+            "stylesheet": "assets/theme/base-c67b24ddc2b27581.css",
             "family": "Vazirmatn",
             "weight": "500",
             "style": "normal",
@@ -379,22 +379,22 @@
           {
             "path": "assets/theme/fonts/vazirmatn/vazirmatn-arabic-700-normal-aa79f9419fa0f5ef.woff2",
             "url": "/alpha/assets/theme/fonts/vazirmatn/vazirmatn-arabic-700-normal-aa79f9419fa0f5ef.woff2",
-            "stylesheet": "assets/theme/base-6fd28af880012706.css",
+            "stylesheet": "assets/theme/base-c67b24ddc2b27581.css",
             "family": "Vazirmatn",
             "weight": "700",
             "style": "normal",
             "display": "optional",
             "format": "woff2",
             "raw": 21728,
-            "gzip": 21738
+            "gzip": 21739
           }
         ]
       }
     },
     "/alpha/books/alpha/embed/": {
       "css/base": {
-        "raw": 145606,
-        "gzip": 27143,
+        "raw": 149217,
+        "gzip": 27419,
         "count": 1
       },
       "css/page": {
@@ -419,13 +419,13 @@
       },
       "font/self-hosted": {
         "raw": 150048,
-        "gzip": 150239,
+        "gzip": 150240,
         "count": 8,
         "assets": [
           {
             "path": "assets/theme/fonts/jetbrains-mono/jetbrains-mono-latin-400-normal-14425ba9c695763c.woff2",
             "url": "/alpha/assets/theme/fonts/jetbrains-mono/jetbrains-mono-latin-400-normal-14425ba9c695763c.woff2",
-            "stylesheet": "assets/theme/base-6fd28af880012706.css",
+            "stylesheet": "assets/theme/base-c67b24ddc2b27581.css",
             "family": "JetBrains Mono",
             "weight": "400",
             "style": "normal",
@@ -437,7 +437,7 @@
           {
             "path": "assets/theme/fonts/jetbrains-mono/jetbrains-mono-latin-700-normal-d0d4e818808f2a0b.woff2",
             "url": "/alpha/assets/theme/fonts/jetbrains-mono/jetbrains-mono-latin-700-normal-d0d4e818808f2a0b.woff2",
-            "stylesheet": "assets/theme/base-6fd28af880012706.css",
+            "stylesheet": "assets/theme/base-c67b24ddc2b27581.css",
             "family": "JetBrains Mono",
             "weight": "700",
             "style": "normal",
@@ -449,7 +449,7 @@
           {
             "path": "assets/theme/fonts/manrope/manrope-latin-400-normal-849290ef12a2eeb9.woff2",
             "url": "/alpha/assets/theme/fonts/manrope/manrope-latin-400-normal-849290ef12a2eeb9.woff2",
-            "stylesheet": "assets/theme/base-6fd28af880012706.css",
+            "stylesheet": "assets/theme/base-c67b24ddc2b27581.css",
             "family": "Manrope",
             "weight": "400",
             "style": "normal",
@@ -461,7 +461,7 @@
           {
             "path": "assets/theme/fonts/manrope/manrope-latin-500-normal-19874318747181a6.woff2",
             "url": "/alpha/assets/theme/fonts/manrope/manrope-latin-500-normal-19874318747181a6.woff2",
-            "stylesheet": "assets/theme/base-6fd28af880012706.css",
+            "stylesheet": "assets/theme/base-c67b24ddc2b27581.css",
             "family": "Manrope",
             "weight": "500",
             "style": "normal",
@@ -473,7 +473,7 @@
           {
             "path": "assets/theme/fonts/manrope/manrope-latin-700-normal-d2a12c85a831e4b5.woff2",
             "url": "/alpha/assets/theme/fonts/manrope/manrope-latin-700-normal-d2a12c85a831e4b5.woff2",
-            "stylesheet": "assets/theme/base-6fd28af880012706.css",
+            "stylesheet": "assets/theme/base-c67b24ddc2b27581.css",
             "family": "Manrope",
             "weight": "700",
             "style": "normal",
@@ -485,7 +485,7 @@
           {
             "path": "assets/theme/fonts/vazirmatn/vazirmatn-arabic-400-normal-e31830d3a52e0259.woff2",
             "url": "/alpha/assets/theme/fonts/vazirmatn/vazirmatn-arabic-400-normal-e31830d3a52e0259.woff2",
-            "stylesheet": "assets/theme/base-6fd28af880012706.css",
+            "stylesheet": "assets/theme/base-c67b24ddc2b27581.css",
             "family": "Vazirmatn",
             "weight": "400",
             "style": "normal",
@@ -497,7 +497,7 @@
           {
             "path": "assets/theme/fonts/vazirmatn/vazirmatn-arabic-500-normal-d3bc3b18900b5655.woff2",
             "url": "/alpha/assets/theme/fonts/vazirmatn/vazirmatn-arabic-500-normal-d3bc3b18900b5655.woff2",
-            "stylesheet": "assets/theme/base-6fd28af880012706.css",
+            "stylesheet": "assets/theme/base-c67b24ddc2b27581.css",
             "family": "Vazirmatn",
             "weight": "500",
             "style": "normal",
@@ -509,22 +509,22 @@
           {
             "path": "assets/theme/fonts/vazirmatn/vazirmatn-arabic-700-normal-aa79f9419fa0f5ef.woff2",
             "url": "/alpha/assets/theme/fonts/vazirmatn/vazirmatn-arabic-700-normal-aa79f9419fa0f5ef.woff2",
-            "stylesheet": "assets/theme/base-6fd28af880012706.css",
+            "stylesheet": "assets/theme/base-c67b24ddc2b27581.css",
             "family": "Vazirmatn",
             "weight": "700",
             "style": "normal",
             "display": "optional",
             "format": "woff2",
             "raw": 21728,
-            "gzip": 21738
+            "gzip": 21739
           }
         ]
       }
     },
     "/alpha/books/beta/": {
       "css/base": {
-        "raw": 145606,
-        "gzip": 27143,
+        "raw": 149217,
+        "gzip": 27419,
         "count": 1
       },
       "css/page": {
@@ -534,12 +534,12 @@
       },
       "js/chrome": {
         "raw": 88710,
-        "gzip": 33259,
+        "gzip": 33343,
         "count": 38
       },
       "js/components": {
         "raw": 16989,
-        "gzip": 7014,
+        "gzip": 7027,
         "count": 13
       },
       "js/inline": {
@@ -549,13 +549,13 @@
       },
       "font/self-hosted": {
         "raw": 150048,
-        "gzip": 150239,
+        "gzip": 150240,
         "count": 8,
         "assets": [
           {
             "path": "assets/theme/fonts/jetbrains-mono/jetbrains-mono-latin-400-normal-14425ba9c695763c.woff2",
             "url": "/alpha/assets/theme/fonts/jetbrains-mono/jetbrains-mono-latin-400-normal-14425ba9c695763c.woff2",
-            "stylesheet": "assets/theme/base-6fd28af880012706.css",
+            "stylesheet": "assets/theme/base-c67b24ddc2b27581.css",
             "family": "JetBrains Mono",
             "weight": "400",
             "style": "normal",
@@ -567,7 +567,7 @@
           {
             "path": "assets/theme/fonts/jetbrains-mono/jetbrains-mono-latin-700-normal-d0d4e818808f2a0b.woff2",
             "url": "/alpha/assets/theme/fonts/jetbrains-mono/jetbrains-mono-latin-700-normal-d0d4e818808f2a0b.woff2",
-            "stylesheet": "assets/theme/base-6fd28af880012706.css",
+            "stylesheet": "assets/theme/base-c67b24ddc2b27581.css",
             "family": "JetBrains Mono",
             "weight": "700",
             "style": "normal",
@@ -579,7 +579,7 @@
           {
             "path": "assets/theme/fonts/manrope/manrope-latin-400-normal-849290ef12a2eeb9.woff2",
             "url": "/alpha/assets/theme/fonts/manrope/manrope-latin-400-normal-849290ef12a2eeb9.woff2",
-            "stylesheet": "assets/theme/base-6fd28af880012706.css",
+            "stylesheet": "assets/theme/base-c67b24ddc2b27581.css",
             "family": "Manrope",
             "weight": "400",
             "style": "normal",
@@ -591,7 +591,7 @@
           {
             "path": "assets/theme/fonts/manrope/manrope-latin-500-normal-19874318747181a6.woff2",
             "url": "/alpha/assets/theme/fonts/manrope/manrope-latin-500-normal-19874318747181a6.woff2",
-            "stylesheet": "assets/theme/base-6fd28af880012706.css",
+            "stylesheet": "assets/theme/base-c67b24ddc2b27581.css",
             "family": "Manrope",
             "weight": "500",
             "style": "normal",
@@ -603,7 +603,7 @@
           {
             "path": "assets/theme/fonts/manrope/manrope-latin-700-normal-d2a12c85a831e4b5.woff2",
             "url": "/alpha/assets/theme/fonts/manrope/manrope-latin-700-normal-d2a12c85a831e4b5.woff2",
-            "stylesheet": "assets/theme/base-6fd28af880012706.css",
+            "stylesheet": "assets/theme/base-c67b24ddc2b27581.css",
             "family": "Manrope",
             "weight": "700",
             "style": "normal",
@@ -615,7 +615,7 @@
           {
             "path": "assets/theme/fonts/vazirmatn/vazirmatn-arabic-400-normal-e31830d3a52e0259.woff2",
             "url": "/alpha/assets/theme/fonts/vazirmatn/vazirmatn-arabic-400-normal-e31830d3a52e0259.woff2",
-            "stylesheet": "assets/theme/base-6fd28af880012706.css",
+            "stylesheet": "assets/theme/base-c67b24ddc2b27581.css",
             "family": "Vazirmatn",
             "weight": "400",
             "style": "normal",
@@ -627,7 +627,7 @@
           {
             "path": "assets/theme/fonts/vazirmatn/vazirmatn-arabic-500-normal-d3bc3b18900b5655.woff2",
             "url": "/alpha/assets/theme/fonts/vazirmatn/vazirmatn-arabic-500-normal-d3bc3b18900b5655.woff2",
-            "stylesheet": "assets/theme/base-6fd28af880012706.css",
+            "stylesheet": "assets/theme/base-c67b24ddc2b27581.css",
             "family": "Vazirmatn",
             "weight": "500",
             "style": "normal",
@@ -639,22 +639,22 @@
           {
             "path": "assets/theme/fonts/vazirmatn/vazirmatn-arabic-700-normal-aa79f9419fa0f5ef.woff2",
             "url": "/alpha/assets/theme/fonts/vazirmatn/vazirmatn-arabic-700-normal-aa79f9419fa0f5ef.woff2",
-            "stylesheet": "assets/theme/base-6fd28af880012706.css",
+            "stylesheet": "assets/theme/base-c67b24ddc2b27581.css",
             "family": "Vazirmatn",
             "weight": "700",
             "style": "normal",
             "display": "optional",
             "format": "woff2",
             "raw": 21728,
-            "gzip": 21738
+            "gzip": 21739
           }
         ]
       }
     },
     "/alpha/books/beta/embed/": {
       "css/base": {
-        "raw": 145606,
-        "gzip": 27143,
+        "raw": 149217,
+        "gzip": 27419,
         "count": 1
       },
       "css/page": {
@@ -679,13 +679,13 @@
       },
       "font/self-hosted": {
         "raw": 150048,
-        "gzip": 150239,
+        "gzip": 150240,
         "count": 8,
         "assets": [
           {
             "path": "assets/theme/fonts/jetbrains-mono/jetbrains-mono-latin-400-normal-14425ba9c695763c.woff2",
             "url": "/alpha/assets/theme/fonts/jetbrains-mono/jetbrains-mono-latin-400-normal-14425ba9c695763c.woff2",
-            "stylesheet": "assets/theme/base-6fd28af880012706.css",
+            "stylesheet": "assets/theme/base-c67b24ddc2b27581.css",
             "family": "JetBrains Mono",
             "weight": "400",
             "style": "normal",
@@ -697,7 +697,7 @@
           {
             "path": "assets/theme/fonts/jetbrains-mono/jetbrains-mono-latin-700-normal-d0d4e818808f2a0b.woff2",
             "url": "/alpha/assets/theme/fonts/jetbrains-mono/jetbrains-mono-latin-700-normal-d0d4e818808f2a0b.woff2",
-            "stylesheet": "assets/theme/base-6fd28af880012706.css",
+            "stylesheet": "assets/theme/base-c67b24ddc2b27581.css",
             "family": "JetBrains Mono",
             "weight": "700",
             "style": "normal",
@@ -709,7 +709,7 @@
           {
             "path": "assets/theme/fonts/manrope/manrope-latin-400-normal-849290ef12a2eeb9.woff2",
             "url": "/alpha/assets/theme/fonts/manrope/manrope-latin-400-normal-849290ef12a2eeb9.woff2",
-            "stylesheet": "assets/theme/base-6fd28af880012706.css",
+            "stylesheet": "assets/theme/base-c67b24ddc2b27581.css",
             "family": "Manrope",
             "weight": "400",
             "style": "normal",
@@ -721,7 +721,7 @@
           {
             "path": "assets/theme/fonts/manrope/manrope-latin-500-normal-19874318747181a6.woff2",
             "url": "/alpha/assets/theme/fonts/manrope/manrope-latin-500-normal-19874318747181a6.woff2",
-            "stylesheet": "assets/theme/base-6fd28af880012706.css",
+            "stylesheet": "assets/theme/base-c67b24ddc2b27581.css",
             "family": "Manrope",
             "weight": "500",
             "style": "normal",
@@ -733,7 +733,7 @@
           {
             "path": "assets/theme/fonts/manrope/manrope-latin-700-normal-d2a12c85a831e4b5.woff2",
             "url": "/alpha/assets/theme/fonts/manrope/manrope-latin-700-normal-d2a12c85a831e4b5.woff2",
-            "stylesheet": "assets/theme/base-6fd28af880012706.css",
+            "stylesheet": "assets/theme/base-c67b24ddc2b27581.css",
             "family": "Manrope",
             "weight": "700",
             "style": "normal",
@@ -745,7 +745,7 @@
           {
             "path": "assets/theme/fonts/vazirmatn/vazirmatn-arabic-400-normal-e31830d3a52e0259.woff2",
             "url": "/alpha/assets/theme/fonts/vazirmatn/vazirmatn-arabic-400-normal-e31830d3a52e0259.woff2",
-            "stylesheet": "assets/theme/base-6fd28af880012706.css",
+            "stylesheet": "assets/theme/base-c67b24ddc2b27581.css",
             "family": "Vazirmatn",
             "weight": "400",
             "style": "normal",
@@ -757,7 +757,7 @@
           {
             "path": "assets/theme/fonts/vazirmatn/vazirmatn-arabic-500-normal-d3bc3b18900b5655.woff2",
             "url": "/alpha/assets/theme/fonts/vazirmatn/vazirmatn-arabic-500-normal-d3bc3b18900b5655.woff2",
-            "stylesheet": "assets/theme/base-6fd28af880012706.css",
+            "stylesheet": "assets/theme/base-c67b24ddc2b27581.css",
             "family": "Vazirmatn",
             "weight": "500",
             "style": "normal",
@@ -769,22 +769,22 @@
           {
             "path": "assets/theme/fonts/vazirmatn/vazirmatn-arabic-700-normal-aa79f9419fa0f5ef.woff2",
             "url": "/alpha/assets/theme/fonts/vazirmatn/vazirmatn-arabic-700-normal-aa79f9419fa0f5ef.woff2",
-            "stylesheet": "assets/theme/base-6fd28af880012706.css",
+            "stylesheet": "assets/theme/base-c67b24ddc2b27581.css",
             "family": "Vazirmatn",
             "weight": "700",
             "style": "normal",
             "display": "optional",
             "format": "woff2",
             "raw": 21728,
-            "gzip": 21738
+            "gzip": 21739
           }
         ]
       }
     },
     "/alpha/books/delta/": {
       "css/base": {
-        "raw": 145606,
-        "gzip": 27143,
+        "raw": 149217,
+        "gzip": 27419,
         "count": 1
       },
       "css/page": {
@@ -794,12 +794,12 @@
       },
       "js/chrome": {
         "raw": 88710,
-        "gzip": 33259,
+        "gzip": 33343,
         "count": 38
       },
       "js/components": {
         "raw": 14068,
-        "gzip": 5715,
+        "gzip": 5730,
         "count": 10
       },
       "js/inline": {
@@ -809,13 +809,13 @@
       },
       "font/self-hosted": {
         "raw": 150048,
-        "gzip": 150239,
+        "gzip": 150240,
         "count": 8,
         "assets": [
           {
             "path": "assets/theme/fonts/jetbrains-mono/jetbrains-mono-latin-400-normal-14425ba9c695763c.woff2",
             "url": "/alpha/assets/theme/fonts/jetbrains-mono/jetbrains-mono-latin-400-normal-14425ba9c695763c.woff2",
-            "stylesheet": "assets/theme/base-6fd28af880012706.css",
+            "stylesheet": "assets/theme/base-c67b24ddc2b27581.css",
             "family": "JetBrains Mono",
             "weight": "400",
             "style": "normal",
@@ -827,7 +827,7 @@
           {
             "path": "assets/theme/fonts/jetbrains-mono/jetbrains-mono-latin-700-normal-d0d4e818808f2a0b.woff2",
             "url": "/alpha/assets/theme/fonts/jetbrains-mono/jetbrains-mono-latin-700-normal-d0d4e818808f2a0b.woff2",
-            "stylesheet": "assets/theme/base-6fd28af880012706.css",
+            "stylesheet": "assets/theme/base-c67b24ddc2b27581.css",
             "family": "JetBrains Mono",
             "weight": "700",
             "style": "normal",
@@ -839,7 +839,7 @@
           {
             "path": "assets/theme/fonts/manrope/manrope-latin-400-normal-849290ef12a2eeb9.woff2",
             "url": "/alpha/assets/theme/fonts/manrope/manrope-latin-400-normal-849290ef12a2eeb9.woff2",
-            "stylesheet": "assets/theme/base-6fd28af880012706.css",
+            "stylesheet": "assets/theme/base-c67b24ddc2b27581.css",
             "family": "Manrope",
             "weight": "400",
             "style": "normal",
@@ -851,7 +851,7 @@
           {
             "path": "assets/theme/fonts/manrope/manrope-latin-500-normal-19874318747181a6.woff2",
             "url": "/alpha/assets/theme/fonts/manrope/manrope-latin-500-normal-19874318747181a6.woff2",
-            "stylesheet": "assets/theme/base-6fd28af880012706.css",
+            "stylesheet": "assets/theme/base-c67b24ddc2b27581.css",
             "family": "Manrope",
             "weight": "500",
             "style": "normal",
@@ -863,7 +863,7 @@
           {
             "path": "assets/theme/fonts/manrope/manrope-latin-700-normal-d2a12c85a831e4b5.woff2",
             "url": "/alpha/assets/theme/fonts/manrope/manrope-latin-700-normal-d2a12c85a831e4b5.woff2",
-            "stylesheet": "assets/theme/base-6fd28af880012706.css",
+            "stylesheet": "assets/theme/base-c67b24ddc2b27581.css",
             "family": "Manrope",
             "weight": "700",
             "style": "normal",
@@ -875,7 +875,7 @@
           {
             "path": "assets/theme/fonts/vazirmatn/vazirmatn-arabic-400-normal-e31830d3a52e0259.woff2",
             "url": "/alpha/assets/theme/fonts/vazirmatn/vazirmatn-arabic-400-normal-e31830d3a52e0259.woff2",
-            "stylesheet": "assets/theme/base-6fd28af880012706.css",
+            "stylesheet": "assets/theme/base-c67b24ddc2b27581.css",
             "family": "Vazirmatn",
             "weight": "400",
             "style": "normal",
@@ -887,7 +887,7 @@
           {
             "path": "assets/theme/fonts/vazirmatn/vazirmatn-arabic-500-normal-d3bc3b18900b5655.woff2",
             "url": "/alpha/assets/theme/fonts/vazirmatn/vazirmatn-arabic-500-normal-d3bc3b18900b5655.woff2",
-            "stylesheet": "assets/theme/base-6fd28af880012706.css",
+            "stylesheet": "assets/theme/base-c67b24ddc2b27581.css",
             "family": "Vazirmatn",
             "weight": "500",
             "style": "normal",
@@ -899,22 +899,22 @@
           {
             "path": "assets/theme/fonts/vazirmatn/vazirmatn-arabic-700-normal-aa79f9419fa0f5ef.woff2",
             "url": "/alpha/assets/theme/fonts/vazirmatn/vazirmatn-arabic-700-normal-aa79f9419fa0f5ef.woff2",
-            "stylesheet": "assets/theme/base-6fd28af880012706.css",
+            "stylesheet": "assets/theme/base-c67b24ddc2b27581.css",
             "family": "Vazirmatn",
             "weight": "700",
             "style": "normal",
             "display": "optional",
             "format": "woff2",
             "raw": 21728,
-            "gzip": 21738
+            "gzip": 21739
           }
         ]
       }
     },
     "/alpha/books/delta/embed/": {
       "css/base": {
-        "raw": 145606,
-        "gzip": 27143,
+        "raw": 149217,
+        "gzip": 27419,
         "count": 1
       },
       "css/page": {
@@ -939,13 +939,13 @@
       },
       "font/self-hosted": {
         "raw": 150048,
-        "gzip": 150239,
+        "gzip": 150240,
         "count": 8,
         "assets": [
           {
             "path": "assets/theme/fonts/jetbrains-mono/jetbrains-mono-latin-400-normal-14425ba9c695763c.woff2",
             "url": "/alpha/assets/theme/fonts/jetbrains-mono/jetbrains-mono-latin-400-normal-14425ba9c695763c.woff2",
-            "stylesheet": "assets/theme/base-6fd28af880012706.css",
+            "stylesheet": "assets/theme/base-c67b24ddc2b27581.css",
             "family": "JetBrains Mono",
             "weight": "400",
             "style": "normal",
@@ -957,7 +957,7 @@
           {
             "path": "assets/theme/fonts/jetbrains-mono/jetbrains-mono-latin-700-normal-d0d4e818808f2a0b.woff2",
             "url": "/alpha/assets/theme/fonts/jetbrains-mono/jetbrains-mono-latin-700-normal-d0d4e818808f2a0b.woff2",
-            "stylesheet": "assets/theme/base-6fd28af880012706.css",
+            "stylesheet": "assets/theme/base-c67b24ddc2b27581.css",
             "family": "JetBrains Mono",
             "weight": "700",
             "style": "normal",
@@ -969,7 +969,7 @@
           {
             "path": "assets/theme/fonts/manrope/manrope-latin-400-normal-849290ef12a2eeb9.woff2",
             "url": "/alpha/assets/theme/fonts/manrope/manrope-latin-400-normal-849290ef12a2eeb9.woff2",
-            "stylesheet": "assets/theme/base-6fd28af880012706.css",
+            "stylesheet": "assets/theme/base-c67b24ddc2b27581.css",
             "family": "Manrope",
             "weight": "400",
             "style": "normal",
@@ -981,7 +981,7 @@
           {
             "path": "assets/theme/fonts/manrope/manrope-latin-500-normal-19874318747181a6.woff2",
             "url": "/alpha/assets/theme/fonts/manrope/manrope-latin-500-normal-19874318747181a6.woff2",
-            "stylesheet": "assets/theme/base-6fd28af880012706.css",
+            "stylesheet": "assets/theme/base-c67b24ddc2b27581.css",
             "family": "Manrope",
             "weight": "500",
             "style": "normal",
@@ -993,7 +993,7 @@
           {
             "path": "assets/theme/fonts/manrope/manrope-latin-700-normal-d2a12c85a831e4b5.woff2",
             "url": "/alpha/assets/theme/fonts/manrope/manrope-latin-700-normal-d2a12c85a831e4b5.woff2",
-            "stylesheet": "assets/theme/base-6fd28af880012706.css",
+            "stylesheet": "assets/theme/base-c67b24ddc2b27581.css",
             "family": "Manrope",
             "weight": "700",
             "style": "normal",
@@ -1005,7 +1005,7 @@
           {
             "path": "assets/theme/fonts/vazirmatn/vazirmatn-arabic-400-normal-e31830d3a52e0259.woff2",
             "url": "/alpha/assets/theme/fonts/vazirmatn/vazirmatn-arabic-400-normal-e31830d3a52e0259.woff2",
-            "stylesheet": "assets/theme/base-6fd28af880012706.css",
+            "stylesheet": "assets/theme/base-c67b24ddc2b27581.css",
             "family": "Vazirmatn",
             "weight": "400",
             "style": "normal",
@@ -1017,7 +1017,7 @@
           {
             "path": "assets/theme/fonts/vazirmatn/vazirmatn-arabic-500-normal-d3bc3b18900b5655.woff2",
             "url": "/alpha/assets/theme/fonts/vazirmatn/vazirmatn-arabic-500-normal-d3bc3b18900b5655.woff2",
-            "stylesheet": "assets/theme/base-6fd28af880012706.css",
+            "stylesheet": "assets/theme/base-c67b24ddc2b27581.css",
             "family": "Vazirmatn",
             "weight": "500",
             "style": "normal",
@@ -1029,22 +1029,22 @@
           {
             "path": "assets/theme/fonts/vazirmatn/vazirmatn-arabic-700-normal-aa79f9419fa0f5ef.woff2",
             "url": "/alpha/assets/theme/fonts/vazirmatn/vazirmatn-arabic-700-normal-aa79f9419fa0f5ef.woff2",
-            "stylesheet": "assets/theme/base-6fd28af880012706.css",
+            "stylesheet": "assets/theme/base-c67b24ddc2b27581.css",
             "family": "Vazirmatn",
             "weight": "700",
             "style": "normal",
             "display": "optional",
             "format": "woff2",
             "raw": 21728,
-            "gzip": 21738
+            "gzip": 21739
           }
         ]
       }
     },
     "/alpha/books/gamma/": {
       "css/base": {
-        "raw": 145606,
-        "gzip": 27143,
+        "raw": 149217,
+        "gzip": 27419,
         "count": 1
       },
       "css/page": {
@@ -1054,12 +1054,12 @@
       },
       "js/chrome": {
         "raw": 88710,
-        "gzip": 33259,
+        "gzip": 33343,
         "count": 38
       },
       "js/components": {
         "raw": 14068,
-        "gzip": 5715,
+        "gzip": 5730,
         "count": 10
       },
       "js/inline": {
@@ -1069,13 +1069,13 @@
       },
       "font/self-hosted": {
         "raw": 150048,
-        "gzip": 150239,
+        "gzip": 150240,
         "count": 8,
         "assets": [
           {
             "path": "assets/theme/fonts/jetbrains-mono/jetbrains-mono-latin-400-normal-14425ba9c695763c.woff2",
             "url": "/alpha/assets/theme/fonts/jetbrains-mono/jetbrains-mono-latin-400-normal-14425ba9c695763c.woff2",
-            "stylesheet": "assets/theme/base-6fd28af880012706.css",
+            "stylesheet": "assets/theme/base-c67b24ddc2b27581.css",
             "family": "JetBrains Mono",
             "weight": "400",
             "style": "normal",
@@ -1087,7 +1087,7 @@
           {
             "path": "assets/theme/fonts/jetbrains-mono/jetbrains-mono-latin-700-normal-d0d4e818808f2a0b.woff2",
             "url": "/alpha/assets/theme/fonts/jetbrains-mono/jetbrains-mono-latin-700-normal-d0d4e818808f2a0b.woff2",
-            "stylesheet": "assets/theme/base-6fd28af880012706.css",
+            "stylesheet": "assets/theme/base-c67b24ddc2b27581.css",
             "family": "JetBrains Mono",
             "weight": "700",
             "style": "normal",
@@ -1099,7 +1099,7 @@
           {
             "path": "assets/theme/fonts/manrope/manrope-latin-400-normal-849290ef12a2eeb9.woff2",
             "url": "/alpha/assets/theme/fonts/manrope/manrope-latin-400-normal-849290ef12a2eeb9.woff2",
-            "stylesheet": "assets/theme/base-6fd28af880012706.css",
+            "stylesheet": "assets/theme/base-c67b24ddc2b27581.css",
             "family": "Manrope",
             "weight": "400",
             "style": "normal",
@@ -1111,7 +1111,7 @@
           {
             "path": "assets/theme/fonts/manrope/manrope-latin-500-normal-19874318747181a6.woff2",
             "url": "/alpha/assets/theme/fonts/manrope/manrope-latin-500-normal-19874318747181a6.woff2",
-            "stylesheet": "assets/theme/base-6fd28af880012706.css",
+            "stylesheet": "assets/theme/base-c67b24ddc2b27581.css",
             "family": "Manrope",
             "weight": "500",
             "style": "normal",
@@ -1123,7 +1123,7 @@
           {
             "path": "assets/theme/fonts/manrope/manrope-latin-700-normal-d2a12c85a831e4b5.woff2",
             "url": "/alpha/assets/theme/fonts/manrope/manrope-latin-700-normal-d2a12c85a831e4b5.woff2",
-            "stylesheet": "assets/theme/base-6fd28af880012706.css",
+            "stylesheet": "assets/theme/base-c67b24ddc2b27581.css",
             "family": "Manrope",
             "weight": "700",
             "style": "normal",
@@ -1135,7 +1135,7 @@
           {
             "path": "assets/theme/fonts/vazirmatn/vazirmatn-arabic-400-normal-e31830d3a52e0259.woff2",
             "url": "/alpha/assets/theme/fonts/vazirmatn/vazirmatn-arabic-400-normal-e31830d3a52e0259.woff2",
-            "stylesheet": "assets/theme/base-6fd28af880012706.css",
+            "stylesheet": "assets/theme/base-c67b24ddc2b27581.css",
             "family": "Vazirmatn",
             "weight": "400",
             "style": "normal",
@@ -1147,7 +1147,7 @@
           {
             "path": "assets/theme/fonts/vazirmatn/vazirmatn-arabic-500-normal-d3bc3b18900b5655.woff2",
             "url": "/alpha/assets/theme/fonts/vazirmatn/vazirmatn-arabic-500-normal-d3bc3b18900b5655.woff2",
-            "stylesheet": "assets/theme/base-6fd28af880012706.css",
+            "stylesheet": "assets/theme/base-c67b24ddc2b27581.css",
             "family": "Vazirmatn",
             "weight": "500",
             "style": "normal",
@@ -1159,22 +1159,22 @@
           {
             "path": "assets/theme/fonts/vazirmatn/vazirmatn-arabic-700-normal-aa79f9419fa0f5ef.woff2",
             "url": "/alpha/assets/theme/fonts/vazirmatn/vazirmatn-arabic-700-normal-aa79f9419fa0f5ef.woff2",
-            "stylesheet": "assets/theme/base-6fd28af880012706.css",
+            "stylesheet": "assets/theme/base-c67b24ddc2b27581.css",
             "family": "Vazirmatn",
             "weight": "700",
             "style": "normal",
             "display": "optional",
             "format": "woff2",
             "raw": 21728,
-            "gzip": 21738
+            "gzip": 21739
           }
         ]
       }
     },
     "/alpha/books/gamma/embed/": {
       "css/base": {
-        "raw": 145606,
-        "gzip": 27143,
+        "raw": 149217,
+        "gzip": 27419,
         "count": 1
       },
       "css/page": {
@@ -1199,13 +1199,13 @@
       },
       "font/self-hosted": {
         "raw": 150048,
-        "gzip": 150239,
+        "gzip": 150240,
         "count": 8,
         "assets": [
           {
             "path": "assets/theme/fonts/jetbrains-mono/jetbrains-mono-latin-400-normal-14425ba9c695763c.woff2",
             "url": "/alpha/assets/theme/fonts/jetbrains-mono/jetbrains-mono-latin-400-normal-14425ba9c695763c.woff2",
-            "stylesheet": "assets/theme/base-6fd28af880012706.css",
+            "stylesheet": "assets/theme/base-c67b24ddc2b27581.css",
             "family": "JetBrains Mono",
             "weight": "400",
             "style": "normal",
@@ -1217,7 +1217,7 @@
           {
             "path": "assets/theme/fonts/jetbrains-mono/jetbrains-mono-latin-700-normal-d0d4e818808f2a0b.woff2",
             "url": "/alpha/assets/theme/fonts/jetbrains-mono/jetbrains-mono-latin-700-normal-d0d4e818808f2a0b.woff2",
-            "stylesheet": "assets/theme/base-6fd28af880012706.css",
+            "stylesheet": "assets/theme/base-c67b24ddc2b27581.css",
             "family": "JetBrains Mono",
             "weight": "700",
             "style": "normal",
@@ -1229,7 +1229,7 @@
           {
             "path": "assets/theme/fonts/manrope/manrope-latin-400-normal-849290ef12a2eeb9.woff2",
             "url": "/alpha/assets/theme/fonts/manrope/manrope-latin-400-normal-849290ef12a2eeb9.woff2",
-            "stylesheet": "assets/theme/base-6fd28af880012706.css",
+            "stylesheet": "assets/theme/base-c67b24ddc2b27581.css",
             "family": "Manrope",
             "weight": "400",
             "style": "normal",
@@ -1241,7 +1241,7 @@
           {
             "path": "assets/theme/fonts/manrope/manrope-latin-500-normal-19874318747181a6.woff2",
             "url": "/alpha/assets/theme/fonts/manrope/manrope-latin-500-normal-19874318747181a6.woff2",
-            "stylesheet": "assets/theme/base-6fd28af880012706.css",
+            "stylesheet": "assets/theme/base-c67b24ddc2b27581.css",
             "family": "Manrope",
             "weight": "500",
             "style": "normal",
@@ -1253,7 +1253,7 @@
           {
             "path": "assets/theme/fonts/manrope/manrope-latin-700-normal-d2a12c85a831e4b5.woff2",
             "url": "/alpha/assets/theme/fonts/manrope/manrope-latin-700-normal-d2a12c85a831e4b5.woff2",
-            "stylesheet": "assets/theme/base-6fd28af880012706.css",
+            "stylesheet": "assets/theme/base-c67b24ddc2b27581.css",
             "family": "Manrope",
             "weight": "700",
             "style": "normal",
@@ -1265,7 +1265,7 @@
           {
             "path": "assets/theme/fonts/vazirmatn/vazirmatn-arabic-400-normal-e31830d3a52e0259.woff2",
             "url": "/alpha/assets/theme/fonts/vazirmatn/vazirmatn-arabic-400-normal-e31830d3a52e0259.woff2",
-            "stylesheet": "assets/theme/base-6fd28af880012706.css",
+            "stylesheet": "assets/theme/base-c67b24ddc2b27581.css",
             "family": "Vazirmatn",
             "weight": "400",
             "style": "normal",
@@ -1277,7 +1277,7 @@
           {
             "path": "assets/theme/fonts/vazirmatn/vazirmatn-arabic-500-normal-d3bc3b18900b5655.woff2",
             "url": "/alpha/assets/theme/fonts/vazirmatn/vazirmatn-arabic-500-normal-d3bc3b18900b5655.woff2",
-            "stylesheet": "assets/theme/base-6fd28af880012706.css",
+            "stylesheet": "assets/theme/base-c67b24ddc2b27581.css",
             "family": "Vazirmatn",
             "weight": "500",
             "style": "normal",
@@ -1289,22 +1289,22 @@
           {
             "path": "assets/theme/fonts/vazirmatn/vazirmatn-arabic-700-normal-aa79f9419fa0f5ef.woff2",
             "url": "/alpha/assets/theme/fonts/vazirmatn/vazirmatn-arabic-700-normal-aa79f9419fa0f5ef.woff2",
-            "stylesheet": "assets/theme/base-6fd28af880012706.css",
+            "stylesheet": "assets/theme/base-c67b24ddc2b27581.css",
             "family": "Vazirmatn",
             "weight": "700",
             "style": "normal",
             "display": "optional",
             "format": "woff2",
             "raw": 21728,
-            "gzip": 21738
+            "gzip": 21739
           }
         ]
       }
     },
     "/alpha/changes/books/": {
       "css/base": {
-        "raw": 145606,
-        "gzip": 27143,
+        "raw": 149217,
+        "gzip": 27419,
         "count": 1
       },
       "css/page": {
@@ -1314,12 +1314,12 @@
       },
       "js/chrome": {
         "raw": 88710,
-        "gzip": 33259,
+        "gzip": 33343,
         "count": 38
       },
       "js/components": {
         "raw": 22582,
-        "gzip": 8594,
+        "gzip": 8618,
         "count": 12
       },
       "js/inline": {
@@ -1329,13 +1329,13 @@
       },
       "font/self-hosted": {
         "raw": 150048,
-        "gzip": 150239,
+        "gzip": 150240,
         "count": 8,
         "assets": [
           {
             "path": "assets/theme/fonts/jetbrains-mono/jetbrains-mono-latin-400-normal-14425ba9c695763c.woff2",
             "url": "/alpha/assets/theme/fonts/jetbrains-mono/jetbrains-mono-latin-400-normal-14425ba9c695763c.woff2",
-            "stylesheet": "assets/theme/base-6fd28af880012706.css",
+            "stylesheet": "assets/theme/base-c67b24ddc2b27581.css",
             "family": "JetBrains Mono",
             "weight": "400",
             "style": "normal",
@@ -1347,7 +1347,7 @@
           {
             "path": "assets/theme/fonts/jetbrains-mono/jetbrains-mono-latin-700-normal-d0d4e818808f2a0b.woff2",
             "url": "/alpha/assets/theme/fonts/jetbrains-mono/jetbrains-mono-latin-700-normal-d0d4e818808f2a0b.woff2",
-            "stylesheet": "assets/theme/base-6fd28af880012706.css",
+            "stylesheet": "assets/theme/base-c67b24ddc2b27581.css",
             "family": "JetBrains Mono",
             "weight": "700",
             "style": "normal",
@@ -1359,7 +1359,7 @@
           {
             "path": "assets/theme/fonts/manrope/manrope-latin-400-normal-849290ef12a2eeb9.woff2",
             "url": "/alpha/assets/theme/fonts/manrope/manrope-latin-400-normal-849290ef12a2eeb9.woff2",
-            "stylesheet": "assets/theme/base-6fd28af880012706.css",
+            "stylesheet": "assets/theme/base-c67b24ddc2b27581.css",
             "family": "Manrope",
             "weight": "400",
             "style": "normal",
@@ -1371,7 +1371,7 @@
           {
             "path": "assets/theme/fonts/manrope/manrope-latin-500-normal-19874318747181a6.woff2",
             "url": "/alpha/assets/theme/fonts/manrope/manrope-latin-500-normal-19874318747181a6.woff2",
-            "stylesheet": "assets/theme/base-6fd28af880012706.css",
+            "stylesheet": "assets/theme/base-c67b24ddc2b27581.css",
             "family": "Manrope",
             "weight": "500",
             "style": "normal",
@@ -1383,7 +1383,7 @@
           {
             "path": "assets/theme/fonts/manrope/manrope-latin-700-normal-d2a12c85a831e4b5.woff2",
             "url": "/alpha/assets/theme/fonts/manrope/manrope-latin-700-normal-d2a12c85a831e4b5.woff2",
-            "stylesheet": "assets/theme/base-6fd28af880012706.css",
+            "stylesheet": "assets/theme/base-c67b24ddc2b27581.css",
             "family": "Manrope",
             "weight": "700",
             "style": "normal",
@@ -1395,7 +1395,7 @@
           {
             "path": "assets/theme/fonts/vazirmatn/vazirmatn-arabic-400-normal-e31830d3a52e0259.woff2",
             "url": "/alpha/assets/theme/fonts/vazirmatn/vazirmatn-arabic-400-normal-e31830d3a52e0259.woff2",
-            "stylesheet": "assets/theme/base-6fd28af880012706.css",
+            "stylesheet": "assets/theme/base-c67b24ddc2b27581.css",
             "family": "Vazirmatn",
             "weight": "400",
             "style": "normal",
@@ -1407,7 +1407,7 @@
           {
             "path": "assets/theme/fonts/vazirmatn/vazirmatn-arabic-500-normal-d3bc3b18900b5655.woff2",
             "url": "/alpha/assets/theme/fonts/vazirmatn/vazirmatn-arabic-500-normal-d3bc3b18900b5655.woff2",
-            "stylesheet": "assets/theme/base-6fd28af880012706.css",
+            "stylesheet": "assets/theme/base-c67b24ddc2b27581.css",
             "family": "Vazirmatn",
             "weight": "500",
             "style": "normal",
@@ -1419,22 +1419,22 @@
           {
             "path": "assets/theme/fonts/vazirmatn/vazirmatn-arabic-700-normal-aa79f9419fa0f5ef.woff2",
             "url": "/alpha/assets/theme/fonts/vazirmatn/vazirmatn-arabic-700-normal-aa79f9419fa0f5ef.woff2",
-            "stylesheet": "assets/theme/base-6fd28af880012706.css",
+            "stylesheet": "assets/theme/base-c67b24ddc2b27581.css",
             "family": "Vazirmatn",
             "weight": "700",
             "style": "normal",
             "display": "optional",
             "format": "woff2",
             "raw": 21728,
-            "gzip": 21738
+            "gzip": 21739
           }
         ]
       }
     },
     "/alpha/changes/books/2026-05-01/": {
       "css/base": {
-        "raw": 145606,
-        "gzip": 27143,
+        "raw": 149217,
+        "gzip": 27419,
         "count": 1
       },
       "css/page": {
@@ -1444,12 +1444,12 @@
       },
       "js/chrome": {
         "raw": 88710,
-        "gzip": 33259,
+        "gzip": 33343,
         "count": 38
       },
       "js/components": {
         "raw": 22582,
-        "gzip": 8594,
+        "gzip": 8618,
         "count": 12
       },
       "js/inline": {
@@ -1459,13 +1459,13 @@
       },
       "font/self-hosted": {
         "raw": 150048,
-        "gzip": 150239,
+        "gzip": 150240,
         "count": 8,
         "assets": [
           {
             "path": "assets/theme/fonts/jetbrains-mono/jetbrains-mono-latin-400-normal-14425ba9c695763c.woff2",
             "url": "/alpha/assets/theme/fonts/jetbrains-mono/jetbrains-mono-latin-400-normal-14425ba9c695763c.woff2",
-            "stylesheet": "assets/theme/base-6fd28af880012706.css",
+            "stylesheet": "assets/theme/base-c67b24ddc2b27581.css",
             "family": "JetBrains Mono",
             "weight": "400",
             "style": "normal",
@@ -1477,7 +1477,7 @@
           {
             "path": "assets/theme/fonts/jetbrains-mono/jetbrains-mono-latin-700-normal-d0d4e818808f2a0b.woff2",
             "url": "/alpha/assets/theme/fonts/jetbrains-mono/jetbrains-mono-latin-700-normal-d0d4e818808f2a0b.woff2",
-            "stylesheet": "assets/theme/base-6fd28af880012706.css",
+            "stylesheet": "assets/theme/base-c67b24ddc2b27581.css",
             "family": "JetBrains Mono",
             "weight": "700",
             "style": "normal",
@@ -1489,7 +1489,7 @@
           {
             "path": "assets/theme/fonts/manrope/manrope-latin-400-normal-849290ef12a2eeb9.woff2",
             "url": "/alpha/assets/theme/fonts/manrope/manrope-latin-400-normal-849290ef12a2eeb9.woff2",
-            "stylesheet": "assets/theme/base-6fd28af880012706.css",
+            "stylesheet": "assets/theme/base-c67b24ddc2b27581.css",
             "family": "Manrope",
             "weight": "400",
             "style": "normal",
@@ -1501,7 +1501,7 @@
           {
             "path": "assets/theme/fonts/manrope/manrope-latin-500-normal-19874318747181a6.woff2",
             "url": "/alpha/assets/theme/fonts/manrope/manrope-latin-500-normal-19874318747181a6.woff2",
-            "stylesheet": "assets/theme/base-6fd28af880012706.css",
+            "stylesheet": "assets/theme/base-c67b24ddc2b27581.css",
             "family": "Manrope",
             "weight": "500",
             "style": "normal",
@@ -1513,7 +1513,7 @@
           {
             "path": "assets/theme/fonts/manrope/manrope-latin-700-normal-d2a12c85a831e4b5.woff2",
             "url": "/alpha/assets/theme/fonts/manrope/manrope-latin-700-normal-d2a12c85a831e4b5.woff2",
-            "stylesheet": "assets/theme/base-6fd28af880012706.css",
+            "stylesheet": "assets/theme/base-c67b24ddc2b27581.css",
             "family": "Manrope",
             "weight": "700",
             "style": "normal",
@@ -1525,7 +1525,7 @@
           {
             "path": "assets/theme/fonts/vazirmatn/vazirmatn-arabic-400-normal-e31830d3a52e0259.woff2",
             "url": "/alpha/assets/theme/fonts/vazirmatn/vazirmatn-arabic-400-normal-e31830d3a52e0259.woff2",
-            "stylesheet": "assets/theme/base-6fd28af880012706.css",
+            "stylesheet": "assets/theme/base-c67b24ddc2b27581.css",
             "family": "Vazirmatn",
             "weight": "400",
             "style": "normal",
@@ -1537,7 +1537,7 @@
           {
             "path": "assets/theme/fonts/vazirmatn/vazirmatn-arabic-500-normal-d3bc3b18900b5655.woff2",
             "url": "/alpha/assets/theme/fonts/vazirmatn/vazirmatn-arabic-500-normal-d3bc3b18900b5655.woff2",
-            "stylesheet": "assets/theme/base-6fd28af880012706.css",
+            "stylesheet": "assets/theme/base-c67b24ddc2b27581.css",
             "family": "Vazirmatn",
             "weight": "500",
             "style": "normal",
@@ -1549,22 +1549,22 @@
           {
             "path": "assets/theme/fonts/vazirmatn/vazirmatn-arabic-700-normal-aa79f9419fa0f5ef.woff2",
             "url": "/alpha/assets/theme/fonts/vazirmatn/vazirmatn-arabic-700-normal-aa79f9419fa0f5ef.woff2",
-            "stylesheet": "assets/theme/base-6fd28af880012706.css",
+            "stylesheet": "assets/theme/base-c67b24ddc2b27581.css",
             "family": "Vazirmatn",
             "weight": "700",
             "style": "normal",
             "display": "optional",
             "format": "woff2",
             "raw": 21728,
-            "gzip": 21738
+            "gzip": 21739
           }
         ]
       }
     },
     "/alpha/changes/books/2026-05-15/": {
       "css/base": {
-        "raw": 145606,
-        "gzip": 27143,
+        "raw": 149217,
+        "gzip": 27419,
         "count": 1
       },
       "css/page": {
@@ -1574,12 +1574,12 @@
       },
       "js/chrome": {
         "raw": 88710,
-        "gzip": 33259,
+        "gzip": 33343,
         "count": 38
       },
       "js/components": {
         "raw": 22582,
-        "gzip": 8594,
+        "gzip": 8618,
         "count": 12
       },
       "js/inline": {
@@ -1589,13 +1589,13 @@
       },
       "font/self-hosted": {
         "raw": 150048,
-        "gzip": 150239,
+        "gzip": 150240,
         "count": 8,
         "assets": [
           {
             "path": "assets/theme/fonts/jetbrains-mono/jetbrains-mono-latin-400-normal-14425ba9c695763c.woff2",
             "url": "/alpha/assets/theme/fonts/jetbrains-mono/jetbrains-mono-latin-400-normal-14425ba9c695763c.woff2",
-            "stylesheet": "assets/theme/base-6fd28af880012706.css",
+            "stylesheet": "assets/theme/base-c67b24ddc2b27581.css",
             "family": "JetBrains Mono",
             "weight": "400",
             "style": "normal",
@@ -1607,7 +1607,7 @@
           {
             "path": "assets/theme/fonts/jetbrains-mono/jetbrains-mono-latin-700-normal-d0d4e818808f2a0b.woff2",
             "url": "/alpha/assets/theme/fonts/jetbrains-mono/jetbrains-mono-latin-700-normal-d0d4e818808f2a0b.woff2",
-            "stylesheet": "assets/theme/base-6fd28af880012706.css",
+            "stylesheet": "assets/theme/base-c67b24ddc2b27581.css",
             "family": "JetBrains Mono",
             "weight": "700",
             "style": "normal",
@@ -1619,7 +1619,7 @@
           {
             "path": "assets/theme/fonts/manrope/manrope-latin-400-normal-849290ef12a2eeb9.woff2",
             "url": "/alpha/assets/theme/fonts/manrope/manrope-latin-400-normal-849290ef12a2eeb9.woff2",
-            "stylesheet": "assets/theme/base-6fd28af880012706.css",
+            "stylesheet": "assets/theme/base-c67b24ddc2b27581.css",
             "family": "Manrope",
             "weight": "400",
             "style": "normal",
@@ -1631,7 +1631,7 @@
           {
             "path": "assets/theme/fonts/manrope/manrope-latin-500-normal-19874318747181a6.woff2",
             "url": "/alpha/assets/theme/fonts/manrope/manrope-latin-500-normal-19874318747181a6.woff2",
-            "stylesheet": "assets/theme/base-6fd28af880012706.css",
+            "stylesheet": "assets/theme/base-c67b24ddc2b27581.css",
             "family": "Manrope",
             "weight": "500",
             "style": "normal",
@@ -1643,7 +1643,7 @@
           {
             "path": "assets/theme/fonts/manrope/manrope-latin-700-normal-d2a12c85a831e4b5.woff2",
             "url": "/alpha/assets/theme/fonts/manrope/manrope-latin-700-normal-d2a12c85a831e4b5.woff2",
-            "stylesheet": "assets/theme/base-6fd28af880012706.css",
+            "stylesheet": "assets/theme/base-c67b24ddc2b27581.css",
             "family": "Manrope",
             "weight": "700",
             "style": "normal",
@@ -1655,7 +1655,7 @@
           {
             "path": "assets/theme/fonts/vazirmatn/vazirmatn-arabic-400-normal-e31830d3a52e0259.woff2",
             "url": "/alpha/assets/theme/fonts/vazirmatn/vazirmatn-arabic-400-normal-e31830d3a52e0259.woff2",
-            "stylesheet": "assets/theme/base-6fd28af880012706.css",
+            "stylesheet": "assets/theme/base-c67b24ddc2b27581.css",
             "family": "Vazirmatn",
             "weight": "400",
             "style": "normal",
@@ -1667,7 +1667,7 @@
           {
             "path": "assets/theme/fonts/vazirmatn/vazirmatn-arabic-500-normal-d3bc3b18900b5655.woff2",
             "url": "/alpha/assets/theme/fonts/vazirmatn/vazirmatn-arabic-500-normal-d3bc3b18900b5655.woff2",
-            "stylesheet": "assets/theme/base-6fd28af880012706.css",
+            "stylesheet": "assets/theme/base-c67b24ddc2b27581.css",
             "family": "Vazirmatn",
             "weight": "500",
             "style": "normal",
@@ -1679,22 +1679,22 @@
           {
             "path": "assets/theme/fonts/vazirmatn/vazirmatn-arabic-700-normal-aa79f9419fa0f5ef.woff2",
             "url": "/alpha/assets/theme/fonts/vazirmatn/vazirmatn-arabic-700-normal-aa79f9419fa0f5ef.woff2",
-            "stylesheet": "assets/theme/base-6fd28af880012706.css",
+            "stylesheet": "assets/theme/base-c67b24ddc2b27581.css",
             "family": "Vazirmatn",
             "weight": "700",
             "style": "normal",
             "display": "optional",
             "format": "woff2",
             "raw": 21728,
-            "gzip": 21738
+            "gzip": 21739
           }
         ]
       }
     },
     "/alpha/charts/": {
       "css/base": {
-        "raw": 145606,
-        "gzip": 27143,
+        "raw": 149217,
+        "gzip": 27419,
         "count": 1
       },
       "css/page": {
@@ -1704,12 +1704,12 @@
       },
       "js/chrome": {
         "raw": 88710,
-        "gzip": 33259,
+        "gzip": 33343,
         "count": 38
       },
       "js/components": {
         "raw": 14068,
-        "gzip": 5715,
+        "gzip": 5730,
         "count": 10
       },
       "js/inline": {
@@ -1719,13 +1719,13 @@
       },
       "font/self-hosted": {
         "raw": 150048,
-        "gzip": 150239,
+        "gzip": 150240,
         "count": 8,
         "assets": [
           {
             "path": "assets/theme/fonts/jetbrains-mono/jetbrains-mono-latin-400-normal-14425ba9c695763c.woff2",
             "url": "/alpha/assets/theme/fonts/jetbrains-mono/jetbrains-mono-latin-400-normal-14425ba9c695763c.woff2",
-            "stylesheet": "assets/theme/base-6fd28af880012706.css",
+            "stylesheet": "assets/theme/base-c67b24ddc2b27581.css",
             "family": "JetBrains Mono",
             "weight": "400",
             "style": "normal",
@@ -1737,7 +1737,7 @@
           {
             "path": "assets/theme/fonts/jetbrains-mono/jetbrains-mono-latin-700-normal-d0d4e818808f2a0b.woff2",
             "url": "/alpha/assets/theme/fonts/jetbrains-mono/jetbrains-mono-latin-700-normal-d0d4e818808f2a0b.woff2",
-            "stylesheet": "assets/theme/base-6fd28af880012706.css",
+            "stylesheet": "assets/theme/base-c67b24ddc2b27581.css",
             "family": "JetBrains Mono",
             "weight": "700",
             "style": "normal",
@@ -1749,7 +1749,7 @@
           {
             "path": "assets/theme/fonts/manrope/manrope-latin-400-normal-849290ef12a2eeb9.woff2",
             "url": "/alpha/assets/theme/fonts/manrope/manrope-latin-400-normal-849290ef12a2eeb9.woff2",
-            "stylesheet": "assets/theme/base-6fd28af880012706.css",
+            "stylesheet": "assets/theme/base-c67b24ddc2b27581.css",
             "family": "Manrope",
             "weight": "400",
             "style": "normal",
@@ -1761,7 +1761,7 @@
           {
             "path": "assets/theme/fonts/manrope/manrope-latin-500-normal-19874318747181a6.woff2",
             "url": "/alpha/assets/theme/fonts/manrope/manrope-latin-500-normal-19874318747181a6.woff2",
-            "stylesheet": "assets/theme/base-6fd28af880012706.css",
+            "stylesheet": "assets/theme/base-c67b24ddc2b27581.css",
             "family": "Manrope",
             "weight": "500",
             "style": "normal",
@@ -1773,7 +1773,7 @@
           {
             "path": "assets/theme/fonts/manrope/manrope-latin-700-normal-d2a12c85a831e4b5.woff2",
             "url": "/alpha/assets/theme/fonts/manrope/manrope-latin-700-normal-d2a12c85a831e4b5.woff2",
-            "stylesheet": "assets/theme/base-6fd28af880012706.css",
+            "stylesheet": "assets/theme/base-c67b24ddc2b27581.css",
             "family": "Manrope",
             "weight": "700",
             "style": "normal",
@@ -1785,7 +1785,7 @@
           {
             "path": "assets/theme/fonts/vazirmatn/vazirmatn-arabic-400-normal-e31830d3a52e0259.woff2",
             "url": "/alpha/assets/theme/fonts/vazirmatn/vazirmatn-arabic-400-normal-e31830d3a52e0259.woff2",
-            "stylesheet": "assets/theme/base-6fd28af880012706.css",
+            "stylesheet": "assets/theme/base-c67b24ddc2b27581.css",
             "family": "Vazirmatn",
             "weight": "400",
             "style": "normal",
@@ -1797,7 +1797,7 @@
           {
             "path": "assets/theme/fonts/vazirmatn/vazirmatn-arabic-500-normal-d3bc3b18900b5655.woff2",
             "url": "/alpha/assets/theme/fonts/vazirmatn/vazirmatn-arabic-500-normal-d3bc3b18900b5655.woff2",
-            "stylesheet": "assets/theme/base-6fd28af880012706.css",
+            "stylesheet": "assets/theme/base-c67b24ddc2b27581.css",
             "family": "Vazirmatn",
             "weight": "500",
             "style": "normal",
@@ -1809,22 +1809,22 @@
           {
             "path": "assets/theme/fonts/vazirmatn/vazirmatn-arabic-700-normal-aa79f9419fa0f5ef.woff2",
             "url": "/alpha/assets/theme/fonts/vazirmatn/vazirmatn-arabic-700-normal-aa79f9419fa0f5ef.woff2",
-            "stylesheet": "assets/theme/base-6fd28af880012706.css",
+            "stylesheet": "assets/theme/base-c67b24ddc2b27581.css",
             "family": "Vazirmatn",
             "weight": "700",
             "style": "normal",
             "display": "optional",
             "format": "woff2",
             "raw": 21728,
-            "gzip": 21738
+            "gzip": 21739
           }
         ]
       }
     },
     "/alpha/cli-demo/": {
       "css/base": {
-        "raw": 145606,
-        "gzip": 27143,
+        "raw": 149217,
+        "gzip": 27419,
         "count": 1
       },
       "css/page": {
@@ -1834,12 +1834,12 @@
       },
       "js/chrome": {
         "raw": 88710,
-        "gzip": 33259,
+        "gzip": 33343,
         "count": 38
       },
       "js/components": {
         "raw": 18999,
-        "gzip": 7688,
+        "gzip": 7710,
         "count": 13
       },
       "js/inline": {
@@ -1849,13 +1849,13 @@
       },
       "font/self-hosted": {
         "raw": 150048,
-        "gzip": 150239,
+        "gzip": 150240,
         "count": 8,
         "assets": [
           {
             "path": "assets/theme/fonts/jetbrains-mono/jetbrains-mono-latin-400-normal-14425ba9c695763c.woff2",
             "url": "/alpha/assets/theme/fonts/jetbrains-mono/jetbrains-mono-latin-400-normal-14425ba9c695763c.woff2",
-            "stylesheet": "assets/theme/base-6fd28af880012706.css",
+            "stylesheet": "assets/theme/base-c67b24ddc2b27581.css",
             "family": "JetBrains Mono",
             "weight": "400",
             "style": "normal",
@@ -1867,7 +1867,7 @@
           {
             "path": "assets/theme/fonts/jetbrains-mono/jetbrains-mono-latin-700-normal-d0d4e818808f2a0b.woff2",
             "url": "/alpha/assets/theme/fonts/jetbrains-mono/jetbrains-mono-latin-700-normal-d0d4e818808f2a0b.woff2",
-            "stylesheet": "assets/theme/base-6fd28af880012706.css",
+            "stylesheet": "assets/theme/base-c67b24ddc2b27581.css",
             "family": "JetBrains Mono",
             "weight": "700",
             "style": "normal",
@@ -1879,7 +1879,7 @@
           {
             "path": "assets/theme/fonts/manrope/manrope-latin-400-normal-849290ef12a2eeb9.woff2",
             "url": "/alpha/assets/theme/fonts/manrope/manrope-latin-400-normal-849290ef12a2eeb9.woff2",
-            "stylesheet": "assets/theme/base-6fd28af880012706.css",
+            "stylesheet": "assets/theme/base-c67b24ddc2b27581.css",
             "family": "Manrope",
             "weight": "400",
             "style": "normal",
@@ -1891,7 +1891,7 @@
           {
             "path": "assets/theme/fonts/manrope/manrope-latin-500-normal-19874318747181a6.woff2",
             "url": "/alpha/assets/theme/fonts/manrope/manrope-latin-500-normal-19874318747181a6.woff2",
-            "stylesheet": "assets/theme/base-6fd28af880012706.css",
+            "stylesheet": "assets/theme/base-c67b24ddc2b27581.css",
             "family": "Manrope",
             "weight": "500",
             "style": "normal",
@@ -1903,7 +1903,7 @@
           {
             "path": "assets/theme/fonts/manrope/manrope-latin-700-normal-d2a12c85a831e4b5.woff2",
             "url": "/alpha/assets/theme/fonts/manrope/manrope-latin-700-normal-d2a12c85a831e4b5.woff2",
-            "stylesheet": "assets/theme/base-6fd28af880012706.css",
+            "stylesheet": "assets/theme/base-c67b24ddc2b27581.css",
             "family": "Manrope",
             "weight": "700",
             "style": "normal",
@@ -1915,7 +1915,7 @@
           {
             "path": "assets/theme/fonts/vazirmatn/vazirmatn-arabic-400-normal-e31830d3a52e0259.woff2",
             "url": "/alpha/assets/theme/fonts/vazirmatn/vazirmatn-arabic-400-normal-e31830d3a52e0259.woff2",
-            "stylesheet": "assets/theme/base-6fd28af880012706.css",
+            "stylesheet": "assets/theme/base-c67b24ddc2b27581.css",
             "family": "Vazirmatn",
             "weight": "400",
             "style": "normal",
@@ -1927,7 +1927,7 @@
           {
             "path": "assets/theme/fonts/vazirmatn/vazirmatn-arabic-500-normal-d3bc3b18900b5655.woff2",
             "url": "/alpha/assets/theme/fonts/vazirmatn/vazirmatn-arabic-500-normal-d3bc3b18900b5655.woff2",
-            "stylesheet": "assets/theme/base-6fd28af880012706.css",
+            "stylesheet": "assets/theme/base-c67b24ddc2b27581.css",
             "family": "Vazirmatn",
             "weight": "500",
             "style": "normal",
@@ -1939,22 +1939,22 @@
           {
             "path": "assets/theme/fonts/vazirmatn/vazirmatn-arabic-700-normal-aa79f9419fa0f5ef.woff2",
             "url": "/alpha/assets/theme/fonts/vazirmatn/vazirmatn-arabic-700-normal-aa79f9419fa0f5ef.woff2",
-            "stylesheet": "assets/theme/base-6fd28af880012706.css",
+            "stylesheet": "assets/theme/base-c67b24ddc2b27581.css",
             "family": "Vazirmatn",
             "weight": "700",
             "style": "normal",
             "display": "optional",
             "format": "woff2",
             "raw": 21728,
-            "gzip": 21738
+            "gzip": 21739
           }
         ]
       }
     },
     "/alpha/compare/": {
       "css/base": {
-        "raw": 145606,
-        "gzip": 27143,
+        "raw": 149217,
+        "gzip": 27419,
         "count": 1
       },
       "css/page": {
@@ -1964,12 +1964,12 @@
       },
       "js/chrome": {
         "raw": 88710,
-        "gzip": 33259,
+        "gzip": 33343,
         "count": 38
       },
       "js/components": {
         "raw": 45822,
-        "gzip": 16707,
+        "gzip": 16829,
         "count": 16
       },
       "js/inline": {
@@ -1979,13 +1979,13 @@
       },
       "font/self-hosted": {
         "raw": 150048,
-        "gzip": 150239,
+        "gzip": 150240,
         "count": 8,
         "assets": [
           {
             "path": "assets/theme/fonts/jetbrains-mono/jetbrains-mono-latin-400-normal-14425ba9c695763c.woff2",
             "url": "/alpha/assets/theme/fonts/jetbrains-mono/jetbrains-mono-latin-400-normal-14425ba9c695763c.woff2",
-            "stylesheet": "assets/theme/base-6fd28af880012706.css",
+            "stylesheet": "assets/theme/base-c67b24ddc2b27581.css",
             "family": "JetBrains Mono",
             "weight": "400",
             "style": "normal",
@@ -1997,7 +1997,7 @@
           {
             "path": "assets/theme/fonts/jetbrains-mono/jetbrains-mono-latin-700-normal-d0d4e818808f2a0b.woff2",
             "url": "/alpha/assets/theme/fonts/jetbrains-mono/jetbrains-mono-latin-700-normal-d0d4e818808f2a0b.woff2",
-            "stylesheet": "assets/theme/base-6fd28af880012706.css",
+            "stylesheet": "assets/theme/base-c67b24ddc2b27581.css",
             "family": "JetBrains Mono",
             "weight": "700",
             "style": "normal",
@@ -2009,7 +2009,7 @@
           {
             "path": "assets/theme/fonts/manrope/manrope-latin-400-normal-849290ef12a2eeb9.woff2",
             "url": "/alpha/assets/theme/fonts/manrope/manrope-latin-400-normal-849290ef12a2eeb9.woff2",
-            "stylesheet": "assets/theme/base-6fd28af880012706.css",
+            "stylesheet": "assets/theme/base-c67b24ddc2b27581.css",
             "family": "Manrope",
             "weight": "400",
             "style": "normal",
@@ -2021,7 +2021,7 @@
           {
             "path": "assets/theme/fonts/manrope/manrope-latin-500-normal-19874318747181a6.woff2",
             "url": "/alpha/assets/theme/fonts/manrope/manrope-latin-500-normal-19874318747181a6.woff2",
-            "stylesheet": "assets/theme/base-6fd28af880012706.css",
+            "stylesheet": "assets/theme/base-c67b24ddc2b27581.css",
             "family": "Manrope",
             "weight": "500",
             "style": "normal",
@@ -2033,7 +2033,7 @@
           {
             "path": "assets/theme/fonts/manrope/manrope-latin-700-normal-d2a12c85a831e4b5.woff2",
             "url": "/alpha/assets/theme/fonts/manrope/manrope-latin-700-normal-d2a12c85a831e4b5.woff2",
-            "stylesheet": "assets/theme/base-6fd28af880012706.css",
+            "stylesheet": "assets/theme/base-c67b24ddc2b27581.css",
             "family": "Manrope",
             "weight": "700",
             "style": "normal",
@@ -2045,7 +2045,7 @@
           {
             "path": "assets/theme/fonts/vazirmatn/vazirmatn-arabic-400-normal-e31830d3a52e0259.woff2",
             "url": "/alpha/assets/theme/fonts/vazirmatn/vazirmatn-arabic-400-normal-e31830d3a52e0259.woff2",
-            "stylesheet": "assets/theme/base-6fd28af880012706.css",
+            "stylesheet": "assets/theme/base-c67b24ddc2b27581.css",
             "family": "Vazirmatn",
             "weight": "400",
             "style": "normal",
@@ -2057,7 +2057,7 @@
           {
             "path": "assets/theme/fonts/vazirmatn/vazirmatn-arabic-500-normal-d3bc3b18900b5655.woff2",
             "url": "/alpha/assets/theme/fonts/vazirmatn/vazirmatn-arabic-500-normal-d3bc3b18900b5655.woff2",
-            "stylesheet": "assets/theme/base-6fd28af880012706.css",
+            "stylesheet": "assets/theme/base-c67b24ddc2b27581.css",
             "family": "Vazirmatn",
             "weight": "500",
             "style": "normal",
@@ -2069,22 +2069,22 @@
           {
             "path": "assets/theme/fonts/vazirmatn/vazirmatn-arabic-700-normal-aa79f9419fa0f5ef.woff2",
             "url": "/alpha/assets/theme/fonts/vazirmatn/vazirmatn-arabic-700-normal-aa79f9419fa0f5ef.woff2",
-            "stylesheet": "assets/theme/base-6fd28af880012706.css",
+            "stylesheet": "assets/theme/base-c67b24ddc2b27581.css",
             "family": "Vazirmatn",
             "weight": "700",
             "style": "normal",
             "display": "optional",
             "format": "woff2",
             "raw": 21728,
-            "gzip": 21738
+            "gzip": 21739
           }
         ]
       }
     },
     "/alpha/data-time/": {
       "css/base": {
-        "raw": 145606,
-        "gzip": 27143,
+        "raw": 149217,
+        "gzip": 27419,
         "count": 1
       },
       "css/page": {
@@ -2094,12 +2094,12 @@
       },
       "js/chrome": {
         "raw": 88710,
-        "gzip": 33259,
+        "gzip": 33343,
         "count": 38
       },
       "js/components": {
         "raw": 23799,
-        "gzip": 9128,
+        "gzip": 9154,
         "count": 13
       },
       "js/inline": {
@@ -2109,13 +2109,13 @@
       },
       "font/self-hosted": {
         "raw": 150048,
-        "gzip": 150239,
+        "gzip": 150240,
         "count": 8,
         "assets": [
           {
             "path": "assets/theme/fonts/jetbrains-mono/jetbrains-mono-latin-400-normal-14425ba9c695763c.woff2",
             "url": "/alpha/assets/theme/fonts/jetbrains-mono/jetbrains-mono-latin-400-normal-14425ba9c695763c.woff2",
-            "stylesheet": "assets/theme/base-6fd28af880012706.css",
+            "stylesheet": "assets/theme/base-c67b24ddc2b27581.css",
             "family": "JetBrains Mono",
             "weight": "400",
             "style": "normal",
@@ -2127,7 +2127,7 @@
           {
             "path": "assets/theme/fonts/jetbrains-mono/jetbrains-mono-latin-700-normal-d0d4e818808f2a0b.woff2",
             "url": "/alpha/assets/theme/fonts/jetbrains-mono/jetbrains-mono-latin-700-normal-d0d4e818808f2a0b.woff2",
-            "stylesheet": "assets/theme/base-6fd28af880012706.css",
+            "stylesheet": "assets/theme/base-c67b24ddc2b27581.css",
             "family": "JetBrains Mono",
             "weight": "700",
             "style": "normal",
@@ -2139,7 +2139,7 @@
           {
             "path": "assets/theme/fonts/manrope/manrope-latin-400-normal-849290ef12a2eeb9.woff2",
             "url": "/alpha/assets/theme/fonts/manrope/manrope-latin-400-normal-849290ef12a2eeb9.woff2",
-            "stylesheet": "assets/theme/base-6fd28af880012706.css",
+            "stylesheet": "assets/theme/base-c67b24ddc2b27581.css",
             "family": "Manrope",
             "weight": "400",
             "style": "normal",
@@ -2151,7 +2151,7 @@
           {
             "path": "assets/theme/fonts/manrope/manrope-latin-500-normal-19874318747181a6.woff2",
             "url": "/alpha/assets/theme/fonts/manrope/manrope-latin-500-normal-19874318747181a6.woff2",
-            "stylesheet": "assets/theme/base-6fd28af880012706.css",
+            "stylesheet": "assets/theme/base-c67b24ddc2b27581.css",
             "family": "Manrope",
             "weight": "500",
             "style": "normal",
@@ -2163,7 +2163,7 @@
           {
             "path": "assets/theme/fonts/manrope/manrope-latin-700-normal-d2a12c85a831e4b5.woff2",
             "url": "/alpha/assets/theme/fonts/manrope/manrope-latin-700-normal-d2a12c85a831e4b5.woff2",
-            "stylesheet": "assets/theme/base-6fd28af880012706.css",
+            "stylesheet": "assets/theme/base-c67b24ddc2b27581.css",
             "family": "Manrope",
             "weight": "700",
             "style": "normal",
@@ -2175,7 +2175,7 @@
           {
             "path": "assets/theme/fonts/vazirmatn/vazirmatn-arabic-400-normal-e31830d3a52e0259.woff2",
             "url": "/alpha/assets/theme/fonts/vazirmatn/vazirmatn-arabic-400-normal-e31830d3a52e0259.woff2",
-            "stylesheet": "assets/theme/base-6fd28af880012706.css",
+            "stylesheet": "assets/theme/base-c67b24ddc2b27581.css",
             "family": "Vazirmatn",
             "weight": "400",
             "style": "normal",
@@ -2187,7 +2187,7 @@
           {
             "path": "assets/theme/fonts/vazirmatn/vazirmatn-arabic-500-normal-d3bc3b18900b5655.woff2",
             "url": "/alpha/assets/theme/fonts/vazirmatn/vazirmatn-arabic-500-normal-d3bc3b18900b5655.woff2",
-            "stylesheet": "assets/theme/base-6fd28af880012706.css",
+            "stylesheet": "assets/theme/base-c67b24ddc2b27581.css",
             "family": "Vazirmatn",
             "weight": "500",
             "style": "normal",
@@ -2199,22 +2199,22 @@
           {
             "path": "assets/theme/fonts/vazirmatn/vazirmatn-arabic-700-normal-aa79f9419fa0f5ef.woff2",
             "url": "/alpha/assets/theme/fonts/vazirmatn/vazirmatn-arabic-700-normal-aa79f9419fa0f5ef.woff2",
-            "stylesheet": "assets/theme/base-6fd28af880012706.css",
+            "stylesheet": "assets/theme/base-c67b24ddc2b27581.css",
             "family": "Vazirmatn",
             "weight": "700",
             "style": "normal",
             "display": "optional",
             "format": "woff2",
             "raw": 21728,
-            "gzip": 21738
+            "gzip": 21739
           }
         ]
       }
     },
     "/alpha/dated-list/": {
       "css/base": {
-        "raw": 145606,
-        "gzip": 27143,
+        "raw": 149217,
+        "gzip": 27419,
         "count": 1
       },
       "css/page": {
@@ -2224,12 +2224,12 @@
       },
       "js/chrome": {
         "raw": 88710,
-        "gzip": 33259,
+        "gzip": 33343,
         "count": 38
       },
       "js/components": {
         "raw": 16114,
-        "gzip": 6629,
+        "gzip": 6648,
         "count": 11
       },
       "js/inline": {
@@ -2239,13 +2239,13 @@
       },
       "font/self-hosted": {
         "raw": 150048,
-        "gzip": 150239,
+        "gzip": 150240,
         "count": 8,
         "assets": [
           {
             "path": "assets/theme/fonts/jetbrains-mono/jetbrains-mono-latin-400-normal-14425ba9c695763c.woff2",
             "url": "/alpha/assets/theme/fonts/jetbrains-mono/jetbrains-mono-latin-400-normal-14425ba9c695763c.woff2",
-            "stylesheet": "assets/theme/base-6fd28af880012706.css",
+            "stylesheet": "assets/theme/base-c67b24ddc2b27581.css",
             "family": "JetBrains Mono",
             "weight": "400",
             "style": "normal",
@@ -2257,7 +2257,7 @@
           {
             "path": "assets/theme/fonts/jetbrains-mono/jetbrains-mono-latin-700-normal-d0d4e818808f2a0b.woff2",
             "url": "/alpha/assets/theme/fonts/jetbrains-mono/jetbrains-mono-latin-700-normal-d0d4e818808f2a0b.woff2",
-            "stylesheet": "assets/theme/base-6fd28af880012706.css",
+            "stylesheet": "assets/theme/base-c67b24ddc2b27581.css",
             "family": "JetBrains Mono",
             "weight": "700",
             "style": "normal",
@@ -2269,7 +2269,7 @@
           {
             "path": "assets/theme/fonts/manrope/manrope-latin-400-normal-849290ef12a2eeb9.woff2",
             "url": "/alpha/assets/theme/fonts/manrope/manrope-latin-400-normal-849290ef12a2eeb9.woff2",
-            "stylesheet": "assets/theme/base-6fd28af880012706.css",
+            "stylesheet": "assets/theme/base-c67b24ddc2b27581.css",
             "family": "Manrope",
             "weight": "400",
             "style": "normal",
@@ -2281,7 +2281,7 @@
           {
             "path": "assets/theme/fonts/manrope/manrope-latin-500-normal-19874318747181a6.woff2",
             "url": "/alpha/assets/theme/fonts/manrope/manrope-latin-500-normal-19874318747181a6.woff2",
-            "stylesheet": "assets/theme/base-6fd28af880012706.css",
+            "stylesheet": "assets/theme/base-c67b24ddc2b27581.css",
             "family": "Manrope",
             "weight": "500",
             "style": "normal",
@@ -2293,7 +2293,7 @@
           {
             "path": "assets/theme/fonts/manrope/manrope-latin-700-normal-d2a12c85a831e4b5.woff2",
             "url": "/alpha/assets/theme/fonts/manrope/manrope-latin-700-normal-d2a12c85a831e4b5.woff2",
-            "stylesheet": "assets/theme/base-6fd28af880012706.css",
+            "stylesheet": "assets/theme/base-c67b24ddc2b27581.css",
             "family": "Manrope",
             "weight": "700",
             "style": "normal",
@@ -2305,7 +2305,7 @@
           {
             "path": "assets/theme/fonts/vazirmatn/vazirmatn-arabic-400-normal-e31830d3a52e0259.woff2",
             "url": "/alpha/assets/theme/fonts/vazirmatn/vazirmatn-arabic-400-normal-e31830d3a52e0259.woff2",
-            "stylesheet": "assets/theme/base-6fd28af880012706.css",
+            "stylesheet": "assets/theme/base-c67b24ddc2b27581.css",
             "family": "Vazirmatn",
             "weight": "400",
             "style": "normal",
@@ -2317,7 +2317,7 @@
           {
             "path": "assets/theme/fonts/vazirmatn/vazirmatn-arabic-500-normal-d3bc3b18900b5655.woff2",
             "url": "/alpha/assets/theme/fonts/vazirmatn/vazirmatn-arabic-500-normal-d3bc3b18900b5655.woff2",
-            "stylesheet": "assets/theme/base-6fd28af880012706.css",
+            "stylesheet": "assets/theme/base-c67b24ddc2b27581.css",
             "family": "Vazirmatn",
             "weight": "500",
             "style": "normal",
@@ -2329,22 +2329,22 @@
           {
             "path": "assets/theme/fonts/vazirmatn/vazirmatn-arabic-700-normal-aa79f9419fa0f5ef.woff2",
             "url": "/alpha/assets/theme/fonts/vazirmatn/vazirmatn-arabic-700-normal-aa79f9419fa0f5ef.woff2",
-            "stylesheet": "assets/theme/base-6fd28af880012706.css",
+            "stylesheet": "assets/theme/base-c67b24ddc2b27581.css",
             "family": "Vazirmatn",
             "weight": "700",
             "style": "normal",
             "display": "optional",
             "format": "woff2",
             "raw": 21728,
-            "gzip": 21738
+            "gzip": 21739
           }
         ]
       }
     },
     "/alpha/explorer/": {
       "css/base": {
-        "raw": 145606,
-        "gzip": 27143,
+        "raw": 149217,
+        "gzip": 27419,
         "count": 1
       },
       "css/page": {
@@ -2354,12 +2354,12 @@
       },
       "js/chrome": {
         "raw": 88710,
-        "gzip": 33259,
+        "gzip": 33343,
         "count": 38
       },
       "js/components": {
         "raw": 41122,
-        "gzip": 14990,
+        "gzip": 15044,
         "count": 18
       },
       "js/inline": {
@@ -2369,13 +2369,13 @@
       },
       "font/self-hosted": {
         "raw": 150048,
-        "gzip": 150239,
+        "gzip": 150240,
         "count": 8,
         "assets": [
           {
             "path": "assets/theme/fonts/jetbrains-mono/jetbrains-mono-latin-400-normal-14425ba9c695763c.woff2",
             "url": "/alpha/assets/theme/fonts/jetbrains-mono/jetbrains-mono-latin-400-normal-14425ba9c695763c.woff2",
-            "stylesheet": "assets/theme/base-6fd28af880012706.css",
+            "stylesheet": "assets/theme/base-c67b24ddc2b27581.css",
             "family": "JetBrains Mono",
             "weight": "400",
             "style": "normal",
@@ -2387,7 +2387,7 @@
           {
             "path": "assets/theme/fonts/jetbrains-mono/jetbrains-mono-latin-700-normal-d0d4e818808f2a0b.woff2",
             "url": "/alpha/assets/theme/fonts/jetbrains-mono/jetbrains-mono-latin-700-normal-d0d4e818808f2a0b.woff2",
-            "stylesheet": "assets/theme/base-6fd28af880012706.css",
+            "stylesheet": "assets/theme/base-c67b24ddc2b27581.css",
             "family": "JetBrains Mono",
             "weight": "700",
             "style": "normal",
@@ -2399,7 +2399,7 @@
           {
             "path": "assets/theme/fonts/manrope/manrope-latin-400-normal-849290ef12a2eeb9.woff2",
             "url": "/alpha/assets/theme/fonts/manrope/manrope-latin-400-normal-849290ef12a2eeb9.woff2",
-            "stylesheet": "assets/theme/base-6fd28af880012706.css",
+            "stylesheet": "assets/theme/base-c67b24ddc2b27581.css",
             "family": "Manrope",
             "weight": "400",
             "style": "normal",
@@ -2411,7 +2411,7 @@
           {
             "path": "assets/theme/fonts/manrope/manrope-latin-500-normal-19874318747181a6.woff2",
             "url": "/alpha/assets/theme/fonts/manrope/manrope-latin-500-normal-19874318747181a6.woff2",
-            "stylesheet": "assets/theme/base-6fd28af880012706.css",
+            "stylesheet": "assets/theme/base-c67b24ddc2b27581.css",
             "family": "Manrope",
             "weight": "500",
             "style": "normal",
@@ -2423,7 +2423,7 @@
           {
             "path": "assets/theme/fonts/manrope/manrope-latin-700-normal-d2a12c85a831e4b5.woff2",
             "url": "/alpha/assets/theme/fonts/manrope/manrope-latin-700-normal-d2a12c85a831e4b5.woff2",
-            "stylesheet": "assets/theme/base-6fd28af880012706.css",
+            "stylesheet": "assets/theme/base-c67b24ddc2b27581.css",
             "family": "Manrope",
             "weight": "700",
             "style": "normal",
@@ -2435,7 +2435,7 @@
           {
             "path": "assets/theme/fonts/vazirmatn/vazirmatn-arabic-400-normal-e31830d3a52e0259.woff2",
             "url": "/alpha/assets/theme/fonts/vazirmatn/vazirmatn-arabic-400-normal-e31830d3a52e0259.woff2",
-            "stylesheet": "assets/theme/base-6fd28af880012706.css",
+            "stylesheet": "assets/theme/base-c67b24ddc2b27581.css",
             "family": "Vazirmatn",
             "weight": "400",
             "style": "normal",
@@ -2447,7 +2447,7 @@
           {
             "path": "assets/theme/fonts/vazirmatn/vazirmatn-arabic-500-normal-d3bc3b18900b5655.woff2",
             "url": "/alpha/assets/theme/fonts/vazirmatn/vazirmatn-arabic-500-normal-d3bc3b18900b5655.woff2",
-            "stylesheet": "assets/theme/base-6fd28af880012706.css",
+            "stylesheet": "assets/theme/base-c67b24ddc2b27581.css",
             "family": "Vazirmatn",
             "weight": "500",
             "style": "normal",
@@ -2459,22 +2459,22 @@
           {
             "path": "assets/theme/fonts/vazirmatn/vazirmatn-arabic-700-normal-aa79f9419fa0f5ef.woff2",
             "url": "/alpha/assets/theme/fonts/vazirmatn/vazirmatn-arabic-700-normal-aa79f9419fa0f5ef.woff2",
-            "stylesheet": "assets/theme/base-6fd28af880012706.css",
+            "stylesheet": "assets/theme/base-c67b24ddc2b27581.css",
             "family": "Vazirmatn",
             "weight": "700",
             "style": "normal",
             "display": "optional",
             "format": "woff2",
             "raw": 21728,
-            "gzip": 21738
+            "gzip": 21739
           }
         ]
       }
     },
     "/alpha/gallery-layout/": {
       "css/base": {
-        "raw": 145606,
-        "gzip": 27143,
+        "raw": 149217,
+        "gzip": 27419,
         "count": 1
       },
       "css/page": {
@@ -2484,12 +2484,12 @@
       },
       "js/chrome": {
         "raw": 88710,
-        "gzip": 33259,
+        "gzip": 33343,
         "count": 38
       },
       "js/components": {
-        "raw": 22830,
-        "gzip": 8557,
+        "raw": 23448,
+        "gzip": 8762,
         "count": 13
       },
       "js/inline": {
@@ -2499,13 +2499,13 @@
       },
       "font/self-hosted": {
         "raw": 150048,
-        "gzip": 150239,
+        "gzip": 150240,
         "count": 8,
         "assets": [
           {
             "path": "assets/theme/fonts/jetbrains-mono/jetbrains-mono-latin-400-normal-14425ba9c695763c.woff2",
             "url": "/alpha/assets/theme/fonts/jetbrains-mono/jetbrains-mono-latin-400-normal-14425ba9c695763c.woff2",
-            "stylesheet": "assets/theme/base-6fd28af880012706.css",
+            "stylesheet": "assets/theme/base-c67b24ddc2b27581.css",
             "family": "JetBrains Mono",
             "weight": "400",
             "style": "normal",
@@ -2517,7 +2517,7 @@
           {
             "path": "assets/theme/fonts/jetbrains-mono/jetbrains-mono-latin-700-normal-d0d4e818808f2a0b.woff2",
             "url": "/alpha/assets/theme/fonts/jetbrains-mono/jetbrains-mono-latin-700-normal-d0d4e818808f2a0b.woff2",
-            "stylesheet": "assets/theme/base-6fd28af880012706.css",
+            "stylesheet": "assets/theme/base-c67b24ddc2b27581.css",
             "family": "JetBrains Mono",
             "weight": "700",
             "style": "normal",
@@ -2529,7 +2529,7 @@
           {
             "path": "assets/theme/fonts/manrope/manrope-latin-400-normal-849290ef12a2eeb9.woff2",
             "url": "/alpha/assets/theme/fonts/manrope/manrope-latin-400-normal-849290ef12a2eeb9.woff2",
-            "stylesheet": "assets/theme/base-6fd28af880012706.css",
+            "stylesheet": "assets/theme/base-c67b24ddc2b27581.css",
             "family": "Manrope",
             "weight": "400",
             "style": "normal",
@@ -2541,7 +2541,7 @@
           {
             "path": "assets/theme/fonts/manrope/manrope-latin-500-normal-19874318747181a6.woff2",
             "url": "/alpha/assets/theme/fonts/manrope/manrope-latin-500-normal-19874318747181a6.woff2",
-            "stylesheet": "assets/theme/base-6fd28af880012706.css",
+            "stylesheet": "assets/theme/base-c67b24ddc2b27581.css",
             "family": "Manrope",
             "weight": "500",
             "style": "normal",
@@ -2553,7 +2553,7 @@
           {
             "path": "assets/theme/fonts/manrope/manrope-latin-700-normal-d2a12c85a831e4b5.woff2",
             "url": "/alpha/assets/theme/fonts/manrope/manrope-latin-700-normal-d2a12c85a831e4b5.woff2",
-            "stylesheet": "assets/theme/base-6fd28af880012706.css",
+            "stylesheet": "assets/theme/base-c67b24ddc2b27581.css",
             "family": "Manrope",
             "weight": "700",
             "style": "normal",
@@ -2565,7 +2565,7 @@
           {
             "path": "assets/theme/fonts/vazirmatn/vazirmatn-arabic-400-normal-e31830d3a52e0259.woff2",
             "url": "/alpha/assets/theme/fonts/vazirmatn/vazirmatn-arabic-400-normal-e31830d3a52e0259.woff2",
-            "stylesheet": "assets/theme/base-6fd28af880012706.css",
+            "stylesheet": "assets/theme/base-c67b24ddc2b27581.css",
             "family": "Vazirmatn",
             "weight": "400",
             "style": "normal",
@@ -2577,7 +2577,7 @@
           {
             "path": "assets/theme/fonts/vazirmatn/vazirmatn-arabic-500-normal-d3bc3b18900b5655.woff2",
             "url": "/alpha/assets/theme/fonts/vazirmatn/vazirmatn-arabic-500-normal-d3bc3b18900b5655.woff2",
-            "stylesheet": "assets/theme/base-6fd28af880012706.css",
+            "stylesheet": "assets/theme/base-c67b24ddc2b27581.css",
             "family": "Vazirmatn",
             "weight": "500",
             "style": "normal",
@@ -2589,22 +2589,22 @@
           {
             "path": "assets/theme/fonts/vazirmatn/vazirmatn-arabic-700-normal-aa79f9419fa0f5ef.woff2",
             "url": "/alpha/assets/theme/fonts/vazirmatn/vazirmatn-arabic-700-normal-aa79f9419fa0f5ef.woff2",
-            "stylesheet": "assets/theme/base-6fd28af880012706.css",
+            "stylesheet": "assets/theme/base-c67b24ddc2b27581.css",
             "family": "Vazirmatn",
             "weight": "700",
             "style": "normal",
             "display": "optional",
             "format": "woff2",
             "raw": 21728,
-            "gzip": 21738
+            "gzip": 21739
           }
         ]
       }
     },
     "/alpha/guide/": {
       "css/base": {
-        "raw": 145606,
-        "gzip": 27143,
+        "raw": 149217,
+        "gzip": 27419,
         "count": 1
       },
       "css/page": {
@@ -2614,12 +2614,12 @@
       },
       "js/chrome": {
         "raw": 88710,
-        "gzip": 33259,
+        "gzip": 33343,
         "count": 38
       },
       "js/components": {
         "raw": 19123,
-        "gzip": 8177,
+        "gzip": 8200,
         "count": 16
       },
       "js/inline": {
@@ -2629,13 +2629,13 @@
       },
       "font/self-hosted": {
         "raw": 150048,
-        "gzip": 150239,
+        "gzip": 150240,
         "count": 8,
         "assets": [
           {
             "path": "assets/theme/fonts/jetbrains-mono/jetbrains-mono-latin-400-normal-14425ba9c695763c.woff2",
             "url": "/alpha/assets/theme/fonts/jetbrains-mono/jetbrains-mono-latin-400-normal-14425ba9c695763c.woff2",
-            "stylesheet": "assets/theme/base-6fd28af880012706.css",
+            "stylesheet": "assets/theme/base-c67b24ddc2b27581.css",
             "family": "JetBrains Mono",
             "weight": "400",
             "style": "normal",
@@ -2647,7 +2647,7 @@
           {
             "path": "assets/theme/fonts/jetbrains-mono/jetbrains-mono-latin-700-normal-d0d4e818808f2a0b.woff2",
             "url": "/alpha/assets/theme/fonts/jetbrains-mono/jetbrains-mono-latin-700-normal-d0d4e818808f2a0b.woff2",
-            "stylesheet": "assets/theme/base-6fd28af880012706.css",
+            "stylesheet": "assets/theme/base-c67b24ddc2b27581.css",
             "family": "JetBrains Mono",
             "weight": "700",
             "style": "normal",
@@ -2659,7 +2659,7 @@
           {
             "path": "assets/theme/fonts/manrope/manrope-latin-400-normal-849290ef12a2eeb9.woff2",
             "url": "/alpha/assets/theme/fonts/manrope/manrope-latin-400-normal-849290ef12a2eeb9.woff2",
-            "stylesheet": "assets/theme/base-6fd28af880012706.css",
+            "stylesheet": "assets/theme/base-c67b24ddc2b27581.css",
             "family": "Manrope",
             "weight": "400",
             "style": "normal",
@@ -2671,7 +2671,7 @@
           {
             "path": "assets/theme/fonts/manrope/manrope-latin-500-normal-19874318747181a6.woff2",
             "url": "/alpha/assets/theme/fonts/manrope/manrope-latin-500-normal-19874318747181a6.woff2",
-            "stylesheet": "assets/theme/base-6fd28af880012706.css",
+            "stylesheet": "assets/theme/base-c67b24ddc2b27581.css",
             "family": "Manrope",
             "weight": "500",
             "style": "normal",
@@ -2683,7 +2683,7 @@
           {
             "path": "assets/theme/fonts/manrope/manrope-latin-700-normal-d2a12c85a831e4b5.woff2",
             "url": "/alpha/assets/theme/fonts/manrope/manrope-latin-700-normal-d2a12c85a831e4b5.woff2",
-            "stylesheet": "assets/theme/base-6fd28af880012706.css",
+            "stylesheet": "assets/theme/base-c67b24ddc2b27581.css",
             "family": "Manrope",
             "weight": "700",
             "style": "normal",
@@ -2695,7 +2695,7 @@
           {
             "path": "assets/theme/fonts/vazirmatn/vazirmatn-arabic-400-normal-e31830d3a52e0259.woff2",
             "url": "/alpha/assets/theme/fonts/vazirmatn/vazirmatn-arabic-400-normal-e31830d3a52e0259.woff2",
-            "stylesheet": "assets/theme/base-6fd28af880012706.css",
+            "stylesheet": "assets/theme/base-c67b24ddc2b27581.css",
             "family": "Vazirmatn",
             "weight": "400",
             "style": "normal",
@@ -2707,7 +2707,7 @@
           {
             "path": "assets/theme/fonts/vazirmatn/vazirmatn-arabic-500-normal-d3bc3b18900b5655.woff2",
             "url": "/alpha/assets/theme/fonts/vazirmatn/vazirmatn-arabic-500-normal-d3bc3b18900b5655.woff2",
-            "stylesheet": "assets/theme/base-6fd28af880012706.css",
+            "stylesheet": "assets/theme/base-c67b24ddc2b27581.css",
             "family": "Vazirmatn",
             "weight": "500",
             "style": "normal",
@@ -2719,22 +2719,22 @@
           {
             "path": "assets/theme/fonts/vazirmatn/vazirmatn-arabic-700-normal-aa79f9419fa0f5ef.woff2",
             "url": "/alpha/assets/theme/fonts/vazirmatn/vazirmatn-arabic-700-normal-aa79f9419fa0f5ef.woff2",
-            "stylesheet": "assets/theme/base-6fd28af880012706.css",
+            "stylesheet": "assets/theme/base-c67b24ddc2b27581.css",
             "family": "Vazirmatn",
             "weight": "700",
             "style": "normal",
             "display": "optional",
             "format": "woff2",
             "raw": 21728,
-            "gzip": 21738
+            "gzip": 21739
           }
         ]
       }
     },
     "/alpha/guide/upgrade/": {
       "css/base": {
-        "raw": 145606,
-        "gzip": 27143,
+        "raw": 149217,
+        "gzip": 27419,
         "count": 1
       },
       "css/page": {
@@ -2744,12 +2744,12 @@
       },
       "js/chrome": {
         "raw": 88710,
-        "gzip": 33259,
+        "gzip": 33343,
         "count": 38
       },
       "js/components": {
         "raw": 16481,
-        "gzip": 6739,
+        "gzip": 6761,
         "count": 11
       },
       "js/inline": {
@@ -2759,13 +2759,13 @@
       },
       "font/self-hosted": {
         "raw": 150048,
-        "gzip": 150239,
+        "gzip": 150240,
         "count": 8,
         "assets": [
           {
             "path": "assets/theme/fonts/jetbrains-mono/jetbrains-mono-latin-400-normal-14425ba9c695763c.woff2",
             "url": "/alpha/assets/theme/fonts/jetbrains-mono/jetbrains-mono-latin-400-normal-14425ba9c695763c.woff2",
-            "stylesheet": "assets/theme/base-6fd28af880012706.css",
+            "stylesheet": "assets/theme/base-c67b24ddc2b27581.css",
             "family": "JetBrains Mono",
             "weight": "400",
             "style": "normal",
@@ -2777,7 +2777,7 @@
           {
             "path": "assets/theme/fonts/jetbrains-mono/jetbrains-mono-latin-700-normal-d0d4e818808f2a0b.woff2",
             "url": "/alpha/assets/theme/fonts/jetbrains-mono/jetbrains-mono-latin-700-normal-d0d4e818808f2a0b.woff2",
-            "stylesheet": "assets/theme/base-6fd28af880012706.css",
+            "stylesheet": "assets/theme/base-c67b24ddc2b27581.css",
             "family": "JetBrains Mono",
             "weight": "700",
             "style": "normal",
@@ -2789,7 +2789,7 @@
           {
             "path": "assets/theme/fonts/manrope/manrope-latin-400-normal-849290ef12a2eeb9.woff2",
             "url": "/alpha/assets/theme/fonts/manrope/manrope-latin-400-normal-849290ef12a2eeb9.woff2",
-            "stylesheet": "assets/theme/base-6fd28af880012706.css",
+            "stylesheet": "assets/theme/base-c67b24ddc2b27581.css",
             "family": "Manrope",
             "weight": "400",
             "style": "normal",
@@ -2801,7 +2801,7 @@
           {
             "path": "assets/theme/fonts/manrope/manrope-latin-500-normal-19874318747181a6.woff2",
             "url": "/alpha/assets/theme/fonts/manrope/manrope-latin-500-normal-19874318747181a6.woff2",
-            "stylesheet": "assets/theme/base-6fd28af880012706.css",
+            "stylesheet": "assets/theme/base-c67b24ddc2b27581.css",
             "family": "Manrope",
             "weight": "500",
             "style": "normal",
@@ -2813,7 +2813,7 @@
           {
             "path": "assets/theme/fonts/manrope/manrope-latin-700-normal-d2a12c85a831e4b5.woff2",
             "url": "/alpha/assets/theme/fonts/manrope/manrope-latin-700-normal-d2a12c85a831e4b5.woff2",
-            "stylesheet": "assets/theme/base-6fd28af880012706.css",
+            "stylesheet": "assets/theme/base-c67b24ddc2b27581.css",
             "family": "Manrope",
             "weight": "700",
             "style": "normal",
@@ -2825,7 +2825,7 @@
           {
             "path": "assets/theme/fonts/vazirmatn/vazirmatn-arabic-400-normal-e31830d3a52e0259.woff2",
             "url": "/alpha/assets/theme/fonts/vazirmatn/vazirmatn-arabic-400-normal-e31830d3a52e0259.woff2",
-            "stylesheet": "assets/theme/base-6fd28af880012706.css",
+            "stylesheet": "assets/theme/base-c67b24ddc2b27581.css",
             "family": "Vazirmatn",
             "weight": "400",
             "style": "normal",
@@ -2837,7 +2837,7 @@
           {
             "path": "assets/theme/fonts/vazirmatn/vazirmatn-arabic-500-normal-d3bc3b18900b5655.woff2",
             "url": "/alpha/assets/theme/fonts/vazirmatn/vazirmatn-arabic-500-normal-d3bc3b18900b5655.woff2",
-            "stylesheet": "assets/theme/base-6fd28af880012706.css",
+            "stylesheet": "assets/theme/base-c67b24ddc2b27581.css",
             "family": "Vazirmatn",
             "weight": "500",
             "style": "normal",
@@ -2849,22 +2849,22 @@
           {
             "path": "assets/theme/fonts/vazirmatn/vazirmatn-arabic-700-normal-aa79f9419fa0f5ef.woff2",
             "url": "/alpha/assets/theme/fonts/vazirmatn/vazirmatn-arabic-700-normal-aa79f9419fa0f5ef.woff2",
-            "stylesheet": "assets/theme/base-6fd28af880012706.css",
+            "stylesheet": "assets/theme/base-c67b24ddc2b27581.css",
             "family": "Vazirmatn",
             "weight": "700",
             "style": "normal",
             "display": "optional",
             "format": "woff2",
             "raw": 21728,
-            "gzip": 21738
+            "gzip": 21739
           }
         ]
       }
     },
     "/alpha/network/": {
       "css/base": {
-        "raw": 145606,
-        "gzip": 27143,
+        "raw": 149217,
+        "gzip": 27419,
         "count": 1
       },
       "css/page": {
@@ -2874,12 +2874,12 @@
       },
       "js/chrome": {
         "raw": 88710,
-        "gzip": 33259,
+        "gzip": 33343,
         "count": 38
       },
       "js/components": {
         "raw": 14068,
-        "gzip": 5715,
+        "gzip": 5730,
         "count": 10
       },
       "js/inline": {
@@ -2889,13 +2889,13 @@
       },
       "font/self-hosted": {
         "raw": 150048,
-        "gzip": 150239,
+        "gzip": 150240,
         "count": 8,
         "assets": [
           {
             "path": "assets/theme/fonts/jetbrains-mono/jetbrains-mono-latin-400-normal-14425ba9c695763c.woff2",
             "url": "/alpha/assets/theme/fonts/jetbrains-mono/jetbrains-mono-latin-400-normal-14425ba9c695763c.woff2",
-            "stylesheet": "assets/theme/base-6fd28af880012706.css",
+            "stylesheet": "assets/theme/base-c67b24ddc2b27581.css",
             "family": "JetBrains Mono",
             "weight": "400",
             "style": "normal",
@@ -2907,7 +2907,7 @@
           {
             "path": "assets/theme/fonts/jetbrains-mono/jetbrains-mono-latin-700-normal-d0d4e818808f2a0b.woff2",
             "url": "/alpha/assets/theme/fonts/jetbrains-mono/jetbrains-mono-latin-700-normal-d0d4e818808f2a0b.woff2",
-            "stylesheet": "assets/theme/base-6fd28af880012706.css",
+            "stylesheet": "assets/theme/base-c67b24ddc2b27581.css",
             "family": "JetBrains Mono",
             "weight": "700",
             "style": "normal",
@@ -2919,7 +2919,7 @@
           {
             "path": "assets/theme/fonts/manrope/manrope-latin-400-normal-849290ef12a2eeb9.woff2",
             "url": "/alpha/assets/theme/fonts/manrope/manrope-latin-400-normal-849290ef12a2eeb9.woff2",
-            "stylesheet": "assets/theme/base-6fd28af880012706.css",
+            "stylesheet": "assets/theme/base-c67b24ddc2b27581.css",
             "family": "Manrope",
             "weight": "400",
             "style": "normal",
@@ -2931,7 +2931,7 @@
           {
             "path": "assets/theme/fonts/manrope/manrope-latin-500-normal-19874318747181a6.woff2",
             "url": "/alpha/assets/theme/fonts/manrope/manrope-latin-500-normal-19874318747181a6.woff2",
-            "stylesheet": "assets/theme/base-6fd28af880012706.css",
+            "stylesheet": "assets/theme/base-c67b24ddc2b27581.css",
             "family": "Manrope",
             "weight": "500",
             "style": "normal",
@@ -2943,7 +2943,7 @@
           {
             "path": "assets/theme/fonts/manrope/manrope-latin-700-normal-d2a12c85a831e4b5.woff2",
             "url": "/alpha/assets/theme/fonts/manrope/manrope-latin-700-normal-d2a12c85a831e4b5.woff2",
-            "stylesheet": "assets/theme/base-6fd28af880012706.css",
+            "stylesheet": "assets/theme/base-c67b24ddc2b27581.css",
             "family": "Manrope",
             "weight": "700",
             "style": "normal",
@@ -2955,7 +2955,7 @@
           {
             "path": "assets/theme/fonts/vazirmatn/vazirmatn-arabic-400-normal-e31830d3a52e0259.woff2",
             "url": "/alpha/assets/theme/fonts/vazirmatn/vazirmatn-arabic-400-normal-e31830d3a52e0259.woff2",
-            "stylesheet": "assets/theme/base-6fd28af880012706.css",
+            "stylesheet": "assets/theme/base-c67b24ddc2b27581.css",
             "family": "Vazirmatn",
             "weight": "400",
             "style": "normal",
@@ -2967,7 +2967,7 @@
           {
             "path": "assets/theme/fonts/vazirmatn/vazirmatn-arabic-500-normal-d3bc3b18900b5655.woff2",
             "url": "/alpha/assets/theme/fonts/vazirmatn/vazirmatn-arabic-500-normal-d3bc3b18900b5655.woff2",
-            "stylesheet": "assets/theme/base-6fd28af880012706.css",
+            "stylesheet": "assets/theme/base-c67b24ddc2b27581.css",
             "family": "Vazirmatn",
             "weight": "500",
             "style": "normal",
@@ -2979,22 +2979,22 @@
           {
             "path": "assets/theme/fonts/vazirmatn/vazirmatn-arabic-700-normal-aa79f9419fa0f5ef.woff2",
             "url": "/alpha/assets/theme/fonts/vazirmatn/vazirmatn-arabic-700-normal-aa79f9419fa0f5ef.woff2",
-            "stylesheet": "assets/theme/base-6fd28af880012706.css",
+            "stylesheet": "assets/theme/base-c67b24ddc2b27581.css",
             "family": "Vazirmatn",
             "weight": "700",
             "style": "normal",
             "display": "optional",
             "format": "woff2",
             "raw": 21728,
-            "gzip": 21738
+            "gzip": 21739
           }
         ]
       }
     },
     "/alpha/reference/": {
       "css/base": {
-        "raw": 145606,
-        "gzip": 27143,
+        "raw": 149217,
+        "gzip": 27419,
         "count": 1
       },
       "css/page": {
@@ -3004,12 +3004,12 @@
       },
       "js/chrome": {
         "raw": 88710,
-        "gzip": 33259,
+        "gzip": 33343,
         "count": 38
       },
       "js/components": {
         "raw": 43982,
-        "gzip": 16756,
+        "gzip": 16826,
         "count": 20
       },
       "js/inline": {
@@ -3019,13 +3019,13 @@
       },
       "font/self-hosted": {
         "raw": 150048,
-        "gzip": 150239,
+        "gzip": 150240,
         "count": 8,
         "assets": [
           {
             "path": "assets/theme/fonts/jetbrains-mono/jetbrains-mono-latin-400-normal-14425ba9c695763c.woff2",
             "url": "/alpha/assets/theme/fonts/jetbrains-mono/jetbrains-mono-latin-400-normal-14425ba9c695763c.woff2",
-            "stylesheet": "assets/theme/base-6fd28af880012706.css",
+            "stylesheet": "assets/theme/base-c67b24ddc2b27581.css",
             "family": "JetBrains Mono",
             "weight": "400",
             "style": "normal",
@@ -3037,7 +3037,7 @@
           {
             "path": "assets/theme/fonts/jetbrains-mono/jetbrains-mono-latin-700-normal-d0d4e818808f2a0b.woff2",
             "url": "/alpha/assets/theme/fonts/jetbrains-mono/jetbrains-mono-latin-700-normal-d0d4e818808f2a0b.woff2",
-            "stylesheet": "assets/theme/base-6fd28af880012706.css",
+            "stylesheet": "assets/theme/base-c67b24ddc2b27581.css",
             "family": "JetBrains Mono",
             "weight": "700",
             "style": "normal",
@@ -3049,7 +3049,7 @@
           {
             "path": "assets/theme/fonts/manrope/manrope-latin-400-normal-849290ef12a2eeb9.woff2",
             "url": "/alpha/assets/theme/fonts/manrope/manrope-latin-400-normal-849290ef12a2eeb9.woff2",
-            "stylesheet": "assets/theme/base-6fd28af880012706.css",
+            "stylesheet": "assets/theme/base-c67b24ddc2b27581.css",
             "family": "Manrope",
             "weight": "400",
             "style": "normal",
@@ -3061,7 +3061,7 @@
           {
             "path": "assets/theme/fonts/manrope/manrope-latin-500-normal-19874318747181a6.woff2",
             "url": "/alpha/assets/theme/fonts/manrope/manrope-latin-500-normal-19874318747181a6.woff2",
-            "stylesheet": "assets/theme/base-6fd28af880012706.css",
+            "stylesheet": "assets/theme/base-c67b24ddc2b27581.css",
             "family": "Manrope",
             "weight": "500",
             "style": "normal",
@@ -3073,7 +3073,7 @@
           {
             "path": "assets/theme/fonts/manrope/manrope-latin-700-normal-d2a12c85a831e4b5.woff2",
             "url": "/alpha/assets/theme/fonts/manrope/manrope-latin-700-normal-d2a12c85a831e4b5.woff2",
-            "stylesheet": "assets/theme/base-6fd28af880012706.css",
+            "stylesheet": "assets/theme/base-c67b24ddc2b27581.css",
             "family": "Manrope",
             "weight": "700",
             "style": "normal",
@@ -3085,7 +3085,7 @@
           {
             "path": "assets/theme/fonts/vazirmatn/vazirmatn-arabic-400-normal-e31830d3a52e0259.woff2",
             "url": "/alpha/assets/theme/fonts/vazirmatn/vazirmatn-arabic-400-normal-e31830d3a52e0259.woff2",
-            "stylesheet": "assets/theme/base-6fd28af880012706.css",
+            "stylesheet": "assets/theme/base-c67b24ddc2b27581.css",
             "family": "Vazirmatn",
             "weight": "400",
             "style": "normal",
@@ -3097,7 +3097,7 @@
           {
             "path": "assets/theme/fonts/vazirmatn/vazirmatn-arabic-500-normal-d3bc3b18900b5655.woff2",
             "url": "/alpha/assets/theme/fonts/vazirmatn/vazirmatn-arabic-500-normal-d3bc3b18900b5655.woff2",
-            "stylesheet": "assets/theme/base-6fd28af880012706.css",
+            "stylesheet": "assets/theme/base-c67b24ddc2b27581.css",
             "family": "Vazirmatn",
             "weight": "500",
             "style": "normal",
@@ -3109,22 +3109,22 @@
           {
             "path": "assets/theme/fonts/vazirmatn/vazirmatn-arabic-700-normal-aa79f9419fa0f5ef.woff2",
             "url": "/alpha/assets/theme/fonts/vazirmatn/vazirmatn-arabic-700-normal-aa79f9419fa0f5ef.woff2",
-            "stylesheet": "assets/theme/base-6fd28af880012706.css",
+            "stylesheet": "assets/theme/base-c67b24ddc2b27581.css",
             "family": "Vazirmatn",
             "weight": "700",
             "style": "normal",
             "display": "optional",
             "format": "woff2",
             "raw": 21728,
-            "gzip": 21738
+            "gzip": 21739
           }
         ]
       }
     },
     "/alpha/reports/": {
       "css/base": {
-        "raw": 145606,
-        "gzip": 27143,
+        "raw": 149217,
+        "gzip": 27419,
         "count": 1
       },
       "css/page": {
@@ -3134,12 +3134,12 @@
       },
       "js/chrome": {
         "raw": 88710,
-        "gzip": 33259,
+        "gzip": 33343,
         "count": 38
       },
       "js/components": {
         "raw": 14068,
-        "gzip": 5715,
+        "gzip": 5730,
         "count": 10
       },
       "js/inline": {
@@ -3149,13 +3149,13 @@
       },
       "font/self-hosted": {
         "raw": 150048,
-        "gzip": 150239,
+        "gzip": 150240,
         "count": 8,
         "assets": [
           {
             "path": "assets/theme/fonts/jetbrains-mono/jetbrains-mono-latin-400-normal-14425ba9c695763c.woff2",
             "url": "/alpha/assets/theme/fonts/jetbrains-mono/jetbrains-mono-latin-400-normal-14425ba9c695763c.woff2",
-            "stylesheet": "assets/theme/base-6fd28af880012706.css",
+            "stylesheet": "assets/theme/base-c67b24ddc2b27581.css",
             "family": "JetBrains Mono",
             "weight": "400",
             "style": "normal",
@@ -3167,7 +3167,7 @@
           {
             "path": "assets/theme/fonts/jetbrains-mono/jetbrains-mono-latin-700-normal-d0d4e818808f2a0b.woff2",
             "url": "/alpha/assets/theme/fonts/jetbrains-mono/jetbrains-mono-latin-700-normal-d0d4e818808f2a0b.woff2",
-            "stylesheet": "assets/theme/base-6fd28af880012706.css",
+            "stylesheet": "assets/theme/base-c67b24ddc2b27581.css",
             "family": "JetBrains Mono",
             "weight": "700",
             "style": "normal",
@@ -3179,7 +3179,7 @@
           {
             "path": "assets/theme/fonts/manrope/manrope-latin-400-normal-849290ef12a2eeb9.woff2",
             "url": "/alpha/assets/theme/fonts/manrope/manrope-latin-400-normal-849290ef12a2eeb9.woff2",
-            "stylesheet": "assets/theme/base-6fd28af880012706.css",
+            "stylesheet": "assets/theme/base-c67b24ddc2b27581.css",
             "family": "Manrope",
             "weight": "400",
             "style": "normal",
@@ -3191,7 +3191,7 @@
           {
             "path": "assets/theme/fonts/manrope/manrope-latin-500-normal-19874318747181a6.woff2",
             "url": "/alpha/assets/theme/fonts/manrope/manrope-latin-500-normal-19874318747181a6.woff2",
-            "stylesheet": "assets/theme/base-6fd28af880012706.css",
+            "stylesheet": "assets/theme/base-c67b24ddc2b27581.css",
             "family": "Manrope",
             "weight": "500",
             "style": "normal",
@@ -3203,7 +3203,7 @@
           {
             "path": "assets/theme/fonts/manrope/manrope-latin-700-normal-d2a12c85a831e4b5.woff2",
             "url": "/alpha/assets/theme/fonts/manrope/manrope-latin-700-normal-d2a12c85a831e4b5.woff2",
-            "stylesheet": "assets/theme/base-6fd28af880012706.css",
+            "stylesheet": "assets/theme/base-c67b24ddc2b27581.css",
             "family": "Manrope",
             "weight": "700",
             "style": "normal",
@@ -3215,7 +3215,7 @@
           {
             "path": "assets/theme/fonts/vazirmatn/vazirmatn-arabic-400-normal-e31830d3a52e0259.woff2",
             "url": "/alpha/assets/theme/fonts/vazirmatn/vazirmatn-arabic-400-normal-e31830d3a52e0259.woff2",
-            "stylesheet": "assets/theme/base-6fd28af880012706.css",
+            "stylesheet": "assets/theme/base-c67b24ddc2b27581.css",
             "family": "Vazirmatn",
             "weight": "400",
             "style": "normal",
@@ -3227,7 +3227,7 @@
           {
             "path": "assets/theme/fonts/vazirmatn/vazirmatn-arabic-500-normal-d3bc3b18900b5655.woff2",
             "url": "/alpha/assets/theme/fonts/vazirmatn/vazirmatn-arabic-500-normal-d3bc3b18900b5655.woff2",
-            "stylesheet": "assets/theme/base-6fd28af880012706.css",
+            "stylesheet": "assets/theme/base-c67b24ddc2b27581.css",
             "family": "Vazirmatn",
             "weight": "500",
             "style": "normal",
@@ -3239,22 +3239,22 @@
           {
             "path": "assets/theme/fonts/vazirmatn/vazirmatn-arabic-700-normal-aa79f9419fa0f5ef.woff2",
             "url": "/alpha/assets/theme/fonts/vazirmatn/vazirmatn-arabic-700-normal-aa79f9419fa0f5ef.woff2",
-            "stylesheet": "assets/theme/base-6fd28af880012706.css",
+            "stylesheet": "assets/theme/base-c67b24ddc2b27581.css",
             "family": "Vazirmatn",
             "weight": "700",
             "style": "normal",
             "display": "optional",
             "format": "woff2",
             "raw": 21728,
-            "gzip": 21738
+            "gzip": 21739
           }
         ]
       }
     },
     "/alpha/showpiece/": {
       "css/base": {
-        "raw": 145606,
-        "gzip": 27143,
+        "raw": 149217,
+        "gzip": 27419,
         "count": 1
       },
       "css/page": {
@@ -3264,12 +3264,12 @@
       },
       "js/chrome": {
         "raw": 88710,
-        "gzip": 33259,
+        "gzip": 33343,
         "count": 38
       },
       "js/components": {
         "raw": 14068,
-        "gzip": 5715,
+        "gzip": 5730,
         "count": 10
       },
       "js/inline": {
@@ -3279,13 +3279,13 @@
       },
       "font/self-hosted": {
         "raw": 150048,
-        "gzip": 150239,
+        "gzip": 150240,
         "count": 8,
         "assets": [
           {
             "path": "assets/theme/fonts/jetbrains-mono/jetbrains-mono-latin-400-normal-14425ba9c695763c.woff2",
             "url": "/alpha/assets/theme/fonts/jetbrains-mono/jetbrains-mono-latin-400-normal-14425ba9c695763c.woff2",
-            "stylesheet": "assets/theme/base-6fd28af880012706.css",
+            "stylesheet": "assets/theme/base-c67b24ddc2b27581.css",
             "family": "JetBrains Mono",
             "weight": "400",
             "style": "normal",
@@ -3297,7 +3297,7 @@
           {
             "path": "assets/theme/fonts/jetbrains-mono/jetbrains-mono-latin-700-normal-d0d4e818808f2a0b.woff2",
             "url": "/alpha/assets/theme/fonts/jetbrains-mono/jetbrains-mono-latin-700-normal-d0d4e818808f2a0b.woff2",
-            "stylesheet": "assets/theme/base-6fd28af880012706.css",
+            "stylesheet": "assets/theme/base-c67b24ddc2b27581.css",
             "family": "JetBrains Mono",
             "weight": "700",
             "style": "normal",
@@ -3309,7 +3309,7 @@
           {
             "path": "assets/theme/fonts/manrope/manrope-latin-400-normal-849290ef12a2eeb9.woff2",
             "url": "/alpha/assets/theme/fonts/manrope/manrope-latin-400-normal-849290ef12a2eeb9.woff2",
-            "stylesheet": "assets/theme/base-6fd28af880012706.css",
+            "stylesheet": "assets/theme/base-c67b24ddc2b27581.css",
             "family": "Manrope",
             "weight": "400",
             "style": "normal",
@@ -3321,7 +3321,7 @@
           {
             "path": "assets/theme/fonts/manrope/manrope-latin-500-normal-19874318747181a6.woff2",
             "url": "/alpha/assets/theme/fonts/manrope/manrope-latin-500-normal-19874318747181a6.woff2",
-            "stylesheet": "assets/theme/base-6fd28af880012706.css",
+            "stylesheet": "assets/theme/base-c67b24ddc2b27581.css",
             "family": "Manrope",
             "weight": "500",
             "style": "normal",
@@ -3333,7 +3333,7 @@
           {
             "path": "assets/theme/fonts/manrope/manrope-latin-700-normal-d2a12c85a831e4b5.woff2",
             "url": "/alpha/assets/theme/fonts/manrope/manrope-latin-700-normal-d2a12c85a831e4b5.woff2",
-            "stylesheet": "assets/theme/base-6fd28af880012706.css",
+            "stylesheet": "assets/theme/base-c67b24ddc2b27581.css",
             "family": "Manrope",
             "weight": "700",
             "style": "normal",
@@ -3345,7 +3345,7 @@
           {
             "path": "assets/theme/fonts/vazirmatn/vazirmatn-arabic-400-normal-e31830d3a52e0259.woff2",
             "url": "/alpha/assets/theme/fonts/vazirmatn/vazirmatn-arabic-400-normal-e31830d3a52e0259.woff2",
-            "stylesheet": "assets/theme/base-6fd28af880012706.css",
+            "stylesheet": "assets/theme/base-c67b24ddc2b27581.css",
             "family": "Vazirmatn",
             "weight": "400",
             "style": "normal",
@@ -3357,7 +3357,7 @@
           {
             "path": "assets/theme/fonts/vazirmatn/vazirmatn-arabic-500-normal-d3bc3b18900b5655.woff2",
             "url": "/alpha/assets/theme/fonts/vazirmatn/vazirmatn-arabic-500-normal-d3bc3b18900b5655.woff2",
-            "stylesheet": "assets/theme/base-6fd28af880012706.css",
+            "stylesheet": "assets/theme/base-c67b24ddc2b27581.css",
             "family": "Vazirmatn",
             "weight": "500",
             "style": "normal",
@@ -3369,22 +3369,22 @@
           {
             "path": "assets/theme/fonts/vazirmatn/vazirmatn-arabic-700-normal-aa79f9419fa0f5ef.woff2",
             "url": "/alpha/assets/theme/fonts/vazirmatn/vazirmatn-arabic-700-normal-aa79f9419fa0f5ef.woff2",
-            "stylesheet": "assets/theme/base-6fd28af880012706.css",
+            "stylesheet": "assets/theme/base-c67b24ddc2b27581.css",
             "family": "Vazirmatn",
             "weight": "700",
             "style": "normal",
             "display": "optional",
             "format": "woff2",
             "raw": 21728,
-            "gzip": 21738
+            "gzip": 21739
           }
         ]
       }
     },
     "/alpha/source-mode/": {
       "css/base": {
-        "raw": 145606,
-        "gzip": 27143,
+        "raw": 149217,
+        "gzip": 27419,
         "count": 1
       },
       "css/page": {
@@ -3394,12 +3394,12 @@
       },
       "js/chrome": {
         "raw": 88710,
-        "gzip": 33259,
+        "gzip": 33343,
         "count": 38
       },
       "js/components": {
         "raw": 14068,
-        "gzip": 5715,
+        "gzip": 5730,
         "count": 10
       },
       "js/inline": {
@@ -3409,13 +3409,13 @@
       },
       "font/self-hosted": {
         "raw": 150048,
-        "gzip": 150239,
+        "gzip": 150240,
         "count": 8,
         "assets": [
           {
             "path": "assets/theme/fonts/jetbrains-mono/jetbrains-mono-latin-400-normal-14425ba9c695763c.woff2",
             "url": "/alpha/assets/theme/fonts/jetbrains-mono/jetbrains-mono-latin-400-normal-14425ba9c695763c.woff2",
-            "stylesheet": "assets/theme/base-6fd28af880012706.css",
+            "stylesheet": "assets/theme/base-c67b24ddc2b27581.css",
             "family": "JetBrains Mono",
             "weight": "400",
             "style": "normal",
@@ -3427,7 +3427,7 @@
           {
             "path": "assets/theme/fonts/jetbrains-mono/jetbrains-mono-latin-700-normal-d0d4e818808f2a0b.woff2",
             "url": "/alpha/assets/theme/fonts/jetbrains-mono/jetbrains-mono-latin-700-normal-d0d4e818808f2a0b.woff2",
-            "stylesheet": "assets/theme/base-6fd28af880012706.css",
+            "stylesheet": "assets/theme/base-c67b24ddc2b27581.css",
             "family": "JetBrains Mono",
             "weight": "700",
             "style": "normal",
@@ -3439,7 +3439,7 @@
           {
             "path": "assets/theme/fonts/manrope/manrope-latin-400-normal-849290ef12a2eeb9.woff2",
             "url": "/alpha/assets/theme/fonts/manrope/manrope-latin-400-normal-849290ef12a2eeb9.woff2",
-            "stylesheet": "assets/theme/base-6fd28af880012706.css",
+            "stylesheet": "assets/theme/base-c67b24ddc2b27581.css",
             "family": "Manrope",
             "weight": "400",
             "style": "normal",
@@ -3451,7 +3451,7 @@
           {
             "path": "assets/theme/fonts/manrope/manrope-latin-500-normal-19874318747181a6.woff2",
             "url": "/alpha/assets/theme/fonts/manrope/manrope-latin-500-normal-19874318747181a6.woff2",
-            "stylesheet": "assets/theme/base-6fd28af880012706.css",
+            "stylesheet": "assets/theme/base-c67b24ddc2b27581.css",
             "family": "Manrope",
             "weight": "500",
             "style": "normal",
@@ -3463,7 +3463,7 @@
           {
             "path": "assets/theme/fonts/manrope/manrope-latin-700-normal-d2a12c85a831e4b5.woff2",
             "url": "/alpha/assets/theme/fonts/manrope/manrope-latin-700-normal-d2a12c85a831e4b5.woff2",
-            "stylesheet": "assets/theme/base-6fd28af880012706.css",
+            "stylesheet": "assets/theme/base-c67b24ddc2b27581.css",
             "family": "Manrope",
             "weight": "700",
             "style": "normal",
@@ -3475,7 +3475,7 @@
           {
             "path": "assets/theme/fonts/vazirmatn/vazirmatn-arabic-400-normal-e31830d3a52e0259.woff2",
             "url": "/alpha/assets/theme/fonts/vazirmatn/vazirmatn-arabic-400-normal-e31830d3a52e0259.woff2",
-            "stylesheet": "assets/theme/base-6fd28af880012706.css",
+            "stylesheet": "assets/theme/base-c67b24ddc2b27581.css",
             "family": "Vazirmatn",
             "weight": "400",
             "style": "normal",
@@ -3487,7 +3487,7 @@
           {
             "path": "assets/theme/fonts/vazirmatn/vazirmatn-arabic-500-normal-d3bc3b18900b5655.woff2",
             "url": "/alpha/assets/theme/fonts/vazirmatn/vazirmatn-arabic-500-normal-d3bc3b18900b5655.woff2",
-            "stylesheet": "assets/theme/base-6fd28af880012706.css",
+            "stylesheet": "assets/theme/base-c67b24ddc2b27581.css",
             "family": "Vazirmatn",
             "weight": "500",
             "style": "normal",
@@ -3499,22 +3499,22 @@
           {
             "path": "assets/theme/fonts/vazirmatn/vazirmatn-arabic-700-normal-aa79f9419fa0f5ef.woff2",
             "url": "/alpha/assets/theme/fonts/vazirmatn/vazirmatn-arabic-700-normal-aa79f9419fa0f5ef.woff2",
-            "stylesheet": "assets/theme/base-6fd28af880012706.css",
+            "stylesheet": "assets/theme/base-c67b24ddc2b27581.css",
             "family": "Vazirmatn",
             "weight": "700",
             "style": "normal",
             "display": "optional",
             "format": "woff2",
             "raw": 21728,
-            "gzip": 21738
+            "gzip": 21739
           }
         ]
       }
     },
     "/alpha/stale/": {
       "css/base": {
-        "raw": 145606,
-        "gzip": 27143,
+        "raw": 149217,
+        "gzip": 27419,
         "count": 1
       },
       "css/page": {
@@ -3524,12 +3524,12 @@
       },
       "js/chrome": {
         "raw": 88710,
-        "gzip": 33259,
+        "gzip": 33343,
         "count": 38
       },
       "js/components": {
         "raw": 14068,
-        "gzip": 5715,
+        "gzip": 5730,
         "count": 10
       },
       "js/inline": {
@@ -3539,13 +3539,13 @@
       },
       "font/self-hosted": {
         "raw": 150048,
-        "gzip": 150239,
+        "gzip": 150240,
         "count": 8,
         "assets": [
           {
             "path": "assets/theme/fonts/jetbrains-mono/jetbrains-mono-latin-400-normal-14425ba9c695763c.woff2",
             "url": "/alpha/assets/theme/fonts/jetbrains-mono/jetbrains-mono-latin-400-normal-14425ba9c695763c.woff2",
-            "stylesheet": "assets/theme/base-6fd28af880012706.css",
+            "stylesheet": "assets/theme/base-c67b24ddc2b27581.css",
             "family": "JetBrains Mono",
             "weight": "400",
             "style": "normal",
@@ -3557,7 +3557,7 @@
           {
             "path": "assets/theme/fonts/jetbrains-mono/jetbrains-mono-latin-700-normal-d0d4e818808f2a0b.woff2",
             "url": "/alpha/assets/theme/fonts/jetbrains-mono/jetbrains-mono-latin-700-normal-d0d4e818808f2a0b.woff2",
-            "stylesheet": "assets/theme/base-6fd28af880012706.css",
+            "stylesheet": "assets/theme/base-c67b24ddc2b27581.css",
             "family": "JetBrains Mono",
             "weight": "700",
             "style": "normal",
@@ -3569,7 +3569,7 @@
           {
             "path": "assets/theme/fonts/manrope/manrope-latin-400-normal-849290ef12a2eeb9.woff2",
             "url": "/alpha/assets/theme/fonts/manrope/manrope-latin-400-normal-849290ef12a2eeb9.woff2",
-            "stylesheet": "assets/theme/base-6fd28af880012706.css",
+            "stylesheet": "assets/theme/base-c67b24ddc2b27581.css",
             "family": "Manrope",
             "weight": "400",
             "style": "normal",
@@ -3581,7 +3581,7 @@
           {
             "path": "assets/theme/fonts/manrope/manrope-latin-500-normal-19874318747181a6.woff2",
             "url": "/alpha/assets/theme/fonts/manrope/manrope-latin-500-normal-19874318747181a6.woff2",
-            "stylesheet": "assets/theme/base-6fd28af880012706.css",
+            "stylesheet": "assets/theme/base-c67b24ddc2b27581.css",
             "family": "Manrope",
             "weight": "500",
             "style": "normal",
@@ -3593,7 +3593,7 @@
           {
             "path": "assets/theme/fonts/manrope/manrope-latin-700-normal-d2a12c85a831e4b5.woff2",
             "url": "/alpha/assets/theme/fonts/manrope/manrope-latin-700-normal-d2a12c85a831e4b5.woff2",
-            "stylesheet": "assets/theme/base-6fd28af880012706.css",
+            "stylesheet": "assets/theme/base-c67b24ddc2b27581.css",
             "family": "Manrope",
             "weight": "700",
             "style": "normal",
@@ -3605,7 +3605,7 @@
           {
             "path": "assets/theme/fonts/vazirmatn/vazirmatn-arabic-400-normal-e31830d3a52e0259.woff2",
             "url": "/alpha/assets/theme/fonts/vazirmatn/vazirmatn-arabic-400-normal-e31830d3a52e0259.woff2",
-            "stylesheet": "assets/theme/base-6fd28af880012706.css",
+            "stylesheet": "assets/theme/base-c67b24ddc2b27581.css",
             "family": "Vazirmatn",
             "weight": "400",
             "style": "normal",
@@ -3617,7 +3617,7 @@
           {
             "path": "assets/theme/fonts/vazirmatn/vazirmatn-arabic-500-normal-d3bc3b18900b5655.woff2",
             "url": "/alpha/assets/theme/fonts/vazirmatn/vazirmatn-arabic-500-normal-d3bc3b18900b5655.woff2",
-            "stylesheet": "assets/theme/base-6fd28af880012706.css",
+            "stylesheet": "assets/theme/base-c67b24ddc2b27581.css",
             "family": "Vazirmatn",
             "weight": "500",
             "style": "normal",
@@ -3629,22 +3629,22 @@
           {
             "path": "assets/theme/fonts/vazirmatn/vazirmatn-arabic-700-normal-aa79f9419fa0f5ef.woff2",
             "url": "/alpha/assets/theme/fonts/vazirmatn/vazirmatn-arabic-700-normal-aa79f9419fa0f5ef.woff2",
-            "stylesheet": "assets/theme/base-6fd28af880012706.css",
+            "stylesheet": "assets/theme/base-c67b24ddc2b27581.css",
             "family": "Vazirmatn",
             "weight": "700",
             "style": "normal",
             "display": "optional",
             "format": "woff2",
             "raw": 21728,
-            "gzip": 21738
+            "gzip": 21739
           }
         ]
       }
     },
     "/alpha/status/": {
       "css/base": {
-        "raw": 145606,
-        "gzip": 27143,
+        "raw": 149217,
+        "gzip": 27419,
         "count": 1
       },
       "css/page": {
@@ -3654,12 +3654,12 @@
       },
       "js/chrome": {
         "raw": 88710,
-        "gzip": 33259,
+        "gzip": 33343,
         "count": 38
       },
       "js/components": {
         "raw": 14068,
-        "gzip": 5715,
+        "gzip": 5730,
         "count": 10
       },
       "js/inline": {
@@ -3669,13 +3669,13 @@
       },
       "font/self-hosted": {
         "raw": 150048,
-        "gzip": 150239,
+        "gzip": 150240,
         "count": 8,
         "assets": [
           {
             "path": "assets/theme/fonts/jetbrains-mono/jetbrains-mono-latin-400-normal-14425ba9c695763c.woff2",
             "url": "/alpha/assets/theme/fonts/jetbrains-mono/jetbrains-mono-latin-400-normal-14425ba9c695763c.woff2",
-            "stylesheet": "assets/theme/base-6fd28af880012706.css",
+            "stylesheet": "assets/theme/base-c67b24ddc2b27581.css",
             "family": "JetBrains Mono",
             "weight": "400",
             "style": "normal",
@@ -3687,7 +3687,7 @@
           {
             "path": "assets/theme/fonts/jetbrains-mono/jetbrains-mono-latin-700-normal-d0d4e818808f2a0b.woff2",
             "url": "/alpha/assets/theme/fonts/jetbrains-mono/jetbrains-mono-latin-700-normal-d0d4e818808f2a0b.woff2",
-            "stylesheet": "assets/theme/base-6fd28af880012706.css",
+            "stylesheet": "assets/theme/base-c67b24ddc2b27581.css",
             "family": "JetBrains Mono",
             "weight": "700",
             "style": "normal",
@@ -3699,7 +3699,7 @@
           {
             "path": "assets/theme/fonts/manrope/manrope-latin-400-normal-849290ef12a2eeb9.woff2",
             "url": "/alpha/assets/theme/fonts/manrope/manrope-latin-400-normal-849290ef12a2eeb9.woff2",
-            "stylesheet": "assets/theme/base-6fd28af880012706.css",
+            "stylesheet": "assets/theme/base-c67b24ddc2b27581.css",
             "family": "Manrope",
             "weight": "400",
             "style": "normal",
@@ -3711,7 +3711,7 @@
           {
             "path": "assets/theme/fonts/manrope/manrope-latin-500-normal-19874318747181a6.woff2",
             "url": "/alpha/assets/theme/fonts/manrope/manrope-latin-500-normal-19874318747181a6.woff2",
-            "stylesheet": "assets/theme/base-6fd28af880012706.css",
+            "stylesheet": "assets/theme/base-c67b24ddc2b27581.css",
             "family": "Manrope",
             "weight": "500",
             "style": "normal",
@@ -3723,7 +3723,7 @@
           {
             "path": "assets/theme/fonts/manrope/manrope-latin-700-normal-d2a12c85a831e4b5.woff2",
             "url": "/alpha/assets/theme/fonts/manrope/manrope-latin-700-normal-d2a12c85a831e4b5.woff2",
-            "stylesheet": "assets/theme/base-6fd28af880012706.css",
+            "stylesheet": "assets/theme/base-c67b24ddc2b27581.css",
             "family": "Manrope",
             "weight": "700",
             "style": "normal",
@@ -3735,7 +3735,7 @@
           {
             "path": "assets/theme/fonts/vazirmatn/vazirmatn-arabic-400-normal-e31830d3a52e0259.woff2",
             "url": "/alpha/assets/theme/fonts/vazirmatn/vazirmatn-arabic-400-normal-e31830d3a52e0259.woff2",
-            "stylesheet": "assets/theme/base-6fd28af880012706.css",
+            "stylesheet": "assets/theme/base-c67b24ddc2b27581.css",
             "family": "Vazirmatn",
             "weight": "400",
             "style": "normal",
@@ -3747,7 +3747,7 @@
           {
             "path": "assets/theme/fonts/vazirmatn/vazirmatn-arabic-500-normal-d3bc3b18900b5655.woff2",
             "url": "/alpha/assets/theme/fonts/vazirmatn/vazirmatn-arabic-500-normal-d3bc3b18900b5655.woff2",
-            "stylesheet": "assets/theme/base-6fd28af880012706.css",
+            "stylesheet": "assets/theme/base-c67b24ddc2b27581.css",
             "family": "Vazirmatn",
             "weight": "500",
             "style": "normal",
@@ -3759,22 +3759,22 @@
           {
             "path": "assets/theme/fonts/vazirmatn/vazirmatn-arabic-700-normal-aa79f9419fa0f5ef.woff2",
             "url": "/alpha/assets/theme/fonts/vazirmatn/vazirmatn-arabic-700-normal-aa79f9419fa0f5ef.woff2",
-            "stylesheet": "assets/theme/base-6fd28af880012706.css",
+            "stylesheet": "assets/theme/base-c67b24ddc2b27581.css",
             "family": "Vazirmatn",
             "weight": "700",
             "style": "normal",
             "display": "optional",
             "format": "woff2",
             "raw": 21728,
-            "gzip": 21738
+            "gzip": 21739
           }
         ]
       }
     },
     "/alpha/timeline/": {
       "css/base": {
-        "raw": 145606,
-        "gzip": 27143,
+        "raw": 149217,
+        "gzip": 27419,
         "count": 1
       },
       "css/page": {
@@ -3784,12 +3784,12 @@
       },
       "js/chrome": {
         "raw": 88710,
-        "gzip": 33259,
+        "gzip": 33343,
         "count": 38
       },
       "js/components": {
         "raw": 16238,
-        "gzip": 6572,
+        "gzip": 6590,
         "count": 11
       },
       "js/inline": {
@@ -3799,13 +3799,13 @@
       },
       "font/self-hosted": {
         "raw": 150048,
-        "gzip": 150239,
+        "gzip": 150240,
         "count": 8,
         "assets": [
           {
             "path": "assets/theme/fonts/jetbrains-mono/jetbrains-mono-latin-400-normal-14425ba9c695763c.woff2",
             "url": "/alpha/assets/theme/fonts/jetbrains-mono/jetbrains-mono-latin-400-normal-14425ba9c695763c.woff2",
-            "stylesheet": "assets/theme/base-6fd28af880012706.css",
+            "stylesheet": "assets/theme/base-c67b24ddc2b27581.css",
             "family": "JetBrains Mono",
             "weight": "400",
             "style": "normal",
@@ -3817,7 +3817,7 @@
           {
             "path": "assets/theme/fonts/jetbrains-mono/jetbrains-mono-latin-700-normal-d0d4e818808f2a0b.woff2",
             "url": "/alpha/assets/theme/fonts/jetbrains-mono/jetbrains-mono-latin-700-normal-d0d4e818808f2a0b.woff2",
-            "stylesheet": "assets/theme/base-6fd28af880012706.css",
+            "stylesheet": "assets/theme/base-c67b24ddc2b27581.css",
             "family": "JetBrains Mono",
             "weight": "700",
             "style": "normal",
@@ -3829,7 +3829,7 @@
           {
             "path": "assets/theme/fonts/manrope/manrope-latin-400-normal-849290ef12a2eeb9.woff2",
             "url": "/alpha/assets/theme/fonts/manrope/manrope-latin-400-normal-849290ef12a2eeb9.woff2",
-            "stylesheet": "assets/theme/base-6fd28af880012706.css",
+            "stylesheet": "assets/theme/base-c67b24ddc2b27581.css",
             "family": "Manrope",
             "weight": "400",
             "style": "normal",
@@ -3841,7 +3841,7 @@
           {
             "path": "assets/theme/fonts/manrope/manrope-latin-500-normal-19874318747181a6.woff2",
             "url": "/alpha/assets/theme/fonts/manrope/manrope-latin-500-normal-19874318747181a6.woff2",
-            "stylesheet": "assets/theme/base-6fd28af880012706.css",
+            "stylesheet": "assets/theme/base-c67b24ddc2b27581.css",
             "family": "Manrope",
             "weight": "500",
             "style": "normal",
@@ -3853,7 +3853,7 @@
           {
             "path": "assets/theme/fonts/manrope/manrope-latin-700-normal-d2a12c85a831e4b5.woff2",
             "url": "/alpha/assets/theme/fonts/manrope/manrope-latin-700-normal-d2a12c85a831e4b5.woff2",
-            "stylesheet": "assets/theme/base-6fd28af880012706.css",
+            "stylesheet": "assets/theme/base-c67b24ddc2b27581.css",
             "family": "Manrope",
             "weight": "700",
             "style": "normal",
@@ -3865,7 +3865,7 @@
           {
             "path": "assets/theme/fonts/vazirmatn/vazirmatn-arabic-400-normal-e31830d3a52e0259.woff2",
             "url": "/alpha/assets/theme/fonts/vazirmatn/vazirmatn-arabic-400-normal-e31830d3a52e0259.woff2",
-            "stylesheet": "assets/theme/base-6fd28af880012706.css",
+            "stylesheet": "assets/theme/base-c67b24ddc2b27581.css",
             "family": "Vazirmatn",
             "weight": "400",
             "style": "normal",
@@ -3877,7 +3877,7 @@
           {
             "path": "assets/theme/fonts/vazirmatn/vazirmatn-arabic-500-normal-d3bc3b18900b5655.woff2",
             "url": "/alpha/assets/theme/fonts/vazirmatn/vazirmatn-arabic-500-normal-d3bc3b18900b5655.woff2",
-            "stylesheet": "assets/theme/base-6fd28af880012706.css",
+            "stylesheet": "assets/theme/base-c67b24ddc2b27581.css",
             "family": "Vazirmatn",
             "weight": "500",
             "style": "normal",
@@ -3889,14 +3889,14 @@
           {
             "path": "assets/theme/fonts/vazirmatn/vazirmatn-arabic-700-normal-aa79f9419fa0f5ef.woff2",
             "url": "/alpha/assets/theme/fonts/vazirmatn/vazirmatn-arabic-700-normal-aa79f9419fa0f5ef.woff2",
-            "stylesheet": "assets/theme/base-6fd28af880012706.css",
+            "stylesheet": "assets/theme/base-c67b24ddc2b27581.css",
             "family": "Vazirmatn",
             "weight": "700",
             "style": "normal",
             "display": "optional",
             "format": "woff2",
             "raw": 21728,
-            "gzip": 21738
+            "gzip": 21739
           }
         ]
       }

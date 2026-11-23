@@ -35,7 +35,7 @@
   gap: var(--space-2);
   margin-block-end: var(--space-2);
   color: var(--muted-foreground);
-  font-size: var(--text-xs);
+  font-size: var(--type-size-xs);
 }
 
 /* Reserve the toolbar's space during startup on script-enabled pages. */
@@ -274,7 +274,7 @@ html[data-js] .source-mode-switch[hidden] {
   unicode-bidi: isolate;
   color: var(--muted-foreground);
   font-family: var(--type-font-mono);
-  font-size: var(--text-xs);
+  font-size: var(--type-size-xs);
   line-height: 1.25;
 }
 
@@ -422,7 +422,7 @@ html[data-js] .source-mode-switch[hidden] {
   .compare .compare-record {
     display: block;
     color: var(--muted-foreground);
-    font-size: var(--text-sm);
+    font-size: var(--type-size-sm);
     text-align: start;
     overflow-wrap: anywhere;
   }

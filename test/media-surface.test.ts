@@ -35,7 +35,7 @@ test("an image keeps its natural size and never stretches", () => {
 test("the caption and credit stay quiet and start-aligned", () => {
   const caption = declarations("\\.figure-caption");
   assert.match(caption, /color:\s*var\(--muted-foreground\)/);
-  assert.match(caption, /font-size:\s*var\(--text-sm\)/);
+  assert.match(caption, /font-size:\s*var\(--type-size-sm\)/);
   assert.match(caption, /margin-block-start:\s*var\(--space-2\)/);
   assert.match(caption, /overflow-wrap:\s*anywhere/);
   assert.doesNotMatch(caption, /text-align:\s*center/, "the caption aligns with the prose, not under a centered image");
