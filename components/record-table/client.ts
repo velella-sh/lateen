@@ -7,7 +7,6 @@
  * The chosen sort and filters live in the query string, so a shared link opens the same view; the
  * address is replaced, never pushed, and a page with several tables prefixes each table's keys. */
 
-import { revealApiSchema } from "../../src/collection-api-client.ts";
 import { compareKeys, sortKey, sortRows, type SortDirection, type SortKey } from "../../src/sort.ts";
 import { withParams, type ParamValue } from "../../src/url.ts";
 
@@ -362,10 +361,7 @@ export function activate(doc: SortDocument): () => void {
 }
 
 /** The browser environment: the page's document. */
-const globals = globalThis as unknown as { document?: SortDocument & Pick<Document, "querySelector"> };
+const globals = globalThis as unknown as { document?: SortDocument };
 
 // The island runs when the browser loads it; nothing happens in a runtime without a document.
-if (globals.document) {
-  activate(globals.document);
-  void revealApiSchema(globals.document);
-}
+if (globals.document) activate(globals.document);

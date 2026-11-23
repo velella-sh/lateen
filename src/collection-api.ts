@@ -1,10 +1,11 @@
 import { h } from "preact";
 import type { ComponentChildren } from "preact";
-import type { LayoutProps } from "@velella/mizzen/contracts";
+import type { Island, LayoutProps } from "@velella/mizzen/contracts";
+import collectionApiSchema from "../components/collection-api-schema/index.ts";
 import { t } from "../i18n/index.ts";
 
 /** Links to Mizzen's newest active API version for this collection, with a deprecated fallback. */
-export function collectionApi({ page, site, record, list }: LayoutProps): ComponentChildren {
+export function collectionApi({ page, site, record, list, islands }: LayoutProps): ComponentChildren {
   const api = site.config?.api;
   const name = record?.collection ?? list?.collection;
   if (api === undefined || name === undefined || site.config.outputs?.api === false) return null;
@@ -32,6 +33,21 @@ export function collectionApi({ page, site, record, list }: LayoutProps): Compon
 
   const prefix = `${site.config.base.replace(/\/+$/, "")}/api/${selected.version}`;
   const segment = encodeURIComponent(name);
+  const schema = record === undefined && collection?.schema !== undefined
+    ? collectionApiSchema({
+        page,
+        site,
+        html: "",
+        props: { index: `${prefix}/index.json`, schema: `${prefix}/schemas/${segment}.json` },
+      }) as ComponentChildren
+    : null;
+  if (schema !== null) {
+    // Mizzen writes the client modules named by the rendered layout.
+    (islands as Island[]).push({
+      name: "collection-api-schema",
+      src: `${site.config.base}/assets/theme/islands/components/collection-api-schema/client.js`,
+    });
+  }
   const files = record === undefined
     ? [
         [`${segment}.json`, "data_api_json"],
@@ -49,13 +65,7 @@ export function collectionApi({ page, site, record, list }: LayoutProps): Compon
     ),
     h("ul", null,
       files.map(([path, label]) => h("li", null, h("a", { href: `${prefix}/${path}` }, t(page.lang, label)))),
-      record === undefined && collection?.schema !== undefined
-        ? h("li", {
-            hidden: true,
-            "data-api-index": `${prefix}/index.json`,
-            "data-api-schema": `${prefix}/schemas/${segment}.json`,
-          }, h("a", null, t(page.lang, "data_api_schema")))
-        : null,
+      schema,
     ),
   );
 }

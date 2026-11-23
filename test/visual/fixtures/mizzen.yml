@@ -27,6 +27,9 @@ collections:
     search:
       filters: [published]
       sort: [title]
+  api-books:
+    source: _data/record-table.json
+    schema: _data/api-books-schema.json
   timeline:
     source: _data/timeline.json
     id: id
@@ -89,3 +92,7 @@ calendars:
       - name: updated
         field: updated
         title: "{title} updated"
+
+api:
+  collections:
+    api-books: { fields: [title] }

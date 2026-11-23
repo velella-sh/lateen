@@ -40,6 +40,7 @@
     { "name": "cli-demo", "selector": ".cli-demo" },
     { "name": "code", "selector": "pre.code" },
     { "name": "code-tabs", "selector": ".code-tabs" },
+    { "name": "collection-api-schema", "selector": "[data-api-schema]", "page": "/collection-api/" },
     { "name": "compare", "selector": ".compare" },
     { "name": "cta-band", "selector": "section.cta-band" },
     { "name": "data-explorer", "selector": ".data-explorer" },

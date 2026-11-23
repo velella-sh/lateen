@@ -1,6 +1,6 @@
 import assert from "node:assert/strict";
 import { test } from "node:test";
-import { revealApiSchema } from "../src/collection-api-client.ts";
+import { revealApiSchema } from "../components/collection-api-schema/client.ts";
 import { attrs, build, dataSite, type BuiltSite } from "./integration-helpers.ts";
 
 const links = (site: BuiltSite, path: string) =>
@@ -77,10 +77,10 @@ test("record and list pages link to their collection's newest active API files u
   assert.deepEqual(Object.keys(schema.properties), ["slug", "name"]);
 
   const componentList = site.document("/components/");
-  const island = "assets/theme/islands/components/record-table/client.js";
+  const island = "assets/theme/islands/components/collection-api-schema/client.js";
   assert.ok(componentList.querySelector(`script[src="${base}/${island}"]`));
   assert.match(site.file(island), /revealApiSchema/);
-  assert.ok(site.file("assets/theme/islands/src/collection-api-client.js"));
+  assert.equal(site.document("/components/item-button/").querySelector(`script[src="${base}/${island}"]`), null);
   await revealApiSchema(componentList, async (url) => {
     assert.equal(url, `${version}/index.json`);
     return new Response(site.file("api/v10/index.json"));

@@ -16,7 +16,6 @@
     "assets/theme/islands/components/data-explorer/state.js",
     "assets/theme/islands/components/data-explorer/view.js",
     "assets/theme/islands/components/search-result/model.js",
-    "assets/theme/islands/src/collection-api-client.js",
     "assets/theme/islands/src/configured-calendar.js"
   ]
 }
