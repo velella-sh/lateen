@@ -143,6 +143,7 @@ export async function runFamilyIdentity(browser: Browser, root: string, project:
             assert.equal(await page.locator(selector + ' [aria-current="true"]').getAttribute("href"), "/" + preset + "/");
           }
           const next = presets[(presets.indexOf(preset) + 1) % presets.length];
+          await page.locator(".network-footer summary").click();
           await page.locator('.network-footer a[href="/' + next + '/"]').click();
           assert.equal(new URL(page.url()).pathname, "/" + next + "/");
         }
