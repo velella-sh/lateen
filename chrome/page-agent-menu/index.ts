@@ -3,7 +3,7 @@ import type { Chrome } from "@velella/mizzen/contracts";
 import { ChevronDown } from "lucide";
 import { t } from "../../i18n/index.ts";
 import { icon } from "../../src/icon.ts";
-import { agentNotes, editPrompt } from "../../src/agent.ts";
+import { agentNotes, canEditPage, editPrompt } from "../../src/agent.ts";
 import { expand, jsonUrl, providersOf, safeAgentHref } from "./providers.ts";
 import { twinUrl } from "../copy-markdown/twin.ts";
 import { providerLogo } from "./logos.ts";
@@ -31,7 +31,7 @@ function pageAgentMenu(
   options: { flat?: boolean } = {},
 ) {
   if (page.kind !== "doc") return null;
-  const canEdit = page.frontMatter.agent?.edit !== false;
+  const canEdit = canEditPage(site.config, page);
   const markdown = twinUrl(page.url);
   if (markdown === undefined) return null;
 
@@ -40,7 +40,7 @@ function pageAgentMenu(
   const providers: Array<{ title: string; href: string }> = [];
   for (const provider of providersOf(site.config)) {
     const href = safeAgentHref(expand(site.config, page, provider.url, markdown, {
-      prompt: () => canEdit ? editPrompt(page) : undefined,
+      prompt: () => canEdit ? editPrompt(page, site.config) : undefined,
       read: (url) => t(lang, "page_agent_read", { markdown: url }) + agentNotes(page),
     }));
     if (href !== undefined) providers.push({ title: provider.title, href });

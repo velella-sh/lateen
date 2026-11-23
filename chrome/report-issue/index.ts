@@ -3,6 +3,7 @@ import type { Chrome, Page, PageRecord, RepositoryConfig, Site, SiteConfig } fro
 import { t } from "../../i18n/index.ts";
 import { clipTitle, fitUrl, hostOf, lineUrlOf, oneLine, webRoot } from "../../src/repository.ts";
 import { isRecord, textOf as text } from "../../src/guards.ts";
+import { recordFileOf, recordOrigin } from "../../src/data-source.ts";
 import { optionOf } from "../../src/options.ts";
 
 /*
@@ -88,11 +89,10 @@ export function titleOf(page: Page, prefix?: string, field?: string): string {
  * The lines that name a record: its collection, its id, and its data file at the record's first line, linked
  * to the repository when the host gives a URL. Field values stay out; they can be long and the id is enough.
  */
-function recordLines(record: PageRecord, repository: RepositoryConfig | undefined): string[] {
-  const file = record.position.file;
-  const line = record.position.startLine;
-  const data = `${file}:${line}`;
-  const href = repository === undefined ? undefined : lineUrlOf(repository, file, line);
+function recordLines(page: Page, record: PageRecord, repository: RepositoryConfig | undefined, config?: SiteConfig): string[] {
+  const file = recordFileOf(config, page);
+  const data = recordOrigin(config, page) ?? `${record.collection}`;
+  const href = repository === undefined || file?.start === undefined ? undefined : lineUrlOf(repository, file.file, file.start);
   return [
     `Collection: ${record.collection}`,
     `Record: ${record.id}`,
@@ -104,7 +104,7 @@ function recordLines(record: PageRecord, repository: RepositoryConfig | undefine
  * The issue body: the page address, the field a fact report names, then the record or the source
  * file, language and version, each on its own line.
  */
-export function bodyOf(page: Page, repository?: RepositoryConfig, field?: string): string {
+export function bodyOf(page: Page, repository?: RepositoryConfig, field?: string, config?: SiteConfig): string {
   const version = versionOf(page);
   const record = page.record;
   return [
@@ -112,7 +112,7 @@ export function bodyOf(page: Page, repository?: RepositoryConfig, field?: string
     "",
     `Page: ${page.url}`,
     ...(field === undefined ? [] : [`Field: ${field}`]),
-    ...(record === undefined ? [`Source: ${sourceOf(page)}`] : recordLines(record, repository)),
+    ...(record === undefined ? [`Source: ${sourceOf(page)}`] : recordLines(page, record, repository, config)),
     `Language: ${page.lang}`,
     ...(version === "" ? [] : [`Version: ${version}`]),
     "",
@@ -133,13 +133,13 @@ function isHttps(value: string): boolean {
  * value that itself contains `{title}` is never expanded again. An unknown placeholder is left as written.
  * `undefined` when the template or its result is not an `https` address.
  */
-export function fillTemplate(template: string, page: Page, title: string, body: string): string | undefined {
+export function fillTemplate(template: string, page: Page, title: string, body: string, config?: SiteConfig): string | undefined {
   if (!isHttps(template.replace(/\{\w+\}/g, "x"))) return undefined;
   const values: Record<string, string> = {
     title,
     body,
     url: page.url,
-    source: sourceOf(page),
+    source: recordOrigin(config, page) ?? sourceOf(page),
     lang: page.lang,
     version: versionOf(page),
   };
@@ -170,8 +170,8 @@ export function reportHref(site: Site, page: Page, field?: string): string | und
   const options = optionsOf(site.config);
   if (!options.enabled) return undefined;
   const title = titleOf(page, options.titlePrefix, field);
-  const body = bodyOf(page, site.config.repository, field);
-  if (options.url !== undefined) return fillTemplate(options.url, page, title, body);
+  const body = bodyOf(page, site.config.repository, field, site.config);
+  if (options.url !== undefined) return fillTemplate(options.url, page, title, body, site.config);
   const repository = site.config.repository;
   if (repository === undefined) return undefined;
   const host = hostOf(repository);

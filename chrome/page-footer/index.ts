@@ -1,17 +1,17 @@
 import { h, type ComponentChildren } from "preact";
-import type { Chrome, Page } from "@velella/mizzen/contracts";
+import type { Chrome, Page, Site } from "@velella/mizzen/contracts";
 import { ArrowUp, SquarePen } from "lucide";
 import { t } from "../../i18n/index.ts";
 import { icon } from "../../src/icon.ts";
-import { editPrompt } from "../../src/agent.ts";
+import { canEditPage, editPrompt } from "../../src/agent.ts";
 import copyMarkdown from "../copy-markdown/index.ts";
 import editPage from "../edit-page/index.ts";
 import pageAgentMenu from "../page-agent-menu/index.ts";
 import { reportHref } from "../report-issue/index.ts";
 
 /** The button that copies a prompt asking an agent to edit this page; `client.ts` reveals it. */
-function agentAction(page: Page) {
-  if (page.frontMatter.agent?.edit === false) return null;
+function agentAction(site: Site, page: Page) {
+  if (!canEditPage(site.config, page)) return null;
   const lang = page.lang;
   return h(
     "button",
@@ -20,7 +20,7 @@ function agentAction(page: Page) {
       class: "page-footer-copy",
       hidden: true,
       "data-page-footer-copy": true,
-      "data-prompt": editPrompt(page),
+      "data-prompt": editPrompt(page, site.config),
       "data-copied": t(lang, "copied"),
       "data-copy-failed": t(lang, "copy_failed"),
     },
@@ -53,7 +53,7 @@ const pageFooter: Chrome = (props) => {
       : h("p", { class: "page-footer-feedback" },
           h("a", { href: report, rel: "noopener" }, t(page.lang, page.record === undefined ? "report_issue" : "report_data")),
         );
-  return h("div", { class: "page-footer" }, agentAction(page), reportLink, backToTop(page.lang));
+  return h("div", { class: "page-footer" }, agentAction(site, page), reportLink, backToTop(page.lang));
 };
 
 /**
@@ -62,7 +62,7 @@ const pageFooter: Chrome = (props) => {
  */
 export function docPageTools(props: Parameters<Chrome>[0], ...extra: ComponentChildren[]): ComponentChildren[] {
   const { site, page } = props;
-  const action = agentAction(page);
+  const action = agentAction(site, page);
   const menu = pageAgentMenu(props, action, { flat: true });
   const report = reportHref(site, page);
   const reportLink =
