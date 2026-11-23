@@ -45,7 +45,7 @@ function layoutProps(frontMatter: Record<string, unknown>, body: string): Layout
     kind: "doc",
   };
   const site: Site = { config, pages: [current], nav: {}, data: {}, collections: {} };
-  return { site, page: current, trail: [], pager: {}, head: { title: "Home · Example", meta: [], links: [], jsonLd: [] }, islands: [] };
+  return { renderComponent: () => "", site, page: current, trail: [], pager: {}, head: { title: "Home · Example", meta: [], links: [], jsonLd: [] }, islands: [] };
 }
 
 /** The front-matter paths read while the layout runs, containers removed. */

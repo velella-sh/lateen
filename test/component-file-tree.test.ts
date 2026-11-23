@@ -53,7 +53,7 @@ function html(node: unknown): string {
 }
 
 function render(body: string, props: Record<string, string> = {}, on: Page = { ...page }): string {
-  const componentProps: ComponentProps<Record<string, string>> = { props, page: on, site, html: body };
+  const componentProps: ComponentProps<Record<string, string>> = { inline: false, renderComponent: () => "", props, page: on, site, html: body };
   return html(fileTree(componentProps as ComponentProps<{ label?: string }>));
 }
 

@@ -60,7 +60,7 @@ const BODY = [
 ].join("\n");
 
 function render(props: OsTabsProps, body = BODY): string {
-  return html(osTabs({ props, page, site, html: body }));
+  return html(osTabs({ inline: false, renderComponent: () => "", props, page, site, html: body }));
 }
 
 type VNode = { type: unknown; props: { children?: unknown; [key: string]: unknown } };

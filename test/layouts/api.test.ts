@@ -59,6 +59,7 @@ function pageWith(overrides: Partial<Page> = {}): Page {
 function layoutProps(page: Page, nav: Site["nav"]["main"] = [], trail: LayoutProps["trail"] = []): LayoutProps {
   const site: Site = { config: configWith(), pages: [page], nav: { main: nav }, data: {}, collections: {} };
   return {
+    renderComponent: () => "",
     site,
     page,
     trail,

@@ -58,6 +58,7 @@ function layoutProps(page: Page, nav: Site["nav"]["main"] = [], repository?: Rep
     collections: {},
   };
   return {
+    renderComponent: () => "",
     site,
     page,
     trail: [],

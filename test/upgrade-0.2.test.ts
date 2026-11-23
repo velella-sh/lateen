@@ -254,6 +254,13 @@ function normalize(text: string): { head: string; body: string } {
   // A fence's token spans are the highlighter's presentation of the same text, and the engine's
   // grammar version can change them. Keep the block, its attributes, and its text; drop the spans.
   for (const block of [...document.querySelectorAll("pre.code")]) block.textContent = block.textContent;
+  // Mizzen supplies social metadata now. The head metadata suite checks those fields independently.
+  for (const meta of document.head.querySelectorAll('meta[property^="og:"], meta[name^="twitter:"], script[type="application/ld+json"]')) {
+    meta.remove();
+  }
+  // Canonical link order depends on which engine output assembled the head.
+  const canonical = document.head.querySelector('link[rel="canonical"]');
+  if (canonical !== null) document.head.append(canonical);
   return { head: document.head.innerHTML, body: document.body.innerHTML };
 }
 

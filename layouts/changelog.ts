@@ -174,6 +174,7 @@ function entry(release: Release, props: LayoutProps): IdentifiedRelease {
     ...(release.categories === undefined ? {} : { categories: release.categories }),
   };
   const node = changelogEntry({
+    inline: false, renderComponent: props.renderComponent,
     props: entryProps,
     page: props.page,
     site: props.site,

@@ -154,10 +154,8 @@ for (const [layout, page] of Object.entries(PAGES)) {
     const doc = headOf(page);
     const got = printed(doc);
     assert.ok(doc.title.length > 0, "title");
-    // Pages the engine generates (blog archive, API reference) have no front matter, so no description.
-    const generated = ["blog archive", "api-reference index", "api-reference"].includes(layout);
     const descriptions = got.meta.filter((meta) => meta.startsWith("name:description=")).length;
-    assert.equal(descriptions, generated ? 0 : 1, generated ? "KNOWN GAP: the engine hands generated pages no description" : "one description");
+    assert.equal(descriptions, 1, "one description");
     const canonical = Array.from(doc.querySelectorAll('link[rel="canonical"]'), (link) => link.getAttribute("href"));
     assert.equal(canonical.length, 1, "one canonical link");
     assert.match(canonical[0] ?? "", /^https:\/\/example\.com\/docs\//, "canonical carries the site url and base");
@@ -182,14 +180,10 @@ test("a collection with seo reaches its record and list pages", () => {
   // The collection's seo config (`jsonLd`, `breadcrumbs`) is the engine's to turn into `head.jsonLd`.
   const record = printed(headOf("/books/alpha/"));
   const list = printed(headOf("/books/"));
-  // Known gap, see the report: Mizzen 0.2.5's render step builds the head in `pipeline/parallel.js`
-  // (`headOf`) and never calls `outputs/head-meta.js` `headMeta`, which holds the Open Graph, Twitter,
-  // social image and JSON-LD rules. Until it does, the layouts have nothing of the kind to print.
-  // When this test fails, the engine started handing them over: delete the assertions below and
-  // assert them for every page in PAGES instead.
   for (const got of [record, list]) {
-    assert.deepEqual(got.jsonLd, [], "KNOWN GAP: the engine hands no JSON-LD");
-    assert.deepEqual(got.meta.filter((meta) => /^(property:og:|name:twitter:)/.test(meta)), [], "KNOWN GAP: the engine hands no og:/twitter: meta");
+    assert(got.jsonLd.length > 0, "collection schema and breadcrumbs reach the layout");
+    assert(got.meta.some((meta) => meta.startsWith("property:og:")), "Open Graph metadata reaches the layout");
+    assert(got.meta.some((meta) => meta.startsWith("name:twitter:")), "Twitter metadata reaches the layout");
   }
 });
 

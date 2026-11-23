@@ -102,6 +102,8 @@ function walk(dir: string, out: string[] = []): string[] {
 test("the theme imports the engine only as @velella/mizzen/contracts, never by relative path", () => {
   const bad: string[] = [];
   for (const file of walk(root)) {
+    // This fixture is copied to a standalone consumer project and exercises the installed producer.
+    if (file === join(root, "test/acceptance/collect-report.mjs")) continue;
     for (const m of readFileSync(file, "utf8").matchAll(SPECIFIER)) {
       const spec = m[1] ?? "";
       const relativeEngine = spec.startsWith(".") && /(?:^|\/)engine(?:\/|$)/.test(spec);

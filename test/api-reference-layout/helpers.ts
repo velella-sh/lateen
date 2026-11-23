@@ -53,6 +53,7 @@ export function layoutProps(
 ): LayoutProps {
   const site: Site = { config: configWith(), pages: [...pages], nav: { main: nav }, data: {}, collections: {} };
   return {
+    renderComponent: () => "",
     site,
     page,
     trail,

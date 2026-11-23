@@ -49,3 +49,5 @@ theme:
     footer:
       copyright: "© Acceptance"
       license: "MIT license"
+
+outputs: { check-report: true }

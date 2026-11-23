@@ -43,6 +43,7 @@ function layoutProps(frontMatter: Record<string, unknown> = {}, html = ""): Layo
   };
   const site: Site = { config: configWith(), pages: [page], nav: { main: [{ title: "Home", url: "/" }] }, data: {}, collections: {} };
   return {
+    renderComponent: () => "",
     site,
     page,
     trail: [],

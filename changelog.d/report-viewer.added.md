@@ -1,0 +1,1 @@
+- Show published check reports in the doc layout, including findings, linked comparisons, trend tables and charts, and the public JSON. The `report` starter demonstrates the full flow.

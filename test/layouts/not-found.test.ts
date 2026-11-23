@@ -58,6 +58,7 @@ function layoutProps(
     : [page, { ...page, url: searchPath, frontMatter: { layout: "search-results" } }];
   const site: Site = { config: configWith(config), pages, nav: { main: [] }, data: {}, collections: {} };
   return {
+    renderComponent: () => "",
     site,
     page,
     trail: [],

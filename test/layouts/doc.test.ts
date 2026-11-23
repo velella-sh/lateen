@@ -64,6 +64,7 @@ function layoutProps(
     collections: {},
   };
   return {
+    renderComponent: () => "",
     site,
     page,
     trail,

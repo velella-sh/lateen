@@ -53,7 +53,7 @@ function embedPanel(props: LayoutProps): ComponentChildren {
     "section",
     { class: EMBED_CLASS, "aria-labelledby": "record-embed" },
     h("h2", { id: "record-embed" }, label),
-    embedCode({ props: { src, title: props.page.title }, page: props.page, site: props.site, html: "" }) as ComponentChildren,
+    embedCode({ inline: false, renderComponent: props.renderComponent, props: { src, title: props.page.title }, page: props.page, site: props.site, html: "" }) as ComponentChildren,
   );
 }
 
@@ -107,6 +107,7 @@ function article(props: LayoutProps): ComponentChildren {
     replacementNotice(props),
     summaryOf(props),
     addToCalendar({
+      inline: false, renderComponent: props.renderComponent,
       props: {
         ...(props.record?.calendar === undefined ? {} : { calendar: props.record.calendar }),
         ...(props.record?.calendars === undefined ? {} : { calendars: props.record.calendars }),
@@ -123,6 +124,7 @@ function article(props: LayoutProps): ComponentChildren {
     h("div", { class: "record-body", dangerouslySetInnerHTML: { __html: pageHtml(props.page.html, props.page.lang) } }),
     pageToolSlot(props),
     recordHistory({
+      inline: false, renderComponent: props.renderComponent,
       props: props.record?.changes === undefined ? {} : { changes: props.record.changes },
       page: props.page,
       site: props.site,
