@@ -835,6 +835,14 @@ async function main(): Promise<void> {
             if (fonts !== undefined) await fonts;
           });
           const results = await new AxeBuilder({ page }).withTags([...WCAG_TAGS]).analyze();
+          for (const violation of results.violations) {
+            if (violation.impact !== "critical" && violation.impact !== "serious") continue;
+            for (const node of violation.nodes) {
+              const checks = [...node.any, ...node.all, ...node.none];
+              const related = checks.flatMap((check) => check.relatedNodes ?? []).map((entry) => entry.target.join(" "));
+              console.error(`detail: ${item.name} (${theme}) ${violation.id} ${node.target.join(" ")}: ${checks.map((check) => check.message).join(" | ")}${related.length > 0 ? ` [related: ${related.join(", ")}]` : ""}`);
+            }
+          }
           findings.push(...findingsFrom(item, theme, results.violations));
           reported.push(...reportFindingsFrom(item, theme, results.violations));
         } finally {
