@@ -1,0 +1,45 @@
+# Verifies Mizzen's head contract (0.2.2) on every layout: social images, `og:` and `twitter:` meta
+# (`property` tags), canonical and alternate links, JSON-LD, and a script tag. Built under a base
+# path by test/head-meta.test.ts.
+title: Head verification
+description: Every layout prints the whole head.
+lang: en
+url: https://example.com
+base: /docs
+search: { text: 300 }
+social:
+  template: card
+  fonts: [fonts/card.ttf]
+analytics:
+  provider: custom
+  src: https://stats.example.com/count.js
+  attrs: { defer: "" }
+apiReference:
+  source: openapi.json
+  path: /reference/
+blog:
+  posts: posts
+  route: blog
+  archive: archive
+  authors: false
+  feed: true
+  pageSize: 10
+collections:
+  books:
+    source: _data/books.json
+    id: id
+    template: _templates/books.md
+    permalink: /books/{id}/
+    seo:
+      titleMax: 60
+      descriptionMax: 150
+      jsonLd:
+        "@type": Book
+        name: "{title}"
+        author: "{author}"
+      breadcrumbs: true
+    views:
+      embed:
+        template: _templates/books-embed.md
+        permalink: /books/{id}/embed/
+        layout: embedded
