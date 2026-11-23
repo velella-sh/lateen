@@ -21,6 +21,7 @@ jobs:
       name: github-pages
       url: ${{ steps.deploy.outputs.page_url }}
     permissions:
+      actions: read
       contents: read
       pages: write
       id-token: write
@@ -66,6 +67,19 @@ jobs:
         with:
           path: ${{ runner.temp }}/site
           include-hidden-files: true
+      - name: Wait for the Pages artifact to be listed
+        # deploy-pages looks the artifact up right after the upload and can
+        # race GitHub's listing, failing with "No artifacts named github-pages".
+        run: |
+          for i in $(seq 1 30); do
+            n=$(gh api "repos/$GITHUB_REPOSITORY/actions/runs/$GITHUB_RUN_ID/artifacts?name=github-pages" --jq '.total_count')
+            [ "$n" -ge 1 ] && exit 0
+            sleep 2
+          done
+          echo "github-pages artifact was not listed after 60s" >&2
+          exit 1
+        env:
+          GH_TOKEN: ${{ github.token }}
       - id: deploy
         uses: actions/deploy-pages@368f82528645a54fb793d4d04e342629a3f51346 # v5.0.1
       - name: Smoke-test the deployed site
