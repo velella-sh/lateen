@@ -16,6 +16,7 @@ theme:
     preset: lateen
     network:
       switcher: false
+      footer: false
       search: false
     glossary:
       collection: glossary
