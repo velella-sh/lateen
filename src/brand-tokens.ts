@@ -343,7 +343,6 @@ export function tokensCss(tokens: BrandTokens, selector = ":root:root"): string 
 const BRAND_ALIASES = {
   background: "color-canvas",
   foreground: "color-text",
-  card: "color-surface-raised",
   "card-foreground": "color-text",
   "popover-foreground": "color-text",
   primary: "color-accent",
@@ -375,17 +374,23 @@ function noteColor(color: string, surface: string): string {
  */
 export function brandCss(brand: Brand, { base = "", selector = ":root:root" }: { base?: string; selector?: string } = {}): string {
   const tokens = { ...brandTokens(brand), ...fontTokens(brand) };
-  const aliases = Object.entries(BRAND_ALIASES)
+  // A full palette explicitly names its panel surface. A tint keeps the raised-card role.
+  const card = typeof brand.neutral === "object" ? "color-surface" : "color-surface-raised";
+  const aliases = Object.entries({ ...BRAND_ALIASES, card })
     .filter(([, name]) => name in tokens)
     .map(([alias, name]) => `  --${alias}: var(--${name});`);
   const faces = fontFaces(brand, base);
   const block = tokensCss(tokens, selector);
-  const bridge = aliases.length === 0 ? "" : `${selector} {\n${aliases.join("\n")}\n}`;
-  const code = brand.neutral === undefined ? "" : `${selector === ":root:root" ? `${selector} .doc` : selector} { --doc-code-bg: var(--code-bg); }`;
+  // The bridge connects the real article components to the preview palette. The shell keeps its aliases.
+  const content = selector === ":root:root" ? `${selector} .doc-body` : selector;
+  const bridge = aliases.length === 0 ? "" : `${content} {\n${aliases.join("\n")}\n}`;
+  const code = brand.neutral === undefined ? "" : `${content} { --doc-code-bg: var(--code-bg); }`;
   const link = tokens["color-link"];
-  const note = link === undefined ? "" : `${selector} .callout-note { --callout-color: ${tokenCssValue({
-    light: noteColor(link.light, tokens["color-surface-raised"]?.light ?? DEFAULT_COLORS.light["surface-raised"]),
-    dark: noteColor(link.dark, tokens["color-surface-raised"]?.dark ?? DEFAULT_COLORS.dark["surface-raised"]),
+  const note = link === undefined ? "" : `${content} .callout-note { --callout-color: ${tokenCssValue({
+    light: noteColor(link.light, tokens[card]?.light ?? DEFAULT_COLORS.light["surface-raised"]),
+    dark: noteColor(link.dark, tokens[card]?.dark ?? DEFAULT_COLORS.dark["surface-raised"]),
   })}; }`;
-  return [faces, block, bridge, code, note].filter((part) => part !== "").join("\n");
+  // The callout wash lowers contrast on its links. Use the stronger link shade inside it.
+  const callout = link === undefined ? "" : `${content} .callout { --link: var(--color-link-hover); }`;
+  return [faces, block, bridge, code, note, callout].filter((part) => part !== "").join("\n");
 }
