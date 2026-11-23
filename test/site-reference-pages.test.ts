@@ -94,6 +94,7 @@ test("component reference leads with its complete alphabetized inventory", () =>
     "reports",
     "schema-table",
     "stale-notice",
+    "state",
     "status",
     "status-banner",
     "steps",

@@ -136,7 +136,7 @@ test("the page links its Atom feed", () => {
 test("an empty history keeps the empty note and draws no rows", () => {
   const { feed: _feed, ...rest } = listProps();
   const html = htmlOf({ ...rest, records: [], groups: [] });
-  assert.ok(html.includes("list-empty"));
+  assert.ok(html.includes("state-empty"));
   assert.ok(!html.includes("changes-list"));
   assert.ok(!html.includes("list-feed"));
 });

@@ -93,6 +93,12 @@ fixture and checked by `test/visual/inventory.test.ts`; it is not part of the sc
 
 ::status-banner{status=old-version version="0.2.0"}
 
+## state
+
+::state{kind=error description="The index did not load."}
+
+::state{kind=not-found code="404" title="Page not found" description="The page has moved." actions='[{"href":"/","label":"Home"}]'}
+
 ## status
 
 :status[Archived]{tone=neutral} :status[Info]{tone=info}

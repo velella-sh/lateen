@@ -349,6 +349,10 @@ The text wraps inside the column instead of being clipped on a narrow screen.
 
 ::stat-strip
 
+## state
+
+::state{kind=empty description="No posts yet."}
+
 ## status
 
 :status[Done]{tone=positive} :status[Late]{tone=negative} :status[Soon]{tone=caution}

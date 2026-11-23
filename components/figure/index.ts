@@ -1,6 +1,7 @@
 import { h } from "preact";
 import type { ComponentProps } from "@velella/mizzen/contracts";
 import { parseJson, textOf as trimmed } from "../../src/guards.ts";
+import { t } from "../../i18n/index.ts";
 import { instanceId } from "../../src/page-ids.ts";
 import { baseOf, safeHref, srcsetWithBase, withBase } from "../../src/url.ts";
 
@@ -44,6 +45,8 @@ export type FigureProps = {
   width?: string;
   /** Intrinsic height in pixels, so the layout does not shift when the image loads. */
   height?: string;
+  /** Set to `true` to let the image open larger in place. Works without JavaScript; the `href` link stays as the fallback. */
+  zoom?: string;
   /** `lazy` (the default) or `eager`. Use `eager` for an image above the fold. */
   loading?: string;
   /** `async` (the default), `sync`, or `auto`. */
@@ -170,7 +173,34 @@ export default function figure({ props, html, site, page }: ComponentProps<Figur
     ? h("div", { class: PAIR_CLASS, role: alt === "" ? undefined : "img", "aria-label": alt === "" ? undefined : alt }, light, dark)
     : light;
   const href = fullSizeHref(base, props.href);
-  const single = href === undefined ? pair : h("a", { class: "figure-link", href }, pair);
+  const zoomed = props.zoom === "true" && gallery.length < 2 && !paired;
+  const lang = typeof page.lang === "string" ? page.lang : "en";
+  const zoomId = zoomed ? instanceId(page, `${id ?? "figure"}-zoom`) : "";
+  const full = href ?? src;
+  const single = zoomed
+    ? h(
+        "div",
+        { class: "figure-zoomable" },
+        h(
+          "button",
+          { type: "button", class: "figure-zoom", popovertarget: zoomId, "aria-label": `${t(lang, "figure_zoom")}${alt === "" ? "" : `: ${alt}`}` },
+          light,
+        ),
+        h(
+          "div",
+          { id: zoomId, popover: "auto", class: "figure-zoom-panel", role: "dialog", "aria-label": alt === "" ? t(lang, "figure_zoom") : alt },
+          h("img", { class: "figure-zoom-img", src: full, alt, loading: "lazy", decoding: "async" }),
+          h(
+            "div",
+            { class: "figure-zoom-bar" },
+            h("a", { class: "figure-zoom-full", href: full }, t(lang, "figure_zoom_full")),
+            h("button", { type: "button", class: "figure-zoom-close", popovertarget: zoomId, popovertargetaction: "hide" }, t(lang, "figure_zoom_close")),
+          ),
+        ),
+      )
+    : href === undefined
+      ? pair
+      : h("a", { class: "figure-link", href }, pair);
   // Every gallery image keeps its own alt; src_dark, href, srcset and sizes describe the single image only.
   const media =
     gallery.length < 2

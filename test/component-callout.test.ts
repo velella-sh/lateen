@@ -1,10 +1,11 @@
 import assert from "node:assert/strict";
+import { readFileSync } from "node:fs";
 import { join } from "node:path";
 import { test } from "node:test";
 import { fileURLToPath } from "node:url";
 import type { ComponentProps, Page } from "@velella/mizzen/contracts";
 import { renderToString } from "preact-render-to-string";
-import callout, { TITLE_CLASS, calloutKind, type CalloutProps } from "../components/callout/index.ts";
+import callout, { CALLOUT_ALIASES, CALLOUT_KINDS, TITLE_CLASS, calloutKind, type CalloutProps } from "../components/callout/index.ts";
 import { readUiCss } from "./ui-css-helpers.ts";
 
 const root = fileURLToPath(new URL("../", import.meta.url));
@@ -126,6 +127,26 @@ test("unknown, missing, and non-string types are notes", () => {
 test("danger is read as caution, and type is case-insensitive", () => {
   assert.equal(calloutKind("danger"), "caution");
   assert.equal(calloutKind(" TIP "), "tip");
+});
+
+test("the docs table lists every kind and every alias, and nothing the code does not read (#1209)", () => {
+  const docs = readFileSync(join(root, "site/components/callout.md"), "utf8");
+  const section = docs.slice(docs.indexOf("## Kinds and aliases"), docs.indexOf("## Accessibility"));
+  const rows = [...section.matchAll(/^\| `(\w+)` \| [^|]+ \| ([^|]+) \|$/gm)];
+  assert.deepEqual(rows.map((row) => row[1]), [...CALLOUT_KINDS], "one row per kind, in order");
+  for (const [, kind = "", names = ""] of rows) {
+    const documented = [...names.matchAll(/`(\w+)`/g)].map((match) => match[1]).sort();
+    const read = [...CALLOUT_ALIASES].filter(([name, target]) => target === kind && name !== kind).map(([name]) => name).sort();
+    assert.deepEqual(documented, read, `the aliases of ${kind}`);
+  }
+});
+
+test("every kind has its own colour rule in the stylesheet (#1209)", () => {
+  const css = readUiCss();
+  for (const kind of CALLOUT_KINDS) {
+    if (kind === "note") continue; // the base rule is the note's colour
+    assert.match(css, new RegExp(`\\.callout-${kind}\\s*\\{[^}]*--callout-color`), `.callout-${kind} sets --callout-color`);
+  }
 });
 
 test("a custom title replaces the default; a blank one does not", () => {

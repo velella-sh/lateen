@@ -242,6 +242,15 @@ function normalize(text: string): { head: string; body: string } {
   for (const element of [...document.querySelectorAll(".not-found")]) element.classList.remove("lonely");
   for (const element of [...document.querySelectorAll(".not-found-code")]) element.classList.remove("code-mark");
   for (const element of [...document.querySelectorAll(".not-found > .lead")]) element.classList.remove("lead");
+  // The state unit gives the 404 and the list's empty note one shared set of class names. Both sides are
+  // reduced to the same bare markup: the old `not-found*` and `list-empty` classes and the new `state*`
+  // classes are removed, and a class attribute left empty is dropped. Text, order, roles and links stay.
+  for (const element of [...document.querySelectorAll("[class]")]) {
+    for (const name of [...element.classList]) {
+      if (/^(state|not-found|list-empty)(-|$)/.test(name) || name === "list-empty") element.classList.remove(name);
+    }
+    if (element.classList.length === 0) element.removeAttribute("class");
+  }
   for (const element of [...document.querySelectorAll("[data-search-ask-heading]")]) {
     for (const name of ["data-search-ask-heading", "data-search-ask-label", "data-search-ask-hint"]) {
       element.removeAttribute(name);
@@ -250,6 +259,12 @@ function normalize(text: string): { head: string; body: string } {
   // A failed index load gained its own messages and a retry control, both removed as intended differences.
   for (const element of [...document.querySelectorAll("[data-search]")]) {
     for (const name of ["data-search-ready", "data-search-retry-failed"]) element.removeAttribute(name);
+  }
+  // Every code block is a named group, so a keyboard user who lands on its scrollable region hears
+  // its language or title. The block, its text, and its other attributes are unchanged.
+  for (const block of [...document.querySelectorAll("pre.code[role='group']")]) {
+    block.removeAttribute("role");
+    block.removeAttribute("aria-label");
   }
   // A fence's token spans are the highlighter's presentation of the same text, and the engine's
   // grammar version can change them. Keep the block, its attributes, and its text; drop the spans.

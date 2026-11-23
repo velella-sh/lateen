@@ -1,48 +1,76 @@
 {
   "tool": "lateen/screen-reader-audit",
   "version": 1,
-  "commit": "f4f5ab0e8c7bbac76ceff743e8d3ff15fa103cd6",
+  "commit": "8639113e2ed5229cee2985965faaac93feb4b670",
   "cases": [
     {
       "name": "search",
       "path": "/guide/install/",
       "viewport": "desktop",
-      "snapshot": "- dialog \"Search\":\n  - search:\n    - text: Search\n    - combobox \"Search\" [expanded]\n    - button \"Close search\"\n  - status\n  - listbox \"Search\":\n    - group \"Actions\":\n      - text: Actions\n      - option \"Light Switch theme\"\n      - option \"Dark Switch theme\"\n      - option \"System Switch theme\"\n      - option \"Copy page as Markdown Copy as Markdown\"\n      - option \"Install Go to section\"\n      - option \"Configure Go to section\"\n      - option \"Source mode Show file and line beside each block\"\n  - paragraph",
+      "snapshot": "- dialog \"Search\":\n  - search:\n    - text: Search\n    - combobox \"Search\" [expanded]\n    - button \"Close search, Esc\"\n  - status\n  - listbox \"Search\":\n    - group \"Actions\":\n      - text: Actions\n      - option \"Light Switch theme\"\n      - option \"Dark Switch theme\"\n      - option \"Copy page as Markdown Copy as Markdown\"\n      - option \"Install Go to section\"\n      - option \"Configure Go to section\"\n      - option \"Source mode Show file and line beside each block\"",
       "finding": "Spoken output was not captured in this environment; the accessibility tree is recorded here."
     },
     {
       "name": "search",
       "path": "/guide/install/",
       "viewport": "mobile",
-      "snapshot": "- dialog \"Search\":\n  - search:\n    - text: Search\n    - combobox \"Search\" [expanded]\n    - button \"Close search\"\n  - status\n  - listbox \"Search\":\n    - group \"Actions\":\n      - text: Actions\n      - option \"Light Switch theme\"\n      - option \"Dark Switch theme\"\n      - option \"System Switch theme\"\n      - option \"Copy page as Markdown Copy as Markdown\"\n      - option \"Install Go to section\"\n      - option \"Configure Go to section\"\n      - option \"Source mode Show file and line beside each block\"\n  - paragraph",
+      "snapshot": "- dialog \"Search\":\n  - search:\n    - text: Search\n    - combobox \"Search\" [expanded]\n    - button \"Close search, Esc\"\n  - status\n  - listbox \"Search\":\n    - group \"Actions\":\n      - text: Actions\n      - option \"Light Switch theme\"\n      - option \"Dark Switch theme\"\n      - option \"Copy page as Markdown Copy as Markdown\"\n      - option \"Install Go to section\"\n      - option \"Configure Go to section\"\n      - option \"Source mode Show file and line beside each block\"",
       "finding": "Spoken output was not captured in this environment; the accessibility tree is recorded here."
     },
     {
       "name": "compare",
       "path": "/compare/",
       "viewport": "desktop",
-      "snapshot": "- paragraph: \"0 same · 2 different · 0 missing Changed: Author, Published\"\n- checkbox \"Show only differences\"\n- text: Show only differences\n- status: 2 of 2 rows shown\n- button \"Copy comparison as Markdown\"\n- status\n- table:\n  - rowgroup:\n    - row \"Alpha Change record Beta Change record\":\n      - cell\n      - columnheader \"Alpha Change record\":\n        - link \"Alpha\":\n          - /url: /fa/books/alpha/embed/\n        - button \"Change record\"\n      - columnheader \"Beta Change record\":\n        - link \"Beta\":\n          - /url: /fa/books/beta/embed/\n        - button \"Change record\"\n  - rowgroup:\n    - row \"Author Differs Ada Bashir\":\n      - rowheader \"Author Differs\"\n      - cell \"Ada\"\n      - cell \"Bashir\"\n    - row \"Published Differs January 12, 2026 February 3, 2026\":\n      - rowheader \"Published Differs\"\n      - cell \"January 12, 2026\":\n        - time: January 12, 2026\n      - cell \"February 3, 2026\":\n        - time: February 3, 2026\n- button \"Edit with your agent (compare.md:8:1-8:150)\": Edit with your agent",
+      "snapshot": "- paragraph: \"0 same · 2 different · 0 missing Changed: Author, Published\"\n- checkbox \"Show only differences\"\n- text: Show only differences\n- status: 2 of 2 rows shown\n- button \"Copy comparison as Markdown\"\n- status\n- table:\n  - rowgroup:\n    - row \"Alpha Change record Beta Change record\":\n      - cell\n      - columnheader \"Alpha Change record\":\n        - link \"Alpha\":\n          - /url: /fa/books/alpha/embed/\n        - button \"Change record\"\n      - columnheader \"Beta Change record\":\n        - link \"Beta\":\n          - /url: /fa/books/beta/embed/\n        - button \"Change record\"\n  - rowgroup:\n    - row \"Author Differs Ada Bashir\":\n      - rowheader \"Author Differs\"\n      - cell \"Ada\"\n      - cell \"Bashir\"\n    - row \"Published Differs 12 January 2026 3 February 2026\":\n      - rowheader \"Published Differs\"\n      - cell \"12 January 2026\":\n        - time: 12 January 2026\n      - cell \"3 February 2026\":\n        - time: 3 February 2026",
       "finding": "Spoken output was not captured in this environment; the accessibility tree is recorded here."
     },
     {
       "name": "compare",
       "path": "/compare/",
       "viewport": "mobile",
-      "snapshot": "- paragraph: \"0 same · 2 different · 0 missing Changed: Author, Published\"\n- checkbox \"Show only differences\"\n- text: Show only differences\n- status: 2 of 2 rows shown\n- button \"Copy comparison as Markdown\"\n- status\n- table:\n  - rowgroup:\n    - row \"Author Differs Alpha Ada Beta Bashir\":\n      - rowheader \"Author Differs\"\n      - cell \"Alpha Ada\"\n      - cell \"Beta Bashir\"\n    - row \"Published Differs Alpha January 12, 2026 Beta February 3, 2026\":\n      - rowheader \"Published Differs\"\n      - cell \"Alpha January 12, 2026\":\n        - text: Alpha\n        - time: January 12, 2026\n      - cell \"Beta February 3, 2026\":\n        - text: Beta\n        - time: February 3, 2026\n- button \"Edit with your agent (compare.md:8:1-8:150)\": Edit with your agent",
+      "snapshot": "- paragraph: \"0 same · 2 different · 0 missing Changed: Author, Published\"\n- checkbox \"Show only differences\"\n- text: Show only differences\n- status: 2 of 2 rows shown\n- button \"Copy comparison as Markdown\"\n- status\n- table:\n  - rowgroup:\n    - row \"Author Differs Alpha Ada Beta Bashir\":\n      - rowheader \"Author Differs\"\n      - cell \"Alpha Ada\"\n      - cell \"Beta Bashir\"\n    - row \"Published Differs Alpha 12 January 2026 Beta 3 February 2026\":\n      - rowheader \"Published Differs\"\n      - cell \"Alpha 12 January 2026\":\n        - text: Alpha\n        - time: 12 January 2026\n      - cell \"Beta 3 February 2026\":\n        - text: Beta\n        - time: 3 February 2026",
       "finding": "Spoken output was not captured in this environment; the accessibility tree is recorded here."
     },
     {
       "name": "code copy",
       "path": "/guide/install/",
       "viewport": "desktop",
-      "snapshot": "- button \"Copy\"\n- status\n- button \"Wrap lines\"\n- code:\n  - link \"Link to line 1\":\n    - /url: \"#code-guide-install-md-21-1-23-3-L1\"\n    - text: \"#\"\n  - text: export const answer = 42;\n- button \"Edit with your agent (guide/install.md:21:1-23:3)\": Edit with your agent",
+      "snapshot": "- text: ts\n- button \"Copy\"\n- status\n- button \"Wrap lines\"\n- 'group \"Code: ts\"':\n  - code:\n    - link \"Link to line 1\":\n      - /url: \"#code-guide-install-md-25-1-27-3-L1\"\n      - text: \"#\"\n    - text: export const answer = 42;",
       "finding": "Spoken output was not captured in this environment; the accessibility tree is recorded here."
     },
     {
       "name": "code copy",
       "path": "/guide/install/",
       "viewport": "mobile",
-      "snapshot": "- button \"Copy\"\n- status\n- button \"Wrap lines\"\n- code:\n  - link \"Link to line 1\":\n    - /url: \"#code-guide-install-md-21-1-23-3-L1\"\n    - text: \"#\"\n  - text: export const answer = 42;\n- button \"Edit with your agent (guide/install.md:21:1-23:3)\": Edit with your agent",
+      "snapshot": "- text: ts\n- button \"Copy\"\n- status\n- button \"Wrap lines\"\n- 'group \"Code: ts\"':\n  - code:\n    - link \"Link to line 1\":\n      - /url: \"#code-guide-install-md-25-1-27-3-L1\"\n      - text: \"#\"\n    - text: export const answer = 42;",
+      "finding": "Spoken output was not captured in this environment; the accessibility tree is recorded here."
+    },
+    {
+      "name": "callout",
+      "path": "/guide/install/",
+      "viewport": "desktop",
+      "snapshot": "- note \"Back up first\":\n  - paragraph: Warning\n  - paragraph: Back up first\n  - paragraph: A warning callout with a title.",
+      "finding": "Spoken output was not captured in this environment; the accessibility tree is recorded here."
+    },
+    {
+      "name": "callout",
+      "path": "/guide/install/",
+      "viewport": "mobile",
+      "snapshot": "- note \"Back up first\":\n  - paragraph: Warning\n  - paragraph: Back up first\n  - paragraph: A warning callout with a title.",
+      "finding": "Spoken output was not captured in this environment; the accessibility tree is recorded here."
+    },
+    {
+      "name": "callout disclosure",
+      "path": "/guide/install/",
+      "viewport": "desktop",
+      "snapshot": "- group:\n  - text: Check the version first\n  - paragraph: A collapsible callout starts closed and opens with the keyboard.",
+      "finding": "Spoken output was not captured in this environment; the accessibility tree is recorded here."
+    },
+    {
+      "name": "callout disclosure",
+      "path": "/guide/install/",
+      "viewport": "mobile",
+      "snapshot": "- group:\n  - text: Check the version first\n  - paragraph: A collapsible callout starts closed and opens with the keyboard.",
       "finding": "Spoken output was not captured in this environment; the accessibility tree is recorded here."
     }
   ],
@@ -61,6 +89,22 @@
     },
     {
       "location": "/compare/ mobile",
+      "note": "Spoken output was not captured in this environment; the accessibility tree is recorded here."
+    },
+    {
+      "location": "/guide/install/ desktop",
+      "note": "Spoken output was not captured in this environment; the accessibility tree is recorded here."
+    },
+    {
+      "location": "/guide/install/ mobile",
+      "note": "Spoken output was not captured in this environment; the accessibility tree is recorded here."
+    },
+    {
+      "location": "/guide/install/ desktop",
+      "note": "Spoken output was not captured in this environment; the accessibility tree is recorded here."
+    },
+    {
+      "location": "/guide/install/ mobile",
       "note": "Spoken output was not captured in this environment; the accessibility tree is recorded here."
     },
     {

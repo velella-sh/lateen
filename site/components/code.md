@@ -72,7 +72,7 @@ The notes are ordinary HTML: a `<details>` element with a summary and an ordered
 ## Notes
 
 - An example longer than 20 lines starts inside a native disclosure, so the page stays scannable. The full code is still in the DOM, the copy control still copies all of it, and the disclosure opens without JavaScript.
-- The copy button is made by JavaScript on every page and starts hidden. Without JavaScript the code still reads and selects by hand.
+- The copy button is made by JavaScript on every page and starts hidden. Without JavaScript the code still reads and selects by hand. A browser test with script turned off covers blocks, language tabs, diffs and long examples: each block is named, no dead control is shown, and the long example opens from the keyboard.
 - Each copy control owns one status region, so copying one block updates only that block's message, even beside another block or the page-level Markdown copy. The button's accessible name stays `Copy` before and after, so the result is announced once.
 - The wrap toggle beside the copy button changes only presentation: long lines break in the view, while the copied text keeps the original line breaks. Without JavaScript the toggle stays absent and the block scrolls as before.
 - At an effective 320px width a long line scrolls inside its code block, or wraps when the toggle is on. The page itself does not scroll horizontally.

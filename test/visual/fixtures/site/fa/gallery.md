@@ -346,6 +346,10 @@ A page outside the default version states its version and links to the equivalen
 
 ::stat-strip
 
+## state
+
+::state{kind=empty description="هنوز نوشته‌ای نیست."}
+
 ## status
 
 :status[Done]{tone=positive} :status[Late]{tone=negative} :status[Soon]{tone=caution}

@@ -22,7 +22,7 @@
         "required": ["name", "path", "viewport", "snapshot"],
         "additionalProperties": false,
         "properties": {
-          "name": { "type": "string", "enum": ["search", "compare", "code copy"] },
+          "name": { "type": "string", "enum": ["search", "compare", "code copy", "callout", "callout disclosure"] },
           "path": { "type": "string" },
           "viewport": { "type": "string", "enum": ["desktop", "mobile"] },
           "snapshot": {

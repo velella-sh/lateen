@@ -85,6 +85,7 @@
     { "name": "stacked-bar", "selector": "figure.stacked-bar" },
     { "name": "stale-notice", "selector": ".stale-notice", "page": "/inventory/" },
     { "name": "stat-strip", "selector": "ul.stat-strip" },
+    { "name": "state", "selector": ".state", "page": "/inventory/" },
     { "name": "status", "selector": ".status", "variants": ["positive", "caution", "negative", "neutral", "info"] },
     { "name": "status-banner", "selector": ".status-banner", "variants": ["deprecated", "experimental", "old-version"] },
     { "name": "status-legend", "selector": "ul.status-legend" },

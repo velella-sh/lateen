@@ -445,3 +445,40 @@ test("an absolute image URL is never rewritten", () => {
   } as unknown as ComponentProps<FigureProps>;
   assert.match(renderToString(figure(input) as never), /src="https:\/\/cdn\.test\/a\.png"/);
 });
+
+test("zoom opens a native popover from a named button and keeps the full-size link (#1215)", () => {
+  const html = renderToString(
+    figure({
+      props: { src: "/a.png", alt: "A chart", zoom: "true", href: "https://cdn.test/a-large.png", id: "chart" },
+      html: "",
+      page: {} as ComponentProps["page"],
+      site: {} as ComponentProps["site"],
+    } as ComponentProps<FigureProps>) as never,
+  );
+  assert.match(html, /<button type="button" class="figure-zoom" popovertarget="chart-zoom" aria-label="Enlarge image: A chart">/);
+  assert.match(html, /<div id="chart-zoom" popover="auto" class="figure-zoom-panel" role="dialog" aria-label="A chart">/);
+  assert.match(html, /<img class="figure-zoom-img" src="https:\/\/cdn\.test\/a-large\.png"/);
+  assert.match(html, /<a class="figure-zoom-full" href="https:\/\/cdn\.test\/a-large\.png">Open full size<\/a>/);
+  assert.match(html, /popovertargetaction="hide"/);
+  assert.doesNotMatch(html, /<script/);
+});
+
+test("zoom is opt-in and skipped for pairs and galleries", () => {
+  const base = { html: "", page: {} as ComponentProps["page"], site: {} as ComponentProps["site"] };
+  const plain = renderToString(figure({ ...base, props: { src: "/a.png", alt: "A" } } as ComponentProps<FigureProps>) as never);
+  assert.doesNotMatch(plain, /popover/);
+  const paired = renderToString(
+    figure({ ...base, props: { src: "/a.png", src_dark: "/b.png", alt: "A", zoom: "true" } } as ComponentProps<FigureProps>) as never,
+  );
+  assert.doesNotMatch(paired, /popover/);
+});
+
+test("two zoomed figures on one page get different popover ids", () => {
+  const page = {} as ComponentProps["page"];
+  const make = () =>
+    renderToString(
+      figure({ props: { src: "/a.png", alt: "A", zoom: "true" }, html: "", page, site: {} as ComponentProps["site"] } as ComponentProps<FigureProps>) as never,
+    );
+  const ids = [make(), make()].map((out) => /popovertarget="([^"]+)"/.exec(out)?.[1]);
+  assert.notEqual(ids[0], ids[1]);
+});

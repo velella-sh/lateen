@@ -241,6 +241,14 @@ export function blockId(src: string): string {
   return `code-${slug || "block"}`;
 }
 
+/**
+ * The accessible name of a code block that has no title: its language in the page language, or just "Code"
+ * for plain text. A block is a focusable, scrollable `group`, so a keyboard user hears what they landed on.
+ */
+export function codeLabel(pageLang: string, language: string): string {
+  return language === "text" ? t(pageLang, "code_block") : t(pageLang, "code_block_language", { lang: language });
+}
+
 export type CodeProps = {
   /** Language of the fence. */
   lang?: string;
@@ -270,7 +278,15 @@ export default function code({ props, html, page, site }: ComponentProps<CodePro
   const decorated = block === undefined ? inner : decorateLines(inner, { block, lang: page.lang });
   const pre = h(
     "pre",
-    { class: CODE_CLASS, tabindex: 0, "data-lang": lang, ...(block === undefined ? {} : { id: block, "data-src": src }) },
+    {
+      class: CODE_CLASS,
+      tabindex: 0,
+      ...(block === undefined ? {} : { id: block }),
+      role: "group",
+      "aria-label": codeLabel(typeof page.lang === "string" ? page.lang : "en", lang),
+      "data-lang": lang,
+      ...(block === undefined ? {} : { "data-src": src }),
+    },
     h("code", { dangerouslySetInnerHTML: { __html: decorated } }),
   );
   if (text.split("\n").length <= COLLAPSE_AFTER) return pre;
@@ -383,7 +399,7 @@ export function highlightFences(html: string, backdrops?: CodeBackdrops, lang = 
       const className = kept.extraClass === "" ? CODE_CLASS : `${CODE_CLASS} ${kept.extraClass}`;
       const titleId = meta === undefined || (meta.title ?? "").trim() === "" ? undefined : `${block}-title`;
       const title = meta === undefined ? "" : codeTitleHtml(meta.title, titleId);
-      const labelled = titleId === undefined ? "" : ` aria-labelledby="${titleId}"`;
+      const labelled = ` role="group"${titleId === undefined ? ` aria-label="${escapeHtml(codeLabel(lang, name))}"` : ` aria-labelledby="${titleId}"`}`;
       const notes = meta === undefined ? "" : renderAnnotations(meta.annotations, block, lang, firstLine);
       const pre = `<pre class="${className}" tabindex="0"${idAttr}${labelled} data-lang="${name}"${kept.rest}><code${codeData}>${alias}${decorated}</code></pre>`;
       if (decorated.split("\n").length <= COLLAPSE_AFTER) return `${title}${pre}${notes}`;

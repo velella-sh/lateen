@@ -55,7 +55,7 @@ test("a full block gets a title bar, highlighted numbered lines, and readable no
 
 test("a minimal block keeps its plain fence markup and adds no notes", () => {
   const out = highlightFences(fence("const a = 1;\n", dataCode({})));
-  assert.match(out, /^<pre class="code" tabindex="0" id="code-a-md-3" data-lang="ts" data-src="a.md:3"/);
+  assert.match(out, /^<pre class="code" tabindex="0" id="code-a-md-3" role="group" aria-label="Code: ts" data-lang="ts" data-src="a.md:3"/);
   assert.doesNotMatch(out, /code-title|code-annotations|data-line|highlighted/);
   assert.match(out, /<span class="line" id="code-a-md-3-L1">/);
 });
