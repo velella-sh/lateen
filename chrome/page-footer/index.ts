@@ -1,6 +1,6 @@
 import { h, type ComponentChildren } from "preact";
 import type { Chrome, Page, Site } from "@velella/mizzen/contracts";
-import { ArrowUp, SquarePen } from "lucide";
+import { ArrowUp, Flag, SquarePen } from "lucide";
 import { t } from "../../i18n/index.ts";
 import { icon } from "../../src/icon.ts";
 import { canEditPage, editPrompt } from "../../src/agent.ts";
@@ -10,7 +10,7 @@ import pageAgentMenu from "../page-agent-menu/index.ts";
 import { reportHref } from "../report-issue/index.ts";
 
 /** The button that copies a prompt asking an agent to edit this page; `client.ts` reveals it. */
-function agentAction(site: Site, page: Page) {
+function agentAction(site: Site, page: Page, withIcon = false) {
   if (!canEditPage(site.config, page)) return null;
   const lang = page.lang;
   return h(
@@ -24,6 +24,7 @@ function agentAction(site: Site, page: Page) {
       "data-copied": t(lang, "copied"),
       "data-copy-failed": t(lang, "copy_failed"),
     },
+    withIcon ? icon({ node: SquarePen, class: "row-icon" }) : null,
     t(lang, "edit_label"),
   );
 }
@@ -62,13 +63,14 @@ const pageFooter: Chrome = (props) => {
  */
 export function docPageTools(props: Parameters<Chrome>[0], ...extra: ComponentChildren[]): ComponentChildren[] {
   const { site, page } = props;
-  const action = agentAction(site, page);
+  const action = agentAction(site, page, true);
   const menu = pageAgentMenu(props, action, { flat: true });
   const report = reportHref(site, page);
   const reportLink =
     report === undefined
       ? null
       : h("a", { class: "page-tools-report", href: report, rel: "noopener" },
+          icon({ node: Flag, class: "row-icon" }),
           t(page.lang, page.record === undefined ? "report_issue" : "report_data"),
         );
   return [...(menu === null ? [copyMarkdown(props) as ComponentChildren, action] : [menu]), ...extra, reportLink];

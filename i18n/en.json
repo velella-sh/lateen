@@ -333,6 +333,8 @@
   "page_tool_fallback": "This tool needs JavaScript. Your input stays in your browser.",
   "page_tool_open": "Open the tool file",
   "page_tool_title": "Interactive tool",
+  "page_tools_group_copy": "Copy",
+  "page_tools_group_page": "Page",
   "pager": "Previous and next",
   "pagination": "Pagination",
   "pagination_page": "Page {n}",

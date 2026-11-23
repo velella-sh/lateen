@@ -85,6 +85,39 @@ html[data-js] .source-mode-switch[hidden] {
   flex: none;
 }
 
+/* Inside the Page tools panel Source mode is one more row, like the rows above it: no box, same
+   height and weight, with the on state shown by colour and aria-pressed. */
+.doc-tools .source-mode-switch {
+  margin: 0;
+}
+
+.doc-tools .source-mode-switch .source-mode-controls,
+.doc-tools .source-mode-switch .source-mode-active {
+  display: grid;
+  gap: 0.125rem;
+}
+
+.doc-tools .source-mode-switch button {
+  inline-size: 100%;
+  min-block-size: 2rem;
+  padding: 0.375rem 0.625rem;
+  border: 0;
+  border-radius: var(--radius-md);
+  font-size: var(--type-size-sm);
+  font-weight: 500;
+  color: var(--foreground);
+  white-space: nowrap;
+}
+
+.doc-tools .source-mode-switch button svg {
+  color: var(--muted-foreground);
+}
+
+.doc-tools .source-mode-switch .source-mode-count {
+  padding-inline: 0.625rem;
+  font-size: var(--type-size-xs);
+}
+
 /* The on state is filled and tinted, so it reads as active without colour alone. */
 .source-mode-switch .source-mode-button[aria-pressed="true"] {
   border-color: var(--link);

@@ -333,6 +333,8 @@
   "page_tool_fallback": "این ابزار به JavaScript نیاز دارد. ورودی شما در مرورگرتان می‌ماند.",
   "page_tool_open": "باز کردن فایل ابزار",
   "page_tool_title": "ابزار تعاملی",
+  "page_tools_group_copy": "کپی",
+  "page_tools_group_page": "صفحه",
   "pager": "صفحهٔ قبل و بعد",
   "pagination": "صفحه‌بندی",
   "pagination_page": "صفحهٔ {n}",
