@@ -36,7 +36,7 @@ test("the fixture reuses the accessibility pages instead of copying them", () =>
   const own = readdirSync(GALLERY_SITE, { recursive: true, encoding: "utf8" }).filter(
     (f) => f.endsWith(".md") && !f.startsWith("_templates"),
   );
-  assert.deepEqual(own.sort(), ["ar/gallery.md", "fa/gallery.md", "gallery.md", "inventory.md"]);
+  assert.deepEqual(own.sort(), ["ar/gallery.md", "collection-api.md", "fa/gallery.md", "gallery.md", "inventory.md"]);
   assert.ok(statSync(join(ROOT, "test/visual/fixtures/mizzen.yml")).isFile());
 });
 
