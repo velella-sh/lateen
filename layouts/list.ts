@@ -16,6 +16,7 @@ import recordTable, { columnsOf as tableColumnsOf, type RecordColumn } from "../
 import status, { type StatusTone } from "../components/status/index.ts";
 import { Rss } from "lucide";
 import { icon } from "../src/icon.ts";
+import { collectionApi } from "../src/collection-api.ts";
 import { collectionDownloads } from "../src/collection-downloads.ts";
 import { t } from "../i18n/index.ts";
 import { collectionFeeds } from "../src/collection-feeds.ts";
@@ -376,6 +377,7 @@ function article(props: LayoutProps, blogFeed: string | undefined): ComponentChi
     h("div", { class: "list-intro", dangerouslySetInnerHTML: { __html: pageHtml(props.page.html, props.page.lang) } }),
     list === undefined ? null : summaryOf(props, count),
     collectionDownloads(props),
+    collectionApi(props),
     list === undefined
       ? null
       : subscribePanel(

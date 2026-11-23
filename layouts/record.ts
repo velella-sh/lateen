@@ -12,6 +12,7 @@ import addToCalendar from "../components/add-to-calendar/index.ts";
 import { classNameOf, replacementOf } from "../components/page-status/index.ts";
 import embedCode from "../components/embed-code/index.ts";
 import recordHistory from "../components/record-history/index.ts";
+import { collectionApi } from "../src/collection-api.ts";
 import { collectionDownloads } from "../src/collection-downloads.ts";
 import { t } from "../i18n/index.ts";
 import { FACTS_ID, factsOf, factsPanel, recordHeader, relatedPanel, summaryOf } from "../src/record-parts.ts";
@@ -117,6 +118,7 @@ function article(props: LayoutProps): ComponentChildren {
     collectionFeeds(props),
     factsPanel(props),
     collectionDownloads(props),
+    collectionApi(props),
     lastUpdated(props) as ComponentChildren,
     h("div", { class: "record-body", dangerouslySetInnerHTML: { __html: pageHtml(props.page.html, props.page.lang) } }),
     pageToolSlot(props),
