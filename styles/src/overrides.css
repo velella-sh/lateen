@@ -94,13 +94,13 @@ html[data-js] .source-mode-switch[hidden] {
   margin: 0;
 }
 
-/* The switch is its own way out, so the Exit button is redundant here; the count stays as a quiet line. */
-.doc-tools .source-mode-switch .source-exit-button {
+/* The switch is its own way out and the status region announces each change, so the active bar (count
+   and Exit) stays out of the Page tools panel. */
+.doc-tools .source-mode-switch .source-mode-active {
   display: none;
 }
 
-.doc-tools .source-mode-switch .source-mode-controls,
-.doc-tools .source-mode-switch .source-mode-active {
+.doc-tools .source-mode-switch .source-mode-controls {
   display: grid;
   gap: 0.125rem;
 }
