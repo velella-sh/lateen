@@ -23,6 +23,11 @@
       ]
     },
     {
+      "name": "brand-studio",
+      "selector": "[data-studio-scheme='light']",
+      "states": ["focus"]
+    },
+    {
       "name": "charts",
       "selector": "[data-charts] summary",
       "states": [

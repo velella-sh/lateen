@@ -1,3 +1,4 @@
+/// <reference lib="dom" />
 import assert from "node:assert/strict";
 import { mkdtempSync, readFileSync, rmSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
@@ -35,6 +36,8 @@ test("only the local server and inline data are reachable", () => {
   assert.ok(!isLocalRequest("http://127.0.0.1:4001/", origin));
 });
 
+const FONT_CSS = '@font-face { font-family: Slow; src: url(/slow.woff2) format("woff2"); font-display: optional; }';
+
 let browser: Browser | undefined;
 try {
   browser = await chromium.launch();
@@ -44,8 +47,8 @@ try {
 const skip = browser === undefined ? "Chromium is not installed (npx playwright install chromium)" : false;
 
 const PAGE = `<!doctype html><meta charset="utf-8"><title>t</title>
+<link rel="stylesheet" href="/font.css">
 <style>
-@font-face { font-family: Slow; src: url(/slow.woff2) format("woff2"); }
 body { margin: 0; font: 20px Slow, sans-serif; }
 #blink { animation: move 1s infinite; width: 40px; height: 40px; background: #36c; }
 @keyframes move { from { margin-left: 0 } to { margin-left: 300px } }
@@ -64,11 +67,14 @@ test("every page settles through the same helper: fonts ready, animation and mot
   const dir = mkdtempSync(join(tmpdir(), "visual-settle-"));
   writeFileSync(join(dir, "index.html"), PAGE);
   writeFileSync(join(dir, "slow.woff2"), "not a font");
+  writeFileSync(join(dir, "font.css"), FONT_CSS);
   const server = await startServer(dir, "");
   try {
     const context = await newVisualContext(browser as Browser, server.url);
     const page = await context.newPage();
     await settle(page, `${server.url}/`);
+    assert.equal(await page.evaluate(() =>
+      [...document.fonts].find((face) => face.family === "Slow")?.display), "swap");
     const state = await page.evaluate(() => {
       const g = globalThis as unknown as {
         document: { fonts: { status: string }; getElementById(id: string): unknown; documentElement: { getAttribute(name: string): string | null } };
@@ -95,6 +101,7 @@ test("every page settles through the same helper: fonts ready, animation and mot
 const dir = tempDir("visual-runner-");
 writeFileSync(join(dir, "index.html"), PAGE);
 writeFileSync(join(dir, "slow.woff2"), "not a font");
+writeFileSync(join(dir, "font.css"), FONT_CSS);
 const server = await serve(dir);
 
 test("a shot waits for fonts, fixes the settings, blocks the network and is byte-identical across runs", { skip }, async () => {

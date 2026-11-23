@@ -15,6 +15,7 @@ import { cpSync, mkdirSync, readFileSync, writeFileSync } from "node:fs";
 import { basename, dirname, join, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 import { chromium, type Browser, type Page } from "playwright";
+import { FAMILY_CASE_NAMES, runFamilyIdentity } from "../test/acceptance/family-identity.ts";
 import { CASES, type Expectation } from "../test/acceptance/cases.ts";
 import { gateProblems, ledgerProblems, changelogProblems, type AcceptanceReport, type FeatureLedger } from "../test/acceptance/ledger.ts";
 import { waitFor } from "../test/helpers/wait.ts";
@@ -130,7 +131,7 @@ if (gate !== undefined) {
   }
   const expected = { ...identities(), commit: argument("--commit") ?? commit(), digest: sha256(tarball), mizzen: mizzenVersion() };
   const report = JSON.parse(readFileSync(resolve(gate), "utf8")) as AcceptanceReport;
-  const problems = gateProblems(report, expected, LEDGER);
+  const problems = gateProblems(report, expected, LEDGER, FAMILY_CASE_NAMES);
   if (problems.length > 0) {
     console.error(`The acceptance report cannot gate publishing:\n  ${problems.join("\n  ")}`);
     process.exit(1);
@@ -167,7 +168,7 @@ await withCleanup(async (cleanup) => {
   cleanup.add(() => server.close());
   const browser = await chromium.launch();
   cleanup.add(() => browser.close());
-  const cases = await run(browser, server.url);
+  const cases = [...await run(browser, server.url), ...await runFamilyIdentity(browser, ROOT, project)];
   const report: AcceptanceReport = {
     ...identities(),
     commit: commit(),

@@ -3,7 +3,10 @@ import { h } from "preact";
 import type { ComponentProps } from "@velella/mizzen/contracts";
 import mermaid from "../mermaid/index.ts";
 import { codeBackgrounds } from "../../src/brand.ts";
-import { ensureContrast, parseHex } from "../../src/color.ts";
+import { adjustShiki, type CodeBackdrops } from "../../src/syntax-contrast.ts";
+
+export { adjustShiki } from "../../src/syntax-contrast.ts";
+export type { CodeBackdrops } from "../../src/syntax-contrast.ts";
 import { annotationLineId, parseFenceMeta, renderAnnotations } from "./annotations.ts";
 import { isDiffLang, markDiffLines, stripDiffMarkers } from "./diff.ts";
 import { decodeEntities } from "./escape.ts";
@@ -86,27 +89,6 @@ function get(): HighlighterCore {
     engine: createJavaScriptRegexEngine(),
   });
   return highlighter;
-}
-
-/** The two backgrounds a brand gives the code block, or the theme's own when it sets no neutral tint. */
-export interface CodeBackdrops {
-  readonly light: string;
-  readonly dark: string;
-}
-
-/**
- * Re-checks every highlighted token against the brand's code background. Shiki writes each colour as
- * `--shiki-light` and `--shiki-dark` on the token; being inline, they cannot be overridden by a
- * stylesheet, so a colour that falls below 4.5:1 is corrected here, at emit time, keeping the shipped
- * theme's hue and only moving its lightness. A token without a hex value (`inherit`) is left alone.
- */
-export function adjustShiki(html: string, backdrops: CodeBackdrops | undefined): string {
-  if (backdrops === undefined) return html;
-  return html.replace(/--shiki-(light|dark):(#[0-9a-fA-F]{6})/g, (match, mode: string, colour: string) => {
-    if (parseHex(colour) === undefined) return match;
-    const against = mode === "light" ? backdrops.light : backdrops.dark;
-    return `--shiki-${mode}:${ensureContrast(colour, against, 4.5)}`;
-  });
 }
 
 /** Languages whose grammar is loaded. Only these are highlighted; anything else renders as plain text. */

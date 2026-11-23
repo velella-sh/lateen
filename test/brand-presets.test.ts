@@ -28,7 +28,7 @@ const tag = (token: { readonly light: string; readonly dark: string }, scheme: "
   scheme === "light" ? token.light : token.dark;
 
 test("the shipped presets are the files in tokens/presets, sorted", () => {
-  assert.deepEqual(PRESETS, ["clay", "graphite", "harbor", "orchard", "plum"]);
+  assert.deepEqual(PRESETS, ["clay", "ebb", "graphite", "harbor", "lateen", "mizzen", "offing", "orchard", "plum"]);
   assert.deepEqual([...readPresets().keys()], PRESETS);
 });
 
@@ -44,6 +44,7 @@ test("every preset reaches every contrast pair in both schemes", () => {
       const canvas = at(tokens, "color-canvas", scheme);
       const text = at(tokens, "color-text", scheme);
       for (const surface of [canvas, at(tokens, "color-surface", scheme), at(tokens, "color-surface-raised", scheme)]) {
+        assert.ok(ratio(at(tokens, "color-focus", scheme), surface) >= 3, name);
         for (const role of ["accent", "accent-hover", "link", "link-hover"]) {
           assert.ok(ratio(at(tokens, `color-${role}`, scheme), surface) >= 4.5, `${name} ${scheme}: ${role} on ${surface}`);
         }
@@ -102,9 +103,9 @@ test("a preset from another folder is applied like a shipped one", () => {
   }
 });
 
-test("every preset names a backdrop variant, a motif seed and an intensity, and keeps its accent", () => {
+test("the original presets keep their backdrop, motif, intensity and accent", () => {
   const accents: Record<string, string> = { clay: "#a2553f", graphite: "#4a5568", harbor: "#2f6f9f", orchard: "#3f7d4e", plum: "#6b4f9e" };
-  for (const name of PRESETS) {
+  for (const name of Object.keys(accents)) {
     const result = resolveBrand({ preset: name });
     assert.deepEqual(result.problems, [], name);
     const look = result.brand?.showpiece;
@@ -114,20 +115,20 @@ test("every preset names a backdrop variant, a motif seed and an intensity, and 
     assert.ok(["soft", "standard"].includes(look.intensity ?? ""), `${name} intensity`);
     assert.equal(result.brand?.accent, accents[name], `${name} keeps its accent`);
   }
-  assert.equal(new Set(PRESETS.map((name) => resolveBrand({ preset: name }).brand?.showpiece?.motif)).size, PRESETS.length, "motif seeds differ");
+  assert.equal(new Set(Object.keys(accents).map((name) => resolveBrand({ preset: name }).brand?.showpiece?.motif)).size, Object.keys(accents).length, "motif seeds differ");
 });
 
 test("text on each preset's backdrop keeps 4.5:1 in both schemes at the strongest tint", () => {
   const tint = { soft: 0.06, standard: 0.1 } as const;
   for (const name of PRESETS) {
     const brand = resolveBrand({ preset: name }).brand;
-    assert.ok(brand?.showpiece?.intensity !== undefined);
+    assert.ok(brand);
     const tokens = brandTokens(brand);
     for (const scheme of ["light", "dark"] as const) {
       const canvas = parseHex(at(tokens, "color-canvas", scheme));
       const accent = parseHex(at(tokens, "color-accent", scheme));
       assert.ok(canvas !== undefined && accent !== undefined);
-      const w: number = tint[brand.showpiece.intensity as "soft" | "standard"];
+      const w: number = tint[brand.showpiece?.intensity ?? "standard"];
       const bg: { r: number; g: number; b: number } = { r: accent.r * w + canvas.r * (1 - w), g: accent.g * w + canvas.g * (1 - w), b: accent.b * w + canvas.b * (1 - w) };
       for (const role of ["text", "heading", "muted"]) {
         const fg = parseHex(at(tokens, `color-${role}`, scheme));
@@ -145,4 +146,30 @@ test("a malformed showpiece option is ignored by name", () => {
     "theme.options.brand.showpiece.motif",
     "theme.options.brand.showpiece.intensity",
   ]);
+});
+
+test("family presets preserve the approved neutral roles and source accents in both schemes", () => {
+  const family = {
+    ebb: { light: "#3f6e66", dark: "#7aa89f" },
+    lateen: { light: "#4c6f9a", dark: "#7e9cd8" },
+    mizzen: { light: "#8a6220", dark: "#e6c384" },
+    offing: { light: "#6a5590", dark: "#a592cc" },
+  };
+  for (const [preset, accent] of Object.entries(family)) {
+    const { brand, problems } = resolveBrand({ preset });
+    assert.deepEqual(problems, []);
+    assert.ok(brand);
+    assert.deepEqual(brand.accent, accent);
+    const tokens = brandTokens(brand);
+    assert.deepEqual(tokens["color-canvas"], { light: "#eceff4", dark: "#1f1f28" });
+    assert.deepEqual(tokens["color-surface"], { light: "#e5e9f0", dark: "#2a2a37" });
+    assert.deepEqual(tokens["color-text"], { light: "#2e3440", dark: "#dcd7ba" });
+    assert.ok(ratio(at(tokens, "color-border-strong", "dark"), "#1f1f28") >= 3);
+  }
+  const { brand, problems } = resolveBrand({ preset: "lateen", brand: {
+    accent: { light: "#123" },
+    neutral: { light: { canvas: "#fff", text: "#333" }, dark: {} },
+  } });
+  assert.deepEqual(brand?.accent, family.lateen);
+  assert.deepEqual(problems.map(({ option }) => option), ["theme.options.brand.accent", "theme.options.brand.neutral"]);
 });

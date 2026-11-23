@@ -5,6 +5,7 @@ import { askAgentSection } from "../chrome/ask-agent/index.ts";
 import searchScope from "../chrome/search-scope/index.ts";
 import shell, { footer as shellFooter, isCurrentSection, sectionLinks } from "../chrome/shell/index.ts";
 import { patternOf, t } from "../i18n/index.ts";
+import { resolveNetworkOptions } from "../src/options.ts";
 import { indexUrl } from "../chrome/search/loader.ts";
 import { safeHrefSource, withBase } from "../src/url.ts";
 import { facetScript, searchFacetControls, searchFacetsOf, type SearchFacets } from "./shared/search-facets.ts";
@@ -41,7 +42,8 @@ export function scriptValue(value: unknown): string {
 function clientScript(props: LayoutProps, facets: SearchFacets | undefined): string {
   const lang = props.page.lang;
   const network = props.site.network;
-  const networkSearch = (network?.projects.length ?? 0) > 1;
+  const searchAcrossProjects = resolveNetworkOptions(props.site.config.theme.options).search;
+  const networkSearch = searchAcrossProjects && (network?.projects.length ?? 0) > 1;
   const folder = network?.projects.find((project) => project.current)?.search;
   const index = folder === undefined
     ? 'base.replace(/\\/$/, "") + "/pagefind/pagefind.js"'
@@ -83,7 +85,7 @@ const storage = (() => {
     return undefined;
   }
 })();
-const scope = new URLSearchParams(location.search).get("scope") === "all" ? "all" : "project";
+const scope = ${searchAcrossProjects ? 'new URLSearchParams(location.search).get("scope") === "all" ? "all" : "project"' : '"project"'};
 let hits = [];
 let shown = 0;
 let pending = false;
@@ -453,6 +455,7 @@ function noJsSections(props: LayoutProps): ComponentChildren {
 function content(props: LayoutProps): ComponentChildren {
   const lang = props.page.lang;
   const facets = searchFacetsOf(props.site);
+  const showScopeLink = resolveNetworkOptions(props.site.config.theme.options).search;
   const submit = h("button", { class: "search-results-submit", type: "submit" }, t(lang, "search"));
   return h(
     "div",
@@ -476,7 +479,7 @@ function content(props: LayoutProps): ComponentChildren {
       facets === undefined ? null : submit,
     ),
     h("p", { class: "search-results-status", role: "status", "data-search-status": "" }, ""),
-    h("a", { class: "search-results-scope-change", "data-search-scope-change": "", hidden: true }),
+    showScopeLink ? h("a", { class: "search-results-scope-change", "data-search-scope-change": "", hidden: true }) : null,
     h(
       "noscript",
       null,

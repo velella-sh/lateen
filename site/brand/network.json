@@ -1,0 +1,9 @@
+{
+  "version": 1,
+  "projects": [
+    {"id": "mizzen", "path": "mizzen", "title": "Mizzen", "public": true},
+    {"id": "lateen", "path": "lateen", "title": "Lateen", "public": true},
+    {"id": "offing", "path": "offing", "title": "Offing", "public": true},
+    {"id": "ebb", "path": "ebb", "title": "Ebb", "public": true}
+  ]
+}
