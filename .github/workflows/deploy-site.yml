@@ -19,7 +19,7 @@ jobs:
     timeout-minutes: 40
     environment:
       name: github-pages
-      url: ${{ steps.deploy.outputs.page_url }}
+      url: ${{ steps.deploy2.outputs.page_url || steps.deploy.outputs.page_url }}
     permissions:
       actions: read
       contents: read
@@ -81,14 +81,23 @@ jobs:
         env:
           GH_TOKEN: ${{ github.token }}
       - id: deploy
+        continue-on-error: true
+        uses: actions/deploy-pages@368f82528645a54fb793d4d04e342629a3f51346 # v5.0.1
+      # deploy-pages can still see no artifact right after the upload even when the list above shows it.
+      # One retry after a pause is enough; a real failure fails again and stops the job.
+      - id: deploy-retry
+        if: steps.deploy.outcome == 'failure'
+        run: sleep 30
+      - id: deploy2
+        if: steps.deploy.outcome == 'failure'
         uses: actions/deploy-pages@368f82528645a54fb793d4d04e342629a3f51346 # v5.0.1
       - name: Smoke-test the deployed site
         working-directory: lateen
-        run: node scripts/smoke-deployed.ts --base "${{ steps.deploy.outputs.page_url }}" --commit "${{ github.sha }}" --report test/smoke/out/deployed.json
+        run: node scripts/smoke-deployed.ts --base "${{ steps.deploy2.outputs.page_url || steps.deploy.outputs.page_url }}" --commit "${{ github.sha }}" --report test/smoke/out/deployed.json
       - name: Check the published Theme Studio
         run: node scripts/theme-studio-export.ts --url "$PAGE_URL"
         env:
-          PAGE_URL: ${{ steps.deploy.outputs.page_url }}
+          PAGE_URL: ${{ steps.deploy2.outputs.page_url || steps.deploy.outputs.page_url }}
         working-directory: lateen
       - name: Keep the deployed smoke report
         if: always()

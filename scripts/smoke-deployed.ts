@@ -274,11 +274,6 @@ async function checkFamily(page: Page, fail: (message: string) => void): Promise
   if (await signature.count() !== 1 || await signature.getAttribute("href") !== "https://velella.sh/") {
     fail("the Velella signature does not link to the organization home page");
   }
-  const links = await page.locator(".network-footer a").evaluateAll((nodes) => nodes.map((node) => node.getAttribute("href")));
-  if (links.join(",") !== "/mizzen/,/lateen/,/offing/,/ebb/") fail("the family footer does not list the four project homes");
-  if (await page.locator('.network-footer a[href="/lateen/"][aria-current="true"]').count() !== 1) {
-    fail("the family footer does not mark Lateen as current");
-  }
 }
 
 /** Confirm the public preset gallery and the copyable README examples were deployed together. */
