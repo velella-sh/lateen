@@ -61,7 +61,7 @@ comment naming the option, so the mistake is visible in the output and in the pa
 ## Font preloads
 
 A shipped face declared with `font-display: optional` is preloaded, because it is used only when it is
-there at the first paint. When a site replaces `Geist` or `Geist Mono`, the `base` layout asks the
+there at the first paint. When a site replaces `Manrope` or `JetBrains Mono`, the `base` layout asks the
 engine to leave that family out of this page's preload links through `LayoutProps.hints.skipFontPreload`.
 The custom family goes first in the token stack and the shipped face stays behind it as a fallback, so
 a missing glyph still reads; the reader simply does not download the replaced face before the page

@@ -55,7 +55,7 @@ test("Quickstart and ordinary docs use the same reading stylesheet", () => {
   const stylesheets = (document: Document) =>
     all(document, 'link[rel="stylesheet"]').map((link) => link.getAttribute("href")!);
   const readingStyles = stylesheets(quickstart)
-    .filter((asset) => site.file(asset.slice("/lateen/".length)).includes("--type-size-doc-title"));
+    .filter((asset) => site.file(asset.slice("/lateen/".length)).includes("--doc-title-space"));
   assert.equal(readingStyles.length, 1);
   assert.ok(stylesheets(guide).includes(readingStyles[0]!));
   assert.ok(quickstart.querySelector(".doc-body[data-quickstart]"));

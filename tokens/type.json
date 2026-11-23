@@ -5,7 +5,7 @@
   "font-mono": "JetBrains Mono, \"JetBrains Mono Fallback\", ui-monospace, monospace",
   "size-xs": "clamp(0.75rem, calc(0.7188rem + 0.1042vw), 0.8125rem)",
   "size-sm": "clamp(0.8125rem, calc(0.7812rem + 0.1042vw), 0.875rem)",
-  "size-base": "1rem",
+  "size-base": "1.0625rem",
   "size-lg": "clamp(1.1875rem, calc(1.1562rem + 0.1042vw), 1.25rem)",
   "size-xl": "clamp(1.375rem, calc(1.3125rem + 0.2083vw), 1.5rem)",
   "size-2xl": "clamp(1.75rem, calc(1.625rem + 0.4167vw), 2rem)",
@@ -13,11 +13,11 @@
   "size-display": "clamp(2.5rem, calc(1.9rem + 2.8vw), 4.5rem)",
   "leading-body": "1.65",
   "leading-heading": "1.2",
-  "leading-code": "1.8",
-  "measure-min": "65ch",
-  "measure-max": "80ch",
+  "leading-code": "1.65",
   "tracking-display": "-0.025em",
   "tracking-heading": "-0.015em",
   "leading-display": "1.1",
-  "leading-snug": "1.3"
+  "leading-snug": "1.3",
+  "leading-ui": "1.5",
+  "measure": "66ch"
 }

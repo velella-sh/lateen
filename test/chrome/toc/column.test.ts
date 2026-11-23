@@ -29,7 +29,7 @@ test("a nested section steps down a size and sits on its own rail", () => {
   assert.equal(nested.get("padding-inline-start"), "0", "the rail is the indent; no extra padding");
 
   const nestedLink = declarations(bodyOf(".toc ul ul a"));
-  assert.equal(nestedLink.get("font-size"), "0.8125rem", "a subsection is one size below its parent");
+  assert.equal(nestedLink.get("font-size"), "var(--type-size-xs)", "a subsection is one size below its parent");
   assert.equal(nestedLink.get("font-weight"), "400", "a subsection link is not bold until it is active");
 });
 

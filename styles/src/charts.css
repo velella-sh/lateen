@@ -19,19 +19,21 @@
 
   .charts-title,
   .chart-heading h2 {
-    @apply m-0 mb-3 text-sm font-semibold;
+    @apply m-0 mb-3 font-semibold;
+    font-size: var(--type-size-sm);
+    line-height: var(--type-leading-ui);
   }
 
   .chart-heading h2 {
     margin-block: var(--space-2);
-    font-size: var(--text-2xl);
+    font-size: var(--type-size-2xl);
   }
 
   .chart-heading p:last-child,
   .performance-chart figcaption {
     margin: 0;
     color: var(--muted-foreground);
-    font-size: var(--text-sm);
+    font-size: var(--type-size-sm);
   }
 
   .charts-fallback.bars {
@@ -65,7 +67,7 @@
   .chart-data table {
     width: 100%;
     border-collapse: collapse;
-    font-size: 0.875rem;
+    font-size: var(--type-size-sm);
     margin-block-start: var(--space-4);
   }
 

@@ -127,6 +127,7 @@ export const DEFAULT_SPACE: Readonly<Record<string, string>> = {
   "2": "0.5rem",
   "3": "0.75rem",
   "4": "1rem",
+  "5": "1.25rem",
   "6": "1.5rem",
   "8": "2rem",
   "12": "3rem",
@@ -244,6 +245,7 @@ function shapeTokens(brand: Brand): BrandTokens {
       if (number === undefined) continue;
       tokens[`space-${name}`] = { light: length(number * scale), dark: length(number * scale) };
     }
+    if (brand.density === "compact") tokens["type-leading-code"] = { light: "1.45", dark: "1.45" };
   }
   return tokens;
 }

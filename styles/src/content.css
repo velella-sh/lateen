@@ -35,16 +35,18 @@
 
 @layer components {
   .doc-body table {
-    @apply w-full text-sm;
-    margin: 1.125rem 0 0.625rem;
+    @apply w-full;
+    font-size: var(--type-size-sm);
+    line-height: var(--type-leading-ui);
+    margin: 0 0 var(--space-5);
     border-collapse: collapse;
   }
 
   .doc-body th,
   .doc-body td {
     @apply align-top;
-    padding-block: 0.75rem;
-    padding-inline: 0 1rem;
+    padding-block: var(--space-3);
+    padding-inline: 0 var(--space-4);
     border-bottom: 1px solid var(--border);
     text-align: start;
   }
@@ -52,7 +54,7 @@
   .doc-body th {
     @apply font-bold uppercase;
     color: var(--muted-foreground);
-    font-size: 0.6875rem;
+    font-size: var(--type-size-xs);
     letter-spacing: 0.06em;
   }
 
@@ -63,7 +65,7 @@
 
   .markdown-table-scroll > table {
     margin: 0;
-    line-height: 1.5;
+    line-height: var(--type-leading-ui);
     overflow-wrap: break-word;
   }
 
@@ -73,7 +75,7 @@
   }
 
   .markdown-table-scroll > table > :is(thead, tbody, tfoot) > tr > :is(th, td) {
-    padding: 0.4375rem 0.625rem;
+    padding: var(--space-2) var(--space-3);
     border-block-end-color: color-mix(in srgb, var(--border) 75%, transparent);
   }
 
@@ -169,14 +171,17 @@
   }
 
   .table caption {
-    @apply text-sm font-semibold;
+    @apply font-semibold;
+    font-size: var(--type-size-sm);
+    line-height: var(--type-leading-ui);
     padding-block-end: 0.5rem;
     color: var(--muted-foreground);
     text-align: start;
   }
 
   .table-description {
-    @apply text-sm;
+    font-size: var(--type-size-sm);
+    line-height: var(--type-leading-ui);
     margin-block-start: 0.5rem;
     max-inline-size: 40em;
     color: var(--muted-foreground);
@@ -244,7 +249,7 @@
     border-radius: 0.375rem;
     background: var(--card);
     color: var(--muted-foreground);
-    font-size: 0.75rem;
+    font-size: var(--type-size-xs);
     cursor: pointer;
   }
 
@@ -322,16 +327,16 @@
   .callout-content > :is(.callout-kind, .callout-title) {
     margin: 0;
     color: var(--callout-color);
-    font-size: var(--text-sm);
+    font-size: var(--type-size-sm);
     font-weight: 700;
-    line-height: 1.25rem;
+    line-height: var(--type-leading-ui);
   }
 
   .callout-content > .callout-kind + .callout-title {
     margin-block-start: var(--spacing);
     color: var(--foreground);
-    font-size: 1rem;
-    line-height: 1.4;
+    font-size: var(--type-size-base);
+    line-height: var(--type-leading-ui);
   }
 
   .callout-disclosure {
@@ -362,8 +367,8 @@
 
   .callout-body {
     margin-block-start: var(--space-2);
-    font-size: var(--text-sm);
-    line-height: 1.6;
+    font-size: var(--type-size-sm);
+    line-height: var(--type-leading-body);
   }
 
   .callout-body > :first-child {
@@ -388,7 +393,9 @@
 
   :is(.tabs, .code-tabs, .os-tabs) > [role="tablist"] > [role="tab"],
   .install-tabs-tab {
-    @apply inline-flex max-w-full items-center rounded-t-md border-b-2 border-transparent px-3 py-2 text-sm text-muted-foreground;
+    @apply inline-flex max-w-full items-center rounded-t-md border-b-2 border-transparent px-3 py-2 text-muted-foreground;
+    font-size: var(--type-size-sm);
+    line-height: var(--type-leading-ui);
     cursor: pointer;
     font-weight: 600;
     min-block-size: 2.5rem;
@@ -419,7 +426,7 @@
 
   :is(.tabs, .os-tabs) > [role="tabpanel"] > :is(.tabs-title, .os-tabs-title) {
     margin-block: 0 var(--space-2);
-    font-size: 1rem;
+    font-size: var(--type-size-base);
   }
 
   :is(.tabs-body, .os-tabs-body) > :first-child {
@@ -437,7 +444,9 @@
   }
 
   .code-tabs-title {
-    @apply mb-2 text-sm font-medium text-muted-foreground;
+    @apply mb-2 font-medium text-muted-foreground;
+    font-size: var(--type-size-sm);
+    line-height: var(--type-leading-ui);
   }
 
   .code-tabs[data-enhanced] > .code-tabs-panel > .code-tabs-title {
@@ -485,7 +494,9 @@
   .steps-ui > div,
   .steps-ui .step,
   .checks li {
-    @apply flex items-center gap-2.5 text-sm;
+    @apply flex items-center gap-2.5;
+    font-size: var(--type-size-sm);
+    line-height: var(--type-leading-ui);
   }
 
   .steps-ui .num {
@@ -503,7 +514,7 @@
   .steps > .steps-progress {
     margin-block: 0 var(--space-3);
     color: var(--muted-foreground);
-    font-size: var(--text-sm);
+    font-size: var(--type-size-sm);
   }
 
   .steps > ol {
@@ -524,17 +535,19 @@
   }
 
   .step-number {
-    @apply relative inline-flex items-center rounded-full text-xs font-bold;
+    @apply relative inline-flex items-center rounded-full font-bold;
+    font-size: var(--type-size-xs);
+    line-height: var(--type-leading-ui);
     justify-self: start;
     min-block-size: var(--space-6);
     padding-inline: var(--space-2);
     background: var(--muted);
     color: var(--foreground);
-    line-height: 1.25rem;
+    line-height: var(--type-leading-ui);
   }
 
   .step-content {
-    line-height: 1.5rem;
+    line-height: var(--type-leading-ui);
     overflow-wrap: anywhere;
   }
 
@@ -605,7 +618,9 @@
   }
 
   .step-content > ul > li > a {
-    @apply block rounded-lg px-3 py-2 text-sm font-semibold;
+    @apply block rounded-lg px-3 py-2 font-semibold;
+    font-size: var(--type-size-sm);
+    line-height: var(--type-leading-ui);
     text-decoration: none;
     background: color-mix(in srgb, var(--background) 70%, transparent);
     box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--border) 80%, transparent);
@@ -623,7 +638,7 @@
   kbd,
   .kbd {
     font-family: var(--type-font-mono);
-    font-size: 0.75rem;
+    font-size: var(--type-size-xs);
     border: 1px solid var(--border);
     border-bottom-width: 2px;
     border-radius: 0.375rem;
@@ -651,7 +666,7 @@
     grid-template-columns: 7rem 1fr;
     gap: 0.4rem 0.75rem;
     margin-top: 0.65rem;
-    font-size: 0.875rem;
+    font-size: var(--type-size-sm);
   }
 
   .key-value-key {
@@ -680,7 +695,7 @@
     flex-wrap: wrap;
     gap: var(--space-2);
     margin-block-end: var(--space-2);
-    font-size: 0.875rem;
+    font-size: var(--type-size-sm);
   }
 
   .record-history-filter {
@@ -695,7 +710,7 @@
   .record-history-count {
     margin-block: 0 var(--space-2);
     color: var(--muted-foreground);
-    font-size: 0.75rem;
+    font-size: var(--type-size-xs);
   }
 
   .record-fact-group {
@@ -738,13 +753,13 @@
   }
 
   .record > #record-facts dt {
-    font-size: 0.8125rem;
+    font-size: var(--type-size-sm);
     font-weight: 600;
   }
 
   .record > #record-facts dd {
     color: var(--foreground);
-    font-size: 0.9375rem;
+    font-size: var(--type-size-sm);
     white-space: normal;
   }
 
@@ -759,7 +774,7 @@
     max-inline-size: 100%;
     margin-inline-start: var(--space-2);
     color: var(--muted-foreground);
-    font-size: 0.75rem;
+    font-size: var(--type-size-xs);
     font-weight: 500;
   }
 
@@ -781,7 +796,7 @@
   .record-fact-evidence {
     margin-inline-start: 0.5rem;
     color: var(--muted-foreground);
-    font-size: 0.75rem;
+    font-size: var(--type-size-xs);
   }
 
   .record-fact-evidence a {
@@ -792,7 +807,7 @@
   .field-language {
     margin-inline-end: 0.35rem;
     color: var(--muted-foreground);
-    font-size: 0.72rem;
+    font-size: var(--type-size-xs);
     font-weight: 500;
   }
 
@@ -839,8 +854,8 @@
   .file-tree,
   .tree {
     font-family: var(--type-font-mono);
-    font-size: 0.8125rem;
-    line-height: 1.7;
+    font-size: var(--type-size-sm);
+    line-height: var(--type-leading-body);
   }
 
   .tree .in,
@@ -919,7 +934,7 @@
     align-items: baseline;
     gap: 0.5rem;
     margin: 0 0 0.35rem;
-    font-size: 1.25rem;
+    font-size: var(--type-size-lg);
     font-weight: 700;
   }
 
@@ -958,7 +973,7 @@
     gap: 0.5rem 0.75rem;
     margin: 0 0 0.75rem;
     color: var(--muted-foreground);
-    font-size: 0.875rem;
+    font-size: var(--type-size-sm);
   }
 
   .changelog-entry-categories {
@@ -977,9 +992,9 @@
     padding: 0.1rem 0.55rem;
     border: 1px solid var(--border);
     border-radius: 999px;
-    font-size: 0.75rem;
+    font-size: var(--type-size-xs);
     font-weight: 600;
-    line-height: 1.4;
+    line-height: var(--type-leading-ui);
     white-space: nowrap;
   }
 
@@ -1021,8 +1036,8 @@
   .changelog .changelog-entry-version {
     flex-wrap: wrap;
     margin: 0 0 0.5rem;
-    font-size: clamp(1.625rem, 5vw, 2rem);
-    line-height: 1.15;
+    font-size: var(--type-size-2xl);
+    line-height: var(--type-leading-heading);
     overflow-wrap: anywhere;
   }
 
@@ -1080,8 +1095,8 @@
   .figure-caption {
     margin-block-start: var(--space-2);
     color: var(--muted-foreground);
-    font-size: var(--text-sm);
-    line-height: 1.5;
+    font-size: var(--type-size-sm);
+    line-height: var(--type-leading-ui);
     overflow-wrap: anywhere;
   }
 
@@ -1089,7 +1104,7 @@
     display: block;
     margin-block-start: var(--space-1);
     color: var(--muted-foreground);
-    font-size: var(--text-sm);
+    font-size: var(--type-size-sm);
   }
 
   /* Zoom: a button opens the image larger in a native popover. The browser handles Escape, a click
@@ -1295,8 +1310,8 @@
     @apply inline-flex items-center gap-1;
     margin: 0;
     color: var(--muted-foreground);
-    font-size: 0.75rem;
-    line-height: 1.25rem;
+    font-size: var(--type-size-xs);
+    line-height: var(--type-leading-ui);
   }
 
   .trust-panel {
@@ -1329,7 +1344,7 @@
     border-radius: 999px;
     color: var(--muted-foreground);
     cursor: pointer;
-    font-size: 0.75rem;
+    font-size: var(--type-size-xs);
     list-style: none;
   }
 
@@ -1368,8 +1383,8 @@
     gap: 0.375rem;
     margin-block: 0.5rem;
     padding: 0.375rem 0.625rem;
-    font-size: 0.8125rem;
-    line-height: 1.4;
+    font-size: var(--type-size-sm);
+    line-height: var(--type-leading-ui);
   }
 
   .page-status-message {
@@ -1413,9 +1428,9 @@
   .doc-body .item strong,
   .doc-body .list a strong {
     font-family: var(--type-font-mono);
-    font-size: 0.8125rem;
+    font-size: var(--type-size-sm);
     font-weight: 500;
-    line-height: 1.375rem;
+    line-height: var(--type-leading-ui);
   }
 
   .doc-body .item span,
@@ -1424,8 +1439,8 @@
   .doc-body .list a em {
     color: var(--muted-foreground);
     font-style: normal;
-    font-size: 0.9375rem;
-    line-height: 1.5rem;
+    font-size: var(--type-size-sm);
+    line-height: var(--type-leading-ui);
   }
 
   .doc-body .list a:hover strong {
@@ -1444,7 +1459,7 @@
     padding: 0.875rem;
     border-radius: 0.875rem;
     box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--night) 8%, transparent);
-    font-size: 0.875rem;
+    font-size: var(--type-size-sm);
     font-weight: 600;
   }
 
@@ -1452,7 +1467,7 @@
     display: block;
     margin-block-start: 0.375rem;
     font-family: var(--type-font-mono);
-    font-size: 0.75rem;
+    font-size: var(--type-size-xs);
     font-weight: 400;
   }
 
@@ -1524,7 +1539,7 @@
 
   .specimen h3 {
     margin: 0 0 0.75rem;
-    font-size: 0.8125rem;
+    font-size: var(--type-size-sm);
     font-weight: 700;
     letter-spacing: 0.04em;
     text-transform: uppercase;
@@ -1534,7 +1549,7 @@
   .specimen p {
     margin: 0.65rem 0 0;
     color: var(--muted-foreground);
-    font-size: 0.84rem;
+    font-size: var(--type-size-sm);
   }
 }
 
@@ -1569,5 +1584,87 @@
       position-area: block-end span-inline-end;
       position-try-fallbacks: flip-inline, flip-block, flip-block flip-inline;
     }
+  }
+
+
+  /* Stat strip and data explorer: type and rhythm only, from the same roles as the prose around them. */
+  .stat-strip {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--space-4) var(--space-8);
+    margin-block: 0 var(--space-5);
+    padding: 0;
+    list-style: none;
+  }
+
+  .stat-strip .stat {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-1);
+    min-inline-size: 7rem;
+  }
+
+  .stat-strip .stat-value {
+    font-size: var(--type-size-2xl);
+    font-weight: var(--type-weight-bold);
+    line-height: var(--type-leading-heading);
+    letter-spacing: var(--type-tracking-heading);
+    font-variant-numeric: tabular-nums;
+  }
+
+  .stat-strip .stat-label {
+    color: var(--muted-foreground);
+    font-size: var(--type-size-sm);
+    line-height: var(--type-leading-ui);
+    text-decoration: none;
+  }
+
+  .stat-strip a.stat-label {
+    text-decoration: underline;
+    text-underline-offset: 3px;
+  }
+
+  .data-explorer {
+    display: grid;
+    gap: var(--space-4);
+    margin-block: 0 var(--space-5);
+    font-size: var(--type-size-sm);
+    line-height: var(--type-leading-ui);
+  }
+
+  .data-explorer-form,
+  .data-explorer-sort,
+  .data-explorer-filters,
+  .data-explorer-chips {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: var(--space-2) var(--space-3);
+  }
+
+  .data-explorer-label,
+  .data-explorer-sort-label,
+  .data-explorer-filter-label {
+    font-weight: var(--type-weight-medium);
+  }
+
+  .data-explorer-input,
+  .data-explorer-sort-field {
+    min-block-size: 2.25rem;
+    padding-inline: var(--space-3);
+    font-size: var(--type-size-sm);
+  }
+
+  .data-explorer-status,
+  .data-explorer-empty,
+  .data-explorer-filter-count {
+    color: var(--muted-foreground);
+  }
+
+  .data-explorer-filter-option {
+    display: flex;
+    align-items: center;
+    gap: var(--space-2);
+    min-block-size: 1.5rem;
   }
 }

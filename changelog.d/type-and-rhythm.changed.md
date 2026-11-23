@@ -1,0 +1,1 @@
+Every page now reads one type scale, one set of line heights, one 66ch measure, and one block spacing step from design tokens, and a ratchet check blocks new raw sizes. Only CSS changes: the HTML, Markdown, and llms.txt are the same, body text is 17px, and sites with visual baselines should refresh them once. See /type/.

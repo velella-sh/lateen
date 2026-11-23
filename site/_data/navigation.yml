@@ -112,6 +112,8 @@ main:
     children:
       - title: Tokens and options
         url: /tokens/
+      - title: Type and rhythm
+        url: /type/
       - title: Docs standard
         url: /standards/
       - title: Brand options

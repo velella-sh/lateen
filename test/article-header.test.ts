@@ -164,7 +164,7 @@ test("the tutorial puts the date and reading time in the shared row above the st
 
 test("the shared header keeps the breadcrumb quiet, the title balanced, and the facts small", () => {
   const breadcrumb = bodyOf(".breadcrumb");
-  assert.match(breadcrumb, /font-size:\s*0?\.75rem/);
+  assert.match(breadcrumb, /font-size:\s*var\(--type-size-xs\)/);
   assert.match(breadcrumb, /gap:\s*0?\.375rem/);
   assert.match(bodyOf(".doc-context"), /min-block-size:\s*1\.5rem/);
 
@@ -172,9 +172,9 @@ test("the shared header keeps the breadcrumb quiet, the title balanced, and the 
   assert.match(title, /text-wrap:\s*balance/);
   assert.match(title, /overflow-wrap:\s*anywhere/);
 
-  assert.match(bodyOf(".doc-description"), /margin-block:\s*0?\.5rem 0/);
+  assert.match(bodyOf(".doc-description"), /margin-block:\s*var\(--space-2\) 0/);
   assert.match(bodyOf(".doc-meta"), /margin-block-start:\s*0?\.5rem/);
-  assert.match(bodyOf(".doc-meta"), /font-size:\s*0?\.75rem/);
+  assert.match(bodyOf(".doc-meta"), /font-size:\s*var\(--type-size-xs\)/);
   assert.match(bodyOf(".page-status"), /margin-block:\s*0?\.5rem/);
-  assert.match(bodyOf(".page-status"), /font-size:\s*0?\.8125rem/);
+  assert.match(bodyOf(".page-status"), /font-size:\s*var\(--type-size-sm\)/);
 });

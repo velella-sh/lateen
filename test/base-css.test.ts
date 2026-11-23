@@ -73,37 +73,34 @@ test("API reference introductions keep the method text intact and let a long pat
 
 test("document typography and metadata follow the Sailcloth prose contract", () => {
   const doc = bodyOf(ui, /^\.doc$/);
-  assert.match(doc, /--type-size-doc-title:\s*clamp\(2rem, 1\.45rem \+ 2vw, 3rem\)/);
-  assert.match(doc, /--type-weight-doc-title:\s*720/);
-  assert.match(doc, /--type-leading-doc-title:\s*1\.12/);
-  assert.match(doc, /--doc-title-space:\s*0\.5rem/);
+  assert.match(doc, /--doc-title-space:\s*var\(--space-2\)/);
   const title = bodyOf(ui, /\.doc-body > h1:first-child,/);
-  assert.match(title, /font-size:\s*var\(--type-size-doc-title,/);
-  assert.match(title, /line-height:\s*var\(--type-leading-doc-title,/);
+  assert.match(title, /font-size:\s*var\(--type-size-3xl\)/);
+  assert.match(title, /line-height:\s*var\(--type-leading-display\)/);
   assert.match(title, /text-wrap:\s*balance/);
 
   const description = bodyOf(ui, /^\.doc-description$/);
-  assert.match(description, /margin-block:\s*0\.5rem 0/);
-  assert.match(description, /max-inline-size:\s*60ch/);
-  assert.match(description, /font-size:\s*1\.0625rem/);
-  assert.match(description, /line-height:\s*1\.55/);
+  assert.match(description, /margin-block:\s*var\(--space-2\) 0/);
+  assert.match(description, /max-inline-size:\s*var\(--type-measure\)/);
+  assert.match(description, /font-size:\s*var\(--type-size-base\)/);
+  assert.match(description, /line-height:\s*var\(--type-leading-ui\)/);
 
   const meta = bodyOf(ui, /^\.doc-meta$/);
   assert.match(meta, /display:\s*flex/);
   assert.match(meta, /flex-wrap:\s*wrap/);
   assert.match(meta, /margin-block-start:\s*0\.5rem/);
-  assert.match(meta, /font-size:\s*0\.75rem/);
+  assert.match(meta, /font-size:\s*var\(--type-size-xs\)/);
   assert.match(bodyOf(ui, /^\.doc-meta:empty$/), /display:\s*none/);
   assert.match(bodyOf(ui, /^\.doc-meta \.trust-panel$/), /margin:\s*0/);
-  assert.match(bodyOf(ui, /^\.doc-meta \.trust-panel-chip$/), /min-block-size:\s*1\.5rem/);
-  assert.match(bodyOf(ui, /^\.doc-meta \.trust-panel-body$/), /font-size:\s*0\.875rem/);
+  assert.match(bodyOf(ui, /^\.doc-meta \.trust-panel-chip$/), /min-block-size:\s*1\.75rem/);
+  assert.match(bodyOf(ui, /^\.doc-meta \.trust-panel-body$/), /font-size:\s*var\(--type-size-sm\)/);
   assert.match(bodyOf(ui, /^\.reading-time,\s*\.doc-meta \.last-updated$/), /margin:\s*0/);
-  assert.match(bodyOf(ui, /^\.reading-time,\s*\.doc-meta \.last-updated$/), /font-size:\s*0\.75rem/);
+  assert.match(bodyOf(ui, /^\.reading-time,\s*\.doc-meta \.last-updated$/), /font-size:\s*var\(--type-size-xs\)/);
 
   const section = bodyOf(ui, /^\.doc-body h2,\s*\.api-reference-section > h2$/);
-  assert.match(section, /font-size:\s*1\.4375rem/);
-  assert.match(section, /line-height:\s*1\.875rem/);
-  assert.match(bodyOf(ui, /^\.doc-body > :is\(p, ul, ol\),/), /max-inline-size:\s*58ch/);
+  assert.match(section, /font-size:\s*var\(--type-size-xl\)/);
+  assert.match(section, /line-height:\s*var\(--type-leading-snug\)/);
+  assert.match(bodyOf(ui, /^\.doc-body > :is\(p, ul, ol, h1, h2, h3\),/), /max-inline-size:\s*var\(--type-measure\)/);
   assert.match(bodyOf(ui, /^\.doc-body > :first-child$/), /margin-block-start:\s*0/);
   assert.match(bodyOf(ui, /^\.code-copy svg$/), /inline-size:\s*0\.875rem/);
   assert.match(bodyOf(ui, /^\.code-copy svg$/), /block-size:\s*0\.875rem/);
@@ -113,11 +110,11 @@ test("document tables, reference rows, code panels, and callouts stay quiet and 
   assert.match(bodyOf(ui, /^\.breadcrumb$/), /margin:\s*0/);
 
   const table = bodyOf(ui, /^\.doc-body table$/);
-  assert.match(table, /margin:\s*1\.125rem 0 0\.625rem/);
+  assert.match(table, /margin:\s*0 0 var\(--space-5\)/);
   assert.doesNotMatch(table, /rounded|overflow/);
   const cells = bodyOf(ui, /^\.doc-body th,\s*\.doc-body td$/);
-  assert.match(cells, /padding-block:\s*0\.75rem/);
-  assert.match(cells, /padding-inline:\s*0 1rem/);
+  assert.match(cells, /padding-block:\s*var\(--space-3\)/);
+  assert.match(cells, /padding-inline:\s*0 var\(--space-4\)/);
   assert.match(cells, /border-bottom:\s*1px solid var\(--border\)/);
   const headers = bodyOf(ui, /^\.doc-body th$/);
   assert.doesNotMatch(headers, /bg-muted|background/);
@@ -133,8 +130,8 @@ test("document tables, reference rows, code panels, and callouts stay quiet and 
   assert.match(callout, /padding:\s*var\(--space-3\) var\(--space-4\)/);
   assert.match(callout, /border:\s*1px solid color-mix\(in srgb, var\(--callout-color\)/);
   const calloutBody = bodyOf(ui, /^\.callout-body$/);
-  assert.match(calloutBody, /font-size:\s*var\(--text-sm\)/);
-  assert.match(calloutBody, /line-height:\s*1\.6/);
+  assert.match(calloutBody, /font-size:\s*var\(--type-size-sm\)/);
+  assert.match(calloutBody, /line-height:\s*var\(--type-leading-body\)/);
 });
 
 test("the color and length helpers still catch raw values", () => {
@@ -170,8 +167,7 @@ test("the new type tokens exist, and Arabic-script text takes its leading from t
 });
 
 test("the line-length limits and page padding stay token-driven (#469)", () => {
-  assert.match(tokensCss, /--type-measure-min:\s*65ch/);
-  assert.match(tokensCss, /--type-measure-max:\s*80ch/);
+  assert.match(tokensCss, /--type-measure:\s*66ch/);
   assert.match(tokensCss, /--space-page:\s*clamp\(/);
 });
 

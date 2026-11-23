@@ -46,6 +46,8 @@
     "test:a11y": "npm run ui:build && node scripts/test-a11y.ts",
     "test:screen-reader": "node --test test/screen-reader-audit.test.ts",
     "test:smoke": "npm run ui:build && node scripts/test-smoke.ts",
+    "type:ratchet": "node scripts/check-type-ratchet.ts",
+    "test:type": "npm run ui:build && node scripts/test-type.ts",
     "test:deployed": "node --test test/deployed-smoke.test.ts",
     "test:acceptance": "npm run ui:build && node scripts/acceptance.ts",
     "test:visual": "npm run ui:build && node scripts/test-visual.ts",

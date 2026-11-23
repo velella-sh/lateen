@@ -44,11 +44,13 @@
 
   .post-author-bio {
     color: var(--muted-foreground);
-    font-size: 0.875rem;
+    font-size: var(--type-size-sm);
   }
 
   .doc-context {
-    @apply flex items-center gap-2 text-sm;
+    @apply flex items-center gap-2;
+    font-size: var(--type-size-sm);
+    line-height: var(--type-leading-ui);
     min-block-size: 1.5rem;
   }
 
@@ -88,7 +90,7 @@
     max-height: calc(100vh - 6.75rem);
     overflow: auto;
     scrollbar-width: thin;
-    font-size: 0.875rem;
+    font-size: var(--type-size-sm);
     @apply grid content-start gap-3;
   }
 
@@ -100,7 +102,9 @@
   }
 
   .toc h2 {
-    @apply m-0 mb-2 text-sm font-bold;
+    @apply m-0 mb-2 font-bold;
+    font-size: var(--type-size-sm);
+    line-height: var(--type-leading-ui);
     color: var(--foreground);
   }
 
@@ -151,7 +155,9 @@
   }
 
   .sidebar-group > summary > :is(h2, h3, h4, h5, h6) {
-    @apply m-0 text-sm font-semibold text-inherit;
+    @apply m-0 font-semibold text-inherit;
+    font-size: var(--type-size-sm);
+    line-height: var(--type-leading-ui);
   }
 
   :is(.sidebar-group, .toc-fold) > summary::after {
@@ -195,8 +201,8 @@
     padding: 0.25rem 0.75rem;
     border-inline-start: 1.5px solid transparent;
     color: var(--muted-foreground);
-    font-size: 0.8125rem;
-    line-height: 1.25rem;
+    font-size: var(--type-size-sm);
+    line-height: var(--type-leading-ui);
     text-decoration: none;
     overflow-wrap: anywhere;
   }
@@ -227,9 +233,9 @@
     padding-inline: 0.5rem;
     margin-inline-start: -1px;
     border-inline-start-width: 2px;
-    font-size: 0.875rem;
+    font-size: var(--type-size-sm);
     font-weight: 500;
-    line-height: 1.25rem;
+    line-height: var(--type-leading-ui);
     text-wrap: balance;
   }
 
@@ -254,9 +260,9 @@
 
   .toc ul ul a {
     padding-block: 0.1875rem;
-    font-size: 0.8125rem;
+    font-size: var(--type-size-xs);
     font-weight: 400;
-    line-height: 1.125rem;
+    line-height: var(--type-leading-ui);
   }
 
   .toc ul ul a[aria-current="true"] {
@@ -274,26 +280,23 @@
   }
 
   .doc {
-    --type-size-doc-title: clamp(2rem, 1.45rem + 2vw, 3rem);
-    --type-weight-doc-title: 720;
-    --type-leading-doc-title: 1.12;
-    --doc-title-space: 0.5rem;
-    --doc-section-space: 2.25rem;
+    --doc-title-space: var(--space-2);
+    --doc-section-space: 2.5rem;
   }
 
   .doc-layout main > article > h1,
   .doc > h1,
   .api-reference-operation-header > h1 {
-    margin-block: var(--doc-title-space, 0.5rem) 0;
+    margin-block: var(--doc-title-space) 0;
   }
 
   .doc-layout main > article > h1,
   .doc > h1,
   .doc-body > h1:first-child,
   .api-reference-operation-header > h1 {
-    font-size: var(--type-size-doc-title, clamp(1.875rem, 1.5rem + 1.6vw, 2.75rem));
-    font-weight: var(--type-weight-doc-title, 680);
-    line-height: var(--type-leading-doc-title, var(--type-leading-display));
+    font-size: var(--type-size-3xl);
+    font-weight: var(--type-weight-bold);
+    line-height: var(--type-leading-display);
     letter-spacing: var(--type-tracking-display);
     overflow-wrap: anywhere;
     text-wrap: balance;
@@ -303,8 +306,8 @@
     @apply flex items-center text-muted-foreground;
     gap: 0.375rem;
     margin: 0;
-    font-size: 0.75rem;
-    line-height: 1.25rem;
+    font-size: var(--type-size-xs);
+    line-height: var(--type-leading-ui);
     letter-spacing: 0.005em;
   }
 
@@ -362,17 +365,19 @@
   }
 
   .eyebrow {
-    @apply m-0 text-xs font-semibold uppercase;
+    @apply m-0 font-semibold uppercase;
+    font-size: var(--type-size-xs);
+    line-height: var(--type-leading-ui);
     color: var(--primary);
     letter-spacing: 0.09em;
   }
 
   .doc-description {
-    margin-block: 0.5rem 0;
-    max-inline-size: 60ch;
+    margin-block: var(--space-2) 0;
+    max-inline-size: var(--type-measure);
     color: var(--muted-foreground);
-    font-size: 1.0625rem;
-    line-height: 1.55;
+    font-size: var(--type-size-base);
+    line-height: var(--type-leading-ui);
     overflow-wrap: anywhere;
     text-wrap: pretty;
   }
@@ -382,7 +387,7 @@
     align-items: center;
     gap: 0.4rem;
     color: var(--link);
-    font-size: 0.875rem;
+    font-size: var(--type-size-sm);
     text-decoration: none;
   }
 
@@ -403,8 +408,8 @@
     gap: 0.25rem 0.75rem;
     margin-block-start: 0.5rem;
     color: var(--muted-foreground);
-    font-size: 0.75rem;
-    line-height: 1.25rem;
+    font-size: var(--type-size-xs);
+    line-height: var(--type-leading-ui);
   }
 
   .doc-meta .trust-panel {
@@ -414,9 +419,9 @@
 
   .doc-meta .trust-panel-chip {
     gap: 0.25rem;
-    min-block-size: 1.5rem;
+    min-block-size: 1.75rem;
     padding: 0.125rem 0.5rem;
-    font-size: 0.6875rem;
+    font-size: var(--type-size-xs);
   }
 
   .doc-meta .trust-panel-icon {
@@ -425,8 +430,8 @@
   }
 
   .doc-meta .trust-panel-body {
-    font-size: 0.875rem;
-    line-height: 1.5;
+    font-size: var(--type-size-sm);
+    line-height: var(--type-leading-ui);
   }
 
   .doc-meta:empty {
@@ -438,7 +443,7 @@
     padding: var(--space-3);
     border-radius: var(--radius-lg);
     background: var(--muted);
-    font-size: 0.875rem;
+    font-size: var(--type-size-sm);
     overflow-wrap: anywhere;
   }
 
@@ -469,7 +474,7 @@
   .guide-prerequisites-title {
     margin: 0 0 0.5rem;
     color: var(--muted-foreground);
-    font-size: 0.75rem;
+    font-size: var(--type-size-xs);
     font-weight: 600;
     letter-spacing: 0.09em;
     text-transform: uppercase;
@@ -483,7 +488,7 @@
   .guide-prerequisites-optional {
     margin-inline-start: 0.375rem;
     color: var(--muted-foreground);
-    font-size: 0.8125rem;
+    font-size: var(--type-size-sm);
   }
 
   .doc-body {
@@ -493,15 +498,22 @@
   .doc-body h2,
   .api-reference-section > h2 {
     position: relative;
-    margin: var(--doc-section-space) 0 0.75rem;
-    font-size: 1.4375rem;
+    margin: var(--doc-section-space) 0 var(--space-3);
+    font-size: var(--type-size-xl);
     font-weight: var(--type-weight-bold);
-    line-height: 1.875rem;
-    letter-spacing: -0.018em;
+    line-height: var(--type-leading-snug);
+    letter-spacing: var(--type-tracking-heading);
   }
 
   .doc-body h3 {
-    @apply mb-3 mt-8 text-xl;
+    margin-block: var(--space-8) var(--space-2);
+    font-size: var(--type-size-lg);
+    line-height: var(--type-leading-snug);
+  }
+
+  /* A heading straight after a heading keeps the lower one close to it. */
+  .doc-body :is(h2, h3, h4) + :is(h2, h3, h4) {
+    margin-block-start: var(--space-4);
   }
 
   .doc-body > :first-child {
@@ -529,21 +541,15 @@
   }
 
   .doc-body p {
-    margin: 0.6875rem 0;
-    max-inline-size: 40em;
+    margin-block: 0 var(--space-5);
     overflow-wrap: anywhere;
   }
 
-  .doc-body > :is(p, ul, ol, h1, h2, h3) {
-    max-inline-size: var(--type-measure-min);
-    overflow-wrap: anywhere;
-  }
-
-  .doc-body > :is(p, ul, ol),
+  .doc-body > :is(p, ul, ol, h1, h2, h3),
   .quickstart-step > p,
   .api-reference-operation-header > .api-reference-description {
-    max-inline-size: 58ch;
-    line-height: 1.7;
+    max-inline-size: var(--type-measure);
+    overflow-wrap: anywhere;
   }
 
   .doc-body > p {
@@ -552,7 +558,7 @@
 
   .doc-body :where(blockquote, li, .callout-body, .details-body, .tabs-body, .tutorial-intro, .tutorial-step-body) > :is(ul, ol):not([class]),
   .doc-body > :is(ul, ol):not([class]) {
-    margin-block: 0.75rem 1rem;
+    margin-block: 0 var(--space-5);
     padding-inline-start: 1.45em;
     list-style: disc outside;
     overflow-wrap: anywhere;
@@ -563,7 +569,7 @@
   }
 
   .doc-body li > :is(ul, ol):not([class]) {
-    margin-block: 0.3em 0;
+    margin-block: var(--space-1) 0;
   }
 
   .doc-body li > ul:not([class]) {
@@ -575,7 +581,7 @@
   }
 
   .doc-body blockquote:not([class]):not(.quote *) {
-    margin-block: 1.125rem;
+    margin-block: 0 var(--space-5);
     padding-block: 0.125rem;
     padding-inline: 1rem 0;
     border-inline-start: 2px solid var(--border-strong);
@@ -592,15 +598,15 @@
   }
 
   .doc-body figure:not([class]) {
-    margin-block: 1.125rem;
+    margin-block: 0 var(--space-5);
   }
 
   .doc-body :is(figure:not([class]) > figcaption, .figure-caption) {
-    margin-block-start: 0.5rem;
-    max-inline-size: 50ch;
+    margin-block-start: var(--space-2);
+    max-inline-size: var(--type-measure);
     color: var(--muted-foreground);
-    font-size: 0.875rem;
-    line-height: 1.5;
+    font-size: var(--type-size-sm);
+    line-height: var(--type-leading-ui);
     overflow-wrap: anywhere;
   }
 
@@ -621,11 +627,13 @@
   }
 
   .doc-body li + li {
-    margin-block-start: 0.35rem;
+    margin-block-start: var(--space-1);
   }
 
   :not(pre) > code {
-    @apply rounded-md px-1.5 py-0.5 font-mono text-sm;
+    @apply rounded-md px-1.5 py-0.5 font-mono;
+    font-size: var(--type-size-sm);
+    line-height: var(--type-leading-ui);
     color: var(--foreground);
     background: color-mix(in srgb, var(--muted) 65%, var(--background));
   }
