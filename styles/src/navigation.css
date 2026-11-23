@@ -203,6 +203,11 @@
     justify-items: stretch;
   }
 
+  /* Calendar links, feeds and downloads share the panel as plain rows under quiet labels. */
+  .article-tool-panel :is(ul, .add-to-calendar, .calendar-actions) {
+    @apply list-none p-0;
+  }
+
   .article-tool-panel .copy-markdown {
     display: grid;
   }

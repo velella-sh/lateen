@@ -1,7 +1,7 @@
 import { Fragment, h } from "preact";
 import type { ComponentChildren } from "preact";
 import type { Chrome, Site, SiteConfig } from "@velella/mizzen/contracts";
-import { Search } from "lucide";
+import { Menu, Search } from "lucide";
 import { t } from "../../i18n/index.ts";
 import { textOf as footerText } from "../../src/guards.ts";
 import { icon } from "../../src/icon.ts";
@@ -154,7 +154,7 @@ const shell = (props: Parameters<Chrome>[0] & SourceModeVisibility) => {
               hidden: true,
               "data-drawer-open": true,
             },
-            h("span", { "aria-hidden": "true" }, "☰"),
+            icon({ node: Menu }),
           ),
         ),
       ),

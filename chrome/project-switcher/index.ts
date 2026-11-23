@@ -29,6 +29,9 @@ export const LINK_CLASS = "project-switcher-link";
 /** Class added to the current project's link, beside {@link LINK_CLASS}. */
 export const CURRENT_CLASS = "project-switcher-current";
 
+/** The i18n key with the accessible name of the navigation landmark, distinct from the sidebar's. */
+export const NAV_LABEL_KEY = "project_navigation";
+
 /** The i18n key with the label of the control. */
 export const LABEL_KEY = "projects";
 
@@ -78,7 +81,7 @@ const projectSwitcher: Chrome = ({ site, page }) => {
 
   return h(
     "nav",
-    { class: NAV_CLASS, "aria-label": t(page.lang, "site_navigation") },
+    { class: NAV_CLASS, "aria-label": t(page.lang, NAV_LABEL_KEY) },
     h(
       "details",
       { class: DETAILS_CLASS, "data-project-switcher": "" },

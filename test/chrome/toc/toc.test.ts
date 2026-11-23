@@ -89,7 +89,11 @@ test("preserves the h2 and h3 hierarchy in the landmark and fold", () => {
   assert.match(out, /<nav class="toc" aria-labelledby="toc-title"><h2 id="toc-title">On this page<\/h2>/);
   assert.doesNotMatch(out, /toc-fold/);
   assert.match(fold, /<details class="toc-fold">/);
-  assert.match(fold, /<summary>On this page<\/summary>/);
+  assert.match(
+    fold,
+    /<summary><span class="toc-fold-title">On this page<\/span><span class="toc-fold-current" data-toc-current=""><\/span><\/summary>/,
+    "the closed fold shows its title and an empty slot for the section in view",
+  );
   assert.doesNotMatch(out + fold, /#title|#deep/);
   assert.match(
     out,

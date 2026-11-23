@@ -9,6 +9,7 @@ import scrollspy, {
 } from "../../../chrome/toc/client.ts";
 
 const LINK_SELECTOR = ".toc a[href^='#'], .toc-fold a[href^='#']";
+const LABEL_SELECTOR = "[data-toc-current]";
 const SCROLLER_SELECTOR = ".toc";
 const HEADER_SELECTOR = "[data-site-header]";
 const REDUCED = "(prefers-reduced-motion: reduce)";
@@ -21,6 +22,7 @@ class FakeElement implements TocElement {
   readonly documentScrolls: { block?: string; behavior?: string }[] = [];
   top: number;
   height: number;
+  textContent: string | null = null;
 
   constructor(id: string, top = 2000, height = 20) {
     this.id = id;
@@ -83,6 +85,8 @@ class FakeDocument implements TocDocument {
   readonly singleQueries: string[] = [];
   readonly ids: Map<string, FakeElement>;
   links: FakeElement[];
+  /** The fold's "current section" labels, found by `[data-toc-current]`. */
+  readonly labels: FakeElement[] = [];
   scroller: FakeScroller | null;
   header: FakeScroller | null;
   location: { hash: string };
@@ -103,7 +107,7 @@ class FakeDocument implements TocDocument {
 
   querySelectorAll(selector: string): FakeElement[] {
     this.queries.push(selector);
-    return this.links;
+    return selector === LABEL_SELECTOR ? this.labels : this.links;
   }
 
   querySelector(selector: string): TocScroller | null {
@@ -170,12 +174,14 @@ function spy(ids: string[], options: SpyOptions = {}) {
     return link;
   });
   const fold = ids.map(linkTo);
+  for (const link of [...aside, ...fold]) link.textContent = ` Title of ${link.getAttribute("href")!.slice(1)} `;
   const links = [...aside, ...fold];
   const scroller = options.scroller === undefined ? new FakeScroller() : options.scroller;
   scroller?.links.push(...aside);
   const header = options.header === null ? null : new FakeScroller();
   if (header) header.height = options.header ?? HEADER_HEIGHT;
   const doc = new FakeDocument(links, headings, scroller, header, options.hash ?? "");
+  doc.labels.push(new FakeElement("label"));
   FakeObserver.instances = [];
   const env: TocEnv = {
     document: doc,
@@ -213,12 +219,29 @@ function assertDocumentUnscrolled(links: readonly FakeElement[]): void {
 
 test("asks for both TOC link sets, the scrolling column, and the sticky header, then observes each heading once", () => {
   const { doc, observer } = spy(["pick", "gem", "build"]);
-  assert.deepEqual(doc.queries, [LINK_SELECTOR]);
+  assert.deepEqual(doc.queries, [LINK_SELECTOR, LABEL_SELECTOR]);
   assert.deepEqual(doc.singleQueries, [SCROLLER_SELECTOR, HEADER_SELECTOR]);
   assert.deepEqual(
     observer.observed.map((heading) => heading.id),
     ["pick", "gem", "build"],
   );
+});
+
+test("the closed fold names the section in view and goes empty above the first heading", () => {
+  const { observer, heading, doc } = spy(["pick", "gem"]);
+  const label = doc.labels[0]!;
+  assert.equal(label.textContent, null, "nothing is named before a section is marked");
+
+  observer.see(heading("pick"), HEADER_HEIGHT + 60, true);
+  assert.equal(label.textContent, "Title of pick", "the label carries the trimmed link text");
+
+  observer.see(heading("pick"), -20, false);
+  observer.see(heading("gem"), HEADER_HEIGHT + 50, true);
+  assert.equal(label.textContent, "Title of gem");
+
+  observer.see(heading("gem"), 700, false);
+  observer.see(heading("pick"), 700, false);
+  assert.equal(label.textContent, "", "an empty label is hidden by CSS");
 });
 
 test("marks the first heading once it is the one in view", () => {

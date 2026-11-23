@@ -95,10 +95,31 @@ test("renders a closed dialog with the sidebar inside it and a hidden close butt
     out,
     /<button type="button" class="drawer-close iconbtn" aria-label="Close menu" hidden data-drawer-close>/,
   );
-  assert.match(out, /<nav class="sidebar-nav" aria-label="Site navigation">/);
+  assert.match(out, /<nav class="sidebar-nav sidebar-nav-flat" aria-label="Site navigation">/);
   assert.match(out, /<a href="\/guide\/install\/" aria-current="page">Install<\/a>/);
   assert.ok(out.indexOf("drawer-close") < out.indexOf("sidebar-nav"), "close button comes before the sidebar");
   assert.match(out, /<\/nav><\/dialog>$/);
+});
+
+test("the drawer is one flat layer: every section is open, with no disclosure to expand first", () => {
+  const nested = {
+    main: [
+      { title: "Home", url: "/home/" },
+      {
+        title: "Guide",
+        children: [
+          { title: "Install", url: "/guide/install/" },
+          { title: "Advanced", children: [{ title: "Tuning", url: "/guide/advanced/tuning/" }] },
+        ],
+      },
+    ],
+  };
+  const out = html(drawer(props(nested, "/guide/install/")));
+
+  assert.doesNotMatch(out, /<details|<summary|data-sidebar-group/, "nothing in the drawer needs expanding");
+  assert.match(out, /<h2[^>]*>Guide<\/h2>/);
+  assert.match(out, /<li class="sidebar-label"><span>Advanced<\/span><\/li>/);
+  assert.match(out, /<a href="\/guide\/advanced\/tuning\/">Tuning<\/a>/, "a nested page is a plain link in the same list");
 });
 
 /** The declarations of one rule in the sailcloth stylesheet. */
@@ -175,12 +196,11 @@ function control(name: string) {
 
 /**
  * A fake `<dialog>`: `showModal` and `close` flip `open`, and `close` fires the `close` listeners as a browser does.
- * `groups` stand in for `<details data-sidebar-group>`; `currentLinks` for the link that marks the current page.
+ * `currentLinks` stands in for the link that marks the current page.
  */
 function fakeDialog(
   items: DrawerFocusable[] = [],
   links: DrawerLink[] = [],
-  groups: Array<{ open: boolean; current: boolean }> = [],
   currentLinks: DrawerLink[] = [],
 ) {
   const listeners: Record<string, Array<(event: DrawerEvent) => void>> = {};
@@ -191,7 +211,6 @@ function fakeDialog(
     closes: 0,
     items,
     links,
-    groups,
     currentLinks,
     setAttribute(key: string, value: string) {
       fake.attrs[key] = value;
@@ -207,9 +226,6 @@ function fakeDialog(
       for (const listener of listeners.close ?? []) listener({ target: fake, preventDefault() {} });
     },
     querySelectorAll<T = DrawerFocusable>(selector: string): Iterable<T> {
-      if (selector.includes("details[data-sidebar-group]")) {
-        return groups.filter((group) => group.current) as unknown as T[];
-      }
       if (selector.includes("aria-current")) return currentLinks as unknown as T[];
       assert.match(selector, /a\[href\]/);
       return [...fake.items, ...fake.links] as unknown as T[];
@@ -336,17 +352,15 @@ test("the menu button opens the dialog and sets aria-expanded; a second press do
   assert.equal(dialog.shows, 1);
 });
 
-test("opening the drawer expands the current page's branch and focuses the current link", () => {
+test("opening the drawer focuses the current link ahead of the close control", () => {
   const button = control("menu");
   const close = control("close");
   const current = link("https://example.test/guide/install/");
-  const branch = { open: false, current: true };
-  const dialog = fakeDialog([close], [current], [branch], [current]);
+  const dialog = fakeDialog([close], [current], [current]);
   activate({ dialog, button: button as unknown as DrawerControl, closeButton: close as unknown as DrawerControl });
 
   button.clicks[0]!();
 
-  assert.equal(branch.open, true, "a collapsed branch holding the current page is expanded again");
   assert.equal(current.focused, 1);
   assert.equal(close.focused, 0, "the current page takes focus ahead of the close control");
 });
@@ -354,27 +368,12 @@ test("opening the drawer expands the current page's branch and focuses the curre
 test("opening without a current page link focuses the close control", () => {
   const button = control("menu");
   const close = control("close");
-  const dialog = fakeDialog([close], [], [], []);
+  const dialog = fakeDialog([close], [], []);
   activate({ dialog, button: button as unknown as DrawerControl, closeButton: close as unknown as DrawerControl });
 
   button.clicks[0]!();
 
   assert.equal(close.focused, 1);
-});
-
-test("a previously collapsed branch unrelated to the current page stays collapsed", () => {
-  const button = control("menu");
-  const close = control("close");
-  const current = link("https://example.test/guide/install/");
-  const currentBranch = { open: true, current: true };
-  const unrelated = { open: false, current: false };
-  const dialog = fakeDialog([close], [current], [currentBranch, unrelated], [current]);
-  activate({ dialog, button: button as unknown as DrawerControl, closeButton: close as unknown as DrawerControl });
-
-  button.clicks[0]!();
-
-  assert.equal(currentBranch.open, true);
-  assert.equal(unrelated.open, false, "only the current page's branch is forced open");
 });
 
 test("closing returns focus before the queued close event and does not refocus the menu button afterwards", () => {

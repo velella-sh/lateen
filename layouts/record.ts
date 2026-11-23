@@ -3,10 +3,9 @@ import { pageToolSlot } from "./shared/page-tool.ts";
 import type { ComponentChildren } from "preact";
 import type { DataRecord, Heading, Island, Layout, LayoutProps, RecordPos } from "@velella/mizzen/contracts";
 import breadcrumb from "../chrome/breadcrumb/index.ts";
-import copyMarkdown from "../chrome/copy-markdown/index.ts";
 import lastUpdated from "../chrome/last-updated/index.ts";
-import pageAgentMenu from "../chrome/page-agent-menu/index.ts";
-import pageFooter from "../chrome/page-footer/index.ts";
+import { docPageFooter } from "../chrome/page-footer/index.ts";
+import sourceMode from "../chrome/source-mode/index.ts";
 import toc, { tocFold } from "../chrome/toc/index.ts";
 import addToCalendar from "../components/add-to-calendar/index.ts";
 import { classNameOf, replacementOf } from "../components/page-status/index.ts";
@@ -18,6 +17,7 @@ import { t } from "../i18n/index.ts";
 import { FACTS_ID, factsOf, factsPanel, recordHeader, relatedPanel, summaryOf } from "../src/record-parts.ts";
 import { renderDoc } from "./shared/doc.ts";
 import { articleShell } from "./shared/index.ts";
+import { pageTools } from "./shared/page-tools.ts";
 import { staleSlot } from "../src/stale.ts";
 import { snapshotPanel } from "../src/snapshot-panel.ts";
 import { baseOf, safeHref } from "../src/url.ts";
@@ -100,24 +100,32 @@ function article(props: LayoutProps): ComponentChildren {
   return h(
     "article",
     { class: "record", "data-pagefind-body": true },
-    breadcrumb(props) as ComponentChildren,
+    h(
+      "div",
+      { class: "doc-context" },
+      breadcrumb(props) as ComponentChildren,
+      pageTools(
+        props,
+        sourceMode(props) as ComponentChildren,
+        addToCalendar({
+          props: {
+            ...(props.record?.calendar === undefined ? {} : { calendar: props.record.calendar }),
+            ...(props.record?.calendars === undefined ? {} : { calendars: props.record.calendars }),
+          },
+          page: props.page,
+          site: props.site,
+          html: "",
+        }) as ComponentChildren,
+        collectionFeeds(props),
+        collectionDownloads(props, { inline: true }),
+      ),
+    ),
     recordHeader(props),
     tocFold(tocFor(props)) as ComponentChildren,
     staleSlot(props),
     replacementNotice(props),
     summaryOf(props),
-    addToCalendar({
-      props: {
-        ...(props.record?.calendar === undefined ? {} : { calendar: props.record.calendar }),
-        ...(props.record?.calendars === undefined ? {} : { calendars: props.record.calendars }),
-      },
-      page: props.page,
-      site: props.site,
-      html: "",
-    }) as ComponentChildren,
-    collectionFeeds(props),
     factsPanel(props),
-    collectionDownloads(props),
     collectionApi(props),
     lastUpdated(props) as ComponentChildren,
     h("div", { class: "record-body", dangerouslySetInnerHTML: { __html: pageHtml(props.page.html, props.page.lang) } }),
@@ -132,13 +140,7 @@ function article(props: LayoutProps): ComponentChildren {
     namedViews(props),
     embedPanel(props),
     snapshotPanel(props),
-    h(
-      "div",
-      { class: "doc-actions" },
-      pageFooter(props) as ComponentChildren,
-      copyMarkdown(props) as ComponentChildren,
-      pageAgentMenu(props) as ComponentChildren,
-    ),
+    docPageFooter(props) as ComponentChildren,
   );
 }
 
@@ -157,6 +159,7 @@ const record: Layout = (props) => {
   return props.record === undefined
     ? renderDoc(props)
     : articleShell(props, {
+        base: { showSourceMode: false },
         main: article(props),
         aside: toc(tocFor(props)) as ComponentChildren,
       });
