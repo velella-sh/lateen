@@ -1,18 +1,16 @@
 import { h } from "preact";
 import type { ComponentChildren } from "preact";
-import { ChevronDown, Copy } from "lucide";
-import { t } from "../../i18n/index.ts";
-import { icon } from "../../src/icon.ts";
 import type { LayoutProps } from "@velella/mizzen/contracts";
 import { staleSlot } from "../../src/stale.ts";
 import lastUpdated from "../../chrome/last-updated/index.ts";
-import { docPageFooter, docPageTools } from "../../chrome/page-footer/index.ts";
+import { docPageFooter } from "../../chrome/page-footer/index.ts";
 import sourceMode from "../../chrome/source-mode/index.ts";
 import pager from "../../chrome/pager/index.ts";
 import { tocFold } from "../../chrome/toc/index.ts";
 import { highlightFences } from "../../components/code/index.ts";
 import { renderDriftBanner } from "../../components/drift-banner/render.ts";
 import { pageToolSlot } from "./page-tool.ts";
+import { pageTools } from "./page-tools.ts";
 import { renderPageStatus } from "../../components/page-status/render.ts";
 import { renderReadingTime } from "../../components/reading-time/render.ts";
 import { renderVersionNotice } from "../../components/version-notice/render.ts";
@@ -36,10 +34,7 @@ function article(props: LayoutProps): ComponentChildren {
     "article",
     { class: "doc", "data-pagefind-body": true },
     articleHeader(props, {
-      tools: h("details", { class: "doc-tools", "data-pagefind-ignore": true },
-        h("summary", null, icon({ node: Copy }), t(page.lang, "article_page_tools"), icon({ node: ChevronDown, class: "doc-tools-chevron" })),
-        h("div", { class: "article-tool-panel" }, ...docPageTools(props, sourceMode(props) as ComponentChildren)),
-      ),
+      tools: pageTools(props, sourceMode(props) as ComponentChildren),
       notices: [
         renderDriftBanner({ props: {}, page, site: props.site, html: "" }) as ComponentChildren,
         renderPageStatus({ props: statusProps(page), page, site: props.site, html: "" }) as ComponentChildren,

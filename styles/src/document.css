@@ -79,10 +79,6 @@
     rotate: 180deg;
   }
 
-  :root:not([data-js]) .doc-tools {
-    display: none;
-  }
-
   .doc-tools [data-source-mode] {
     margin: 0;
     justify-content: start;

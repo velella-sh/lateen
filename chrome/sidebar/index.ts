@@ -235,16 +235,78 @@ function blocks(items: readonly NavItem[], url: string, site: Site): ComponentCh
   return out;
 }
 
-/** The left column: groups and links from the navigation tree, the current page and active section marked. */
-const sidebar: Chrome = ({ site, page }) => {
+/** Every link under a group at any depth, in reading order, with the title of each nested group as a plain label. */
+function flatEntries(items: readonly NavItem[], url: string): ComponentChildren[] {
+  const nodes: ComponentChildren[] = [];
+  for (const item of items) {
+    if (!isGroup(item)) {
+      nodes.push(h("li", null, linkNode(item, url)));
+      continue;
+    }
+    const pages = leaves(item.children);
+    if (pages.length === 0) continue;
+    if (pages.length > MAX_LISTED) {
+      nodes.push(h("li", null, collapsedNode(item, pages, url)));
+      continue;
+    }
+    nodes.push(h("li", { class: "sidebar-label" }, h("span", null, item.title)));
+    nodes.push(...flatEntries(item.children, url));
+  }
+  return nodes;
+}
+
+/**
+ * The same navigation on one layer, for the mobile menu: each top-level group is a heading over one
+ * list, groups nested inside it are flattened into that list under their own plain label, and nothing
+ * opens or closes. It reads the same tree and builds its links with the same functions as the column.
+ */
+function flatBlocks(items: readonly NavItem[], url: string): ComponentChildren[] {
+  const out: ComponentChildren[] = [];
+  let leading: ComponentChildren[] = [];
+  for (const item of items) {
+    if (!isGroup(item)) {
+      leading.push(h("li", null, linkNode(item, url)));
+      continue;
+    }
+    const pages = leaves(item.children);
+    if (pages.length === 0) continue;
+    if (leading.length > 0) {
+      out.push(h("ul", null, leading));
+      leading = [];
+    }
+    if (pages.length > MAX_LISTED) {
+      out.push(h("ul", null, h("li", null, collapsedNode(item, pages, url))));
+      continue;
+    }
+    out.push(
+      h(
+        "section",
+        { class: "sidebar-section" },
+        h("h2", marks(item, url) ? { "aria-current": "true" } : {}, item.title),
+        h("ul", null, flatEntries(item.children, url)),
+      ),
+    );
+  }
+  if (leading.length > 0) out.push(h("ul", null, leading));
+  return out;
+}
+
+/**
+ * The navigation landmark: groups and links from the navigation tree, the current page and active
+ * section marked. `flat` is the mobile menu's one-layer form of the same tree.
+ */
+export function sidebarNav({ site, page }: Parameters<Chrome>[0], options: { readonly flat?: boolean } = {}) {
   const items = listOf(site.nav);
   if (items.length === 0) return null;
 
   return h(
     "nav",
-    { class: "sidebar-nav", "aria-label": t(page.lang, "site_navigation") },
-    blocks(items, page.url, site),
+    { class: options.flat === true ? "sidebar-nav sidebar-nav-flat" : "sidebar-nav", "aria-label": t(page.lang, "site_navigation") },
+    options.flat === true ? flatBlocks(items, page.url) : blocks(items, page.url, site),
   );
-};
+}
+
+/** The left column: the navigation tree as disclosure groups. */
+const sidebar: Chrome = (props) => sidebarNav(props);
 
 export default sidebar;

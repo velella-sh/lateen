@@ -402,40 +402,17 @@
   }
 
   @media (width < 768px) {
-    /* The drawer carries the three selectors below this width, so the header does not repeat them. */
-    .site-header .project-switcher,
-    .site-header .language-switcher,
-    .site-header .version-switcher {
+    /* The drawer carries the three selectors below this width, so the header does not repeat them.
+       A page that runs no script has no drawer, so there the header keeps them. */
+    :root[data-js] .site-header :is(.project-switcher, .language-switcher, .version-switcher) {
       display: none;
     }
   }
 
-  /* Mobile drawer: the sidebar inside a dialog pinned to the reading-order edge. */
+  /* Mobile drawer: the flat navigation inside a dialog pinned to the reading-order edge. Without
+     the script the dialog stays out of the page, so no dialog role is exposed; the sidebar column
+     shows above the article on narrow screens instead (see responsive.css). */
   .drawer:not([data-enhanced]) {
-    display: none;
-  }
-
-  @media (width < 768px) {
-    .drawer:not([data-enhanced]) {
-      display: block;
-      position: static;
-      inset: auto;
-      inline-size: auto;
-      max-inline-size: none;
-      max-block-size: none;
-      margin: 0;
-      padding-block: var(--space-3);
-      padding-inline: var(--space-1);
-      border: 0;
-      border-block-end: 1px solid var(--border-subtle);
-      background: transparent;
-      color: inherit;
-      overflow: visible;
-    }
-  }
-
-  /* A page that will run its scripts starts closed, so the first paint matches the script's layout. */
-  html[data-js] .drawer:not([data-enhanced]) {
     display: none;
   }
 
@@ -510,6 +487,10 @@
     border-block-end: 1px solid var(--border);
     background: var(--background);
     font-weight: 600;
+  }
+
+  .sidebar-nav-flat :is(.sidebar-section > h2, .sidebar-label) {
+    @apply px-2 pt-3 text-xs font-semibold text-muted-foreground;
   }
 
   .drawer .sidebar-nav {

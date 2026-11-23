@@ -57,7 +57,7 @@ test("the docs shell styles use the classes the layouts render", () => {
     assert.match(ui, new RegExp(`\\${selector}(?![\\w-])`), selector);
   }
   assert.match(ui, /\.site-header \.shell-menu\s*\{\s*display:\s*none/);
-  assert.match(ui, /@media \(width < 768px\)[^{}]*\{\s*\.doc-layout\s*\{[^}]*\}\s*\.sidebar\s*\{[^}]*display:\s*none/);
+  assert.match(ui, /@media \(width < 768px\)[^{}]*\{\s*\.doc-layout\s*\{[^}]*\}\s*(?:\/\*[\s\S]*?\*\/\s*)?:root\[data-js\]\s*\.sidebar\s*\{[^}]*display:\s*none/);
 });
 
 test("home preview and mobile cards keep the Sailcloth surface contract", () => {

@@ -104,9 +104,9 @@ test("a page without record data renders the doc article instead", () => {
   assert.match(render(page, false), /<article class="doc"/);
 });
 
-test("the record page keeps the page footer under its actions", () => {
+test("the record page keeps the page footer after the record", () => {
   const out = render(pageWith());
-  assert.match(out, /<div class="doc-actions"><div class="page-footer">/);
+  assert.match(out, /<div class="page-end">/);
 });
 
 test("a record with changed fields asks the engine for the history filter island", () => {

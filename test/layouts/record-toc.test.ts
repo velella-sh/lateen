@@ -87,7 +87,7 @@ test("the contents put the facts panel first, then the page's h2 and h3 sections
     ["states", "States"],
     ["hover", "Hover"],
   ]);
-  assert.match(out, /<details class="toc-fold"><summary>On this page<\/summary><ul><li><a href="#record-facts">Key facts<\/a>/);
+  assert.match(out, /<details class="toc-fold"><summary><span class="toc-fold-title">On this page<\/span><span class="toc-fold-current" data-toc-current><\/span><\/summary><ul><li><a href="#record-facts">Key facts<\/a>/);
 
   const fa = render(pageWith({ lang: "fa" }));
   assert.match(fa, /<a href="#record-facts">مشخصات کلیدی<\/a>/);

@@ -14,6 +14,8 @@ export interface TocElement {
   setAttribute(name: string, value: string): void;
   removeAttribute(name: string): void;
   getBoundingClientRect(): TocRect;
+  /** The element's text; the island reads a link's and writes the fold's current-section label. */
+  textContent?: string | null;
 }
 
 /** The scrolling TOC column; revealing a link scrolls this element, never the document. */
@@ -56,6 +58,8 @@ export interface TocEnv {
   matchMedia?: MediaQuery;
 }
 
+/* The phone fold's summary names the section being read; its label stays empty until a heading is current. */
+const CURRENT_SELECTOR = "[data-toc-current]";
 const LINK_SELECTOR = ".toc a[href^='#'], .toc-fold a[href^='#']";
 /* The sticky column is the only part of the TOC that scrolls; the fold is never a reveal target. */
 const SCROLLER_SELECTOR = ".toc";
@@ -99,6 +103,7 @@ export default function scrollspy(env: TocEnv = {}): () => void {
   const header = document.querySelector(HEADER_SELECTOR);
   const headerHeight = Math.max(0, Math.round(header?.getBoundingClientRect().height ?? 0));
 
+  const labels = document.querySelectorAll(CURRENT_SELECTOR);
   const inBand = new Set<string>();
   let active: string | null = null;
   let stopped = false;
@@ -125,9 +130,10 @@ export default function scrollspy(env: TocEnv = {}): () => void {
       for (const link of byId.get(active) ?? []) link.removeAttribute("aria-current");
     }
     active = id;
-    if (id === null) return;
-    const group = byId.get(id);
-    if (!group) return;
+    const group = id === null ? undefined : byId.get(id);
+    const name = group?.[0]?.textContent?.trim() ?? "";
+    for (const label of labels) label.textContent = name;
+    if (id === null || !group) return;
     for (const link of group) link.setAttribute("aria-current", "true");
     const target = group.find((link) => scroller?.contains(link) === true);
     if (target) reveal(target);
