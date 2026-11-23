@@ -88,7 +88,15 @@ html[data-js] .source-mode-switch[hidden] {
 /* Inside the Page tools panel Source mode is one more row, like the rows above it: no box, same
    height and weight, with the on state shown by colour and aria-pressed. */
 .doc-tools .source-mode-switch {
+  flex-direction: column;
+  flex-wrap: nowrap;
+  gap: 0;
   margin: 0;
+}
+
+/* The switch is its own way out, so the Exit button is redundant here; the count stays as a quiet line. */
+.doc-tools .source-mode-switch .source-exit-button {
+  display: none;
 }
 
 .doc-tools .source-mode-switch .source-mode-controls,
