@@ -7,6 +7,7 @@
     { "name": "badge", "selector": ".badge", "variants": ["note", "tip", "important", "warning", "caution"] },
     { "name": "bar-chart", "selector": "figure.bar-chart", "variants": ["horizontal", "vertical"] },
     { "name": "before-after", "selector": ".before-after" },
+    { "name": "brand-studio", "selector": "[data-studio-preview]" },
     { "name": "budget-report", "selector": "section.budget-report" },
     { "name": "callout", "selector": ".callout" },
     { "name": "abstract", "selector": "#imported-abstract + details.callout", "page": "/inventory/" },

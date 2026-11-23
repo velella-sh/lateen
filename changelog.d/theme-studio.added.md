@@ -1,0 +1,1 @@
+Try presets, colors, and fonts in Theme Studio at `/lateen/theme-studio/` and copy the settings for `mizzen.yml`. Acceptance scenario `theme-studio-export` covers preview, export and a consumer build.

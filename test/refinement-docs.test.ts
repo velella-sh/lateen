@@ -3,6 +3,7 @@
 import assert from "node:assert/strict";
 import { readFileSync } from "node:fs";
 import { test } from "node:test";
+import { DENSITIES, RADII } from "../src/brand.ts";
 
 const read = (path: string): string => readFileSync(new URL(path, import.meta.url), "utf8");
 const page = read("../site/refinement.md");
@@ -21,9 +22,7 @@ test("the page is linked from the Customize section of the navigation", () => {
 });
 
 test("the radius and density options the page explains are the ones the brand module accepts", () => {
-  const brand = read("../src/brand.ts");
-  for (const word of ["none", "small", "medium", "large", "compact", "comfortable"]) {
+  for (const word of [...RADII, ...DENSITIES]) {
     assert.match(page, new RegExp(`\`${word}\``), `${word} is documented`);
-    assert.match(brand, new RegExp(`["']${word}["']`), `${word} exists in brand.ts`);
   }
 });

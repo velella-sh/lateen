@@ -120,6 +120,8 @@ main:
         url: /refinement/
       - title: Presets
         url: /presets/
+      - title: Theme Studio
+        url: /theme-studio/
       - title: Add a component
         url: /add-component/
       - title: Ask your agent

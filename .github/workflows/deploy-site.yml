@@ -58,6 +58,9 @@ jobs:
         run: echo "$GITHUB_SHA" > "$RUNNER_TEMP/site/deploy-commit.txt"
       - name: Check the site
         run: lateen/node_modules/.bin/mizzen check lateen/site --theme lateen
+      - name: Check Theme Studio in the Pages artifact
+        run: node scripts/theme-studio-export.ts --out "$RUNNER_TEMP/site"
+        working-directory: lateen
       - uses: actions/configure-pages@45bfe0192ca1faeb007ade9deae92b16b8254a0d # v6.0.0
       - uses: actions/upload-pages-artifact@fc324d3547104276b827a68afc52ff2a11cc49c9 # v5.0.0
         with:
@@ -68,6 +71,11 @@ jobs:
       - name: Smoke-test the deployed site
         working-directory: lateen
         run: node scripts/smoke-deployed.ts --base "${{ steps.deploy.outputs.page_url }}" --commit "${{ github.sha }}" --report test/smoke/out/deployed.json
+      - name: Check the published Theme Studio
+        run: node scripts/theme-studio-export.ts --url "$PAGE_URL"
+        env:
+          PAGE_URL: ${{ steps.deploy.outputs.page_url }}
+        working-directory: lateen
       - name: Keep the deployed smoke report
         if: always()
         uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2

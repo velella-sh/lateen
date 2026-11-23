@@ -19,11 +19,15 @@ Warm, roomy, and rounded: an earth accent with large corners.
 
 ::preset-preview{preset=clay}
 
+[Try Clay in Theme Studio](../theme-studio/?preset=clay)
+
 ## Graphite
 
 Grey, dense, and square: a neutral accent for reference-heavy sites.
 
 ::preset-preview{preset=graphite}
+
+[Try Graphite in Theme Studio](../theme-studio/?preset=graphite)
 
 ## Harbor
 
@@ -31,17 +35,23 @@ Cool and calm: a blue accent with the shipped corner scale.
 
 ::preset-preview{preset=harbor}
 
+[Try Harbor in Theme Studio](../theme-studio/?preset=harbor)
+
 ## Orchard
 
 Green and compact-cornered: a calm accent for guides and handbooks.
 
 ::preset-preview{preset=orchard}
 
+[Try Orchard in Theme Studio](../theme-studio/?preset=orchard)
+
 ## Plum
 
 A soft violet accent with the shipped corner scale.
 
 ::preset-preview{preset=plum}
+
+[Try Plum in Theme Studio](../theme-studio/?preset=plum)
 
 ## Velella family
 
