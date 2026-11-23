@@ -73,6 +73,8 @@ function pointerTarget(root: Json, ref: string): unknown {
 export interface Resolution {
   readonly schema: Json;
   readonly ref: SchemaRef | null;
+  /** A reference chain ends at the boolean schema `false`. */
+  readonly rejectsAll?: boolean;
 }
 
 /** The schema without its own `$ref`, keeping the keywords written next to it. */
@@ -101,10 +103,14 @@ export function resolve(schema: Json, root: Json, hops = 0, seen: ReadonlySet<st
   // A plain-name fragment such as `#notes` is local but not a pointer this reader can follow.
   if (pointerParts(authored) === undefined) return ended("unresolved");
   const target = pointerTarget(root, authored);
+  if (typeof target === "boolean") {
+    return { schema: withoutRef(schema), ref: { value, state: "resolved" }, rejectsAll: !target };
+  }
   if (!isJson(target)) return ended("unresolved");
 
   const next = resolve(target, root, hops + 1, new Set([...seen, authored]));
   return {
+    ...next,
     schema: { ...next.schema, ...withoutRef(schema) },
     ref: { value, state: next.ref?.state ?? "resolved" },
   };
