@@ -199,6 +199,19 @@
       border-color: var(--border);
     }
 
+    .row-icon {
+      @apply size-4 shrink-0 text-muted-foreground;
+    }
+
+    .row-external {
+      @apply ms-auto size-3.5 shrink-0 text-muted-foreground;
+    }
+
+    /* The first group needs no rule above it; later groups are told apart by theirs. */
+    .page-agent-menu-heading.row-first-group {
+      @apply mt-0 border-t-0 pt-1;
+    }
+
     .page-agent-menu-status:not(:empty) {
       @apply px-2.5 py-1 text-muted-foreground;
       font-size: var(--type-size-xs);

@@ -1,6 +1,6 @@
 import { h, type ComponentChildren } from "preact";
 import type { Chrome } from "@velella/mizzen/contracts";
-import { ChevronDown } from "lucide";
+import { ChevronDown, Copy, ExternalLink, FileJson, FileText } from "lucide";
 import { t } from "../../i18n/index.ts";
 import { icon } from "../../src/icon.ts";
 import { agentNotes, canEditPage, editPrompt } from "../../src/agent.ts";
@@ -46,30 +46,35 @@ function pageAgentMenu(
     if (href !== undefined) providers.push({ title: provider.title, href });
   }
 
-  const actions: ComponentChildren[] = [
-    canEdit ? editAction : null,
-    h(
-      "button",
-      {
-        type: "button",
-        class: "page-agent-menu-copy",
-        hidden: true,
-        "data-page-agent-copy": true,
-        "data-markdown": markdown,
-        "data-copied": t(lang, "copied"),
-        "data-copy-failed": t(lang, "copy_failed"),
-      },
-      t(lang, "copy_page_md"),
-    ),
-    h("a", { class: "page-agent-menu-view", href: markdown }, t(lang, "view_markdown")),
+  const flat = options.flat === true;
+  // In the Page tools panel every row leads with an icon, so the rows read as one list.
+  const lead = (node: Parameters<typeof icon>[0]["node"]) => (flat ? icon({ node, class: "row-icon" }) : null);
+
+  const copyButton = h(
+    "button",
+    {
+      type: "button",
+      class: "page-agent-menu-copy",
+      hidden: true,
+      "data-page-agent-copy": true,
+      "data-markdown": markdown,
+      "data-copied": t(lang, "copied"),
+      "data-copy-failed": t(lang, "copy_failed"),
+    },
+    lead(Copy),
+    t(lang, "copy_page_md"),
+  );
+  const viewMarkdown = h("a", { class: "page-agent-menu-view", href: markdown }, lead(FileText), t(lang, "view_markdown"));
+  const viewJson =
     json === undefined
       ? null
       : h(
           "a",
           { class: "page-agent-menu-view", href: json, "data-page-agent-json": true },
+          lead(FileJson),
           t(lang, "view_json"),
-        ),
-    providers.length === 0 ? null : h("p", { class: "page-agent-menu-heading" }, t(lang, "page_agent_open_in")),
+        );
+  const providerList =
     providers.length === 0
       ? null
       : h(
@@ -84,15 +89,40 @@ function pageAgentMenu(
                 { class: "page-agent-menu-provider", href: provider.href, target: "_blank", rel: "noopener" },
                 providerLogo(provider.title),
                 provider.title,
+                flat ? icon({ node: ExternalLink, class: "row-external" }) : null,
               ),
             ),
           ),
-        ),
-    h("p", { class: "page-agent-menu-status", role: "status", "data-page-agent-status": true }, ""),
-  ];
+        );
+  const openIn = providers.length === 0 ? null : h("p", { class: "page-agent-menu-heading" }, t(lang, "page_agent_open_in"));
+  const status = h("p", { class: "page-agent-menu-status", role: "status", "data-page-agent-status": true }, "");
 
-  // Inside the Page tools panel the actions are plain rows, so a second disclosure would only add a click.
-  if (options.flat === true) return h("div", { class: "page-agent-menu", "data-page-agent-menu": true }, ...actions);
+  // The Page tools panel groups its rows: Copy, Open in, then Page (edit, Source mode, report).
+  if (flat) {
+    return h(
+      "div",
+      { class: "page-agent-menu", "data-page-agent-menu": true },
+      h("p", { class: "page-agent-menu-heading row-first-group" }, t(lang, "page_tools_group_copy")),
+      copyButton,
+      viewMarkdown,
+      viewJson,
+      openIn,
+      providerList,
+      h("p", { class: "page-agent-menu-heading" }, t(lang, "page_tools_group_page")),
+      canEdit ? editAction : null,
+      status,
+    );
+  }
+
+  const actions: ComponentChildren[] = [
+    canEdit ? editAction : null,
+    copyButton,
+    viewMarkdown,
+    viewJson,
+    openIn,
+    providerList,
+    status,
+  ];
 
   return h(
     "details",

@@ -333,6 +333,8 @@
   "page_tool_fallback": "تحتاج هذه الأداة إلى JavaScript. تبقى مدخلاتك في متصفحك.",
   "page_tool_open": "فتح ملف الأداة",
   "page_tool_title": "أداة تفاعلية",
+  "page_tools_group_copy": "نسخ",
+  "page_tools_group_page": "الصفحة",
   "pager": "الصفحة السابقة والتالية",
   "pagination": "ترقيم الصفحات",
   "pagination_page": "الصفحة {n}",

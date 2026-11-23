@@ -322,9 +322,23 @@ test("the edit link sits at the article end and the report link in Page tools wh
     rendered,
     /<div class="page-end"><div class="page-end-edit">[\s\S]*?<div class="edit-page" data-edit-page><a class="edit-page-link" href="https:\/\/github\.com\/o\/r\/edit\/main\/guide\/install\.md" rel="noopener">Edit this page<\/a><\/div>/,
   );
-  assert.match(rendered, /<details class="doc-tools"[\s\S]*?class="page-tools-report"[^>]*>Report a problem[\s\S]*?<\/details>/);
+  assert.match(rendered, /<details class="doc-tools"[\s\S]*?class="page-tools-report"[^>]*>(?:<svg[\s\S]*?<\/svg>)?Report a problem[\s\S]*?<\/details>/);
   assert.doesNotMatch(rendered, /<summary>Feedback|Give feedback/);
   assert.doesNotMatch(html(doc(layoutProps(page))), /class="edit-page"|page-tools-report/);
+});
+
+test("Page tools groups its rows as Copy, then Page, and every row leads with an icon", () => {
+  const rendered = html(doc(layoutProps(pageWith(), [], [], {}, { url: "https://github.com/o/r" })));
+  const panel = rendered.match(/<div class="article-tool-panel">[\s\S]*?<\/details>/)?.[0] ?? "";
+
+  const copy = panel.indexOf(">Copy</p>");
+  const view = panel.indexOf("View Markdown");
+  const group = panel.indexOf(">Page</p>");
+  const report = panel.indexOf("Report a problem");
+  assert.ok(copy >= 0 && copy < view && view < group && group < report, "groups are in order");
+  for (const label of ["Copy page as Markdown", "View Markdown", "Report a problem"]) {
+    assert.match(panel, new RegExp(`<svg class="row-icon"[^>]*>[\\s\\S]*?</svg>${label}`));
+  }
 });
 
 test("a page date and edit link appear once, not again in the footer", () => {
