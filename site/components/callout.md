@@ -74,6 +74,20 @@ A GitHub alert:
 
 The defaults are **Note**, **Tip**, **Important**, **Warning**, and **Caution**, read from `i18n/*.json` in the page's language. An author's `title` is shown as written. An unknown `type` falls back to `note`.
 
+## Kinds and aliases
+
+There are five kinds, the same five as GitHub alerts. Every other name below is an alias that is read as one of them, so a page imported from MkDocs keeps its meaning.
+
+| Kind | Icon | Aliases |
+| --- | --- | --- |
+| `note` | Info | `info`, `todo`, `quote`, `cite`, `example` |
+| `tip` | Lightbulb | `hint`, `success`, `check`, `done` |
+| `important` | Message | `abstract`, `summary`, `tldr`, `question`, `help`, `faq` |
+| `warning` | Triangle alert | `attention` |
+| `caution` | Octagon alert | `danger`, `failure`, `fail`, `missing`, `error`, `bug` |
+
+Names are matched without regard to case. A name that is neither a kind nor an alias is a `note`.
+
 ## Accessibility
 
 - A standard callout is a named note. A collapsible callout takes its accessible name from the native summary and supports the browser’s keyboard interaction.

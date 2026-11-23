@@ -1,6 +1,6 @@
-import { h } from "preact";
 import type { ComponentChildren } from "preact";
 import type { Layout, LayoutProps, SiteConfig } from "@velella/mizzen/contracts";
+import { stateView } from "../components/state/index.ts";
 import { hrefFor, resolvedLanguages } from "../chrome/language-switcher/index.ts";
 import shell, { footer } from "../chrome/shell/index.ts";
 import { t } from "../i18n/index.ts";
@@ -41,23 +41,18 @@ function content(props: LayoutProps) {
   const searchPage = config.search === false || config.outputs.search === false
     ? undefined
     : pages.find((page) => page.url === "/search/" || page.frontMatter.layout === "search-results");
-  return h(
-    "div",
-    { class: "not-found" },
-    h("p", { class: "not-found-code", "aria-hidden": "true" }, "404"),
-    h("h1", null, t(lang, "not_found_title")),
-    h("p", { class: "not-found-description" }, t(lang, "not_found_text")),
-    h(
-      "div",
-      { class: "not-found-actions" },
-      h("a", { class: "not-found-home", href: homeHref(config, lang) }, t(lang, "not_found_home")),
-      searchPage && h(
-        "a",
-        { class: "not-found-search", href: withBase(siteBase(config), searchPage.url) },
-        t(lang, "search_placeholder"),
-      ),
-    ),
-  );
+  return stateView({
+    kind: "not-found",
+    code: "404",
+    title: t(lang, "not_found_title"),
+    description: t(lang, "not_found_text"),
+    actions: [
+      { href: homeHref(config, lang), label: t(lang, "not_found_home") },
+      ...(searchPage === undefined
+        ? []
+        : [{ href: withBase(siteBase(config), searchPage.url), label: t(lang, "search_placeholder") }]),
+    ],
+  });
 }
 
 /**

@@ -315,6 +315,12 @@
     content: " (" attr(href) ")";
   }
 
+  /* A zoomed figure prints its image once, as the page shows it: the popover and its controls stay off paper. */
+  .figure-zoom-panel,
+  .figure-zoom-panel[popover] {
+    display: none !important;
+  }
+
   /* A paired figure shows the light image: dark artwork would be unreadable on white paper. */
   .figure-paired .figure-img-light {
     display: block !important;

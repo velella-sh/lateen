@@ -18,6 +18,10 @@ trust evidence; nothing on it is a mock.
 A warning callout with a title.
 :::
 
+:::callout{type=tip title="Check the version first" collapsible}
+A collapsible callout starts closed and opens with the keyboard.
+:::
+
 ```ts
 export const answer = 42;
 ```

@@ -216,5 +216,5 @@ test("an expanded index counts records and links to group pages without empty se
     { href: "/books/fiction/", name: "Fiction", count: "4" },
     { href: "/books/poetry/", name: "Poetry", count: "9" },
   ]);
-  assert.doesNotMatch(out, /class="list-empty"|<section class="list-group"|href="#fiction"/);
+  assert.doesNotMatch(out, /state-empty|<section class="list-group"|href="#fiction"/);
 });

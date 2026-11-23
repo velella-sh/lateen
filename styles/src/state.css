@@ -1,33 +1,33 @@
-/* Recovery content shared by sites using the not-found layout. */
+/* Empty, error and not-found states: one block for a page with nothing to show, and one note for a region. */
 @layer components {
-  .not-found {
+  .state-block {
     max-inline-size: 40rem;
     margin-inline: auto;
     padding-block: clamp(var(--space-12), 12vh, 8rem) var(--space-16);
     overflow-wrap: anywhere;
   }
 
-  .not-found-code {
+  .state-code {
     margin-block: 0 var(--space-3);
     color: var(--muted-foreground);
     font-family: var(--type-font-mono);
     font-size: var(--type-size-sm);
   }
 
-  .not-found h1 {
+  .state-block .state-title {
     margin: 0;
     font-size: var(--type-size-display);
     line-height: var(--type-leading-display);
     letter-spacing: var(--type-tracking-display);
   }
 
-  .not-found-description {
+  .state-description {
     margin-block: var(--space-4) 0;
     color: var(--muted-foreground);
     font-size: var(--type-size-lg);
   }
 
-  .not-found-actions {
+  .state-actions {
     display: flex;
     flex-wrap: wrap;
     align-items: center;
@@ -35,7 +35,7 @@
     margin-block-start: var(--space-8);
   }
 
-  .not-found-actions a {
+  .state-actions a {
     max-inline-size: 100%;
     min-block-size: 2.75rem;
     padding-block: var(--space-3);
@@ -45,19 +45,32 @@
     text-underline-offset: 0.2em;
   }
 
-  .not-found-home {
+  .state-primary {
     padding-inline: var(--space-4);
     border-radius: var(--radius-md);
     background: var(--primary);
     color: var(--primary-foreground);
   }
 
-  .not-found-home:hover,
-  .not-found-search {
+  .state-primary:hover,
+  .state-secondary {
     text-decoration: underline;
   }
 
-  .not-found-search {
+  .state-secondary {
     color: var(--link);
+  }
+
+  /* The compact form: one line standing in for a list, a feed, or a table with no rows. */
+  .state-note {
+    margin-block: var(--space-6);
+    padding: var(--space-4);
+    border-radius: var(--radius-lg);
+    background: var(--muted);
+    color: var(--muted-foreground);
+  }
+
+  .state-error.state-note {
+    border-inline-start: 3px solid var(--status-negative-border);
   }
 }

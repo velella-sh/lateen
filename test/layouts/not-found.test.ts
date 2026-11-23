@@ -97,24 +97,24 @@ const out = (props: LayoutProps) => html(notFound(props));
 
 test("renders a 404 heading and message inside main", () => {
   const page = out(layoutProps());
-  assert.match(page, /<main id="main" tabindex="-1">[\s\S]*?<div class="not-found"><p class="not-found-code" aria-hidden="true">404<\/p><h1>Page not found<\/h1><p class="not-found-description">/i);
+  assert.match(page, /<main id="main" tabindex="-1">[\s\S]*?<div class="state state-not-found state-block"><p class="state-code" aria-hidden="true">404<\/p><h1 class="state-title">Page not found<\/h1><p class="state-description">/i);
 });
 
 test("404 puts the base-aware home link first and both actions work without JavaScript", () => {
   const page = out(layoutProps({ base: "/docs" }));
-  const links = page.match(/<div class="not-found-actions">(.*?)<\/div>/s)?.[1];
+  const links = page.match(/<div class="state-actions">(.*?)<\/div>/s)?.[1];
   assert.equal(
     links,
-    '<a class="not-found-home" href="/docs/">Back to docs</a>' +
-      '<a class="not-found-search" href="/docs/search/">Search the docs</a>',
+    '<a class="state-primary" href="/docs/">Back to docs</a>' +
+      '<a class="state-secondary" href="/docs/search/">Search the docs</a>',
   );
   assert.ok(!page.includes("type=\"module\""));
-  assert.ok(!page.includes("not-found-sections"));
+  assert.ok(!page.includes("state-sections"));
 });
 
 test("404 links to the site's configured search results permalink", () => {
   const page = out(layoutProps({ base: "/docs/" }, {}, "/find/"));
-  assert.match(page, /class="not-found-search" href="\/docs\/find\/"/);
+  assert.match(page, /class="state-secondary" href="\/docs\/find\/"/);
 });
 
 test("404 only offers the home action when search is disabled or has no results page", () => {
@@ -124,15 +124,15 @@ test("404 only offers the home action when search is disabled or has no results 
     layoutProps({}, {}, null),
   ]) {
     const page = out(props);
-    assert.match(page, /class="not-found-actions"><a class="not-found-home" href="\/">Back to docs<\/a><\/div>/);
-    assert.doesNotMatch(page, /class="not-found-search"/);
+    assert.match(page, /class="state-actions"><a class="state-primary" href="\/">Back to docs<\/a><\/div>/);
+    assert.doesNotMatch(page, /class="state-secondary"/);
   }
 });
 
 test("recovery actions keep a non-root base exactly once, with or without a trailing slash", () => {
   for (const base of ["/lateen", "/lateen/"]) {
     const page = out(layoutProps({ base }));
-    const actions = page.match(/<div class="not-found-actions">.*?<\/div>/s)?.[0] ?? "";
+    const actions = page.match(/<div class="state-actions">.*?<\/div>/s)?.[0] ?? "";
     assert.match(actions, /href="\/lateen\/"/, `${base} keeps the home action under the base`);
     assert.match(actions, /href="\/lateen\/search\/"/, `${base} keeps the search action under the base`);
     assert.ok(!actions.includes("//"), `${base} joins the base exactly once`);
@@ -161,10 +161,10 @@ function msg(table: Readonly<Record<string, string | undefined>>, key: string): 
 test("every English recovery string comes from the catalog the page language reads", () => {
   const en = stringsOf("en");
   const page = out(layoutProps(bilingual()));
-  assert.ok(page.includes(`<h1>${en.not_found_title}</h1>`));
+  assert.ok(page.includes(`<h1 class="state-title">${en.not_found_title}</h1>`));
   assert.ok(page.includes(msg(en, "not_found_text")));
-  assert.ok(page.includes(`<a class="not-found-home" href="/">${en.not_found_home}</a>`));
-  assert.ok(page.includes(`<a class="not-found-search" href="/search/">${en.search_placeholder}</a>`));
+  assert.ok(page.includes(`<a class="state-primary" href="/">${en.not_found_home}</a>`));
+  assert.ok(page.includes(`<a class="state-secondary" href="/search/">${en.search_placeholder}</a>`));
 });
 
 test("a Persian page localizes every recovery string, in the page language, not the site language", () => {
@@ -172,10 +172,10 @@ test("a Persian page localizes every recovery string, in the page language, not 
   const en = stringsOf("en");
   const page = out(layoutProps(bilingual(), { lang: "fa", dir: "rtl" }));
   assert.match(page, /^<html lang="fa" dir="rtl"/);
-  assert.ok(page.includes(`<h1>${fa.not_found_title}</h1>`));
+  assert.ok(page.includes(`<h1 class="state-title">${fa.not_found_title}</h1>`));
   assert.ok(page.includes(msg(fa, "not_found_text")));
-  assert.ok(page.includes(`<a class="not-found-home" href="/fa/">${fa.not_found_home}</a>`));
-  assert.ok(page.includes(`<a class="not-found-search" href="/search/">${fa.search_placeholder}</a>`));
+  assert.ok(page.includes(`<a class="state-primary" href="/fa/">${fa.not_found_home}</a>`));
+  assert.ok(page.includes(`<a class="state-secondary" href="/search/">${fa.search_placeholder}</a>`));
   assert.ok(page.includes(`>${fa.skip_to_content}</a>`), "the shell skip link follows the page language too");
   assert.ok(!page.includes(msg(en, "not_found_title")), "no English recovery text remains");
 });
@@ -188,17 +188,17 @@ test("an Arabic page localizes both recovery actions and preserves the site base
       dir: "rtl",
     }),
   );
-  assert.ok(page.includes(`<h1>${ar.not_found_title}</h1>`));
-  assert.ok(page.includes(`<a class="not-found-home" href="/docs/ar/">${ar.not_found_home}</a>`));
-  assert.ok(page.includes(`<a class="not-found-search" href="/docs/search/">${ar.search_placeholder}</a>`));
+  assert.ok(page.includes(`<h1 class="state-title">${ar.not_found_title}</h1>`));
+  assert.ok(page.includes(`<a class="state-primary" href="/docs/ar/">${ar.not_found_home}</a>`));
+  assert.ok(page.includes(`<a class="state-secondary" href="/docs/search/">${ar.search_placeholder}</a>`));
 });
 
 test("a regional page language reads its primary subtag's catalog and configured prefix", () => {
   const fa = stringsOf("fa");
   const page = out(layoutProps(bilingual("/docs"), { lang: "fa-IR", dir: "rtl" }));
-  assert.ok(page.includes(`<h1>${fa.not_found_title}</h1>`));
-  assert.ok(page.includes(`<a class="not-found-home" href="/docs/fa/">${fa.not_found_home}</a>`));
-  assert.ok(page.includes(`<a class="not-found-search" href="/docs/search/">${fa.search_placeholder}</a>`));
+  assert.ok(page.includes(`<h1 class="state-title">${fa.not_found_title}</h1>`));
+  assert.ok(page.includes(`<a class="state-primary" href="/docs/fa/">${fa.not_found_home}</a>`));
+  assert.ok(page.includes(`<a class="state-secondary" href="/docs/search/">${fa.search_placeholder}</a>`));
   assert.ok(!page.includes("/docs/fa-IR/"), "an unconfigured regional prefix is never guessed");
 });
 

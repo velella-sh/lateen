@@ -83,7 +83,6 @@ test("the list stylesheet styles each view the layout renders", () => {
     ".blog-meta",
     ".blog-description",
     ".list-feed",
-    ".list-empty",
     ".list-subscribe",
     ".pagination",
     ".pagination-link",

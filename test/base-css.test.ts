@@ -53,7 +53,7 @@ test("headings and tab panels share the sticky-safe scroll margin", () => {
 });
 
 test("the docs shell styles use the classes the layouts render", () => {
-  for (const selector of [".doc-layout main > article > h1", ".breadcrumb-list", ".toc-fold", ".site-header .shell-menu", ".not-found-actions", ".edit-page-link"]) {
+  for (const selector of [".doc-layout main > article > h1", ".breadcrumb-list", ".toc-fold", ".site-header .shell-menu", ".state-actions", ".edit-page-link"]) {
     assert.match(ui, new RegExp(`\\${selector}(?![\\w-])`), selector);
   }
   assert.match(ui, /\.site-header \.shell-menu\s*\{\s*display:\s*none/);

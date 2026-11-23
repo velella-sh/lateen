@@ -67,6 +67,7 @@ redirect_from:
 | [Reports](./reports/) | An accessibility report, a performance budget, and the WCAG checklist, from site data. |
 | [Schema table](./schema-table/) | A JSON Schema from `_data` as a table of properties. |
 | [Stale notice](./stale-notice/) | A caution note under the title when a page's covered files changed since its review. |
+| [State](./state/) | What a page shows when it is empty, failed, or not found, with a way forward. |
 | [Status](./status/) | A short status label with a tone and icon, and a legend of the site's status values. |
 | [Status banner](./status-banner/) | A page-level deprecated, experimental, or old-version banner, with a replacement link. |
 | [Steps](./steps/) | A numbered sequence or tutorial. |
