@@ -1,0 +1,27 @@
+# Verifies Mizzen's theme.overrides for Lateen: test/overrides-verification.test.ts builds it.
+# Three components (two the theme uses internally, one content-only) and the doc layout come from
+# this site; every other unit comes from the theme.
+title: Overrides verification
+description: Replaces callout, status, kbd, and the doc layout, each with a CSS sidecar.
+lang: en
+url: https://example.com
+base: ""
+theme:
+  name: "@velella/lateen"
+  overrides:
+    components:
+      callout: overrides/callout.ts
+      status: overrides/status.ts
+      kbd: overrides/kbd.ts
+    layouts:
+      doc: overrides/doc.ts
+  options:
+    status:
+      values:
+        done: { tone: positive, label: Done, description: Shipped. }
+collections:
+  tasks:
+    source: _data/tasks.json
+    id: id
+    template: _templates/tasks.md
+    permalink: /tasks/{id}/

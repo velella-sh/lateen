@@ -1,5 +1,6 @@
 import { h } from "preact";
 import { agentSource } from "../../src/agent.ts";
+import { recordFileOf } from "../../src/data-source.ts";
 import { isRecord, textOf as text } from "../../src/guards.ts";
 import type { Chrome, Heading, Page, RepositoryConfig, Site, SiteConfig, SourcePos } from "@velella/mizzen/contracts";
 import { t } from "../../i18n/index.ts";
@@ -96,17 +97,6 @@ export function editLinkFromData(data: unknown, url: string, file?: string): str
   return storedHref(entryHref(value));
 }
 
-/** The record's data file and the inclusive lines it covers, or `undefined` for a page not built from a record. */
-function recordSource(page: Page): { file: string; start: number; end: number } | undefined {
-  const position = page.record?.position;
-  if (position === undefined) return undefined;
-  const file = text(position.file);
-  const start = position.startLine;
-  if (file === undefined || !Number.isInteger(start) || start < 1) return undefined;
-  const end = Number.isInteger(position.endLine) && position.endLine >= start ? position.endLine : start;
-  return { file, start, end };
-}
-
 /** The record's line range as a forge anchor: `#L5-L9`, or `#L5` for a record on one line. */
 function lineAnchor(start: number, end: number): string {
   return end === start ? `#L${start}` : `#L${start}-L${end}`;
@@ -121,15 +111,17 @@ export function editHref(site: Site, page: Page): string | undefined {
   if (page.frontMatter.agent?.edit === false) return undefined;
   if (page.record !== undefined && site.config.collections?.[page.record.collection]?.aggregate !== undefined) return undefined;
   const repository = site.config.repository;
+  const record = recordFileOf(site.config, page);
+  // A record from an API or a database has no file in the repository to edit.
+  if (page.record !== undefined && record === undefined) return undefined;
   const source = agentSource(page);
   if (source !== undefined) return repository === undefined ? undefined : editUrlOf(repository, source);
   const data = site.data["edit-links"] ?? site.data.editLinks;
   const fromData = editLinkFromData(data, page.url, page.source.file);
   if (fromData !== undefined) return fromData;
   if (repository === undefined) return undefined;
-  const record = recordSource(page);
   const url = editUrlOf(repository, record?.file ?? page.source.file);
-  return url === undefined || record === undefined ? url : `${url}${lineAnchor(record.start, record.end)}`;
+  return url === undefined || record?.start === undefined ? url : `${url}${lineAnchor(record.start, record.end ?? record.start)}`;
 }
 
 /** The heading's source line, or `undefined` when the heading is generated and has no real source span. */

@@ -125,3 +125,27 @@ default exports, and that this page keeps the diagnostic IDs. `test/overrides/ac
 builds the sample site with `--theme`, checks the rendered markup and stylesheets, builds a copy with
 `base: /docs` to check the prefix on links and assets, and builds the invalid fixture to check that
 it exits 1 with the three diagnostics.
+
+## Where an override reaches
+
+`test/overrides-verification.test.ts` builds `fixtures/theme-overrides/`, which replaces `callout`,
+`status`, `kbd`, and the `doc` layout, each with a CSS sidecar. An override reaches every place the
+engine resolves the name: a Markdown directive (block or inline `:kbd[Ctrl]`), a GitHub alert, and the
+page's declared `layout`. Its sidecar ships only on pages that use the unit. Units that were not listed
+render unchanged.
+
+An override does not reach a place where Lateen's own code imports the unit. The engine resolves names
+only for directives, alerts, and layouts, so these stay the theme's, and a site replaces the importing
+unit itself when it needs them changed:
+
+- The alias units (`info`, `hint`, `tip`, `warning`, `abstract`, …) call the callout renderer. Overriding
+  `callout` does not change `:::info`; override `info`.
+- Layouts draw some components through direct imports: `status`, `cards`, `record-table`,
+  `dated-list`, `add-to-calendar` (list, record), `code` (shared doc article, post, guide),
+  `hero`/`feature-grid`/`cta-band` (home), `guide-summary`, `related-guides` (guide), and the page
+  furniture in `layouts/shared/doc.ts`. Record fields (`src/fields.ts`) draw `status` the same way.
+- `quickstart`, `record`, `tutorial`, and `guide` share the doc article helper but are their own
+  layouts: overriding `doc` changes only `layout: doc`.
+
+Closing this needs a Mizzen change: a renderer on `LayoutProps` and `ComponentProps` that resolves a
+unit by name through the current registry, tracking its CSS and island.

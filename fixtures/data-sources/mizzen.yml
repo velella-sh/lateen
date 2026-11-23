@@ -1,0 +1,37 @@
+# Verifies the snapshot panel, raw data links and edit links for the three source types Mizzen 0.2.5
+# added: test/data-sources.test.ts builds it. The lock and the `.mizzen/data/` store are written by the
+# test (`.mizzen/` is not committed), so a build never touches the network or a database.
+title: Data sources
+description: A paginated API, a SQLite query and an NDJSON file, each with a recorded snapshot.
+lang: en
+url: https://example.com
+base: ""
+repository:
+  url: https://github.com/example/docs
+  branch: main
+collections:
+  api:
+    source: https://api.example.test/v1/items
+    records: records
+    pagination: { mode: page, pageSize: 2, stop: short }
+    id: id
+    template: _templates/api.md
+    permalink: /api/{id}/
+  catalog:
+    source: _data/catalog.sqlite
+    sqlite:
+      id: catalog
+      query: SELECT id, name, price FROM items
+    id: id
+    template: _templates/catalog.md
+    permalink: /catalog/{id}/
+  events:
+    source: _data/events.ndjson
+    id: id
+    template: _templates/events.md
+    permalink: /events/{id}/
+  notes:
+    source: _data/notes.json
+    id: id
+    template: _templates/notes.md
+    permalink: /notes/{id}/

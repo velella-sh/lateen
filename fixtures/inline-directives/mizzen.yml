@@ -1,0 +1,25 @@
+# Inline text directives (Mizzen 0.2.4) on every theme component; test/inline-directives.test.ts
+# writes one page per component into a copy of this site.
+title: Inline directives
+description: Every component used in the middle of a paragraph, in English and Persian.
+lang: en
+url: https://example.com
+base: ""
+languages:
+  - code: en
+    name: English
+    prefix: ""
+  - code: fa
+    name: فارسی
+    prefix: /fa
+theme:
+  options:
+    status:
+      values:
+        done: { tone: positive, label: Done, description: Shipped. }
+    glossary:
+      collection: glossary
+collections:
+  glossary:
+    source: _data/glossary.json
+    id: id

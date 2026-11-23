@@ -1,0 +1,6 @@
+[
+  { "id": "alpha", "title": "Alpha", "author": "Ada", "published": "2026-01-12" },
+  { "id": "beta", "title": "Beta", "author": "Bashir", "published": "2026-02-03" },
+  { "id": "gamma", "title": "Gamma", "author": "Cleo", "published": "2026-03-04" },
+  { "id": "delta", "title": "Delta", "author": "Dara", "published": "2026-04-05" }
+]
