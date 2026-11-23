@@ -1,0 +1,7 @@
+{
+  "accent": { "light": "#8A6220", "dark": "#E6C384" },
+  "neutral": {
+    "light": { "canvas": "#ECEFF4", "surface": "#E5E9F0", "text": "#2E3440" },
+    "dark": { "canvas": "#1F1F28", "surface": "#2A2A37", "text": "#DCD7BA" }
+  }
+}

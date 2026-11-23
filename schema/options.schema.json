@@ -41,13 +41,33 @@
       "properties": {
         "accent": {
           "description": "The accent, links, focus ring, selection, and selected state, in light and dark.",
-          "type": "string",
-          "pattern": "^#(?:[0-9a-fA-F]{3}|[0-9a-fA-F]{6})$"
+          "oneOf": [
+            { "$ref": "#/$defs/brandHex" },
+            {
+              "type": "object",
+              "additionalProperties": false,
+              "required": ["light", "dark"],
+              "properties": {
+                "light": { "$ref": "#/$defs/brandHex" },
+                "dark": { "$ref": "#/$defs/brandHex" }
+              }
+            }
+          ]
         },
         "neutral": {
-          "description": "The hue of the canvas, surfaces, borders, text, muted text, and code background.",
-          "type": "string",
-          "pattern": "^#(?:[0-9a-fA-F]{3}|[0-9a-fA-F]{6})$"
+          "description": "A shared neutral tint or explicit canvas, surface and text colours per scheme.",
+          "oneOf": [
+            { "$ref": "#/$defs/brandHex" },
+            {
+              "type": "object",
+              "additionalProperties": false,
+              "required": ["light", "dark"],
+              "properties": {
+                "light": { "$ref": "#/$defs/brandNeutralScheme" },
+                "dark": { "$ref": "#/$defs/brandNeutralScheme" }
+              }
+            }
+          ]
         },
         "fonts": {
           "description": "The site's own self-hosted families.",
@@ -278,6 +298,11 @@
           "type": "boolean",
           "default": true
         },
+        "search": {
+          "description": "Offers cross-project search. Set to false to search only this project while retaining network navigation.",
+          "type": "boolean",
+          "default": true
+        },
         "position": {
           "description": "Places the switcher in the header or above the network footer. Any other value stops the build.",
           "enum": ["header", "footer"],
@@ -307,7 +332,7 @@
     },
     "preset": {
       "description": "A shipped set of brand options, used as a starting point.",
-      "enum": ["clay", "graphite", "harbor", "orchard", "plum"]
+      "enum": ["clay", "ebb", "graphite", "harbor", "lateen", "mizzen", "offing", "orchard", "plum"]
     },
     "reportIssue": {
       "description": "The report-an-issue link. `false` turns it off.",
@@ -421,6 +446,17 @@
     }
   },
   "$defs": {
+    "brandHex": { "type": "string", "pattern": "^#(?:[0-9a-fA-F]{3}|[0-9a-fA-F]{6})$" },
+    "brandNeutralScheme": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["canvas", "surface", "text"],
+      "properties": {
+        "canvas": { "$ref": "#/$defs/brandHex" },
+        "surface": { "$ref": "#/$defs/brandHex" },
+        "text": { "$ref": "#/$defs/brandHex" }
+      }
+    },
     "localizedText": {
       "description": "One string shared by every language, or a map from language code to string.",
       "oneOf": [

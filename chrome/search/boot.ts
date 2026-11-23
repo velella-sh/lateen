@@ -75,7 +75,7 @@ if (typeof document !== "undefined") {
           });
     const network = parseJson(source.getAttribute("data-search-network") ?? "") as SiteNetwork | undefined;
     const scope = (within("[data-search-scope]") ?? undefined) as SearchParts["scope"];
-    const initialScope = new URLSearchParams(location.search).get("scope");
+    const initialScope = scope === undefined ? null : new URLSearchParams(location.search).get("scope");
     if (scope !== undefined && initialScope === "all") scope.value = "all";
     activate(
       {
@@ -97,7 +97,7 @@ if (typeof document !== "undefined") {
         lang: langFrom(source),
         messages,
         scope: initialScope,
-        indexFolder: network?.projects.find((project) => project.current)?.search,
+        indexFolder: source.getAttribute("data-search-index-folder") ?? network?.projects.find((project) => project.current)?.search,
         network: (network?.projects.length ?? 0) > 1 ? network : undefined,
         ask: askAgent?.open,
       },

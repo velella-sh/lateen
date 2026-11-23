@@ -7,7 +7,7 @@
 import { readdirSync, readFileSync } from "node:fs";
 import { join } from "node:path";
 import { fileURLToPath } from "node:url";
-import { accentTokens, tokenCssValue, type BrandToken, type BrandTokens } from "./accent.ts";
+import { type Accent, accentTokens, tokenCssValue, type BrandToken, type BrandTokens } from "./accent.ts";
 import { isRecord } from "./guards.ts";
 import { ensureContrast, fromOklch, mix, parseHex, toHex, toOklch } from "./color.ts";
 import { withBase } from "./url.ts";
@@ -38,11 +38,14 @@ export interface FontFamily {
   readonly files: readonly FontFile[];
 }
 
+type NeutralScheme = Readonly<Record<"canvas" | "surface" | "text", string>>;
+type Neutral = string | Readonly<Record<"light" | "dark", NeutralScheme>>;
+
 /** The validated brand options. Every field is optional: absent keeps the theme's value. */
 export interface Brand {
   readonly preset?: string;
-  readonly accent?: string;
-  readonly neutral?: string;
+  readonly accent?: Accent;
+  readonly neutral?: Neutral;
   readonly sans?: FontFamily;
   readonly mono?: FontFamily;
   readonly radius?: Radius;
@@ -274,6 +277,23 @@ function fontFamily(value: unknown, option: string, problems: BrandProblem[]): F
   return files.length === 0 ? undefined : { family, files };
 }
 
+function colourPair(value: unknown): BrandToken | undefined {
+  if (!isRecord(value) || !isHex(value.light) || !isHex(value.dark)) return undefined;
+  return { light: colour(value.light), dark: colour(value.dark) };
+}
+
+function neutralScheme(value: unknown): NeutralScheme | undefined {
+  if (!isRecord(value) || !isHex(value.canvas) || !isHex(value.surface) || !isHex(value.text)) return undefined;
+  return { canvas: colour(value.canvas), surface: colour(value.surface), text: colour(value.text) };
+}
+
+function neutralPair(value: unknown): Exclude<Neutral, string> | undefined {
+  if (!isRecord(value)) return undefined;
+  const light = neutralScheme(value.light);
+  const dark = neutralScheme(value.dark);
+  return light === undefined || dark === undefined ? undefined : { light, dark };
+}
+
 /** Validates one brand block and records every value it ignores. */
 function brandOptions(value: unknown, option: string, problems: BrandProblem[]): Brand | undefined {
   if (!isRecord(value)) {
@@ -281,8 +301,8 @@ function brandOptions(value: unknown, option: string, problems: BrandProblem[]):
     return undefined;
   }
   const brand: {
-    accent?: string;
-    neutral?: string;
+    accent?: Accent;
+    neutral?: Neutral;
     sans?: FontFamily;
     mono?: FontFamily;
     radius?: Radius;
@@ -290,12 +310,14 @@ function brandOptions(value: unknown, option: string, problems: BrandProblem[]):
     showpiece?: Showpiece;
   } = {};
   if (value.accent !== undefined) {
-    if (isHex(value.accent)) brand.accent = colour(value.accent);
-    else problems.push({ option: `${option}.accent`, message: "is not a #rgb or #rrggbb colour" });
+    const accent = isHex(value.accent) ? colour(value.accent) : colourPair(value.accent);
+    if (accent !== undefined) brand.accent = accent;
+    else problems.push({ option: `${option}.accent`, message: isRecord(value.accent) ? "must supply hex colours for light and dark" : "is not a #rgb or #rrggbb colour" });
   }
   if (value.neutral !== undefined) {
-    if (isHex(value.neutral)) brand.neutral = colour(value.neutral);
-    else problems.push({ option: `${option}.neutral`, message: "is not a #rgb or #rrggbb colour" });
+    const neutral = isHex(value.neutral) ? colour(value.neutral) : neutralPair(value.neutral);
+    if (neutral !== undefined) brand.neutral = neutral;
+    else problems.push({ option: `${option}.neutral`, message: isRecord(value.neutral) ? "must supply hex canvas, surface and text colours in light and dark" : "is not a #rgb or #rrggbb colour" });
   }
   if (value.fonts !== undefined) {
     if (!isRecord(value.fonts)) problems.push({ option: `${option}.fonts`, message: "must be an object" });
@@ -370,9 +392,10 @@ export function resolveBrand(options: unknown, dir: URL | string = PRESETS_DIR):
   return { brand: { ...preset, ...explicit }, problems };
 }
 
-/** The neutral palette of one scheme, tinted by `neutral` while keeping the default lightness steps. */
-function neutralTokens(neutral: string, scheme: "light" | "dark"): Record<string, string> {
-  const tint = toOklch(neutral);
+/** Derives supporting colours from the tint, then applies any explicit neutral roles. */
+function neutralTokens(neutral: Neutral, scheme: "light" | "dark"): Record<string, string> {
+  const palette = typeof neutral === "string" ? undefined : neutral[scheme];
+  const tint = toOklch(typeof neutral === "string" ? neutral : neutral[scheme].surface);
   const base = DEFAULT_COLORS[scheme];
   const tokens: Record<string, string> = {};
   if (tint === undefined) return { ...base };
@@ -381,6 +404,7 @@ function neutralTokens(neutral: string, scheme: "light" | "dark"): Record<string
     if (original === undefined) continue;
     tokens[role] = fromOklch({ l: original.l, c: Math.min(tint.c * factor, cap), h: tint.h });
   }
+  Object.assign(tokens, palette);
   // Text and muted text keep their contrast on every surface the tint moved.
   const surfaces = [tokens.canvas, tokens.surface, tokens["surface-raised"]].filter((value): value is string => value !== undefined);
   for (const role of ["text", "heading", "muted"]) {
@@ -390,6 +414,9 @@ function neutralTokens(neutral: string, scheme: "light" | "dark"): Record<string
     tokens[role] = value;
   }
   tokens.heading = tokens.text ?? base.heading;
+  if (palette !== undefined) {
+    tokens["border-strong"] = ensureContrast(tokens["border-strong"] ?? base["border-strong"], palette.canvas, 3);
+  }
   return tokens;
 }
 
@@ -553,11 +580,6 @@ export function brandCss(brand: Brand, { base = "", selector = ":root:root" }: {
   const faces = fontFaces(brand, base);
   const block = tokensCss(tokens, selector);
   return [faces, block].filter((part) => part !== "").join("\n");
-}
-
-/** The tokens a preset gallery needs, without fonts: a preview block does not load another origin or face set. */
-export function previewCss(brand: Brand, selector: string): string {
-  return tokensCss(brandTokens(brand), selector);
 }
 
 /** The two code-block backgrounds a site's brand produces, cached by the options object the engine hands every unit. */

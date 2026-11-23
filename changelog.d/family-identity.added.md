@@ -1,0 +1,1 @@
+Add opt-in Mizzen, Lateen, Offing and Ebb presets via theme.options.preset, link the Lateen docs to the Velella network, let network sites opt into local-only search via theme.options.network.search, and document family README badges. Acceptance cases: family-identity-preset, family-identity-navigation, family-identity-local-search, family-identity-readme-badges.

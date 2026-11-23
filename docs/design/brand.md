@@ -9,8 +9,8 @@ values reach the page, and the rule for a colour that cannot meet its contrast.
 | Option | Values | Effect |
 | --- | --- | --- |
 | `theme.options.preset` | a file name in `tokens/presets/` | A shipped set of the options below, as a starting point. |
-| `theme.options.brand.accent` | `#rgb` or `#rrggbb` | The accent, link, focus ring, selection, and selected state, in light and dark. |
-| `theme.options.brand.neutral` | `#rgb` or `#rrggbb` | The hue and chroma of the canvas, surfaces, borders, text, muted text, and code background. |
+| `theme.options.brand.accent` | `#rgb` or `#rrggbb` as a single colour or a `{ light, dark }` pair | The accent, link, focus ring, selection, and selected state, in light and dark. |
+| `theme.options.brand.neutral` | `#rgb` or `#rrggbb` tint, or `{ light, dark }` with `{ canvas, surface, text }` per scheme | The hue and chroma of the canvas, surfaces, borders, text, muted text, and code background. |
 | `theme.options.brand.fonts.sans` | a family and root-relative files with weights | The body, heading, and interface families, self-hosted and first in the stack. |
 | `theme.options.brand.fonts.mono` | a family and root-relative files with weights | The code family, self-hosted and first in the stack. |
 | `theme.options.brand.radius` | `none`, `small`, `medium`, `large` | A multiplier of the shipped corner scale. `full` stays a circle. |

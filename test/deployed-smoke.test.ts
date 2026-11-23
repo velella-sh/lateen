@@ -1,4 +1,4 @@
-// The deployed smoke gate's pure parts: the base and commit it accepts, the six routes it visits,
+// The deployed smoke gate's pure parts: the base and commit it accepts, the routes it visits,
 // same-origin and base-path failures, and the report it writes. No browser or network here.
 import assert from "node:assert/strict";
 import { readFileSync } from "node:fs";
@@ -98,13 +98,14 @@ test("the gate fails when the edge never serves its commit, and keeps polling th
   assert.equal(reads, 2, "a failed read is retried");
 });
 
-test("six public routes are visited, and only the missing page expects a 404", () => {
+test("seven public routes are visited, and only the missing page expects a 404", () => {
   assert.deepEqual(
     DEPLOYED_CASES.map((item) => [item.name, item.path, item.status]),
     [
       ["home", "/", 200],
+      ["presets", "/presets/", 200],
       ["components", "/components/", 200],
-      ["search", "/search/?q=install", 200],
+      ["search", "/search/?q=install&scope=all", 200],
       ["changelog", "/changelog/", 200],
       ["data", "/books/alpha/", 200],
       ["not found", "/this-page-does-not-exist/", 404],
@@ -204,7 +205,7 @@ test("the report holds every visit, keeps the first failure, and passes its sche
     (report.cases as readonly DeployedResult[]).map((item) => `${item.name}/${item.viewport}/${item.scheme}`).slice(0, 4),
     ["home/desktop/light", "home/desktop/dark", "home/mobile/light", "home/mobile/dark"],
   );
-  assert.equal((report.cases as readonly DeployedResult[]).length, 24);
+  assert.equal((report.cases as readonly DeployedResult[]).length, DEPLOYED_CASES.length * VIEWPORTS.length * SCHEMES.length);
   assert.deepEqual(validate(schema, report), []);
 
   const failed = cases.map((item, index) => (index === 7 ? { ...item, ok: false, error: "console error" } : item));

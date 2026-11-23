@@ -16,7 +16,7 @@ export const REPORT_FILE = join(root, "test/smoke/out/deployed.json");
 
 export type DeployedViewport = "desktop" | "mobile";
 export type DeployedScheme = "light" | "dark";
-export type DeployedCheck = "copy" | "navigation" | "search" | "theme";
+export type DeployedCheck = "badges" | "copy" | "family" | "navigation" | "search" | "theme";
 
 /** The public routes the deploy gate visits. The not-found route is the one expected to be 404. */
 export interface DeployedCase {
@@ -28,9 +28,10 @@ export interface DeployedCase {
 }
 
 export const DEPLOYED_CASES: readonly DeployedCase[] = [
-  { name: "home", path: "/", status: 200, checks: ["theme", "navigation"] },
+  { name: "home", path: "/", status: 200, checks: ["family", "theme", "navigation"] },
+  { name: "presets", path: "/presets/", status: 200, checks: ["badges"] },
   { name: "components", path: "/components/", status: 200, checks: ["copy"] },
-  { name: "search", path: "/search/?q=install", status: 200, checks: ["search"] },
+  { name: "search", path: "/search/?q=install&scope=all", status: 200, checks: ["search"] },
   { name: "changelog", path: "/changelog/", status: 200, checks: [] },
   { name: "data", path: "/books/alpha/", status: 200, checks: [] },
   { name: "not found", path: "/this-page-does-not-exist/", status: 404, checks: [], notFound: true },
@@ -264,13 +265,49 @@ async function checkNavigation(page: Page, fail: (message: string) => void): Pro
   }
 }
 
+/** Check the family settings on the public home page. */
+async function checkFamily(page: Page, fail: (message: string) => void): Promise<void> {
+  const style = await page.locator("style[data-brand]").textContent();
+  if (!(style ?? "").includes("--color-canvas: light-dark(#eceff4, #1f1f28)")) fail("the home page does not use the family palette");
+
+  const signature = page.getByRole("link", { name: "a Velella project", exact: true });
+  if (await signature.count() !== 1 || await signature.getAttribute("href") !== "https://velella.sh/") {
+    fail("the Velella signature does not link to the organization home page");
+  }
+  const links = await page.locator(".network-footer a").evaluateAll((nodes) => nodes.map((node) => node.getAttribute("href")));
+  if (links.join(",") !== "/mizzen/,/lateen/,/offing/,/ebb/") fail("the family footer does not list the four project homes");
+  if (await page.locator('.network-footer a[href="/lateen/"][aria-current="true"]').count() !== 1) {
+    fail("the family footer does not mark Lateen as current");
+  }
+}
+
+/** Confirm the public preset gallery and the copyable README examples were deployed together. */
+async function checkBadges(page: Page, fail: (message: string) => void): Promise<void> {
+  const examples = page.locator("pre").filter({ hasText: "Documentation: Mizzen" });
+  if (await examples.count() !== 1) {
+    fail("the preset gallery has no family README examples");
+    return;
+  }
+  const sample = await examples.textContent();
+  for (const [preset, hex] of Object.entries({ mizzen: "8A6220", lateen: "4C6F9A", offing: "6A5590", ebb: "3F6E66" })) {
+    if (await page.locator('[data-preset-preview="' + preset + '"]').count() !== 1 ||
+      !sample?.includes(hex + "?style=flat&labelColor=1F1F28")) {
+      fail("the preset gallery is missing the preview or badge for " + preset);
+    }
+  }
+}
+
 /** Type a query into the results page's field and require at least one result link. */
 async function checkSearch(page: Page, fail: (message: string) => void): Promise<void> {
   // The dialog repeats the same attributes; the results page names its own field and list.
   const root = page.locator("[data-search-page]").first();
   const input = root.locator("[data-search-input]").first();
   const link = root.locator("a.search-results-link").first();
+  if (await page.locator('[name="scope"], [data-search-scope], [data-search-scope-change]').count() !== 0) {
+    fail("the local search page offers a cross-project scope");
+  }
   try {
+    await link.waitFor({ state: "visible", timeout: 15000 });
     await input.waitFor({ state: "visible", timeout: 15000 });
     await input.fill("install");
     await input.press("Enter");
@@ -372,6 +409,8 @@ async function auditCase(
     }
 
     for (const check of item.checks) {
+      if (check === "badges") await checkBadges(page, fail);
+      if (check === "family") await checkFamily(page, fail);
       if (check === "theme") await checkTheme(page, fail);
       if (check === "navigation") await checkNavigation(page, fail);
       if (check === "search") await checkSearch(page, fail);

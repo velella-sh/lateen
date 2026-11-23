@@ -2,7 +2,8 @@
  * render and the island. Pure functions, no DOM and no Node built-ins, because the island build
  * imports this module too. */
 import { parseJson } from "../../src/guards.ts";
-import { bestOn, contrast, ensureContrast, parseHex } from "../../src/color.ts";
+import type { BrandTokens } from "../../src/accent.ts";
+import { contrast, parseHex } from "../../src/color.ts";
 
 /** The scheme surfaces a preview is drawn on, and the text that sits on them. */
 export interface PreviewScheme {
@@ -32,11 +33,6 @@ function ratio(a: string, b: string): number | undefined {
   return first === undefined || second === undefined ? undefined : contrast(first, second);
 }
 
-/** The accent the page writes on a canvas: the chosen colour lifted until it reaches 4.5:1. */
-export function adjustedAccent(accent: string, canvas: string): string {
-  return ensureContrast(accent, canvas, 4.5);
-}
-
 /** The palette as the JSON the picker's `data-palette` carries. */
 export function paletteJson(palette: PreviewPalette): string {
   return JSON.stringify(palette);
@@ -59,15 +55,15 @@ export function parsePalette(raw: string | null | undefined): PreviewPalette | u
   return light === undefined || dark === undefined ? undefined : { light, dark };
 }
 
-/** The contrast ratios of an accent on both canvases, or `undefined` when the input is not a colour. */
-export function contrastRatios(accent: string, canvas: { readonly light: string; readonly dark: string }): ContrastRatios | undefined {
-  if (parseHex(accent) === undefined) return undefined;
-  const light = adjustedAccent(accent, canvas.light);
-  const dark = adjustedAccent(accent, canvas.dark);
-  const accentLight = ratio(light, canvas.light);
-  const accentDark = ratio(dark, canvas.dark);
-  const onAccentLight = ratio(ensureContrast(bestOn(light), light, 4.5), light);
-  const onAccentDark = ratio(ensureContrast(bestOn(dark), dark, 4.5), dark);
+/** Measures the actual accent and its text as rendered, after derivation against every surface. */
+export function contrastRatios(tokens: BrandTokens, palette: PreviewPalette): ContrastRatios | undefined {
+  const accent = tokens["color-accent"];
+  const onAccent = tokens["color-on-accent"];
+  if (accent === undefined || onAccent === undefined) return undefined;
+  const accentLight = ratio(accent.light, palette.light.surfaces[0] ?? "");
+  const accentDark = ratio(accent.dark, palette.dark.surfaces[0] ?? "");
+  const onAccentLight = ratio(onAccent.light, accent.light);
+  const onAccentDark = ratio(onAccent.dark, accent.dark);
   if (accentLight === undefined || accentDark === undefined || onAccentLight === undefined || onAccentDark === undefined) return undefined;
   return { accentLight, accentDark, onAccentLight, onAccentDark };
 }
