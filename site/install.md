@@ -70,3 +70,5 @@ Open [http://127.0.0.1:3000/](http://127.0.0.1:3000/) in your browser. The home 
 </section>
 
 Explore [starters](/starters/) for complete sites, [layouts](/layouts/) for page types, or [tokens and options](/tokens/) to customize the theme.
+
+[Try your site's colors and fonts in Theme Studio](../theme-studio/).

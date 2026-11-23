@@ -78,6 +78,8 @@ export const CASES: readonly AuditCase[] = [
   { name: "docs code tabs", site: "docs", path: "/lateen/components/code-tabs/", layout: "doc", lang: "en", ...DESKTOP },
   { name: "docs variables form", site: "docs", path: "/lateen/components/variables-form/", layout: "doc", lang: "en", ...DESKTOP },
   { name: "docs details", site: "docs", path: "/lateen/components/details/", layout: "doc", lang: "en", ...DESKTOP },
+  { name: "docs theme studio", site: "docs", path: "/lateen/theme-studio/", layout: "doc", lang: "en", ...DESKTOP },
+  { name: "docs theme studio mobile", site: "docs", path: "/lateen/theme-studio/?preset=graphite", layout: "doc", lang: "en", ...MOBILE },
   { name: "docs table", site: "docs", path: "/lateen/components/table/", layout: "doc", lang: "en", ...DESKTOP },
   { name: "docs compare", site: "docs", path: "/lateen/components/compare/", layout: "doc", lang: "en", ...DESKTOP },
   { name: "docs compare narrow", site: "docs", path: "/lateen/components/compare/", layout: "doc", lang: "en", ...MOBILE },
