@@ -32,6 +32,13 @@ export type HeadingAnchorProps = {
  * link label stay out of the name.
  */
 export default function headingAnchor({ id, level, children, label = DEFAULT_LABEL }: HeadingAnchorProps) {
+  // The registry also hands this function a directive's props. A directive has no `id` or numeric `level`, and
+  // would otherwise draw `<hundefined>`.
+  if (typeof id !== "string" || id === "" || !([2, 3, 4] as unknown[]).includes(level)) {
+    throw new Error(
+      "heading-anchor is not a Markdown directive: headings get their anchor automatically, so remove the directive.",
+    );
+  }
   return h(
     `h${level}`,
     { id, "aria-labelledby": textIdFor(id) },
