@@ -149,6 +149,21 @@ test("highlightFences highlights a plain fence, keeps data-src, and gives it a s
   assert.equal(highlightFences(diagram), diagram);
 });
 
+test("highlighting a directive or fence produces the same tokens when the clock advances mid-line", (t) => {
+  const source = "const npm = true;";
+  const fence = `<pre><code class="language-ts">${source}</code></pre>`;
+  let now = 0;
+  let elapsedPerRead = 0;
+  t.mock.method(Date, "now", () => (now += elapsedPerRead));
+  const directiveBefore = render({ lang: "ts" }, source);
+  const fenceBefore = highlightFences(fence);
+
+  elapsedPerRead = 200;
+
+  assert.equal(render({ lang: "ts" }, source), directiveBefore);
+  assert.equal(highlightFences(fence), fenceBefore);
+});
+
 test("highlightFences preserves the terminal rows used by its copy control", () => {
   const session = '<pre class="terminal-body" tabindex="0"><code><span class="terminal-command"><span class="terminal-text">npm install</span></span><span class="terminal-output">added 1 package</span></code></pre>';
   assert.equal(highlightFences(session), session);
