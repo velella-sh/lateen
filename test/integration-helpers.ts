@@ -1,5 +1,5 @@
 import { spawnSync } from "node:child_process";
-import { cpSync, existsSync, mkdirSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from "node:fs";
+import { cpSync, existsSync, mkdirSync, mkdtempSync, readFileSync, rmSync, symlinkSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { dirname, join, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
@@ -83,6 +83,15 @@ export function outputFile(path: string): string {
   return path.slice(1);
 }
 
+/** Options of {@link build}. */
+export interface BuildOptions {
+  /**
+   * Lets the fixture's own modules (theme overrides) import `preact` and the engine contracts: the site
+   * is built from `<temp>/site`, beside a `node_modules` link to this checkout's install.
+   */
+  readonly linkModules?: boolean;
+}
+
 /**
  * Builds a fixture with the engine and this theme, then hands back its output. The build is
  * synchronous and isolated in a temporary folder, so a test never reads a stale public build.
@@ -91,11 +100,17 @@ export function build(
   name: string,
   env: NodeJS.ProcessEnv = process.env,
   files: Readonly<Record<string, string>> = {},
+  options: BuildOptions = {},
 ): BuiltSite {
   if (!existsSync(MIZZEN)) throw new Error(`${MIZZEN} is missing; run \`npm ci\` before the integration tests`);
   const out = tempDir(`lateen-${name}-`);
   // Build from a copy so the engine's own `.mizzen` cache in the fixture never makes a run stale.
-  const source = tempDir(`lateen-${name}-source-`);
+  const sourceRoot = tempDir(`lateen-${name}-source-`);
+  const source = options.linkModules === true ? join(sourceRoot, "site") : sourceRoot;
+  if (options.linkModules === true) {
+    symlinkSync(join(root, "node_modules"), join(sourceRoot, "node_modules"), "dir");
+    writeFileSync(join(sourceRoot, "package.json"), '{"type": "module"}\n');
+  }
   cpSync(join(root, "fixtures", name), source, {
     recursive: true,
     filter: (path) => !path.includes(`${join("fixtures", name, ".mizzen")}`),
@@ -114,7 +129,7 @@ export function build(
     encoding: "utf8",
     env: childEnv,
   });
-  rmSync(source, { recursive: true, force: true });
+  rmSync(sourceRoot, { recursive: true, force: true });
   if (run.status !== 0) {
     rmSync(out, { recursive: true, force: true });
     throw new Error(`mizzen build failed for fixtures/${name}:\n${run.stderr || run.stdout || run.error?.message || "no output"}`);
