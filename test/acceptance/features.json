@@ -1,5 +1,8 @@
 {
   "shipped": [
+    { "feature": "check report and JSON", "issues": [], "pullRequest": 1225, "case": "check-report-run" },
+    { "feature": "check report comparison", "issues": [], "pullRequest": 1225, "case": "check-report-comparison" },
+    { "feature": "check report trend", "issues": [], "pullRequest": 1225, "case": "check-report-trend" },
     { "feature": "page tools", "issues": [576], "case": "page-tools" },
     { "feature": "math", "issues": [594], "case": "math" },
     { "feature": "gallery layout", "issues": [397], "case": "gallery" },
