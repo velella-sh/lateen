@@ -535,36 +535,73 @@
     line-height: var(--type-leading-ui);
   }
 
-  /* The network footer continues the site footer: one quiet row, the label first and the projects
-     after it, so the list reads as part of the footer instead of loose text under it. */
+  /* The network footer continues the site footer: one quiet row holding one button for this project.
+     The other projects open in a popover above it, so the footer stays a single line. */
   .network-footer {
-    @apply flex flex-wrap items-center gap-x-5 gap-y-1 border-t border-border py-3 text-muted-foreground;
+    @apply border-t border-border py-3 text-muted-foreground;
     background: color-mix(in srgb, var(--background) 65%, var(--muted));
     padding-inline: max(1.5rem, calc((100% - 72.5rem) / 2));
     font-size: var(--type-size-sm);
     line-height: var(--type-leading-ui);
   }
 
+  .network-footer-details {
+    @apply relative inline-block;
+  }
+
+  .network-footer-summary {
+    @apply inline-flex min-h-8 cursor-pointer list-none items-center gap-2 rounded-md border border-border px-2.5 font-medium text-foreground;
+    background: var(--card);
+  }
+
+  .network-footer-summary::-webkit-details-marker {
+    display: none;
+  }
+
+  .network-footer-summary:hover {
+    border-color: var(--border-strong);
+  }
+
+  .network-footer-chevron {
+    @apply text-muted-foreground transition-transform;
+  }
+
+  .network-footer-details[open] .network-footer-chevron {
+    transform: rotate(180deg);
+  }
+
+  .network-footer-popover {
+    @apply absolute z-20 min-w-48 rounded-lg border border-border p-1.5 shadow-lg;
+    background: var(--popover);
+    color: var(--popover-foreground);
+    inset-inline-start: 0;
+    inset-block-end: calc(100% + 0.5rem);
+  }
+
   .network-footer-label {
-    @apply m-0 font-medium;
+    @apply m-0 px-2.5 pb-1 pt-1.5 font-medium text-muted-foreground;
     font-size: var(--type-size-xs);
     letter-spacing: 0.02em;
   }
 
   .network-footer-list {
-    @apply m-0 flex list-none flex-wrap items-center gap-x-5 gap-y-1 p-0;
+    @apply m-0 grid list-none gap-0.5 p-0;
   }
 
   .network-footer-link {
-    @apply inline-flex min-h-6 items-center rounded-sm font-semibold no-underline;
+    @apply flex min-h-8 items-center justify-between gap-3 rounded-md px-2.5 font-medium text-foreground no-underline;
   }
 
   .network-footer-link:hover {
-    @apply text-foreground underline underline-offset-4;
+    background: var(--muted);
   }
 
   .network-footer-link[aria-current="true"] {
-    @apply text-foreground;
+    background: var(--muted);
+  }
+
+  .network-footer-link[aria-current="true"]::after {
+    content: "✓";
   }
 
   .legal + .legal {

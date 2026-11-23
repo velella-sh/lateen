@@ -44,14 +44,16 @@ const three = (): SiteNetwork => ({
   projects: [project("alpha", "Alpha", true), project("beta", "Beta Docs"), project("gamma", "Gamma")],
 });
 
-test("renders the network's projects as a labelled footer list", () => {
+test("renders one button named for the current project, with the network's projects in its popover", () => {
   const out = render(three());
-  assert.match(out, /^<div class="network-footer"><p class="network-footer-label">Projects<\/p><ul class="network-footer-list">/);
+  assert.match(out, /^<div class="network-footer"><details class="network-footer-details" data-project-switcher>/);
+  assert.match(out, /<summary class="network-footer-summary">[\s\S]*?<bdi>Alpha<\/bdi>[\s\S]*?<\/summary>/);
+  assert.match(out, /<div class="network-footer-popover"><p class="network-footer-label">Projects<\/p><ul class="network-footer-list">/);
   assert.equal([...out.matchAll(/<li class="network-footer-item">/g)].length, 3);
   assert.match(out, /<a class="network-footer-link network-footer-current" href="\/alpha\/" aria-current="true"><bdi>Alpha<\/bdi><\/a>/);
   assert.match(out, /<a class="network-footer-link" href="\/beta\/"><bdi>Beta Docs<\/bdi><\/a>/);
   assert.match(out, /<a class="network-footer-link" href="\/gamma\/"><bdi>Gamma<\/bdi><\/a>/);
-  assert.doesNotMatch(out, /https?:\/\/|utm_|\?from=/);
+  assert.doesNotMatch(out.replace(/xmlns="[^"]*"/g, ""), /https?:\/\/|utm_|\?from=/);
 });
 
 test("the footer list and the header switcher read the same helper, in the same order", () => {

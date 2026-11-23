@@ -26,11 +26,12 @@ declare const document: SwitcherDocument & {
 
 // The island runs when the browser loads it; nothing happens in a runtime without a document.
 if (typeof document !== "undefined") {
-  const disclosure = document.querySelector("[data-project-switcher]") as
-    | (SwitcherDisclosure & { querySelector(selector: string): unknown; querySelectorAll(selector: string): ArrayLike<unknown> })
-    | null;
-  const summary = disclosure?.querySelector("summary") as SwitcherFocusable | null | undefined;
-  if (disclosure !== null && summary !== null && summary !== undefined) {
+  type Disclosure = SwitcherDisclosure & { querySelector(selector: string): unknown; querySelectorAll(selector: string): ArrayLike<unknown> };
+  const all = (document as unknown as { querySelectorAll(selector: string): ArrayLike<unknown> }).querySelectorAll("[data-project-switcher]");
+  for (const node of Array.from(all)) {
+    const disclosure = node as Disclosure;
+    const summary = disclosure.querySelector("summary") as SwitcherFocusable | null | undefined;
+    if (summary === null || summary === undefined) continue;
     activate(
       {
         disclosure,
