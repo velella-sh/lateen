@@ -24,10 +24,11 @@ export type CalloutProps = {
   open?: string | boolean;
 };
 
-const KINDS: readonly CalloutKind[] = ["note", "tip", "important", "warning", "caution"];
+/** The kinds, in the order the docs list them. */
+export const CALLOUT_KINDS: readonly CalloutKind[] = ["note", "tip", "important", "warning", "caution"];
 
 /** MkDocs Material names and aliases, mapped to Lateen's five visual variants. */
-const ALIASES: ReadonlyMap<string, CalloutKind> = new Map([
+export const CALLOUT_ALIASES: ReadonlyMap<string, CalloutKind> = new Map([
   ["info", "note"], ["todo", "note"], ["quote", "note"], ["cite", "note"], ["example", "note"],
   ["tip", "tip"], ["hint", "tip"], ["success", "tip"], ["check", "tip"], ["done", "tip"],
   ["abstract", "important"], ["summary", "important"], ["tldr", "important"],
@@ -58,9 +59,9 @@ const ICONS: Readonly<Record<CalloutKind, IconNode>> = {
 export function calloutKind(type: unknown): CalloutKind {
   if (typeof type !== "string") return "note";
   const name = type.trim().toLowerCase();
-  const alias = ALIASES.get(name);
+  const alias = CALLOUT_ALIASES.get(name);
   if (alias !== undefined) return alias;
-  return (KINDS as readonly string[]).includes(name) ? (name as CalloutKind) : "note";
+  return (CALLOUT_KINDS as readonly string[]).includes(name) ? (name as CalloutKind) : "note";
 }
 
 /**

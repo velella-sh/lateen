@@ -189,6 +189,12 @@ No content page statically references the Pagefind index. The search dialog fetc
 the search results page starts it on load; `test/search-deferral-fixture.test.ts` holds both to that, so a
 reader who never searches downloads no index.
 
+## Against the organization limits
+
+The organization asks for at most 30 KB of JavaScript and 40 KB of CSS per page. Measured on the fixture with this script, CSS is 27,698 B gzip on every route, under 40 KB. JavaScript is not under 30 KB: `js/chrome` alone is about 33.3 KB gzip on the busiest route, and a page with component islands reaches about 50 KB. Almost all of it loads with the page, because the islands import one another statically; only about 1.8 KB is reached through `import()`.
+
+The theme accepts this and does not claim the 30 KB limit. The budget stays a regression baseline, so JavaScript may not grow, and a change that cuts it should lower the baseline. If the limit ever becomes a requirement, the way to meet it is to load `source-mode`, `ask-agent`, `code-copy` and search on first use, which is about 10 KB gzip, not to loosen how the script counts.
+
 ## Adjustment policy
 
 1. Run `node scripts/performance-budget.ts`. Treat a failure as a question, not a formality: find what

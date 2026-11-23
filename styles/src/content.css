@@ -1107,6 +1107,95 @@
     font-size: var(--type-size-sm);
   }
 
+  /* Zoom: a button opens the image larger in a native popover. The browser handles Escape, a click
+     outside, and returning focus to the button, so none of it needs script. */
+  .figure-zoom {
+    display: block;
+    padding: 0;
+    border: 0;
+    background: none;
+    color: inherit;
+    cursor: zoom-in;
+    border-radius: var(--radius-xl);
+  }
+
+  .figure-zoom-panel {
+    inline-size: min(96vw, 80rem);
+    max-block-size: 94vh;
+    margin: auto;
+    padding: var(--space-3);
+    overflow: auto;
+    border: 1px solid var(--border);
+    border-radius: var(--radius-xl);
+    background: var(--card);
+    color: var(--foreground);
+  }
+
+  .figure-zoom-panel::backdrop {
+    background: color-mix(in oklab, var(--foreground) 55%, transparent);
+  }
+
+  .figure-zoom-img {
+    display: block;
+    max-inline-size: 100%;
+    block-size: auto;
+    margin-inline: auto;
+    border-radius: var(--radius-lg);
+  }
+
+  .figure-zoom-bar {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--space-3);
+    justify-content: space-between;
+    align-items: center;
+    margin-block-start: var(--space-3);
+    font-size: var(--text-sm);
+  }
+
+  .figure-zoom-close {
+    padding: var(--space-1) var(--space-3);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-lg);
+    background: var(--card);
+    color: inherit;
+    cursor: pointer;
+  }
+
+  @media (prefers-reduced-motion: no-preference) {
+    .figure-zoom-panel:popover-open {
+      animation: figure-zoom-in 120ms ease-out;
+    }
+  }
+
+  @keyframes figure-zoom-in {
+    from {
+      opacity: 0;
+    }
+  }
+
+  /* A browser without popover has an inert button: show the full-size link instead. */
+  @supports not selector(:popover-open) {
+    .figure-zoom {
+      pointer-events: none;
+      cursor: default;
+    }
+
+    .figure-zoom-panel {
+      display: block;
+      position: static;
+      border: 0;
+      padding: 0;
+      margin-block-start: var(--space-2);
+      inline-size: auto;
+    }
+
+    .figure-zoom-img,
+    .figure-zoom-close {
+      display: none;
+    }
+  }
+
   /* Mermaid: the diagram sits on the same plate as an image — a quiet card with one hairline edge and
      the shared corner radius — and scrolls inside its frame when the drawing is wider than the column,
      so it never widens the page. */

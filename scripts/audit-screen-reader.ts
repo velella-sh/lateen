@@ -65,6 +65,27 @@ export const CASES: readonly ScreenReaderCase[] = [
       await page.locator(".code-copy").first().waitFor({ state: "visible" });
     },
   },
+  {
+    name: "callout",
+    path: "/guide/install/",
+    target: ".callout-warning",
+    roles: ["note"],
+    async prepare(page) {
+      await page.locator(".callout-warning").waitFor({ state: "visible" });
+    },
+  },
+  {
+    name: "callout disclosure",
+    path: "/guide/install/",
+    target: ".callout-disclosure",
+    roles: ["group"],
+    async prepare(page) {
+      // A collapsible callout opens from the keyboard, with no script on the page.
+      await page.locator(".callout-disclosure > summary").focus();
+      await page.keyboard.press("Enter");
+      await page.locator(".callout-disclosure[open]").waitFor({ state: "visible" });
+    },
+  },
 ];
 
 export const VIEWPORTS = [

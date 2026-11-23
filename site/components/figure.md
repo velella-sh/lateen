@@ -45,6 +45,7 @@ See [the build pipeline](#pipeline).
 | `credit` | string | none | Who made the image, shown under the caption. |
 | `credit_url` | `http` or `https` URL | none | Makes the credit a link. |
 | `href` | `https` URL or same-site path | none | Wraps the image in a keyboard-focusable link to the full-size version. Other addresses are ignored. |
+| `zoom` | `true` | none | Adds a button that opens the image larger in a native popover. It works without JavaScript: Escape or the close button closes it and focus returns to the button. The popover shows `href` when set, else `src`, and carries an "Open full size" link. Not used with `src_dark` or `images`. |
 | `srcset` | string | none | Responsive image candidates for `src`. |
 | `sizes` | string | none | The layout hint for `srcset`. |
 | `width`, `height` | whole number | none | Intrinsic size in pixels, so the layout does not shift when the image loads. |
@@ -64,6 +65,13 @@ presentational (`alt=""` and `aria-hidden`), so assistive technology meets the f
 in the light and dark themes, in forced colors, under custom CSS, and before the stylesheet
 loads. The caption and the credit are the figure's own children, outside the wrapper, so they stay
 readable and a credit link stays operable while its image is hidden.
+
+## Zoom
+
+With `zoom="true"` the image becomes a button for the page's `popover`, so the browser does the work: it opens from the keyboard, Escape and a click outside close it, and focus returns to the button. Under `prefers-reduced-motion` the popover appears without an animation. It never prints (the page prints the image once), and in forced colors its border uses system colors. A browser without popover support gets the "Open full size" link in place of the button.
+
+:::figure{src="data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 width=%22640%22 height=%22360%22%3E%3Crect width=%22640%22 height=%22360%22 fill=%22%23e7dfd2%22/%3E%3Ctext x=%22320%22 y=%22180%22 text-anchor=%22middle%22 font-family=%22Georgia%22 font-size=%2232%22 fill=%22%23554%22%3EZoom example%3C/text%3E%3C/svg%3E" alt="A blank diagram with the words Zoom example." caption="Select the image to enlarge it." zoom="true" width="640" height="360"}
+:::
 
 ## Notes
 

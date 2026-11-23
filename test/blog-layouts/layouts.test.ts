@@ -143,7 +143,7 @@ test("an empty blog page says so instead of drawing an empty list", () => {
     frontMatter: { title: "Ada", layout: "list", blog: { kind: "author", author: { id: "ada", name: "Ada Lovelace" }, posts: [] } },
   });
   const out = renderList(empty);
-  assert.match(out, /<p class="list-empty">No posts yet.<\/p>/);
+  assert.match(out, /<p class="state state-empty state-note">No posts yet.<\/p>/);
   assert.ok(!out.includes("<ul"), "an empty blog page rendered a list");
 });
 

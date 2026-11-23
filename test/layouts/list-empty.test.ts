@@ -86,7 +86,7 @@ test("Arabic counts use the Arabic categories and digits", () => {
 test("an empty list says so and keeps its introduction", () => {
   const out = render("en", 0);
   assert.match(out, /<div class="list-intro"><p>Every book in the catalogue.<\/p><\/div>/);
-  assert.match(out, /<p class="list-empty">This list has no records yet.<\/p>/);
+  assert.match(out, /<p class="state state-empty state-note">This list has no records yet.<\/p>/);
   assert.equal(countOf(out), "0 records");
 });
 

@@ -13,6 +13,7 @@ import datedList from "../components/dated-list/index.ts";
 import { subscribePanel } from "../components/add-to-calendar/index.ts";
 import { formatCount, pluralCategory } from "../components/reading-time/index.ts";
 import recordTable, { columnsOf as tableColumnsOf, type RecordColumn } from "../components/record-table/index.ts";
+import { stateView } from "../components/state/index.ts";
 import status, { type StatusTone } from "../components/status/index.ts";
 import { Rss } from "lucide";
 import { icon } from "../src/icon.ts";
@@ -330,7 +331,7 @@ function blogArticle(props: LayoutProps, feed: string | undefined): ComponentChi
       ? null
       : h("div", { class: "list-intro", dangerouslySetInnerHTML: { __html: pageHtml(props.page.html, props.page.lang) } }),
     posts.length === 0
-      ? h("p", { class: "list-empty" }, t(props.page.lang, "blog_empty"))
+      ? stateView({ kind: "empty", description: t(props.page.lang, "blog_empty") })
       : h("ul", { class: "blog-list" }, posts.map((post) => blogItem(props, post))),
     h("div", { class: "doc-actions" }, pageFooter(props) as ComponentChildren),
   );
@@ -409,7 +410,7 @@ function article(props: LayoutProps, blogFeed: string | undefined): ComponentChi
           }),
         )
       : null,
-    list !== undefined && !expanded && count === 0 ? h("p", { class: "list-empty" }, t(props.page.lang, "list_empty")) : null,
+    list !== undefined && !expanded && count === 0 ? stateView({ kind: "empty", description: t(props.page.lang, "list_empty") }) : null,
     groupSummary(props),
     records === null ? null : h("div", { class: "list-records" }, records),
     snapshotPanel(props),

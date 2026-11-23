@@ -153,10 +153,10 @@ test("both code renderers produce the same tokens when the build clock advances 
 
 test("highlightFences highlights a plain fence, keeps data-src, and gives it a stable id", () => {
   const out = highlightFences('<p>a</p><pre data-src="a.md:3:1-5:3"><code class="language-sh">npm test\n</code></pre>');
-  assert.match(out, /^<p>a<\/p><pre class="code" tabindex="0" id="code-a-md-3-1-5-3" data-lang="sh" data-src="a\.md:3:1-5:3"><code>/);
+  assert.match(out, /^<p>a<\/p><pre class="code" tabindex="0" id="code-a-md-3-1-5-3" role="group" aria-label="Code: sh" data-lang="sh" data-src="a\.md:3:1-5:3"><code>/);
   assert.match(out, /--shiki-dark:#/);
   const plain = highlightFences("<pre><code>a &lt; b\n</code></pre>");
-  assert.match(plain, /<pre class="code" tabindex="0" data-lang="text"><code>/);
+  assert.match(plain, /<pre class="code" tabindex="0" role="group" aria-label="Code" data-lang="text"><code>/);
   assert.match(plain, /a &#x3C; b|a &lt; b/);
   const diagram = '<pre><code class="language-mermaid">graph TD\n</code></pre>';
   assert.equal(highlightFences(diagram), diagram);
@@ -186,7 +186,7 @@ test("highlightFences reads data-code after data-src: title, highlight, numbers,
   const fence = `<pre data-src="a.md:3" data-code="${meta}"><code class="language-ts">const a = 1;\nconst b = 2;\nconst c = 3;\n</code></pre>`;
   const out = highlightFences(fence);
   assert.match(out, /^<div class="code-title">.*<span class="code-title-name" id="code-a-md-3-title">src\/a > b\.ts<\/span><\/div><pre /);
-  assert.match(out, /<pre class="code" tabindex="0" id="code-a-md-3" aria-labelledby="code-a-md-3-title" data-lang="ts" data-src="a.md:3" data-code="/);
+  assert.match(out, /<pre class="code" tabindex="0" id="code-a-md-3" role="group" aria-labelledby="code-a-md-3-title" data-lang="ts" data-src="a.md:3" data-code="/);
   assert.doesNotMatch(out, /<code>[^<]*src\/a > b/);
   assert.match(out, /<span class="line ins" id="code-a-md-3-L1" data-line="1">/);
   assert.match(out, /<span class="line highlighted" id="code-a-md-3-L2" data-line="2">/);
@@ -207,7 +207,7 @@ test("a diff fence in data-code strips its marker characters and still marks its
 test("malformed data-code is ignored and the fence is highlighted as before", () => {
   const fence = '<pre data-src="a.md:3" data-code="not json"><code class="language-ts">const a = 1;\n</code></pre>';
   const out = highlightFences(fence);
-  assert.match(out, /<pre class="code" tabindex="0" id="code-a-md-3" data-lang="ts" data-src="a.md:3" data-code="not json"><code>/);
+  assert.match(out, /<pre class="code" tabindex="0" id="code-a-md-3" role="group" aria-label="Code: ts" data-lang="ts" data-src="a.md:3" data-code="not json"><code>/);
   assert.doesNotMatch(out, /aria-labelledby/);
   assert.doesNotMatch(out, /code-title/);
   assert.doesNotMatch(out, /data-line|highlighted|class="line (ins|del)"/);
@@ -310,4 +310,32 @@ test("highlights real Mizzen test fences and keeps the example metadata", async 
     assert.ok(attribute, name);
     assert.ok(out.includes(attribute), name);
   }
+});
+
+test("every code block is a named group: its title when it has one, else its language in the page language (#1212)", () => {
+  const plain = highlightFences('<pre><code class="language-ts">const a = 1;\n</code></pre>');
+  assert.match(plain, /<pre class="code" tabindex="0" role="group" aria-label="Code: ts" data-lang="ts"/);
+
+  const text = highlightFences("<pre><code>no language\n</code></pre>");
+  assert.match(text, /role="group" aria-label="Code" data-lang="text"/, "plain text is just Code");
+
+  const meta = dataCode({ raw: "", title: "a.ts", highlight: [], ins: [], del: [], diff: false, showLineNumbers: false, annotations: [] });
+  const titled = highlightFences(`<pre data-src="a.md:3" data-code="${meta}"><code class="language-ts">x\n</code></pre>`);
+  assert.match(titled, /role="group" aria-labelledby="code-a-md-3-title"/);
+  assert.doesNotMatch(titled, /<pre[^>]* aria-label=/, "a titled block is named by its title, once");
+
+  const persian = highlightFences('<pre><code class="language-ts">x\n</code></pre>', undefined, "fa");
+  assert.match(persian, /role="group" aria-label="کد: [^"]*ts[^"]*"/, "the name follows the page language");
+
+  const directive = renderToString(code({ props: { lang: "sh" }, html: "echo hi", page: { lang: "en" }, site: {} } as never) as never);
+  assert.match(directive, /<pre class="code" tabindex="0" role="group" aria-label="Code: sh" data-lang="sh"/);
+});
+
+test("two untitled blocks never share a name source that needs an id (#1212)", () => {
+  const out = highlightFences(
+    '<pre data-src="a.md:3"><code class="language-ts">a\n</code></pre><pre data-src="a.md:9"><code class="language-ts">b\n</code></pre>',
+  );
+  const ids = [...out.matchAll(/\sid="([^"]+)"/g)].map((match) => match[1]);
+  assert.equal(new Set(ids).size, ids.length, "no duplicate ids");
+  assert.doesNotMatch(out, /aria-labelledby/);
 });
