@@ -92,7 +92,7 @@ test("document typography and metadata follow the Sailcloth prose contract", () 
   assert.match(meta, /font-size:\s*var\(--type-size-xs\)/);
   assert.match(bodyOf(ui, /^\.doc-meta:empty$/), /display:\s*none/);
   assert.match(bodyOf(ui, /^\.doc-meta \.trust-panel$/), /margin:\s*0/);
-  assert.match(bodyOf(ui, /^\.doc-meta \.trust-panel-chip$/), /min-block-size:\s*1\.5rem/);
+  assert.match(bodyOf(ui, /^\.doc-meta \.trust-panel-chip$/), /min-block-size:\s*1\.75rem/);
   assert.match(bodyOf(ui, /^\.doc-meta \.trust-panel-body$/), /font-size:\s*var\(--type-size-sm\)/);
   assert.match(bodyOf(ui, /^\.reading-time,\s*\.doc-meta \.last-updated$/), /margin:\s*0/);
   assert.match(bodyOf(ui, /^\.reading-time,\s*\.doc-meta \.last-updated$/), /font-size:\s*var\(--type-size-xs\)/);

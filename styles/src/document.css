@@ -423,7 +423,7 @@
 
   .doc-meta .trust-panel-chip {
     gap: 0.25rem;
-    min-block-size: 1.5rem;
+    min-block-size: 1.75rem;
     padding: 0.125rem 0.5rem;
     font-size: var(--type-size-xs);
   }
