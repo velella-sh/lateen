@@ -5,8 +5,8 @@ import { Ajv2020 } from "ajv/dist/2020.js";
 import { renderToString } from "preact-render-to-string";
 import { parse } from "yaml";
 import brandStudio from "../components/brand-studio/index.ts";
-import { FONTS, optionsYaml, overridesOf, passesContrast, type StudioInput } from "../components/brand-studio/model.ts";
-import { presetNames, resolveBrand } from "../src/brand.ts";
+import { FONTS, optionsYaml, overridesOf, passesContrast, STUDIO_PRESETS, type StudioInput } from "../components/brand-studio/model.ts";
+import { resolveBrand } from "../src/brand.ts";
 import { pageWith } from "./helpers/page.ts";
 import { siteOf } from "./helpers/site.ts";
 
@@ -14,9 +14,10 @@ const schema = JSON.parse(readFileSync(new URL("../schema/options.schema.json", 
 const validate = new Ajv2020({ strict: false }).compile(schema);
 
 test("each public preset exports only the selected changes and resolves the same way at build time", () => {
-  for (const name of presetNames()) {
-    const preset = resolveBrand({ preset: name }).brand;
-    assert.ok(preset?.accent && preset.neutral && preset.radius && preset.density);
+  for (const name of STUDIO_PRESETS) {
+    const resolved = resolveBrand({ preset: name }).brand;
+    assert.ok(typeof resolved?.accent === "string" && typeof resolved.neutral === "string" && resolved.radius && resolved.density);
+    const preset = { ...resolved, accent: resolved.accent, neutral: resolved.neutral, radius: resolved.radius, density: resolved.density };
     const input: StudioInput = { accent: preset.accent, neutral: preset.neutral,
       radius: preset.radius, density: preset.density, sans: "", mono: "" };
     assert.ok(passesContrast(preset, []));

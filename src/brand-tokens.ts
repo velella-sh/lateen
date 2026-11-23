@@ -1,5 +1,5 @@
-import { accentTokens, tokenCssValue, type BrandToken, type BrandTokens } from "./accent.ts";
-import { ensureContrast, fromOklch, toOklch } from "./color.ts";
+import { accentTokens, tokenCssValue, type Accent, type BrandToken, type BrandTokens } from "./accent.ts";
+import { contrast, ensureContrast, fromOklch, parseHex, toHex, toOklch } from "./color.ts";
 import { withBase } from "./url.ts";
 
 /** The corner-radius options, each a multiplier of the default scale. `none` squares every corner. */
@@ -23,11 +23,14 @@ export interface FontFamily {
   readonly files: readonly FontFile[];
 }
 
+export type NeutralScheme = Readonly<Record<"canvas" | "surface" | "text", string>>;
+export type Neutral = string | Readonly<Record<"light" | "dark", NeutralScheme>>;
+
 /** The validated brand options. Every field is optional: absent keeps the theme's value. */
 export interface Brand {
   readonly preset?: string;
-  readonly accent?: string;
-  readonly neutral?: string;
+  readonly accent?: Accent;
+  readonly neutral?: Neutral;
   readonly sans?: FontFamily;
   readonly mono?: FontFamily;
   readonly radius?: Radius;
@@ -163,9 +166,10 @@ function rem(value: string): number | undefined {
   return match?.[1] === undefined ? undefined : Number(match[1]);
 }
 
-/** The neutral palette of one scheme, tinted by `neutral` while keeping the default lightness steps. */
-function neutralTokens(neutral: string, scheme: "light" | "dark"): Record<string, string> {
-  const tint = toOklch(neutral);
+/** Derives supporting colours from the tint, then applies any explicit neutral roles. */
+function neutralTokens(neutral: Neutral, scheme: "light" | "dark"): Record<string, string> {
+  const palette = typeof neutral === "string" ? undefined : neutral[scheme];
+  const tint = toOklch(typeof neutral === "string" ? neutral : neutral[scheme].surface);
   const base = DEFAULT_COLORS[scheme];
   const tokens: Record<string, string> = {};
   if (tint === undefined) return { ...base };
@@ -174,6 +178,7 @@ function neutralTokens(neutral: string, scheme: "light" | "dark"): Record<string
     if (original === undefined) continue;
     tokens[role] = fromOklch({ l: original.l, c: Math.min(tint.c * factor, cap), h: tint.h });
   }
+  Object.assign(tokens, palette);
   // Text and muted text keep their contrast on every surface the tint moved.
   const surfaces = [tokens.canvas, tokens.surface, tokens["surface-raised"]].filter((value): value is string => value !== undefined);
   for (const role of ["text", "heading", "muted"]) {
@@ -183,6 +188,9 @@ function neutralTokens(neutral: string, scheme: "light" | "dark"): Record<string
     tokens[role] = value;
   }
   tokens.heading = tokens.text ?? base.heading;
+  if (palette !== undefined) {
+    tokens["border-strong"] = ensureContrast(tokens["border-strong"] ?? base["border-strong"], palette.canvas, 3);
+  }
   return tokens;
 }
 
@@ -345,6 +353,21 @@ const BRAND_ALIASES = {
   link: "color-link",
 } as const;
 
+/** Keep the note label readable against its own six-percent sRGB wash. */
+function noteColor(color: string, surface: string): string {
+  const base = parseHex(surface);
+  if (base === undefined) return color;
+  let candidate = color;
+  for (let step = 0; step < 8; step += 1) {
+    const ink = parseHex(candidate);
+    if (ink === undefined) break;
+    const wash = { r: base.r * .94 + ink.r * .06, g: base.g * .94 + ink.g * .06, b: base.b * .94 + ink.b * .06 };
+    if (contrast(ink, wash) >= 4.5) return candidate;
+    candidate = ensureContrast(candidate, toHex(wash), 4.55);
+  }
+  return candidate;
+}
+
 /**
  * The CSS a brand adds to a page: its font faces and its token overrides, plus a comment for each
  * ignored value. The selector beats the `:root` block in `styles/tokens.css` on specificity, so the
@@ -359,7 +382,10 @@ export function brandCss(brand: Brand, { base = "", selector = ":root:root" }: {
   const block = tokensCss(tokens, selector);
   const bridge = aliases.length === 0 ? "" : `${selector} {\n${aliases.join("\n")}\n}`;
   const code = brand.neutral === undefined ? "" : `${selector === ":root:root" ? `${selector} .doc` : selector} { --doc-code-bg: var(--code-bg); }`;
-  // The note label uses the branded link color. Use the surface it was checked against.
-  const note = brand.accent === undefined ? "" : `${selector} .callout-note { background-color: var(--card); }`;
+  const link = tokens["color-link"];
+  const note = link === undefined ? "" : `${selector} .callout-note { --callout-color: ${tokenCssValue({
+    light: noteColor(link.light, tokens["color-surface-raised"]?.light ?? DEFAULT_COLORS.light["surface-raised"]),
+    dark: noteColor(link.dark, tokens["color-surface-raised"]?.dark ?? DEFAULT_COLORS.dark["surface-raised"]),
+  })}; }`;
   return [faces, block, bridge, code, note].filter((part) => part !== "").join("\n");
 }

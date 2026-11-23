@@ -102,6 +102,7 @@ export function gateProblems(
   report: AcceptanceReport,
   expected: { readonly commit: string; readonly digest: string; readonly mizzen: string } & Identities,
   ledger: FeatureLedger,
+  additionalCases: readonly string[] = [],
 ): string[] {
   const problems: string[] = [];
   if (!report.ok) problems.push("the acceptance run did not pass");
@@ -110,10 +111,10 @@ export function gateProblems(
   if (report.mizzen !== expected.mizzen) problems.push(`the report used Mizzen ${report.mizzen}, not ${expected.mizzen}`);
   problems.push(...identityProblems(report, expected));
   const results = new Map(report.cases.map((item) => [item.name, item]));
-  for (const feature of ledger.shipped) {
-    const result = results.get(feature.case);
-    if (result === undefined) problems.push(`the report has no result for the shipped case "${feature.case}"`);
-    else if (!result.ok) problems.push(`the shipped case "${feature.case}" failed: ${result.error ?? "no reason given"}`);
+  for (const name of [...ledger.shipped.map((feature) => feature.case), ...additionalCases]) {
+    const result = results.get(name);
+    if (result === undefined) problems.push(`the report has no result for the shipped case "${name}"`);
+    else if (!result.ok) problems.push(`the shipped case "${name}" failed: ${result.error ?? "no reason given"}`);
   }
   return problems;
 }

@@ -29,8 +29,8 @@ the brand sets wins over the preset's, and a value neither sets keeps the theme'
 | --- | --- | --- |
 | `theme.options.preset` | a preset name | A shipped set of the options below, as a starting point. |
 | `theme.options.brand` | object | The overrides for this site. |
-| `theme.options.brand.accent` | `#rgb` or `#rrggbb` | The accent, links, focus ring, selection, and selected state, in light and dark. |
-| `theme.options.brand.neutral` | `#rgb` or `#rrggbb` | The hue of the canvas, surfaces, borders, text, muted text, and code background. |
+| `theme.options.brand.accent` | `#rgb` or `#rrggbb` as a single colour or a `{ light, dark }` pair | The accent, links, focus ring, selection, and selected state, in light and dark. |
+| `theme.options.brand.neutral` | `#rgb` or `#rrggbb` tint, or `{ light, dark }` with `{ canvas, surface, text }` per scheme | The hue of the canvas, surfaces, borders, text, muted text, and code background. |
 | `theme.options.brand.fonts` | object | The site's own self-hosted families. |
 | `theme.options.brand.fonts.sans` | object | The body, heading, and interface family. |
 | `theme.options.brand.fonts.sans.family` | string | The family name written in `@font-face` and first in the stack. |

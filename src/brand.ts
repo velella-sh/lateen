@@ -7,7 +7,8 @@
 import { readdirSync, readFileSync } from "node:fs";
 import { join } from "node:path";
 import { fileURLToPath } from "node:url";
-import { DENSITIES, INTENSITIES, RADII, DEFAULT_CODE, brandTokens, tokensCss, type Brand, type Density, type FontFamily, type FontFile, type Intensity, type Radius, type Showpiece } from "./brand-tokens.ts";
+import { DENSITIES, INTENSITIES, RADII, DEFAULT_CODE, brandTokens, tokensCss, type Brand, type Density, type FontFamily, type FontFile, type Intensity, type Neutral, type NeutralScheme, type Radius, type Showpiece } from "./brand-tokens.ts";
+import type { Accent, BrandToken } from "./accent.ts";
 import { isRecord } from "./guards.ts";
 import { mix, parseHex, toHex } from "./color.ts";
 
@@ -114,6 +115,23 @@ function fontFamily(value: unknown, option: string, problems: BrandProblem[]): F
   return files.length === 0 ? undefined : { family, files };
 }
 
+function colourPair(value: unknown): BrandToken | undefined {
+  if (!isRecord(value) || !isHex(value.light) || !isHex(value.dark)) return undefined;
+  return { light: colour(value.light), dark: colour(value.dark) };
+}
+
+function neutralScheme(value: unknown): NeutralScheme | undefined {
+  if (!isRecord(value) || !isHex(value.canvas) || !isHex(value.surface) || !isHex(value.text)) return undefined;
+  return { canvas: colour(value.canvas), surface: colour(value.surface), text: colour(value.text) };
+}
+
+function neutralPair(value: unknown): Exclude<Neutral, string> | undefined {
+  if (!isRecord(value)) return undefined;
+  const light = neutralScheme(value.light);
+  const dark = neutralScheme(value.dark);
+  return light === undefined || dark === undefined ? undefined : { light, dark };
+}
+
 /** Validates one brand block and records every value it ignores. */
 function brandOptions(value: unknown, option: string, problems: BrandProblem[]): Brand | undefined {
   if (!isRecord(value)) {
@@ -121,8 +139,8 @@ function brandOptions(value: unknown, option: string, problems: BrandProblem[]):
     return undefined;
   }
   const brand: {
-    accent?: string;
-    neutral?: string;
+    accent?: Accent;
+    neutral?: Neutral;
     sans?: FontFamily;
     mono?: FontFamily;
     radius?: Radius;
@@ -130,12 +148,14 @@ function brandOptions(value: unknown, option: string, problems: BrandProblem[]):
     showpiece?: Showpiece;
   } = {};
   if (value.accent !== undefined) {
-    if (isHex(value.accent)) brand.accent = colour(value.accent);
-    else problems.push({ option: `${option}.accent`, message: "is not a #rgb or #rrggbb colour" });
+    const accent = isHex(value.accent) ? colour(value.accent) : colourPair(value.accent);
+    if (accent !== undefined) brand.accent = accent;
+    else problems.push({ option: `${option}.accent`, message: isRecord(value.accent) ? "must supply hex colours for light and dark" : "is not a #rgb or #rrggbb colour" });
   }
   if (value.neutral !== undefined) {
-    if (isHex(value.neutral)) brand.neutral = colour(value.neutral);
-    else problems.push({ option: `${option}.neutral`, message: "is not a #rgb or #rrggbb colour" });
+    const neutral = isHex(value.neutral) ? colour(value.neutral) : neutralPair(value.neutral);
+    if (neutral !== undefined) brand.neutral = neutral;
+    else problems.push({ option: `${option}.neutral`, message: isRecord(value.neutral) ? "must supply hex canvas, surface and text colours in light and dark" : "is not a #rgb or #rrggbb colour" });
   }
   if (value.fonts !== undefined) {
     if (!isRecord(value.fonts)) problems.push({ option: `${option}.fonts`, message: "must be an object" });

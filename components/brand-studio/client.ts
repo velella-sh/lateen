@@ -1,8 +1,8 @@
 /// <reference lib="dom" />
 import { writeClipboard } from "../../chrome/clipboard/result.ts";
-import { brandCss, brandTokens, type Brand } from "../../src/brand-tokens.ts";
+import { brandCss, brandTokens } from "../../src/brand-tokens.ts";
 import { SYNTAX_MODES, syntaxColor } from "../../src/syntax-contrast.ts";
-import { DEFAULT_PRESET, hex, optionsYaml, overridesOf, passesContrast, type Overrides } from "./model.ts";
+import { DEFAULT_PRESET, hex, optionsYaml, overridesOf, passesContrast, type Overrides, type StudioPreset } from "./model.ts";
 
 function activate(root: HTMLElement, index: number): void {
   const form = root.querySelector("form");
@@ -17,7 +17,7 @@ function activate(root: HTMLElement, index: number): void {
   if (!form || !sample || !schemeControl || !css || !yaml || !feedback || !copy || !copyStatus || !downloads) return;
 
   // Preset data comes only from the build. URL and form values can select from that data.
-  const presets = JSON.parse(root.dataset.presets ?? "{}") as Record<string, Brand>;
+  const presets = JSON.parse(root.dataset.presets ?? "{}") as Record<string, StudioPreset>;
   const initial = new URLSearchParams(location.search).get("preset");
   const fields = form.elements;
   const select = (name: string) => fields.namedItem(name) as HTMLSelectElement;

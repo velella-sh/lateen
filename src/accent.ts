@@ -14,6 +14,9 @@ export interface BrandToken {
 /** The tokens a brand changes, by their frozen `tokens/names.json` name. */
 export type BrandTokens = Readonly<Record<string, BrandToken>>;
 
+/** A shared accent or a different source colour per scheme. */
+export type Accent = string | BrandToken;
+
 /** One token's CSS value: the plain value when both schemes agree, `light-dark()` otherwise. */
 export function tokenCssValue(token: BrandToken): string {
   return token.light === token.dark ? token.light : `light-dark(${token.light}, ${token.dark})`;
@@ -56,7 +59,7 @@ function shift(colourValue: string, amount: number): string {
 }
 
 /** The accent family: accent, hover, on-accent, links, focus, selection, and the selected state. */
-export function accentTokens(accent: string, surfaces: AccentSurfaces, text: AccentText): BrandTokens {
+export function accentTokens(accent: Accent, surfaces: AccentSurfaces, text: AccentText): BrandTokens {
   const derived: Record<string, { light: string; dark: string }> = {};
   const against = (colour: string, scheme: "light" | "dark", wanted: number): string => {
     let value = colour;
@@ -66,11 +69,12 @@ export function accentTokens(accent: string, surfaces: AccentSurfaces, text: Acc
   for (const scheme of ["light", "dark"] as const) {
     // The accent is read as text on the canvas, the surface, and the raised surface, so it is held
     // to the text ratio on all three; the last correction also covers the two before it.
-    const base = against(accent, scheme, ratio.text);
+    const source = typeof accent === "string" ? accent : accent[scheme];
+    const base = against(source, scheme, ratio.text);
     const hover = against(shift(base, scheme === "light" ? -0.06 : 0.06), scheme, ratio.text);
     const onAccent = ensureContrast(bestOn(base), base, ratio.text);
     const focus = against(base, scheme, ratio.ring);
-    const selected = selection(accent, text[scheme], scheme);
+    const selected = selection(source, text[scheme], scheme);
     const selectedFg = ensureContrast(base, selected, ratio.text);
     const values: Record<string, string> = {
       accent: base,

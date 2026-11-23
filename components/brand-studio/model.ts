@@ -19,6 +19,8 @@ export const FONTS = {
 
 type StudioFont = keyof typeof FONTS;
 
+export type StudioPreset = Brand & { readonly accent: string; readonly neutral: string };
+
 export interface StudioInput {
   readonly accent: string;
   readonly neutral: string;
@@ -37,11 +39,11 @@ function known<T extends string>(value: string, choices: readonly T[]): T | unde
   return choices.find((choice) => choice === value);
 }
 
-export type Overrides = Pick<Brand, "accent" | "neutral" | "radius" | "density"> & {
+export type Overrides = Partial<Pick<StudioPreset, "accent" | "neutral" | "radius" | "density">> & {
   readonly fonts?: Readonly<Partial<Record<StudioFont, FontFamily>>>;
 };
 
-export function overridesOf(preset: Brand, input: StudioInput): Overrides | undefined {
+export function overridesOf(preset: StudioPreset, input: StudioInput): Overrides | undefined {
   const accent = hex(input.accent);
   const neutral = hex(input.neutral);
   const radius = known(input.radius, RADII);

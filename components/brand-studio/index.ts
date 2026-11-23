@@ -3,13 +3,13 @@ import { renderToString } from "preact-render-to-string";
 import { Moon, Sun } from "lucide";
 import { icon } from "../../src/icon.ts";
 import type { ComponentProps } from "@velella/mizzen/contracts";
-import { DENSITIES, RADII, brandCss, brandTokens, resolveBrand, type Brand } from "../../src/brand.ts";
+import { DENSITIES, RADII, brandCss, brandTokens, resolveBrand } from "../../src/brand.ts";
 import { adjustShiki } from "../../src/syntax-contrast.ts";
 import { withBase } from "../../src/url.ts";
 import callout from "../callout/index.ts";
 import code from "../code/index.ts";
 import status from "../status/index.ts";
-import { DEFAULT_PRESET, FONTS, STUDIO_PRESETS, optionsYaml } from "./model.ts";
+import { DEFAULT_PRESET, FONTS, STUDIO_PRESETS, optionsYaml, type StudioPreset } from "./model.ts";
 
 export const directive = "brand-studio";
 
@@ -34,9 +34,9 @@ const optionsOf = (values: readonly string[]) => values.map((value) => [value, l
 export default function brandStudio({ page, site }: ComponentProps) {
   const presets = Object.fromEntries(STUDIO_PRESETS.map((preset) => {
     const { brand, problems } = resolveBrand({ preset });
-    if (brand === undefined || problems.length) throw new Error(`Invalid studio preset: ${preset}`);
-    return [preset, brand] as const;
-  })) as Readonly<Record<string, Brand>>;
+    if (typeof brand?.accent !== "string" || typeof brand.neutral !== "string" || problems.length) throw new Error(`Invalid studio preset: ${preset}`);
+    return [preset, { ...brand, accent: brand.accent, neutral: brand.neutral }] as const;
+  })) as Readonly<Record<string, StudioPreset>>;
   const initial = presets[DEFAULT_PRESET];
   if (initial === undefined) throw new Error(`Missing the ${DEFAULT_PRESET} preset`);
   const base = site.config.base;
