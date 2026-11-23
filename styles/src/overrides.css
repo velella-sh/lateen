@@ -109,6 +109,41 @@ html[data-js] .source-mode-switch[hidden] {
   white-space: nowrap;
 }
 
+/* The switch: a track after the label. Off is a neutral track; on is the project's link colour. */
+.doc-tools .source-mode-switch .source-mode-button {
+  justify-content: flex-start;
+  border: 0;
+  background: transparent;
+  color: var(--foreground);
+}
+
+.doc-tools .source-mode-switch .source-mode-button::after {
+  content: "";
+  margin-inline-start: auto;
+  inline-size: 2rem;
+  block-size: 1.125rem;
+  flex: none;
+  border-radius: 999px;
+  border: 1px solid var(--border-strong);
+  background:
+    radial-gradient(circle at 0.5625rem 50%, var(--muted-foreground) 0.3125rem, transparent 0.34rem),
+    var(--muted);
+  transition: background-color 120ms ease;
+}
+
+.doc-tools .source-mode-switch .source-mode-button[aria-pressed="true"]::after {
+  border-color: var(--link);
+  background:
+    radial-gradient(circle at calc(100% - 0.5625rem) 50%, var(--background) 0.3125rem, transparent 0.34rem),
+    var(--link);
+}
+
+.doc-tools .source-mode-switch .source-mode-button[aria-pressed="true"] {
+  border: 0;
+  background: transparent;
+  color: var(--foreground);
+}
+
 .doc-tools .source-mode-switch button svg {
   color: var(--muted-foreground);
 }

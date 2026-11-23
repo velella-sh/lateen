@@ -1,13 +1,24 @@
 import { h } from "preact";
 import type { Chrome } from "@velella/mizzen/contracts";
+import { ChevronUp, Sailboat } from "lucide";
 import { t } from "../../i18n/index.ts";
+import { icon } from "../../src/icon.ts";
 import { projectLinks } from "../project-switcher/index.ts";
 
 /** Class on the footer block. */
 export const FOOTER_CLASS = "network-footer";
 
-/** Class on the one-line label above the list. */
+/** Class on the native disclosure that holds the popover. */
+export const DETAILS_CLASS = "network-footer-details";
+
+/** Class on the one button that opens the popover. */
+export const SUMMARY_CLASS = "network-footer-summary";
+
+/** Class on the heading at the top of the popover. */
 export const LABEL_CLASS = "network-footer-label";
+
+/** Class on the popover that floats above the button. */
+export const POPOVER_CLASS = "network-footer-popover";
 
 /** Class on the list of projects. */
 export const LIST_CLASS = "network-footer-list";
@@ -22,33 +33,52 @@ export const LINK_CLASS = "network-footer-link";
 export const CURRENT_CLASS = "network-footer-current";
 
 /**
- * The network footer: a labelled list of every project in the site's network, in the same order and with
- * the same names and addresses as the header switcher, because both read {@link projectLinks}. A site
- * without a network, or with one project, renders nothing.
+ * The network footer: one button named for the current project. It opens a popover above it with every
+ * project in the site's network, in the same order and with the same names and addresses as the header
+ * switcher, because both read {@link projectLinks}. The disclosure is native, so it works with no script;
+ * the project switcher island adds Escape and the arrow keys. A site without a network, or with one
+ * project, renders nothing.
  */
 const networkFooter: Chrome = ({ site, page }) => {
   const projects = projectLinks(site);
   if (projects.length === 0) return null;
 
+  const current = projects.find((project) => project.current) ?? projects[0]!;
+
   return h(
     "div",
     { class: FOOTER_CLASS },
-    h("p", { class: LABEL_CLASS }, t(page.lang, "projects")),
     h(
-      "ul",
-      { class: LIST_CLASS },
-      ...projects.map((project) =>
+      "details",
+      { class: DETAILS_CLASS, "data-project-switcher": "" },
+      h(
+        "summary",
+        { class: SUMMARY_CLASS },
+        icon({ node: Sailboat }),
+        h("bdi", null, current.title),
+        icon({ node: ChevronUp, class: "network-footer-chevron" }),
+      ),
+      h(
+        "div",
+        { class: POPOVER_CLASS },
+        h("p", { class: LABEL_CLASS }, t(page.lang, "projects")),
         h(
-          "li",
-          { class: ITEM_CLASS },
-          h(
-            "a",
-            {
-              class: project.current ? `${LINK_CLASS} ${CURRENT_CLASS}` : LINK_CLASS,
-              href: project.url,
-              "aria-current": project.current ? "true" : undefined,
-            },
-            h("bdi", null, project.title),
+          "ul",
+          { class: LIST_CLASS },
+          ...projects.map((project) =>
+            h(
+              "li",
+              { class: ITEM_CLASS },
+              h(
+                "a",
+                {
+                  class: project.current ? `${LINK_CLASS} ${CURRENT_CLASS}` : LINK_CLASS,
+                  href: project.url,
+                  "aria-current": project.current ? "true" : undefined,
+                },
+                h("bdi", null, project.title),
+              ),
+            ),
           ),
         ),
       ),
