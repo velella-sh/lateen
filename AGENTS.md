@@ -54,4 +54,3 @@ Mizzen + Node + TypeScript + Preact + **Tailwind CSS** + vanilla islands + **Luc
 - A behavior change needs a test beside the others in `test/`.
 - A docs site change must pass `npx mizzen check site --theme .` with 0 errors (or `node ../mizzen/bin/mizzen.ts check site --theme .` when testing a local engine).
 - Accessibility and RTL are gates. Run `npm run test:a11y` when you touch layouts, chrome, components, or styles.
-- One pull request = one change. Say what it fixes and how you checked it.
