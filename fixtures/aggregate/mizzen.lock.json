@@ -1,0 +1,12 @@
+{
+  "version": 1,
+  "sources": {},
+  "snapshots": {
+    "shipments": {
+      "source": "_data/shipments.json",
+      "ref": "shipment-source-snapshot",
+      "capturedAt": "2026-04-30",
+      "tool": "git"
+    }
+  }
+}

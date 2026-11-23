@@ -186,6 +186,23 @@ const ALIASES: Record<string, string> = { sh: "shellscript", shell: "shellscript
 
 await loadGrammars(DEFAULT_LANGUAGES);
 
+/** Highlight the same source identically regardless of build load. */
+function highlightedHtml(text: string, language: string, backdrops?: CodeBackdrops): string {
+  const highlighter = get();
+  const grammar = ALIASES[language] ?? language;
+  return adjustShiki(
+    highlighter.codeToHtml(text, {
+      lang: highlighter.getLoadedLanguages().includes(grammar) ? grammar : "text",
+      themes: { light: "lateen-light", dark: "lateen-dark" },
+      defaultColor: false,
+      // A wall-clock cutoff can leave partial tokens. Use line length to bound the work.
+      tokenizeTimeLimit: 0,
+      tokenizeMaxLineLength: 20_000,
+    }),
+    backdrops,
+  );
+}
+
 const TAG = /<[^>]*>/g;
 
 /** `html` with every tag dropped. It repeats until nothing is left to drop, so removing one tag cannot join the pieces of another. */
@@ -247,14 +264,7 @@ export default function code({ props, html, page, site }: ComponentProps<CodePro
   if (lang === "mermaid") {
     return mermaid({ props: { source: text, ...(src ? { src } : {}) }, page, site, html });
   }
-  const hl = get();
-  const grammar = ALIASES[lang] ?? lang;
-  const known = hl.getLoadedLanguages().includes(grammar);
-  const options = site.config?.theme?.options;
-  const out = adjustShiki(
-    hl.codeToHtml(text, { lang: known ? grammar : "text", themes: { light: "lateen-light", dark: "lateen-dark" }, defaultColor: false }),
-    codeBackgrounds(options),
-  );
+  const out = highlightedHtml(text, lang, codeBackgrounds(site.config?.theme?.options));
   const inner = /<code[^>]*>([\s\S]*)<\/code>/.exec(out)?.[1] ?? "";
   const block = src === undefined ? undefined : blockId(src);
   const decorated = block === undefined ? inner : decorateLines(inner, { block, lang: page.lang });
@@ -326,7 +336,6 @@ function snippetStart(src: string | undefined, pageSource: string | undefined, t
  */
 export function highlightFences(html: string, backdrops?: CodeBackdrops, lang = "en", pageSource?: string): string {
   if (!html.includes("<pre")) return html;
-  const hl = get();
   return html
     .replace(FENCE, (match, attrs: string, codeAttrs: string, body: string) => {
       const codeAttributes = [...codeAttrs.matchAll(/\s+([^\s=>]+)=(?:"([^"]*)"|'([^']*)')/g)];
@@ -338,13 +347,8 @@ export function highlightFences(html: string, backdrops?: CodeBackdrops, lang = 
       if (fenceLang === "mermaid" || classes.includes(CODE_CLASS) || classes.includes("terminal-body")) return match;
       const name = fenceLang ?? "text";
       const meta = parseFenceMeta(attribute(attrs, "data-code"));
-      const grammar = ALIASES[name] ?? name;
-      const known = hl.getLoadedLanguages().includes(grammar);
       const text = sourceText(body);
-      const out = adjustShiki(
-        hl.codeToHtml(text, { lang: known ? grammar : "text", themes: { light: "lateen-light", dark: "lateen-dark" }, defaultColor: false }),
-        backdrops,
-      );
+      const out = highlightedHtml(text, name, backdrops);
       const inner = /<code[^>]*>([\s\S]*)<\/code>/.exec(out)?.[1] ?? "";
       const src = attribute(attrs, "data-src");
       const firstLine = snippetStart(src, pageSource, text);

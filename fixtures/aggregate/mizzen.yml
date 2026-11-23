@@ -1,0 +1,41 @@
+title: Shipment summaries
+lang: en
+url: https://example.com
+repository:
+  url: https://github.com/example/shipments
+collections:
+  shipments:
+    source: _data/shipments.json
+    id: id
+  monthly:
+    source: shipments
+    template: _templates/monthly.md
+    permalink: /monthly/{id}/
+    dates: [firstShipment]
+    referenceDate: 2026-04-30
+    aggregate:
+      by:
+        - { field: shipped, period: month, timezone: UTC }
+      metrics:
+        shipments: { op: count }
+        destinations: { op: count-distinct, field: destination }
+        total: { op: sum, field: units }
+        average: { op: average, field: units }
+        firstShipment: { op: min, field: shipped }
+        largestShipment: { op: max, field: units }
+feeds:
+  monthly:
+    collection: monthly
+    date: firstShipment
+    formats: [atom, json]
+    fields: [total]
+calendars:
+  monthly:
+    collection: monthly
+    events:
+      - { name: first, field: firstShipment, title: "First shipment of {shipped}" }
+api:
+  version: v1
+  collections:
+    monthly:
+      fields: [shipped, shipments, destinations, total, average, firstShipment, largestShipment]

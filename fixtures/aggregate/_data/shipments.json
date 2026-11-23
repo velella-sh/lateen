@@ -1,0 +1,5 @@
+[
+  { "id": "parcel-blue", "shipped": "2026-04-02", "destination": "North", "units": 4 },
+  { "id": "parcel-green", "shipped": "2026-04-09", "destination": "South", "units": 7 },
+  { "id": "parcel-red", "shipped": "2026-04-12", "destination": "North", "units": 19 }
+]
