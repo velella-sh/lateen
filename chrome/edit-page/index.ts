@@ -115,9 +115,11 @@ function lineAnchor(start: number, end: number): string {
 /**
  * The page's edit link: `site.data` first, then the repository, or `undefined` when neither gives one. A record
  * page points at the record's data file and line range, not at its template, so the reader lands on the data.
+ * An aggregate record carries the collection config's position and has no data file to edit.
  */
 export function editHref(site: Site, page: Page): string | undefined {
   if (page.frontMatter.agent?.edit === false) return undefined;
+  if (page.record !== undefined && site.config.collections?.[page.record.collection]?.aggregate !== undefined) return undefined;
   const repository = site.config.repository;
   const source = agentSource(page);
   if (source !== undefined) return repository === undefined ? undefined : editUrlOf(repository, source);

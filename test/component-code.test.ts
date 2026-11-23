@@ -138,6 +138,19 @@ test("sourceText drops tags until none is left, and its text is escaped again wh
   assert.doesNotMatch(out, /<script/);
 });
 
+test("both code renderers produce the same tokens when the build clock advances during highlighting", ({ mock }) => {
+  const source = "const ready = true;";
+  const fence = `<pre><code class="language-ts">${source}</code></pre>`;
+  const directive = render({ lang: "ts" }, source);
+  const plain = highlightFences(fence);
+
+  let time = 0;
+  mock.method(Date, "now", () => (time += 1000));
+
+  assert.equal(render({ lang: "ts" }, source), directive);
+  assert.equal(highlightFences(fence), plain);
+});
+
 test("highlightFences highlights a plain fence, keeps data-src, and gives it a stable id", () => {
   const out = highlightFences('<p>a</p><pre data-src="a.md:3:1-5:3"><code class="language-sh">npm test\n</code></pre>');
   assert.match(out, /^<p>a<\/p><pre class="code" tabindex="0" id="code-a-md-3-1-5-3" data-lang="sh" data-src="a\.md:3:1-5:3"><code>/);

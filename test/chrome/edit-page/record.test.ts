@@ -10,7 +10,7 @@ import type {
   SiteConfig,
   SourcePos,
 } from "@velella/mizzen/contracts";
-import editPage from "../../../chrome/edit-page/index.ts";
+import editPage, { editHref } from "../../../chrome/edit-page/index.ts";
 
 const template: SourcePos = { file: "templates/component.md", line: 3, column: 1, endLine: 9, endColumn: 1 };
 
@@ -104,6 +104,31 @@ test("a record on one line links to that line alone", () => {
   };
 
   assert.match(render(pageWith({ record: oneLine })), /data\/components\.yml#L7" rel="noopener"/);
+});
+
+test("an aggregate record has no edit link even when a generated link is stored", () => {
+  const page = pageWith({
+    source: { ...template, file: "mizzen.yml" },
+    record: { ...record, position: { ...record.position, file: "mizzen.yml" } },
+  });
+  const site: Site = {
+    config: {
+      ...configWith(github),
+      collections: {
+        components: {
+          source: "catalogue",
+          aggregate: { by: [{ field: "category" }], metrics: { count: { op: "count" } } },
+        },
+      },
+    },
+    pages: [page],
+    nav: {},
+    data: {},
+    collections: {},
+  };
+  assert.equal(editHref(site, page), undefined);
+  const data = { "edit-links": { [page.url]: "https://github.com/acme/site/edit/main/mizzen.yml" } };
+  assert.equal(editHref({ ...site, data }, page), undefined);
 });
 
 test("an ordinary page keeps its source file, its label, and no line anchor", () => {
