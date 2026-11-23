@@ -33,6 +33,7 @@ results page, two radio choices sit beside the search field: **This project** an
 | --- | --- | --- | --- |
 | `theme.options.network.switcher` | boolean | `true` | Shows the project switcher. Set it to `false` to leave the switcher out while keeping the network footer and the search scope. |
 | `theme.options.network.footer` | boolean | `true` | Shows the network footer. Set it to `false` to leave the footer list out. |
+| `theme.options.network.search` | boolean | `true` | Lets the reader search the entire network. Set it to `false` for project-only search. |
 | `theme.options.network.position` | `header` or `footer` | `header` | Places the switcher in the header or above the network footer. Any other value stops the build with a message that names this option. |
 
 ```yaml
@@ -43,6 +44,9 @@ theme:
       footer: true
       position: header
 ```
+
+Set **theme.options.network.search** to false to keep the switcher and footer and search only the current project.
+The header and results page omit the scope choice and use the local index even if an old URL specifies all projects.
 
 ## Without JavaScript
 

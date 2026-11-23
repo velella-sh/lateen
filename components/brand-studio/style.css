@@ -1,0 +1,275 @@
+/* The workspace uses the article track and the space normally reserved for its aside. */
+@media screen and (width >= 48rem) {
+  .doc-layout:has(> main .doc-body > .brand-studio:first-child) {
+    grid-template-columns: minmax(11rem, 12.5rem) minmax(0, 54rem);
+    column-gap: var(--space-12);
+  }
+
+  .doc-layout:has(> main .doc-body > .brand-studio:first-child) > .aside {
+    display: none;
+  }
+}
+
+.doc-layout main > article:has(> .doc-body > .brand-studio:first-child) {
+  max-inline-size: 54rem;
+}
+
+.doc:has(> .doc-body > .brand-studio:first-child) > :is(.toc-fold, .doc-meta) {
+  display: none;
+}
+
+.brand-studio {
+  container-type: inline-size;
+  margin-block: var(--space-8);
+}
+
+.brand-studio-workspace {
+  display: grid;
+  gap: var(--space-6);
+  align-items: start;
+}
+
+@container (min-width: 36rem) {
+  .brand-studio-workspace:has(.brand-studio-controls:not([hidden])) {
+    grid-template-columns: minmax(12rem, 15rem) minmax(0, 1fr);
+  }
+}
+
+.brand-studio :is(form, .brand-studio-preview, .brand-studio-export) h2 {
+  margin: 0;
+  font-size: var(--type-size-lg);
+  font-weight: 700;
+  line-height: 1.3;
+}
+
+.brand-studio-controls:not([hidden]) {
+  display: grid;
+  gap: var(--space-4);
+}
+
+.brand-studio-controls fieldset {
+  min-inline-size: 0;
+  margin: 0;
+  padding: var(--space-2) 0 0;
+  border: 0;
+  border-block-start: 1px solid var(--color-border);
+}
+
+.brand-studio-controls fieldset > :not(legend) + :not(legend) {
+  margin-block-start: var(--space-2);
+}
+
+.brand-studio-controls legend {
+  padding-inline-end: var(--space-2);
+  font-size: var(--type-size-xs);
+  font-weight: 700;
+  color: var(--color-muted);
+}
+
+.brand-studio-controls label {
+  min-inline-size: 0;
+  display: grid;
+  gap: var(--space-1);
+  font-size: var(--type-size-sm);
+  font-weight: 600;
+}
+
+.brand-studio-controls details > label {
+  margin-block-start: var(--space-2);
+}
+
+.brand-studio-colour {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  gap: var(--space-2);
+  align-items: end;
+}
+
+.brand-studio :is(select, input, button, summary) {
+  box-sizing: border-box;
+  min-block-size: 2.25rem;
+  font-family: inherit;
+  font-size: var(--type-size-sm);
+  color: var(--color-text);
+}
+
+.brand-studio :is(select, input, button) {
+  min-inline-size: 2.25rem;
+  max-inline-size: 100%;
+  padding-inline: var(--space-2);
+  background: var(--color-surface-raised);
+  border: 1px solid var(--color-border-strong);
+  border-radius: var(--radius-ctl);
+}
+
+.brand-studio-controls input[type="text"] {
+  font-family: var(--type-font-mono);
+}
+
+.brand-studio input[type="color"] {
+  inline-size: 2.75rem;
+  padding: var(--space-1);
+}
+
+.brand-studio [aria-invalid="true"] {
+  border-color: var(--color-danger);
+}
+
+.brand-studio :is(button, summary, input[type="color"]) {
+  cursor: pointer;
+}
+
+.brand-studio-controls summary {
+  align-content: center;
+}
+
+.brand-studio button:disabled {
+  cursor: default;
+}
+
+.brand-studio :is([data-studio-feedback], [data-studio-copy-status]) {
+  color: var(--color-muted);
+  font-size: var(--type-size-sm);
+  line-height: 1.5;
+}
+
+.brand-studio :is([data-studio-feedback], [data-studio-copy-status]):empty {
+  margin: 0;
+}
+
+.brand-studio-preview {
+  min-inline-size: 0;
+  padding: var(--space-3);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-lg);
+  background: var(--color-surface);
+}
+
+.brand-studio-preview-header {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-2);
+  padding: var(--space-1);
+  margin-block-end: var(--space-2);
+}
+
+.brand-studio [data-studio-scheme-control]:not([hidden]) {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-1);
+}
+
+.brand-studio [data-studio-scheme] {
+  display: inline-flex;
+  gap: var(--space-1);
+  align-items: center;
+}
+
+.brand-studio [data-studio-scheme][aria-pressed="true"],
+.brand-studio [data-studio-copy]:not(:disabled) {
+  border-color: var(--color-accent);
+  background: var(--color-accent);
+  color: var(--color-on-accent);
+}
+
+.brand-studio [data-studio-scheme] svg {
+  inline-size: 1em;
+  block-size: 1em;
+}
+
+.brand-studio-sample {
+  padding: var(--space-6);
+  background: var(--color-canvas);
+  color: var(--color-text);
+  border-radius: var(--radius-card);
+  font-family: var(--type-font-body);
+}
+
+.brand-studio-sample[data-scheme="light"] {
+  color-scheme: light;
+}
+
+.brand-studio-sample[data-scheme="dark"] {
+  color-scheme: dark;
+}
+
+.brand-studio-sample-header {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-2);
+  margin-block-end: var(--space-2);
+}
+
+.brand-studio-sample-header h3 {
+  margin: 0;
+  color: var(--color-heading);
+  font-family: var(--type-font-heading);
+  font-size: var(--type-size-2xl);
+  font-weight: 700;
+  line-height: 1.15;
+}
+
+.brand-studio-sample .callout {
+  margin-block: var(--space-4);
+}
+
+.brand-studio-sample .code {
+  margin-block-end: 0;
+}
+
+.brand-studio-export {
+  margin-block-start: var(--space-6);
+  padding-block-start: var(--space-4);
+  border-block-start: 1px solid var(--color-border);
+}
+
+.brand-studio-export pre {
+  padding: var(--space-3);
+  background: var(--color-surface);
+  border-radius: var(--radius-ctl);
+  color: var(--color-text);
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+}
+
+@container (max-width: 24rem) {
+  .brand-studio-sample {
+    padding: var(--space-3);
+  }
+}
+
+@media (forced-colors: active) {
+  .brand-studio [data-studio-scheme][aria-pressed="true"] {
+    text-decoration: underline;
+  }
+}
+
+@media print {
+  .brand-studio [data-studio-preview] {
+    color-scheme: light;
+  }
+
+  .brand-studio :is(form, button, [data-studio-scheme-control], [data-studio-copy-status], [data-studio-feedback]) {
+    display: none;
+  }
+}
+
+@container (max-width: 35.99rem) {
+  .brand-studio-controls fieldset {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: var(--space-2);
+  }
+
+  .brand-studio-controls fieldset > :not(legend) + :not(legend) {
+    margin-block-start: 0;
+  }
+
+  .brand-studio-controls [data-studio-feedback] {
+    grid-column: 1 / -1;
+  }
+}

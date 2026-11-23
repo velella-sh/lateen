@@ -2,7 +2,7 @@ import { h, type ComponentChildren } from "preact";
 import type { ComponentProps } from "@velella/mizzen/contracts";
 import { t, patternOf } from "../../i18n/index.ts";
 import { flagOf } from "../../src/flags.ts";
-import { brandTokens, DEFAULT_COLORS, previewCss, resolveBrand, type Brand } from "../../src/brand.ts";
+import { brandTokens, DEFAULT_COLORS, tokensCss, resolveBrand, type Brand, type BrandTokens } from "../../src/brand.ts";
 import backdrop from "../backdrop/index.ts";
 import motif from "../motif/index.ts";
 import { contrastRatios, formatRatio, paletteJson, type PreviewPalette } from "./ratios.ts";
@@ -26,8 +26,7 @@ export function scopedClass(preset: string): string {
 }
 
 /** The palette of the preview, from its preset's own neutral palette or the theme's. */
-function paletteOf(brand: Brand): PreviewPalette {
-  const tokens = brandTokens(brand);
+function paletteOf(tokens: BrandTokens): PreviewPalette {
   const value = (name: string, scheme: "light" | "dark", fallback: string): string => {
     const token = tokens[name];
     if (token === undefined) return fallback;
@@ -70,14 +69,15 @@ export default function presetPreview({ props, page, site }: ComponentProps<Pres
     return h("p", { class: "preset-preview preset-preview-missing" }, t(page.lang, "preset_preview_unknown", { name: name || "?" }));
   }
   const scope = scopedClass(name);
-  const palette = paletteOf(brand);
-  const accent = brand.accent ?? DEFAULT_COLORS.light.accent;
-  const ratios = contrastRatios(accent, { light: palette.light.surfaces[0] ?? "", dark: palette.dark.surfaces[0] ?? "" });
+  const tokens = brandTokens(brand);
+  const palette = paletteOf(tokens);
+  const accent = typeof brand.accent === "string" ? brand.accent : brand.accent?.light ?? DEFAULT_COLORS.light.accent;
+  const ratios = contrastRatios(tokens, palette);
   const picker = flagOf(props.picker);
   return h(
     "div",
     { class: `preset-preview ${scope}`, "data-preset-preview": name },
-    h("style", { dangerouslySetInnerHTML: { __html: previewCss(brand, `.${scope}`) } }),
+    h("style", { dangerouslySetInnerHTML: { __html: tokensCss(tokens, `.${scope}`) } }),
     h(
       "div",
       { class: "preset-preview-hero", "data-preset-hero": true },

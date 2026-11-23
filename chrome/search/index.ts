@@ -4,6 +4,7 @@ import type { Chrome } from "@velella/mizzen/contracts";
 import { Search, X } from "lucide";
 import { patternOf, t } from "../../i18n/index.ts";
 import { icon } from "../../src/icon.ts";
+import { resolveNetworkOptions } from "../../src/options.ts";
 import { withBase } from "../../src/url.ts";
 import askAgent from "../ask-agent/index.ts";
 import commandPalette from "../command-palette/index.ts";
@@ -35,15 +36,19 @@ export const SEARCH_RESULTS_ID = "search-results-list";
  * island has no access to the catalogs at run time, and the text is already escaped by the renderer.
  * Count and empty messages keep their `{n}` and `{query}` placeholders for the island to fill.
  */
-const search = (props: Parameters<Chrome>[0] & SourceModeVisibility) =>
-  h(
+const search = (props: Parameters<Chrome>[0] & SourceModeVisibility) => {
+  const { network } = props.site;
+  const networkSearch = resolveNetworkOptions(props.site.config.theme.options).search;
+  const indexFolder = network?.projects.find((project) => project.current)?.search;
+  return h(
     "dialog",
     {
       class: "search",
       "data-search": "",
       "data-base": props.site.config.base,
-      ...(props.site.network === undefined ? {} : {
-        "data-search-network": JSON.stringify(props.site.network),
+      ...(!networkSearch && indexFolder !== undefined ? { "data-search-index-folder": indexFolder } : {}),
+      ...(!networkSearch || network === undefined ? {} : {
+        "data-search-network": JSON.stringify(network),
         "data-search-project-failed": patternOf(props.page.lang, "search_project_failed"),
       }),
       "data-search-lang": props.page.lang,
@@ -121,7 +126,7 @@ const search = (props: Parameters<Chrome>[0] & SourceModeVisibility) =>
           h("kbd", { class: "search-close-key", "aria-hidden": "true" }, "Esc"),
         ),
       ),
-      (props.site.network?.projects.length ?? 0) < 2 ? null : h(
+      !networkSearch || (network?.projects.length ?? 0) < 2 ? null : h(
         "label",
         { class: "search-scope" },
         t(props.page.lang, "search_scope"),
@@ -178,5 +183,6 @@ const search = (props: Parameters<Chrome>[0] & SourceModeVisibility) =>
       askAgent(props) as ComponentChildren,
     ),
   );
+};
 
 export default search;

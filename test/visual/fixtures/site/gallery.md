@@ -492,3 +492,7 @@ The previous, next and related guides at the foot of a guide page; the guide lay
 ## stacked-bar
 
 ::stacked-bar{from=stacked-bar category=category series=series value=value title="Revenue by region"}
+
+## brand-studio
+
+::brand-studio

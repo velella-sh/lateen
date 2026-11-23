@@ -171,7 +171,16 @@ export function isLocalRequest(url: string, origin: string): boolean {
 /** A context with the fixed settings, and every request outside `origin` aborted. */
 export async function newVisualContext(browser: Browser, origin: string, viewport: MatrixSize = DEFAULT_VIEWPORT): Promise<BrowserContext> {
   const context = await browser.newContext({ ...CONTEXT_OPTIONS, viewport: { width: viewport.width, height: viewport.height } });
-  await context.route("**/*", (route) => (isLocalRequest(route.request().url(), origin) ? route.continue() : route.abort()));
+  await context.route("**/*", async (route) => {
+    const request = route.request();
+    if (!isLocalRequest(request.url(), origin)) return await route.abort();
+    if (request.resourceType() !== "stylesheet") return await route.continue();
+    const response = await route.fetch({ maxRedirects: 0 });
+    const css = await response.text();
+    // Optional faces can stay on their fallback for the whole navigation, even after fonts.ready.
+    const settledCss = css.replace(/\bfont-display:\s*optional(?=\s*[;}])/g, "font-display: swap");
+    await route.fulfill({ response, body: settledCss });
+  });
   return context;
 }
 

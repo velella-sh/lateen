@@ -223,6 +223,9 @@ jobs:
       - name: Browser smoke gate
         run: npm run test:smoke
         working-directory: lateen
+      - name: Theme Studio export
+        run: node scripts/theme-studio-export.ts
+        working-directory: lateen
       # The smoke gate above already built the UI in this workspace; building it again bought nothing.
       # The only timing gate. It measures best-of-3 inside the script (a retry of this measurement
       # alone, never of the suite), so a slow runner does not fail it but a regression does.

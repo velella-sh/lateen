@@ -489,3 +489,7 @@ Built 12 pages.
 ## stacked-bar
 
 ::stacked-bar{from=stacked-bar category=category series=series value=value title="الإيراد حسب المنطقة"}
+
+## brand-studio
+
+::brand-studio
