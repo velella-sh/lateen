@@ -67,7 +67,7 @@ export const GALLERY_PAGES: readonly FixturePage[] = PAGES.filter((p) => p.from 
 
 /** The component folders of the theme, sorted: the names the gallery must show. */
 /** Components the article layouts mount themselves; the gallery has no directive to show them. */
-export const LAYOUT_ONLY: ReadonlySet<string> = new Set(["add-to-calendar", "record-history", "stale-notice"]);
+export const LAYOUT_ONLY: ReadonlySet<string> = new Set(["add-to-calendar", "collection-api-schema", "record-history", "stale-notice"]);
 
 export function componentNames(): string[] {
   const dir = fileURLToPath(new URL("../../../components/", import.meta.url));
