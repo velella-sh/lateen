@@ -399,7 +399,7 @@ async function auditCase(
     else if (status !== item.status) fail(`expected HTTP ${item.status}, got ${status}`);
 
     if (item.notFound === true) {
-      const heading = page.locator(".not-found h1").first();
+      const heading = page.locator(".state-not-found h1").first();
       try {
         await heading.waitFor({ state: "visible", timeout: 10000 });
         if ((await heading.textContent())?.trim() === "") fail("the not-found page rendered an empty heading");
