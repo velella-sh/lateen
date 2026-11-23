@@ -215,6 +215,35 @@ test("a resolved local $ref keeps its authored value and state in the DOM and pa
   });
 });
 
+test("local references to boolean schemas resolve in the table and its field payload", () => {
+  const schema = {
+    $defs: { allow: true, deny: false, alias: { $ref: "#/$defs/deny" } },
+    properties: {
+      permissive: { $ref: "#/$defs/allow" },
+      typed: { $ref: "#/$defs/allow", type: "string" },
+      blocked: { $ref: "#/$defs/deny" },
+      indirect: { $ref: "#/$defs/alias", type: "string", description: "Reserved." },
+    },
+  };
+  const tree = render({ data: "s" }, { s: schema });
+  const fields = payloadOf(tree).fields;
+  const expected = [
+    ["permissive", "any"],
+    ["typed", "string"],
+    ["blocked", "never"],
+    ["indirect", "never"],
+  ] as const;
+  assert.deepEqual(fields.map((field) => [field.name, field.type]), expected);
+  for (const [name, type] of expected) {
+    const row = nodes(tree).find((node) => node.props["data-field"] === name);
+    assert.equal(row?.props["data-ref-state"], "resolved");
+    assert.equal(row?.props["data-copy-value"], `${name}: ${type}`);
+    assert.equal(findField(fields, name).ref?.state, "resolved");
+  }
+  assert.equal(findField(fields, "indirect").description, "Reserved.");
+  assert.equal(nodes(tree).filter((node) => node.props.class === REF_CLASS).length, 0);
+});
+
 test("a missing local $ref is unknown, visibly marked, and never a bare any", () => {
   const schema = { properties: { lost: { $ref: "#/$defs/missing" } } };
   const [row] = schemaRows(schema);

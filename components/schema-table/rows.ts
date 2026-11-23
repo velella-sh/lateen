@@ -14,7 +14,7 @@ export interface SchemaRow {
   readonly path: string;
   /** The property name as written in the schema. */
   readonly name: string;
-  /** Type as text: `string`, `string | null`, `string[]`, `enum`, `unknown`, or `any`. */
+  /** Type as text: `string`, `string | null`, `string[]`, `enum`, `unknown`, `any`, or `never`. */
   readonly type: string;
   /** True when the parent schema lists the property in `required`. */
   readonly required: boolean;
@@ -54,6 +54,7 @@ function valuesOf(schema: Json): readonly unknown[] {
 function typeOf(schema: Json, root: Json, depth = 0): string {
   if (depth > MAX_HOPS) return "unknown";
   const resolved = resolve(schema, root);
+  if (resolved.rejectsAll) return "never";
   const own = resolved.schema;
   if (typeof own.type === "string") {
     if (own.type === "array" && isJson(own.items)) {
