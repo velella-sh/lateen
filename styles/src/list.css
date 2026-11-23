@@ -56,7 +56,7 @@
     gap: var(--space-1) var(--space-4);
     margin-block: var(--space-4) 0;
     color: var(--muted-foreground);
-    font-size: 0.875rem;
+    font-size: var(--type-size-sm);
   }
 
   .list .list-count {
@@ -84,7 +84,7 @@
     padding-block: var(--space-2);
     border-block-end: 1px solid var(--border);
     color: var(--muted-foreground);
-    font-size: 0.75rem;
+    font-size: var(--type-size-xs);
     font-weight: 600;
     letter-spacing: 0.04em;
     text-align: start;
@@ -97,8 +97,8 @@
     padding-inline-end: var(--space-4);
     border-block-end: 1px solid var(--border);
     color: var(--muted-foreground);
-    font-size: 0.9375rem;
-    line-height: 1.5rem;
+    font-size: var(--type-size-sm);
+    line-height: var(--type-leading-ui);
     text-align: start;
     vertical-align: baseline;
   }
@@ -134,9 +134,9 @@
     border-radius: 9999px;
     background: var(--shell);
     color: var(--night);
-    font-size: 0.75rem;
+    font-size: var(--type-size-xs);
     font-weight: 700;
-    line-height: 1.4;
+    line-height: var(--type-leading-ui);
   }
 
   .list .cards .list-card-facts {
@@ -146,7 +146,7 @@
     margin: 0;
     padding-block-start: var(--space-2);
     border-block-start: 1px solid var(--border);
-    font-size: 0.8125rem;
+    font-size: var(--type-size-sm);
   }
 
   .list .cards .list-card-fact {
@@ -183,7 +183,7 @@
 
   .list .list-group-count {
     color: var(--muted-foreground);
-    font-size: 0.8125rem;
+    font-size: var(--type-size-sm);
     font-variant-numeric: tabular-nums;
     font-weight: 500;
   }
@@ -211,7 +211,7 @@
     border: 1px solid var(--border);
     border-radius: 9999px;
     color: var(--foreground);
-    font-size: 0.875rem;
+    font-size: var(--type-size-sm);
     text-decoration: none;
   }
 
@@ -265,9 +265,9 @@
   .list .dated-list-day {
     flex: 0 0 5rem;
     color: var(--muted-foreground);
-    font-size: 0.8125rem;
+    font-size: var(--type-size-sm);
     font-variant-numeric: tabular-nums;
-    line-height: 1.5rem;
+    line-height: var(--type-leading-ui);
   }
 
   .list .dated-list-link {
@@ -304,7 +304,7 @@
     border: 1px solid var(--border);
     border-radius: 9999px;
     color: var(--foreground);
-    font-size: 0.8125rem;
+    font-size: var(--type-size-sm);
     text-decoration: none;
   }
 
@@ -316,7 +316,7 @@
   .list .dated-list-note {
     margin-block: var(--space-2);
     color: var(--muted-foreground);
-    font-size: 0.875rem;
+    font-size: var(--type-size-sm);
   }
 
   /* --- The changelog view --- */
@@ -345,7 +345,7 @@
     background: var(--muted);
     color: var(--muted-foreground);
     font-family: var(--type-font-mono);
-    font-size: 0.8125rem;
+    font-size: var(--type-size-sm);
   }
 
   /* --- The blog archive and author pages --- */
@@ -391,9 +391,9 @@
 
   .list .blog-item-title {
     margin: 0;
-    font-size: 1.1875rem;
+    font-size: var(--type-size-lg);
     font-weight: 700;
-    line-height: 1.35;
+    line-height: var(--type-leading-snug);
     text-wrap: balance;
   }
 
@@ -413,7 +413,7 @@
     gap: 0 var(--space-2);
     margin-block: var(--space-1) 0;
     color: var(--muted-foreground);
-    font-size: 0.875rem;
+    font-size: var(--type-size-sm);
   }
 
   .list .blog-description {
@@ -440,7 +440,7 @@
   .list .list-dated-continues {
     margin-block: var(--space-3) 0;
     color: var(--muted-foreground);
-    font-size: 0.875rem;
+    font-size: var(--type-size-sm);
   }
 
   /* --- The subscribe panel --- */
@@ -456,7 +456,7 @@
   .list .list-subscribe-heading {
     margin: 0 0 var(--space-2);
     color: var(--muted-foreground);
-    font-size: 0.75rem;
+    font-size: var(--type-size-xs);
     font-weight: 700;
     letter-spacing: 0.04em;
     text-transform: uppercase;
@@ -487,7 +487,7 @@
   .list .list-subscribe-address {
     color: var(--muted-foreground);
     font-family: var(--type-font-mono);
-    font-size: 0.75rem;
+    font-size: var(--type-size-xs);
     overflow-wrap: anywhere;
   }
 
@@ -526,7 +526,7 @@
     border: 1px solid var(--border);
     border-radius: var(--radius-md);
     color: var(--foreground);
-    font-size: 0.875rem;
+    font-size: var(--type-size-sm);
     text-decoration: none;
   }
 

@@ -275,13 +275,13 @@ html[data-js] .source-mode-switch[hidden] {
   color: var(--muted-foreground);
   font-family: var(--type-font-mono);
   font-size: var(--type-size-xs);
-  line-height: 1.25;
+  line-height: var(--type-leading-ui);
 }
 
 .source-label-kind {
   color: var(--mist-edge);
   font-family: var(--type-font-ui, var(--font-sans));
-  font-size: 0.6875rem;
+  font-size: var(--type-size-xs);
   font-weight: 600;
 }
 
@@ -370,7 +370,7 @@ html[data-js] .source-mode-switch[hidden] {
   display: block;
   margin-block-start: 0.25rem;
   color: var(--muted-foreground);
-  font-size: 0.75rem;
+  font-size: var(--type-size-xs);
 }
 
 .compare-evidence a {

@@ -2,7 +2,9 @@
 @layer components {
   .btn {
     @apply inline-flex shrink-0 items-center justify-center whitespace-nowrap transition-all outline-none select-none disabled:pointer-events-none disabled:opacity-50 [&_svg]:pointer-events-none [&_svg]:shrink-0;
-    @apply rounded-lg border border-transparent bg-clip-padding text-sm font-medium focus-visible:border-ring focus-visible:ring-ring/50 focus-visible:ring-[3px] active:not-aria-[haspopup]:translate-y-px [&_svg:not([class*='size-'])]:size-4;
+    @apply rounded-lg border border-transparent bg-clip-padding font-medium focus-visible:border-ring focus-visible:ring-ring/50 focus-visible:ring-[3px] active:not-aria-[haspopup]:translate-y-px [&_svg:not([class*='size-'])]:size-4;
+    font-size: var(--type-size-sm);
+    line-height: var(--type-leading-ui);
   }
 
   .btn:not([data-size]),
@@ -45,7 +47,9 @@
   }
 
   .card {
-    @apply gap-4 overflow-hidden py-4 text-sm ring-1 ring-foreground/10;
+    @apply gap-4 overflow-hidden py-4 ring-1 ring-foreground/10;
+    font-size: var(--type-size-sm);
+    line-height: var(--type-leading-ui);
   }
 
   .card:where(:has(> :is(.card-title, .card-description, .card-icon)), .feature-grid-card),
@@ -97,7 +101,9 @@
   }
 
   .pill {
-    @apply inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-bold;
+    @apply inline-flex items-center rounded-full px-2.5 py-0.5 font-bold;
+    font-size: var(--type-size-xs);
+    line-height: var(--type-leading-ui);
     background: var(--shell);
     color: var(--night);
   }
@@ -105,7 +111,9 @@
   .badge,
   .version-badge,
   .status {
-    @apply inline-flex max-w-full items-center gap-1 rounded-full px-2 py-0.5 text-xs font-bold;
+    @apply inline-flex max-w-full items-center gap-1 rounded-full px-2 py-0.5 font-bold;
+    font-size: var(--type-size-xs);
+    line-height: var(--type-leading-ui);
     min-block-size: var(--space-6);
     line-height: var(--type-leading-ui);
     vertical-align: middle;

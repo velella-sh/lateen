@@ -89,13 +89,13 @@ test("document typography and metadata follow the Sailcloth prose contract", () 
   assert.match(meta, /display:\s*flex/);
   assert.match(meta, /flex-wrap:\s*wrap/);
   assert.match(meta, /margin-block-start:\s*0\.5rem/);
-  assert.match(meta, /font-size:\s*0\.75rem/);
+  assert.match(meta, /font-size:\s*var\(--type-size-xs\)/);
   assert.match(bodyOf(ui, /^\.doc-meta:empty$/), /display:\s*none/);
   assert.match(bodyOf(ui, /^\.doc-meta \.trust-panel$/), /margin:\s*0/);
   assert.match(bodyOf(ui, /^\.doc-meta \.trust-panel-chip$/), /min-block-size:\s*1\.5rem/);
-  assert.match(bodyOf(ui, /^\.doc-meta \.trust-panel-body$/), /font-size:\s*0\.875rem/);
+  assert.match(bodyOf(ui, /^\.doc-meta \.trust-panel-body$/), /font-size:\s*var\(--type-size-sm\)/);
   assert.match(bodyOf(ui, /^\.reading-time,\s*\.doc-meta \.last-updated$/), /margin:\s*0/);
-  assert.match(bodyOf(ui, /^\.reading-time,\s*\.doc-meta \.last-updated$/), /font-size:\s*0\.75rem/);
+  assert.match(bodyOf(ui, /^\.reading-time,\s*\.doc-meta \.last-updated$/), /font-size:\s*var\(--type-size-xs\)/);
 
   const section = bodyOf(ui, /^\.doc-body h2,\s*\.api-reference-section > h2$/);
   assert.match(section, /font-size:\s*var\(--type-size-xl\)/);
@@ -131,7 +131,7 @@ test("document tables, reference rows, code panels, and callouts stay quiet and 
   assert.match(callout, /border:\s*1px solid color-mix\(in srgb, var\(--callout-color\)/);
   const calloutBody = bodyOf(ui, /^\.callout-body$/);
   assert.match(calloutBody, /font-size:\s*var\(--type-size-sm\)/);
-  assert.match(calloutBody, /line-height:\s*1\.6/);
+  assert.match(calloutBody, /line-height:\s*var\(--type-leading-body\)/);
 });
 
 test("the color and length helpers still catch raw values", () => {

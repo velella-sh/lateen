@@ -19,7 +19,9 @@
 
   .charts-title,
   .chart-heading h2 {
-    @apply m-0 mb-3 text-sm font-semibold;
+    @apply m-0 mb-3 font-semibold;
+    font-size: var(--type-size-sm);
+    line-height: var(--type-leading-ui);
   }
 
   .chart-heading h2 {

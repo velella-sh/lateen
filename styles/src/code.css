@@ -13,7 +13,9 @@
   }
 
   .code-title-name {
-    @apply min-w-0 font-mono text-xs;
+    @apply min-w-0 font-mono;
+    font-size: var(--type-size-xs);
+    line-height: var(--type-leading-ui);
     overflow-wrap: anywhere;
     direction: ltr;
     unicode-bidi: isolate;
@@ -25,7 +27,9 @@
   }
 
   .code-details-summary {
-    @apply cursor-pointer text-sm text-muted-foreground;
+    @apply cursor-pointer text-muted-foreground;
+    font-size: var(--type-size-sm);
+    line-height: var(--type-leading-ui);
     margin-block-end: var(--space-2);
   }
 
