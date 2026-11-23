@@ -180,7 +180,7 @@ test("the sidebar renders in the site-navigation column and the toc in its own n
   const page = out(pageWith({ headings: [heading(2, "Pick a mode"), heading(3, "Gem")] }), nav);
   assert.match(page, /<div class="sidebar" id="site-navigation"><nav class="sidebar-nav"/);
   assert.match(page, /<div class="aside"><nav class="toc" aria-labelledby="toc-title">/);
-  assert.match(page, /<details class="toc-fold"><summary>On this page<\/summary>/);
+  assert.match(page, /<details class="toc-fold"><summary><span class="toc-fold-title">On this page<\/span><span class="toc-fold-current" data-toc-current=""><\/span><\/summary>/);
 });
 
 const section = (depth: 2 | 3, text: string, id: string): Heading => ({ ...heading(depth, text), id });
@@ -193,7 +193,7 @@ test("the mobile section list sits at the start of the article and links the rea
 
   assert.match(
     body,
-    /<details class="toc-fold"><summary>On this page<\/summary><ul><li><a href="#pick-a-mode">Pick a mode<\/a><ul><li><a href="#gem">Gem<\/a><\/li><\/ul><\/li><\/ul><\/details>/,
+    /<details class="toc-fold"><summary><span class="toc-fold-title">On this page<\/span><span class="toc-fold-current" data-toc-current=""><\/span><\/summary><ul><li><a href="#pick-a-mode">Pick a mode<\/a><ul><li><a href="#gem">Gem<\/a><\/li><\/ul><\/li><\/ul><\/details>/,
   );
   assert.ok(body.indexOf('class="toc-fold"') < body.indexOf('class="doc-body"'), "the section list leads the body");
   assert.doesNotMatch(body, /<details[^>]*\sopen(?:=|>)/, "the list starts closed");
@@ -232,7 +232,7 @@ test("the mobile section list keeps the page's language, direction, and localize
     }),
   );
   assert.match(page, /^<html lang="fa" dir="rtl"/);
-  assert.match(page, /<details class="toc-fold"><summary>در این صفحه<\/summary>/);
+  assert.match(page, /<details class="toc-fold"><summary><span class="toc-fold-title">در این صفحه<\/span><span class="toc-fold-current" data-toc-current=""><\/span><\/summary>/);
   assert.match(page, /<a href="#install-fa">نصب<\/a>/);
   assert.match(page, /<a href="#states-fa">حالت‌ها<\/a>/);
 });
@@ -243,7 +243,7 @@ test("the mobile section list is native markup that stays usable without JavaScr
   assert.ok(fold, "the disclosure is rendered");
 
   assert.match(fold, /^<details class="toc-fold"><summary>/);
-  assert.doesNotMatch(fold, /<script|<style|\son[a-z]+\s*=|\sdata-[a-z-]+=|\shidden\b/, "no script or JS-only state");
+  assert.doesNotMatch(fold, /<script|<style|\son[a-z]+\s*=|\sdata-(?!toc-current="")[a-z-]+=|\shidden\b/, "no script or JS-only state");
   for (const anchor of fold.matchAll(/<a\b[^>]*>/g)) {
     assert.match(anchor[0], /\shref="#[^"]+"/, "each entry is a plain same-page link");
   }
@@ -256,7 +256,7 @@ test("the sailcloth shell and the drawer share the header slot", () => {
   const drawer = /<dialog class="drawer" data-drawer aria-label="Menu">([\s\S]*?)<\/dialog>/.exec(page);
   assert.ok(drawer, "drawer dialog present");
   assert.match(drawer?.[1] ?? "", /data-drawer-close/);
-  assert.match(drawer?.[1] ?? "", /<nav class="sidebar-nav"/);
+  assert.match(drawer?.[1] ?? "", /<nav class="sidebar-nav sidebar-nav-flat"/);
 });
 
 test("empty navigation leaves the sidebar and drawer out without breaking the page", () => {

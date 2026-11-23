@@ -44,8 +44,14 @@
     @apply block pt-4 pb-6;
   }
 
-  .sidebar {
+  /* The script's drawer replaces the column on phones. Without it, the column stays above the article. */
+  :root[data-js] .sidebar {
     display: none;
+  }
+
+  :root:not([data-js]) .sidebar-nav {
+    position: static;
+    max-height: none;
   }
 }
 

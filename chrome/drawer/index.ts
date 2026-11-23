@@ -5,16 +5,17 @@ import { t } from "../../i18n/index.ts";
 import { icon } from "../../src/icon.ts";
 import { resolveNetworkOptions } from "../../src/options.ts";
 import { mobileSelectors } from "../mobile-selectors/index.ts";
-import sidebar from "../sidebar/index.ts";
+import { sidebarNav } from "../sidebar/index.ts";
 
 /**
- * The mobile navigation drawer: the sidebar inside a `<dialog>`, opened by the header's menu button below
- * 768 px. The close button and the dialog wait for `client.ts`: the dialog is closed until it opens, and
- * `hidden` controls stay hidden for a visitor without JavaScript. That visitor gets no dialog; `style.css`
- * shows the sidebar above the article on narrow screens instead.
+ * The mobile navigation drawer: one `<dialog>` with one layer, holding the sidebar's own navigation in
+ * its flat form, opened by the header's menu button below 768 px. The close button and the dialog wait
+ * for `client.ts`: the dialog is closed until it opens, and `hidden` controls stay hidden for a visitor
+ * without JavaScript. That visitor gets no dialog: the stylesheet keeps it out of the page and shows the
+ * sidebar column above the article on narrow screens instead.
  */
 const drawer: Chrome = (props) => {
-  const nav = sidebar(props);
+  const nav = sidebarNav(props, { flat: true });
   if (nav == null) return null;
   const lang = props.page.lang;
   const menu = t(lang, "menu");

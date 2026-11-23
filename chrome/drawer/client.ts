@@ -14,11 +14,6 @@ export interface DrawerFocusable {
   checkVisibility?(): boolean;
 }
 
-/** A navigation group (`<details>`) inside the drawer. */
-export interface DrawerGroup {
-  open: boolean;
-}
-
 /** A keyboard or dialog event as the drawer reads it. */
 export interface DrawerEvent {
   key?: string;
@@ -101,9 +96,6 @@ const FOCUSABLE = [
 /** The drawer's navigation links, as `activate` wires them. */
 const LINK_SELECTOR = "a[href]";
 
-/** The groups on the branch that holds the page the drawer is on: they expand when the drawer opens. */
-const CURRENT_GROUPS = "details[data-sidebar-group][data-current='true']";
-
 /** The link to the page the drawer is on: it takes the initial focus when the drawer opens. */
 const CURRENT_LINK = "a[aria-current='page']";
 
@@ -164,8 +156,6 @@ export function activate({ dialog, button, closeButton }: DrawerParts, env: Draw
 
   button.addEventListener("click", () => {
     if (!dialog.open) {
-      // Reopening always shows the branch the page lives in, even if the reader collapsed it earlier.
-      for (const group of dialog.querySelectorAll<DrawerGroup>(CURRENT_GROUPS)) group.open = true;
       dialog.showModal();
       // A predictable starting point: the current page, or the close control when the page is not in the nav.
       const current = [...dialog.querySelectorAll<DrawerFocusable>(CURRENT_LINK)][0];

@@ -169,6 +169,8 @@ function normalize(text: string): { head: string; body: string } {
     const text = heading.querySelector(":scope > .heading-text");
     text?.replaceWith(...text.childNodes);
   }
+  // The drawer lists every section open, so its navigation carries one more class; the links are unchanged.
+  for (const element of [...document.querySelectorAll(".sidebar-nav-flat")]) element.classList.remove("sidebar-nav-flat");
   // The drawer header keeps the same close button and navigation links.
   for (const element of [...document.querySelectorAll(".drawer-header")]) element.replaceWith(...element.childNodes);
   for (const element of [...document.querySelectorAll(".drawer-close")]) element.classList.remove("iconbtn");

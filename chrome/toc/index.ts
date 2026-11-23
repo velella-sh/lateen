@@ -46,7 +46,8 @@ const toc: Chrome = ({ page }) => {
 
 /**
  * The same entries in a native `<details>` at the start of the article. Closed by default and fully
- * usable without JavaScript; `ui.css` shows it below the aside breakpoint and hides it above it.
+ * usable without JavaScript; `ui.css` shows it below the aside breakpoint and hides it above it. The
+ * summary carries an empty label the existing scrollspy island fills with the heading being read.
  */
 export const tocFold: Chrome = ({ page }) => {
   const items = entries(page.headings);
@@ -55,7 +56,13 @@ export const tocFold: Chrome = ({ page }) => {
   return h(
     "details",
     { class: "toc-fold" },
-    h("summary", null, t(page.lang, "on_this_page")),
+    h(
+      "summary",
+      null,
+      h("span", { class: "toc-fold-title" }, t(page.lang, "on_this_page")),
+      // Empty until the scrollspy island names the section being read; without it the summary stays static.
+      h("span", { class: "toc-fold-current", "data-toc-current": "" }),
+    ),
     nestedList(items),
   );
 };

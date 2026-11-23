@@ -4,8 +4,12 @@ import type { LayoutProps } from "@velella/mizzen/contracts";
 import { t } from "../i18n/index.ts";
 import { withBase } from "./url.ts";
 
-/** Raw JSON is written by collection-json, and CSV and checksums by collection-csv. */
-export function collectionDownloads({ page, site, record, list }: LayoutProps): ComponentChildren {
+/**
+ * Raw JSON is written by collection-json, and CSV and checksums by collection-csv. `inline` draws
+ * the group for the Page tools panel: a label instead of a heading, so the panel adds no entry to
+ * the page's outline.
+ */
+export function collectionDownloads({ page, site, record, list }: LayoutProps, options: { readonly inline?: boolean } = {}): ComponentChildren {
   const name = record?.collection ?? list?.collection;
   if (name === undefined || !Object.hasOwn(site.collections, name)) return null;
   const collection = site.config.collections?.[name];
@@ -23,7 +27,9 @@ export function collectionDownloads({ page, site, record, list }: LayoutProps): 
   return h(
     "section",
     { "aria-labelledby": id },
-    h("h2", { id }, t(page.lang, "download_data")),
+    options.inline === true
+      ? h("p", { id, class: "page-tools-heading" }, t(page.lang, "download_data"))
+      : h("h2", { id }, t(page.lang, "download_data")),
     h("ul", null, files.map(({ suffix, label }) => {
       const filename = `${name}.${suffix}`;
       return h(
