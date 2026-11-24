@@ -4,6 +4,13 @@ description: What changed in Lateen, release by release. Dates are UTC.
 layout: changelog
 permalink: /changelog/
 releases:
+  - version: 0.2.5
+    date: 2026-11-24
+    categories: Added,Changed,Fixed
+    body: |
+      <p>Adds opt-in Velella family presets, Theme Studio for trying presets, colors, and fonts, schema fields on collection and record pages, and links to the versioned data API.</p>
+      <p>Groups Page tools, calms the navigation chrome around the article, and gives every page one type and rhythm system. Fixes boolean schema references, reproducible syntax highlighting, and the edit link on aggregate records.</p>
+      <p><a href="https://github.com/velella-sh/lateen/blob/main/CHANGELOG.md">Read the complete package changelog</a>.</p>
   - version: 0.2.4
     date: 2026-11-22
     categories: Added,Changed,Fixed

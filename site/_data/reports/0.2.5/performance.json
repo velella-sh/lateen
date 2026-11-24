@@ -1,0 +1,2290 @@
+{
+  "tool": "lateen/performance-report",
+  "version": 1,
+  "commit": "9ba39f7f6dc39bc995931f00f4c41c60d446e3d6",
+  "tolerance": 256,
+  "routes": [
+    {
+      "route": "/alpha/",
+      "classes": [
+        {
+          "name": "css/base",
+          "raw": 156169,
+          "gzip": 28294,
+          "count": 1,
+          "budget": {
+            "gzip": 28264,
+            "count": 1
+          }
+        },
+        {
+          "name": "css/page",
+          "raw": 0,
+          "gzip": 0,
+          "count": 0,
+          "budget": {
+            "gzip": 0,
+            "count": 0
+          }
+        },
+        {
+          "name": "js/chrome",
+          "raw": 88886,
+          "gzip": 33333,
+          "count": 38,
+          "budget": {
+            "gzip": 33424,
+            "count": 38
+          }
+        },
+        {
+          "name": "js/components",
+          "raw": 14201,
+          "gzip": 5738,
+          "count": 10,
+          "budget": {
+            "gzip": 5753,
+            "count": 10
+          }
+        },
+        {
+          "name": "js/inline",
+          "raw": 203,
+          "gzip": 162,
+          "count": 1,
+          "budget": {
+            "gzip": 162,
+            "count": 1
+          }
+        },
+        {
+          "name": "font/self-hosted",
+          "raw": 150048,
+          "gzip": 150239,
+          "count": 8,
+          "budget": {
+            "gzip": 150240,
+            "count": 8
+          }
+        }
+      ]
+    },
+    {
+      "route": "/alpha/books/",
+      "classes": [
+        {
+          "name": "css/base",
+          "raw": 156169,
+          "gzip": 28294,
+          "count": 1,
+          "budget": {
+            "gzip": 28264,
+            "count": 1
+          }
+        },
+        {
+          "name": "css/page",
+          "raw": 0,
+          "gzip": 0,
+          "count": 0,
+          "budget": {
+            "gzip": 0,
+            "count": 0
+          }
+        },
+        {
+          "name": "js/chrome",
+          "raw": 88886,
+          "gzip": 33333,
+          "count": 38,
+          "budget": {
+            "gzip": 33424,
+            "count": 38
+          }
+        },
+        {
+          "name": "js/components",
+          "raw": 23932,
+          "gzip": 9151,
+          "count": 13,
+          "budget": {
+            "gzip": 9177,
+            "count": 13
+          }
+        },
+        {
+          "name": "js/inline",
+          "raw": 203,
+          "gzip": 162,
+          "count": 1,
+          "budget": {
+            "gzip": 162,
+            "count": 1
+          }
+        },
+        {
+          "name": "font/self-hosted",
+          "raw": 150048,
+          "gzip": 150239,
+          "count": 8,
+          "budget": {
+            "gzip": 150240,
+            "count": 8
+          }
+        }
+      ]
+    },
+    {
+      "route": "/alpha/books/alpha/",
+      "classes": [
+        {
+          "name": "css/base",
+          "raw": 156169,
+          "gzip": 28294,
+          "count": 1,
+          "budget": {
+            "gzip": 28264,
+            "count": 1
+          }
+        },
+        {
+          "name": "css/page",
+          "raw": 0,
+          "gzip": 0,
+          "count": 0,
+          "budget": {
+            "gzip": 0,
+            "count": 0
+          }
+        },
+        {
+          "name": "js/chrome",
+          "raw": 88886,
+          "gzip": 33333,
+          "count": 38,
+          "budget": {
+            "gzip": 33424,
+            "count": 38
+          }
+        },
+        {
+          "name": "js/components",
+          "raw": 14201,
+          "gzip": 5738,
+          "count": 10,
+          "budget": {
+            "gzip": 5753,
+            "count": 10
+          }
+        },
+        {
+          "name": "js/inline",
+          "raw": 203,
+          "gzip": 162,
+          "count": 1,
+          "budget": {
+            "gzip": 162,
+            "count": 1
+          }
+        },
+        {
+          "name": "font/self-hosted",
+          "raw": 150048,
+          "gzip": 150239,
+          "count": 8,
+          "budget": {
+            "gzip": 150240,
+            "count": 8
+          }
+        }
+      ]
+    },
+    {
+      "route": "/alpha/books/alpha/embed/",
+      "classes": [
+        {
+          "name": "css/base",
+          "raw": 156169,
+          "gzip": 28294,
+          "count": 1,
+          "budget": {
+            "gzip": 28264,
+            "count": 1
+          }
+        },
+        {
+          "name": "css/page",
+          "raw": 0,
+          "gzip": 0,
+          "count": 0,
+          "budget": {
+            "gzip": 0,
+            "count": 0
+          }
+        },
+        {
+          "name": "js/chrome",
+          "raw": 0,
+          "gzip": 0,
+          "count": 0,
+          "budget": {
+            "gzip": 0,
+            "count": 0
+          }
+        },
+        {
+          "name": "js/components",
+          "raw": 0,
+          "gzip": 0,
+          "count": 0,
+          "budget": {
+            "gzip": 0,
+            "count": 0
+          }
+        },
+        {
+          "name": "js/inline",
+          "raw": 0,
+          "gzip": 0,
+          "count": 0,
+          "budget": {
+            "gzip": 0,
+            "count": 0
+          }
+        },
+        {
+          "name": "font/self-hosted",
+          "raw": 150048,
+          "gzip": 150239,
+          "count": 8,
+          "budget": {
+            "gzip": 150240,
+            "count": 8
+          }
+        }
+      ]
+    },
+    {
+      "route": "/alpha/books/beta/",
+      "classes": [
+        {
+          "name": "css/base",
+          "raw": 156169,
+          "gzip": 28294,
+          "count": 1,
+          "budget": {
+            "gzip": 28264,
+            "count": 1
+          }
+        },
+        {
+          "name": "css/page",
+          "raw": 0,
+          "gzip": 0,
+          "count": 0,
+          "budget": {
+            "gzip": 0,
+            "count": 0
+          }
+        },
+        {
+          "name": "js/chrome",
+          "raw": 88886,
+          "gzip": 33333,
+          "count": 38,
+          "budget": {
+            "gzip": 33424,
+            "count": 38
+          }
+        },
+        {
+          "name": "js/components",
+          "raw": 17122,
+          "gzip": 7037,
+          "count": 13,
+          "budget": {
+            "gzip": 7050,
+            "count": 13
+          }
+        },
+        {
+          "name": "js/inline",
+          "raw": 203,
+          "gzip": 162,
+          "count": 1,
+          "budget": {
+            "gzip": 162,
+            "count": 1
+          }
+        },
+        {
+          "name": "font/self-hosted",
+          "raw": 150048,
+          "gzip": 150239,
+          "count": 8,
+          "budget": {
+            "gzip": 150240,
+            "count": 8
+          }
+        }
+      ]
+    },
+    {
+      "route": "/alpha/books/beta/embed/",
+      "classes": [
+        {
+          "name": "css/base",
+          "raw": 156169,
+          "gzip": 28294,
+          "count": 1,
+          "budget": {
+            "gzip": 28264,
+            "count": 1
+          }
+        },
+        {
+          "name": "css/page",
+          "raw": 0,
+          "gzip": 0,
+          "count": 0,
+          "budget": {
+            "gzip": 0,
+            "count": 0
+          }
+        },
+        {
+          "name": "js/chrome",
+          "raw": 0,
+          "gzip": 0,
+          "count": 0,
+          "budget": {
+            "gzip": 0,
+            "count": 0
+          }
+        },
+        {
+          "name": "js/components",
+          "raw": 0,
+          "gzip": 0,
+          "count": 0,
+          "budget": {
+            "gzip": 0,
+            "count": 0
+          }
+        },
+        {
+          "name": "js/inline",
+          "raw": 0,
+          "gzip": 0,
+          "count": 0,
+          "budget": {
+            "gzip": 0,
+            "count": 0
+          }
+        },
+        {
+          "name": "font/self-hosted",
+          "raw": 150048,
+          "gzip": 150239,
+          "count": 8,
+          "budget": {
+            "gzip": 150240,
+            "count": 8
+          }
+        }
+      ]
+    },
+    {
+      "route": "/alpha/books/delta/",
+      "classes": [
+        {
+          "name": "css/base",
+          "raw": 156169,
+          "gzip": 28294,
+          "count": 1,
+          "budget": {
+            "gzip": 28264,
+            "count": 1
+          }
+        },
+        {
+          "name": "css/page",
+          "raw": 0,
+          "gzip": 0,
+          "count": 0,
+          "budget": {
+            "gzip": 0,
+            "count": 0
+          }
+        },
+        {
+          "name": "js/chrome",
+          "raw": 88886,
+          "gzip": 33333,
+          "count": 38,
+          "budget": {
+            "gzip": 33424,
+            "count": 38
+          }
+        },
+        {
+          "name": "js/components",
+          "raw": 14201,
+          "gzip": 5738,
+          "count": 10,
+          "budget": {
+            "gzip": 5753,
+            "count": 10
+          }
+        },
+        {
+          "name": "js/inline",
+          "raw": 203,
+          "gzip": 162,
+          "count": 1,
+          "budget": {
+            "gzip": 162,
+            "count": 1
+          }
+        },
+        {
+          "name": "font/self-hosted",
+          "raw": 150048,
+          "gzip": 150239,
+          "count": 8,
+          "budget": {
+            "gzip": 150240,
+            "count": 8
+          }
+        }
+      ]
+    },
+    {
+      "route": "/alpha/books/delta/embed/",
+      "classes": [
+        {
+          "name": "css/base",
+          "raw": 156169,
+          "gzip": 28294,
+          "count": 1,
+          "budget": {
+            "gzip": 28264,
+            "count": 1
+          }
+        },
+        {
+          "name": "css/page",
+          "raw": 0,
+          "gzip": 0,
+          "count": 0,
+          "budget": {
+            "gzip": 0,
+            "count": 0
+          }
+        },
+        {
+          "name": "js/chrome",
+          "raw": 0,
+          "gzip": 0,
+          "count": 0,
+          "budget": {
+            "gzip": 0,
+            "count": 0
+          }
+        },
+        {
+          "name": "js/components",
+          "raw": 0,
+          "gzip": 0,
+          "count": 0,
+          "budget": {
+            "gzip": 0,
+            "count": 0
+          }
+        },
+        {
+          "name": "js/inline",
+          "raw": 0,
+          "gzip": 0,
+          "count": 0,
+          "budget": {
+            "gzip": 0,
+            "count": 0
+          }
+        },
+        {
+          "name": "font/self-hosted",
+          "raw": 150048,
+          "gzip": 150239,
+          "count": 8,
+          "budget": {
+            "gzip": 150240,
+            "count": 8
+          }
+        }
+      ]
+    },
+    {
+      "route": "/alpha/books/gamma/",
+      "classes": [
+        {
+          "name": "css/base",
+          "raw": 156169,
+          "gzip": 28294,
+          "count": 1,
+          "budget": {
+            "gzip": 28264,
+            "count": 1
+          }
+        },
+        {
+          "name": "css/page",
+          "raw": 0,
+          "gzip": 0,
+          "count": 0,
+          "budget": {
+            "gzip": 0,
+            "count": 0
+          }
+        },
+        {
+          "name": "js/chrome",
+          "raw": 88886,
+          "gzip": 33333,
+          "count": 38,
+          "budget": {
+            "gzip": 33424,
+            "count": 38
+          }
+        },
+        {
+          "name": "js/components",
+          "raw": 14201,
+          "gzip": 5738,
+          "count": 10,
+          "budget": {
+            "gzip": 5753,
+            "count": 10
+          }
+        },
+        {
+          "name": "js/inline",
+          "raw": 203,
+          "gzip": 162,
+          "count": 1,
+          "budget": {
+            "gzip": 162,
+            "count": 1
+          }
+        },
+        {
+          "name": "font/self-hosted",
+          "raw": 150048,
+          "gzip": 150239,
+          "count": 8,
+          "budget": {
+            "gzip": 150240,
+            "count": 8
+          }
+        }
+      ]
+    },
+    {
+      "route": "/alpha/books/gamma/embed/",
+      "classes": [
+        {
+          "name": "css/base",
+          "raw": 156169,
+          "gzip": 28294,
+          "count": 1,
+          "budget": {
+            "gzip": 28264,
+            "count": 1
+          }
+        },
+        {
+          "name": "css/page",
+          "raw": 0,
+          "gzip": 0,
+          "count": 0,
+          "budget": {
+            "gzip": 0,
+            "count": 0
+          }
+        },
+        {
+          "name": "js/chrome",
+          "raw": 0,
+          "gzip": 0,
+          "count": 0,
+          "budget": {
+            "gzip": 0,
+            "count": 0
+          }
+        },
+        {
+          "name": "js/components",
+          "raw": 0,
+          "gzip": 0,
+          "count": 0,
+          "budget": {
+            "gzip": 0,
+            "count": 0
+          }
+        },
+        {
+          "name": "js/inline",
+          "raw": 0,
+          "gzip": 0,
+          "count": 0,
+          "budget": {
+            "gzip": 0,
+            "count": 0
+          }
+        },
+        {
+          "name": "font/self-hosted",
+          "raw": 150048,
+          "gzip": 150239,
+          "count": 8,
+          "budget": {
+            "gzip": 150240,
+            "count": 8
+          }
+        }
+      ]
+    },
+    {
+      "route": "/alpha/changes/books/",
+      "classes": [
+        {
+          "name": "css/base",
+          "raw": 156169,
+          "gzip": 28294,
+          "count": 1,
+          "budget": {
+            "gzip": 28264,
+            "count": 1
+          }
+        },
+        {
+          "name": "css/page",
+          "raw": 0,
+          "gzip": 0,
+          "count": 0,
+          "budget": {
+            "gzip": 0,
+            "count": 0
+          }
+        },
+        {
+          "name": "js/chrome",
+          "raw": 88886,
+          "gzip": 33333,
+          "count": 38,
+          "budget": {
+            "gzip": 33424,
+            "count": 38
+          }
+        },
+        {
+          "name": "js/components",
+          "raw": 22715,
+          "gzip": 8617,
+          "count": 12,
+          "budget": {
+            "gzip": 8641,
+            "count": 12
+          }
+        },
+        {
+          "name": "js/inline",
+          "raw": 203,
+          "gzip": 162,
+          "count": 1,
+          "budget": {
+            "gzip": 162,
+            "count": 1
+          }
+        },
+        {
+          "name": "font/self-hosted",
+          "raw": 150048,
+          "gzip": 150239,
+          "count": 8,
+          "budget": {
+            "gzip": 150240,
+            "count": 8
+          }
+        }
+      ]
+    },
+    {
+      "route": "/alpha/changes/books/2026-05-01/",
+      "classes": [
+        {
+          "name": "css/base",
+          "raw": 156169,
+          "gzip": 28294,
+          "count": 1,
+          "budget": {
+            "gzip": 28264,
+            "count": 1
+          }
+        },
+        {
+          "name": "css/page",
+          "raw": 0,
+          "gzip": 0,
+          "count": 0,
+          "budget": {
+            "gzip": 0,
+            "count": 0
+          }
+        },
+        {
+          "name": "js/chrome",
+          "raw": 88886,
+          "gzip": 33333,
+          "count": 38,
+          "budget": {
+            "gzip": 33424,
+            "count": 38
+          }
+        },
+        {
+          "name": "js/components",
+          "raw": 22715,
+          "gzip": 8617,
+          "count": 12,
+          "budget": {
+            "gzip": 8641,
+            "count": 12
+          }
+        },
+        {
+          "name": "js/inline",
+          "raw": 203,
+          "gzip": 162,
+          "count": 1,
+          "budget": {
+            "gzip": 162,
+            "count": 1
+          }
+        },
+        {
+          "name": "font/self-hosted",
+          "raw": 150048,
+          "gzip": 150239,
+          "count": 8,
+          "budget": {
+            "gzip": 150240,
+            "count": 8
+          }
+        }
+      ]
+    },
+    {
+      "route": "/alpha/changes/books/2026-05-15/",
+      "classes": [
+        {
+          "name": "css/base",
+          "raw": 156169,
+          "gzip": 28294,
+          "count": 1,
+          "budget": {
+            "gzip": 28264,
+            "count": 1
+          }
+        },
+        {
+          "name": "css/page",
+          "raw": 0,
+          "gzip": 0,
+          "count": 0,
+          "budget": {
+            "gzip": 0,
+            "count": 0
+          }
+        },
+        {
+          "name": "js/chrome",
+          "raw": 88886,
+          "gzip": 33333,
+          "count": 38,
+          "budget": {
+            "gzip": 33424,
+            "count": 38
+          }
+        },
+        {
+          "name": "js/components",
+          "raw": 22715,
+          "gzip": 8617,
+          "count": 12,
+          "budget": {
+            "gzip": 8641,
+            "count": 12
+          }
+        },
+        {
+          "name": "js/inline",
+          "raw": 203,
+          "gzip": 162,
+          "count": 1,
+          "budget": {
+            "gzip": 162,
+            "count": 1
+          }
+        },
+        {
+          "name": "font/self-hosted",
+          "raw": 150048,
+          "gzip": 150239,
+          "count": 8,
+          "budget": {
+            "gzip": 150240,
+            "count": 8
+          }
+        }
+      ]
+    },
+    {
+      "route": "/alpha/charts/",
+      "classes": [
+        {
+          "name": "css/base",
+          "raw": 156169,
+          "gzip": 28294,
+          "count": 1,
+          "budget": {
+            "gzip": 28264,
+            "count": 1
+          }
+        },
+        {
+          "name": "css/page",
+          "raw": 0,
+          "gzip": 0,
+          "count": 0,
+          "budget": {
+            "gzip": 0,
+            "count": 0
+          }
+        },
+        {
+          "name": "js/chrome",
+          "raw": 88886,
+          "gzip": 33333,
+          "count": 38,
+          "budget": {
+            "gzip": 33424,
+            "count": 38
+          }
+        },
+        {
+          "name": "js/components",
+          "raw": 14201,
+          "gzip": 5738,
+          "count": 10,
+          "budget": {
+            "gzip": 5753,
+            "count": 10
+          }
+        },
+        {
+          "name": "js/inline",
+          "raw": 203,
+          "gzip": 162,
+          "count": 1,
+          "budget": {
+            "gzip": 162,
+            "count": 1
+          }
+        },
+        {
+          "name": "font/self-hosted",
+          "raw": 150048,
+          "gzip": 150239,
+          "count": 8,
+          "budget": {
+            "gzip": 150240,
+            "count": 8
+          }
+        }
+      ]
+    },
+    {
+      "route": "/alpha/cli-demo/",
+      "classes": [
+        {
+          "name": "css/base",
+          "raw": 156169,
+          "gzip": 28294,
+          "count": 1,
+          "budget": {
+            "gzip": 28264,
+            "count": 1
+          }
+        },
+        {
+          "name": "css/page",
+          "raw": 0,
+          "gzip": 0,
+          "count": 0,
+          "budget": {
+            "gzip": 0,
+            "count": 0
+          }
+        },
+        {
+          "name": "js/chrome",
+          "raw": 88886,
+          "gzip": 33333,
+          "count": 38,
+          "budget": {
+            "gzip": 33424,
+            "count": 38
+          }
+        },
+        {
+          "name": "js/components",
+          "raw": 19132,
+          "gzip": 7711,
+          "count": 13,
+          "budget": {
+            "gzip": 7733,
+            "count": 13
+          }
+        },
+        {
+          "name": "js/inline",
+          "raw": 203,
+          "gzip": 162,
+          "count": 1,
+          "budget": {
+            "gzip": 162,
+            "count": 1
+          }
+        },
+        {
+          "name": "font/self-hosted",
+          "raw": 150048,
+          "gzip": 150239,
+          "count": 8,
+          "budget": {
+            "gzip": 150240,
+            "count": 8
+          }
+        }
+      ]
+    },
+    {
+      "route": "/alpha/compare/",
+      "classes": [
+        {
+          "name": "css/base",
+          "raw": 156169,
+          "gzip": 28294,
+          "count": 1,
+          "budget": {
+            "gzip": 28264,
+            "count": 1
+          }
+        },
+        {
+          "name": "css/page",
+          "raw": 0,
+          "gzip": 0,
+          "count": 0,
+          "budget": {
+            "gzip": 0,
+            "count": 0
+          }
+        },
+        {
+          "name": "js/chrome",
+          "raw": 88886,
+          "gzip": 33333,
+          "count": 38,
+          "budget": {
+            "gzip": 33424,
+            "count": 38
+          }
+        },
+        {
+          "name": "js/components",
+          "raw": 45955,
+          "gzip": 16730,
+          "count": 16,
+          "budget": {
+            "gzip": 16852,
+            "count": 16
+          }
+        },
+        {
+          "name": "js/inline",
+          "raw": 203,
+          "gzip": 162,
+          "count": 1,
+          "budget": {
+            "gzip": 162,
+            "count": 1
+          }
+        },
+        {
+          "name": "font/self-hosted",
+          "raw": 150048,
+          "gzip": 150239,
+          "count": 8,
+          "budget": {
+            "gzip": 150240,
+            "count": 8
+          }
+        }
+      ]
+    },
+    {
+      "route": "/alpha/data-time/",
+      "classes": [
+        {
+          "name": "css/base",
+          "raw": 156169,
+          "gzip": 28294,
+          "count": 1,
+          "budget": {
+            "gzip": 28264,
+            "count": 1
+          }
+        },
+        {
+          "name": "css/page",
+          "raw": 0,
+          "gzip": 0,
+          "count": 0,
+          "budget": {
+            "gzip": 0,
+            "count": 0
+          }
+        },
+        {
+          "name": "js/chrome",
+          "raw": 88886,
+          "gzip": 33333,
+          "count": 38,
+          "budget": {
+            "gzip": 33424,
+            "count": 38
+          }
+        },
+        {
+          "name": "js/components",
+          "raw": 23932,
+          "gzip": 9151,
+          "count": 13,
+          "budget": {
+            "gzip": 9177,
+            "count": 13
+          }
+        },
+        {
+          "name": "js/inline",
+          "raw": 203,
+          "gzip": 162,
+          "count": 1,
+          "budget": {
+            "gzip": 162,
+            "count": 1
+          }
+        },
+        {
+          "name": "font/self-hosted",
+          "raw": 150048,
+          "gzip": 150239,
+          "count": 8,
+          "budget": {
+            "gzip": 150240,
+            "count": 8
+          }
+        }
+      ]
+    },
+    {
+      "route": "/alpha/dated-list/",
+      "classes": [
+        {
+          "name": "css/base",
+          "raw": 156169,
+          "gzip": 28294,
+          "count": 1,
+          "budget": {
+            "gzip": 28264,
+            "count": 1
+          }
+        },
+        {
+          "name": "css/page",
+          "raw": 0,
+          "gzip": 0,
+          "count": 0,
+          "budget": {
+            "gzip": 0,
+            "count": 0
+          }
+        },
+        {
+          "name": "js/chrome",
+          "raw": 88886,
+          "gzip": 33333,
+          "count": 38,
+          "budget": {
+            "gzip": 33424,
+            "count": 38
+          }
+        },
+        {
+          "name": "js/components",
+          "raw": 16247,
+          "gzip": 6652,
+          "count": 11,
+          "budget": {
+            "gzip": 6671,
+            "count": 11
+          }
+        },
+        {
+          "name": "js/inline",
+          "raw": 203,
+          "gzip": 162,
+          "count": 1,
+          "budget": {
+            "gzip": 162,
+            "count": 1
+          }
+        },
+        {
+          "name": "font/self-hosted",
+          "raw": 150048,
+          "gzip": 150239,
+          "count": 8,
+          "budget": {
+            "gzip": 150240,
+            "count": 8
+          }
+        }
+      ]
+    },
+    {
+      "route": "/alpha/explorer/",
+      "classes": [
+        {
+          "name": "css/base",
+          "raw": 156169,
+          "gzip": 28294,
+          "count": 1,
+          "budget": {
+            "gzip": 28264,
+            "count": 1
+          }
+        },
+        {
+          "name": "css/page",
+          "raw": 0,
+          "gzip": 0,
+          "count": 0,
+          "budget": {
+            "gzip": 0,
+            "count": 0
+          }
+        },
+        {
+          "name": "js/chrome",
+          "raw": 88886,
+          "gzip": 33333,
+          "count": 38,
+          "budget": {
+            "gzip": 33424,
+            "count": 38
+          }
+        },
+        {
+          "name": "js/components",
+          "raw": 41255,
+          "gzip": 15013,
+          "count": 18,
+          "budget": {
+            "gzip": 15067,
+            "count": 18
+          }
+        },
+        {
+          "name": "js/inline",
+          "raw": 203,
+          "gzip": 162,
+          "count": 1,
+          "budget": {
+            "gzip": 162,
+            "count": 1
+          }
+        },
+        {
+          "name": "font/self-hosted",
+          "raw": 150048,
+          "gzip": 150239,
+          "count": 8,
+          "budget": {
+            "gzip": 150240,
+            "count": 8
+          }
+        }
+      ]
+    },
+    {
+      "route": "/alpha/gallery-layout/",
+      "classes": [
+        {
+          "name": "css/base",
+          "raw": 156169,
+          "gzip": 28294,
+          "count": 1,
+          "budget": {
+            "gzip": 28264,
+            "count": 1
+          }
+        },
+        {
+          "name": "css/page",
+          "raw": 0,
+          "gzip": 0,
+          "count": 0,
+          "budget": {
+            "gzip": 0,
+            "count": 0
+          }
+        },
+        {
+          "name": "js/chrome",
+          "raw": 88886,
+          "gzip": 33333,
+          "count": 38,
+          "budget": {
+            "gzip": 33424,
+            "count": 38
+          }
+        },
+        {
+          "name": "js/components",
+          "raw": 23581,
+          "gzip": 8761,
+          "count": 13,
+          "budget": {
+            "gzip": 8785,
+            "count": 13
+          }
+        },
+        {
+          "name": "js/inline",
+          "raw": 203,
+          "gzip": 162,
+          "count": 1,
+          "budget": {
+            "gzip": 162,
+            "count": 1
+          }
+        },
+        {
+          "name": "font/self-hosted",
+          "raw": 150048,
+          "gzip": 150239,
+          "count": 8,
+          "budget": {
+            "gzip": 150240,
+            "count": 8
+          }
+        }
+      ]
+    },
+    {
+      "route": "/alpha/guide/",
+      "classes": [
+        {
+          "name": "css/base",
+          "raw": 156169,
+          "gzip": 28294,
+          "count": 1,
+          "budget": {
+            "gzip": 28264,
+            "count": 1
+          }
+        },
+        {
+          "name": "css/page",
+          "raw": 0,
+          "gzip": 0,
+          "count": 0,
+          "budget": {
+            "gzip": 0,
+            "count": 0
+          }
+        },
+        {
+          "name": "js/chrome",
+          "raw": 88886,
+          "gzip": 33333,
+          "count": 38,
+          "budget": {
+            "gzip": 33424,
+            "count": 38
+          }
+        },
+        {
+          "name": "js/components",
+          "raw": 19256,
+          "gzip": 8200,
+          "count": 16,
+          "budget": {
+            "gzip": 8223,
+            "count": 16
+          }
+        },
+        {
+          "name": "js/inline",
+          "raw": 203,
+          "gzip": 162,
+          "count": 1,
+          "budget": {
+            "gzip": 162,
+            "count": 1
+          }
+        },
+        {
+          "name": "font/self-hosted",
+          "raw": 150048,
+          "gzip": 150239,
+          "count": 8,
+          "budget": {
+            "gzip": 150240,
+            "count": 8
+          }
+        }
+      ]
+    },
+    {
+      "route": "/alpha/guide/upgrade/",
+      "classes": [
+        {
+          "name": "css/base",
+          "raw": 156169,
+          "gzip": 28294,
+          "count": 1,
+          "budget": {
+            "gzip": 28264,
+            "count": 1
+          }
+        },
+        {
+          "name": "css/page",
+          "raw": 0,
+          "gzip": 0,
+          "count": 0,
+          "budget": {
+            "gzip": 0,
+            "count": 0
+          }
+        },
+        {
+          "name": "js/chrome",
+          "raw": 88886,
+          "gzip": 33333,
+          "count": 38,
+          "budget": {
+            "gzip": 33424,
+            "count": 38
+          }
+        },
+        {
+          "name": "js/components",
+          "raw": 16614,
+          "gzip": 6762,
+          "count": 11,
+          "budget": {
+            "gzip": 6784,
+            "count": 11
+          }
+        },
+        {
+          "name": "js/inline",
+          "raw": 203,
+          "gzip": 162,
+          "count": 1,
+          "budget": {
+            "gzip": 162,
+            "count": 1
+          }
+        },
+        {
+          "name": "font/self-hosted",
+          "raw": 150048,
+          "gzip": 150239,
+          "count": 8,
+          "budget": {
+            "gzip": 150240,
+            "count": 8
+          }
+        }
+      ]
+    },
+    {
+      "route": "/alpha/network/",
+      "classes": [
+        {
+          "name": "css/base",
+          "raw": 156169,
+          "gzip": 28294,
+          "count": 1,
+          "budget": {
+            "gzip": 28264,
+            "count": 1
+          }
+        },
+        {
+          "name": "css/page",
+          "raw": 0,
+          "gzip": 0,
+          "count": 0,
+          "budget": {
+            "gzip": 0,
+            "count": 0
+          }
+        },
+        {
+          "name": "js/chrome",
+          "raw": 88886,
+          "gzip": 33333,
+          "count": 38,
+          "budget": {
+            "gzip": 33424,
+            "count": 38
+          }
+        },
+        {
+          "name": "js/components",
+          "raw": 14201,
+          "gzip": 5738,
+          "count": 10,
+          "budget": {
+            "gzip": 5753,
+            "count": 10
+          }
+        },
+        {
+          "name": "js/inline",
+          "raw": 203,
+          "gzip": 162,
+          "count": 1,
+          "budget": {
+            "gzip": 162,
+            "count": 1
+          }
+        },
+        {
+          "name": "font/self-hosted",
+          "raw": 150048,
+          "gzip": 150239,
+          "count": 8,
+          "budget": {
+            "gzip": 150240,
+            "count": 8
+          }
+        }
+      ]
+    },
+    {
+      "route": "/alpha/reference/",
+      "classes": [
+        {
+          "name": "css/base",
+          "raw": 156169,
+          "gzip": 28294,
+          "count": 1,
+          "budget": {
+            "gzip": 28264,
+            "count": 1
+          }
+        },
+        {
+          "name": "css/page",
+          "raw": 0,
+          "gzip": 0,
+          "count": 0,
+          "budget": {
+            "gzip": 0,
+            "count": 0
+          }
+        },
+        {
+          "name": "js/chrome",
+          "raw": 88886,
+          "gzip": 33333,
+          "count": 38,
+          "budget": {
+            "gzip": 33424,
+            "count": 38
+          }
+        },
+        {
+          "name": "js/components",
+          "raw": 44049,
+          "gzip": 16775,
+          "count": 20,
+          "budget": {
+            "gzip": 16848,
+            "count": 20
+          }
+        },
+        {
+          "name": "js/inline",
+          "raw": 203,
+          "gzip": 162,
+          "count": 1,
+          "budget": {
+            "gzip": 162,
+            "count": 1
+          }
+        },
+        {
+          "name": "font/self-hosted",
+          "raw": 150048,
+          "gzip": 150239,
+          "count": 8,
+          "budget": {
+            "gzip": 150240,
+            "count": 8
+          }
+        }
+      ]
+    },
+    {
+      "route": "/alpha/reports/",
+      "classes": [
+        {
+          "name": "css/base",
+          "raw": 156169,
+          "gzip": 28294,
+          "count": 1,
+          "budget": {
+            "gzip": 28264,
+            "count": 1
+          }
+        },
+        {
+          "name": "css/page",
+          "raw": 0,
+          "gzip": 0,
+          "count": 0,
+          "budget": {
+            "gzip": 0,
+            "count": 0
+          }
+        },
+        {
+          "name": "js/chrome",
+          "raw": 88886,
+          "gzip": 33333,
+          "count": 38,
+          "budget": {
+            "gzip": 33424,
+            "count": 38
+          }
+        },
+        {
+          "name": "js/components",
+          "raw": 14201,
+          "gzip": 5738,
+          "count": 10,
+          "budget": {
+            "gzip": 5753,
+            "count": 10
+          }
+        },
+        {
+          "name": "js/inline",
+          "raw": 203,
+          "gzip": 162,
+          "count": 1,
+          "budget": {
+            "gzip": 162,
+            "count": 1
+          }
+        },
+        {
+          "name": "font/self-hosted",
+          "raw": 150048,
+          "gzip": 150239,
+          "count": 8,
+          "budget": {
+            "gzip": 150240,
+            "count": 8
+          }
+        }
+      ]
+    },
+    {
+      "route": "/alpha/showpiece/",
+      "classes": [
+        {
+          "name": "css/base",
+          "raw": 156169,
+          "gzip": 28294,
+          "count": 1,
+          "budget": {
+            "gzip": 28264,
+            "count": 1
+          }
+        },
+        {
+          "name": "css/page",
+          "raw": 0,
+          "gzip": 0,
+          "count": 0,
+          "budget": {
+            "gzip": 0,
+            "count": 0
+          }
+        },
+        {
+          "name": "js/chrome",
+          "raw": 88886,
+          "gzip": 33333,
+          "count": 38,
+          "budget": {
+            "gzip": 33424,
+            "count": 38
+          }
+        },
+        {
+          "name": "js/components",
+          "raw": 14201,
+          "gzip": 5738,
+          "count": 10,
+          "budget": {
+            "gzip": 5753,
+            "count": 10
+          }
+        },
+        {
+          "name": "js/inline",
+          "raw": 203,
+          "gzip": 162,
+          "count": 1,
+          "budget": {
+            "gzip": 162,
+            "count": 1
+          }
+        },
+        {
+          "name": "font/self-hosted",
+          "raw": 150048,
+          "gzip": 150239,
+          "count": 8,
+          "budget": {
+            "gzip": 150240,
+            "count": 8
+          }
+        }
+      ]
+    },
+    {
+      "route": "/alpha/source-mode/",
+      "classes": [
+        {
+          "name": "css/base",
+          "raw": 156169,
+          "gzip": 28294,
+          "count": 1,
+          "budget": {
+            "gzip": 28264,
+            "count": 1
+          }
+        },
+        {
+          "name": "css/page",
+          "raw": 0,
+          "gzip": 0,
+          "count": 0,
+          "budget": {
+            "gzip": 0,
+            "count": 0
+          }
+        },
+        {
+          "name": "js/chrome",
+          "raw": 88886,
+          "gzip": 33333,
+          "count": 38,
+          "budget": {
+            "gzip": 33424,
+            "count": 38
+          }
+        },
+        {
+          "name": "js/components",
+          "raw": 14201,
+          "gzip": 5738,
+          "count": 10,
+          "budget": {
+            "gzip": 5753,
+            "count": 10
+          }
+        },
+        {
+          "name": "js/inline",
+          "raw": 203,
+          "gzip": 162,
+          "count": 1,
+          "budget": {
+            "gzip": 162,
+            "count": 1
+          }
+        },
+        {
+          "name": "font/self-hosted",
+          "raw": 150048,
+          "gzip": 150239,
+          "count": 8,
+          "budget": {
+            "gzip": 150240,
+            "count": 8
+          }
+        }
+      ]
+    },
+    {
+      "route": "/alpha/stale/",
+      "classes": [
+        {
+          "name": "css/base",
+          "raw": 156169,
+          "gzip": 28294,
+          "count": 1,
+          "budget": {
+            "gzip": 28264,
+            "count": 1
+          }
+        },
+        {
+          "name": "css/page",
+          "raw": 0,
+          "gzip": 0,
+          "count": 0,
+          "budget": {
+            "gzip": 0,
+            "count": 0
+          }
+        },
+        {
+          "name": "js/chrome",
+          "raw": 88886,
+          "gzip": 33333,
+          "count": 38,
+          "budget": {
+            "gzip": 33424,
+            "count": 38
+          }
+        },
+        {
+          "name": "js/components",
+          "raw": 14201,
+          "gzip": 5738,
+          "count": 10,
+          "budget": {
+            "gzip": 5753,
+            "count": 10
+          }
+        },
+        {
+          "name": "js/inline",
+          "raw": 203,
+          "gzip": 162,
+          "count": 1,
+          "budget": {
+            "gzip": 162,
+            "count": 1
+          }
+        },
+        {
+          "name": "font/self-hosted",
+          "raw": 150048,
+          "gzip": 150239,
+          "count": 8,
+          "budget": {
+            "gzip": 150240,
+            "count": 8
+          }
+        }
+      ]
+    },
+    {
+      "route": "/alpha/status/",
+      "classes": [
+        {
+          "name": "css/base",
+          "raw": 156169,
+          "gzip": 28294,
+          "count": 1,
+          "budget": {
+            "gzip": 28264,
+            "count": 1
+          }
+        },
+        {
+          "name": "css/page",
+          "raw": 0,
+          "gzip": 0,
+          "count": 0,
+          "budget": {
+            "gzip": 0,
+            "count": 0
+          }
+        },
+        {
+          "name": "js/chrome",
+          "raw": 88886,
+          "gzip": 33333,
+          "count": 38,
+          "budget": {
+            "gzip": 33424,
+            "count": 38
+          }
+        },
+        {
+          "name": "js/components",
+          "raw": 14201,
+          "gzip": 5738,
+          "count": 10,
+          "budget": {
+            "gzip": 5753,
+            "count": 10
+          }
+        },
+        {
+          "name": "js/inline",
+          "raw": 203,
+          "gzip": 162,
+          "count": 1,
+          "budget": {
+            "gzip": 162,
+            "count": 1
+          }
+        },
+        {
+          "name": "font/self-hosted",
+          "raw": 150048,
+          "gzip": 150239,
+          "count": 8,
+          "budget": {
+            "gzip": 150240,
+            "count": 8
+          }
+        }
+      ]
+    },
+    {
+      "route": "/alpha/timeline/",
+      "classes": [
+        {
+          "name": "css/base",
+          "raw": 156169,
+          "gzip": 28294,
+          "count": 1,
+          "budget": {
+            "gzip": 28264,
+            "count": 1
+          }
+        },
+        {
+          "name": "css/page",
+          "raw": 0,
+          "gzip": 0,
+          "count": 0,
+          "budget": {
+            "gzip": 0,
+            "count": 0
+          }
+        },
+        {
+          "name": "js/chrome",
+          "raw": 88886,
+          "gzip": 33333,
+          "count": 38,
+          "budget": {
+            "gzip": 33424,
+            "count": 38
+          }
+        },
+        {
+          "name": "js/components",
+          "raw": 16371,
+          "gzip": 6595,
+          "count": 11,
+          "budget": {
+            "gzip": 6613,
+            "count": 11
+          }
+        },
+        {
+          "name": "js/inline",
+          "raw": 203,
+          "gzip": 162,
+          "count": 1,
+          "budget": {
+            "gzip": 162,
+            "count": 1
+          }
+        },
+        {
+          "name": "font/self-hosted",
+          "raw": 150048,
+          "gzip": 150239,
+          "count": 8,
+          "budget": {
+            "gzip": 150240,
+            "count": 8
+          }
+        }
+      ]
+    }
+  ],
+  "totals": [
+    {
+      "route": "/alpha/",
+      "javascript": {
+        "raw": 103290,
+        "gzip": 39233
+      },
+      "css": {
+        "raw": 156169,
+        "gzip": 28294
+      }
+    },
+    {
+      "route": "/alpha/books/",
+      "javascript": {
+        "raw": 113021,
+        "gzip": 42646
+      },
+      "css": {
+        "raw": 156169,
+        "gzip": 28294
+      }
+    },
+    {
+      "route": "/alpha/books/alpha/",
+      "javascript": {
+        "raw": 103290,
+        "gzip": 39233
+      },
+      "css": {
+        "raw": 156169,
+        "gzip": 28294
+      }
+    },
+    {
+      "route": "/alpha/books/alpha/embed/",
+      "javascript": {
+        "raw": 0,
+        "gzip": 0
+      },
+      "css": {
+        "raw": 156169,
+        "gzip": 28294
+      }
+    },
+    {
+      "route": "/alpha/books/beta/",
+      "javascript": {
+        "raw": 106211,
+        "gzip": 40532
+      },
+      "css": {
+        "raw": 156169,
+        "gzip": 28294
+      }
+    },
+    {
+      "route": "/alpha/books/beta/embed/",
+      "javascript": {
+        "raw": 0,
+        "gzip": 0
+      },
+      "css": {
+        "raw": 156169,
+        "gzip": 28294
+      }
+    },
+    {
+      "route": "/alpha/books/delta/",
+      "javascript": {
+        "raw": 103290,
+        "gzip": 39233
+      },
+      "css": {
+        "raw": 156169,
+        "gzip": 28294
+      }
+    },
+    {
+      "route": "/alpha/books/delta/embed/",
+      "javascript": {
+        "raw": 0,
+        "gzip": 0
+      },
+      "css": {
+        "raw": 156169,
+        "gzip": 28294
+      }
+    },
+    {
+      "route": "/alpha/books/gamma/",
+      "javascript": {
+        "raw": 103290,
+        "gzip": 39233
+      },
+      "css": {
+        "raw": 156169,
+        "gzip": 28294
+      }
+    },
+    {
+      "route": "/alpha/books/gamma/embed/",
+      "javascript": {
+        "raw": 0,
+        "gzip": 0
+      },
+      "css": {
+        "raw": 156169,
+        "gzip": 28294
+      }
+    },
+    {
+      "route": "/alpha/changes/books/",
+      "javascript": {
+        "raw": 111804,
+        "gzip": 42112
+      },
+      "css": {
+        "raw": 156169,
+        "gzip": 28294
+      }
+    },
+    {
+      "route": "/alpha/changes/books/2026-05-01/",
+      "javascript": {
+        "raw": 111804,
+        "gzip": 42112
+      },
+      "css": {
+        "raw": 156169,
+        "gzip": 28294
+      }
+    },
+    {
+      "route": "/alpha/changes/books/2026-05-15/",
+      "javascript": {
+        "raw": 111804,
+        "gzip": 42112
+      },
+      "css": {
+        "raw": 156169,
+        "gzip": 28294
+      }
+    },
+    {
+      "route": "/alpha/charts/",
+      "javascript": {
+        "raw": 103290,
+        "gzip": 39233
+      },
+      "css": {
+        "raw": 156169,
+        "gzip": 28294
+      }
+    },
+    {
+      "route": "/alpha/cli-demo/",
+      "javascript": {
+        "raw": 108221,
+        "gzip": 41206
+      },
+      "css": {
+        "raw": 156169,
+        "gzip": 28294
+      }
+    },
+    {
+      "route": "/alpha/compare/",
+      "javascript": {
+        "raw": 135044,
+        "gzip": 50225
+      },
+      "css": {
+        "raw": 156169,
+        "gzip": 28294
+      }
+    },
+    {
+      "route": "/alpha/data-time/",
+      "javascript": {
+        "raw": 113021,
+        "gzip": 42646
+      },
+      "css": {
+        "raw": 156169,
+        "gzip": 28294
+      }
+    },
+    {
+      "route": "/alpha/dated-list/",
+      "javascript": {
+        "raw": 105336,
+        "gzip": 40147
+      },
+      "css": {
+        "raw": 156169,
+        "gzip": 28294
+      }
+    },
+    {
+      "route": "/alpha/explorer/",
+      "javascript": {
+        "raw": 130344,
+        "gzip": 48508
+      },
+      "css": {
+        "raw": 156169,
+        "gzip": 28294
+      }
+    },
+    {
+      "route": "/alpha/gallery-layout/",
+      "javascript": {
+        "raw": 112670,
+        "gzip": 42256
+      },
+      "css": {
+        "raw": 156169,
+        "gzip": 28294
+      }
+    },
+    {
+      "route": "/alpha/guide/",
+      "javascript": {
+        "raw": 108345,
+        "gzip": 41695
+      },
+      "css": {
+        "raw": 156169,
+        "gzip": 28294
+      }
+    },
+    {
+      "route": "/alpha/guide/upgrade/",
+      "javascript": {
+        "raw": 105703,
+        "gzip": 40257
+      },
+      "css": {
+        "raw": 156169,
+        "gzip": 28294
+      }
+    },
+    {
+      "route": "/alpha/network/",
+      "javascript": {
+        "raw": 103290,
+        "gzip": 39233
+      },
+      "css": {
+        "raw": 156169,
+        "gzip": 28294
+      }
+    },
+    {
+      "route": "/alpha/reference/",
+      "javascript": {
+        "raw": 133138,
+        "gzip": 50270
+      },
+      "css": {
+        "raw": 156169,
+        "gzip": 28294
+      }
+    },
+    {
+      "route": "/alpha/reports/",
+      "javascript": {
+        "raw": 103290,
+        "gzip": 39233
+      },
+      "css": {
+        "raw": 156169,
+        "gzip": 28294
+      }
+    },
+    {
+      "route": "/alpha/showpiece/",
+      "javascript": {
+        "raw": 103290,
+        "gzip": 39233
+      },
+      "css": {
+        "raw": 156169,
+        "gzip": 28294
+      }
+    },
+    {
+      "route": "/alpha/source-mode/",
+      "javascript": {
+        "raw": 103290,
+        "gzip": 39233
+      },
+      "css": {
+        "raw": 156169,
+        "gzip": 28294
+      }
+    },
+    {
+      "route": "/alpha/stale/",
+      "javascript": {
+        "raw": 103290,
+        "gzip": 39233
+      },
+      "css": {
+        "raw": 156169,
+        "gzip": 28294
+      }
+    },
+    {
+      "route": "/alpha/status/",
+      "javascript": {
+        "raw": 103290,
+        "gzip": 39233
+      },
+      "css": {
+        "raw": 156169,
+        "gzip": 28294
+      }
+    },
+    {
+      "route": "/alpha/timeline/",
+      "javascript": {
+        "raw": 105460,
+        "gzip": 40090
+      },
+      "css": {
+        "raw": 156169,
+        "gzip": 28294
+      }
+    }
+  ]
+}

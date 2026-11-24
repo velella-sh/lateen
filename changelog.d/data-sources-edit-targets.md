@@ -1,1 +1,0 @@
-- Records: a record read from an API, a SQLite query or an NDJSON file no longer offers `.mizzen/data/<hash>` as the file to edit. The agent edit prompt and the "Report a data issue" link name the NDJSON file, the database path or the API URL, and an API or database record shows no edit prompt.
