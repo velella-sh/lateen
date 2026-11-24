@@ -15,6 +15,7 @@ test("the docs changelog uses the changelog layout and real current releases", (
   assert.ok(page.includes(`version: ${packageJson.version}`));
 
   const releases = [
+    ["0.2.5", "2026-11-24"],
     ["0.2.4", "2026-11-22"],
     ["0.2.3", "2026-11-19"],
     ["0.2.2", "2026-11-14"],

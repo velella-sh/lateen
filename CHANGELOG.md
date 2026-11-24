@@ -4,6 +4,31 @@ Releases of this package are tagged `v<version>`. Add a one-line fragment in `ch
 
 ## Unreleased
 
+## 0.2.5 — 2026-11-24
+
+### Added
+
+- Opt-in Mizzen, Lateen, Offing and Ebb presets through `theme.options.preset`, a link from the Lateen docs to the Velella network, local-only search for network sites through `theme.options.network.search`, and documented family README badges. Acceptance cases: `family-identity-preset`, `family-identity-navigation`, `family-identity-local-search`, `family-identity-readme-badges`.
+- Theme Studio at `/lateen/theme-studio/`: try presets, colors, and fonts and copy the settings for `mizzen.yml`. Acceptance scenario `theme-studio-export` covers preview, export and a consumer build.
+- Collection and record pages show each public field's type, required status, and allowed values from the recorded schema.
+- List and record pages link to the collection files, record JSON, JSON Schema, and OpenAPI published by Mizzen's versioned data API.
+
+### Changed
+
+- Page chrome before the article is calmer (#1234): one Page tools disclosure replaces the stacked controls on documentation and record pages, the mobile drawer lists every section in one open layer behind a Lucide menu button, the project switcher has its own landmark name, the closed "On this page" fold names the section in view, and a phone without JavaScript keeps the sidebar above the article instead of an unreachable drawer.
+- The Page tools menu is grouped into Copy, Open in, and Page, with an icon on every row. Source mode is a toggle row coloured with the theme's link token; while it is on, it is the only control, with no Exit button and no block count.
+- The network footer is one button named for the current project that opens the other projects in a popover. The Lateen docs site no longer shows it; the `network.footer` theme option is unchanged.
+- Every page reads one type scale, one set of line heights, one 66ch measure, and one block spacing step from design tokens, and a ratchet check blocks new raw sizes. Only CSS changes: the HTML, Markdown, and llms.txt are the same, body text is 17px, and sites with visual baselines should refresh them once. See /type/.
+- Records: a record read from an API, a SQLite query or an NDJSON file no longer offers `.mizzen/data/<hash>` as the file to edit. The agent edit prompt and the "Report a data issue" link name the NDJSON file, the database path or the API URL, and an API or database record shows no edit prompt.
+
+### Fixed
+
+- The data-file edit link is hidden for aggregate records, which are computed from another collection.
+- Schema tables resolve local references to boolean JSON Schemas, showing `any` for unconstrained values and `never` when no value is allowed.
+- Syntax highlighting is reproducible under build load: a line-length limit replaces a wall-clock timeout.
+- Using `heading-anchor` as a Markdown directive fails the build with a clear message instead of writing an invalid `<hundefined>` element, and the components README lists which components work inline.
+- The docs site deploy retries deploy-pages once, and the deployed smoke no longer expects the network footer.
+
 ## 0.2.4 — 2026-11-22
 
 ### Added

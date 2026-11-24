@@ -1,1 +1,0 @@
-- Components: using `heading-anchor` as a Markdown directive now fails the build with a clear message instead of writing an invalid `<hundefined>` element, and the components README lists which components work inline.

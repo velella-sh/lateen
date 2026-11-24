@@ -1,1 +1,0 @@
-Group the Page tools menu into Copy, Open in, and Page with an icon on every row and Source mode as a plain row, and move the project list out of the Lateen docs header into a styled one-row network footer.
