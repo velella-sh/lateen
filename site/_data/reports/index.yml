@@ -19,3 +19,13 @@ releases:
     totals:
       javascript: 1016753
       css: 797520
+  - version: 0.2.5
+    a11y:
+      file: a11y.json
+      sha256: d1d1a020b610239456626d67cf029316ed42e8df1538792fbdc49d66b90a73a3
+    performance:
+      file: performance.json
+      sha256: 5858f2568e854f72216b97a92bb6a9fb93c51c3c8a1501d7a20c5e089a72c84d
+    totals:
+      javascript: 1078377
+      css: 848820
