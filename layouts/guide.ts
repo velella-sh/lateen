@@ -15,6 +15,7 @@ import { renderPageStatus } from "../components/page-status/render.ts";
 import { renderReadingTime } from "../components/reading-time/render.ts";
 import relatedGuides from "../components/related-guides/index.ts";
 import { renderVersionNotice } from "../components/version-notice/render.ts";
+import { componentProps } from "../src/component-props.ts";
 import { codeBackgrounds } from "../src/brand.ts";
 import { articleHtml } from "../src/article-html.ts";
 import { articleHeader, articleShell, statusProps } from "./shared/index.ts";
@@ -33,24 +34,24 @@ function article(props: LayoutProps): ComponentChildren {
     { class: "doc guide", "data-pagefind-body": true },
     articleHeader(props, {
       notices: [
-        renderPageStatus({ props: statusProps(page), page, site: props.site, html: "" }) as ComponentChildren,
-        renderVersionNotice({ props: {}, page, site: props.site, html: "" }) as ComponentChildren,
+        renderPageStatus(componentProps(props, statusProps(page))) as ComponentChildren,
+        renderVersionNotice(componentProps(props, {})) as ComponentChildren,
       ],
       description: null,
       meta: [
         lastUpdated(props) as ComponentChildren,
-        renderReadingTime({ props: {}, page, site: props.site, html: "" }) as ComponentChildren,
+        renderReadingTime(componentProps(props, {})) as ComponentChildren,
       ],
     }),
     staleSlot(props),
-    guideSummary({ props: {}, page, site: props.site, html: "" }) as ComponentChildren,
+    guideSummary(componentProps(props, {})) as ComponentChildren,
     tocFold(props) as ComponentChildren,
-    guidePrerequisites({ props: {}, page, site: props.site, html: "" }) as ComponentChildren,
+    guidePrerequisites(componentProps(props, {})) as ComponentChildren,
     h("div", { class: "doc-body guide-body", dangerouslySetInnerHTML: { __html: highlightFences(articleHtml(page.html, page.lang), backdrops, page.lang, page.source.file) } }),
     pageToolSlot(props),
     editPage(props) as ComponentChildren,
     h("div", { class: "doc-actions" }, pageFooter(props) as ComponentChildren, copyMarkdown(props) as ComponentChildren),
-    relatedGuides({ props: {}, page, site: props.site, html: "" }) as ComponentChildren,
+    relatedGuides(componentProps(props, {})) as ComponentChildren,
   );
 }
 

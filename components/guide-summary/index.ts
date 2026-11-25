@@ -1,8 +1,9 @@
 import { h } from "preact";
 import { isRecord } from "../../src/guards.ts";
 import type { ComponentChildren } from "preact";
-import type { Component, Page, Site } from "@velella/mizzen/contracts";
+import type { Component, Page } from "@velella/mizzen/contracts";
 import { t } from "../../i18n/index.ts";
+import { componentProps } from "../../src/component-props.ts";
 import status from "../status/index.ts";
 
 /** The front-matter facts a guide can set, in the order the bar shows them. */
@@ -36,7 +37,8 @@ export function factsOf(page: Pick<Page, "frontMatter">): Partial<Record<GuideFa
  * site's `theme.options.status.values` maps its own values to a tone and a label, so the theme fixes no
  * list. A guide with no facts renders nothing.
  */
-const guideSummary: Component = ({ page, site }: { page: Page; site: Site }) => {
+const guideSummary: Component = (input) => {
+  const { page } = input;
   const facts = factsOf(page);
   const keys = FACTS.filter((key) => facts[key] !== undefined);
   if (keys.length === 0) return null;
@@ -48,7 +50,7 @@ const guideSummary: Component = ({ page, site }: { page: Page; site: Site }) => 
       const value = facts[key] as string;
       const content =
         key === "risk"
-          ? (status({ props: { value }, page, site, html: "" }) as ComponentChildren)
+          ? (status(componentProps(input, { value })) as ComponentChildren)
           : h("span", { class: "guide-summary-text" }, value);
       return h(
         "div",

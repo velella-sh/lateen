@@ -1,6 +1,7 @@
 // The base layout is where a brand reaches the page: one server-rendered <style> element after the
 // head's links, no inline style attribute anywhere, nothing when the site sets no brand, and a CSS
 // comment naming any value that was ignored. Two renders of the same options are the same HTML.
+import { noComponents } from "../helpers/render-component.ts";
 import assert from "node:assert/strict";
 import { test } from "node:test";
 import { h } from "preact";
@@ -49,6 +50,7 @@ function layoutProps(config: SiteConfig = configWith(), hints?: LayoutProps["hin
   };
   const site: Site = { config, pages: [page], nav: {}, data: {}, collections: {} };
   return {
+    renderComponent: noComponents,
     site,
     page,
     trail: [],

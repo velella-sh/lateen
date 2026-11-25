@@ -1,3 +1,4 @@
+import { noComponents } from "../helpers/render-component.ts";
 import assert from "node:assert/strict";
 import { test } from "node:test";
 import { Fragment, h } from "preact";
@@ -64,6 +65,7 @@ function layoutProps(
     collections: {},
   };
   return {
+    renderComponent: noComponents,
     site,
     page,
     trail,

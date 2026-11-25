@@ -129,7 +129,10 @@ export default function callout({ props, html, page }: ComponentProps<CalloutPro
   );
 }
 
-/** A named importer directive shares the callout renderer and locks its own variant. */
+/**
+ * A named importer directive locks its own variant and renders the registry's `callout`, so a site's
+ * `theme.overrides.components.callout` reaches `info`, `hint`, and the other aliases too.
+ */
 export function importedCallout(type: string) {
-  return (input: ComponentProps<CalloutProps>) => callout({ ...input, props: { ...input.props, type } });
+  return (input: ComponentProps<CalloutProps>) => input.renderComponent("callout", { ...input.props, type }, input.html);
 }

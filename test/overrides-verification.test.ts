@@ -42,21 +42,24 @@ test("a content component override replaces the unit on every layout that uses i
 
 test("a component the theme uses through directives and alerts is replaced everywhere the registry resolves it", () => {
   const index = built().document("/");
-  // `> [!NOTE]` and `::callout` both resolve the name `callout`.
-  assert.equal(all(index, "aside.site-callout").length, 2);
-  assert.deepEqual(all(index, "aside.site-callout").map((element) => element.getAttribute("data-kind")), ["note", "tip"]);
+  // `> [!NOTE]` and `::callout` resolve the name `callout`; `:::info` and `:::hint` ask for it through
+  // `renderComponent` (Mizzen 0.2.7), so the override reaches them too and each keeps its own kind.
+  assert.equal(all(index, "aside.site-callout").length, 4);
+  assert.deepEqual(all(index, "aside.site-callout").map((element) => element.getAttribute("data-kind")), ["note", "tip", "info", "hint"]);
   assert.equal(all(index, "span.site-status").length, 1, "the inline :status directive resolves the override");
   assert.equal(all(built().document("/guide/"), "aside.site-callout").length, 1, "an alert in another layout resolves it too");
 });
 
-test("known gap: units that import another unit directly bypass its override", () => {
+test("a unit that renders another unit by name resolves its override", () => {
   const index = built().document("/");
-  // `info` and `hint` are separate units that call the theme's callout renderer. Overriding `callout` does not
-  // reach them; the site would override `info` and `hint` themselves. Mizzen would need to hand a component
-  // a way to render another registered unit by name (see the report in docs/overrides.md).
-  assert.equal(all(index, ".callout.callout-note, .callout.callout-tip").length, 2, "aliased callouts are still the theme's");
+  // `info` and `hint` are separate units that render `callout` through `renderComponent`.
+  assert.equal(all(index, ".callout.callout-info, .callout.callout-hint").length, 0, "aliased callouts are the site's");
+  assert.match(css("/"), /\.site-callout\{/, "the overriding unit's CSS joins the page");
+});
 
-  // The record and list layouts draw a record's status field through `src/fields.ts`, a direct import.
+test("known gap: a layout that places a unit inside a Preact tree still draws the theme's unit", () => {
+  // `renderComponent` returns HTML, and a layout cannot put a string into a Preact tree without a wrapper
+  // element, which would change every page. Layouts and `src/fields.ts` keep calling the shared renderers.
   for (const page of ["/tasks/one/"]) {
     const doc = built().document(page);
     assert.equal(all(doc, ".site-status").length, 0, `${page}: status fields are the theme's status`);
@@ -77,7 +80,7 @@ test("a CSS sidecar ships on the pages that use its unit, and only those", () =>
 
 test("units that were not overridden render unchanged", () => {
   // The theme's own CSS still ships beside the sidecars and the unaffected pages keep the theme's markup.
-  assert.match(css("/"), /\.callout\{/, "the theme's callout CSS still ships for the aliases that use it");
+  assert.match(css("/tasks/"), /\.status\{/, "the theme's status CSS still ships for the layout that draws it");
   const tasks = built().document("/tasks/");
   assert.equal(all(tasks, "article.record-list, .record-table, .cards, table").length > 0, true, "the list layout is the theme's");
   const record = built().document("/tasks/one/");

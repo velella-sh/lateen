@@ -5,6 +5,7 @@ import { headingSlug } from "../src/slug.ts";
 import type { ComponentChildren } from "preact";
 import type { Layout, LayoutProps, Page } from "@velella/mizzen/contracts";
 import { t } from "../i18n/index.ts";
+import { componentProps } from "../src/component-props.ts";
 import { staleSlot } from "../src/stale.ts";
 import copyMarkdown from "../chrome/copy-markdown/index.ts";
 import editPage from "../chrome/edit-page/index.ts";
@@ -204,13 +205,13 @@ function article(props: LayoutProps): ComponentChildren {
     { class: "doc tutorial", "data-pagefind-body": true },
     articleHeader(props, {
       notices: [
-        renderPageStatus({ props: statusProps(page), page, site: props.site, html: "" }) as ComponentChildren,
-        renderVersionNotice({ props: {}, page, site: props.site, html: "" }) as ComponentChildren,
+        renderPageStatus(componentProps(props, statusProps(page))) as ComponentChildren,
+        renderVersionNotice(componentProps(props, {})) as ComponentChildren,
       ],
       description: null,
       meta: [
         lastUpdated(props) as ComponentChildren,
-        renderReadingTime({ props: {}, page, site: props.site, html: "" }) as ComponentChildren,
+        renderReadingTime(componentProps(props, {})) as ComponentChildren,
       ],
     }),
     staleSlot(props),

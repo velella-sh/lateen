@@ -1,3 +1,4 @@
+import { componentFields } from "./helpers/render-component.ts";
 import assert from "node:assert/strict";
 import { readFileSync } from "node:fs";
 import { test } from "node:test";
@@ -41,7 +42,7 @@ test("each public preset exports only the selected changes and resolves the same
 });
 
 test("initial component output includes a real guide, hidden controls and manually selectable YAML", () => {
-  const out = renderToString(brandStudio({ props: {}, html: "", page: pageWith(), site: siteOf({ config: { base: "/docs" } }) }));
+  const out = renderToString(brandStudio({ props: {}, html: "", page: pageWith(), site: siteOf({ config: { base: "/docs" } }), ...componentFields }));
   assert.match(out, /<form[^>]+ hidden/);
   assert.match(out, /Connection guide/);
   assert.match(out, /class="status /);

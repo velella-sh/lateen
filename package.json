@@ -70,7 +70,7 @@
     "release:candidate": "node scripts/release-candidate.ts"
   },
   "dependencies": {
-    "@velella/mizzen": "^0.2.5",
+    "@velella/mizzen": "^0.2.7",
     "jsdom": "^31.0.1",
     "lucide": "1.76.0",
     "mermaid": "^12.3.0",

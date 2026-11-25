@@ -6,6 +6,7 @@ import type { ComponentProps } from "@velella/mizzen/contracts";
 import { DENSITIES, RADII, brandCss, brandTokens, resolveBrand } from "../../src/brand.ts";
 import { adjustShiki } from "../../src/syntax-contrast.ts";
 import { withBase } from "../../src/url.ts";
+import { componentProps } from "../../src/component-props.ts";
 import callout from "../callout/index.ts";
 import code from "../code/index.ts";
 import status from "../status/index.ts";
@@ -31,7 +32,8 @@ function field(label: string, name: string, values: readonly (readonly [string, 
 const labelOf = (value: string) => value.charAt(0).toUpperCase() + value.slice(1);
 const optionsOf = (values: readonly string[]) => values.map((value) => [value, labelOf(value)] as const);
 
-export default function brandStudio({ page, site }: ComponentProps) {
+export default function brandStudio(input: ComponentProps) {
+  const { page, site } = input;
   const presets = Object.fromEntries(STUDIO_PRESETS.map((preset) => {
     const { brand, problems } = resolveBrand({ preset });
     if (typeof brand?.accent !== "string" || typeof brand.neutral !== "string" || problems.length) throw new Error(`Invalid studio preset: ${preset}`);
@@ -42,12 +44,11 @@ export default function brandStudio({ page, site }: ComponentProps) {
   const base = site.config.base;
 
   // The browser rechecks the original syntax colors without shipping the highlighter.
-  const snippet = renderToString(h("div", null, code({
-    props: { lang: "js" },
-    html: "<pre><code>const retries = 3;\nawait connect({ retries });</code></pre>",
-    page,
-    site: { ...site, config: { ...site.config, theme: { ...site.config.theme, options: {} } } },
-  }))).replace(/style="--shiki-light:(#[\da-f]{6});--shiki-dark:(#[\da-f]{6})"/gi,
+  const snippet = renderToString(h("div", null, code(componentProps(
+    { page, renderComponent: input.renderComponent, site: { ...site, config: { ...site.config, theme: { ...site.config.theme, options: {} } } } },
+    { lang: "js" },
+    "<pre><code>const retries = 3;\nawait connect({ retries });</code></pre>",
+  )))).replace(/style="--shiki-light:(#[\da-f]{6});--shiki-dark:(#[\da-f]{6})"/gi,
     (match, light: string, dark: string) => `${match} data-studio-syntax="${light} ${dark}"`);
   const background = brandTokens(initial)["code-bg"];
   const snippetMarkup = adjustShiki(snippet, background);
@@ -90,13 +91,13 @@ export default function brandStudio({ page, site }: ComponentProps) {
         h("div", { class: "brand-studio-sample", "data-studio-preview": true },
           h("header", { class: "brand-studio-sample-header" },
             h("h3", null, "Connection guide"),
-            status({ props: { tone: "positive", label: "Ready" }, html: "", page, site }) as ComponentChildren,
+            status(componentProps(input, { tone: "positive", label: "Ready" })) as ComponentChildren,
           ),
           h("p", null, "Set up the client and choose how often it retries. ",
             h("a", { href: "#apply-settings" }, "See the settings"),
           ),
-          callout({ props: { type: "tip", title: "Test your connection" },
-            html: "<p>Start with three retries and see how the client responds.</p>", page, site }),
+          callout(componentProps(input, { type: "tip", title: "Test your connection" },
+            "<p>Start with three retries and see how the client responds.</p>")),
           h("div", { dangerouslySetInnerHTML: { __html: snippetMarkup } }),
         ),
       ),

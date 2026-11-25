@@ -3,7 +3,7 @@ import { readdirSync } from "node:fs";
 import { join } from "node:path";
 import { test } from "node:test";
 import { pathToFileURL } from "node:url";
-import type { Component, Site, SourcePos } from "@velella/mizzen/contracts";
+import type { Component, RenderComponent, Site, SourcePos } from "@velella/mizzen/contracts";
 import { renderToString } from "preact-render-to-string";
 import { siteConfig } from "./helpers/site.ts";
 import { pageWith } from "./helpers/page.ts";
@@ -69,10 +69,16 @@ const CASES: readonly (readonly [string, Readonly<Record<string, unknown>>])[] =
 /** Values a render must never print when the author supplied nothing usable. */
 const FABRICATED = /\b(?:undefined|NaN|null|Infinity)\b|\[object Object\]|lorem ipsum/i;
 
+/** The engine's `renderComponent`: resolves a name against every component this scan found. */
+const renderComponent: RenderComponent = (name, props = {}, html = "") => {
+  const unit = units.find((entry) => entry.name === name);
+  return unit === undefined ? "" : renderToString(unit.component({ props, page, site, html, inline: false, renderComponent } as never) as never);
+};
+
 /** Render the component the way the host calls it, and return its text. */
 function render(component: Component, props: Readonly<Record<string, unknown>>): string {
   return renderToString(
-    component({ props, page, site, html: "" } as never) as never,
+    component({ props, page, site, html: "", inline: false, renderComponent } as never) as never,
   );
 }
 

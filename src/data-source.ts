@@ -17,34 +17,36 @@ export interface RecordFile {
 }
 
 /**
- * The file a record page's data is written in, or `undefined` when there is none to edit. A record read from
+ * The file a record page's data is written in, or `undefined` when there is none to edit. Mizzen 0.2.7 says
+ * whether the position is a file the author can open (`editable`) and where the data came from (`source`):
  * a local YAML, JSON or CSV file is that file, at the record's lines. A record from an API, a SQLite query or
- * an NDJSON file is read from `.mizzen/data/<hash>`, a stored copy: the NDJSON source itself is editable but its
- * line numbers belong to the stored result, so it names the file alone; an API or a database has no file, so
- * the page offers no edit.
+ * an NDJSON file is read from `.mizzen/data/<hash>`, a stored copy: the NDJSON source itself is editable but
+ * its line numbers belong to the stored result, so it names the file alone; an API or a database has no file,
+ * so the page offers no edit. A page model without those fields falls back to reading the path.
  */
 export function recordFileOf(config: SiteConfig | undefined, page: Page): RecordFile | undefined {
   const record = page.record;
   if (record === undefined) return undefined;
   // A hand-built page model may omit the position; the engine always writes it.
-  const { file = "", startLine, endLine } = (record.position ?? {}) as Partial<NonNullable<Page["record"]>["position"]>;
-  if (file.trim() !== "" && !STORE.test(file) && !ADDRESS.test(file) && !DATABASE.test(file)) {
+  const { file = "", startLine, endLine, source: named, editable: declared } = (record.position ?? {}) as Partial<NonNullable<Page["record"]>["position"]>;
+  const editable = declared ?? (file.trim() !== "" && !STORE.test(file) && !ADDRESS.test(file) && !DATABASE.test(file));
+  if (editable && file.trim() !== "") {
     const start = startLine !== undefined && Number.isInteger(startLine) && startLine >= 1 ? startLine : undefined;
     if (start === undefined) return { file };
     return { file, start, end: endLine !== undefined && Number.isInteger(endLine) && endLine >= start ? endLine : start };
   }
-  const source = config?.collections?.[record.collection]?.source;
+  const source = named ?? config?.collections?.[record.collection]?.source;
   if (source === undefined || ADDRESS.test(source) || DATABASE.test(source)) return undefined;
   return { file: source };
 }
 
 /**
  * Where a record's data came from, as plain text for a report: the editable file, or else the source the
- * collection's config names (a URL or a database path), and never the stored copy.
+ * position names (a URL or a database path), and never the stored copy.
  */
 export function recordOrigin(config: SiteConfig | undefined, page: Page): string | undefined {
   const file = recordFileOf(config, page);
   if (file !== undefined) return file.start === undefined ? file.file : `${file.file}:${file.start}`;
   const record = page.record;
-  return record === undefined ? undefined : config?.collections?.[record.collection]?.source;
+  return record === undefined ? undefined : (record.position?.source ?? config?.collections?.[record.collection]?.source);
 }

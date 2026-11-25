@@ -3,6 +3,7 @@
 // leave the mono preload out and saves two font requests. A page that does render a block keeps it,
 // because its code is first paint. The stylesheet still declares the face either way, so nothing the
 // page draws changes: only the preload link and the request it starts are left out.
+import { noComponents } from "../helpers/render-component.ts";
 import assert from "node:assert/strict";
 import { test } from "node:test";
 import { h } from "preact";
@@ -47,6 +48,7 @@ function props(html: string, overrides: Partial<Page> = {}): LayoutProps {
   };
   const site: Site = { config, pages: [page], nav: {}, data: {}, collections: {} };
   return {
+    renderComponent: noComponents,
     site,
     page,
     trail: [],

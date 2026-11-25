@@ -1,3 +1,4 @@
+import { noComponents } from "../../helpers/render-component.ts";
 import assert from "node:assert/strict";
 import { readFileSync } from "node:fs";
 import { test } from "node:test";
@@ -54,7 +55,7 @@ function props(options: Readonly<Record<string, unknown>>, lang = "en"): ChromeP
 const head: Head = { title: "Home · Example", meta: [], links: [], jsonLd: [] };
 
 function layoutProps(options: Readonly<Record<string, unknown>>, lang = "en"): LayoutProps {
-  return { ...props(options, lang), head, islands: [] };
+  return { ...props(options, lang), head, islands: [], renderComponent: noComponents };
 }
 
 /** The bar's HTML, or an empty string when it renders nothing. */

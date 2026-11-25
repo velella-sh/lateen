@@ -1,3 +1,4 @@
+import { noComponents } from "../helpers/render-component.ts";
 import assert from "node:assert/strict";
 import { readFileSync } from "node:fs";
 import { test } from "node:test";
@@ -69,6 +70,7 @@ function layoutProps(
 ): LayoutProps {
   const site: Site = { config: configWith(config), pages: [page], nav: { main: nav }, data: {}, collections: {} };
   return {
+    renderComponent: noComponents,
     site,
     page,
     trail: [],

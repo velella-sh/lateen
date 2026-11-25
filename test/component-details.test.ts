@@ -1,3 +1,4 @@
+import { componentFields } from "./helpers/render-component.ts";
 import assert from "node:assert/strict";
 import { test } from "node:test";
 import { JSDOM } from "jsdom";
@@ -16,7 +17,7 @@ const page = pageWith({ url: "/example/guide/setup/", source: pos, frontMatter: 
 const site: Site = { config, pages: [page], nav: {}, data: {}, collections: {} };
 
 function render(props: DetailsProps, body = "<p>Body text.</p>"): string {
-  return html(details({ props, page, site, html: body }));
+  return html(details({ props, page, site, html: body, ...componentFields }));
 }
 
 type VNode = { type: unknown; props: { children?: unknown; [key: string]: unknown } };

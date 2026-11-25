@@ -1,3 +1,4 @@
+import { noComponents } from "../helpers/render-component.ts";
 import assert from "node:assert/strict";
 import { existsSync, readFileSync, writeFileSync } from "node:fs";
 import { test } from "node:test";
@@ -40,7 +41,7 @@ function layoutProps(frontMatter: Record<string, unknown>, body = ""): LayoutPro
     kind: "doc",
   };
   const site: Site = { config, pages: [page], nav: {}, data: {}, collections: {} };
-  return { site, page, trail: [], pager: {}, head: { title: "Home · Example", meta: [], links: [], jsonLd: [] }, islands: [] };
+  return { site, page, trail: [], pager: {}, head: { title: "Home · Example", meta: [], links: [], jsonLd: [] }, islands: [], renderComponent: noComponents };
 }
 
 type VNode = { type: unknown; props: { children?: unknown; dangerouslySetInnerHTML?: { __html: string }; [key: string]: unknown } };

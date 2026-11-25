@@ -251,7 +251,7 @@ function showpieceContent(props: LayoutProps): ComponentChildren {
   const { page, site } = props;
   const fm = page.frontMatter;
   const options = optionsOf(props);
-  const shared = { page, site, html: "" };
+  const shared = { page, site, html: "", inline: false, renderComponent: props.renderComponent };
   const blocks: ComponentChildren[] = [];
 
   const look = resolveBrand(site.config.theme.options).brand?.showpiece;
@@ -285,7 +285,7 @@ function showpieceContent(props: LayoutProps): ComponentChildren {
   if (isRecord(demo) && page.html.trim() !== "") {
     bodyUsed = true;
     blocks.push(
-      h("div", { class: "home-showpiece-demo" }, call(frame, { page, site, html: page.html, props: defined({ title: stringAt(demo, "title"), caption: stringAt(demo, "caption") }) })),
+      h("div", { class: "home-showpiece-demo" }, call(frame, { ...shared, html: page.html, props: defined({ title: stringAt(demo, "title"), caption: stringAt(demo, "caption") }) })),
     );
   }
 

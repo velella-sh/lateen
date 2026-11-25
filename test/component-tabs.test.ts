@@ -1,3 +1,4 @@
+import { componentFields } from "./helpers/render-component.ts";
 import assert from "node:assert/strict";
 import { readFileSync } from "node:fs";
 import { test } from "node:test";
@@ -58,7 +59,7 @@ const BODY = [
 ].join("\n");
 
 function render(props: TabsProps, body = BODY): string {
-  return html(tabs({ props, page, site, html: body }));
+  return html(tabs({ props, page, site, html: body, ...componentFields }));
 }
 
 /** One tabs directive the Markdown stage left in a page's html, at the source lines `line`–`endLine`. */
@@ -74,7 +75,7 @@ function bodyAt(line: number): string {
 
 /** The component rendered inside a page whose html carries these Markdown-stage directives. */
 function renderOn(pageHtml: string, props: TabsProps, body: string): string {
-  return html(tabs({ props, page: { ...page, html: pageHtml }, site, html: body }));
+  return html(tabs({ props, page: { ...page, html: pageHtml }, site, html: body, ...componentFields }));
 }
 
 type VNode = { type: unknown; props: { children?: unknown; [key: string]: unknown } };

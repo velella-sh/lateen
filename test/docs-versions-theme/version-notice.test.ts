@@ -1,3 +1,4 @@
+import { componentFields } from "../helpers/render-component.ts";
 import assert from "node:assert/strict";
 import { readFileSync } from "node:fs";
 import { test } from "node:test";
@@ -69,7 +70,7 @@ function defaultPages(): Page[] {
 }
 
 function render(site: Site, target: Page): string {
-  const node = versionNotice({ props: {}, page: target, site, html: "" });
+  const node = versionNotice({ props: {}, page: target, site, html: "", ...componentFields });
   return node == null ? "" : renderToString(node as never);
 }
 
