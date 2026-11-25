@@ -2,6 +2,7 @@ import assert from "node:assert/strict";
 import { test } from "node:test";
 import {
   CASES,
+  EXTERNAL_HOSTS,
   buildSmokeReport,
   classifySmokeEvent,
   externalAllowed,
@@ -45,6 +46,12 @@ test("external hosts are allowed only when the allowlist names them", () => {
   assert.equal(externalAllowed(cdn, origin, ["cdn.example.com"]), true);
   assert.equal(externalAllowed(cdn, origin, []), false);
   assert.equal(externalAllowed(`${origin}/app.js`, origin, []), true);
+});
+
+test("the smoke run allows the Cloudflare Web Analytics beacon and nothing else outside the site", () => {
+  assert.deepEqual(EXTERNAL_HOSTS, ["static.cloudflareinsights.com"]);
+  assert.equal(externalAllowed("https://static.cloudflareinsights.com/beacon.min.js", origin), true);
+  assert.equal(externalAllowed("https://cdn.example.com/app.js", origin), false);
 });
 
 test("failures sort by kind and then detail", () => {
