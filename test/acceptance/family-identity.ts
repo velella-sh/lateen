@@ -41,7 +41,7 @@ function ratio(first: string, second: string): number {
 
 function buildSites(root: string, project: string): void {
   const source = "https://velella.sh/network.json";
-  const bytes = readFileSync(join(root, "site/brand/network.json"));
+  const bytes = readFileSync(join(root, "test/acceptance/fixtures/network.json"));
   const lock = readFileSync(join(root, "site/network.lock.json"), "utf8");
   const parsedLock = JSON.parse(lock);
   assert.equal(parsedLock.source, source);
