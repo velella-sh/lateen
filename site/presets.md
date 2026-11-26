@@ -79,7 +79,7 @@ The preset changes the colours. To give a family site the shared navigation and 
 
 ~~~yaml
 network:
-  source: https://velella.sh/lateen/brand/network.json
+  source: https://velella.sh/network.json
   project: lateen
 theme:
   options:

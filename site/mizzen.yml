@@ -5,7 +5,7 @@ lang: en
 url: https://velella.sh
 base: /lateen
 network:
-  source: https://velella.sh/lateen/brand/network.json
+  source: https://velella.sh/network.json
   project: lateen
 repository:
   url: https://github.com/velella-sh/lateen
