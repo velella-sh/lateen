@@ -55,7 +55,7 @@ export const CASES: readonly SmokeCase[] = [
  * never reaches the network.
  *
  * - `static.cloudflareinsights.com`: the cookieless Cloudflare Web Analytics beacon. Mizzen 0.2.7 prints
- *   it on the docs site pages because the shared network list (`site/brand/network.json`) sets `analytics`.
+ *   it on the docs site pages because the shared network list (https://velella.sh/network.json) sets `analytics`.
  */
 export const EXTERNAL_HOSTS: readonly string[] = ["static.cloudflareinsights.com"];
 
