@@ -46,7 +46,8 @@ function buildSites(root: string, project: string): void {
   const parsedLock = JSON.parse(lock);
   assert.equal(parsedLock.source, source);
   assert.equal(parsedLock.sha256, createHash("sha256").update(bytes).digest("hex"));
-  assert.deepEqual(parsedLock.projects, JSON.parse(bytes.toString()).projects);
+  // The lock also pins each public project's page list; the shared list has the rest.
+  assert.deepEqual(parsedLock.projects.map(({ manifest: _manifest, ...project }: Record<string, unknown>) => project), JSON.parse(bytes.toString()).projects);
 
   for (const preset of [...presets, "independent"] as const) {
     const member = preset !== "independent";
