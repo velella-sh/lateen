@@ -1,7 +1,6 @@
 import { readFileSync } from "node:fs";
 import { h } from "preact";
 import type { ComponentProps } from "@velella/mizzen/contracts";
-import mermaid from "../mermaid/index.ts";
 import { codeBackgrounds } from "../../src/brand.ts";
 import { adjustShiki, type CodeBackdrops } from "../../src/syntax-contrast.ts";
 
@@ -243,7 +242,7 @@ export type CodeProps = {
  * token, and `style.css` picks one with `light-dark()`, so the theme switch needs no rebuild and no
  * highlighting runs in the browser.
  */
-export default function code({ props, html, page, site }: ComponentProps<CodeProps>) {
+export default function code({ props, html, page, site, renderComponent }: ComponentProps<CodeProps>) {
   const lang = (typeof props.lang === "string" ? props.lang.trim() : "") || langFromBody(html) || "text";
   const text = sourceText(html);
   // No page-start fallback: the engine stamps the directive's own span on the root, so each block
@@ -252,7 +251,7 @@ export default function code({ props, html, page, site }: ComponentProps<CodePro
   // A fence marked `mermaid` is a diagram, not text; `mermaidComponents` in the engine sends fences
   // straight to the mermaid component, and this keeps `:::code{lang=mermaid}` working too.
   if (lang === "mermaid") {
-    return mermaid({ props: { source: text, ...(src ? { src } : {}) }, page, site, html });
+    return renderComponent("mermaid", { source: text, ...(src ? { src } : {}) }, html);
   }
   const out = highlightedHtml(text, lang, codeBackgrounds(site.config?.theme?.options));
   const inner = /<code[^>]*>([\s\S]*)<\/code>/.exec(out)?.[1] ?? "";

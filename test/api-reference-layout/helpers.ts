@@ -1,3 +1,4 @@
+import { noComponents } from "../helpers/render-component.ts";
 import type { Heading, LayoutProps, Page, Site, SiteConfig, SourcePos } from "@velella/mizzen/contracts";
 
 /** The source position of a generated page: the top of the OpenAPI file. */
@@ -53,6 +54,7 @@ export function layoutProps(
 ): LayoutProps {
   const site: Site = { config: configWith(), pages: [...pages], nav: { main: nav }, data: {}, collections: {} };
   return {
+    renderComponent: noComponents,
     site,
     page,
     trail,

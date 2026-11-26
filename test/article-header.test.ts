@@ -1,3 +1,4 @@
+import { noComponents } from "./helpers/render-component.ts";
 import assert from "node:assert/strict";
 import { readFileSync } from "node:fs";
 import { test } from "node:test";
@@ -51,6 +52,7 @@ function pageWith(overrides: Partial<Page> = {}): Page {
 function propsOf(page: Page, data: Site["data"] = {}): LayoutProps {
   const site: Site = { config, pages: [page], nav: { main: [] }, data, collections: {} };
   return {
+    renderComponent: noComponents,
     site,
     page,
     trail: [],

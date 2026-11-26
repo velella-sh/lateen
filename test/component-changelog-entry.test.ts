@@ -1,3 +1,4 @@
+import { componentFields } from "./helpers/render-component.ts";
 import assert from "node:assert/strict";
 import { readFileSync } from "node:fs";
 import { test } from "node:test";
@@ -49,7 +50,7 @@ function render(props: ChangelogEntryProps, body = "<p>Body text.</p>", lang = "
 
 /** Renders on a given page, so tests can put several entries on the same page and see their ids disambiguate. */
 function renderOn(page: Page, props: ChangelogEntryProps, body = "<p>Body text.</p>"): string {
-  return html(changelogEntry({ props, page, site, html: body }));
+  return html(changelogEntry({ props, page, site, html: body, ...componentFields }));
 }
 
 type VNode = { type: unknown; props: { children?: unknown; [key: string]: unknown } };
@@ -231,7 +232,7 @@ test("repeated versions keep the published id first and disambiguate in page ord
 
 test("the rendered entry publishes the id it allocated on its section vnode", () => {
   const page = pageFor();
-  const node = changelogEntry({ props: { version: "1.2.0" }, page, site, html: "" });
+  const node = changelogEntry({ props: { version: "1.2.0" }, page, site, html: "", ...componentFields });
   assert.equal(node.props.id, sectionId(html(node)));
 });
 

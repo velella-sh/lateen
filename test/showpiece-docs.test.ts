@@ -1,6 +1,7 @@
 // The showpiece page is itself the live example, so every key it documents must be a key the
 // layout reads (#492). The layout runs with a recording proxy, so the compared list comes from the
 // reads and not from a second copy in the test.
+import { noComponents } from "./helpers/render-component.ts";
 import assert from "node:assert/strict";
 import { readFileSync } from "node:fs";
 import { test } from "node:test";
@@ -45,7 +46,7 @@ function layoutProps(frontMatter: Record<string, unknown>, body: string): Layout
     kind: "doc",
   };
   const site: Site = { config, pages: [current], nav: {}, data: {}, collections: {} };
-  return { site, page: current, trail: [], pager: {}, head: { title: "Home · Example", meta: [], links: [], jsonLd: [] }, islands: [] };
+  return { site, page: current, trail: [], pager: {}, head: { title: "Home · Example", meta: [], links: [], jsonLd: [] }, islands: [], renderComponent: noComponents };
 }
 
 /** The front-matter paths read while the layout runs, containers removed. */

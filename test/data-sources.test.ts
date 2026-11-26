@@ -1,7 +1,9 @@
 import assert from "node:assert/strict";
 import { createHash } from "node:crypto";
 import { test } from "node:test";
+import { recordFileOf, recordOrigin } from "../src/data-source.ts";
 import { all, build, type BuiltSite } from "./integration-helpers.ts";
+import { pageWith } from "./helpers/page.ts";
 
 /**
  * Verifies the data sources Mizzen 0.2.5 added (a paginated https API, a SQLite query, an NDJSON file)
@@ -183,4 +185,19 @@ test("a record from a plain data file still links its file and lines", () => {
   const { prompt, data } = dataPointers("/notes/n1/");
   assert.match(prompt ?? "", /^Edit _data\/notes\.json:\d+\. /);
   assert.match(data ?? "", /^Data: \[_data\/notes\.json:\d+\]\(https:\/\/github\.com\/example\/docs\/blob\/main\/_data\/notes\.json#L\d+\)$/);
+});
+
+test("a record position that says whether it is editable (Mizzen 0.2.7) decides the edit link", () => {
+  const record = (position: Record<string, unknown>) => pageWith({ record: { collection: "c", id: "r", data: {}, position } as never });
+  // A file the author can open: the file and the record's lines, whatever the path looks like.
+  const local = record({ file: "_data/items.yml", startLine: 4, endLine: 6, editable: true, source: "_data/items.yml" });
+  assert.deepEqual(recordFileOf(undefined, local), { file: "_data/items.yml", start: 4, end: 6 });
+  assert.equal(recordOrigin(undefined, local), "_data/items.yml:4");
+  // A stored copy of a remote source: no edit, and the report names where the data came from.
+  const remote = record({ file: ".mizzen/data/abc", startLine: 2, editable: false, source: "https://api.example.test/v1/items" });
+  assert.equal(recordFileOf(undefined, remote), undefined);
+  assert.equal(recordOrigin(undefined, remote), "https://api.example.test/v1/items");
+  // An editable source whose line numbers belong to a stored result names the file alone.
+  const ndjson = record({ file: ".mizzen/data/def", startLine: 9, editable: false, source: "_data/events.ndjson" });
+  assert.deepEqual(recordFileOf(undefined, ndjson), { file: "_data/events.ndjson" });
 });

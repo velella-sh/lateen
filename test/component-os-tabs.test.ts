@@ -1,3 +1,4 @@
+import { componentFields } from "./helpers/render-component.ts";
 import assert from "node:assert/strict";
 import { readFileSync } from "node:fs";
 import { test } from "node:test";
@@ -60,7 +61,7 @@ const BODY = [
 ].join("\n");
 
 function render(props: OsTabsProps, body = BODY): string {
-  return html(osTabs({ props, page, site, html: body }));
+  return html(osTabs({ props, page, site, html: body, ...componentFields }));
 }
 
 type VNode = { type: unknown; props: { children?: unknown; [key: string]: unknown } };

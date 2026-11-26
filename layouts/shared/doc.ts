@@ -15,6 +15,7 @@ import { renderPageStatus } from "../../components/page-status/render.ts";
 import { renderReadingTime } from "../../components/reading-time/render.ts";
 import { renderVersionNotice } from "../../components/version-notice/render.ts";
 import { renderTrustPanel } from "../../components/trust-panel/render.ts";
+import { componentProps } from "../../src/component-props.ts";
 import { codeBackgrounds } from "../../src/brand.ts";
 import { articleHtml } from "../../src/article-html.ts";
 import { articleHeader, articleShell, statusProps } from "./index.ts";
@@ -36,16 +37,16 @@ function article(props: LayoutProps): ComponentChildren {
     articleHeader(props, {
       tools: pageTools(props, sourceMode(props) as ComponentChildren),
       notices: [
-        renderDriftBanner({ props: {}, page, site: props.site, html: "" }) as ComponentChildren,
-        renderPageStatus({ props: statusProps(page), page, site: props.site, html: "" }) as ComponentChildren,
-        renderVersionNotice({ props: {}, page, site: props.site, html: "" }) as ComponentChildren,
+        renderDriftBanner(componentProps(props, {})) as ComponentChildren,
+        renderPageStatus(componentProps(props, statusProps(page))) as ComponentChildren,
+        renderVersionNotice(componentProps(props, {})) as ComponentChildren,
       ],
       meta: quickstart
         ? undefined
         : [
-            renderTrustPanel({ props: {}, page, site: props.site, html: "" }) as ComponentChildren,
+            renderTrustPanel(componentProps(props, {})) as ComponentChildren,
             lastUpdated(props) as ComponentChildren,
-            renderReadingTime({ props: {}, page, site: props.site, html: "" }) as ComponentChildren,
+            renderReadingTime(componentProps(props, {})) as ComponentChildren,
           ],
     }),
     staleSlot(props),

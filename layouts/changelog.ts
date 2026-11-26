@@ -8,6 +8,7 @@ import changelogEntry, {
   type ChangelogEntryProps,
 } from "../components/changelog-entry/index.ts";
 import { isRecord } from "../src/guards.ts";
+import { componentProps } from "../src/component-props.ts";
 import { pageHtml } from "../src/article-html.ts";
 import { t } from "../i18n/index.ts";
 import { articleShell, titleFromBody } from "./shared/index.ts";
@@ -173,12 +174,7 @@ function entry(release: Release, props: LayoutProps): IdentifiedRelease {
     ...(release.date === undefined ? {} : { date: release.date }),
     ...(release.categories === undefined ? {} : { categories: release.categories }),
   };
-  const node = changelogEntry({
-    props: entryProps,
-    page: props.page,
-    site: props.site,
-    html: release.body,
-  });
+  const node = changelogEntry(componentProps(props, entryProps, release.body));
   return { release, id: node.props.id, node };
 }
 

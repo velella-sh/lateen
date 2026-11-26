@@ -1,3 +1,4 @@
+import { noComponents } from "../helpers/render-component.ts";
 import assert from "node:assert/strict";
 import { test } from "node:test";
 import { Fragment, h } from "preact";
@@ -26,6 +27,7 @@ function layoutProps(overrides: Partial<Page> = {}): LayoutProps {
   };
   const site: Site = { config, pages: [page], nav: {}, data: {}, collections: {} };
   return {
+    renderComponent: noComponents,
     site,
     page,
     trail: [],

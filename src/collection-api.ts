@@ -2,10 +2,12 @@ import { h } from "preact";
 import type { ComponentChildren } from "preact";
 import type { Island, LayoutProps } from "@velella/mizzen/contracts";
 import collectionApiSchema from "../components/collection-api-schema/index.ts";
+import { componentProps } from "./component-props.ts";
 import { t } from "../i18n/index.ts";
 
 /** Links to Mizzen's newest active API version for this collection, with a deprecated fallback. */
-export function collectionApi({ page, site, record, list, islands }: LayoutProps): ComponentChildren {
+export function collectionApi(layout: LayoutProps): ComponentChildren {
+  const { page, site, record, list, islands } = layout;
   const api = site.config?.api;
   const name = record?.collection ?? list?.collection;
   if (api === undefined || name === undefined || site.config.outputs?.api === false) return null;
@@ -34,12 +36,7 @@ export function collectionApi({ page, site, record, list, islands }: LayoutProps
   const prefix = `${site.config.base.replace(/\/+$/, "")}/api/${selected.version}`;
   const segment = encodeURIComponent(name);
   const schema = record === undefined && collection?.schema !== undefined
-    ? collectionApiSchema({
-        page,
-        site,
-        html: "",
-        props: { index: `${prefix}/index.json`, schema: `${prefix}/schemas/${segment}.json` },
-      }) as ComponentChildren
+    ? collectionApiSchema(componentProps(layout, { index: `${prefix}/index.json`, schema: `${prefix}/schemas/${segment}.json` })) as ComponentChildren
     : null;
   if (schema !== null) {
     // Mizzen writes the client modules named by the rendered layout.

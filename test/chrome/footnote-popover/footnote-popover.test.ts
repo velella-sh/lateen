@@ -1,3 +1,4 @@
+import { noComponents } from "../../helpers/render-component.ts";
 import assert from "node:assert/strict";
 import { readFileSync } from "node:fs";
 import { test } from "node:test";
@@ -60,7 +61,7 @@ function props(html: string, kind: Page["kind"] = "doc"): ChromeProps {
 const head: Head = { title: "Install · Example", meta: [], links: [], jsonLd: [] };
 
 function layoutProps(html: string): LayoutProps {
-  return { ...props(html), head, islands: [] };
+  return { ...props(html), head, islands: [], renderComponent: noComponents };
 }
 
 type VNode = { type: unknown; props: { children?: unknown; dangerouslySetInnerHTML?: { __html: string }; [key: string]: unknown } };

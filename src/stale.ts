@@ -1,5 +1,6 @@
 import type { ComponentChildren } from "preact";
 import type { LayoutProps, PageStaleFile } from "@velella/mizzen/contracts";
+import { componentProps } from "./component-props.ts";
 import staleNotice from "../components/stale-notice/index.ts";
 import { editHref } from "../chrome/edit-page/index.ts";
 import { providersOf, safeAgentHref } from "../chrome/page-agent-menu/providers.ts";
@@ -42,15 +43,10 @@ export function staleSlot(props: LayoutProps): ComponentChildren {
   if (props.page.stale === undefined) return null;
   const editUrl = editHref(props.site, props.page);
   const agentUrl = agentUrlOf(props);
-  return staleNotice({
-    props: {
-      stale: props.page.stale,
-      ...(props.site.config.repository === undefined ? {} : { repository: props.site.config.repository }),
-      ...(editUrl === undefined ? {} : { editUrl }),
-      ...(agentUrl === undefined ? {} : { agentUrl }),
-    },
-    page: props.page,
-    site: props.site,
-    html: "",
-  }) as ComponentChildren;
+  return staleNotice(componentProps(props, {
+    stale: props.page.stale,
+    ...(props.site.config.repository === undefined ? {} : { repository: props.site.config.repository }),
+    ...(editUrl === undefined ? {} : { editUrl }),
+    ...(agentUrl === undefined ? {} : { agentUrl }),
+  })) as ComponentChildren;
 }

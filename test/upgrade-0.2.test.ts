@@ -35,6 +35,14 @@ const INTENDED = [
   { selector: ".tested-chip", reason: "0.2.3 links the tested chip to the page's trust panel." },
   { selector: ".shortcuts-open,.shortcuts", reason: "The shortcuts dialog and character shortcuts were removed." },
   { selector: "script", reason: "The theme script set grows with the new islands and their data." },
+  {
+    selector: 'meta[property^="og:"], meta[name^="twitter:"]',
+    reason: "Mizzen 0.2.7 prints Open Graph and Twitter tags on every page; 0.2.2 never called the engine's head builder.",
+  },
+  {
+    selector: 'link[rel="canonical"]',
+    reason: "Mizzen 0.2.7 prints the canonical link with the rest of its head, before the alternates; test/head-meta.test.ts asserts exactly one on every layout.",
+  },
   { selector: "header", reason: "0.2.3 cuts every layout over to the sailcloth site-header chrome." },
   { selector: ".progress", reason: "The sailcloth shell adds a reading progress bar above the header." },
   { selector: "footer", reason: "The sailcloth shell footer replaces the previous site-footer chrome." },

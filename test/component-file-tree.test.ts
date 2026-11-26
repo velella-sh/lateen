@@ -1,3 +1,4 @@
+import { componentFields } from "./helpers/render-component.ts";
 import assert from "node:assert/strict";
 import { readFileSync } from "node:fs";
 import { test } from "node:test";
@@ -53,7 +54,7 @@ function html(node: unknown): string {
 }
 
 function render(body: string, props: Record<string, string> = {}, on: Page = { ...page }): string {
-  const componentProps: ComponentProps<Record<string, string>> = { props, page: on, site, html: body };
+  const componentProps: ComponentProps<Record<string, string>> = { props, page: on, site, html: body, ...componentFields };
   return html(fileTree(componentProps as ComponentProps<{ label?: string }>));
 }
 

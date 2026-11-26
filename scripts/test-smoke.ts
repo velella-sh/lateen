@@ -50,10 +50,14 @@ export const CASES: readonly SmokeCase[] = [
 ];
 
 /**
- * The only external hosts a smoke page may request. These routes request none; a new third-party
- * asset must be added here with its reason, never ignored globally.
+ * The only external hosts a smoke page may request; a new third-party asset must be added here with
+ * its reason, never ignored globally. Allowed hosts are answered with an empty script, so the gate
+ * never reaches the network.
+ *
+ * - `static.cloudflareinsights.com`: the cookieless Cloudflare Web Analytics beacon. Mizzen 0.2.7 prints
+ *   it on the docs site pages because the shared network list (`site/brand/network.json`) sets `analytics`.
  */
-export const EXTERNAL_HOSTS: readonly string[] = [];
+export const EXTERNAL_HOSTS: readonly string[] = ["static.cloudflareinsights.com"];
 
 export type SmokeFailureKind = "console" | "external" | "page" | "request" | "response";
 
@@ -191,7 +195,9 @@ async function auditRoute(browser: Browser, servers: Readonly<Record<SmokeSite, 
   try {
     await context.route("**/*", (route) => {
       const url = route.request().url();
-      return sameOrigin(url, server.url) || externalAllowed(url, server.url, EXTERNAL_HOSTS) ? route.continue() : route.abort();
+      if (sameOrigin(url, server.url)) return route.continue();
+      if (externalAllowed(url, server.url, EXTERNAL_HOSTS)) return route.fulfill({ status: 200, contentType: "text/javascript", body: "" });
+      return route.abort();
     });
     const page: Page = await context.newPage();
     page.on("console", (message) => {

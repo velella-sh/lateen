@@ -1,3 +1,4 @@
+import { componentFields } from "./helpers/render-component.ts";
 import assert from "node:assert/strict";
 import { readFileSync } from "node:fs";
 import { test } from "node:test";
@@ -41,7 +42,7 @@ const PRE_PNPM = '<pre class="code" data-lang="bash"><code>pnpm add mizzen</code
 const PRE_YARN = '<pre class="code" data-lang="bash"><code>yarn add mizzen</code></pre>';
 
 function render(props: CodeTabsProps, body = `${PRE_NPM}${PRE_PNPM}`): string {
-  return html(codeTabs({ props, page, site, html: body }));
+  return html(codeTabs({ props, page, site, html: body, ...componentFields }));
 }
 
 type VNode = { type: unknown; props: { children?: unknown; [key: string]: unknown } };

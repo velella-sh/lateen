@@ -1,3 +1,4 @@
+import { noComponents } from "../../helpers/render-component.ts";
 import assert from "node:assert/strict";
 import { readFileSync } from "node:fs";
 import { afterEach, test } from "node:test";
@@ -68,6 +69,7 @@ function props(nav: NavTree, lang = "en"): LayoutProps {
   const page = pageAt(lang);
   const site: Site = { config: configWith({ lang, dir: lang === "en" ? "ltr" : "rtl" }), pages: [page], nav, data: {}, collections: {} };
   return {
+    renderComponent: noComponents,
     site,
     page,
     trail: [],
