@@ -9,6 +9,11 @@ A preset is one JSON file of brand options in `tokens/presets/`. Name it in `the
 and override single values under `theme.options.brand`. Every preset is held to the same contrast
 test in both themes, so a preset never ships an unreadable pair.
 
+A preset recolours the whole page, not only the article: header, sidebar, footer and body read the
+same tokens. Its accent is the brand colour, so the primary button (`on-brand` on `brand`), the active
+navigation item and a callout (`text` and `brand` on `brand-subtle`) all follow it. The test in
+`test/presets.test.ts` holds each of those pairs to 4.5:1 for every preset, in light and dark.
+
 The sample below every heading is the theme's own markup and tokens under that preset's values. The
 blocked code under it is what you copy into `mizzen.yml`. None of the previews changes the page around
 them.

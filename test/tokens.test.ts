@@ -286,12 +286,12 @@ test("the surface layers and every text and link pair reach their contrast in bo
   }
 });
 
-test("the three surface layers step in lightness and the accent is unchanged (#470)", () => {
+test("the three surface layers step in lightness and the accent is the brand colour (#470, #1295)", () => {
   const tokens = loadTokens();
   for (const mode of ["light", "dark"] as const) {
     const [sunken, canvas] = ["color-surface-sunken", "color-canvas"].map((n) => luminance(schemeValue(n, mode, tokens)));
     assert.ok((sunken ?? 0) < (canvas ?? 0), `the ${mode} sunken layer is darker than the canvas`);
   }
-  assert.equal(schemeValue("color-accent", "light", tokens), "#23212c");
-  assert.equal(schemeValue("color-accent", "dark", tokens), "#dcd7eb");
+  assert.equal(schemeValue("color-accent", "light", tokens), schemeValue("color-brand", "light", tokens));
+  assert.equal(schemeValue("color-accent", "dark", tokens), schemeValue("color-brand", "dark", tokens));
 });

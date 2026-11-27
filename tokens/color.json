@@ -64,18 +64,26 @@
     }
   },
   "accent": {
-    "$value": "#23212c",
+    "$value": "{color.brand}",
     "$extensions": {
       "lateen": {
-        "dark": "#dcd7eb"
+        "dark": "{color.brand}"
+      }
+    }
+  },
+  "accent-hover": {
+    "$value": "{color.brand-hover}",
+    "$extensions": {
+      "lateen": {
+        "dark": "{color.brand-hover}"
       }
     }
   },
   "on-accent": {
-    "$value": "#dcd7eb",
+    "$value": "{color.on-brand}",
     "$extensions": {
       "lateen": {
-        "dark": "#23212c"
+        "dark": "{color.on-brand}"
       }
     }
   },

@@ -9,9 +9,9 @@
   --color-muted: light-dark(#4a4658, #b7b2c9);
   --color-border: light-dark(#d5d3e3, #4a4760);
   --color-border-strong: light-dark(#8481c7, #8f8cd8);
-  --color-accent: light-dark(#23212c, #dcd7eb);
-  --color-accent-hover: light-dark(#393743, #f4f4f9);
-  --color-on-accent: light-dark(#dcd7eb, #23212c);
+  --color-accent: light-dark(var(--color-brand), var(--color-brand));
+  --color-accent-hover: light-dark(var(--color-brand-hover), var(--color-brand-hover));
+  --color-on-accent: light-dark(var(--color-on-brand), var(--color-on-brand));
   --color-link: light-dark(#3f5f88, #b7d0ea);
   --color-link-hover: light-dark(#3f5f88, #d4e4f5);
   --color-focus: light-dark(#4c6f9a, #8fb0d4);

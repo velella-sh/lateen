@@ -151,7 +151,7 @@ test("a malformed showpiece option is ignored by name", () => {
 test("family presets preserve the approved neutral roles and source accents in both schemes", () => {
   const family = {
     ebb: { light: "#3f6e66", dark: "#7aa89f" },
-    lateen: { light: "#4c6f9a", dark: "#7e9cd8" },
+    lateen: { light: "#2f5d9e", dark: "#7e9cd8" }, // the bold brand colour (#1295); the family accents below are unchanged
     mizzen: { light: "#8a6220", dark: "#e6c384" },
     offing: { light: "#6a5590", dark: "#a592cc" },
   };
