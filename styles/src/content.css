@@ -1143,6 +1143,95 @@
     border-radius: var(--radius-lg);
   }
 
+  /* A diagram or chart in the panel is drawn from the same SVG as the inline one, scaled to fill the
+     panel instead of keeping its natural width. The trigger button wraps the inline copy, so its text
+     keeps the page's alignment. */
+  .figure-zoom-svg,
+  .figure-zoom-panel .mermaid-diagram > svg {
+    display: block;
+    inline-size: 100%;
+    block-size: auto;
+  }
+
+  .figure-zoom-panel .mermaid-diagram {
+    border: 0;
+    padding: 0;
+    overflow: visible;
+  }
+
+  .figure-zoomable:has(> .figure-zoom > .mermaid-diagram) > .figure-zoom {
+    inline-size: 100%;
+    text-align: start;
+  }
+
+  /* A paired figure's panel holds both full-size images and links; only the active scheme's shows, so
+     the other (hidden, lazy) is never fetched. Without script the page keeps its default scheme, so
+     the reader's `prefers-color-scheme` decides. */
+  .figure-zoom-img-dark,
+  .figure-zoom-full-dark {
+    display: none;
+  }
+
+  [data-theme="dark"] .figure-zoom-img-light,
+  [data-theme="dark"] .figure-zoom-full-light {
+    display: none;
+  }
+
+  [data-theme="dark"] .figure-zoom-img-dark {
+    display: block;
+  }
+
+  [data-theme="dark"] .figure-zoom-full-dark {
+    display: inline-flex;
+  }
+
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-js]) .figure-zoom-img-light,
+    :root:not([data-js]) .figure-zoom-full-light {
+      display: none;
+    }
+
+    :root:not([data-js]) .figure-zoom-img-dark {
+      display: block;
+    }
+
+    :root:not([data-js]) .figure-zoom-full-dark {
+      display: inline-flex;
+    }
+  }
+
+  /* A multi-image figure: previous and next buttons move between the figure's panels. The row follows the
+     reading direction, so previous sits first in either direction, and the chevrons mirror in RTL. */
+  .figure-images .figure-zoom {
+    inline-size: 100%;
+  }
+
+  .figure-zoom-nav {
+    display: flex;
+    gap: var(--space-2);
+    align-items: center;
+  }
+
+  .figure-zoom-prev,
+  .figure-zoom-next {
+    display: inline-flex;
+    padding: var(--space-1);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-lg);
+    background: var(--card);
+    color: inherit;
+    cursor: pointer;
+  }
+
+  .figure-zoom-nav-icon {
+    inline-size: 1.25rem;
+    block-size: 1.25rem;
+  }
+
+  [dir="rtl"] .figure-zoom-nav-icon {
+    transform: scaleX(-1);
+  }
+
   .figure-zoom-bar {
     display: flex;
     flex-wrap: wrap;
@@ -1151,6 +1240,13 @@
     align-items: center;
     margin-block-start: var(--space-3);
     font-size: var(--text-sm);
+  }
+
+  /* A target of at least 24 by 24 CSS pixels, like the close button. */
+  .figure-zoom-full {
+    display: inline-flex;
+    align-items: center;
+    min-block-size: 1.75rem;
   }
 
   .figure-zoom-close {

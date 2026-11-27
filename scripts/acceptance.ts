@@ -16,7 +16,7 @@ import { basename, dirname, join, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 import { chromium, type Browser, type Page } from "playwright";
 import { FAMILY_CASE_NAMES, runFamilyIdentity } from "../test/acceptance/family-identity.ts";
-import { CASES, type Expectation } from "../test/acceptance/cases.ts";
+import { CASES, type Expectation, type Journey } from "../test/acceptance/cases.ts";
 import { gateProblems, ledgerProblems, changelogProblems, type AcceptanceReport, type FeatureLedger } from "../test/acceptance/ledger.ts";
 import { waitFor } from "../test/helpers/wait.ts";
 import { startServer } from "../visual/index.ts";
@@ -92,6 +92,34 @@ async function eventually(page: Page, expectation: Expectation): Promise<string 
   return undefined;
 }
 
+/** Runs one keyboard journey in a fresh context, with scripting on or off, and returns the first problem. */
+async function journey(browser: Browser, url: string, path: Journey): Promise<string | undefined> {
+  const context = await browser.newContext({ javaScriptEnabled: path.javaScript });
+  try {
+    const page = await context.newPage();
+    await page.goto(url, { waitUntil: "load" });
+    for (const step of path.steps) {
+      if ("focus" in step) {
+        await page.locator(step.focus).first().focus();
+      } else if ("press" in step) {
+        await page.keyboard.press(step.press);
+      } else if ("focused" in step) {
+        const selector = step.focused;
+        const ok = await page.evaluate((value: string) => document.activeElement?.matches(value) === true, selector);
+        if (!ok) return `${path.name}: focus is not on ${selector}`;
+      } else {
+        for (const expectation of step.expect) {
+          const problem = await eventually(page, expectation);
+          if (problem !== undefined) return `${path.name}: ${problem}`;
+        }
+      }
+    }
+    return undefined;
+  } finally {
+    await context.close();
+  }
+}
+
 async function run(browser: Browser, base: string): Promise<AcceptanceReport["cases"]> {
   const results: AcceptanceReport["cases"] = [];
   for (const testCase of CASES) {
@@ -111,6 +139,10 @@ async function run(browser: Browser, base: string): Promise<AcceptanceReport["ca
           problem = await eventually(page, expectation);
           if (problem !== undefined) break;
         }
+      }
+      for (const path of testCase.journeys ?? []) {
+        if (problem !== undefined) break;
+        problem = await journey(browser, `${base}${testCase.path}`, path);
       }
       results.push(problem === undefined ? { name: testCase.name, ok: true } : { name: testCase.name, ok: false, error: problem });
     } catch (error) {

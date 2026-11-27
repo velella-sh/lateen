@@ -16,7 +16,8 @@ import {
   type Json,
 } from "../chart-data/input.ts";
 import { extentOf, ticksOf, xScaleOf, yScaleOf } from "../chart-data/scale.ts";
-import { barMark, labelMark, lineMark, svgFrame, textMark } from "../chart-data/svg.ts";
+import { instanceId } from "../../src/page-ids.ts";
+import { barMark, labelMark, lineMark, zoomableFrame, textMark } from "../chart-data/svg.ts";
 
 /** The shared input validation every chart reads through; re-exported for the bar chart's callers. */
 export { labelDir, lookup, numericValue } from "../chart-data/input.ts";
@@ -80,6 +81,8 @@ export type BarChartProps = {
   readonly title?: string;
   /** Id of the figure; give one when two charts read the same source. */
   readonly id?: string;
+  /** `true` opens the chart larger in a panel when it is selected. */
+  readonly zoom?: string;
 };
 
 /** What the chart says when it has no source to read. */
@@ -291,11 +294,13 @@ export default function barChart({ props, site, page }: ComponentProps<BarChartP
     direction === "vertical" ? verticalChart(rows, ticks, lang, rtl) : horizontalChart(rows, ticks, lang, rtl);
   const description = `Values of ${valueField} by ${category}, ${rows.length} ${rows.length === 1 ? "row" : "rows"}.`;
 
+  const zoom = props.zoom === "true" ? { id: instanceId(page, `${base}-zoom`), lang: page.lang } : undefined;
+
   return h(
     "figure",
     { class: `${CLASS} ${CLASS}-${direction}`, id: base, "data-bar-chart": from },
     title === "" ? null : h("figcaption", { class: TITLE_CLASS }, title),
-    svgFrame(SVG_CLASS, chart.width, chart.height, titleId, name, chart.marks),
+    zoomableFrame(zoom, SVG_CLASS, chart.width, chart.height, titleId, name, chart.marks),
     chartData({
       title: name,
       description,

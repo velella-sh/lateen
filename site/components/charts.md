@@ -21,6 +21,10 @@ Every chart keeps the rows it plots in a table under the figure, so a reader, an
 
 Each is a leaf directive: put it on its own line, with a blank line before and after. A quoted attribute can hold spaces and commas.
 
+## Zoom
+
+`bar-chart`, `stacked-bar` and `line-chart` take `zoom="true"`. The chart then sits in a button that opens it larger in the same native popover a figure uses: Escape or the close button closes it and focus returns to the button. The panel holds a second drawing of the same marks, so it needs no script and no fetch, and its title has its own id so none repeats on the page. The panel has no "Open full size" link because a chart has no file behind it. The Chart.js charts (`charts`, `performance-chart`) draw on a canvas in the reader's browser and do not zoom.
+
 ## Bar chart options
 
 | Option | Type | Default | What it does |

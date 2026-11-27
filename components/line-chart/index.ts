@@ -17,7 +17,8 @@ import {
 import { scale } from "../timeline/scale.ts";
 import chartData from "../chart-data/index.ts";
 import { evenTicksOf, extentOf, paddedDomain, percentOf, percentScaleOf, ratioOf } from "../chart-data/scale.ts";
-import { labelMark, lineMark, svgFrame, textMark } from "../chart-data/svg.ts";
+import { instanceId } from "../../src/page-ids.ts";
+import { labelMark, lineMark, zoomableFrame, textMark } from "../chart-data/svg.ts";
 
 // The table, its download links, and a missing value's note come from the shared chart-data path.
 export { NO_VALUE_CLASS, NO_VALUE_TEXT, TABLE_CLASS } from "../chart-data/index.ts";
@@ -81,6 +82,8 @@ export type LineChartProps = {
   readonly title?: string;
   /** Id of the figure; give one when two charts read the same source. */
   readonly id?: string;
+  /** `true` opens the chart larger in a panel when it is selected. */
+  readonly zoom?: string;
 };
 
 /** One point: where it sits on the axis as a percentage, and its value when it has one. */
@@ -367,11 +370,13 @@ export default function lineChart({ props, site, page }: ComponentProps<LineChar
   const base = idBase(props.id, from);
   const titleId = `${base}-title`;
 
+  const zoom = props.zoom === "true" ? { id: instanceId(page, `${base}-zoom`), lang: page.lang } : undefined;
+
   return h(
     "figure",
     { class: CLASS, id: base, "data-line-chart": from },
     title === "" ? null : h("figcaption", { class: TITLE_CLASS }, title),
-    svgFrame(SVG_CLASS, width, height, titleId, name, marks),
+    zoomableFrame(zoom, SVG_CLASS, width, height, titleId, name, marks),
     chartData({
       title: name,
       description: `Values of ${fields.join(", ")} by ${category}, ${view.rows.length} ${

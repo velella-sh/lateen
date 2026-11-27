@@ -3,7 +3,11 @@ import type { ComponentProps } from "@velella/mizzen/contracts";
 import { t } from "../../i18n/index.ts";
 import { parseDiagramProps, type MermaidProps, type MermaidRecord } from "./model.ts";
 import { renderDiagram } from "./render.ts";
-import { accessibleSvg, naturalWidth, recordJson } from "./svg.ts";
+import { accessibleSvg, naturalWidth, prefixIds, recordJson } from "./svg.ts";
+import { instanceId } from "../../src/page-ids.ts";
+import { zoomable } from "../../src/zoom.ts";
+import { ZOOM_MIN_WIDTH } from "../../src/article-html.ts";
+import { resolveImageOptions } from "../../src/options.ts";
 // The child process imports this module to render; the child module runs only when it is asked to.
 import "./child.ts";
 
@@ -11,7 +15,7 @@ export { altFromSource, parseDiagramProps } from "./model.ts";
 export type { MermaidAltOrigin, MermaidProps, MermaidRecord, ParsedDiagram } from "./model.ts";
 export { diagramKey, normalizeSource, RENDER_OPTIONS, type RenderOptions } from "./key.ts";
 export { CHILD_BOOT, clearDiagramCache, diagramRenderCount, renderDiagram } from "./render.ts";
-export { accessibleSvg, naturalWidth } from "./svg.ts";
+export { accessibleSvg, naturalWidth, prefixIds } from "./svg.ts";
 export { installMeasurement } from "./measure.ts";
 
 /** Class on the outer `<figure>`; `style.css` styles it. */
@@ -27,7 +31,7 @@ export const SOURCE_CLASS = "mermaid-source";
 export const FALLBACK_CLASS = "mermaid-fallback";
 
 /** The diagram and its source. The SVG is rendered at build time; the page never loads Mermaid. */
-export default function mermaid({ props, page }: ComponentProps<MermaidProps>) {
+export default function mermaid({ props, page, site }: ComponentProps<MermaidProps>) {
   const parsed = parseDiagramProps(props);
   if (parsed === null) return null;
   const { source, alt, src } = parsed;
@@ -42,13 +46,33 @@ export default function mermaid({ props, page }: ComponentProps<MermaidProps>) {
   };
 
   const width = result.ok ? naturalWidth(result.svg) : undefined;
+  const inline = result.ok ? accessibleSvg(result.svg, alt.text) : "";
+  const drawn = (html: string) =>
+    h("div", {
+      class: DIAGRAM_CLASS,
+      ...(width === undefined ? {} : { style: `--mermaid-natural: ${String(width)}px` }),
+      dangerouslySetInnerHTML: { __html: html },
+    });
+  // `zoom="true"` asks for it. A fence cannot carry attributes, so `images.zoom: auto` also zooms a diagram that
+  // is wider than the article column, as it does for a plain image; `zoom="false"` always opts out.
+  const wanted =
+    props.zoom === "true" ||
+    (props.zoom !== "false" &&
+      resolveImageOptions(site?.config?.theme?.options).zoom === "auto" &&
+      width !== undefined &&
+      width > ZOOM_MIN_WIDTH);
+  const zoomId = result.ok && wanted ? instanceId(page, "mermaid-zoom") : "";
   const diagram =
     result.ok
-      ? h("div", {
-          class: DIAGRAM_CLASS,
-          ...(width === undefined ? {} : { style: `--mermaid-natural: ${String(width)}px` }),
-          dangerouslySetInnerHTML: { __html: accessibleSvg(result.svg, alt.text) },
-        })
+      ? zoomId === ""
+        ? drawn(inline)
+        : zoomable({
+            id: zoomId,
+            lang: page.lang,
+            alt: alt.text,
+            trigger: drawn(inline),
+            content: drawn(prefixIds(inline, `${zoomId}-`)),
+          })
       : h(
           "div",
           { class: FALLBACK_CLASS, role: "note" },

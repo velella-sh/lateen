@@ -463,14 +463,14 @@ test("zoom opens a native popover from a named button and keeps the full-size li
   assert.doesNotMatch(html, /<script/);
 });
 
-test("zoom is opt-in and skipped for pairs and galleries", () => {
+test("zoom is opt-in and skipped for galleries", () => {
   const base = { html: "", page: {} as ComponentProps["page"], site: {} as ComponentProps["site"] };
   const plain = renderToString(figure({ ...base, props: { src: "/a.png", alt: "A" } } as ComponentProps<FigureProps>) as never);
   assert.doesNotMatch(plain, /popover/);
-  const paired = renderToString(
-    figure({ ...base, props: { src: "/a.png", src_dark: "/b.png", alt: "A", zoom: "true" } } as ComponentProps<FigureProps>) as never,
+  const gallery = renderToString(
+    figure({ ...base, props: { images: '[{"src":"/a.png"},{"src":"/b.png"}]' } } as ComponentProps<FigureProps>) as never,
   );
-  assert.doesNotMatch(paired, /popover/);
+  assert.doesNotMatch(gallery, /popover/);
 });
 
 test("two zoomed figures on one page get different popover ids", () => {
