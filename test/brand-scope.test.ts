@@ -27,7 +27,7 @@ test("the header, sidebar, footer and article read the colours a preset sets", (
   const base = read("styles/src/base.css");
   const theme = read("styles/src/theme.css");
   assert.match(theme, /--background: var\(--color-canvas\)/);
-  assert.match(base, /background: var\(--background\)/, "the page reads the canvas");
+  assert.match(base, /background: var\(--color-canvas\)/, "the page reads the canvas");
   assert.match(chrome, /var\(--background\)/, "the chrome reads the canvas");
   assert.match(chrome, /var\(--card\)|var\(--color-surface/, "the chrome reads a surface role");
 });
