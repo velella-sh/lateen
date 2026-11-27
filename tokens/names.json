@@ -199,6 +199,14 @@
           "dark": "#23212c"
         }
       }
+    },
+    "surface-card": {
+      "$value": "#fbfbfd",
+      "$extensions": {
+        "lateen": {
+          "dark": "#2b2935"
+        }
+      }
     }
   },
   "type": {
@@ -299,7 +307,7 @@
     "ctl": "0.375rem",
     "card": "0.625rem",
     "xs": "0.125rem",
-    "xl": "1.5rem"
+    "xl": "1.125rem"
   },
   "shadow": {
     "sm": "0 1px 2px rgb(0 0 0 / 0.1)",
@@ -950,5 +958,19 @@
         }
       }
     }
+  },
+  "palette": {
+    "night": "#23212c",
+    "night-raised": "#393743",
+    "sail": "#dcd7eb",
+    "mist": "#8f8cd8",
+    "mist-edge": "#8481c7",
+    "foam": "#f4f4f9",
+    "foam-sunk": "#e7e7ed",
+    "shell": "#ede6d8",
+    "blue": "#4c6f9a",
+    "blue-lift": "#8fb0d4",
+    "ink": "#4a4658",
+    "sail-soft": "#b7b2c9"
   }
 }

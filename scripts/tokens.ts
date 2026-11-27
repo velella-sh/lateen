@@ -108,10 +108,11 @@ const TEXT = 4.5;
 const EDGE = 3;
 const METHODS = ["get", "post", "put", "patch", "delete"];
 export const CONTRAST_PAIRS: readonly (readonly [string, string, number])[] = [
-  ...["canvas", "surface", "surface-raised", "surface-sunken"].flatMap((bg) => [["color-text", `color-${bg}`, TEXT], ["color-heading", `color-${bg}`, TEXT]] as const),
+  ...["canvas", "surface", "surface-raised", "surface-sunken", "surface-card"].flatMap((bg) => [["color-text", `color-${bg}`, TEXT], ["color-heading", `color-${bg}`, TEXT]] as const),
   ["color-muted", "color-canvas", TEXT],
   ["color-muted", "color-surface", TEXT],
   ["color-muted", "color-surface-raised", TEXT],
+  ["color-muted", "color-surface-card", TEXT],
   ["color-on-accent", "color-accent", TEXT],
   ["color-on-brand", "color-brand", TEXT],
   ["color-on-brand", "color-brand-hover", TEXT],

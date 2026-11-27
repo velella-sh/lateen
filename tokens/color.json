@@ -142,5 +142,13 @@
         "dark": "#23212c"
       }
     }
+  },
+  "surface-card": {
+    "$value": "#fbfbfd",
+    "$extensions": {
+      "lateen": {
+        "dark": "#2b2935"
+      }
+    }
   }
 }

@@ -24,13 +24,18 @@ test("the committed tokens.css is current and every semantic group is frozen in 
   for (const group of ["color", "type", "space", "radius", "shadow", "motion", "state", "chart", "code"]) assert.ok(groups.has(group), group);
 });
 
-test("the Sailcloth bridge keeps only aliases the shared print sheet still reads (#913)", () => {
+test("the theme bridge defines no token of its own: the old names only point at tokens (#1288)", () => {
   const source = readFileSync(new URL("../styles/src/theme.css", import.meta.url), "utf8");
-  const bridge = source.slice(source.indexOf("Sailcloth tokens"), source.indexOf('[data-theme="dark"]'));
-  const aliases = [...bridge.matchAll(/--color-([a-z-]+):/g)].map((match) => match[1]);
-  assert.deepEqual(aliases, ["surface-raised", "text", "muted"]);
+  const bridge = source.slice(source.indexOf("Deprecated names"));
+  const tokens = loadTokens();
+  for (const match of bridge.matchAll(/^\s*--(color|space)-([a-z0-9-]+):/gm)) {
+    assert.fail(`theme.css declares --${match[1]}-${match[2]}, which belongs to tokens/*.json`);
+  }
   const print = readFileSync(new URL("../styles/print.css", import.meta.url), "utf8");
-  for (const alias of aliases) assert.ok(print.includes(`var(--color-${alias})`), `no caller for --color-${alias}`);
+  for (const name of ["surface-raised", "text", "muted"]) {
+    assert.ok(tokens.has(`color-${name}`), `color-${name} is a token`);
+    assert.ok(print.includes(`var(--color-${name})`), `no caller for --color-${name}`);
+  }
 });
 
 /** WCAG 2.2 relative luminance of a six-digit hex color. */

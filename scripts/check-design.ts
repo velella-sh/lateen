@@ -179,7 +179,7 @@ export function scanCss(file: string, css: string): Finding[] {
 }
 
 /** Every CSS file under the scanned folders, as repo-relative paths, sorted, without the generated token sheet.
-    The whole sailcloth source directory (styles/src/, split by #863) may hold raw values, like its entry sheet. */
+    The sailcloth source directory (styles/src/, split by #863) may hold raw values, like its entry sheet, except theme.css (#1288). */
 export function cssFiles(base: string = root): string[] {
   const out: string[] = [];
   const walk = (dir: string): void => {
@@ -190,7 +190,7 @@ export function cssFiles(base: string = root): string[] {
     }
   };
   for (const dir of SCANNED) if (existsSync(join(base, dir))) walk(join(base, dir));
-  return out.filter((f) => !SKIPPED.has(f) && !f.startsWith("styles/src/")).sort();
+  return out.filter((f) => !SKIPPED.has(f) && (!f.startsWith("styles/src/") || f === "styles/src/theme.css")).sort();
 }
 
 /** Shared sheets whose selectors must name their cascade owner; a bare element here reaches every unit. */

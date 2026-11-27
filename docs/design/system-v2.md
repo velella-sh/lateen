@@ -34,7 +34,7 @@ Colour tokens are `--color-<role>`, each with a light and a dark value (`light-d
 
 | Group | Tokens | Use |
 | --- | --- | --- |
-| Surface layers | `color-canvas`, `color-surface`, `color-surface-raised`, `color-surface-sunken` | Page, panel, raised panel (menu, dialog), inset area (code, input well). Neutrals are tinted toward the brand hue. |
+| Surface layers | `color-canvas`, `color-surface`, `color-surface-card`, `color-surface-raised`, `color-surface-sunken` | Page, panel, raised panel (menu, dialog), inset area (code, input well). Neutrals are tinted toward the brand hue. |
 | Text | `color-text`, `color-heading`, `color-muted` | Body, headings, secondary text. |
 | Border | `color-border`, `color-border-strong`; `border-subtle`, `border-default`, `border-strong` | Divider, control edge (3:1 on the canvas). |
 | **Brand** (new, `-5`) | `color-brand`, `color-brand-hover`, `color-brand-subtle`, `color-on-brand` | The bold brand colour, its hover, its soft wash and the text on it. |
@@ -103,9 +103,9 @@ or later uses the new token.
 | --- | --- |
 | `--background` | `--color-canvas` |
 | `--foreground` | `--color-text` |
-| `--card`, `--popover` | `--color-surface-raised` |
+| `--card`, `--popover` | `--color-surface-card` (a card keeps its own surface: in dark it sits just above the canvas, below `surface`) |
 | `--card-foreground`, `--popover-foreground` | `--color-text` |
-| `--primary` | `--color-brand` |
+| `--primary` | `--color-brand`, through `--color-accent` until `-9` makes the `lateen` accent the brand colour |
 | `--primary-foreground` | `--color-on-brand` |
 | `--secondary`, `--muted` | `--color-surface` |
 | `--secondary-foreground` | `--color-text` |
@@ -130,8 +130,8 @@ or later uses the new token.
 | `--radius-xl` | `--radius-card` |
 | `--color-background` | `--color-canvas` |
 | `--color-foreground`, `--color-card-foreground`, `--color-secondary-foreground` | `--color-text` |
-| `--color-card` | `--color-surface-raised` |
-| `--color-primary` | `--color-brand` |
+| `--color-card` | `--color-surface-card` |
+| `--color-primary` | `--color-brand`, through `--color-accent` until `-9` |
 | `--color-primary-foreground` | `--color-on-brand` |
 | `--color-secondary`, `--color-muted` | `--color-surface` |
 | `--color-muted-foreground` | `--color-muted` |
@@ -143,6 +143,10 @@ Tailwind name becomes `--color-surface` so `bg-muted` keeps its look; `-2` keeps
 alias only where a utility class needs it.
 
 ### Sailcloth names
+
+The sailcloth names are scheme-independent constants, so they point at the new `palette` group
+(`palette-night`, `palette-foam`, ...) added in `-2`, not at the scheme-dependent roles. Use a role
+in new code; the table shows the role each constant usually stands for.
 
 | Old | Hex | New |
 | --- | --- | --- |
