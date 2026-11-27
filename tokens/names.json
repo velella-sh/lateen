@@ -218,7 +218,16 @@
     "8": "2rem",
     "12": "3rem",
     "16": "4rem",
-    "page": "1rem"
+    "page": "1rem",
+    "header": "3.5rem",
+    "sidebar": "16rem",
+    "toc": "14rem",
+    "content": "44rem",
+    "content-wide": "64rem",
+    "gutter-compact": "1rem",
+    "gutter-sidebar": "1.5rem",
+    "gutter-toc": "2rem",
+    "gutter-page": "2.5rem"
   },
   "radius": {
     "sm": "0.25rem",
@@ -245,7 +254,8 @@
   "breakpoint": {
     "sidebar": "48rem",
     "toc": "64rem",
-    "page": "90rem"
+    "page": "90rem",
+    "compact": "40rem"
   },
   "motion": {
     "fast": "100ms",

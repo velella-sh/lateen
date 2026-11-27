@@ -67,6 +67,15 @@
   --space-12: 3rem;
   --space-16: 4rem;
   --space-page: clamp(1rem, 0.5rem + 2.5vw, 2rem);
+  --space-header: 3.5rem;
+  --space-sidebar: 16rem;
+  --space-toc: 14rem;
+  --space-content: 44rem;
+  --space-content-wide: 64rem;
+  --space-gutter-compact: 1rem;
+  --space-gutter-sidebar: 1.5rem;
+  --space-gutter-toc: 2rem;
+  --space-gutter-page: 2.5rem;
   --radius-sm: 0.25rem;
   --radius-md: 0.5rem;
   --radius-lg: 1rem;
@@ -86,6 +95,7 @@
   --breakpoint-sidebar: 48rem;
   --breakpoint-toc: 64rem;
   --breakpoint-page: 90rem;
+  --breakpoint-compact: 40rem;
   --motion-fast: 100ms;
   --motion-base: 200ms;
   --motion-slow: 400ms;
