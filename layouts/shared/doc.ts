@@ -17,7 +17,7 @@ import { renderVersionNotice } from "../../components/version-notice/render.ts";
 import { renderTrustPanel } from "../../components/trust-panel/render.ts";
 import { componentProps } from "../../src/component-props.ts";
 import { codeBackgrounds } from "../../src/brand.ts";
-import { articleHtml } from "../../src/article-html.ts";
+import { articleHtml, imageZoom } from "../../src/article-html.ts";
 import { articleHeader, articleShell, statusProps } from "./index.ts";
 
 /**
@@ -51,7 +51,7 @@ function article(props: LayoutProps): ComponentChildren {
     }),
     staleSlot(props),
     tocFold(props) as ComponentChildren,
-    h("div", { class: "doc-body", "data-quickstart": quickstart || undefined, dangerouslySetInnerHTML: { __html: highlightFences(articleHtml(page.html, page.lang), backdrops, page.lang, page.source.file) } }),
+    h("div", { class: "doc-body", "data-quickstart": quickstart || undefined, dangerouslySetInnerHTML: { __html: highlightFences(articleHtml(page.html, page.lang, imageZoom(props.site.config.theme.options)), backdrops, page.lang, page.source.file) } }),
     pageToolSlot(props),
     docPageFooter(props) as ComponentChildren,
     pager(props) as ComponentChildren,

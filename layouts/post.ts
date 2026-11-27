@@ -12,7 +12,7 @@ import { calendarDate, configuredCalendar } from "../src/dates.ts";
 import { textOf } from "../src/guards.ts";
 import { blogFeedHref, blogSubscribe, withBlogFeed } from "./blog/feed.ts";
 import { archiveUrlOf, authorOf, authorPageOf, authorProfileOf } from "./blog/index.ts";
-import { articleHtml } from "../src/article-html.ts";
+import { articleHtml, imageZoom } from "../src/article-html.ts";
 import { articleShell, titleFromBody } from "./shared/index.ts";
 
 /** The date line: a `<time>` in the page's calendar when the date is real, else the written text. */
@@ -52,7 +52,7 @@ function article(props: LayoutProps, feed: string | undefined): ComponentChildre
   const authorId = textOf(front.author);
   const author = authorId === undefined ? undefined : authorProfileOf(props.site, authorOf(props.site, authorId), authorId);
   const description = textOf(front.description);
-  const body = { __html: highlightFences(articleHtml(page.html, page.lang), codeBackgrounds(props.site.config.theme.options), page.lang, page.source.file) };
+  const body = { __html: highlightFences(articleHtml(page.html, page.lang, imageZoom(props.site.config.theme.options)), codeBackgrounds(props.site.config.theme.options), page.lang, page.source.file) };
   return h(
     "article",
     { class: "doc post", "data-pagefind-body": true },

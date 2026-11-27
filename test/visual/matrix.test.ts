@@ -38,13 +38,15 @@ test("the matrix lists every layout in both themes, three languages and three wi
   assert.ok(layouts.some((entry) => entry.lang === "ar" && entry.dir === "rtl"), "Arabic is right to left");
 });
 
-test("the gallery has two widths, three print pages and two forced-colors pages", () => {
+test("the gallery has two widths, three print pages and three forced-colors pages, with the zoom panel open on two", () => {
   assert.deepEqual([...new Set(gallery.map((entry) => entry.widthName))], ["mobile", "desktop"]);
-  assert.equal(new Set(gallery.map((entry) => entry.name)).size, 3);
+  assert.equal(new Set(gallery.map((entry) => entry.name)).size, 5);
+  const still = matrix.gallery.pages.filter((page) => page.open === undefined);
+  assert.deepEqual(matrix.gallery.pages.filter((page) => page.open !== undefined).map((page) => page.name), ["gallery-zoom", "gallery-zoom-ar"]);
   assert.equal(gallery.length, matrix.gallery.pages.length * matrix.gallery.widths.length * matrix.themes.length);
   assert.equal(print.length, 3);
-  assert.equal(forced.length, 2);
-  assert.deepEqual(print.map((entry) => entry.path).sort(), matrix.gallery.pages.map((page) => page.path).sort());
+  assert.equal(forced.length, 3);
+  assert.deepEqual(print.map((entry) => entry.path).sort(), still.map((page) => page.path).sort());
   assert.ok(print.every((entry) => entry.section === "print"));
   assert.ok(forced.every((entry) => entry.section === "forced-colors"));
 });
@@ -76,7 +78,8 @@ test("the matrix data names valid widths, themes and pages", () => {
   }
   const targets = [...matrix.layouts, ...matrix.gallery.pages];
   assert.equal(new Set(targets.map((target) => target.name)).size, targets.length);
-  assert.equal(new Set(targets.map((target) => target.path)).size, targets.length);
+  // A zoom entry shares its page with the still shot and differs by the panel it opens.
+  assert.equal(new Set(targets.map((target) => `${target.path} ${target.open ?? ""}`)).size, targets.length);
   for (const target of targets) {
     assert.match(target.name, /^[a-z0-9]+(?:-[a-z0-9]+)*$/, target.name);
     assert.ok(target.path.startsWith("/"), target.path);

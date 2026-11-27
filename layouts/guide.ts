@@ -17,7 +17,7 @@ import relatedGuides from "../components/related-guides/index.ts";
 import { renderVersionNotice } from "../components/version-notice/render.ts";
 import { componentProps } from "../src/component-props.ts";
 import { codeBackgrounds } from "../src/brand.ts";
-import { articleHtml } from "../src/article-html.ts";
+import { articleHtml, imageZoom } from "../src/article-html.ts";
 import { articleHeader, articleShell, statusProps } from "./shared/index.ts";
 
 /**
@@ -47,7 +47,7 @@ function article(props: LayoutProps): ComponentChildren {
     guideSummary(componentProps(props, {})) as ComponentChildren,
     tocFold(props) as ComponentChildren,
     guidePrerequisites(componentProps(props, {})) as ComponentChildren,
-    h("div", { class: "doc-body guide-body", dangerouslySetInnerHTML: { __html: highlightFences(articleHtml(page.html, page.lang), backdrops, page.lang, page.source.file) } }),
+    h("div", { class: "doc-body guide-body", dangerouslySetInnerHTML: { __html: highlightFences(articleHtml(page.html, page.lang, imageZoom(props.site.config.theme.options)), backdrops, page.lang, page.source.file) } }),
     pageToolSlot(props),
     editPage(props) as ComponentChildren,
     h("div", { class: "doc-actions" }, pageFooter(props) as ComponentChildren, copyMarkdown(props) as ComponentChildren),

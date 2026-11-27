@@ -15,7 +15,7 @@ import pager from "../chrome/pager/index.ts";
 import { renderPageStatus } from "../components/page-status/render.ts";
 import { renderReadingTime } from "../components/reading-time/render.ts";
 import { renderVersionNotice } from "../components/version-notice/render.ts";
-import { articleHtml } from "../src/article-html.ts";
+import { articleHtml, imageZoom } from "../src/article-html.ts";
 import { articleHeader, articleShell, statusProps } from "./shared/index.ts";
 
 /**
@@ -155,6 +155,7 @@ function stepNav(page: Page, steps: readonly TutorialStep[], index: number): Com
 /** One step: its progress text, the step's rendered body, and the links to the adjacent steps. */
 function stepSection(
   page: Page,
+  options: unknown,
   steps: readonly TutorialStep[],
   step: TutorialStep,
   index: number,
@@ -164,7 +165,7 @@ function stepSection(
     "section",
     { class: "tutorial-step", "data-step": String(index + 1) },
     h("p", { class: "tutorial-step-progress" }, stepCount(page.lang, index, steps.length)),
-    h("div", { class: "tutorial-step-body", dangerouslySetInnerHTML: { __html: articleHtml(segmentHtml, page.lang) } }),
+    h("div", { class: "tutorial-step-body", dangerouslySetInnerHTML: { __html: articleHtml(segmentHtml, page.lang, imageZoom(options, `image-zoom-step-${index + 1}-`)) } }),
     stepNav(page, steps, index),
   );
 }
@@ -174,21 +175,21 @@ function stepSection(
  * When the step ids are not all h2 headings in the body, the body renders whole and only the
  * progress list remains; nothing is lost or reordered.
  */
-function body(page: Page, steps: readonly TutorialStep[]): ComponentChildren {
+function body(page: Page, options: unknown, steps: readonly TutorialStep[]): ComponentChildren {
   if (steps.length === 0) {
-    return h("div", { class: "doc-body", dangerouslySetInnerHTML: { __html: articleHtml(page.html, page.lang) } });
+    return h("div", { class: "doc-body", dangerouslySetInnerHTML: { __html: articleHtml(page.html, page.lang, imageZoom(options)) } });
   }
 
   const split = splitBody(page, steps);
   if (split === undefined) {
-    return h("div", { class: "doc-body", dangerouslySetInnerHTML: { __html: articleHtml(page.html, page.lang) } });
+    return h("div", { class: "doc-body", dangerouslySetInnerHTML: { __html: articleHtml(page.html, page.lang, imageZoom(options)) } });
   }
 
   return h(
     "div",
     { class: "doc-body tutorial-body" },
-    split.intro === "" ? null : h("div", { class: "tutorial-intro", dangerouslySetInnerHTML: { __html: articleHtml(split.intro, page.lang) } }),
-    ...split.segments.map((segment, index) => stepSection(page, steps, segment.step, index, segment.html)),
+    split.intro === "" ? null : h("div", { class: "tutorial-intro", dangerouslySetInnerHTML: { __html: articleHtml(split.intro, page.lang, imageZoom(options, "image-zoom-intro-")) } }),
+    ...split.segments.map((segment, index) => stepSection(page, options, steps, segment.step, index, segment.html)),
   );
 }
 
@@ -216,7 +217,7 @@ function article(props: LayoutProps): ComponentChildren {
     }),
     staleSlot(props),
     steps.length === 0 ? null : progress(page, steps),
-    body(page, steps),
+    body(page, props.site.config.theme.options, steps),
     pageToolSlot(props),
     editPage(props) as ComponentChildren,
     h("div", { class: "doc-actions" }, pageFooter(props) as ComponentChildren, copyMarkdown(props) as ComponentChildren),

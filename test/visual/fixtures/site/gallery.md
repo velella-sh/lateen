@@ -199,7 +199,7 @@ Layout component: a layout passes it the `features` list, which Markdown cannot 
 
 ## figure
 
-::figure{src="/assets/gallery.svg" alt="A blue circle and a rectangle" caption="A figure caption."}
+::figure{src="/assets/gallery.svg" alt="A blue circle and a rectangle" caption="A figure caption." zoom="true"}
 
 ## file-tree
 

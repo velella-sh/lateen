@@ -6,7 +6,7 @@ import type { ComponentChildren } from "preact";
 import type { Layout, LayoutProps } from "@velella/mizzen/contracts";
 import breadcrumb from "../chrome/breadcrumb/index.ts";
 import { t } from "../i18n/index.ts";
-import { articleHtml } from "../src/article-html.ts";
+import { articleHtml, imageZoom } from "../src/article-html.ts";
 import { articleShell } from "./shared/index.ts";
 import { methodClassOf } from "./shared/api-method.ts";
 
@@ -595,7 +595,7 @@ function article(props: LayoutProps): ComponentChildren {
       breadcrumb(props) as ComponentChildren,
       h("h1", null, page.title),
       staleSlot(props),
-      h("div", { class: "doc-body", dangerouslySetInnerHTML: { __html: articleHtml(page.html, page.lang) } }),
+      h("div", { class: "doc-body", dangerouslySetInnerHTML: { __html: articleHtml(page.html, page.lang, imageZoom(props.site.config.theme.options)) } }),
       pageToolSlot(props),
     );
   }

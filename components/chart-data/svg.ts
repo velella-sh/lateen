@@ -6,6 +6,7 @@
  */
 import { h } from "preact";
 import type { ComponentChildren } from "preact";
+import { zoomable } from "../../src/zoom.ts";
 
 /** A straight mark: an axis line or one grid line per tick. */
 export function lineMark(className: string, x1: number, x2: number, y1: number, y2: number) {
@@ -68,4 +69,28 @@ export function svgFrame(
     h("title", { id: titleId }, name),
     ...marks,
   );
+}
+/**
+ * The chart's `<svg>`, or, when `zoom` carries a panel id, the same chart in a button that opens it larger
+ * in a native popover. The panel holds a second drawing of the same marks whose title id has a `-zoom`
+ * suffix, so no id repeats on the page.
+ */
+export function zoomableFrame(
+  zoom: { readonly id: string; readonly lang: string } | undefined,
+  className: string,
+  width: number,
+  height: number,
+  titleId: string,
+  name: string,
+  marks: readonly ComponentChildren[],
+) {
+  const inline = svgFrame(className, width, height, titleId, name, marks);
+  if (zoom === undefined) return inline;
+  return zoomable({
+    id: zoom.id,
+    lang: zoom.lang,
+    alt: name,
+    trigger: inline,
+    content: svgFrame(`${className} figure-zoom-svg`, width, height, `${titleId}-zoom`, name, marks),
+  });
 }

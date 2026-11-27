@@ -36,6 +36,8 @@ theme:
     components:
       related-guides: overrides/related-guides.ts
   options:
+    images:
+      zoom: auto
     installTabs:
       managers:
         - name: npm
