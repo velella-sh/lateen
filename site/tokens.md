@@ -22,6 +22,28 @@ A site does not edit a token file. It sets an accent colour, a neutral tint, its
 
 Night is text and dark grounds. Sail is light text on Night. Mist is an accent for tips and charts, never body text on Foam. Foam is the light page background, Shell is for status chips, and Lateen Blue is for identity, links, and focus. Night Raised (`#393743`) and Foam Sunk (`#E7E7ED`) provide inset surfaces; Mist Edge (`#8481C7`) keeps hairlines visible on Foam; Lateen Blue Lift (`#8FB0D4`) is the dark-theme link and focus color. Ink Soft (`#4A4658`) and Sail Soft (`#B7B2C9`) carry secondary text in light and dark themes.
 
+## Public names and deprecations
+
+The token names are a versioned public promise, listed with their types in the [token spec](https://github.com/velella-sh/lateen/blob/main/docs/spec/tokens/v1.md). A name there does not change inside spec v1. The old shadcn-style, Tailwind and sailcloth names (`--background`, `--primary`, `--night`, and the rest) are deprecated pointers that stay for one release and are removed in 0.2.7; the spec's table gives the token to use instead. `docs/spec/tokens/conformance.ts` checks an installed package against the spec.
+
+## Contrast by preset
+
+Every preset keeps the brand roles readable in both themes. The table is built from the token files and the presets, and a test keeps it current.
+
+<!-- token-contrast:start -->
+| Preset | brand on canvas (light) | brand on canvas (dark) | on-brand on brand (light) | on-brand on brand (dark) | text on brand-subtle (light) | text on brand-subtle (dark) | brand on brand-subtle (light) | brand on brand-subtle (dark) |
+| --- | --- | --- | --- | --- | --- | --- | --- | --- |
+| clay | 5.11:1 | 7.28:1 | 5.61:1 | 9.62:1 | 12.96:1 | 9.95:1 | 4.60:1 | 6.37:1 |
+| ebb | 5.01:1 | 7.68:1 | 5.78:1 | 9.87:1 | 10.67:1 | 9.28:1 | 4.94:1 | 6.32:1 |
+| graphite | 6.89:1 | 7.22:1 | 7.53:1 | 9.61:1 | 13.18:1 | 9.75:1 | 6.30:1 | 6.24:1 |
+| harbor | 5.16:1 | 7.24:1 | 5.63:1 | 9.62:1 | 13.27:1 | 9.78:1 | 4.73:1 | 6.24:1 |
+| lateen | 5.73:1 | 7.67:1 | 6.60:1 | 9.86:1 | 10.45:1 | 9.39:1 | 5.52:1 | 6.40:1 |
+| mizzen | 4.95:1 | 9.73:1 | 5.70:1 | 12.50:1 | 10.43:1 | 9.40:1 | 4.76:1 | 8.12:1 |
+| offing | 5.50:1 | 7.65:1 | 6.33:1 | 9.82:1 | 10.37:1 | 9.52:1 | 5.26:1 | 6.46:1 |
+| orchard | 5.13:1 | 7.45:1 | 5.61:1 | 9.96:1 | 13.34:1 | 9.60:1 | 4.76:1 | 6.33:1 |
+| plum | 5.91:1 | 7.27:1 | 6.49:1 | 9.62:1 | 13.06:1 | 9.91:1 | 5.37:1 | 6.35:1 |
+<!-- token-contrast:end -->
+
 ## Type
 
 <div class="item"><strong style="font-family:var(--type-font-heading);font-size:var(--type-size-3xl);line-height:var(--type-leading-heading);letter-spacing:var(--type-tracking-heading)">Title</strong><span>Manrope, the heading family</span></div>

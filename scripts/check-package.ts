@@ -55,6 +55,7 @@ export function requiredArtifacts(repo: string = root): string[] {
     ...filesUnder(repo, "i18n", [".json", ".ts"]),
     ...filesUnder(repo, "schema", [".json"]),
     ...filesUnder(repo, "starters", [".json", ".md", ".yml"]),
+    ...filesUnder(repo, "docs/spec", [".md", ".ts"]),
     "skills/lateen/SKILL.md",
   ];
   return [...new Set([...sources, ...GENERATED])].sort();
