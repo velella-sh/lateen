@@ -75,7 +75,7 @@ export const DEFAULT_COLORS = {
   dark: {
     canvas: "#23212c",
     surface: "#393743",
-    "surface-raised": "#4a4760",
+    "surface-raised": "#443f58",
     text: "#dcd7eb",
     heading: "#dcd7eb",
     muted: "#b7b2c9",

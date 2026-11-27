@@ -19,7 +19,7 @@
     "$value": "#fbfbfd",
     "$extensions": {
       "lateen": {
-        "dark": "#4a4760"
+        "dark": "#443f58"
       }
     }
   },
@@ -108,6 +108,38 @@
     "$extensions": {
       "lateen": {
         "dark": "#d2b8f0"
+      }
+    }
+  },
+  "brand": {
+    "$value": "#2f5d9e",
+    "$extensions": {
+      "lateen": {
+        "dark": "#7e9cd8"
+      }
+    }
+  },
+  "brand-hover": {
+    "$value": "#264d85",
+    "$extensions": {
+      "lateen": {
+        "dark": "#9db8f0"
+      }
+    }
+  },
+  "brand-subtle": {
+    "$value": "#e3eaf6",
+    "$extensions": {
+      "lateen": {
+        "dark": "#283049"
+      }
+    }
+  },
+  "on-brand": {
+    "$value": "#ffffff",
+    "$extensions": {
+      "lateen": {
+        "dark": "#23212c"
       }
     }
   }

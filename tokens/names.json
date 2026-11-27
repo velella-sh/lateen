@@ -20,7 +20,7 @@
       "$value": "#fbfbfd",
       "$extensions": {
         "lateen": {
-          "dark": "#4a4760"
+          "dark": "#443f58"
         }
       }
     },
@@ -165,6 +165,38 @@
       "$extensions": {
         "lateen": {
           "dark": "#d2b8f0"
+        }
+      }
+    },
+    "brand": {
+      "$value": "#2f5d9e",
+      "$extensions": {
+        "lateen": {
+          "dark": "#7e9cd8"
+        }
+      }
+    },
+    "brand-hover": {
+      "$value": "#264d85",
+      "$extensions": {
+        "lateen": {
+          "dark": "#9db8f0"
+        }
+      }
+    },
+    "brand-subtle": {
+      "$value": "#e3eaf6",
+      "$extensions": {
+        "lateen": {
+          "dark": "#283049"
+        }
+      }
+    },
+    "on-brand": {
+      "$value": "#ffffff",
+      "$extensions": {
+        "lateen": {
+          "dark": "#23212c"
         }
       }
     }
@@ -430,6 +462,86 @@
       "$extensions": {
         "lateen": {
           "dark": "#000000b3"
+        }
+      }
+    },
+    "method-get-bg": {
+      "$value": "#e3eaf6",
+      "$extensions": {
+        "lateen": {
+          "dark": "#283049"
+        }
+      }
+    },
+    "method-get-fg": {
+      "$value": "#264d85",
+      "$extensions": {
+        "lateen": {
+          "dark": "#9db8f0"
+        }
+      }
+    },
+    "method-post-bg": {
+      "$value": "#def0e4",
+      "$extensions": {
+        "lateen": {
+          "dark": "#1f3a2b"
+        }
+      }
+    },
+    "method-post-fg": {
+      "$value": "#1f5a35",
+      "$extensions": {
+        "lateen": {
+          "dark": "#8fd6a6"
+        }
+      }
+    },
+    "method-put-bg": {
+      "$value": "#f6ead2",
+      "$extensions": {
+        "lateen": {
+          "dark": "#43361b"
+        }
+      }
+    },
+    "method-put-fg": {
+      "$value": "#6b4a0f",
+      "$extensions": {
+        "lateen": {
+          "dark": "#e3c27a"
+        }
+      }
+    },
+    "method-patch-bg": {
+      "$value": "#ece4f7",
+      "$extensions": {
+        "lateen": {
+          "dark": "#352c4d"
+        }
+      }
+    },
+    "method-patch-fg": {
+      "$value": "#52358f",
+      "$extensions": {
+        "lateen": {
+          "dark": "#c7b0ee"
+        }
+      }
+    },
+    "method-delete-bg": {
+      "$value": "#f7e0e0",
+      "$extensions": {
+        "lateen": {
+          "dark": "#4a2a2e"
+        }
+      }
+    },
+    "method-delete-fg": {
+      "$value": "#8f2a2a",
+      "$extensions": {
+        "lateen": {
+          "dark": "#f0a3a3"
         }
       }
     }

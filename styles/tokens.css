@@ -3,7 +3,7 @@
   color-scheme: light dark;
   --color-canvas: light-dark(#f4f4f9, #23212c);
   --color-surface: light-dark(#e7e7ed, #393743);
-  --color-surface-raised: light-dark(#fbfbfd, #4a4760);
+  --color-surface-raised: light-dark(#fbfbfd, #443f58);
   --color-text: light-dark(#23212c, #dcd7eb);
   --color-heading: light-dark(#23212c, #dcd7eb);
   --color-muted: light-dark(#4a4658, #b7b2c9);
@@ -22,6 +22,10 @@
   --color-info: light-dark(#4c6f9a, #58a6ff);
   --color-surface-sunken: light-dark(#e7e7ed, #1c1a24);
   --color-link-visited: light-dark(#5b3f99, #d2b8f0);
+  --color-brand: light-dark(#2f5d9e, #7e9cd8);
+  --color-brand-hover: light-dark(#264d85, #9db8f0);
+  --color-brand-subtle: light-dark(#e3eaf6, #283049);
+  --color-on-brand: light-dark(#ffffff, #23212c);
   --type-font-body: Manrope, "Manrope Fallback", Vazirmatn, system-ui, sans-serif;
   --type-font-heading: Manrope, "Manrope Fallback", Vazirmatn, system-ui, sans-serif;
   --type-font-ui: Manrope, "Manrope Fallback", Vazirmatn, system-ui, sans-serif;
@@ -150,6 +154,16 @@
   --state-disabled-fg: light-dark(#8a8699, #7a758c);
   --state-focus-ring: light-dark(#4c6f9a, #8fb0d4);
   --state-overlay: light-dark(#00000066, #000000b3);
+  --state-method-get-bg: light-dark(#e3eaf6, #2d3550);
+  --state-method-get-fg: light-dark(#264d85, #9db8f0);
+  --state-method-post-bg: light-dark(#def0e4, #1f3a2b);
+  --state-method-post-fg: light-dark(#1f5a35, #8fd6a6);
+  --state-method-put-bg: light-dark(#f6ead2, #43361b);
+  --state-method-put-fg: light-dark(#6b4a0f, #e3c27a);
+  --state-method-patch-bg: light-dark(#ece4f7, #352c4d);
+  --state-method-patch-fg: light-dark(#52358f, #c7b0ee);
+  --state-method-delete-bg: light-dark(#f7e0e0, #4a2a2e);
+  --state-method-delete-fg: light-dark(#8f2a2a, #f0a3a3);
   --code-bg: light-dark(#e7e7ed, #1b1a26);
   --code-fg: light-dark(#23212c, #e6e1f0);
   --code-border: light-dark(#d5d3e3, #4a4760);
