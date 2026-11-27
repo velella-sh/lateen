@@ -86,11 +86,11 @@ test("the summary file receives the report, a missing-report note, or a malforme
   }
 });
 
-test("the workflow invokes the script and still uploads the failure evidence", () => {
+test("the workflow invokes the script and uploads the images on every run, so report-only diffs stay reviewable", () => {
   const workflow = readFileSync(new URL("../.github/workflows/ci.yml", import.meta.url), "utf8");
   assert.ok(workflow.includes("run: node scripts/visual-summary.ts"));
   assert.ok(!workflow.includes("--input-type=module"), "the inline summary script is gone");
   const upload = workflow.indexOf("name: Upload the visual review images");
   assert.ok(upload > workflow.indexOf("name: Summarize the visual gate"));
-  assert.match(workflow.slice(upload), /if: failure\(\)[\s\S]*?path: lateen\/test\/visual\/out/);
+  assert.match(workflow.slice(upload), /if: always\(\)[\s\S]*?path: lateen\/test\/visual\/out/);
 });
