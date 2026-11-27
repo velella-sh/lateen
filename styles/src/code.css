@@ -4,7 +4,7 @@
      readable in a right-to-left page. */
   .code-title {
     @apply flex items-center gap-2;
-    color: var(--muted-foreground);
+    color: var(--color-muted);
     padding: var(--space-2) var(--space-4);
   }
 
@@ -109,7 +109,7 @@
     content: attr(data-lang);
     grid-area: 1 / 1;
     justify-self: start;
-    color: var(--muted-foreground);
+    color: var(--color-muted);
     font-family: var(--type-font-mono);
     direction: ltr;
     unicode-bidi: isolate;
@@ -124,13 +124,13 @@
   :is(.code-copy, .code-wrap, .terminal-copy) {
     @apply inline-flex min-h-7 items-center justify-center rounded-md border border-transparent px-2;
     background: transparent;
-    color: var(--muted-foreground);
+    color: var(--color-muted);
     cursor: pointer;
   }
 
   :is(.code-copy, .code-wrap, .terminal-copy):hover {
     background: var(--state-hover-bg);
-    color: var(--foreground);
+    color: var(--color-text);
   }
 
   :is(.code-copy, .code-wrap, .terminal-copy)[aria-pressed="true"] {
@@ -142,7 +142,7 @@
   }
 
   .code-wrap[aria-pressed="true"] {
-    color: var(--ring);
+    color: var(--state-focus-ring);
   }
 
   :is(.code-copy-status, .terminal-status, .copy-status-size) {
@@ -250,7 +250,7 @@
   }
 
   .doc {
-    --doc-code-bg: light-dark(color-mix(in srgb, var(--code-bg) 82%, var(--background)), var(--code-bg));
+    --doc-code-bg: light-dark(color-mix(in srgb, var(--code-bg) 82%, var(--color-canvas)), var(--code-bg));
   }
 
   :is(.code:not(.cli-demo-body, .ba-code), .terminal-body, .install-tabs-code, .api-example-code, .api-reference-example-code) {

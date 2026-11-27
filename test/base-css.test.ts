@@ -61,7 +61,7 @@ test("the docs shell styles use the classes the layouts render", () => {
 });
 
 test("home preview and mobile cards keep the Sailcloth surface contract", () => {
-  assert.match(ui, /\.preview-code\s*\{[^}]*background:\s*var\(--card\)/s);
+  assert.match(ui, /\.preview-code\s*\{[^}]*background:\s*var\(--color-surface-card\)/s);
   assert.match(ui, /@media \(max-width: 48rem\)[\s\S]*\.home-sections,[\s\S]*grid-template-columns:\s*1fr/s);
 });
 
@@ -115,10 +115,10 @@ test("document tables, reference rows, code panels, and callouts stay quiet and 
   const cells = bodyOf(ui, /^\.doc-body th,\s*\.doc-body td$/);
   assert.match(cells, /padding-block:\s*var\(--space-3\)/);
   assert.match(cells, /padding-inline:\s*0 var\(--space-4\)/);
-  assert.match(cells, /border-bottom:\s*1px solid var\(--border\)/);
+  assert.match(cells, /border-bottom:\s*1px solid var\(--color-border\)/);
   const headers = bodyOf(ui, /^\.doc-body th$/);
   assert.doesNotMatch(headers, /bg-muted|background/);
-  assert.match(headers, /color:\s*var\(--muted-foreground\)/);
+  assert.match(headers, /color:\s*var\(--color-muted\)/);
 
   const rows = bodyOf(ui, /^\.doc-body \.item,\s*\.doc-body \.list a$/);
   assert.match(rows, /grid-template-columns:\s*minmax\(7\.5rem, 0\.4fr\) minmax\(0, 1fr\)/);

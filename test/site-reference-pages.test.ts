@@ -116,5 +116,5 @@ test("component reference leads with its complete alphabetized inventory", () =>
 test("reference rows and table headers use the mockup's quiet metrics", () => {
   assert.match(styles, /\.doc-body \.item strong,\s*\.doc-body \.list a strong \{[^}]*font-size: var\(--type-size-sm\);[^}]*line-height: var\(--type-leading-ui\);/s);
   assert.match(styles, /\.doc-body \.item span,\s*\.doc-body \.list a span,\s*\.doc-body \.item em,\s*\.doc-body \.list a em \{[^}]*font-size: var\(--type-size-sm\);[^}]*line-height: var\(--type-leading-ui\);/s);
-  assert.match(styles, /\.doc-body th \{[^}]*color: var\(--muted-foreground\);/s);
+  assert.match(styles, /\.doc-body th \{[^}]*color: var\(--color-muted\);/s);
 });

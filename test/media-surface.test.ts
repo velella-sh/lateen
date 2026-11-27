@@ -34,7 +34,7 @@ test("an image keeps its natural size and never stretches", () => {
 
 test("the caption and credit stay quiet and start-aligned", () => {
   const caption = declarations("\\.figure-caption");
-  assert.match(caption, /color:\s*var\(--muted-foreground\)/);
+  assert.match(caption, /color:\s*var\(--color-muted\)/);
   assert.match(caption, /font-size:\s*var\(--type-size-sm\)/);
   assert.match(caption, /margin-block-start:\s*var\(--space-2\)/);
   assert.match(caption, /overflow-wrap:\s*anywhere/);
@@ -44,8 +44,8 @@ test("the caption and credit stay quiet and start-aligned", () => {
 test("the diagram sits on the same plate as an image and scrolls inside it", () => {
   const plate = declarations("\\.mermaid-diagram");
   assert.match(plate, /overflow-x:\s*auto/);
-  assert.match(plate, /background:\s*var\(--card\)/);
-  assert.match(plate, /border:\s*1px solid var\(--border\)/);
+  assert.match(plate, /background:\s*var\(--color-surface-card\)/);
+  assert.match(plate, /border:\s*1px solid var\(--color-border\)/);
   // The image uses --radius-xl too, so a branded scale that squares the card radius leaves both alone.
   assert.match(plate, /border-radius:\s*var\(--radius-xl\)/);
   assert.match(plate, /padding:\s*var\(--space-4\)/);
@@ -63,14 +63,14 @@ test("a wide diagram scales down only to a legible floor and then scrolls", () =
 });
 
 test("the diagram palette is repainted from tokens so it follows light and dark", () => {
-  assert.match(declarations("\\.mermaid-diagram > svg :where\\(text,\\s*tspan\\)"), /fill:\s*var\(--foreground\)\s*!important/);
+  assert.match(declarations("\\.mermaid-diagram > svg :where\\(text,\\s*tspan\\)"), /fill:\s*var\(--color-text\)\s*!important/);
   assert.match(
     declarations("\\.mermaid-diagram > svg :where\\(rect,\\s*circle,\\s*ellipse,\\s*polygon\\)"),
-    /fill:\s*var\(--background\)\s*!important/,
+    /fill:\s*var\(--color-canvas\)\s*!important/,
   );
   assert.match(
     declarations("\\.mermaid-diagram > svg :where\\(\\.flowchart-link,\\s*\\.edgePaths path\\)"),
-    /stroke:\s*var\(--muted-foreground\)\s*!important/,
+    /stroke:\s*var\(--color-muted\)\s*!important/,
   );
   // Every repaint stays scoped to the diagram, so no other block is touched.
   for (const rule of css.matchAll(/^[ \t]*(\.mermaid-diagram[^{]*)\{/gm)) {

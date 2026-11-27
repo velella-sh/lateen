@@ -36,7 +36,7 @@
     transform: scaleX(0);
     transform-origin: left center;
     z-index: 55;
-    background: var(--link);
+    background: var(--color-link);
     opacity: 0;
     pointer-events: none;
   }
@@ -60,14 +60,14 @@
     inset-inline: 0;
     bottom: 0;
     height: 1px;
-    background: linear-gradient(90deg, transparent, var(--border) 20%, var(--border) 80%, transparent);
+    background: linear-gradient(90deg, transparent, var(--color-border) 20%, var(--color-border) 80%, transparent);
     opacity: 0;
     transition: opacity 280ms cubic-bezier(0.22, 1, 0.36, 1);
     pointer-events: none;
   }
 
   .site-header.is-scrolled {
-    background: color-mix(in srgb, var(--background) 78%, transparent);
+    background: color-mix(in srgb, var(--color-canvas) 78%, transparent);
     backdrop-filter: saturate(1.08) blur(16px);
   }
 
@@ -121,7 +121,7 @@
     position: relative;
     overflow: hidden;
     border-radius: 0.55rem;
-    background: var(--muted);
+    background: var(--color-surface);
   }
 
   .brand-mark::after {
@@ -131,7 +131,7 @@
     top: 0.42rem;
     border-style: solid;
     border-width: 0 0 0.8rem 0.68rem;
-    border-color: transparent transparent var(--link) transparent;
+    border-color: transparent transparent var(--color-link) transparent;
   }
 
   .brand-logo-frame {
@@ -155,12 +155,12 @@
   }
 
   .top-nav a:hover {
-    color: var(--foreground);
+    color: var(--color-text);
   }
 
   /* The current section reads by weight and a short rule under the label, not a filled pill. */
   .top-nav a[aria-current="page"] {
-    color: var(--foreground);
+    color: var(--color-text);
     font-weight: 600;
   }
 
@@ -187,10 +187,10 @@
     block-size: 2rem;
     min-inline-size: 2rem;
     padding-inline: 0.65rem 0.35rem;
-    border: 1px solid var(--border);
+    border: 1px solid var(--color-border);
     border-radius: var(--radius-md);
-    background: var(--card);
-    color: var(--muted-foreground);
+    background: var(--color-surface-card);
+    color: var(--color-muted);
     font-size: var(--type-size-sm);
     font-weight: 500;
     white-space: nowrap;
@@ -199,7 +199,7 @@
 
   .site-header .search-trigger:is(:hover, :focus-visible) {
     border-color: var(--border-strong);
-    color: var(--foreground);
+    color: var(--color-text);
   }
 
   @media screen and (width > 960px) {
@@ -211,9 +211,9 @@
   .search-trigger-key {
     margin-inline-start: auto;
     padding: 0.1rem 0.35rem;
-    border: 1px solid var(--border);
+    border: 1px solid var(--color-border);
     border-radius: var(--radius-sm);
-    color: var(--muted-foreground);
+    color: var(--color-muted);
     font-family: var(--type-font-mono);
     font-size: var(--type-size-xs);
     line-height: var(--type-leading-heading);
@@ -229,14 +229,14 @@
     margin-block: max(10svh, env(safe-area-inset-top)) auto;
     margin-inline: auto;
     padding: 0;
-    border: 1px solid var(--border);
+    border: 1px solid var(--color-border);
     border-radius: 1.25rem;
-    background: color-mix(in srgb, var(--background) 92%, var(--card));
-    color: var(--foreground);
+    background: color-mix(in srgb, var(--color-canvas) 92%, var(--color-surface-card));
+    color: var(--color-text);
     overflow: hidden;
     box-shadow:
       0 24px 64px -16px rgb(0 0 0 / 0.45),
-      0 0 0 1px color-mix(in srgb, var(--foreground) 6%, transparent);
+      0 0 0 1px color-mix(in srgb, var(--color-text) 6%, transparent);
   }
 
   dialog.search::backdrop {
@@ -250,12 +250,12 @@
     border-radius: 999px;
     display: grid;
     place-items: center;
-    color: var(--muted-foreground);
+    color: var(--color-muted);
   }
 
   .iconbtn:hover {
-    background: var(--muted);
-    color: var(--foreground);
+    background: var(--color-surface);
+    color: var(--color-text);
   }
 
   .site-header .theme-toggle-button {
@@ -320,9 +320,9 @@
     min-inline-size: 2.75rem;
     padding-inline: var(--space-3);
     border-radius: 999px;
-    background: var(--card);
-    box-shadow: inset 0 0 0 1px var(--border);
-    color: var(--foreground);
+    background: var(--color-surface-card);
+    box-shadow: inset 0 0 0 1px var(--color-border);
+    color: var(--color-text);
     font-weight: 600;
     text-align: start;
     cursor: pointer;
@@ -352,8 +352,8 @@
     margin: var(--space-2) 0 0;
     padding: var(--space-1);
     border-radius: var(--radius-md);
-    background: var(--card);
-    box-shadow: inset 0 0 0 1px var(--border);
+    background: var(--color-surface-card);
+    box-shadow: inset 0 0 0 1px var(--color-border);
     list-style: none;
   }
 
@@ -370,22 +370,22 @@
     min-inline-size: 2.75rem;
     padding-inline: var(--space-2);
     border-radius: var(--radius-sm);
-    color: var(--foreground);
+    color: var(--color-text);
     text-align: start;
     text-decoration: none;
   }
 
   .mobile-selector-link:hover {
-    background: var(--muted);
+    background: var(--color-surface);
   }
 
   .mobile-selector-link[aria-current="true"] {
-    color: var(--primary-foreground);
-    background: var(--primary);
+    color: var(--color-on-brand);
+    background: var(--color-brand);
   }
 
   .mobile-selector-link--unavailable {
-    color: var(--muted-foreground);
+    color: var(--color-muted);
     cursor: not-allowed;
   }
 
@@ -397,7 +397,7 @@
 
   .mobile-selector-summary:focus-visible,
   .mobile-selector-link:focus-visible {
-    outline: 2px solid var(--ring);
+    outline: 2px solid var(--state-focus-ring);
     outline-offset: 2px;
   }
 
@@ -426,8 +426,8 @@
     padding: var(--space-4) var(--space-3);
     border: 0;
     border-inline-end: 1px solid var(--border-subtle);
-    background: var(--background);
-    color: var(--foreground);
+    background: var(--color-canvas);
+    color: var(--color-text);
     overflow-y: auto;
     scroll-padding-block-start: 4rem;
     translate: -100% 0;
@@ -484,8 +484,8 @@
     align-items: center;
     margin-block-end: var(--space-3);
     padding: var(--space-2) var(--space-3);
-    border-block-end: 1px solid var(--border);
-    background: var(--background);
+    border-block-end: 1px solid var(--color-border);
+    background: var(--color-canvas);
     font-weight: 600;
   }
 
@@ -504,7 +504,7 @@
 
   .site-footer {
     @apply border-t border-border py-5;
-    background: color-mix(in srgb, var(--background) 65%, var(--muted));
+    background: color-mix(in srgb, var(--color-canvas) 65%, var(--color-surface));
   }
 
   .footer-inner {
@@ -539,7 +539,7 @@
      The other projects open in a popover above it, so the footer stays a single line. */
   .network-footer {
     @apply border-t border-border py-3 text-muted-foreground;
-    background: color-mix(in srgb, var(--background) 65%, var(--muted));
+    background: color-mix(in srgb, var(--color-canvas) 65%, var(--color-surface));
     padding-inline: max(1.5rem, calc((100% - 72.5rem) / 2));
     font-size: var(--type-size-sm);
     line-height: var(--type-leading-ui);
@@ -551,7 +551,7 @@
 
   .network-footer-summary {
     @apply inline-flex min-h-8 cursor-pointer list-none items-center gap-2 rounded-md border border-border px-2.5 font-medium text-foreground;
-    background: var(--card);
+    background: var(--color-surface-card);
   }
 
   .network-footer-summary::-webkit-details-marker {
@@ -572,8 +572,8 @@
 
   .network-footer-popover {
     @apply absolute z-20 min-w-48 rounded-lg border border-border p-1.5 shadow-lg;
-    background: var(--popover);
-    color: var(--popover-foreground);
+    background: var(--color-surface-card);
+    color: var(--color-text);
     inset-inline-start: 0;
     inset-block-end: calc(100% + 0.5rem);
   }
@@ -593,11 +593,11 @@
   }
 
   .network-footer-link:hover {
-    background: var(--muted);
+    background: var(--color-surface);
   }
 
   .network-footer-link[aria-current="true"] {
-    background: var(--muted);
+    background: var(--color-surface);
   }
 
   .network-footer-link[aria-current="true"]::after {
@@ -605,7 +605,7 @@
   }
 
   .legal + .legal {
-    border-inline-start: 1px solid var(--border);
+    border-inline-start: 1px solid var(--color-border);
     padding-inline-start: 0.75rem;
   }
 
@@ -621,8 +621,8 @@
     align-items: center;
     gap: 0.65rem;
     padding: 0.5rem 0.875rem;
-    border-bottom: 1px solid var(--border);
-    color: var(--muted-foreground);
+    border-bottom: 1px solid var(--color-border);
+    color: var(--color-muted);
   }
 
   .search-field input {
@@ -633,7 +633,7 @@
     unicode-bidi: plaintext;
     border: 0;
     background: transparent;
-    color: var(--foreground);
+    color: var(--color-text);
     font-size: var(--type-size-base);
   }
 
@@ -655,7 +655,7 @@
     inset-inline: 0;
     inset-block-end: -1px;
     block-size: 2px;
-    background: var(--ring);
+    background: var(--state-focus-ring);
     opacity: 0;
     transition: opacity 0.15s;
 
@@ -665,7 +665,7 @@
   }
 
   .search-field:focus-within {
-    color: var(--foreground);
+    color: var(--color-text);
   }
 
   .search-field:focus-within::after {
@@ -694,7 +694,7 @@
     .search-close-key {
       display: inline;
       padding: 0.15rem 0.4rem;
-      border: 1px solid var(--border);
+      border: 1px solid var(--color-border);
       border-radius: var(--radius-sm);
       font-family: var(--type-font-mono);
       font-size: var(--type-size-xs);
@@ -713,14 +713,14 @@
     flex-wrap: wrap;
     gap: var(--space-2);
     margin: var(--space-2) var(--space-3);
-    color: var(--muted-foreground);
+    color: var(--color-muted);
     font-size: var(--type-size-sm);
   }
 
   .search .search-scope select {
-    color: var(--foreground);
-    background: var(--background);
-    border: 1px solid var(--border);
+    color: var(--color-text);
+    background: var(--color-canvas);
+    border: 1px solid var(--color-border);
     border-radius: var(--radius-sm);
     padding: var(--space-1) var(--space-2);
   }
@@ -733,16 +733,16 @@
     margin-block: 0.25rem 0.5rem;
     margin-inline: 0.75rem;
     padding: 0 0.6rem;
-    border: 1px solid var(--border);
+    border: 1px solid var(--color-border);
     border-radius: 0.5rem;
     background: transparent;
-    color: var(--foreground);
+    color: var(--color-text);
     font-size: var(--type-size-sm);
     cursor: pointer;
   }
 
   .search-retry:hover {
-    background: var(--muted);
+    background: var(--color-surface);
   }
 
   .search-results {
@@ -772,8 +772,8 @@
     padding: 0.7rem 0.75rem 0.35rem;
     border-block-end: 0;
     /* The heading stays legible over the rows it scrolls past, so it repeats the dialog's surface. */
-    background: color-mix(in srgb, var(--background) 92%, var(--card));
-    color: var(--muted-foreground);
+    background: color-mix(in srgb, var(--color-canvas) 92%, var(--color-surface-card));
+    color: var(--color-muted);
     font-size: var(--type-size-xs);
     font-weight: 700;
     letter-spacing: 0.06em;
@@ -787,15 +787,15 @@
     gap: 0.125rem;
     padding: 0.625rem 0.875rem;
     border-inline-start: 2px solid transparent;
-    border-block-end: 1px solid var(--border);
-    color: var(--foreground);
+    border-block-end: 1px solid var(--color-border);
+    color: var(--color-text);
     text-decoration: none;
     overflow-wrap: anywhere;
   }
 
   .search-result-path,
   .search-results-path {
-    color: var(--muted-foreground);
+    color: var(--color-muted);
     font-size: var(--type-size-xs);
     line-height: var(--type-leading-ui);
     unicode-bidi: isolate;
@@ -803,7 +803,7 @@
 
   .search-result-heading,
   .search-results-heading {
-    color: var(--muted-foreground);
+    color: var(--color-muted);
     font-size: var(--type-size-xs);
     line-height: var(--type-leading-ui);
     unicode-bidi: isolate;
@@ -815,7 +815,7 @@
 
   /* A path or a hyphenated name keeps its own order inside a right-to-left line. */
   .search-result-excerpt {
-    color: var(--muted-foreground);
+    color: var(--color-muted);
     font-size: var(--type-size-sm);
     line-height: var(--type-leading-ui);
     unicode-bidi: isolate;
@@ -824,7 +824,7 @@
   .search-result-excerpt mark {
     border-radius: 0.25rem;
     background: var(--color-selection);
-    color: var(--foreground);
+    color: var(--color-text);
     unicode-bidi: isolate;
   }
 
@@ -834,7 +834,7 @@
   .search-result-version {
     display: inline-block;
     margin-inline-end: 0.5rem;
-    color: var(--muted-foreground);
+    color: var(--color-muted);
     font-size: var(--type-size-xs);
   }
 
@@ -868,7 +868,7 @@
 
   dialog.search .search-result-heading + .search-result-path {
     padding-inline-start: 0.55rem;
-    border-inline-start: 1px solid var(--border);
+    border-inline-start: 1px solid var(--color-border);
   }
 
   dialog.search .search-result-excerpt {
@@ -886,7 +886,7 @@
     border: 0;
     border-inline-start: 2px solid transparent;
     background: transparent;
-    color: var(--foreground);
+    color: var(--color-text);
     font-size: var(--type-size-sm);
     text-align: start;
     cursor: pointer;
@@ -894,12 +894,12 @@
 
   .search-result-link:hover,
   .search [role="option"]:hover {
-    background: var(--muted);
+    background: var(--color-surface);
   }
 
   .search [role="option"][aria-selected="true"] {
-    border-inline-start-color: var(--ring);
-    background: var(--accent);
+    border-inline-start-color: var(--state-focus-ring);
+    background: var(--color-brand-subtle);
 
     @media (forced-colors: active) {
       border-inline-start-color: Highlight;
@@ -907,7 +907,7 @@
   }
 
   .search-action-hint {
-    color: var(--muted-foreground);
+    color: var(--color-muted);
     font-size: var(--type-size-sm);
   }
 
@@ -930,7 +930,7 @@
   .search-status {
     flex: none;
     margin: 0;
-    color: var(--foreground);
+    color: var(--color-text);
     font-size: var(--type-size-sm);
     font-weight: 600;
     overflow-wrap: anywhere;
@@ -939,7 +939,7 @@
   /* A count is a quiet line above the ranked list it counts. */
   .search-status:not(:empty) {
     padding: 0.625rem 1.15rem 0;
-    color: var(--muted-foreground);
+    color: var(--color-muted);
     font-size: var(--type-size-xs);
     font-weight: 500;
   }
@@ -953,7 +953,7 @@
     min-block-size: 7.5rem;
     padding: 1.75rem 1.5rem;
     background: transparent;
-    color: var(--muted-foreground);
+    color: var(--color-muted);
     font-weight: 500;
     text-align: center;
     text-wrap: balance;
@@ -962,7 +962,7 @@
   .search-foot {
     flex: none;
     padding: 0.5rem 0.875rem max(0.5rem, env(safe-area-inset-bottom));
-    border-top: 1px solid var(--border);
+    border-top: 1px solid var(--color-border);
     font-size: var(--type-size-sm);
   }
 
@@ -974,7 +974,7 @@
     display: inline-flex;
     align-items: center;
     min-block-size: 1.5rem;
-    color: var(--link);
+    color: var(--color-link);
   }
 
   @media (max-width: 960px) {

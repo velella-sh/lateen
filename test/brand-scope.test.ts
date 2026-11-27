@@ -28,8 +28,8 @@ test("the header, sidebar, footer and article read the colours a preset sets", (
   const theme = read("styles/src/theme.css");
   assert.match(theme, /--background: var\(--color-canvas\)/);
   assert.match(base, /background: var\(--color-canvas\)/, "the page reads the canvas");
-  assert.match(chrome, /var\(--background\)/, "the chrome reads the canvas");
-  assert.match(chrome, /var\(--card\)|var\(--color-surface/, "the chrome reads a surface role");
+  assert.match(chrome, /var\(--color-canvas\)/, "the chrome reads the canvas");
+  assert.match(chrome, /var\(--color-surface-card\)|var\(--color-surface/, "the chrome reads a surface role");
 });
 
 test("different presets give different page colours", () => {

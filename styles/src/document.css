@@ -43,7 +43,7 @@
   }
 
   .post-author-bio {
-    color: var(--muted-foreground);
+    color: var(--color-muted);
     font-size: var(--type-size-sm);
   }
 
@@ -61,10 +61,10 @@
   .doc-context .doc-tools > summary {
     min-block-size: 2rem;
     padding-inline: 0.65rem;
-    border: 1px solid var(--border);
+    border: 1px solid var(--color-border);
     border-radius: var(--radius-md);
-    background: var(--card);
-    color: var(--muted-foreground);
+    background: var(--color-surface-card);
+    color: var(--color-muted);
     font-weight: 500;
     white-space: nowrap;
   }
@@ -72,7 +72,7 @@
   .doc-context .doc-tools > summary:hover,
   .doc-context .doc-tools[open] > summary {
     border-color: var(--border-strong);
-    color: var(--foreground);
+    color: var(--color-text);
   }
 
   .doc-tools[open] > summary .doc-tools-chevron {
@@ -105,7 +105,7 @@
     @apply m-0 mb-2 font-bold;
     font-size: var(--type-size-sm);
     line-height: var(--type-leading-ui);
-    color: var(--foreground);
+    color: var(--color-text);
   }
 
   :is(.sidebar-nav, .toc, .toc-fold) ul {
@@ -113,7 +113,7 @@
   }
 
   .toc > ul {
-    border-inline-start: 1px solid var(--border);
+    border-inline-start: 1px solid var(--color-border);
     padding-inline-start: 0;
   }
 
@@ -124,12 +124,12 @@
   .sidebar-nav :is(a, summary):hover,
   .toc-fold > summary:hover {
     background: var(--state-hover-bg);
-    color: var(--foreground);
+    color: var(--color-text);
   }
 
   .sidebar-nav a:is([aria-current="page"], [aria-current="true"]) {
     position: relative;
-    color: var(--foreground);
+    color: var(--color-text);
     background: transparent;
     font-weight: 600;
   }
@@ -141,7 +141,7 @@
     inset-block: 0.25rem;
     inline-size: 2px;
     border-radius: 2px;
-    background: var(--foreground);
+    background: var(--color-text);
   }
 
   .sidebar-group > summary,
@@ -180,7 +180,7 @@
     margin-block-start: var(--space-1);
     margin-inline-start: var(--space-3);
     padding-inline-start: var(--space-1);
-    border-inline-start: 1px solid var(--border);
+    border-inline-start: 1px solid var(--color-border);
   }
 
   /* A top-level page link reads as a peer of the group titles beside it. */
@@ -189,7 +189,7 @@
   }
 
   .sidebar-group[data-current] > summary {
-    color: var(--foreground);
+    color: var(--color-text);
   }
 
   :is(.sidebar-nav, .toc, .toc-fold) :is(a, summary):focus-visible {
@@ -200,7 +200,7 @@
     display: block;
     padding: 0.25rem 0.75rem;
     border-inline-start: 1.5px solid transparent;
-    color: var(--muted-foreground);
+    color: var(--color-muted);
     font-size: var(--type-size-sm);
     line-height: var(--type-leading-ui);
     text-decoration: none;
@@ -208,12 +208,12 @@
   }
 
   :is(.toc, .toc-fold) a:hover {
-    color: var(--foreground);
+    color: var(--color-text);
   }
 
   :is(.toc, .toc-fold) a[aria-current="true"] {
-    border-inline-start-color: var(--foreground);
-    color: var(--foreground);
+    border-inline-start-color: var(--color-text);
+    color: var(--color-text);
     font-weight: 600;
   }
 
@@ -244,8 +244,8 @@
   }
 
   .toc a[aria-current="true"] {
-    border-inline-start-color: var(--foreground);
-    color: var(--foreground);
+    border-inline-start-color: var(--color-text);
+    color: var(--color-text);
     font-weight: 600;
   }
 
@@ -254,7 +254,7 @@
     margin-block: 0.1875rem 0.375rem;
     margin-inline-start: var(--space-3);
     padding-inline-start: 0;
-    border-inline-start: 1px solid var(--border);
+    border-inline-start: 1px solid var(--color-border);
     row-gap: 0.0625rem;
   }
 
@@ -326,7 +326,7 @@
   }
 
   .breadcrumb a:hover {
-    color: var(--primary);
+    color: var(--color-brand);
   }
 
   .breadcrumb svg,
@@ -357,7 +357,7 @@
   }
 
   .breadcrumb-summary:hover {
-    color: var(--primary);
+    color: var(--color-brand);
   }
 
   .breadcrumb-overflow .breadcrumb-list {
@@ -368,14 +368,14 @@
     @apply m-0 font-semibold uppercase;
     font-size: var(--type-size-xs);
     line-height: var(--type-leading-ui);
-    color: var(--primary);
+    color: var(--color-brand);
     letter-spacing: 0.09em;
   }
 
   .doc-description {
     margin-block: var(--space-2) 0;
     max-inline-size: var(--type-measure);
-    color: var(--muted-foreground);
+    color: var(--color-muted);
     font-size: var(--type-size-base);
     line-height: var(--type-leading-ui);
     overflow-wrap: anywhere;
@@ -386,7 +386,7 @@
     display: inline-flex;
     align-items: center;
     gap: 0.4rem;
-    color: var(--link);
+    color: var(--color-link);
     font-size: var(--type-size-sm);
     text-decoration: none;
   }
@@ -407,7 +407,7 @@
     align-items: center;
     gap: 0.25rem 0.75rem;
     margin-block-start: 0.5rem;
-    color: var(--muted-foreground);
+    color: var(--color-muted);
     font-size: var(--type-size-xs);
     line-height: var(--type-leading-ui);
   }
@@ -442,13 +442,13 @@
     margin-block: var(--space-3);
     padding: var(--space-3);
     border-radius: var(--radius-lg);
-    background: var(--muted);
+    background: var(--color-surface);
     font-size: var(--type-size-sm);
     overflow-wrap: anywhere;
   }
 
   .guide-summary-label {
-    color: var(--muted-foreground);
+    color: var(--color-muted);
   }
 
   .guide-summary-value {
@@ -466,14 +466,14 @@
   .guide-prerequisites {
     margin-block: 1.5rem 0;
     padding: 1rem 1.125rem;
-    border: 1px solid var(--border);
+    border: 1px solid var(--color-border);
     border-radius: var(--radius-lg);
-    background: color-mix(in srgb, var(--card) 70%, transparent);
+    background: color-mix(in srgb, var(--color-surface-card) 70%, transparent);
   }
 
   .guide-prerequisites-title {
     margin: 0 0 0.5rem;
-    color: var(--muted-foreground);
+    color: var(--color-muted);
     font-size: var(--type-size-xs);
     font-weight: 600;
     letter-spacing: 0.09em;
@@ -487,7 +487,7 @@
 
   .guide-prerequisites-optional {
     margin-inline-start: 0.375rem;
-    color: var(--muted-foreground);
+    color: var(--color-muted);
     font-size: var(--type-size-sm);
   }
 
@@ -534,7 +534,7 @@
   .doc-body a,
   .trust-panel-body a,
   .record .list-subscribe-link {
-    color: var(--link);
+    color: var(--color-link);
     text-decoration: underline;
     text-decoration-thickness: 0.08em;
     text-underline-offset: 3px;
@@ -577,7 +577,7 @@
   }
 
   .doc-body :is(ul, ol):not([class]) > li::marker {
-    color: var(--muted-foreground);
+    color: var(--color-muted);
   }
 
   .doc-body blockquote:not([class]):not(.quote *) {
@@ -585,7 +585,7 @@
     padding-block: 0.125rem;
     padding-inline: 1rem 0;
     border-inline-start: 2px solid var(--border-strong);
-    color: var(--muted-foreground);
+    color: var(--color-muted);
 
     & > :first-child { margin-block-start: 0; }
     & > :last-child { margin-block-end: 0; }
@@ -604,7 +604,7 @@
   .doc-body :is(figure:not([class]) > figcaption, .figure-caption) {
     margin-block-start: var(--space-2);
     max-inline-size: var(--type-measure);
-    color: var(--muted-foreground);
+    color: var(--color-muted);
     font-size: var(--type-size-sm);
     line-height: var(--type-leading-ui);
     overflow-wrap: anywhere;
@@ -634,8 +634,8 @@
     @apply rounded-md px-1.5 py-0.5 font-mono;
     font-size: var(--type-size-sm);
     line-height: var(--type-leading-ui);
-    color: var(--foreground);
-    background: color-mix(in srgb, var(--muted) 65%, var(--background));
+    color: var(--color-text);
+    background: color-mix(in srgb, var(--color-surface) 65%, var(--color-canvas));
   }
 
   .edit-page-link {

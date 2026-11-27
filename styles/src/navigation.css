@@ -4,7 +4,7 @@
     @apply my-6 flex flex-wrap items-start gap-2 border-t pt-4;
     font-size: var(--type-size-sm);
     line-height: var(--type-leading-ui);
-    border-color: var(--border);
+    border-color: var(--color-border);
   }
 
   .page-footer {
@@ -40,12 +40,12 @@
     @apply inline-flex cursor-pointer items-center gap-2 rounded-md border px-3 py-1.5 font-medium no-underline;
     font-size: var(--type-size-sm);
     line-height: var(--type-leading-ui);
-    border-color: var(--border);
-    background: var(--card);
-    color: var(--foreground);
+    border-color: var(--color-border);
+    background: var(--color-surface-card);
+    color: var(--color-text);
 
     &:hover {
-      background: var(--muted);
+      background: var(--color-surface);
     }
   }
 
@@ -69,7 +69,7 @@
 
   .page-agent-menu-panel {
     @apply mt-2 grid gap-2 rounded-lg border p-2;
-    border-color: var(--border);
+    border-color: var(--color-border);
   }
 
   .page-agent-menu-providers {
@@ -99,9 +99,9 @@
     @apply rounded-md border px-2 py-1 font-medium;
     font-size: var(--type-size-xs);
     line-height: var(--type-leading-ui);
-    border-color: var(--border);
+    border-color: var(--color-border);
     background: transparent;
-    color: var(--muted-foreground);
+    color: var(--color-muted);
   }
 
   .page-end {
@@ -111,7 +111,7 @@
     justify-content: space-between;
     gap: var(--space-2) var(--space-6);
     margin-block: var(--space-12) var(--space-6);
-    color: var(--muted-foreground);
+    color: var(--color-muted);
     font-size: var(--type-size-sm);
   }
 
@@ -134,7 +134,7 @@
   }
 
   .page-end-edit:hover {
-    color: var(--foreground);
+    color: var(--color-text);
   }
 
   .page-end-icon {
@@ -149,8 +149,8 @@
 
   :is(.back-to-top, .article-tools details > summary, .pager-link):hover,
   .article-tools details[open] > summary {
-    background: var(--muted);
-    color: var(--foreground);
+    background: var(--color-surface);
+    color: var(--color-text);
   }
 
   :is(.doc-tools, .article-tools details) > summary::-webkit-details-marker {
@@ -182,7 +182,7 @@
       line-height: var(--type-leading-ui);
 
       &:hover {
-        background: var(--muted);
+        background: var(--color-surface);
       }
     }
 
@@ -196,7 +196,7 @@
       @apply mt-1 border-t px-2.5 pt-2 pb-1 font-semibold text-muted-foreground;
       font-size: var(--type-size-xs);
       line-height: var(--type-leading-ui);
-      border-color: var(--border);
+      border-color: var(--color-border);
     }
 
     .row-icon {
@@ -252,8 +252,8 @@
 
   .pager-link {
     @apply relative grid content-center gap-1 rounded-xl border px-4 py-3 no-underline;
-    border-color: var(--border);
-    background: var(--card);
+    border-color: var(--color-border);
+    background: var(--color-surface-card);
     overflow-wrap: anywhere;
   }
 
@@ -284,7 +284,7 @@
 
   .pager-arrow {
     @apply size-4 shrink-0;
-    color: var(--link);
+    color: var(--color-link);
   }
 
   .pager-title {
