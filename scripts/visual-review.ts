@@ -96,7 +96,8 @@ export function reviewShots(options: ReviewOptions): CaseReport[] {
 }
 
 /** The lines to print for the reports, and whether the run failed. */
-export function formatReview(reports: readonly CaseReport[]): { readonly lines: string[]; readonly ok: boolean } {
+export function formatReview(reports: readonly CaseReport[], options: { readonly reportOnly?: boolean } = {}): { readonly lines: string[]; readonly ok: boolean } {
+  const reportOnly = options.reportOnly === true;
   const lines: string[] = [];
   for (const r of reports) {
     if (r.status === "pass") lines.push(`ok      ${r.name}`);
@@ -104,11 +105,13 @@ export function formatReview(reports: readonly CaseReport[]): { readonly lines: 
     else if (r.status === "missing") lines.push(`FAIL    ${r.message}`);
     else {
       const share = r.share === undefined ? "" : ` (${(r.share * 100).toFixed(3)}% changed)`;
-      lines.push(`FAIL    ${r.name}${share}${r.message ? `: ${r.message}` : ""}`);
+      lines.push(`${reportOnly ? "DIFF   " : "FAIL   "} ${r.name}${share}${r.message ? `: ${r.message}` : ""}`);
       for (const f of r.files) lines.push(`          ${f}`);
     }
   }
-  const failed = reports.filter((r) => r.status === "fail" || r.status === "missing").length;
+  const diffs = reports.filter((r) => r.status === "fail").length;
+  const failed = reports.filter((r) => r.status === "missing" || (!reportOnly && r.status === "fail")).length;
+  if (reportOnly && diffs > 0) lines.push(`report-only: ${diffs} of ${reports.length} cases differ from their baseline; the gate does not fail on pixels during the redesign`);
   lines.push(failed === 0 ? `${reports.length} cases, no failures` : `${failed} of ${reports.length} cases failed`);
   return { lines, ok: failed === 0 };
 }

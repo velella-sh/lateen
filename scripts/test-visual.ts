@@ -347,7 +347,7 @@ async function main(): Promise<void> {
   for (const name of flaky) console.log(`flaky   ${name}: passed on the second take`);
   const reports = reviewShots({ shots, baselines: BASELINE_DIR, review: join(shots, "review"), update });
   writeReport(reports, loadMatrix(), join(shots, "report.json"), flaky);
-  const { lines, ok } = formatReview(reports);
+  const { lines, ok } = formatReview(reports, { reportOnly: process.env["VISUAL_PIXELS"] === "report" });
   console.log(lines.join("\n"));
   if (!ok) process.exitCode = 1;
 }
