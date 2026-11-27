@@ -235,7 +235,9 @@
     "lg": "1rem",
     "full": "9999px",
     "ctl": "0.375rem",
-    "card": "0.625rem"
+    "card": "0.625rem",
+    "xs": "0.125rem",
+    "xl": "1.5rem"
   },
   "shadow": {
     "sm": "0 1px 2px rgb(0 0 0 / 0.1)",
@@ -284,6 +286,62 @@
       "$extensions": {
         "lateen": {
           "reduced": "0ms"
+        }
+      }
+    },
+    "menu-enter": {
+      "$value": "160ms",
+      "$extensions": {
+        "lateen": {
+          "reduced": "0ms"
+        }
+      }
+    },
+    "menu-exit": {
+      "$value": "100ms",
+      "$extensions": {
+        "lateen": {
+          "reduced": "0ms"
+        }
+      }
+    },
+    "dialog-enter": {
+      "$value": "240ms",
+      "$extensions": {
+        "lateen": {
+          "reduced": "0ms"
+        }
+      }
+    },
+    "dialog-exit": {
+      "$value": "160ms",
+      "$extensions": {
+        "lateen": {
+          "reduced": "0ms"
+        }
+      }
+    },
+    "theme-switch": {
+      "$value": "200ms",
+      "$extensions": {
+        "lateen": {
+          "reduced": "0ms"
+        }
+      }
+    },
+    "ease-enter": {
+      "$value": "{motion.ease-out}",
+      "$extensions": {
+        "lateen": {
+          "reduced": "linear"
+        }
+      }
+    },
+    "ease-exit": {
+      "$value": "{motion.ease-in}",
+      "$extensions": {
+        "lateen": {
+          "reduced": "linear"
         }
       }
     }

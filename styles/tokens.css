@@ -82,6 +82,8 @@
   --radius-full: 9999px;
   --radius-ctl: 0.375rem;
   --radius-card: 0.625rem;
+  --radius-xs: 0.125rem;
+  --radius-xl: 1.5rem;
   --shadow-sm: 0 1px 2px rgb(0 0 0 / 0.1);
   --shadow-md: 0 4px 8px rgb(0 0 0 / 0.12);
   --shadow-lg: 0 12px 24px rgb(0 0 0 / 0.16);
@@ -104,6 +106,13 @@
   --motion-ease-out: cubic-bezier(0, 0, 0.2, 1);
   --motion-ease-in: cubic-bezier(0.4, 0, 1, 1);
   --motion-press: 60ms;
+  --motion-menu-enter: 160ms;
+  --motion-menu-exit: 100ms;
+  --motion-dialog-enter: 240ms;
+  --motion-dialog-exit: 160ms;
+  --motion-theme-switch: 200ms;
+  --motion-ease-enter: var(--motion-ease-out);
+  --motion-ease-exit: var(--motion-ease-in);
   --state-hover-bg: light-dark(#e7e7edcc, #393743cc);
   --state-active-bg: light-dark(#d5d3e3, #4a4760);
   --state-selected-bg: light-dark(#ede6d8, #393743);
@@ -182,6 +191,26 @@
     --motion-ease-out: linear;
     --motion-ease-in: linear;
     --motion-press: 0ms;
+    --motion-menu-enter: 0ms;
+    --motion-menu-exit: 0ms;
+    --motion-dialog-enter: 0ms;
+    --motion-dialog-exit: 0ms;
+    --motion-theme-switch: 0ms;
+    --motion-ease-enter: linear;
+    --motion-ease-exit: linear;
+  }
+}
+
+@media (forced-colors: active) {
+  :root {
+    --shadow-sm: none;
+    --shadow-md: none;
+    --shadow-lg: none;
+    --shadow-popover: none;
+    --shadow-dialog: none;
+    --elevation-low-shadow: none;
+    --elevation-mid-shadow: none;
+    --elevation-high-shadow: none;
   }
 }
 

@@ -62,5 +62,61 @@
         "reduced": "0ms"
       }
     }
+  },
+  "menu-enter": {
+    "$value": "160ms",
+    "$extensions": {
+      "lateen": {
+        "reduced": "0ms"
+      }
+    }
+  },
+  "menu-exit": {
+    "$value": "100ms",
+    "$extensions": {
+      "lateen": {
+        "reduced": "0ms"
+      }
+    }
+  },
+  "dialog-enter": {
+    "$value": "240ms",
+    "$extensions": {
+      "lateen": {
+        "reduced": "0ms"
+      }
+    }
+  },
+  "dialog-exit": {
+    "$value": "160ms",
+    "$extensions": {
+      "lateen": {
+        "reduced": "0ms"
+      }
+    }
+  },
+  "theme-switch": {
+    "$value": "200ms",
+    "$extensions": {
+      "lateen": {
+        "reduced": "0ms"
+      }
+    }
+  },
+  "ease-enter": {
+    "$value": "{motion.ease-out}",
+    "$extensions": {
+      "lateen": {
+        "reduced": "linear"
+      }
+    }
+  },
+  "ease-exit": {
+    "$value": "{motion.ease-in}",
+    "$extensions": {
+      "lateen": {
+        "reduced": "linear"
+      }
+    }
   }
 }
