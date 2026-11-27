@@ -1,10 +1,12 @@
 # Lateen sailcloth standard
 
+> **Replaced in part (2026-11-27).** [Design system v2](system-v2.md) replaces the rules "no colored frames" and "no accent change" below, and the hand-written token table maps to the new tokens there. The rest stands until each later task lands.
+
 Visual contract for Lateen. Matches the Untitled HTML mockups.
 
 ## Direction
 
-Quiet Foam/Night fields. Lateen Blue for identity and links. Mist as a whisper on labels. Beauty from type, space, and soft light — not frames or glow kits.
+Quiet Foam/Night fields. Lateen Blue for identity and links. Mist as a whisper on labels. Beauty from type, space, and soft light — not glow kits. ("Not frames" is replaced by system-v2.)
 
 Atmosphere uses soft radial washes only. No hard `mask` fade edges on page backgrounds.
 
@@ -35,4 +37,4 @@ Author visuals in `styles/src/ui.css`, compiled with Tailwind to `styles/generat
 
 ## Surfaces
 
-No colored frames around cards. Separation from spacing, hairlines, and type. Callouts use a quiet inset edge and kind label color only.
+~~No colored frames around cards.~~ *Replaced by [system-v2](system-v2.md), 2026-11-27.* Separation from spacing, hairlines, and type. Callouts use a quiet inset edge and kind label color only.

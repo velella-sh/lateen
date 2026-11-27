@@ -26,7 +26,7 @@ later issue cites an entry of the audit by its id (`A1`, `A2`, ...).
    Code stays left to right.
 8. **Markup stays the same** unless an issue says so, so a `0.2.2` site renders the same except for CSS.
    An existing token is never renamed or changed in meaning; tokens are added.
-9. **No layout redesign and no accent change.** Accent values stay; presets derive from them.
+9. **No layout redesign.** ~~No accent change.~~ The accent rule is replaced by [system-v2](system-v2.md) (2026-11-27); presets still derive from their accent.
 
 ## Audit
 
