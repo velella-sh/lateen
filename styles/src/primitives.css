@@ -26,7 +26,13 @@
 
   .btn:not([data-variant]),
   .btn[data-variant='primary'] {
-    @apply bg-primary text-primary-foreground hover:bg-primary/80;
+    background: var(--color-brand);
+    color: var(--color-on-brand);
+  }
+
+  .btn:not([data-variant]):hover,
+  .btn[data-variant='primary']:hover {
+    background: var(--color-brand-hover);
   }
 
   .btn[data-variant='secondary'] {
@@ -57,10 +63,10 @@
     align-items: flex-start;
     gap: var(--space-2);
     padding: var(--space-4);
-    border: 1px solid var(--border);
+    border: 1px solid var(--color-border);
     border-radius: var(--radius-lg);
-    background: var(--card);
-    color: var(--card-foreground);
+    background: var(--color-surface-card);
+    color: var(--color-text);
     font-size: var(--type-size-base);
     overflow-wrap: anywhere;
     box-shadow: none;
@@ -68,13 +74,13 @@
 
   a.card:where(:has(> .card-title), .feature-grid-card),
   .doc-body a.link-card {
-    color: var(--card-foreground);
+    color: var(--color-text);
     text-decoration: none;
   }
 
   .card:any-link:is(:hover, :focus-visible),
   .link-card:is(:hover, :focus-visible) {
-    background: var(--muted);
+    background: var(--color-surface);
   }
 
   .card:any-link:is(:hover, :focus-visible) > :is(.card-title, .feature-grid-title),
@@ -89,7 +95,7 @@
   }
 
   :is(.card-description, .link-card-description, .feature-grid-text) {
-    color: var(--muted-foreground);
+    color: var(--color-muted);
     font-size: var(--type-size-sm);
     line-height: var(--type-leading-ui);
   }
@@ -104,8 +110,8 @@
     @apply inline-flex items-center rounded-full px-2.5 py-0.5 font-bold;
     font-size: var(--type-size-xs);
     line-height: var(--type-leading-ui);
-    background: var(--shell);
-    color: var(--night);
+    background: var(--color-brand-subtle);
+    color: var(--color-text);
   }
 
   .badge,
@@ -122,8 +128,8 @@
 
   .badge,
   .status {
-    background: var(--shell);
-    color: var(--night);
+    background: var(--color-brand-subtle);
+    color: var(--color-text);
   }
 
   .badge {
@@ -131,8 +137,8 @@
   }
 
   .version-badge {
-    background: var(--muted);
-    color: var(--foreground);
+    background: var(--color-surface);
+    color: var(--color-text);
   }
 
   .version-badge-block {
@@ -163,7 +169,7 @@
 
   .pill.ink,
   .badge[data-variant='ink'] {
-    background: var(--primary);
-    color: var(--primary-foreground);
+    background: var(--color-brand);
+    color: var(--color-on-brand);
   }
 }

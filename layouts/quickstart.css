@@ -1,6 +1,6 @@
 .doc-body[data-quickstart] > p:first-child {
   padding-block-start: 1rem;
-  border-block-start: 1px solid var(--border);
+  border-block-start: 1px solid var(--color-border);
 }
 
 .quickstart-step {

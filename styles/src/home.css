@@ -46,15 +46,15 @@
     @apply mb-0 inline-flex items-center gap-2 rounded-full px-3 py-1 font-semibold;
     font-size: var(--type-size-xs);
     line-height: var(--type-leading-ui);
-    background: color-mix(in srgb, var(--shell) 88%, var(--card));
-    color: var(--night);
-    box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--shell) 55%, transparent);
+    background: color-mix(in srgb, var(--color-brand-subtle) 88%, var(--color-surface-card));
+    color: var(--color-text);
+    box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--color-brand-subtle) 55%, transparent);
   }
 
   .status-dot {
     @apply size-1.5 rounded-full;
-    background: var(--link);
-    box-shadow: 0 0 0 3px color-mix(in srgb, var(--link) 18%, transparent);
+    background: var(--color-link);
+    box-shadow: 0 0 0 3px color-mix(in srgb, var(--color-link) 18%, transparent);
   }
 
   .product {
@@ -67,14 +67,14 @@
     font-weight: 700;
     letter-spacing: 0.14em;
     text-transform: uppercase;
-    color: var(--link);
+    color: var(--color-link);
   }
 
   .product::after {
     content: "";
     inline-size: 3rem;
     block-size: 1px;
-    background: linear-gradient(90deg, var(--link), transparent);
+    background: linear-gradient(90deg, var(--color-link), transparent);
     opacity: 0.55;
   }
 
@@ -121,17 +121,17 @@
   }
 
   .home-btn-quiet {
-    background: color-mix(in srgb, var(--card) 70%, transparent);
+    background: color-mix(in srgb, var(--color-surface-card) 70%, transparent);
     box-shadow: inset 0 0 0 1px var(--border-strong);
   }
 
   .home-btn-quiet:hover {
-    background: var(--muted);
+    background: var(--color-surface);
   }
 
   .home-actions .hero-btn-quiet {
     padding-inline: 0.5rem;
-    color: var(--link);
+    color: var(--color-link);
     text-decoration: underline;
     text-decoration-thickness: 1px;
     text-underline-offset: 0.3em;
@@ -139,7 +139,7 @@
 
   .hero-hint {
     margin: 1.1rem 0 0;
-    color: var(--muted-foreground);
+    color: var(--color-muted);
     font-size: var(--type-size-sm);
   }
 
@@ -147,17 +147,17 @@
     font-family: var(--type-font-mono);
     font-size: var(--type-size-xs);
     margin-inline-end: 0.1rem;
-    border: 1px solid var(--border);
+    border: 1px solid var(--color-border);
     border-bottom-width: 2px;
     border-radius: 0.35rem;
     padding: 0.05rem 0.35rem;
-    background: var(--background);
+    background: var(--color-canvas);
   }
 
   .home-preview {
     border-radius: 1.125rem;
-    background: color-mix(in srgb, var(--card) 72%, transparent);
-    box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--border) 80%, transparent);
+    background: color-mix(in srgb, var(--color-surface-card) 72%, transparent);
+    box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--color-border) 80%, transparent);
     overflow: hidden;
     transform: perspective(900px) rotateY(-6deg) rotateX(2deg);
     transform-origin: left center;
@@ -168,15 +168,15 @@
     align-items: center;
     gap: 0.35rem;
     padding: 0.65rem 0.75rem;
-    border-bottom: 1px solid color-mix(in srgb, var(--border) 85%, transparent);
-    background: color-mix(in srgb, var(--muted) 40%, transparent);
+    border-bottom: 1px solid color-mix(in srgb, var(--color-border) 85%, transparent);
+    background: color-mix(in srgb, var(--color-surface) 40%, transparent);
   }
 
   .preview-dot {
     width: 0.45rem;
     height: 0.45rem;
     border-radius: 999px;
-    background: color-mix(in srgb, var(--muted-foreground) 35%, transparent);
+    background: color-mix(in srgb, var(--color-muted) 35%, transparent);
   }
 
   .preview-chrome em {
@@ -184,7 +184,7 @@
     font-style: normal;
     font-family: var(--type-font-mono);
     font-size: var(--type-size-xs);
-    color: var(--muted-foreground);
+    color: var(--color-muted);
   }
 
   .preview-body {
@@ -207,7 +207,7 @@
     font-size: 0.5rem;
     letter-spacing: 0.08em;
     text-transform: uppercase;
-    color: var(--muted-foreground);
+    color: var(--color-muted);
   }
 
   .preview-side i,
@@ -215,13 +215,13 @@
     display: block;
     height: 0.45rem;
     border-radius: 0.25rem;
-    background: color-mix(in srgb, var(--muted-foreground) 18%, transparent);
+    background: color-mix(in srgb, var(--color-muted) 18%, transparent);
   }
 
   .preview-side i.on,
   .preview-toc i.on {
-    background: color-mix(in srgb, var(--link) 45%, var(--muted));
-    box-shadow: inset 2px 0 0 var(--link);
+    background: color-mix(in srgb, var(--color-link) 45%, var(--color-surface));
+    box-shadow: inset 2px 0 0 var(--color-link);
   }
 
   .preview-article {
@@ -234,7 +234,7 @@
     width: 42%;
     height: 0.4rem;
     border-radius: 0.25rem;
-    background: color-mix(in srgb, var(--muted-foreground) 16%, transparent);
+    background: color-mix(in srgb, var(--color-muted) 16%, transparent);
   }
 
   .preview-article strong {
@@ -245,7 +245,7 @@
   .preview-line {
     height: 0.4rem;
     border-radius: 0.25rem;
-    background: color-mix(in srgb, var(--muted-foreground) 16%, transparent);
+    background: color-mix(in srgb, var(--color-muted) 16%, transparent);
   }
 
   .preview-line.short {
@@ -256,15 +256,15 @@
     height: 2.1rem;
     border-radius: 0.5rem;
     margin-top: 0.25rem;
-    background: var(--card);
-    box-shadow: inset 0 0 0 1px var(--border);
+    background: var(--color-surface-card);
+    box-shadow: inset 0 0 0 1px var(--color-border);
   }
 
   .preview-callout {
     height: 1.75rem;
     border-radius: 0.5rem;
-    background: var(--card);
-    box-shadow: inset 2px 0 0 var(--accent), inset 0 0 0 1px var(--border);
+    background: var(--color-surface-card);
+    box-shadow: inset 2px 0 0 var(--color-brand-subtle), inset 0 0 0 1px var(--color-border);
   }
 
   .home-sections,
@@ -275,15 +275,15 @@
   .home-section:not(.feature-grid-card) {
     @apply relative rounded-2xl;
     padding: 1.25rem 1.125rem 0.5rem;
-    background: color-mix(in srgb, var(--card) 55%, transparent);
-    box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--border) 70%, transparent);
+    background: color-mix(in srgb, var(--color-surface-card) 55%, transparent);
+    box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--color-border) 70%, transparent);
     transition: transform 160ms ease, background-color 160ms ease;
   }
 
   .home-section:not(.feature-grid-card):hover {
     transform: translateY(-1px);
-    background: var(--card);
-    box-shadow: inset 0 0 0 1px var(--border);
+    background: var(--color-surface-card);
+    box-shadow: inset 0 0 0 1px var(--color-border);
   }
 
   .home-section h2 {
@@ -305,16 +305,16 @@
     align-items: baseline;
     text-decoration: none;
     padding: 0.7rem 0;
-    border-top: 1px solid var(--border);
+    border-top: 1px solid var(--color-border);
     font-size: var(--type-size-sm);
   }
 
   .home-section .row:hover {
-    color: var(--link);
+    color: var(--color-link);
   }
 
   .home-section .row em {
-    color: var(--muted-foreground);
+    color: var(--color-muted);
     font-style: normal;
     font-size: var(--type-size-xs);
   }
@@ -325,14 +325,14 @@
     margin-top: 1.125rem;
     border-radius: 1rem;
     overflow: hidden;
-    background: color-mix(in srgb, var(--card) 48%, transparent);
-    box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--border) 75%, transparent);
+    background: color-mix(in srgb, var(--color-surface-card) 48%, transparent);
+    box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--color-border) 75%, transparent);
   }
 
   .home-bits .specimen {
     border: 0;
     border-radius: 0;
-    border-inline-start: 1px solid color-mix(in srgb, var(--border) 85%, transparent);
+    border-inline-start: 1px solid color-mix(in srgb, var(--color-border) 85%, transparent);
     padding: 1.125rem 1rem;
     background: transparent;
   }
@@ -342,7 +342,7 @@
   }
 
   .home-bits .specimen:hover {
-    background: color-mix(in srgb, var(--muted) 45%, transparent);
+    background: color-mix(in srgb, var(--color-surface) 45%, transparent);
     box-shadow: none;
   }
 
@@ -361,12 +361,12 @@
 
   .crumb {
     margin: 0;
-    color: var(--muted-foreground);
+    color: var(--color-muted);
     font-size: var(--type-size-sm);
   }
 
   .crumb a {
-    color: var(--link);
+    color: var(--color-link);
     text-decoration: none;
   }
 

@@ -325,7 +325,7 @@ test("a lone previous or next card fills the row instead of leaving a dead half"
 test("the end-of-article tool chips stay quieter than the continue-reading links", () => {
   const tools = cssBodyOf(/^\.article-tools details > summary$/);
   assert.match(tools, /font-size:\s*var\(--type-size-xs\)|text-xs/, "the chips use the small size");
-  assert.match(tools, /color:\s*var\(--muted-foreground\)/, "the chips stay muted until hover");
+  assert.match(tools, /color:\s*var\(--color-muted\)/, "the chips stay muted until hover");
   assert.match(tools, /background:\s*transparent/, "the chips do not compete with the pager card fill");
 
   const toolsRow = cssBodyOf(/^\.article-tools$/);

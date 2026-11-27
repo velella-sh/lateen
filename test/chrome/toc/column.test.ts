@@ -24,7 +24,7 @@ const declarations = (body: string): Map<string, string> => {
 
 test("a nested section steps down a size and sits on its own rail", () => {
   const nested = declarations(bodyOf(".toc ul ul"));
-  assert.equal(nested.get("border-inline-start"), "1px solid var(--border)", "the nested list has its own rail");
+  assert.equal(nested.get("border-inline-start"), "1px solid var(--color-border)", "the nested list has its own rail");
   assert.match(nested.get("margin-inline-start") ?? "", /var\(--space-3\)/, "the nested list steps in");
   assert.equal(nested.get("padding-inline-start"), "0", "the rail is the indent; no extra padding");
 
@@ -54,9 +54,9 @@ test("top-level entries breathe more than nested ones, and both read as one list
 
 test("the active section is one bar on the rail with a heavier weight, not colour alone", () => {
   const active = declarations(bodyOf('.toc a[aria-current="true"]'));
-  assert.equal(active.get("border-inline-start-color"), "var(--foreground)", "the current section draws a solid bar on the rail");
+  assert.equal(active.get("border-inline-start-color"), "var(--color-text)", "the current section draws a solid bar on the rail");
   assert.equal(active.get("background"), undefined, "the bar is the only marker, with no filled pill");
-  assert.equal(active.get("color"), "var(--foreground)");
+  assert.equal(active.get("color"), "var(--color-text)");
   assert.equal(active.get("font-weight"), "600");
 
   const activeNested = declarations(bodyOf('.toc ul ul a[aria-current="true"]'));

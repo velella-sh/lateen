@@ -9,7 +9,7 @@
     @apply m-0 overscroll-none text-foreground antialiased;
     position: relative;
     isolation: isolate;
-    background: var(--background);
+    background: var(--color-canvas);
     font-family: var(--type-font-body);
     font-size: var(--type-size-base);
     line-height: var(--type-leading-body);
@@ -22,7 +22,7 @@
     z-index: -1;
     pointer-events: none;
     /* One flat surface: the glow fields read as smudges behind long pages and code. */
-    background: var(--background);
+    background: var(--color-canvas);
   }
 
   * {
@@ -63,7 +63,7 @@
   }
 
   :focus-visible {
-    outline: 3px solid var(--ring);
+    outline: 3px solid var(--state-focus-ring);
     outline-offset: 3px;
   }
 
@@ -78,8 +78,8 @@
   }
 
   ::selection {
-    color: var(--accent-foreground);
-    background: var(--accent);
+    color: var(--state-selected-fg);
+    background: var(--state-selected-bg);
   }
 
   svg {

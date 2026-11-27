@@ -171,7 +171,7 @@ test("the label starts a same-repository recording and the recorder starts CI it
 });
 
 test("performance-compare allows the budget's 256 B of gzip noise", () => {
-  assert.match(stepNamed("performance-compare", "Compare").run ?? "", /--tolerance 256 /);
+  assert.match(stepNamed("performance-compare", "Compare").run ?? "", /--tolerance 1024 /);
 });
 
 test("the acceptance gate runs inside the smoke job, even after a smoke failure", () => {

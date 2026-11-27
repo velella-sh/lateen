@@ -8,5 +8,14 @@
   "8": "2rem",
   "12": "3rem",
   "16": "4rem",
-  "page": "clamp(1rem, 0.5rem + 2.5vw, 2rem)"
+  "page": "clamp(1rem, 0.5rem + 2.5vw, 2rem)",
+  "header": "3.5rem",
+  "sidebar": "16rem",
+  "toc": "14rem",
+  "content": "44rem",
+  "content-wide": "64rem",
+  "gutter-compact": "1rem",
+  "gutter-sidebar": "1.5rem",
+  "gutter-toc": "2rem",
+  "gutter-page": "2.5rem"
 }

@@ -18,8 +18,11 @@ test("styles/src/ui.css declares the Tailwind design tokens", () => {
   const css = readUiCss();
   assert.match(css, /@import "tailwindcss"/);
   assert.match(css, /@theme\s*\{/);
-  assert.match(css, /--foam:\s*#f4f4f9/i);
-  assert.match(css, /--night:\s*#23212c/i);
+  assert.match(css, /--foam:\s*var\(--palette-foam\)/);
+  assert.match(css, /--night:\s*var\(--palette-night\)/);
+  const palette = JSON.parse(readFileSync(new URL("../tokens/palette.json", import.meta.url), "utf8")) as Record<string, string>;
+  assert.equal(palette.foam?.toLowerCase(), "#f4f4f9");
+  assert.equal(palette.night?.toLowerCase(), "#23212c");
 });
 
 test("ui:build wrote the generated stylesheet and Chart.js asset", () => {

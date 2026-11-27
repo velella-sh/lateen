@@ -64,9 +64,9 @@ export const DEFAULT_COLORS = {
     muted: "#4a4658",
     border: "#d5d3e3",
     "border-strong": "#8481c7",
-    accent: "#23212c",
-    "accent-hover": "#393743",
-    "on-accent": "#dcd7eb",
+    accent: "#2f5d9e",
+    "accent-hover": "#264d85",
+    "on-accent": "#ffffff",
     link: "#3f5f88",
     "link-hover": "#3f5f88",
     focus: "#4c6f9a",
@@ -75,14 +75,14 @@ export const DEFAULT_COLORS = {
   dark: {
     canvas: "#23212c",
     surface: "#393743",
-    "surface-raised": "#4a4760",
+    "surface-raised": "#443f58",
     text: "#dcd7eb",
     heading: "#dcd7eb",
     muted: "#b7b2c9",
     border: "#4a4760",
     "border-strong": "#8f8cd8",
-    accent: "#dcd7eb",
-    "accent-hover": "#f4f4f9",
+    accent: "#7e9cd8",
+    "accent-hover": "#9db8f0",
     "on-accent": "#23212c",
     link: "#b7d0ea",
     "link-hover": "#d4e4f5",
@@ -383,10 +383,11 @@ export function brandCss(brand: Brand, { base = "", selector = ":root:root" }: {
     .map(([alias, name]) => `  --${alias}: var(--${name});`);
   const faces = fontFaces(brand, base);
   const block = tokensCss(tokens, selector);
-  // The bridge connects the real article components to the preview palette. The shell keeps its aliases.
-  const content = selector === ":root:root" ? `${selector} .doc-body` : selector;
+  // Every module reads the tokens now, so the bridge sits on the same selector as the tokens: a preset
+  // recolours the header, sidebar, footer and article together. The studio preview passes its own selector.
+  const content = selector;
   const bridge = aliases.length === 0 ? "" : `${content} {\n${aliases.join("\n")}\n}`;
-  const code = brand.neutral === undefined ? "" : `${content} { --doc-code-bg: var(--code-bg); }`;
+  const code = brand.neutral === undefined ? "" : `${content}, ${content} .doc { --doc-code-bg: var(--code-bg); }`;
   const link = tokens["color-link"];
   const note = link === undefined ? "" : `${content} .callout-note { --callout-color: ${tokenCssValue({
     light: noteColor(link.light, tokens[card]?.light ?? DEFAULT_COLORS.light["surface-raised"]),

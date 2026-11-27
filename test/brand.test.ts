@@ -13,7 +13,8 @@ const value = (name: string, scheme: "light" | "dark"): string => {
   const token = shipped.get(name);
   const found = scheme === "light" ? token?.light : token?.dark ?? token?.light;
   assert.ok(found, `${name} has no ${scheme} value`);
-  return found;
+  const ref = /^\{([^{}]+)\}$/.exec(found);
+  return ref === null ? found : value((ref[1] ?? "").replace(/\./g, "-"), scheme);
 };
 
 const ratio = (a: string, b: string): number => {

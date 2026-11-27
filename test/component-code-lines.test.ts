@@ -183,7 +183,7 @@ test("the line link is RTL-safe and the target uses a logical edge", () => {
   assert.match(linkRule, /margin-inline-end:/);
   assert.doesNotMatch(linkRule, /\b(?:left|right|margin-left|margin-right)\b/);
   const targetRule = /\.code \.line:target,[\s\S]{0,400}?\{([^}]*)\}/.exec(css)?.[1] ?? "";
-  assert.match(targetRule, /border-inline-start:\s*2px solid var\(--link\)/);
+  assert.match(targetRule, /border-inline-start:\s*2px solid var\(--color-link\)/);
   assert.match(targetRule, /padding-inline-start:/);
   assert.doesNotMatch(targetRule, /\b(?:border-left|border-right)\b/);
 });

@@ -18,7 +18,7 @@
 
   .tutorial-step-title,
   .tutorial-step-progress {
-    color: var(--link);
+    color: var(--color-link);
     font-weight: var(--type-weight-bold);
   }
 
@@ -51,7 +51,7 @@
   }
 
   :is(.tutorial-step-count, .tutorial-step-nav-label) {
-    color: var(--muted-foreground);
+    color: var(--color-muted);
   }
 
   .tutorial-step-nav {

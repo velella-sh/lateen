@@ -4,7 +4,7 @@
   "text": "#23212c",
   "muted": "#4a4658",
   "border": "#d5d3e3",
-  "accent": "#23212c",
+  "accent": "{color.brand}",
   "info": "#4c6f9a",
   "success": "#3f6b4e",
   "warning": "#8a6a2f",

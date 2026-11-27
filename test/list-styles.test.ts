@@ -93,7 +93,7 @@ test("the list stylesheet styles each view the layout renders", () => {
 
 test("a link and a focus ring stay visible on the list page", () => {
   const text = source.replace(/\/\*[\s\S]*?\*\//g, "");
-  assert.match(text, /\.list[^{]*\ba\b[^{]*\{[^}]*color:\s*var\(--link\)/s, "a list link does not take the link token");
+  assert.match(text, /\.list[^{]*\ba\b[^{]*\{[^}]*color:\s*var\(--color-link\)/s, "a list link does not take the link token");
   assert.match(text, /:focus-visible/, "no focus-visible rule on a list control");
   assert.match(text, /\.dated-list-day\s*\{[^}]*flex:\s*0 0 5rem/s, "the dated view does not give its day a column");
 });

@@ -416,7 +416,7 @@ test("Vazirmatn ships the same three weights as Manrope, so a mixed line looks e
 test("no shadow token has a horizontal offset, so none needs mirroring in right-to-left", () => {
   for (const match of tokensCss.matchAll(/--(?:shadow-[a-z]+|elevation-[a-z]+-shadow): ([^;]+);/g)) {
     for (const layer of (match[1] ?? "").split(/,(?![^(]*\))/)) {
-      assert.match(layer.trim(), /^(?:inset )?0 /, `${match[0]}: a horizontal offset must be mirrored under RTL`);
+      assert.match(layer.trim(), /^(?:none$|(?:inset )?0 )/,`${match[0]}: a horizontal offset must be mirrored under RTL`);
     }
   }
 });

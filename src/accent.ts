@@ -51,6 +51,23 @@ function selection(accent: string, text: string, scheme: "light" | "dark"): stri
   return scheme === "light" ? "#ffffff" : "#000000";
 }
 
+/** The soft brand wash: the accent's hue near the canvas, where both the accent and the page text keep 4.5:1. */
+function wash(accent: string, text: string, scheme: "light" | "dark"): string {
+  const source = toOklch(accent) ?? { l: 0.6, c: 0, h: 0 };
+  const step = scheme === "light" ? 0.005 : -0.005;
+  let lightness = scheme === "light" ? 0.94 : 0.3;
+  for (let attempt = 0; attempt < 120; attempt += 1) {
+    const value = fromOklch({ l: lightness, c: Math.min(source.c, 0.04), h: source.h });
+    const ink = parseHex(accent);
+    const textRgb = parseHex(text);
+    const background = parseHex(value);
+    if (ink !== undefined && textRgb !== undefined && background !== undefined &&
+      contrast(textRgb, background) >= ratio.text && contrast(ink, background) >= ratio.text) return value;
+    lightness = Math.min(1, Math.max(0, lightness + step));
+  }
+  return scheme === "light" ? "#ffffff" : "#000000";
+}
+
 /** Moves a colour's lightness by `amount`, keeping hue and chroma. */
 function shift(colourValue: string, amount: number): string {
   const source = toOklch(colourValue);
@@ -76,10 +93,15 @@ export function accentTokens(accent: Accent, surfaces: AccentSurfaces, text: Acc
     const focus = against(base, scheme, ratio.ring);
     const selected = selection(source, text[scheme], scheme);
     const selectedFg = ensureContrast(base, selected, ratio.text);
+    const subtle = wash(base, text[scheme], scheme);
     const values: Record<string, string> = {
       accent: base,
       "accent-hover": hover,
       "on-accent": onAccent,
+      brand: base,
+      "brand-hover": hover,
+      "brand-subtle": subtle,
+      "on-brand": onAccent,
       link: base,
       "link-hover": hover,
       focus,

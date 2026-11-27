@@ -47,13 +47,13 @@
     @apply align-top;
     padding-block: var(--space-3);
     padding-inline: 0 var(--space-4);
-    border-bottom: 1px solid var(--border);
+    border-bottom: 1px solid var(--color-border);
     text-align: start;
   }
 
   .doc-body th {
     @apply font-bold uppercase;
-    color: var(--muted-foreground);
+    color: var(--color-muted);
     font-size: var(--type-size-xs);
     letter-spacing: 0.06em;
   }
@@ -76,7 +76,7 @@
 
   .markdown-table-scroll > table > :is(thead, tbody, tfoot) > tr > :is(th, td) {
     padding: var(--space-2) var(--space-3);
-    border-block-end-color: color-mix(in srgb, var(--border) 75%, transparent);
+    border-block-end-color: color-mix(in srgb, var(--color-border) 75%, transparent);
   }
 
   .markdown-table-scroll :is(th, td)[align="left"] { text-align: left; }
@@ -84,8 +84,8 @@
   .markdown-table-scroll :is(th, td)[align="right"] { text-align: right; }
 
   .markdown-table-scroll thead th {
-    background: var(--muted);
-    color: var(--foreground);
+    background: var(--color-surface);
+    color: var(--color-text);
     font-size: inherit;
     font-weight: 700;
     letter-spacing: normal;
@@ -129,18 +129,18 @@
   }
 
   .component-directory td:nth-child(2) {
-    color: var(--muted-foreground);
+    color: var(--color-muted);
   }
 
   .component-directory tr:focus-within {
-    background: var(--muted);
+    background: var(--color-surface);
   }
 
   /* The island marks the logical edges that hide content; a soft shade appears only there and
      recedes as the reader reaches either end. It sits behind the grid, so text keeps its contrast,
      and it is decoration: no pointer target and nothing added to the accessibility tree. */
   .table-scroll {
-    --table-overflow-ink: color-mix(in srgb, var(--foreground) 12%, transparent);
+    --table-overflow-ink: color-mix(in srgb, var(--color-text) 12%, transparent);
     overscroll-behavior-inline: contain;
     background-image:
       var(--table-overflow-start, none),
@@ -175,7 +175,7 @@
     font-size: var(--type-size-sm);
     line-height: var(--type-leading-ui);
     padding-block-end: 0.5rem;
-    color: var(--muted-foreground);
+    color: var(--color-muted);
     text-align: start;
   }
 
@@ -184,7 +184,7 @@
     line-height: var(--type-leading-ui);
     margin-block-start: 0.5rem;
     max-inline-size: 40em;
-    color: var(--muted-foreground);
+    color: var(--color-muted);
   }
 
   /* An authored footer is a summary, not another header row: one strong top rule and lined-up figures. */
@@ -196,7 +196,7 @@
 
   .table tfoot th {
     background: transparent;
-    color: var(--foreground);
+    color: var(--color-text);
     font-size: inherit;
     letter-spacing: normal;
     text-transform: none;
@@ -215,14 +215,14 @@
   }
 
   .record-table-sort:hover {
-    color: var(--foreground);
+    color: var(--color-text);
   }
 
   .citation {
     margin-block: 1.125rem;
     padding-inline-start: 1rem;
-    border-inline-start: 2px solid var(--border);
-    color: var(--muted-foreground);
+    border-inline-start: 2px solid var(--color-border);
+    color: var(--color-muted);
   }
 
   .citation-text {
@@ -230,7 +230,7 @@
   }
 
   .citation-title {
-    color: var(--foreground);
+    color: var(--color-text);
     font-weight: 600;
   }
 
@@ -245,16 +245,16 @@
     display: inline-flex;
     margin-block-start: 0.5rem;
     padding: 0.25rem 0.5rem;
-    border: 1px solid var(--border);
+    border: 1px solid var(--color-border);
     border-radius: 0.375rem;
-    background: var(--card);
-    color: var(--muted-foreground);
+    background: var(--color-surface-card);
+    color: var(--color-muted);
     font-size: var(--type-size-xs);
     cursor: pointer;
   }
 
   .citation-copy:hover {
-    color: var(--foreground);
+    color: var(--color-text);
   }
 
   .calendar-actions {
@@ -272,7 +272,7 @@
   }
 
   .add-to-calendar-link {
-    color: var(--link);
+    color: var(--color-link);
     text-decoration: underline;
   }
 
@@ -281,13 +281,13 @@
   .callout {
     display: flex;
     align-items: flex-start;
-    --callout-color: var(--link);
+    --callout-color: var(--color-link);
     margin-block: var(--space-4);
     gap: var(--space-3);
     padding: var(--space-3) var(--space-4);
-    border: 1px solid color-mix(in srgb, var(--callout-color) 26%, var(--border));
+    border: 1px solid color-mix(in srgb, var(--callout-color) 26%, var(--color-border));
     border-radius: var(--radius-lg);
-    background: color-mix(in srgb, var(--callout-color) 6%, var(--card));
+    background: color-mix(in srgb, var(--callout-color) 6%, var(--color-surface-card));
   }
 
   .callout-tip {
@@ -334,7 +334,7 @@
 
   .callout-content > .callout-kind + .callout-title {
     margin-block-start: var(--spacing);
-    color: var(--foreground);
+    color: var(--color-text);
     font-size: var(--type-size-base);
     line-height: var(--type-leading-ui);
   }
@@ -388,7 +388,7 @@
     display: flex;
     flex-wrap: wrap;
     gap: var(--spacing);
-    border-block-end: 1px solid var(--border);
+    border-block-end: 1px solid var(--color-border);
   }
 
   :is(.tabs, .code-tabs, .os-tabs) > [role="tablist"] > [role="tab"],
@@ -404,24 +404,24 @@
 
   :is(.tabs, .code-tabs, .os-tabs) > [role="tablist"] > [role="tab"]:hover,
   .install-tabs-tab:hover {
-    color: var(--foreground);
-    background: var(--muted);
+    color: var(--color-text);
+    background: var(--color-surface);
   }
 
   :is(.tabs, .code-tabs, .os-tabs) > [role="tablist"] > [aria-selected="true"],
   .install-tabs-tab:has(.install-tabs-radio:checked) {
-    border-block-end-color: var(--ring);
-    background: var(--accent);
-    color: var(--accent-foreground);
+    border-block-end-color: var(--state-focus-ring);
+    background: var(--color-brand-subtle);
+    color: var(--color-text);
   }
 
   :is(.tabs, .os-tabs) > [role="tabpanel"] {
     padding: var(--space-3) var(--space-4);
-    border: 1px solid var(--border);
+    border: 1px solid var(--color-border);
     border-block-start: 0;
     border-end-start-radius: var(--radius-lg);
     border-end-end-radius: var(--radius-lg);
-    background: var(--card);
+    background: var(--color-surface-card);
   }
 
   :is(.tabs, .os-tabs) > [role="tabpanel"] > :is(.tabs-title, .os-tabs-title) {
@@ -467,7 +467,7 @@
   }
 
   .install-tabs-tab:has(.install-tabs-radio:focus-visible) {
-    outline: 3px solid var(--ring);
+    outline: 3px solid var(--state-focus-ring);
     outline-offset: -3px;
   }
 
@@ -501,8 +501,8 @@
 
   .steps-ui .num {
     @apply grid size-5 place-items-center rounded-full text-[0.7rem] font-bold not-italic;
-    background: var(--primary);
-    color: var(--primary-foreground);
+    background: var(--color-brand);
+    color: var(--color-on-brand);
     flex: none;
     position: relative;
   }
@@ -513,7 +513,7 @@
 
   .steps > .steps-progress {
     margin-block: 0 var(--space-3);
-    color: var(--muted-foreground);
+    color: var(--color-muted);
     font-size: var(--type-size-sm);
   }
 
@@ -541,8 +541,8 @@
     justify-self: start;
     min-block-size: var(--space-6);
     padding-inline: var(--space-2);
-    background: var(--muted);
-    color: var(--foreground);
+    background: var(--color-surface);
+    color: var(--color-text);
     line-height: var(--type-leading-ui);
   }
 
@@ -572,7 +572,7 @@
   }
 
   .step-number:has(:focus-visible) {
-    outline: 3px solid var(--ring);
+    outline: 3px solid var(--state-focus-ring);
     outline-offset: 2px;
   }
 
@@ -622,8 +622,8 @@
     font-size: var(--type-size-sm);
     line-height: var(--type-leading-ui);
     text-decoration: none;
-    background: color-mix(in srgb, var(--background) 70%, transparent);
-    box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--border) 80%, transparent);
+    background: color-mix(in srgb, var(--color-canvas) 70%, transparent);
+    box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--color-border) 80%, transparent);
   }
 
   .checks li::before {
@@ -631,7 +631,7 @@
     width: 0.875rem;
     height: 0.875rem;
     border-radius: 0.25rem;
-    box-shadow: inset 0 0 0 1.5px var(--link);
+    box-shadow: inset 0 0 0 1.5px var(--color-link);
     flex: none;
   }
 
@@ -639,11 +639,11 @@
   .kbd {
     font-family: var(--type-font-mono);
     font-size: var(--type-size-xs);
-    border: 1px solid var(--border);
+    border: 1px solid var(--color-border);
     border-bottom-width: 2px;
     border-radius: 0.375rem;
     padding: 0.05rem 0.4rem;
-    background: var(--background);
+    background: var(--color-canvas);
   }
 
   /* Endpoint introductions: the hand-written endpoint block, the generated operation page, and
@@ -658,7 +658,7 @@
   }
 
   .endpoint-param {
-    color: var(--link);
+    color: var(--color-link);
   }
 
   .key-value {
@@ -670,7 +670,7 @@
   }
 
   .key-value-key {
-    color: var(--muted-foreground);
+    color: var(--color-muted);
   }
 
   .key-value-value {
@@ -699,17 +699,17 @@
   }
 
   .record-history-filter {
-    color: var(--muted-foreground);
+    color: var(--color-muted);
   }
 
   .record-history-filter[aria-current="true"] {
-    color: var(--foreground);
+    color: var(--color-text);
     font-weight: 600;
   }
 
   .record-history-count {
     margin-block: 0 var(--space-2);
-    color: var(--muted-foreground);
+    color: var(--color-muted);
     font-size: var(--type-size-xs);
   }
 
@@ -723,7 +723,7 @@
   .record-fact-group-label {
     grid-column: 1 / -1;
     margin: 0;
-    color: var(--muted-foreground);
+    color: var(--color-muted);
     font-weight: 600;
   }
 
@@ -733,7 +733,7 @@
     gap: var(--space-3) var(--space-4);
     margin-block: var(--space-4);
     padding-block: var(--space-3);
-    border-block: 1px solid var(--border);
+    border-block: 1px solid var(--color-border);
     overflow-wrap: anywhere;
   }
 
@@ -748,7 +748,7 @@
   }
 
   .record > #record-facts .record-fact-group-label {
-    color: var(--foreground);
+    color: var(--color-text);
     font-weight: 700;
   }
 
@@ -758,13 +758,13 @@
   }
 
   .record > #record-facts dd {
-    color: var(--foreground);
+    color: var(--color-text);
     font-size: var(--type-size-sm);
     white-space: normal;
   }
 
   .record > #record-facts dd a {
-    color: var(--link);
+    color: var(--color-link);
     text-decoration: underline;
     text-underline-offset: 0.15em;
   }
@@ -773,7 +773,7 @@
     display: inline-block;
     max-inline-size: 100%;
     margin-inline-start: var(--space-2);
-    color: var(--muted-foreground);
+    color: var(--color-muted);
     font-size: var(--type-size-xs);
     font-weight: 500;
   }
@@ -795,7 +795,7 @@
 
   .record-fact-evidence {
     margin-inline-start: 0.5rem;
-    color: var(--muted-foreground);
+    color: var(--color-muted);
     font-size: var(--type-size-xs);
   }
 
@@ -806,7 +806,7 @@
 
   .field-language {
     margin-inline-end: 0.35rem;
-    color: var(--muted-foreground);
+    color: var(--color-muted);
     font-size: var(--type-size-xs);
     font-weight: 500;
   }
@@ -818,12 +818,12 @@
 
   .field-list-more > summary {
     cursor: pointer;
-    color: var(--muted-foreground);
+    color: var(--color-muted);
   }
 
   .details,
   details.soft {
-    background: color-mix(in srgb, var(--background) 80%, transparent);
+    background: color-mix(in srgb, var(--color-canvas) 80%, transparent);
     border-radius: 0.75rem;
     padding: 0.5rem 0.75rem;
   }
@@ -844,7 +844,7 @@
 
   :is(.details, details.soft, .code-details)[open] > summary,
   :is(.details, details.soft, .code-details) > summary::marker {
-    color: var(--link);
+    color: var(--color-link);
   }
 
   .details-body > :last-child {
@@ -861,12 +861,12 @@
   .tree .in,
   .tree-row.in {
     padding-inline-start: 1rem;
-    color: var(--muted-foreground);
+    color: var(--color-muted);
   }
 
   .tree-note {
     margin-inline-start: 0.5rem;
-    color: var(--muted-foreground);
+    color: var(--color-muted);
   }
 
   .terminal-bar:not(:has(button:not([hidden]))) {
@@ -920,7 +920,7 @@
   .changelog-entry {
     margin-block: 1.5rem;
     padding-block-start: 1.25rem;
-    border-block-start: 1px solid var(--border);
+    border-block-start: 1px solid var(--color-border);
   }
 
   .changelog-entry:first-child {
@@ -949,7 +949,7 @@
   }
 
   .changelog-entry-anchor {
-    color: var(--muted-foreground);
+    color: var(--color-muted);
     opacity: 0;
     text-decoration: none;
   }
@@ -972,7 +972,7 @@
     align-items: center;
     gap: 0.5rem 0.75rem;
     margin: 0 0 0.75rem;
-    color: var(--muted-foreground);
+    color: var(--color-muted);
     font-size: var(--type-size-sm);
   }
 
@@ -990,7 +990,7 @@
     align-items: center;
     gap: 0.3rem;
     padding: 0.1rem 0.55rem;
-    border: 1px solid var(--border);
+    border: 1px solid var(--color-border);
     border-radius: 999px;
     font-size: var(--type-size-xs);
     font-weight: 600;
@@ -1046,7 +1046,7 @@
   }
 
   .changelog .changelog-entry-date {
-    color: var(--foreground);
+    color: var(--color-text);
     font-variant-numeric: tabular-nums;
     font-weight: 600;
   }
@@ -1094,7 +1094,7 @@
 
   .figure-caption {
     margin-block-start: var(--space-2);
-    color: var(--muted-foreground);
+    color: var(--color-muted);
     font-size: var(--type-size-sm);
     line-height: var(--type-leading-ui);
     overflow-wrap: anywhere;
@@ -1103,7 +1103,7 @@
   .figure-credit {
     display: block;
     margin-block-start: var(--space-1);
-    color: var(--muted-foreground);
+    color: var(--color-muted);
     font-size: var(--type-size-sm);
   }
 
@@ -1125,14 +1125,14 @@
     margin: auto;
     padding: var(--space-3);
     overflow: auto;
-    border: 1px solid var(--border);
+    border: 1px solid var(--color-border);
     border-radius: var(--radius-xl);
-    background: var(--card);
-    color: var(--foreground);
+    background: var(--color-surface-card);
+    color: var(--color-text);
   }
 
   .figure-zoom-panel::backdrop {
-    background: color-mix(in oklab, var(--foreground) 55%, transparent);
+    background: color-mix(in oklab, var(--color-text) 55%, transparent);
   }
 
   .figure-zoom-img {
@@ -1251,9 +1251,9 @@
 
   .figure-zoom-close {
     padding: var(--space-1) var(--space-3);
-    border: 1px solid var(--border);
+    border: 1px solid var(--color-border);
     border-radius: var(--radius-lg);
-    background: var(--card);
+    background: var(--color-surface-card);
     color: inherit;
     cursor: pointer;
   }
@@ -1299,9 +1299,9 @@
     overflow-x: auto;
     overscroll-behavior-inline: contain;
     padding: var(--space-4);
-    border: 1px solid var(--border);
+    border: 1px solid var(--color-border);
     border-radius: var(--radius-xl);
-    background: var(--card);
+    background: var(--color-surface-card);
   }
 
   /* Mermaid writes its palette as literal colors in an inline `<style>`, which would stay dark-on-dark
@@ -1317,11 +1317,11 @@
   }
 
   .mermaid-diagram > svg :where(text, tspan) {
-    fill: var(--foreground) !important;
+    fill: var(--color-text) !important;
   }
 
   .mermaid-diagram > svg :where(rect, circle, ellipse, polygon) {
-    fill: var(--background) !important;
+    fill: var(--color-canvas) !important;
     stroke: var(--border-strong) !important;
   }
 
@@ -1337,16 +1337,16 @@
 
   .mermaid-diagram > svg :where(.flowchart-link, .edgePaths path) {
     fill: none !important;
-    stroke: var(--muted-foreground) !important;
+    stroke: var(--color-muted) !important;
   }
 
   .mermaid-diagram > svg :where(marker path, marker polygon, marker circle, .arrowMarkerPath) {
-    fill: var(--muted-foreground) !important;
-    stroke: var(--muted-foreground) !important;
+    fill: var(--color-muted) !important;
+    stroke: var(--color-muted) !important;
   }
 
   .mermaid-diagram > svg .edgeLabel rect {
-    fill: var(--card) !important;
+    fill: var(--color-surface-card) !important;
   }
 
   /* Keep the source disclosure as it is: its spacing follows the diagram frame, the summary and the
@@ -1405,7 +1405,7 @@
   .doc-meta .last-updated {
     @apply inline-flex items-center gap-1;
     margin: 0;
-    color: var(--muted-foreground);
+    color: var(--color-muted);
     font-size: var(--type-size-xs);
     line-height: var(--type-leading-ui);
   }
@@ -1427,8 +1427,8 @@
 
   .page-status,
   .trust-panel-chip {
-    background: color-mix(in srgb, var(--card) 70%, transparent);
-    box-shadow: inset 0 0 0 1px var(--border);
+    background: color-mix(in srgb, var(--color-surface-card) 70%, transparent);
+    box-shadow: inset 0 0 0 1px var(--color-border);
   }
 
   .trust-panel-chip {
@@ -1438,15 +1438,15 @@
     min-block-size: 1.75rem;
     padding: 0.25rem 0.625rem;
     border-radius: 999px;
-    color: var(--muted-foreground);
+    color: var(--color-muted);
     cursor: pointer;
     font-size: var(--type-size-xs);
     list-style: none;
   }
 
   .trust-panel-body {
-    background: var(--card);
-    border: 1px solid var(--border);
+    background: var(--color-surface-card);
+    border: 1px solid var(--color-border);
   }
 
   .trust-panel-body {
@@ -1455,7 +1455,7 @@
     inline-size: min(25rem, 100%);
     padding: 0.75rem;
     border-radius: 0.75rem;
-    background: var(--card);
+    background: var(--color-surface-card);
     overflow-wrap: anywhere;
   }
 
@@ -1484,7 +1484,7 @@
   }
 
   .page-status-message {
-    color: var(--muted-foreground);
+    color: var(--color-muted);
   }
 
   .tags {
@@ -1517,7 +1517,7 @@
     gap: 0.9rem 1.75rem;
     align-items: baseline;
     padding: 0.95rem 0;
-    border-bottom: 1px solid var(--border);
+    border-bottom: 1px solid var(--color-border);
     text-decoration: none;
   }
 
@@ -1533,14 +1533,14 @@
   .doc-body .list a span,
   .doc-body .item em,
   .doc-body .list a em {
-    color: var(--muted-foreground);
+    color: var(--color-muted);
     font-style: normal;
     font-size: var(--type-size-sm);
     line-height: var(--type-leading-ui);
   }
 
   .doc-body .list a:hover strong {
-    color: var(--link);
+    color: var(--color-link);
   }
 
   .swatches {
@@ -1591,12 +1591,12 @@
     padding: var(--space-1) var(--space-2);
     border: 1px solid var(--border-strong);
     border-radius: var(--radius-md);
-    background: var(--card);
-    color: var(--foreground);
+    background: var(--color-surface-card);
+    color: var(--color-text);
   }
 
   :is(.report-run, .report-archive-notice) a {
-    color: var(--link);
+    color: var(--color-link);
     text-decoration: underline;
   }
 
@@ -1623,14 +1623,14 @@
   .specimen {
     border-radius: 0.9rem;
     padding: 1rem;
-    background: color-mix(in srgb, var(--card) 50%, transparent);
-    box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--border) 75%, transparent);
+    background: color-mix(in srgb, var(--color-surface-card) 50%, transparent);
+    box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--color-border) 75%, transparent);
     transition: background-color 180ms ease, box-shadow 180ms ease;
   }
 
   .specimen:hover {
-    background: var(--card);
-    box-shadow: inset 0 0 0 1px var(--border);
+    background: var(--color-surface-card);
+    box-shadow: inset 0 0 0 1px var(--color-border);
   }
 
   .specimen h3 {
@@ -1639,12 +1639,12 @@
     font-weight: 700;
     letter-spacing: 0.04em;
     text-transform: uppercase;
-    color: var(--muted-foreground);
+    color: var(--color-muted);
   }
 
   .specimen p {
     margin: 0.65rem 0 0;
-    color: var(--muted-foreground);
+    color: var(--color-muted);
     font-size: var(--type-size-sm);
   }
 }
@@ -1668,10 +1668,10 @@
     overflow: auto;
     overflow-wrap: anywhere;
     padding: var(--space-3);
-    border: 1px solid var(--border);
+    border: 1px solid var(--color-border);
     border-radius: var(--radius-lg);
-    background: var(--popover);
-    color: var(--popover-foreground);
+    background: var(--color-surface-card);
+    color: var(--color-text);
   }
 
   @supports (position-area: block-end) {
@@ -1709,7 +1709,7 @@
   }
 
   .stat-strip .stat-label {
-    color: var(--muted-foreground);
+    color: var(--color-muted);
     font-size: var(--type-size-sm);
     line-height: var(--type-leading-ui);
     text-decoration: none;
@@ -1754,7 +1754,7 @@
   .data-explorer-status,
   .data-explorer-empty,
   .data-explorer-filter-count {
-    color: var(--muted-foreground);
+    color: var(--color-muted);
   }
 
   .data-explorer-filter-option {
