@@ -1,13 +1,68 @@
 // Design audit helpers (epic design-audit, #1256). `node scripts/design-audit.ts` builds the visual
 // fixture and prints each theme unit that never renders in any captured page, with the reason.
 // The list feeds the gallery work in visual-regression-5 and the defect list in design-audit-3.
-import { existsSync, readFileSync, readdirSync } from "node:fs";
-import { join } from "node:path";
+import { existsSync, mkdirSync, readFileSync, readdirSync, writeFileSync } from "node:fs";
+import { join, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 import { JSDOM } from "jsdom";
 import { PAGES } from "../test/visual/fixtures/pages.ts";
+import { expandMatrix, loadMatrix, type MatrixTarget, type VisualMatrix } from "../visual/index.ts";
 
 const ROOT = fileURLToPath(new URL("../", import.meta.url));
+
+/** One shot of the audit: the case file name without `.png`, and what it shows. */
+export interface AuditShot {
+  readonly case: string;
+  readonly layout: string;
+  readonly theme: "light" | "dark";
+  readonly dir: "ltr" | "rtl";
+  readonly lang: string;
+  readonly width: number;
+}
+
+/**
+ * The matrix of the audit: every layout and every gallery page of the visual matrix, in the
+ * default-look fixture, in both themes, at every width. The Arabic pages are left out; `fa` is the
+ * right-to-left sample.
+ */
+export function auditMatrix(matrix: VisualMatrix = loadMatrix()): VisualMatrix {
+  const keep = (target: MatrixTarget): boolean => target.lang !== "ar" && target.open === undefined;
+  const mark = (target: MatrixTarget): MatrixTarget => ({ ...target, fixture: "default" });
+  return {
+    ...matrix,
+    layouts: matrix.layouts.filter(keep).map(mark),
+    gallery: {
+      widths: Object.keys(matrix.widths),
+      pages: matrix.gallery.pages.filter(keep).map(mark),
+      print: { width: matrix.gallery.print.width, pages: [] },
+      forcedColors: { width: matrix.gallery.forcedColors.width, pages: [] },
+    },
+  };
+}
+
+/** The index of the shots the audit matrix produces, one row per case. */
+export function auditIndex(matrix: VisualMatrix = auditMatrix()): AuditShot[] {
+  return expandMatrix(matrix).map((entry) => ({
+    case: entry.case,
+    layout: entry.name,
+    theme: entry.theme,
+    dir: entry.dir,
+    lang: entry.lang,
+    width: entry.width,
+  }));
+}
+
+/** Shoots the audit matrix into `out` and writes `index.json` next to the shots. Offline. */
+export async function shootAudit(out: string): Promise<AuditShot[]> {
+  const { runVisual } = await import("./test-visual.ts");
+  const matrix = auditMatrix();
+  const dir = resolve(out);
+  await runVisual({ matrix, out: dir, shotsOnly: true });
+  const index = auditIndex(matrix);
+  mkdirSync(dir, { recursive: true });
+  writeFileSync(join(dir, "index.json"), `${JSON.stringify(index, null, 2)}\n`);
+  return index;
+}
 
 export type Reason = "directive only" | "needs data" | "client only" | "inventory page only" | "not found in any page";
 
@@ -82,7 +137,12 @@ export function findUnrendered(build: string): Unrendered[] {
   return out;
 }
 
-if (process.argv[1] === fileURLToPath(import.meta.url)) {
+if (process.argv[1] === fileURLToPath(import.meta.url) && process.argv.includes("--shoot")) {
+  const at = process.argv.indexOf("--out");
+  const out = at === -1 ? join(ROOT, "test/visual/out/audit") : (process.argv[at + 1] ?? "");
+  const index = await shootAudit(out);
+  console.log(`wrote ${index.length} audit shots and index.json to ${resolve(out)}`);
+} else if (process.argv[1] === fileURLToPath(import.meta.url)) {
   const { buildFixture } = await import("../test/visual/fixtures/build.ts");
   const { tempDir } = await import("../test/integration-helpers.ts");
   const build = tempDir("design-audit-");

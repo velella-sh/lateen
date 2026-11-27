@@ -200,6 +200,8 @@ export interface RunOptions {
   readonly matrix?: VisualMatrix;
   /** Receives the layout findings of the in-page checks (scripts/visual-checks.ts). */
   readonly findings?: PageFinding[];
+  /** Only shoot: no comparison with the baselines, no retakes, no state shots (the design audit). */
+  readonly shotsOnly?: boolean;
   /** Record baselines instead of comparing them; a retake is never done in this mode. */
   readonly update?: boolean;
   /** Receives the cases that failed once and passed on the second take. */
@@ -258,7 +260,7 @@ export async function runVisual(options: RunOptions = {}): Promise<string[]> {
         await context.close();
       }
     }
-    if (options.update !== true) {
+    if (options.update !== true && options.shotsOnly !== true) {
       const first = reviewShots({ shots: out, baselines: BASELINE_DIR, review: join(out, "review") });
       const failed = first.filter((report) => report.status === "fail");
       for (const report of failed) {
@@ -279,7 +281,7 @@ export async function runVisual(options: RunOptions = {}): Promise<string[]> {
         rmSync(join(out, "review"), { recursive: true, force: true });
       }
     }
-    if (options.only === undefined) {
+    if (options.only === undefined && options.shotsOnly !== true) {
       const context = await newVisualContext(browser, server.url, DEFAULT_VIEWPORT);
       try {
         const page = await context.newPage();
