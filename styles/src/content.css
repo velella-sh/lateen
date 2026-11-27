@@ -1143,6 +1143,27 @@
     border-radius: var(--radius-lg);
   }
 
+  /* A diagram or chart in the panel is drawn from the same SVG as the inline one, scaled to fill the
+     panel instead of keeping its natural width. The trigger button wraps the inline copy, so its text
+     keeps the page's alignment. */
+  .figure-zoom-svg,
+  .figure-zoom-panel .mermaid-diagram > svg {
+    display: block;
+    inline-size: 100%;
+    block-size: auto;
+  }
+
+  .figure-zoom-panel .mermaid-diagram {
+    border: 0;
+    padding: 0;
+    overflow: visible;
+  }
+
+  .figure-zoomable:has(> .figure-zoom > .mermaid-diagram) > .figure-zoom {
+    inline-size: 100%;
+    text-align: start;
+  }
+
   /* A paired figure's panel holds both full-size images and links; only the active scheme's shows, so
      the other (hidden, lazy) is never fetched. Without script the page keeps its default scheme, so
      the reader's `prefers-color-scheme` decides. */

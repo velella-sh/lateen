@@ -3,7 +3,9 @@ import type { ComponentProps } from "@velella/mizzen/contracts";
 import { t } from "../../i18n/index.ts";
 import { parseDiagramProps, type MermaidProps, type MermaidRecord } from "./model.ts";
 import { renderDiagram } from "./render.ts";
-import { accessibleSvg, naturalWidth, recordJson } from "./svg.ts";
+import { accessibleSvg, naturalWidth, prefixIds, recordJson } from "./svg.ts";
+import { instanceId } from "../../src/page-ids.ts";
+import { zoomable } from "../../src/zoom.ts";
 // The child process imports this module to render; the child module runs only when it is asked to.
 import "./child.ts";
 
@@ -11,7 +13,7 @@ export { altFromSource, parseDiagramProps } from "./model.ts";
 export type { MermaidAltOrigin, MermaidProps, MermaidRecord, ParsedDiagram } from "./model.ts";
 export { diagramKey, normalizeSource, RENDER_OPTIONS, type RenderOptions } from "./key.ts";
 export { CHILD_BOOT, clearDiagramCache, diagramRenderCount, renderDiagram } from "./render.ts";
-export { accessibleSvg, naturalWidth } from "./svg.ts";
+export { accessibleSvg, naturalWidth, prefixIds } from "./svg.ts";
 export { installMeasurement } from "./measure.ts";
 
 /** Class on the outer `<figure>`; `style.css` styles it. */
@@ -42,13 +44,25 @@ export default function mermaid({ props, page }: ComponentProps<MermaidProps>) {
   };
 
   const width = result.ok ? naturalWidth(result.svg) : undefined;
+  const inline = result.ok ? accessibleSvg(result.svg, alt.text) : "";
+  const drawn = (html: string) =>
+    h("div", {
+      class: DIAGRAM_CLASS,
+      ...(width === undefined ? {} : { style: `--mermaid-natural: ${String(width)}px` }),
+      dangerouslySetInnerHTML: { __html: html },
+    });
+  const zoomId = result.ok && props.zoom === "true" ? instanceId(page, "mermaid-zoom") : "";
   const diagram =
     result.ok
-      ? h("div", {
-          class: DIAGRAM_CLASS,
-          ...(width === undefined ? {} : { style: `--mermaid-natural: ${String(width)}px` }),
-          dangerouslySetInnerHTML: { __html: accessibleSvg(result.svg, alt.text) },
-        })
+      ? zoomId === ""
+        ? drawn(inline)
+        : zoomable({
+            id: zoomId,
+            lang: page.lang,
+            alt: alt.text,
+            trigger: drawn(inline),
+            content: drawn(prefixIds(inline, `${zoomId}-`)),
+          })
       : h(
           "div",
           { class: FALLBACK_CLASS, role: "note" },

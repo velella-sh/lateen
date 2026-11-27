@@ -15,7 +15,9 @@ export type ZoomOptions = {
   /** The inline content the button wraps, usually the image itself. */
   trigger: ComponentChild;
   /** The address of the full-size image, shown in the panel and offered as "Open full size". */
-  full: string;
+  full?: string;
+  /** Inline content (an SVG diagram or chart) shown in the panel instead of an image. It has no full-size address, so there is no "Open full size" link. */
+  content?: ComponentChild;
   /** The full-size image for dark mode. With it the panel holds one image and link per scheme, and shows the active one. */
   fullDark?: string;
   /** Set for one image of a multi-image figure: the ids of the previous and next panels, and this image's place. */
@@ -27,7 +29,7 @@ export type ZoomOptions = {
  * "Open full size" link and a close button. It works without JavaScript. The markup and class names
  * are the figure's; later callers reuse them so every zoomable image looks and behaves the same.
  */
-export function zoomable({ id, lang, alt, trigger, full, fullDark, gallery }: ZoomOptions) {
+export function zoomable({ id, lang, alt, trigger, full = "", content, fullDark, gallery }: ZoomOptions) {
   const place = gallery === undefined ? "" : t(lang, "figure_zoom_position", { n: gallery.position, total: gallery.total });
   const paired = fullDark !== undefined && fullDark !== "" && fullDark !== full;
   // Class names are written out whole so the style coverage check finds them in source.
@@ -48,8 +50,8 @@ export function zoomable({ id, lang, alt, trigger, full, fullDark, gallery }: Zo
     h(
       "div",
       { id, popover: "auto", class: "figure-zoom-panel", role: "dialog", "aria-label": `${alt === "" ? t(lang, "figure_zoom") : alt}${place === "" ? "" : `, ${place}`}` },
-      image(full, "light"),
-      paired ? image(fullDark, "dark") : null,
+      content === undefined ? image(full, "light") : content,
+      content === undefined && paired ? image(fullDark, "dark") : null,
       h(
         "div",
         { class: "figure-zoom-bar" },
@@ -62,8 +64,8 @@ export function zoomable({ id, lang, alt, trigger, full, fullDark, gallery }: Zo
               h("span", { class: "figure-zoom-position" }, place),
               h("button", { type: "button", class: "figure-zoom-next", popovertarget: gallery.next, "aria-label": t(lang, "figure_zoom_next") }, icon({ node: ChevronRight, class: "figure-zoom-nav-icon" })),
             ),
-        link(full, "light"),
-        paired ? link(fullDark, "dark") : null,
+        content === undefined ? link(full, "light") : null,
+        content === undefined && paired ? link(fullDark, "dark") : null,
         h("button", { type: "button", class: "figure-zoom-close", popovertarget: id, popovertargetaction: "hide" }, t(lang, "figure_zoom_close")),
       ),
     ),

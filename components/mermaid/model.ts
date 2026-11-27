@@ -11,6 +11,8 @@ export type MermaidProps = {
   alt?: string;
   /** Source position, kept as `data-src` on the figure. */
   src?: string;
+  /** `true` opens the diagram larger in a panel when it is selected. */
+  zoom?: string;
 };
 
 /** Where a diagram's text alternative came from: the fence's `alt`, a leading `%% alt:` comment, or neither. */

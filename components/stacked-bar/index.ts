@@ -10,7 +10,8 @@ import {
 import chartData from "../chart-data/index.ts";
 import { MAX_SERIES, idBaseOf, seriesColour, text } from "../chart-data/input.ts";
 import { stackedTotalsOf, ticksOf, xScaleOf } from "../chart-data/scale.ts";
-import { barMark, labelMark, lineMark, svgFrame, textMark } from "../chart-data/svg.ts";
+import { instanceId } from "../../src/page-ids.ts";
+import { barMark, labelMark, lineMark, zoomableFrame, textMark } from "../chart-data/svg.ts";
 
 // The table and its download links come from the shared chart-data path.
 export { TABLE_CLASS } from "../chart-data/index.ts";
@@ -91,6 +92,8 @@ export type StackedBarProps = {
   readonly title?: string;
   /** Id of the figure; give one when two charts read the same source. */
   readonly id?: string;
+  /** `true` opens the chart larger in a panel when it is selected. */
+  readonly zoom?: string;
 };
 
 /** One segment of a bar: its series and its number, when it has one. */
@@ -260,11 +263,13 @@ export default function stackedBar({ props, site, page }: ComponentProps<Stacked
   const lang = page.lang;
   const chart = chartOf(rows, series, lang);
 
+  const zoom = props.zoom === "true" ? { id: instanceId(page, `${base}-zoom`), lang: page.lang } : undefined;
+
   return h(
     "figure",
     { class: CLASS, id: base, "data-stacked-bar": from },
     title === "" ? null : h("figcaption", { class: TITLE_CLASS }, title),
-    svgFrame(SVG_CLASS, chart.width, chart.height, titleId, name, chart.marks),
+    zoomableFrame(zoom, SVG_CLASS, chart.width, chart.height, titleId, name, chart.marks),
     h(
       "ul",
       { class: LEGEND_CLASS, "aria-label": LEGEND_TEXT },

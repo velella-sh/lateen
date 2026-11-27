@@ -48,3 +48,22 @@ export function naturalWidth(svg: string): number | undefined {
   const width = parts[2];
   return width !== undefined && Number.isFinite(width) && width > 0 ? Math.ceil(width) : undefined;
 }
+
+/**
+ * A copy of a rendered SVG whose ids all carry `prefix`, with the references to them (`url(#id)`, `#id`
+ * in links and styles, `aria-labelledby`) rewritten to match. A diagram shown twice on a page, inline and
+ * in its zoom panel, then never repeats an id.
+ */
+export function prefixIds(svg: string, prefix: string): string {
+  const ids = new Set<string>();
+  for (const match of svg.matchAll(/\sid\s*=\s*"([^"]+)"/g)) ids.add(match[1]!);
+  let out = svg;
+  for (const id of [...ids].sort((a, b) => b.length - a.length)) {
+    const escaped = id.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+    out = out
+      .replace(new RegExp(`(\\sid\\s*=\\s*")${escaped}(")`, "g"), `$1${prefix}${id}$2`)
+      .replace(new RegExp(`#${escaped}(?![\\w-])`, "g"), `#${prefix}${id}`)
+      .replace(new RegExp(`(aria-labelledby\\s*=\\s*"[^"]*?)\\b${escaped}\\b`, "g"), `$1${prefix}${id}`);
+  }
+  return out;
+}
