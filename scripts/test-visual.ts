@@ -236,6 +236,7 @@ export async function runVisual(options: RunOptions = {}): Promise<string[]> {
         media: entry.section === "print" ? "print" : "screen",
         forcedColors: entry.section === "forced-colors",
         ...(entry.maxHeight === undefined ? {} : { maxHeight: entry.maxHeight }),
+        ...(entry.open === undefined ? {} : { open: entry.open }),
       });
       written.push(file);
       options.findings?.push(...(await checkPage(page, entry.name, entry.case)));

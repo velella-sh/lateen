@@ -73,6 +73,13 @@ With `zoom="true"` the image becomes a button for the page's `popover`, so the b
 :::figure{src="data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 width=%22640%22 height=%22360%22%3E%3Crect width=%22640%22 height=%22360%22 fill=%22%23e7dfd2%22/%3E%3Ctext x=%22320%22 y=%22180%22 text-anchor=%22middle%22 font-family=%22Georgia%22 font-size=%2232%22 fill=%22%23554%22%3EZoom example%3C/text%3E%3C/svg%3E" alt="A blank diagram with the words Zoom example." caption="Select the image to enlarge it." zoom="true" width="640" height="360"}
 :::
 
+### Zoom options in one place
+
+- **One figure:** `zoom="true"` as above. Add `zoom="false"` on a plain Markdown image to keep it out of `images.zoom`.
+- **Several images:** with `images` and `zoom="true"`, each image gets its own panel with previous and next buttons that wrap around. They are links to the other panels, so they work without script; a small island keeps one panel open at a time, and the position ("2 of 3") is announced in the panel's name.
+- **Plain Markdown images:** set `images.zoom: auto` in `theme.options`. Only images that are wider than the article column, have a known width, and sit outside links, figures and components are enlarged. A Mermaid diagram wider than the column zooms the same way (a fence cannot carry attributes); `zoom="false"` on the directive form opts out.
+- **Diagrams and charts:** `zoom="true"` on `bar-chart`, `stacked-bar` and `line-chart` opens the built SVG in the same panel. A page with nothing to zoom gets no panel markup and no extra script.
+
 A paired figure zooms too: the popover holds the light and the dark full-size image and shows the one that matches the active scheme. The hidden one stays lazy, so it is not fetched until it is needed.
 
 :::figure{src="data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 width=%22640%22 height=%22360%22%3E%3Crect width=%22640%22 height=%22360%22 fill=%22%23e7dfd2%22/%3E%3Ctext x=%22320%22 y=%22180%22 text-anchor=%22middle%22 font-family=%22Georgia%22 font-size=%2232%22 fill=%22%23554%22%3ELight zoom%3C/text%3E%3C/svg%3E" src_dark="data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 width=%22640%22 height=%22360%22%3E%3Crect width=%22640%22 height=%22360%22 fill=%22%232b2722%22/%3E%3Ctext x=%22320%22 y=%22180%22 text-anchor=%22middle%22 font-family=%22Georgia%22 font-size=%2232%22 fill=%22%23e7dfd2%22%3EDark zoom%3C/text%3E%3C/svg%3E" alt="A blank diagram with the words Zoom, in a light and a dark version." caption="A paired figure that zooms." zoom="true" width="640" height="360"}

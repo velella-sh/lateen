@@ -50,3 +50,14 @@ test("a zoomed bar chart opens the same bars larger, with its own title id", () 
   assert.equal(new Set(ids).size, ids.length, "ids are unique");
   assert.doesNotMatch(renderToString(barChart(ctx<BarChartProps>({ from: "sales" }, site)) as never), /popover/);
 });
+
+test("a fence cannot carry zoom, so images.zoom auto zooms a diagram wider than the column", () => {
+  const wide = "flowchart LR\n" + Array.from({ length: 12 }, (_, n) => `  N${n}[A long node label number ${n}] --> N${n + 1}[Another long label ${n + 1}]`).join("\n");
+  const auto = { config: { theme: { options: { images: { zoom: "auto" } } } } };
+  const html = (source: string, props: object = {}, site: object = {}) =>
+    renderToString(mermaid(ctx<MermaidProps>({ source, alt: "d", ...props }, site)) as never);
+  assert.match(html(wide, {}, auto), /class="figure-zoom-panel"/);
+  assert.doesNotMatch(html(wide, { zoom: "false" }, auto), /popover/);
+  assert.doesNotMatch(html(wide), /popover/, "off by default");
+  assert.doesNotMatch(html("flowchart LR\n  A --> B", {}, auto), /popover/, "a small diagram stays as it is");
+});

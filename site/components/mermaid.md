@@ -25,8 +25,9 @@ The optional `alt="…"` in the fence meta is the diagram's text alternative. Wi
 | Name | Type | Default | What it does |
 | --- | --- | --- | --- |
 | `alt` | string | the `%% alt:` comment, else empty | The accessible name and `<title>` of the SVG. Put it in the fence meta or as a leading `%% alt: …` comment. |
+| `zoom` | `true` or `false` | none | A fence cannot carry attributes, so a fence zooms through `images.zoom: auto`, when its drawing is wider than the article column; `false` opts out. As a directive prop, `true` zooms it. Wraps the diagram in a button that opens it larger in the same native popover a figure uses. The panel holds a second copy of the built SVG with its ids renamed, so nothing is rendered again and no script loads. Keyboard, Escape and focus return work as for an image. |
 
-There are no other options. The fence body is the Mermaid source, and the diagram keeps the block's `data-src` and full source span like every other block.
+The fence takes only `alt`. The fence body is the Mermaid source, and the diagram keeps the block's `data-src` and full source span like every other block.
 
 ## Example
 

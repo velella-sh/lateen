@@ -23,7 +23,9 @@
     "pages": [
       { "name": "gallery", "path": "/gallery/", "lang": "en", "dir": "ltr", "maxHeight": 3600 },
       { "name": "gallery-fa", "path": "/fa/gallery/", "lang": "fa", "dir": "rtl" },
-      { "name": "gallery-ar", "path": "/ar/gallery/", "lang": "ar", "dir": "rtl" }
+      { "name": "gallery-ar", "path": "/ar/gallery/", "lang": "ar", "dir": "rtl" },
+      { "name": "gallery-zoom", "path": "/gallery/", "lang": "en", "dir": "ltr", "open": ".figure-zoom-panel" },
+      { "name": "gallery-zoom-ar", "path": "/ar/gallery/", "lang": "ar", "dir": "rtl", "open": ".figure-zoom-panel" }
     ],
     "print": {
       "width": "desktop",
@@ -31,7 +33,7 @@
     },
     "forcedColors": {
       "width": "desktop",
-      "pages": ["gallery", "gallery-ar"]
+      "pages": ["gallery", "gallery-ar", "gallery-zoom"]
     }
   }
 }

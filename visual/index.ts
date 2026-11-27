@@ -60,6 +60,8 @@ export interface MatrixTarget {
   readonly dir: "ltr" | "rtl";
   /** Tallest shot of this page, in CSS pixels; MAX_HEIGHT when absent. */
   readonly maxHeight?: number;
+  /** Selector of a popover to open before the shot, for a state a still page does not show (the zoom panel). */
+  readonly open?: string;
 }
 
 export interface MatrixSize {
@@ -193,6 +195,8 @@ export interface CaptureOptions {
   readonly forcedColors?: boolean;
   /** Tallest shot, in CSS pixels; MAX_HEIGHT when absent. */
   readonly maxHeight?: number;
+  /** Selector of a popover to open once the page has settled; none when absent. */
+  readonly open?: string;
 }
 
 /**
@@ -216,6 +220,23 @@ export async function settle(page: Page, url: string, options: CaptureOptions = 
     theme,
   );
   await page.evaluate(() => (globalThis as unknown as { document: { fonts: { ready: Promise<unknown> } } }).document.fonts.ready);
+  if (options.open !== undefined) {
+    await page.evaluate(
+      (selector: string) =>
+        (globalThis as unknown as { document: { querySelector(selector: string): { showPopover(): void } | null } }).document.querySelector(selector)?.showPopover(),
+      options.open,
+    );
+    // The panel's image is lazy until the panel shows; wait for every image in it to finish.
+    await page.evaluate(
+      (selector: string) =>
+        Promise.all(
+          [...(globalThis as unknown as { document: { querySelectorAll(selector: string): Iterable<{ complete: boolean; decode(): Promise<void> }> } }).document.querySelectorAll(`${selector} img`)].map((image) =>
+            image.complete ? Promise.resolve() : image.decode().catch(() => undefined),
+          ),
+        ),
+      options.open,
+    );
+  }
 }
 
 /** Opens `url`, waits until the page is settled, and writes the full-page screenshot to `file`. */

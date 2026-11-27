@@ -6,6 +6,8 @@ import { renderDiagram } from "./render.ts";
 import { accessibleSvg, naturalWidth, prefixIds, recordJson } from "./svg.ts";
 import { instanceId } from "../../src/page-ids.ts";
 import { zoomable } from "../../src/zoom.ts";
+import { ZOOM_MIN_WIDTH } from "../../src/article-html.ts";
+import { resolveImageOptions } from "../../src/options.ts";
 // The child process imports this module to render; the child module runs only when it is asked to.
 import "./child.ts";
 
@@ -29,7 +31,7 @@ export const SOURCE_CLASS = "mermaid-source";
 export const FALLBACK_CLASS = "mermaid-fallback";
 
 /** The diagram and its source. The SVG is rendered at build time; the page never loads Mermaid. */
-export default function mermaid({ props, page }: ComponentProps<MermaidProps>) {
+export default function mermaid({ props, page, site }: ComponentProps<MermaidProps>) {
   const parsed = parseDiagramProps(props);
   if (parsed === null) return null;
   const { source, alt, src } = parsed;
@@ -51,7 +53,15 @@ export default function mermaid({ props, page }: ComponentProps<MermaidProps>) {
       ...(width === undefined ? {} : { style: `--mermaid-natural: ${String(width)}px` }),
       dangerouslySetInnerHTML: { __html: html },
     });
-  const zoomId = result.ok && props.zoom === "true" ? instanceId(page, "mermaid-zoom") : "";
+  // `zoom="true"` asks for it. A fence cannot carry attributes, so `images.zoom: auto` also zooms a diagram that
+  // is wider than the article column, as it does for a plain image; `zoom="false"` always opts out.
+  const wanted =
+    props.zoom === "true" ||
+    (props.zoom !== "false" &&
+      resolveImageOptions(site?.config?.theme?.options).zoom === "auto" &&
+      width !== undefined &&
+      width > ZOOM_MIN_WIDTH);
+  const zoomId = result.ok && wanted ? instanceId(page, "mermaid-zoom") : "";
   const diagram =
     result.ok
       ? zoomId === ""

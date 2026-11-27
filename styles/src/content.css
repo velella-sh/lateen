@@ -1182,7 +1182,7 @@
   }
 
   [data-theme="dark"] .figure-zoom-full-dark {
-    display: inline;
+    display: inline-flex;
   }
 
   @media (prefers-color-scheme: dark) {
@@ -1196,7 +1196,7 @@
     }
 
     :root:not([data-js]) .figure-zoom-full-dark {
-      display: inline;
+      display: inline-flex;
     }
   }
 
@@ -1240,6 +1240,13 @@
     align-items: center;
     margin-block-start: var(--space-3);
     font-size: var(--text-sm);
+  }
+
+  /* A target of at least 24 by 24 CSS pixels, like the close button. */
+  .figure-zoom-full {
+    display: inline-flex;
+    align-items: center;
+    min-block-size: 1.75rem;
   }
 
   .figure-zoom-close {
