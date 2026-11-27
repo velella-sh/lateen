@@ -7,7 +7,7 @@ import type { Layout, LayoutProps } from "@velella/mizzen/contracts";
 import pageFooter from "../chrome/page-footer/index.ts";
 import { tocFold } from "../chrome/toc/index.ts";
 import { t } from "../i18n/index.ts";
-import { articleHtml } from "../src/article-html.ts";
+import { articleHtml, imageZoom } from "../src/article-html.ts";
 import { articleHeader, articleShell } from "./shared/index.ts";
 
 /**
@@ -110,7 +110,7 @@ function article(props: LayoutProps): ComponentChildren {
     articleHeader(props, { description: null }),
     staleSlot(props),
     tocFold(props) as ComponentChildren,
-    h("div", { class: "doc-body", dangerouslySetInnerHTML: { __html: articleHtml(page.html, page.lang) } }),
+    h("div", { class: "doc-body", dangerouslySetInnerHTML: { __html: articleHtml(page.html, page.lang, imageZoom(props.site.config.theme.options)) } }),
     pageToolSlot(props),
     h("div", { class: "doc-actions" }, pageFooter(props) as ComponentChildren),
   );

@@ -271,6 +271,18 @@
         "dark": { "type": "string", "minLength": 1 }
       }
     },
+    "images": {
+      "description": "How images in the page body behave.",
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "zoom": {
+          "description": "`auto` lets the reader enlarge a Markdown image whose width is known and larger than the article column, in the same panel a figure uses. Images inside links, figures and components, and images with `zoom=false`, are left alone. Any other value stops the build.",
+          "enum": ["off", "auto"],
+          "default": "off"
+        }
+      }
+    },
     "navigation": {
       "description": "The sidebar navigation.",
       "type": "object",

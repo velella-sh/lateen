@@ -4,7 +4,7 @@ import type { ComponentChildren } from "preact";
 import type { Layout, LayoutProps } from "@velella/mizzen/contracts";
 import breadcrumb from "../chrome/breadcrumb/index.ts";
 import { t } from "../i18n/index.ts";
-import { articleHtml } from "../src/article-html.ts";
+import { articleHtml, imageZoom } from "../src/article-html.ts";
 import { articleShell } from "./shared/index.ts";
 import { methodClassOf } from "./shared/api-method.ts";
 
@@ -195,7 +195,7 @@ function fallback(props: LayoutProps): ComponentChildren {
     { class: "doc api-reference-index", "data-pagefind-body": true },
     breadcrumb(props) as ComponentChildren,
     h("h1", null, props.page.title),
-    h("div", { class: "doc-body", dangerouslySetInnerHTML: { __html: articleHtml(props.page.html, props.page.lang) } }),
+    h("div", { class: "doc-body", dangerouslySetInnerHTML: { __html: articleHtml(props.page.html, props.page.lang, imageZoom(props.site.config.theme.options)) } }),
   );
 }
 

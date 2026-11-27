@@ -107,6 +107,36 @@ export function resolveNavigationOptions(options: unknown): NavigationOptions {
   };
 }
 
+/** The two values of `theme.options.images.zoom`. */
+export const IMAGE_ZOOM_MODES = ["off", "auto"] as const;
+
+/** How content images zoom: `off` leaves them alone, `auto` zooms the large ones. */
+export type ImageZoomMode = (typeof IMAGE_ZOOM_MODES)[number];
+
+/** What the article body reads from `theme.options.images`. */
+export interface ImageOptions {
+  /** Whether plain Markdown images wider than the article column open larger in a panel. */
+  readonly zoom: ImageZoomMode;
+}
+
+/** The image options a site gets when it sets no `theme.options.images`. */
+export const DEFAULT_IMAGE_OPTIONS: ImageOptions = { zoom: "off" };
+
+/**
+ * Reads `theme.options.images`: `zoom` is `off` (the default) or `auto`. A missing block or member
+ * keeps its default; anything else throws with the option path in the message.
+ */
+export function resolveImageOptions(options: unknown): ImageOptions {
+  const images = optionOf(options, "images");
+  if (images === undefined) return DEFAULT_IMAGE_OPTIONS;
+  if (!isRecord(images)) reject("theme.options.images", "must be an object", images);
+  const zoom = images.zoom;
+  if (zoom !== undefined && !IMAGE_ZOOM_MODES.includes(zoom as ImageZoomMode)) {
+    reject("theme.options.images.zoom", 'must be "off" or "auto"', zoom);
+  }
+  return { zoom: (zoom ?? DEFAULT_IMAGE_OPTIONS.zoom) as ImageZoomMode };
+}
+
 /** Every option path the page documents, so the documentation test and the reader see one list. */
 export const NETWORK_OPTION_PATHS = [
   "theme.options.network.switcher",
