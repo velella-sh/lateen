@@ -1,9 +1,9 @@
 import { h } from "preact";
 import type { ComponentProps } from "@velella/mizzen/contracts";
 import { parseJson, textOf as trimmed } from "../../src/guards.ts";
-import { t } from "../../i18n/index.ts";
 import { instanceId } from "../../src/page-ids.ts";
 import { baseOf, safeHref, srcsetWithBase, withBase } from "../../src/url.ts";
+import { zoomable } from "../../src/zoom.ts";
 
 /** Class on the `<figure>` element. */
 export const FIGURE_CLASS = "figure";
@@ -178,26 +178,7 @@ export default function figure({ props, html, site, page }: ComponentProps<Figur
   const zoomId = zoomed ? instanceId(page, `${id ?? "figure"}-zoom`) : "";
   const full = href ?? src;
   const single = zoomed
-    ? h(
-        "div",
-        { class: "figure-zoomable" },
-        h(
-          "button",
-          { type: "button", class: "figure-zoom", popovertarget: zoomId, "aria-label": `${t(lang, "figure_zoom")}${alt === "" ? "" : `: ${alt}`}` },
-          light,
-        ),
-        h(
-          "div",
-          { id: zoomId, popover: "auto", class: "figure-zoom-panel", role: "dialog", "aria-label": alt === "" ? t(lang, "figure_zoom") : alt },
-          h("img", { class: "figure-zoom-img", src: full, alt, loading: "lazy", decoding: "async" }),
-          h(
-            "div",
-            { class: "figure-zoom-bar" },
-            h("a", { class: "figure-zoom-full", href: full }, t(lang, "figure_zoom_full")),
-            h("button", { type: "button", class: "figure-zoom-close", popovertarget: zoomId, popovertargetaction: "hide" }, t(lang, "figure_zoom_close")),
-          ),
-        ),
-      )
+    ? zoomable({ id: zoomId, lang, alt, trigger: light, full })
     : href === undefined
       ? pair
       : h("a", { class: "figure-link", href }, pair);
