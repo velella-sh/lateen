@@ -80,3 +80,18 @@ test("the fixture builds twice to identical files, and the gallery has a section
     assert.doesNotMatch(html, /Invalid Date|undefined|\[object Object\]/);
   }
 });
+
+test("the default-look fixture builds with no preset and no font override, in the bundled fonts", () => {
+  const out = tempDir("visual-fixture-default-");
+  buildFixture(out, undefined, "default");
+  const home = readFileSync(join(out, "index.html"), "utf8");
+  assert.match(home, /Default-look|default-look/i);
+  const css = readdirSync(out, { recursive: true, encoding: "utf8" })
+    .filter((f) => f.endsWith(".css"))
+    .map((f) => readFileSync(join(out, f), "utf8"))
+    .join("\n");
+  assert.match(css, /Manrope/);
+  assert.match(css, /Vazirmatn/);
+  assert.doesNotMatch(css, /Example Sans|Example Mono/);
+  assert.equal(existsSync(join(out, "fonts/example-sans.woff2")), false);
+});

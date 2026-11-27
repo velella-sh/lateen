@@ -11,7 +11,7 @@ import { existsSync, mkdirSync, readFileSync, readdirSync, rmSync, writeFileSync
 import { join, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 import type { Page } from "playwright";
-import { buildFixture } from "../test/visual/fixtures/build.ts";
+import { DEFAULT_LOOK_BASE, buildFixture } from "../test/visual/fixtures/build.ts";
 import {
   DEFAULT_VIEWPORT,
   capture,
@@ -219,6 +219,8 @@ export async function runVisual(options: RunOptions = {}): Promise<string[]> {
   mkdirSync(out, { recursive: true });
 
   const entries = expandMatrix(options.matrix ?? loadMatrix()).filter((entry) => options.only === undefined || entry.case.includes(options.only));
+  // A case that names the default-look fixture shoots it under its own base, in the same server.
+  if (entries.some((entry) => entry.fixture === "default")) buildFixture(join(site, DEFAULT_LOOK_BASE), undefined, "default");
   const viewports = [...new Map(entries.map((entry) => [`${entry.width}x${entry.height}`, { width: entry.width, height: entry.height }])).values()];
 
   // The server and the browser are released on success, failure and interruption; the shots and
@@ -231,7 +233,7 @@ export async function runVisual(options: RunOptions = {}): Promise<string[]> {
     const written: string[] = [];
     const shoot = async (page: Page, entry: ReturnType<typeof expandMatrix>[number]): Promise<void> => {
       const file = join(out, `${entry.case}.png`);
-      await capture(page, `${server.url}${entry.path}`, file, {
+      await capture(page, `${server.url}${entry.fixture === "default" ? DEFAULT_LOOK_BASE : ""}${entry.path}`, file, {
         theme: entry.theme,
         media: entry.section === "print" ? "print" : "screen",
         forcedColors: entry.section === "forced-colors",

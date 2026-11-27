@@ -1,0 +1,84 @@
+# The default-look fixture (visual-regression-2). It is the visual fixture with no preset and no
+# brand override, so every page renders the default `lateen` look in the bundled fonts. build.ts links
+# the same pages and data as the main fixture; only this file differs. It is built under the
+# `/default-look` base so the runner can serve both fixtures from one origin.
+title: Lateen default-look fixture
+description: Fixed pages and a component gallery for the visual gates.
+lang: en
+url: https://example.com
+asOf: 2026-06-01
+base: /default-look
+languages:
+  - code: fa
+    name: فارسی
+    prefix: /fa
+  - code: ar
+    name: العربية
+    prefix: /ar
+navigation: _data/navigation.yml
+search: false
+collections:
+  books:
+    source: _data/record-table.json
+    id: id
+    template: _templates/books.md
+    permalink: /books/{id}/
+    dates: [updated]
+    search:
+      filters: [published]
+      sort: [title]
+  api-books:
+    source: _data/record-table.json
+    schema: _data/api-books-schema.json
+  timeline:
+    source: _data/timeline.json
+    id: id
+  glossary:
+    source: _data/glossary.json
+    id: id
+theme:
+  options:
+    glossary:
+      collection: glossary
+    installTabs:
+      managers:
+        - name: npm
+          command: npm install {package}
+        - name: pnpm
+          command: pnpm add {package}
+        - name: yarn
+          command: yarn add {package}
+    status:
+      values:
+        done:
+          tone: positive
+          label:
+            en: Done
+            fa: انجام شد
+            ar: تم
+          description:
+            en: The work is finished.
+            fa: کار تمام شده است.
+            ar: انتهى العمل.
+        late:
+          tone: negative
+          label:
+            en: Late
+            fa: دیر
+            ar: متأخر
+          description:
+            en: The work is behind plan.
+            fa: کار از برنامه عقب است.
+            ar: العمل متأخر عن الخطة.
+
+calendars:
+  books:
+    collection: books
+    events:
+      - name: updated
+        field: updated
+        title: "{title} updated"
+
+api:
+  collections:
+    api-books: { fields: [title] }
