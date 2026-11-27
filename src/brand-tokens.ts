@@ -387,7 +387,7 @@ export function brandCss(brand: Brand, { base = "", selector = ":root:root" }: {
   // recolours the header, sidebar, footer and article together. The studio preview passes its own selector.
   const content = selector;
   const bridge = aliases.length === 0 ? "" : `${content} {\n${aliases.join("\n")}\n}`;
-  const code = brand.neutral === undefined ? "" : `${content} { --doc-code-bg: var(--code-bg); }`;
+  const code = brand.neutral === undefined ? "" : `${content}, ${content} .doc { --doc-code-bg: var(--code-bg); }`;
   const link = tokens["color-link"];
   const note = link === undefined ? "" : `${content} .callout-note { --callout-color: ${tokenCssValue({
     light: noteColor(link.light, tokens[card]?.light ?? DEFAULT_COLORS.light["surface-raised"]),
