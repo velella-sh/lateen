@@ -1143,6 +1143,42 @@
     border-radius: var(--radius-lg);
   }
 
+  /* A paired figure's panel holds both full-size images and links; only the active scheme's shows, so
+     the other (hidden, lazy) is never fetched. Without script the page keeps its default scheme, so
+     the reader's `prefers-color-scheme` decides. */
+  .figure-zoom-img-dark,
+  .figure-zoom-full-dark {
+    display: none;
+  }
+
+  [data-theme="dark"] .figure-zoom-img-light,
+  [data-theme="dark"] .figure-zoom-full-light {
+    display: none;
+  }
+
+  [data-theme="dark"] .figure-zoom-img-dark {
+    display: block;
+  }
+
+  [data-theme="dark"] .figure-zoom-full-dark {
+    display: inline;
+  }
+
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-js]) .figure-zoom-img-light,
+    :root:not([data-js]) .figure-zoom-full-light {
+      display: none;
+    }
+
+    :root:not([data-js]) .figure-zoom-img-dark {
+      display: block;
+    }
+
+    :root:not([data-js]) .figure-zoom-full-dark {
+      display: inline;
+    }
+  }
+
   .figure-zoom-bar {
     display: flex;
     flex-wrap: wrap;

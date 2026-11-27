@@ -45,7 +45,7 @@ export type FigureProps = {
   width?: string;
   /** Intrinsic height in pixels, so the layout does not shift when the image loads. */
   height?: string;
-  /** Set to `true` to let the image open larger in place. Works without JavaScript; the `href` link stays as the fallback. */
+  /** Set to `true` to let the image open larger in place. Works without JavaScript; the `href` link stays as the fallback. With `src_dark`, the panel shows the image that matches the active scheme. */
   zoom?: string;
   /** `lazy` (the default) or `eager`. Use `eager` for an image above the fold. */
   loading?: string;
@@ -173,12 +173,12 @@ export default function figure({ props, html, site, page }: ComponentProps<Figur
     ? h("div", { class: PAIR_CLASS, role: alt === "" ? undefined : "img", "aria-label": alt === "" ? undefined : alt }, light, dark)
     : light;
   const href = fullSizeHref(base, props.href);
-  const zoomed = props.zoom === "true" && gallery.length < 2 && !paired;
+  const zoomed = props.zoom === "true" && gallery.length < 2;
   const lang = typeof page.lang === "string" ? page.lang : "en";
   const zoomId = zoomed ? instanceId(page, `${id ?? "figure"}-zoom`) : "";
   const full = href ?? src;
   const single = zoomed
-    ? zoomable({ id: zoomId, lang, alt, trigger: light, full })
+    ? zoomable({ id: zoomId, lang, alt, trigger: pair, full, ...(paired ? { fullDark: darkSrc } : {}) })
     : href === undefined
       ? pair
       : h("a", { class: "figure-link", href }, pair);

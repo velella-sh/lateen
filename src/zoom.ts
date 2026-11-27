@@ -14,6 +14,8 @@ export type ZoomOptions = {
   trigger: ComponentChild;
   /** The address of the full-size image, shown in the panel and offered as "Open full size". */
   full: string;
+  /** The full-size image for dark mode. With it the panel holds one image and link per scheme, and shows the active one. */
+  fullDark?: string;
 };
 
 /**
@@ -21,7 +23,15 @@ export type ZoomOptions = {
  * "Open full size" link and a close button. It works without JavaScript. The markup and class names
  * are the figure's; later callers reuse them so every zoomable image looks and behaves the same.
  */
-export function zoomable({ id, lang, alt, trigger, full }: ZoomOptions) {
+export function zoomable({ id, lang, alt, trigger, full, fullDark }: ZoomOptions) {
+  const paired = fullDark !== undefined && fullDark !== "" && fullDark !== full;
+  // Class names are written out whole so the style coverage check finds them in source.
+  const imageClass = { light: "figure-zoom-img figure-zoom-img-light", dark: "figure-zoom-img figure-zoom-img-dark" };
+  const linkClass = { light: "figure-zoom-full figure-zoom-full-light", dark: "figure-zoom-full figure-zoom-full-dark" };
+  const image = (src: string, scheme: "light" | "dark") =>
+    h("img", { class: paired ? imageClass[scheme] : "figure-zoom-img", src, alt, loading: "lazy", decoding: "async" });
+  const link = (href: string, scheme: "light" | "dark") =>
+    h("a", { class: paired ? linkClass[scheme] : "figure-zoom-full", href }, t(lang, "figure_zoom_full"));
   return h(
     "div",
     { class: "figure-zoomable" },
@@ -33,11 +43,13 @@ export function zoomable({ id, lang, alt, trigger, full }: ZoomOptions) {
     h(
       "div",
       { id, popover: "auto", class: "figure-zoom-panel", role: "dialog", "aria-label": alt === "" ? t(lang, "figure_zoom") : alt },
-      h("img", { class: "figure-zoom-img", src: full, alt, loading: "lazy", decoding: "async" }),
+      image(full, "light"),
+      paired ? image(fullDark, "dark") : null,
       h(
         "div",
         { class: "figure-zoom-bar" },
-        h("a", { class: "figure-zoom-full", href: full }, t(lang, "figure_zoom_full")),
+        link(full, "light"),
+        paired ? link(fullDark, "dark") : null,
         h("button", { type: "button", class: "figure-zoom-close", popovertarget: id, popovertargetaction: "hide" }, t(lang, "figure_zoom_close")),
       ),
     ),
