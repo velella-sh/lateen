@@ -264,7 +264,7 @@ function themeCss(): { path: string; text: string }[] {
 const PHYSICAL_DECLARATION =
   /^(?:margin|padding|border|scroll-margin|scroll-padding)-(?:left|right|top|bottom)$|^border-(?:top|bottom)-(?:left|right)-radius$|^(?:left|right|top|bottom)$|^(?:min-|max-)?(?:width|height)$/;
 
-const MIRRORED = ["pager-arrow", "breadcrumb-sep", "home-arrow", "pagination-arrow"];
+const MIRRORED = ["pager-arrow", "breadcrumb-sep", "home-arrow", "pagination-arrow", "figure-zoom-nav-icon"];
 
 test("every stylesheet uses logical direction properties", () => {
   const problems: string[] = [];

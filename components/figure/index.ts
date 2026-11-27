@@ -45,7 +45,7 @@ export type FigureProps = {
   width?: string;
   /** Intrinsic height in pixels, so the layout does not shift when the image loads. */
   height?: string;
-  /** Set to `true` to let the image open larger in place. Works without JavaScript; the `href` link stays as the fallback. With `src_dark`, the panel shows the image that matches the active scheme. */
+  /** Set to `true` to let the image open larger in place; a multi-image figure gets previous and next buttons between its panels. Works without JavaScript; the `href` link stays as the fallback. With `src_dark`, the panel shows the image that matches the active scheme. */
   zoom?: string;
   /** `lazy` (the default) or `eager`. Use `eager` for an image above the fold. */
   loading?: string;
@@ -183,15 +183,28 @@ export default function figure({ props, html, site, page }: ComponentProps<Figur
       ? pair
       : h("a", { class: "figure-link", href }, pair);
   // Every gallery image keeps its own alt; src_dark, href, srcset and sizes describe the single image only.
+  const galleryZoom = props.zoom === "true" && gallery.length >= 2;
+  const galleryId = galleryZoom ? `${id ?? "figure"}-zoom` : "";
+  const panelIds = galleryZoom ? gallery.map((_, index) => instanceId(page, `${galleryId}-${index + 1}`)) : [];
   const media =
     gallery.length < 2
       ? single
       : h(
           "div",
           { class: "figure-images" },
-          gallery.map((image) =>
-            h("img", { class: "figure-img", src: withBase(base, image.src), alt: image.alt, ...shared }),
-          ),
+          gallery.map((image, index) => {
+            const thumb = h("img", { class: "figure-img", src: withBase(base, image.src), alt: image.alt, ...shared });
+            if (!galleryZoom) return thumb;
+            const at = (offset: number) => panelIds[(index + offset + gallery.length) % gallery.length] ?? "";
+            return zoomable({
+              id: at(0),
+              lang,
+              alt: image.alt,
+              trigger: thumb,
+              full: withBase(base, image.src),
+              gallery: { prev: at(-1), next: at(1), position: index + 1, total: gallery.length },
+            });
+          }),
         );
 
   return h(

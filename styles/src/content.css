@@ -1179,6 +1179,38 @@
     }
   }
 
+  /* A multi-image figure: previous and next buttons move between the figure's panels. The row follows the
+     reading direction, so previous sits first in either direction, and the chevrons mirror in RTL. */
+  .figure-images .figure-zoom {
+    inline-size: 100%;
+  }
+
+  .figure-zoom-nav {
+    display: flex;
+    gap: var(--space-2);
+    align-items: center;
+  }
+
+  .figure-zoom-prev,
+  .figure-zoom-next {
+    display: inline-flex;
+    padding: var(--space-1);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-lg);
+    background: var(--card);
+    color: inherit;
+    cursor: pointer;
+  }
+
+  .figure-zoom-nav-icon {
+    inline-size: 1.25rem;
+    block-size: 1.25rem;
+  }
+
+  [dir="rtl"] .figure-zoom-nav-icon {
+    transform: scaleX(-1);
+  }
+
   .figure-zoom-bar {
     display: flex;
     flex-wrap: wrap;

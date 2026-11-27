@@ -468,7 +468,7 @@ test("zoom is opt-in and skipped for galleries", () => {
   const plain = renderToString(figure({ ...base, props: { src: "/a.png", alt: "A" } } as ComponentProps<FigureProps>) as never);
   assert.doesNotMatch(plain, /popover/);
   const gallery = renderToString(
-    figure({ ...base, props: { images: '[{"src":"/a.png"},{"src":"/b.png"}]', zoom: "true" } } as ComponentProps<FigureProps>) as never,
+    figure({ ...base, props: { images: '[{"src":"/a.png"},{"src":"/b.png"}]' } } as ComponentProps<FigureProps>) as never,
   );
   assert.doesNotMatch(gallery, /popover/);
 });

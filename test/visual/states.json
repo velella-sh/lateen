@@ -160,6 +160,11 @@
       ]
     },
     {
+      "name": "figure",
+      "selector": ".figure-zoom",
+      "states": ["hover", "focus"]
+    },
+    {
       "name": "gallery-filters",
       "selector": ".gallery-filter-value",
       "states": [
