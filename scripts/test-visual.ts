@@ -11,7 +11,7 @@ import { existsSync, mkdirSync, readFileSync, readdirSync, rmSync, writeFileSync
 import { join, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 import type { Page } from "playwright";
-import { buildFixture } from "../test/visual/fixtures/build.ts";
+import { DEFAULT_LOOK_BASE, buildFixture } from "../test/visual/fixtures/build.ts";
 import {
   DEFAULT_VIEWPORT,
   capture,
@@ -200,6 +200,8 @@ export interface RunOptions {
   readonly matrix?: VisualMatrix;
   /** Receives the layout findings of the in-page checks (scripts/visual-checks.ts). */
   readonly findings?: PageFinding[];
+  /** Only shoot: no comparison with the baselines, no retakes, no state shots (the design audit). */
+  readonly shotsOnly?: boolean;
   /** Record baselines instead of comparing them; a retake is never done in this mode. */
   readonly update?: boolean;
   /** Receives the cases that failed once and passed on the second take. */
@@ -219,6 +221,8 @@ export async function runVisual(options: RunOptions = {}): Promise<string[]> {
   mkdirSync(out, { recursive: true });
 
   const entries = expandMatrix(options.matrix ?? loadMatrix()).filter((entry) => options.only === undefined || entry.case.includes(options.only));
+  // A case that names the default-look fixture shoots it under its own base, in the same server.
+  if (entries.some((entry) => entry.fixture === "default")) buildFixture(join(site, DEFAULT_LOOK_BASE), undefined, "default");
   const viewports = [...new Map(entries.map((entry) => [`${entry.width}x${entry.height}`, { width: entry.width, height: entry.height }])).values()];
 
   // The server and the browser are released on success, failure and interruption; the shots and
@@ -231,7 +235,7 @@ export async function runVisual(options: RunOptions = {}): Promise<string[]> {
     const written: string[] = [];
     const shoot = async (page: Page, entry: ReturnType<typeof expandMatrix>[number]): Promise<void> => {
       const file = join(out, `${entry.case}.png`);
-      await capture(page, `${server.url}${entry.path}`, file, {
+      await capture(page, `${server.url}${entry.fixture === "default" ? DEFAULT_LOOK_BASE : ""}${entry.path}`, file, {
         theme: entry.theme,
         media: entry.section === "print" ? "print" : "screen",
         forcedColors: entry.section === "forced-colors",
@@ -256,7 +260,7 @@ export async function runVisual(options: RunOptions = {}): Promise<string[]> {
         await context.close();
       }
     }
-    if (options.update !== true) {
+    if (options.update !== true && options.shotsOnly !== true) {
       const first = reviewShots({ shots: out, baselines: BASELINE_DIR, review: join(out, "review") });
       const failed = first.filter((report) => report.status === "fail");
       for (const report of failed) {
@@ -277,7 +281,7 @@ export async function runVisual(options: RunOptions = {}): Promise<string[]> {
         rmSync(join(out, "review"), { recursive: true, force: true });
       }
     }
-    if (options.only === undefined) {
+    if (options.only === undefined && options.shotsOnly !== true) {
       const context = await newVisualContext(browser, server.url, DEFAULT_VIEWPORT);
       try {
         const page = await context.newPage();
@@ -347,7 +351,7 @@ async function main(): Promise<void> {
   for (const name of flaky) console.log(`flaky   ${name}: passed on the second take`);
   const reports = reviewShots({ shots, baselines: BASELINE_DIR, review: join(shots, "review"), update });
   writeReport(reports, loadMatrix(), join(shots, "report.json"), flaky);
-  const { lines, ok } = formatReview(reports);
+  const { lines, ok } = formatReview(reports, { reportOnly: process.env["VISUAL_PIXELS"] === "report" });
   console.log(lines.join("\n"));
   if (!ok) process.exitCode = 1;
 }

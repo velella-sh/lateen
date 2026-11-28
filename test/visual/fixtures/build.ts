@@ -29,12 +29,22 @@ function link(target: string, at: string): void {
   linkSync(target, at);
 }
 
+/** The fixtures: the main one matches the accessibility fixture; `default` has no preset and no font override. */
+export type FixtureName = "main" | "default";
+
+/** The base path the default-look fixture is built under, so one server can hold both fixtures. */
+export const DEFAULT_LOOK_BASE = "/default-look";
+
 /** Lays out the staging folder at `dir` and returns it. Only the pages in PAGES are linked in. */
-export function stageFixture(dir: string): string {
+export function stageFixture(dir: string, fixture: FixtureName = "main"): string {
   rmSync(dir, { recursive: true, force: true });
   mkdirSync(dir, { recursive: true });
-  link(join(HERE, "mizzen.yml"), join(dir, "mizzen.yml"));
-  for (const folder of SHARED_FOLDERS) link(join(A11Y_SITE, folder), join(dir, folder));
+  link(fixture === "default" ? join(HERE, "default/mizzen.yml") : join(HERE, "mizzen.yml"), join(dir, "mizzen.yml"));
+  // The default look ships its own fonts; only the main fixture needs the example fonts.
+  for (const folder of SHARED_FOLDERS) {
+    if (fixture === "default" && folder === "fonts") continue;
+    link(join(A11Y_SITE, folder), join(dir, folder));
+  }
   for (const page of PAGES) {
     link(join(page.from === "gallery" ? GALLERY_SITE : A11Y_SITE, page.file), join(dir, page.file));
   }
@@ -53,8 +63,8 @@ export function stageFixture(dir: string): string {
 }
 
 /** Builds the fixture into `out` with the theme of this checkout. Throws when the build fails. */
-export function buildFixture(out: string, staging = join(ROOT, `.mizzen/visual/fixture-src-${randomUUID()}`)): void {
-  stageFixture(staging);
+export function buildFixture(out: string, staging = join(ROOT, `.mizzen/visual/fixture-src-${randomUUID()}`), fixture: FixtureName = "main"): void {
+  stageFixture(staging, fixture);
   try {
     const bin = join(dirname(createRequire(import.meta.url).resolve("@velella/mizzen/package.json")), "bin/mizzen.js");
     const result = spawnSync(process.execPath, [bin, "build", staging, "--theme", ROOT, "--out", out], {

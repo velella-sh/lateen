@@ -62,6 +62,8 @@ export interface MatrixTarget {
   readonly maxHeight?: number;
   /** Selector of a popover to open before the shot, for a state a still page does not show (the zoom panel). */
   readonly open?: string;
+  /** The fixture this case shoots; the accessibility-matched fixture when absent. */
+  readonly fixture?: "default";
 }
 
 export interface MatrixSize {

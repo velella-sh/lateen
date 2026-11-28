@@ -118,3 +118,19 @@ test("a case that passed on the second take is written as flaky by name", () => 
     rmSync(dir, { recursive: true, force: true });
   }
 });
+
+test("report-only mode shows a pixel diff without failing, and a missing baseline still fails", () => {
+  const t = setup();
+  try {
+    writeFileSync(join(t.shots, "a.png"), encodePng(solid(20, 10, [0, 0, 0])));
+    writeFileSync(join(t.baselines, "a.png"), encodePng(solid(20, 10, [255, 255, 255])));
+    const { lines, ok } = formatReview(reviewShots(t), { reportOnly: true });
+    assert.equal(ok, true);
+    assert.ok(lines.some((l) => l.startsWith("DIFF")));
+    assert.ok(lines.some((l) => l.includes("report-only: 1 of 1")));
+    writeFileSync(join(t.shots, "new.png"), encodePng(solid(5, 5, [1, 2, 3])));
+    assert.equal(formatReview(reviewShots(t), { reportOnly: true }).ok, false);
+  } finally {
+    rmSync(t.dir, { recursive: true, force: true });
+  }
+});

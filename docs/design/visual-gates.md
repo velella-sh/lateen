@@ -57,6 +57,16 @@ Shots are deterministic by construction:
   hidden, and no hover or focus unless the case is an interaction state (#502).
 - Full-page shots, capped at 4000 px of height; a taller page is cropped and the case says so.
 
+## Report-only pixels during the redesign
+
+While the 0.2.6 redesign is under way, the visual job sets `VISUAL_PIXELS=report`. A pixel
+difference from a baseline then prints as `DIFF`, appears in the step summary table and uploads its
+before, after and diff images as the `visual-out` artifact, but the job stays green, so parallel
+pull requests do not conflict on baseline files. The layout checks (`VISUAL_CHECKS=strict`), the
+design check, a missing baseline and the `visual-change` label rule stay blocking. Report-only mode
+ends in `visual-regression-8`, which records the new baselines and removes `VISUAL_PIXELS` from
+`.github/workflows/ci.yml`.
+
 ## Comparer
 
 **A small function of our own**, in `scripts/visual-compare.ts`, with no new dependency. Why: the

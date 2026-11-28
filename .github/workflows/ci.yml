@@ -295,6 +295,9 @@ jobs:
         timeout-minutes: 8
         env:
           VISUAL_CHECKS: strict
+          # Report-only for pixels during the redesign (docs/design/visual-gates.md); the layout
+          # checks above stay blocking. Remove this line in visual-regression-8.
+          VISUAL_PIXELS: report
       - name: Design check
         run: npm run check:design
         working-directory: lateen
@@ -303,7 +306,7 @@ jobs:
         working-directory: lateen
         run: node scripts/visual-summary.ts
       - name: Upload the visual review images
-        if: failure()
+        if: always()
         uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
         with:
           name: visual-out
