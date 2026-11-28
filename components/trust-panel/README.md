@@ -15,7 +15,7 @@ back on the chip.
   provenance dates, drift, reviewer, and action links into localised, render-ready rows
   (`trustPanelViewOf`). The evidence helpers (`trustEvidenceFor`, `provenanceOf`, `driftFor`,
   `actionHrefOf`, …) live here too and stay exported from `index.ts`.
-- `styles/src/content.css` draws the chip and panel with Sailcloth tokens and logical properties.
+- `styles/src/components.css` draws the chip and panel with Sailcloth tokens and logical properties.
   On screen, the panel floats below the chip, aligned to the reading direction. Evidence labels and
   values wrap within the card. In print, an open panel sits in the document flow below its chip.
 - `chrome/trust-panel-keys/client.ts` is the island: Escape closes the open panel and puts focus back

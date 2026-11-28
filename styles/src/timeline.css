@@ -1,0 +1,29 @@
+/* Timeline chart column and bars. Owned by the timeline-progress epic (#1383). */
+@layer components {
+  /* Timeline: keep the chart column in the sailcloth doc column (~37rem). Legacy hides it under
+     40rem from a layered sheet; unlayered rules beat that and re-hide only when truly narrow. */
+  .timeline {
+    container-type: inline-size;
+  }
+  .timeline-chart {
+    display: table-cell;
+    inline-size: 38%;
+    min-inline-size: 9rem;
+  }
+  .timeline-axis {
+    position: relative;
+    block-size: 1rem;
+  }
+  .timeline-bar {
+    position: absolute;
+    inset-block-start: 50%;
+    block-size: 0.5rem;
+    translate: 0 -50%;
+  }
+  @container (max-inline-size: 28rem) {
+    .timeline-chart,
+    .timeline-legend {
+      display: none;
+    }
+  }
+}

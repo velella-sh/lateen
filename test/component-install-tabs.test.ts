@@ -119,7 +119,7 @@ test("island: a blocked store neither throws nor changes the choice", () => {
 
 test("the stylesheet shows only the checked install panel and hides the radios", () => {
   const css = [
-    readFileSync(new URL("../styles/src/content.css", import.meta.url), "utf8"),
+    readFileSync(new URL("../styles/src/components.css", import.meta.url), "utf8"),
     readFileSync(new URL("../styles/src/overrides.css", import.meta.url), "utf8"),
   ].join("\n");
   assert.match(css, /\.install-tabs-radio\s*\{[^}]*opacity:\s*0/);

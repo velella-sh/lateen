@@ -452,7 +452,7 @@ const changelogCss = () => "" /* lateen-legacy removed: layouts/changelog.css */
 
 
 test("the release list styles are scoped to the changelog layout's article", () => {
-  const css = readFileSync(new URL("../../styles/src/content.css", import.meta.url), "utf8");
+  const css = readFileSync(new URL("../../styles/src/components.css", import.meta.url), "utf8");
   const scoped = [
     ".changelog .changelog-entry + .changelog-entry {",
     ".changelog .changelog-entry-version {",
