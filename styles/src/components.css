@@ -1,246 +1,26 @@
-/* Article components: tables, citations, callouts, tabs, steps, kbd, endpoints,
-   record fields, details, file tree, terminal, timeline, cards, changelog, figures,
-   media embeds, trust panel, tags, lists, swatches, gallery specimens. */
-/* Keep overflow local for custom tables that supply their own classes. */
-@media screen {
-  .doc-body > table,
-  .doc-body :is(.callout-body, .step-content, .tabs-body) > table {
-    display: block;
-    max-inline-size: 100%;
-    overflow-x: auto;
-    overscroll-behavior-inline: contain;
-  }
-}
-
-@media screen {
-  math {
-    font-family: "Cambria Math", math;
-    font-size: 1em;
-    vertical-align: baseline;
-  }
-
-  .math-scroll {
-    max-inline-size: 100%;
-    margin-block: var(--space-4);
-    overflow-x: auto;
-    outline-offset: -2px;
-  }
-
-  /* Center small equations and keep both ends of wide equations reachable. */
-  .math-scroll > math {
-    min-inline-size: 100%;
-    inline-size: max-content;
-  }
-}
-
+/* Article components: citations, callouts, tabs, steps, kbd, records, details, file tree,
+   terminal, changelog, trust panel, tags, lists, swatches, gallery specimens, stat strip,
+   data explorer. Owned by the components-polish epic (#1325). */
 @layer components {
-  .doc-body table {
-    @apply w-full;
-    font-size: var(--type-size-sm);
-    line-height: var(--type-leading-ui);
-    margin: 0 0 var(--space-5);
-    border-collapse: collapse;
-  }
-
-  .doc-body th,
-  .doc-body td {
-    @apply align-top;
-    padding-block: var(--space-3);
-    padding-inline: 0 var(--space-4);
-    border-bottom: 1px solid var(--color-border);
-    text-align: start;
-  }
-
-  .doc-body th {
-    @apply font-bold uppercase;
-    color: var(--color-muted);
-    font-size: var(--type-size-xs);
-    letter-spacing: 0.06em;
-  }
-
-  .markdown-table-scroll {
-    margin-block: 1.125rem;
-    outline-offset: -3px;
-  }
-
-  .markdown-table-scroll > table {
-    margin: 0;
-    line-height: var(--type-leading-ui);
-    overflow-wrap: break-word;
-  }
-
-  /* Leave room for prose in multi-column grids and let narrow viewports scroll the grid. */
-  .markdown-table-scroll > table:has(> thead th:nth-child(3)) {
-    min-inline-size: 29rem;
-  }
-
-  .markdown-table-scroll > table > :is(thead, tbody, tfoot) > tr > :is(th, td) {
-    padding: var(--space-2) var(--space-3);
-    border-block-end-color: color-mix(in srgb, var(--color-border) 75%, transparent);
-  }
-
-  .markdown-table-scroll :is(th, td)[align="left"] { text-align: left; }
-  .markdown-table-scroll :is(th, td)[align="center"] { text-align: center; }
-  .markdown-table-scroll :is(th, td)[align="right"] { text-align: right; }
-
-  .markdown-table-scroll thead th {
-    background: var(--color-surface);
-    color: var(--color-text);
-    font-size: inherit;
-    font-weight: 700;
-    letter-spacing: normal;
-    text-transform: none;
-  }
-
-  .markdown-table-scroll :is(a, code) {
-    overflow-wrap: anywhere;
-  }
-
-  .markdown-table-scroll td:first-child > code:only-child {
-    display: inline-block;
-    max-inline-size: 36ch;
-    overflow-wrap: break-word;
-  }
-
-  .markdown-table-scroll :is(th, td) > p {
-    margin-block: 0;
-  }
-
-  .markdown-table-scroll :is(th, td) > p + p {
-    margin-block-start: 0.4em;
-  }
-
-  .component-directory table {
-    table-layout: fixed;
-  }
-
-  .component-directory th:first-child {
-    width: 28%;
-  }
-
-  @media (max-width: 40rem) {
-    .component-directory th:first-child {
-      width: 37%;
-    }
-  }
-
-  .component-directory td:first-child a {
-    font-weight: 650;
-  }
-
-  .component-directory td:nth-child(2) {
-    color: var(--color-muted);
-  }
-
-  .component-directory tr:focus-within {
-    background: var(--color-surface);
-  }
-
-  /* The island marks the logical edges that hide content; a soft shade appears only there and
-     recedes as the reader reaches either end. It sits behind the grid, so text keeps its contrast,
-     and it is decoration: no pointer target and nothing added to the accessibility tree. */
-  .table-scroll {
-    --table-overflow-ink: color-mix(in srgb, var(--color-text) 12%, transparent);
-    overscroll-behavior-inline: contain;
-    background-image:
-      var(--table-overflow-start, none),
-      var(--table-overflow-end, none);
-    background-position: left top, right top;
-    background-repeat: no-repeat;
-    background-size: 2.5rem 100%, 2.5rem 100%;
-  }
-
-  .table-scroll[data-overflow-start] {
-    --table-overflow-start: linear-gradient(to right, var(--table-overflow-ink), transparent);
-  }
-
-  .table-scroll[data-overflow-end] {
-    --table-overflow-end: linear-gradient(to left, var(--table-overflow-ink), transparent);
-  }
-
-  .table-scroll:dir(rtl) {
-    background-position: right top, left top;
-  }
-
-  .table-scroll:dir(rtl)[data-overflow-start] {
-    --table-overflow-start: linear-gradient(to left, var(--table-overflow-ink), transparent);
-  }
-
-  .table-scroll:dir(rtl)[data-overflow-end] {
-    --table-overflow-end: linear-gradient(to right, var(--table-overflow-ink), transparent);
-  }
-
-  .table caption {
-    @apply font-semibold;
-    font-size: var(--type-size-sm);
-    line-height: var(--type-leading-ui);
-    padding-block-end: 0.5rem;
-    color: var(--color-muted);
-    text-align: start;
-  }
-
-  .table-description {
-    font-size: var(--type-size-sm);
-    line-height: var(--type-leading-ui);
-    margin-block-start: 0.5rem;
-    max-inline-size: 40em;
-    color: var(--color-muted);
-  }
-
-  /* An authored footer is a summary, not another header row: one strong top rule and lined-up figures. */
-  .table tfoot th,
-  .table tfoot td {
-    border-block-start: 2px solid var(--border-strong);
-    font-variant-numeric: tabular-nums;
-  }
-
-  .table tfoot th {
-    background: transparent;
-    color: var(--color-text);
-    font-size: inherit;
-    letter-spacing: normal;
-    text-transform: none;
-  }
-
-  /* The arrow beside a sortable header's label: the glyph says the direction, so it alone carries
-     the visible state. A logical margin keeps it on the far side of the label in RTL. */
-  .record-table-sort {
-    margin-inline-start: 0.4em;
-    padding: 0;
-    color: inherit;
-    background: none;
-    border: 0;
-    cursor: pointer;
-    line-height: 1;
-  }
-
-  .record-table-sort:hover {
-    color: var(--color-text);
-  }
-
   .citation {
     margin-block: 1.125rem;
     padding-inline-start: 1rem;
     border-inline-start: 2px solid var(--color-border);
     color: var(--color-muted);
   }
-
   .citation-text {
     overflow-wrap: anywhere;
   }
-
   .citation-title {
     color: var(--color-text);
     font-weight: 600;
   }
-
   .citation-url {
     color: inherit;
     text-decoration: underline;
     direction: ltr;
     unicode-bidi: isolate;
   }
-
   .citation-copy {
     display: inline-flex;
     margin-block-start: 0.5rem;
@@ -252,17 +32,14 @@
     font-size: var(--type-size-xs);
     cursor: pointer;
   }
-
   .citation-copy:hover {
     color: var(--color-text);
   }
-
   .calendar-actions {
     display: flex;
     flex-wrap: wrap;
     gap: var(--space-1) var(--space-3);
   }
-
   .add-to-calendar-list {
     display: grid;
     gap: var(--space-1);
@@ -270,12 +47,10 @@
     padding-inline-start: 0;
     list-style: none;
   }
-
   .add-to-calendar-link {
     color: var(--color-link);
     text-decoration: underline;
   }
-
   /* One shape for every kind: a hairline frame and a faint wash in the kind's colour, which also
      carries the icon and the label, so a reader tells a warning from a tip before reading it. */
   .callout {
@@ -289,41 +64,33 @@
     border-radius: var(--radius-lg);
     background: color-mix(in srgb, var(--callout-color) 6%, var(--color-surface-card));
   }
-
   .callout-tip {
     --callout-color: var(--status-positive-fg);
   }
-
   .callout-important {
     --callout-color: light-dark(color-mix(in srgb, var(--mist) 55%, var(--night)), color-mix(in srgb, var(--mist) 55%, var(--sail)));
   }
-
   .callout-warning {
     --callout-color: var(--status-caution-fg);
   }
-
   .callout-caution {
     --callout-color: var(--status-negative-fg);
   }
-
   @media (forced-colors: active) {
     .callout {
       border-color: CanvasText;
     }
   }
-
   .callout-icon {
     @apply size-4;
     margin-block-start: 0.125rem;
     color: var(--callout-color);
   }
-
   .callout-content {
     flex: 1;
     min-inline-size: 0;
     overflow-wrap: anywhere;
   }
-
   .callout-content > :is(.callout-kind, .callout-title) {
     margin: 0;
     color: var(--callout-color);
@@ -331,18 +98,15 @@
     font-weight: 700;
     line-height: var(--type-leading-ui);
   }
-
   .callout-content > .callout-kind + .callout-title {
     margin-block-start: var(--spacing);
     color: var(--color-text);
     font-size: var(--type-size-base);
     line-height: var(--type-leading-ui);
   }
-
   .callout-disclosure {
     display: block;
   }
-
   .callout-summary {
     display: flex;
     align-items: center;
@@ -351,46 +115,37 @@
     cursor: pointer;
     font-weight: 700;
   }
-
   .callout-summary::-webkit-details-marker {
     display: none;
   }
-
   .callout-chevron {
     @apply size-4;
     margin-inline-start: auto;
   }
-
   .callout-disclosure[open] > .callout-summary .callout-chevron {
     transform: rotate(180deg);
   }
-
   .callout-body {
     margin-block-start: var(--space-2);
     font-size: var(--type-size-sm);
     line-height: var(--type-leading-body);
   }
-
   .callout-body > :first-child {
     margin-block-start: 0;
   }
-
   .callout-body > :last-child {
     margin-block-end: 0;
   }
-
   :is(.tabs, .code-tabs, .os-tabs) {
     margin-block: var(--space-6);
     min-inline-size: 0;
   }
-
   :is(.tabs, .code-tabs, .os-tabs) > [role="tablist"] {
     display: flex;
     flex-wrap: wrap;
     gap: var(--spacing);
     border-block-end: 1px solid var(--color-border);
   }
-
   :is(.tabs, .code-tabs, .os-tabs) > [role="tablist"] > [role="tab"],
   .install-tabs-tab {
     @apply inline-flex max-w-full items-center rounded-t-md border-b-2 border-transparent px-3 py-2 text-muted-foreground;
@@ -401,20 +156,17 @@
     min-block-size: 2.5rem;
     overflow-wrap: anywhere;
   }
-
   :is(.tabs, .code-tabs, .os-tabs) > [role="tablist"] > [role="tab"]:hover,
   .install-tabs-tab:hover {
     color: var(--color-text);
     background: var(--color-surface);
   }
-
   :is(.tabs, .code-tabs, .os-tabs) > [role="tablist"] > [aria-selected="true"],
   .install-tabs-tab:has(.install-tabs-radio:checked) {
     border-block-end-color: var(--state-focus-ring);
     background: var(--color-brand-subtle);
     color: var(--color-text);
   }
-
   :is(.tabs, .os-tabs) > [role="tabpanel"] {
     padding: var(--space-3) var(--space-4);
     border: 1px solid var(--color-border);
@@ -423,40 +175,32 @@
     border-end-end-radius: var(--radius-lg);
     background: var(--color-surface-card);
   }
-
   :is(.tabs, .os-tabs) > [role="tabpanel"] > :is(.tabs-title, .os-tabs-title) {
     margin-block: 0 var(--space-2);
     font-size: var(--type-size-base);
   }
-
   :is(.tabs-body, .os-tabs-body) > :first-child {
     margin-block-start: 0;
   }
-
   :is(.tabs-body, .os-tabs-body) > :last-child {
     margin-block-end: 0;
   }
-
   .code-tabs[data-enhanced] > .code-tabs-panel > .code-tabs-body > .code-frame {
     border-block-start: 0;
     border-start-start-radius: 0;
     border-start-end-radius: 0;
   }
-
   .code-tabs-title {
     @apply mb-2 font-medium text-muted-foreground;
     font-size: var(--type-size-sm);
     line-height: var(--type-leading-ui);
   }
-
   .code-tabs[data-enhanced] > .code-tabs-panel > .code-tabs-title {
     display: none;
   }
-
   .code-tabs-list[hidden] ~ .code-tabs-panel + .code-tabs-panel {
     margin-block-start: var(--space-4);
   }
-
   /* The checked label's next sibling is the only command. Tabs stay above it. */
   .install-tabs {
     display: flex;
@@ -465,32 +209,26 @@
     margin-block: 1.125rem;
     overflow: clip;
   }
-
   .install-tabs-tab:has(.install-tabs-radio:focus-visible) {
     outline: 3px solid var(--state-focus-ring);
     outline-offset: -3px;
   }
-
   .install-tabs-panel {
     display: none;
     order: 1;
     flex-basis: 100%;
   }
-
   .install-tabs:not([data-single]) > .install-tabs-panel {
     border-block-start: 1px solid var(--code-border);
   }
-
   .install-tabs[data-single] .install-tabs-panel,
   .install-tabs-tab:has(.install-tabs-radio:checked) + .install-tabs-panel {
     display: block;
   }
-
   .steps-ui,
   .checks {
     @apply grid gap-2 m-0 p-0 list-none;
   }
-
   .steps-ui > div,
   .steps-ui .step,
   .checks li {
@@ -498,7 +236,6 @@
     font-size: var(--type-size-sm);
     line-height: var(--type-leading-ui);
   }
-
   .steps-ui .num {
     @apply grid size-5 place-items-center rounded-full text-[0.7rem] font-bold not-italic;
     background: var(--color-brand);
@@ -506,17 +243,14 @@
     flex: none;
     position: relative;
   }
-
   .steps {
     margin-block: var(--space-6);
   }
-
   .steps > .steps-progress {
     margin-block: 0 var(--space-3);
     color: var(--color-muted);
     font-size: var(--type-size-sm);
   }
-
   .steps > ol {
     display: grid;
     grid-template-columns: max-content minmax(0, 1fr);
@@ -525,7 +259,6 @@
     margin: 0;
     padding: 0;
   }
-
   .steps > ol > .step {
     display: grid;
     grid-template-columns: subgrid;
@@ -533,7 +266,6 @@
     align-items: start;
     margin: 0;
   }
-
   .step-number {
     @apply relative inline-flex items-center rounded-full font-bold;
     font-size: var(--type-size-xs);
@@ -545,37 +277,29 @@
     color: var(--color-text);
     line-height: var(--type-leading-ui);
   }
-
   .step-content {
     line-height: var(--type-leading-ui);
     overflow-wrap: anywhere;
   }
-
   .step-content > :first-child {
     margin-block-start: 0;
   }
-
   .step-content > p:first-child {
     font-weight: 700;
   }
-
   .step-content > .code-frame {
     margin-block: var(--space-3);
   }
-
   .step-content > :last-child {
     margin-block-end: 0;
   }
-
   .step-number:has(.step-tick) {
     padding-inline-end: var(--space-6);
   }
-
   .step-number:has(:focus-visible) {
     outline: 3px solid var(--state-focus-ring);
     outline-offset: 2px;
   }
-
   .step-tick {
     position: absolute;
     inset: 0;
@@ -585,7 +309,6 @@
     padding-inline-end: var(--space-2);
     cursor: pointer;
   }
-
   .step-tick::after {
     content: "";
     inline-size: 0.625rem;
@@ -593,14 +316,12 @@
     border: 1px solid;
     border-radius: 2px;
   }
-
   .step-tick:has(:checked)::after {
     block-size: 0.375rem;
     border-width: 0 0 2px 2px;
     border-radius: 0;
     rotate: -45deg;
   }
-
   .step-tick input {
     position: absolute;
     inset: 0;
@@ -609,14 +330,12 @@
     cursor: inherit;
     opacity: 0;
   }
-
   /* A step ending in a nested list of links offers each one as a next path. */
   .step-content > ul {
     @apply grid gap-2 m-0 p-0 list-none;
     grid-template-columns: repeat(auto-fit, minmax(min(100%, 10rem), 1fr));
     margin-block-start: 0.75rem;
   }
-
   .step-content > ul > li > a {
     @apply block rounded-lg px-3 py-2 font-semibold;
     font-size: var(--type-size-sm);
@@ -625,7 +344,6 @@
     background: color-mix(in srgb, var(--color-canvas) 70%, transparent);
     box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--color-border) 80%, transparent);
   }
-
   .checks li::before {
     content: "";
     width: 0.875rem;
@@ -634,7 +352,6 @@
     box-shadow: inset 0 0 0 1.5px var(--color-link);
     flex: none;
   }
-
   kbd,
   .kbd {
     font-family: var(--type-font-mono);
@@ -645,22 +362,6 @@
     padding: 0.05rem 0.4rem;
     background: var(--color-canvas);
   }
-
-  /* Endpoint introductions: the hand-written endpoint block, the generated operation page, and
-     the reference index share one line, one method badge, and one wrapping path. The method's
-     text is its label, so color is never the only signal. */
-  :is(.endpoint-line, .api-reference-line) {
-    overflow-wrap: anywhere;
-  }
-
-  .endpoint {
-    margin-block: var(--space-6);
-  }
-
-  .endpoint-param {
-    color: var(--color-link);
-  }
-
   .key-value {
     display: grid;
     grid-template-columns: 7rem 1fr;
@@ -668,16 +369,13 @@
     margin-top: 0.65rem;
     font-size: var(--type-size-sm);
   }
-
   .key-value-key {
     color: var(--color-muted);
   }
-
   .key-value-value {
     margin: 0;
     font-weight: 600;
   }
-
   .record-views > ul {
     display: flex;
     flex-wrap: wrap;
@@ -685,11 +383,9 @@
     padding-inline-start: 0;
     list-style: none;
   }
-
   .record-view-back {
     margin-block-end: var(--space-4);
   }
-
   .record-history-filters {
     display: flex;
     flex-wrap: wrap;
@@ -697,36 +393,30 @@
     margin-block-end: var(--space-2);
     font-size: var(--type-size-sm);
   }
-
   .record-history-filter {
     color: var(--color-muted);
   }
-
   .record-history-filter[aria-current="true"] {
     color: var(--color-text);
     font-weight: 600;
   }
-
   .record-history-count {
     margin-block: 0 var(--space-2);
     color: var(--color-muted);
     font-size: var(--type-size-xs);
   }
-
   .record-fact-group {
     display: grid;
     grid-column: 1 / -1;
     grid-template-columns: 7rem 1fr;
     gap: 0.4rem 0.75rem;
   }
-
   .record-fact-group-label {
     grid-column: 1 / -1;
     margin: 0;
     color: var(--color-muted);
     font-weight: 600;
   }
-
   .record > #record-facts {
     grid-template-columns: clamp(6rem, 25%, 10rem) minmax(0, 1fr);
     align-items: baseline;
@@ -736,39 +426,32 @@
     border-block: 1px solid var(--color-border);
     overflow-wrap: anywhere;
   }
-
   .record > #record-facts .record-fact-group {
     grid-template-columns: subgrid;
     gap: inherit;
     align-items: baseline;
   }
-
   .record > #record-facts .record-fact-group:not(:first-child) {
     margin-block-start: var(--space-2);
   }
-
   .record > #record-facts .record-fact-group-label {
     color: var(--color-text);
     font-weight: 700;
   }
-
   .record > #record-facts dt {
     font-size: var(--type-size-sm);
     font-weight: 600;
   }
-
   .record > #record-facts dd {
     color: var(--color-text);
     font-size: var(--type-size-sm);
     white-space: normal;
   }
-
   .record > #record-facts dd a {
     color: var(--color-link);
     text-decoration: underline;
     text-underline-offset: 0.15em;
   }
-
   .record > #record-facts .record-fact-report {
     display: inline-block;
     max-inline-size: 100%;
@@ -777,158 +460,103 @@
     font-size: var(--type-size-xs);
     font-weight: 500;
   }
-
   @media (max-width: 40rem) {
     .record > #record-facts {
       grid-template-columns: minmax(0, 1fr);
       row-gap: 0.125rem;
     }
-
     .record > #record-facts dd + dt {
       margin-block-start: var(--space-2);
     }
-
     .record > #record-facts .record-fact-group-label {
       margin-block-end: 0.25rem;
     }
   }
-
   .record-fact-evidence {
     margin-inline-start: 0.5rem;
     color: var(--color-muted);
     font-size: var(--type-size-xs);
   }
-
   .record-fact-evidence a {
     color: inherit;
     text-decoration: underline;
   }
-
   .field-language {
     margin-inline-end: 0.35rem;
     color: var(--color-muted);
     font-size: var(--type-size-xs);
     font-weight: 500;
   }
-
   :is(.record-fact, .record-table-cell)[data-kind="number"] {
     font-variant-numeric: tabular-nums;
     white-space: nowrap;
   }
-
   .field-list-more > summary {
     cursor: pointer;
     color: var(--color-muted);
   }
-
   .details,
   details.soft {
     background: color-mix(in srgb, var(--color-canvas) 80%, transparent);
     border-radius: 0.75rem;
     padding: 0.5rem 0.75rem;
   }
-
   :is(.details, details.soft) > summary {
     cursor: pointer;
     font-weight: 600;
   }
-
   :is(.details, details.soft, .code-details) > summary {
     border-radius: var(--radius-sm);
   }
-
   :is(.details, details.soft, .code-details) > summary:hover {
     text-decoration: underline;
     text-underline-offset: 0.2em;
   }
-
   :is(.details, details.soft, .code-details)[open] > summary,
   :is(.details, details.soft, .code-details) > summary::marker {
     color: var(--color-link);
   }
-
   .details-body > :last-child {
     margin-block-end: 0;
   }
-
   .file-tree,
   .tree {
     font-family: var(--type-font-mono);
     font-size: var(--type-size-sm);
     line-height: var(--type-leading-body);
   }
-
   .tree .in,
   .tree-row.in {
     padding-inline-start: 1rem;
     color: var(--color-muted);
   }
-
   .tree-note {
     margin-inline-start: 0.5rem;
     color: var(--color-muted);
   }
-
   .terminal-bar:not(:has(button:not([hidden]))) {
     display: none;
   }
-
   .terminal-line {
     display: block;
     min-block-size: 1lh;
   }
-
   .terminal-command {
     color: var(--sail);
   }
-
   .terminal-output {
     color: var(--sail-soft);
   }
-
-  /* Timeline: keep the chart column in the sailcloth doc column (~37rem). Legacy hides it under
-     40rem from a layered sheet; unlayered rules beat that and re-hide only when truly narrow. */
-  .timeline {
-    container-type: inline-size;
-  }
-
-  .timeline-chart {
-    display: table-cell;
-    inline-size: 38%;
-    min-inline-size: 9rem;
-  }
-
-  .timeline-axis {
-    position: relative;
-    block-size: 1rem;
-  }
-
-  .timeline-bar {
-    position: absolute;
-    inset-block-start: 50%;
-    block-size: 0.5rem;
-    translate: 0 -50%;
-  }
-
-  @container (max-inline-size: 28rem) {
-    .timeline-chart,
-    .timeline-legend {
-      display: none;
-    }
-  }
-
   .changelog-entry {
     margin-block: 1.5rem;
     padding-block-start: 1.25rem;
     border-block-start: 1px solid var(--color-border);
   }
-
   .changelog-entry:first-child {
     margin-block-start: 0;
     padding-block-start: 0;
     border-block-start: 0;
   }
-
   .changelog-entry-version {
     display: flex;
     align-items: baseline;
@@ -937,7 +565,6 @@
     font-size: var(--type-size-lg);
     font-weight: 700;
   }
-
   .changelog-entry-sr {
     position: absolute;
     inline-size: 1px;
@@ -947,25 +574,21 @@
     clip-path: inset(50%);
     white-space: nowrap;
   }
-
   .changelog-entry-anchor {
     color: var(--color-muted);
     opacity: 0;
     text-decoration: none;
   }
-
   .changelog-entry:hover > .changelog-entry-version > .changelog-entry-anchor,
   .changelog-entry-version:focus-within > .changelog-entry-anchor,
   .changelog-entry-anchor:focus-visible {
     opacity: 1;
   }
-
   @media (hover: none) {
     .changelog-entry-anchor {
       opacity: 1;
     }
   }
-
   .changelog-entry-meta {
     display: flex;
     flex-wrap: wrap;
@@ -975,7 +598,6 @@
     color: var(--color-muted);
     font-size: var(--type-size-sm);
   }
-
   .changelog-entry-categories {
     display: flex;
     flex-wrap: wrap;
@@ -984,7 +606,6 @@
     padding: 0;
     list-style: none;
   }
-
   .changelog-entry-category {
     display: inline-flex;
     align-items: center;
@@ -997,17 +618,14 @@
     line-height: var(--type-leading-ui);
     white-space: nowrap;
   }
-
   .changelog-entry-category-icon {
     inline-size: 0.9em;
     block-size: 0.9em;
     flex: none;
   }
-
   .changelog-entry-body > :first-child {
     margin-block-start: 0;
   }
-
   /*
    * The changelog layout's release list. Scoped to the layout's article so the directive on a docs
    * page keeps its compact look: the version leads each release, the date follows it as the second
@@ -1016,7 +634,6 @@
   .changelog .changelog-toc {
     margin-block: 1.25rem 2.5rem;
   }
-
   .changelog .changelog-toc-list {
     display: flex;
     flex-wrap: wrap;
@@ -1026,13 +643,11 @@
     list-style: none;
     overflow-wrap: anywhere;
   }
-
   .changelog .changelog-entry + .changelog-entry {
     margin-block-start: clamp(2.5rem, 7vw, 3.5rem);
     padding-block-start: clamp(1.75rem, 5vw, 2.25rem);
     border-color: var(--border-strong);
   }
-
   .changelog .changelog-entry-version {
     flex-wrap: wrap;
     margin: 0 0 0.5rem;
@@ -1040,367 +655,31 @@
     line-height: var(--type-leading-heading);
     overflow-wrap: anywhere;
   }
-
   .changelog .changelog-entry-meta {
     margin-block-end: 1.25rem;
   }
-
   .changelog .changelog-entry-date {
     color: var(--color-text);
     font-variant-numeric: tabular-nums;
     font-weight: 600;
   }
-
-  /* Article media: an image or a diagram with the text around it. Both share one spacing and corner
-     radius, so they read as the same kind of block. A small image keeps the size it was drawn at and
-     never stretches; a diagram keeps its labels legible rather than shrinking to fit the column. */
-  .figure,
-  .mermaid {
-    margin-block: var(--space-6);
-  }
-
-  .figure-img {
-    display: block;
-    block-size: auto;
-    max-inline-size: 100%;
-    border-radius: var(--radius-xl);
-  }
-
-  .figure-images {
-    display: grid;
-    gap: var(--space-3);
-    grid-template-columns: repeat(auto-fit, minmax(14rem, 1fr));
-  }
-
-  .figure-images .figure-img {
-    inline-size: 100%;
-  }
-
-  .figure-pair {
-    display: grid;
-  }
-
-  .figure-img-dark {
-    display: none;
-  }
-
-  [data-theme="dark"] .figure-paired .figure-img-light {
-    display: none;
-  }
-
-  [data-theme="dark"] .figure-paired .figure-img-dark {
-    display: block;
-  }
-
-  .figure-caption {
-    margin-block-start: var(--space-2);
-    color: var(--color-muted);
-    font-size: var(--type-size-sm);
-    line-height: var(--type-leading-ui);
-    overflow-wrap: anywhere;
-  }
-
-  .figure-credit {
-    display: block;
-    margin-block-start: var(--space-1);
-    color: var(--color-muted);
-    font-size: var(--type-size-sm);
-  }
-
-  /* Zoom: a button opens the image larger in a native popover. The browser handles Escape, a click
-     outside, and returning focus to the button, so none of it needs script. */
-  .figure-zoom {
-    display: block;
-    padding: 0;
-    border: 0;
-    background: none;
-    color: inherit;
-    cursor: zoom-in;
-    border-radius: var(--radius-xl);
-  }
-
-  .figure-zoom-panel {
-    inline-size: min(96vw, 80rem);
-    max-block-size: 94vh;
-    margin: auto;
-    padding: var(--space-3);
-    overflow: auto;
-    border: 1px solid var(--color-border);
-    border-radius: var(--radius-xl);
-    background: var(--color-surface-card);
-    color: var(--color-text);
-  }
-
-  .figure-zoom-panel::backdrop {
-    background: color-mix(in oklab, var(--color-text) 55%, transparent);
-  }
-
-  .figure-zoom-img {
-    display: block;
-    max-inline-size: 100%;
-    block-size: auto;
-    margin-inline: auto;
-    border-radius: var(--radius-lg);
-  }
-
-  /* A diagram or chart in the panel is drawn from the same SVG as the inline one, scaled to fill the
-     panel instead of keeping its natural width. The trigger button wraps the inline copy, so its text
-     keeps the page's alignment. */
-  .figure-zoom-svg,
-  .figure-zoom-panel .mermaid-diagram > svg {
-    display: block;
-    inline-size: 100%;
-    block-size: auto;
-  }
-
-  .figure-zoom-panel .mermaid-diagram {
-    border: 0;
-    padding: 0;
-    overflow: visible;
-  }
-
-  .figure-zoomable:has(> .figure-zoom > .mermaid-diagram) > .figure-zoom {
-    inline-size: 100%;
-    text-align: start;
-  }
-
-  /* A paired figure's panel holds both full-size images and links; only the active scheme's shows, so
-     the other (hidden, lazy) is never fetched. Without script the page keeps its default scheme, so
-     the reader's `prefers-color-scheme` decides. */
-  .figure-zoom-img-dark,
-  .figure-zoom-full-dark {
-    display: none;
-  }
-
-  [data-theme="dark"] .figure-zoom-img-light,
-  [data-theme="dark"] .figure-zoom-full-light {
-    display: none;
-  }
-
-  [data-theme="dark"] .figure-zoom-img-dark {
-    display: block;
-  }
-
-  [data-theme="dark"] .figure-zoom-full-dark {
-    display: inline-flex;
-  }
-
   @media (prefers-color-scheme: dark) {
     :root:not([data-js]) .figure-zoom-img-light,
     :root:not([data-js]) .figure-zoom-full-light {
       display: none;
     }
-
     :root:not([data-js]) .figure-zoom-img-dark {
       display: block;
     }
-
     :root:not([data-js]) .figure-zoom-full-dark {
       display: inline-flex;
     }
   }
-
-  /* A multi-image figure: previous and next buttons move between the figure's panels. The row follows the
-     reading direction, so previous sits first in either direction, and the chevrons mirror in RTL. */
-  .figure-images .figure-zoom {
-    inline-size: 100%;
-  }
-
-  .figure-zoom-nav {
-    display: flex;
-    gap: var(--space-2);
-    align-items: center;
-  }
-
-  .figure-zoom-prev,
-  .figure-zoom-next {
-    display: inline-flex;
-    padding: var(--space-1);
-    border: 1px solid var(--border);
-    border-radius: var(--radius-lg);
-    background: var(--card);
-    color: inherit;
-    cursor: pointer;
-  }
-
-  .figure-zoom-nav-icon {
-    inline-size: 1.25rem;
-    block-size: 1.25rem;
-  }
-
-  [dir="rtl"] .figure-zoom-nav-icon {
-    transform: scaleX(-1);
-  }
-
-  .figure-zoom-bar {
-    display: flex;
-    flex-wrap: wrap;
-    gap: var(--space-3);
-    justify-content: space-between;
-    align-items: center;
-    margin-block-start: var(--space-3);
-    font-size: var(--text-sm);
-  }
-
-  /* A target of at least 24 by 24 CSS pixels, like the close button. */
-  .figure-zoom-full {
-    display: inline-flex;
-    align-items: center;
-    min-block-size: 1.75rem;
-  }
-
-  .figure-zoom-close {
-    padding: var(--space-1) var(--space-3);
-    border: 1px solid var(--color-border);
-    border-radius: var(--radius-lg);
-    background: var(--color-surface-card);
-    color: inherit;
-    cursor: pointer;
-  }
-
-  @media (prefers-reduced-motion: no-preference) {
-    .figure-zoom-panel:popover-open {
-      animation: figure-zoom-in 120ms ease-out;
-    }
-  }
-
   @keyframes figure-zoom-in {
     from {
       opacity: 0;
     }
   }
-
-  /* A browser without popover has an inert button: show the full-size link instead. */
-  @supports not selector(:popover-open) {
-    .figure-zoom {
-      pointer-events: none;
-      cursor: default;
-    }
-
-    .figure-zoom-panel {
-      display: block;
-      position: static;
-      border: 0;
-      padding: 0;
-      margin-block-start: var(--space-2);
-      inline-size: auto;
-    }
-
-    .figure-zoom-img,
-    .figure-zoom-close {
-      display: none;
-    }
-  }
-
-  /* Mermaid: the diagram sits on the same plate as an image — a quiet card with one hairline edge and
-     the shared corner radius — and scrolls inside its frame when the drawing is wider than the column,
-     so it never widens the page. */
-  .mermaid-diagram {
-    overflow-x: auto;
-    overscroll-behavior-inline: contain;
-    padding: var(--space-4);
-    border: 1px solid var(--color-border);
-    border-radius: var(--radius-xl);
-    background: var(--color-surface-card);
-  }
-
-  /* Mermaid writes its palette as literal colors in an inline `<style>`, which would stay dark-on-dark
-     in the dark theme. These rules repaint the common shapes from the page tokens instead, so the
-     diagram follows light and dark without a second render. `!important` beats Mermaid's id-scoped
-     inline rules; every selector is scoped under `.mermaid-diagram`, so no other block is touched. */
-  .mermaid-diagram > svg {
-    display: block;
-    block-size: auto;
-    margin-inline: auto;
-    inline-size: min(var(--mermaid-natural, 100%), max(100%, calc(var(--mermaid-natural, 100%) * 0.7)));
-    font-family: var(--type-font-body);
-  }
-
-  .mermaid-diagram > svg :where(text, tspan) {
-    fill: var(--color-text) !important;
-  }
-
-  .mermaid-diagram > svg :where(rect, circle, ellipse, polygon) {
-    fill: var(--color-canvas) !important;
-    stroke: var(--border-strong) !important;
-  }
-
-  .mermaid-diagram > svg :where(line) {
-    stroke: var(--border-strong) !important;
-  }
-
-  /* The transparent halos Mermaid draws behind labels, and the canvas rectangle, keep no fill. */
-  .mermaid-diagram > svg :where(.background, .label rect) {
-    fill: none !important;
-    stroke: none !important;
-  }
-
-  .mermaid-diagram > svg :where(.flowchart-link, .edgePaths path) {
-    fill: none !important;
-    stroke: var(--color-muted) !important;
-  }
-
-  .mermaid-diagram > svg :where(marker path, marker polygon, marker circle, .arrowMarkerPath) {
-    fill: var(--color-muted) !important;
-    stroke: var(--color-muted) !important;
-  }
-
-  .mermaid-diagram > svg .edgeLabel rect {
-    fill: var(--color-surface-card) !important;
-  }
-
-  /* Keep the source disclosure as it is: its spacing follows the diagram frame, the summary and the
-     code block stay Mermaid's existing markup and the shared `pre` styling. */
-  .mermaid-source {
-    margin-block-start: var(--space-3);
-  }
-
-  .video-box,
-  .embed-box {
-    position: relative;
-    aspect-ratio: 16 / 9;
-    overflow: hidden;
-  }
-
-  .video-poster,
-  .video-frame,
-  .embed-iframe {
-    position: absolute;
-    inset: 0;
-    inline-size: 100%;
-    block-size: 100%;
-  }
-
-  .video-poster-image {
-    inline-size: 100%;
-    block-size: 100%;
-    object-fit: cover;
-  }
-
-  .video-frame,
-  .embed-iframe {
-    border: 0;
-  }
-
-  .video-play {
-    position: absolute;
-    inset-block-start: 50%;
-    inset-inline-start: 50%;
-    transform: translate(-50%, -50%);
-  }
-
-  .embed-placeholder {
-    position: absolute;
-    inset: 0;
-    z-index: 1;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    gap: var(--space-2);
-    padding: var(--space-3);
-  }
-
   .reading-time,
   .doc-meta .last-updated {
     @apply inline-flex items-center gap-1;
@@ -1409,28 +688,23 @@
     font-size: var(--type-size-xs);
     line-height: var(--type-leading-ui);
   }
-
   .trust-panel {
     position: relative;
     margin: 0.75rem 0;
   }
-
   /* The tested chip is the article's trust summary: keep its chip shape when it links to the panel. */
   .tested-chip[data-tested-link] {
     text-decoration: none;
   }
-
   .tested-chip[data-tested-link]:hover,
   .tested-chip[data-tested-link]:focus-visible {
     text-decoration: underline;
   }
-
   .page-status,
   .trust-panel-chip {
     background: color-mix(in srgb, var(--color-surface-card) 70%, transparent);
     box-shadow: inset 0 0 0 1px var(--color-border);
   }
-
   .trust-panel-chip {
     display: inline-flex;
     align-items: center;
@@ -1443,12 +717,10 @@
     font-size: var(--type-size-xs);
     list-style: none;
   }
-
   .trust-panel-body {
     background: var(--color-surface-card);
     border: 1px solid var(--color-border);
   }
-
   .trust-panel-body {
     position: absolute;
     z-index: 3;
@@ -1458,22 +730,18 @@
     background: var(--color-surface-card);
     overflow-wrap: anywhere;
   }
-
   .trust-panel-actions,
   .trust-panel-rows {
     display: grid;
     grid-template-columns: 2fr 3fr;
     gap: 0.25rem;
   }
-
   .trust-panel-body :is(dl, p, ul) {
     margin: 0;
   }
-
   .doc-body [data-src] {
     position: relative;
   }
-
   .page-status {
     @apply flex flex-wrap items-center rounded-lg;
     gap: 0.375rem;
@@ -1482,26 +750,21 @@
     font-size: var(--type-size-sm);
     line-height: var(--type-leading-ui);
   }
-
   .page-status-message {
     color: var(--color-muted);
   }
-
   .tags {
     @apply list-none m-0 p-0;
   }
-
   .tags li {
     display: contents;
   }
-
   .pills {
     display: flex;
     flex-wrap: wrap;
     gap: 0.5rem;
     margin: 0.75rem 0;
   }
-
   /* The prose helper an author writes as `<div class="list">` inside a page body. It is scoped to
      `.doc-body` so it never reaches the `<article class="list">` page layout, whose rows the list
      module (styles/src/list.css) styles instead. */
@@ -1509,7 +772,6 @@
   .doc-body .item {
     display: grid;
   }
-
   .doc-body .item,
   .doc-body .list a {
     display: grid;
@@ -1520,7 +782,6 @@
     border-bottom: 1px solid var(--color-border);
     text-decoration: none;
   }
-
   .doc-body .item strong,
   .doc-body .list a strong {
     font-family: var(--type-font-mono);
@@ -1528,7 +789,6 @@
     font-weight: 500;
     line-height: var(--type-leading-ui);
   }
-
   .doc-body .item span,
   .doc-body .list a span,
   .doc-body .item em,
@@ -1538,18 +798,15 @@
     font-size: var(--type-size-sm);
     line-height: var(--type-leading-ui);
   }
-
   .doc-body .list a:hover strong {
     color: var(--color-link);
   }
-
   .swatches {
     display: grid;
     grid-template-columns: repeat(3, minmax(0, 1fr));
     gap: 0.625rem;
     margin-block: 1.125rem;
   }
-
   .swatch {
     min-block-size: 5.75rem;
     padding: 0.875rem;
@@ -1558,7 +815,6 @@
     font-size: var(--type-size-sm);
     font-weight: 600;
   }
-
   .swatch span {
     display: block;
     margin-block-start: 0.375rem;
@@ -1566,14 +822,12 @@
     font-size: var(--type-size-xs);
     font-weight: 400;
   }
-
   .n { background: var(--night); color: var(--sail); }
   .s { background: var(--sail); color: var(--night); }
   .m { background: var(--mist); color: var(--night); }
   .f { background: var(--foam); color: var(--night); }
   .h { background: var(--shell); color: var(--night); }
   .b { background: var(--blue); color: var(--foam); }
-
   .report-archive-dates:not([hidden]) {
     display: flex;
     flex-wrap: wrap;
@@ -1581,12 +835,10 @@
     gap: var(--space-3);
     margin-block: var(--space-3);
   }
-
   .report-archive-dates label {
     display: grid;
     gap: var(--space-1);
   }
-
   .report-archive-dates input {
     padding: var(--space-1) var(--space-2);
     border: 1px solid var(--border-strong);
@@ -1594,32 +846,26 @@
     background: var(--color-surface-card);
     color: var(--color-text);
   }
-
   :is(.report-run, .report-archive-notice) a {
     color: var(--color-link);
     text-decoration: underline;
   }
-
   .report-run-inputs {
     max-inline-size: 100%;
   }
-
   .report-run-inputs dl {
     overflow-wrap: anywhere;
   }
-
   .report-run-inputs dd {
     margin-block-end: var(--space-2);
     margin-inline-start: 0;
   }
-
   .gallery {
     display: grid;
     grid-template-columns: 1fr 1fr;
     gap: 0.75rem;
     margin: 0.65rem 0 1.4rem;
   }
-
   .specimen {
     border-radius: 0.9rem;
     padding: 1rem;
@@ -1627,12 +873,10 @@
     box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--color-border) 75%, transparent);
     transition: background-color 180ms ease, box-shadow 180ms ease;
   }
-
   .specimen:hover {
     background: var(--color-surface-card);
     box-shadow: inset 0 0 0 1px var(--color-border);
   }
-
   .specimen h3 {
     margin: 0 0 0.75rem;
     font-size: var(--type-size-sm);
@@ -1641,27 +885,22 @@
     text-transform: uppercase;
     color: var(--color-muted);
   }
-
   .specimen p {
     margin: 0.65rem 0 0;
     color: var(--color-muted);
     font-size: var(--type-size-sm);
   }
 }
-
-/* Keep the inline labels and definitions readable without the Popover API. */
 @supports not selector(:popover-open) {
+/* Keep the inline labels and definitions readable without the Popover API. */
   :is(.term, .symbol-popover) > button[popovertarget] { display: none; }
 }
-
 @supports selector(:popover-open) {
   .inline-popover-fallback { display: none; }
-
   :is(.term, .symbol-popover) > button[popovertarget] {
     cursor: pointer;
     text-decoration: underline dotted;
   }
-
   :is(.term-panel, .symbol-popover-panel) {
     max-inline-size: min(25rem, calc(100vi - 1rem));
     max-block-size: calc(100vb - 1rem);
@@ -1673,7 +912,6 @@
     background: var(--color-surface-card);
     color: var(--color-text);
   }
-
   @supports (position-area: block-end) {
     :is(.term-panel, .symbol-popover-panel) {
       margin: var(--space-2);
@@ -1681,8 +919,6 @@
       position-try-fallbacks: flip-inline, flip-block, flip-block flip-inline;
     }
   }
-
-
   /* Stat strip and data explorer: type and rhythm only, from the same roles as the prose around them. */
   .stat-strip {
     display: flex;
@@ -1692,14 +928,12 @@
     padding: 0;
     list-style: none;
   }
-
   .stat-strip .stat {
     display: flex;
     flex-direction: column;
     gap: var(--space-1);
     min-inline-size: 7rem;
   }
-
   .stat-strip .stat-value {
     font-size: var(--type-size-2xl);
     font-weight: var(--type-weight-bold);
@@ -1707,19 +941,16 @@
     letter-spacing: var(--type-tracking-heading);
     font-variant-numeric: tabular-nums;
   }
-
   .stat-strip .stat-label {
     color: var(--color-muted);
     font-size: var(--type-size-sm);
     line-height: var(--type-leading-ui);
     text-decoration: none;
   }
-
   .stat-strip a.stat-label {
     text-decoration: underline;
     text-underline-offset: 3px;
   }
-
   .data-explorer {
     display: grid;
     gap: var(--space-4);
@@ -1727,7 +958,6 @@
     font-size: var(--type-size-sm);
     line-height: var(--type-leading-ui);
   }
-
   .data-explorer-form,
   .data-explorer-sort,
   .data-explorer-filters,
@@ -1737,26 +967,22 @@
     align-items: center;
     gap: var(--space-2) var(--space-3);
   }
-
   .data-explorer-label,
   .data-explorer-sort-label,
   .data-explorer-filter-label {
     font-weight: var(--type-weight-medium);
   }
-
   .data-explorer-input,
   .data-explorer-sort-field {
     min-block-size: 2.25rem;
     padding-inline: var(--space-3);
     font-size: var(--type-size-sm);
   }
-
   .data-explorer-status,
   .data-explorer-empty,
   .data-explorer-filter-count {
     color: var(--color-muted);
   }
-
   .data-explorer-filter-option {
     display: flex;
     align-items: center;

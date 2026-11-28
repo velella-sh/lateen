@@ -1,5 +1,5 @@
-/* Document frame: doc layout, sidebar, toc, breadcrumb, doc header, prose. */
 @layer components {
+/* Document frame: doc layout, sidebar, toc, breadcrumb, doc header, prose. */
   .doc-layout {
     display: grid;
     grid-template-columns: 12.5rem minmax(0, 44rem) 10.5rem;
@@ -8,16 +8,7 @@
     justify-content: center;
     padding: 0.75rem 0 6rem;
   }
-
   @media screen and (width > 74rem) {
-    /* Both grids span 72rem so navigation keeps its alignment.
-       API examples and field comparisons use the wider track. */
-    .doc-layout:has(> main > .doc:not(.api-reference, .api-reference-index)):not(:has(> main [data-compare])) {
-      grid-template-columns: 12.5rem minmax(0, 36rem) minmax(10.5rem, 14.5rem);
-      column-gap: 4.5rem;
-      --doc-aside-offset: 2.875rem;
-    }
-
     .doc-layout > .aside {
       position: sticky;
       inset-block-start: 4.75rem;
@@ -25,15 +16,12 @@
       margin-block-start: var(--doc-aside-offset, 0rem);
     }
   }
-
   .doc-layout:has(.doc-context) {
     padding-block-end: 2rem;
   }
-
   .doc:has(> .doc-context) {
     padding-block-end: 0;
   }
-
   .post-author img {
     display: inline-block;
     margin-inline-end: var(--space-1);
@@ -41,23 +29,19 @@
     object-fit: cover;
     vertical-align: middle;
   }
-
   .post-author-bio {
     color: var(--color-muted);
     font-size: var(--type-size-sm);
   }
-
   .doc-context {
     @apply flex items-center gap-2;
     font-size: var(--type-size-sm);
     line-height: var(--type-leading-ui);
     min-block-size: 1.5rem;
   }
-
   .doc-tools {
     margin-inline-start: auto;
   }
-
   .doc-context .doc-tools > summary {
     min-block-size: 2rem;
     padding-inline: 0.65rem;
@@ -68,22 +52,18 @@
     font-weight: 500;
     white-space: nowrap;
   }
-
   .doc-context .doc-tools > summary:hover,
   .doc-context .doc-tools[open] > summary {
     border-color: var(--border-strong);
     color: var(--color-text);
   }
-
   .doc-tools[open] > summary .doc-tools-chevron {
     rotate: 180deg;
   }
-
   .doc-tools [data-source-mode] {
     margin: 0;
     justify-content: start;
   }
-
   .sidebar-nav {
     position: sticky;
     top: 5.5rem;
@@ -93,47 +73,39 @@
     font-size: var(--type-size-sm);
     @apply grid content-start gap-3;
   }
-
   .toc {
     max-block-size: calc(100dvh - 6rem);
     overflow: auto;
     scrollbar-width: thin;
     padding-inline-end: 0.25rem;
   }
-
   .toc h2 {
     @apply m-0 mb-2 font-bold;
     font-size: var(--type-size-sm);
     line-height: var(--type-leading-ui);
     color: var(--color-text);
   }
-
   :is(.sidebar-nav, .toc, .toc-fold) ul {
     @apply m-0 grid list-none gap-0.5 p-0;
   }
-
   .toc > ul {
     border-inline-start: 1px solid var(--color-border);
     padding-inline-start: 0;
   }
-
   .sidebar-nav a {
     @apply block rounded-md px-3 py-1.5 text-muted-foreground no-underline;
   }
-
   .sidebar-nav :is(a, summary):hover,
   .toc-fold > summary:hover {
     background: var(--state-hover-bg);
     color: var(--color-text);
   }
-
   .sidebar-nav a:is([aria-current="page"], [aria-current="true"]) {
     position: relative;
     color: var(--color-text);
     background: transparent;
     font-weight: 600;
   }
-
   .sidebar-nav a:is([aria-current="page"], [aria-current="true"])::before {
     content: "";
     position: absolute;
@@ -143,23 +115,19 @@
     border-radius: 2px;
     background: var(--color-text);
   }
-
   .sidebar-group > summary,
   .toc-fold > summary {
     @apply flex cursor-pointer items-center justify-between gap-2 rounded-md px-3 py-1.5 text-muted-foreground;
     list-style: none;
   }
-
   :is(.sidebar-group, .toc-fold) > summary::-webkit-details-marker {
     display: none;
   }
-
   .sidebar-group > summary > :is(h2, h3, h4, h5, h6) {
     @apply m-0 font-semibold text-inherit;
     font-size: var(--type-size-sm);
     line-height: var(--type-leading-ui);
   }
-
   :is(.sidebar-group, .toc-fold) > summary::after {
     content: "";
     @apply size-2 shrink-0;
@@ -167,35 +135,28 @@
     border-width: 0 1px 1px 0;
     rotate: -45deg;
   }
-
   :is(.sidebar-group, .toc-fold) > summary:dir(rtl)::after {
     rotate: 135deg;
   }
-
   :is(.sidebar-group, .toc-fold)[open] > summary::after {
     rotate: 45deg;
   }
-
   .sidebar-group > ul {
     margin-block-start: var(--space-1);
     margin-inline-start: var(--space-3);
     padding-inline-start: var(--space-1);
     border-inline-start: 1px solid var(--color-border);
   }
-
   /* A top-level page link reads as a peer of the group titles beside it. */
   .sidebar-nav > ul > li > a {
     font-weight: 600;
   }
-
   .sidebar-group[data-current] > summary {
     color: var(--color-text);
   }
-
   :is(.sidebar-nav, .toc, .toc-fold) :is(a, summary):focus-visible {
     outline-offset: -3px;
   }
-
   :is(.toc, .toc-fold) a {
     display: block;
     padding: 0.25rem 0.75rem;
@@ -206,28 +167,22 @@
     text-decoration: none;
     overflow-wrap: anywhere;
   }
-
   :is(.toc, .toc-fold) a:hover {
     color: var(--color-text);
   }
-
   :is(.toc, .toc-fold) a[aria-current="true"] {
     border-inline-start-color: var(--color-text);
     color: var(--color-text);
     font-weight: 600;
   }
-
   :is(.toc, .toc-fold) li > ul {
     padding-inline-start: var(--space-3);
   }
-
   /* The sticky column: one rail, one step down per depth, and a filled marker for the section in view.
      Below the aside breakpoint the same entries live in `.toc-fold`, which keeps the shared rules. */
-
   .toc ul {
     row-gap: 0.1875rem;
   }
-
   .toc a {
     padding-block: 0.3125rem;
     padding-inline: 0.5rem;
@@ -238,17 +193,14 @@
     line-height: var(--type-leading-ui);
     text-wrap: balance;
   }
-
   .toc a:hover {
     border-inline-start-color: var(--border-strong);
   }
-
   .toc a[aria-current="true"] {
     border-inline-start-color: var(--color-text);
     color: var(--color-text);
     font-weight: 600;
   }
-
   /* A nested section is a size smaller and steps in on its own rail, so depth reads at a glance. */
   .toc ul ul {
     margin-block: 0.1875rem 0.375rem;
@@ -257,39 +209,32 @@
     border-inline-start: 1px solid var(--color-border);
     row-gap: 0.0625rem;
   }
-
   .toc ul ul a {
     padding-block: 0.1875rem;
     font-size: var(--type-size-xs);
     font-weight: 400;
     line-height: var(--type-leading-ui);
   }
-
   .toc ul ul a[aria-current="true"] {
     font-weight: 600;
   }
-
   .toc-fold {
     display: none;
   }
-
   .doc,
   .doc-layout main > article {
     @apply min-w-0 pb-16;
     max-width: 44rem;
   }
-
   .doc {
     --doc-title-space: var(--space-2);
     --doc-section-space: 2.5rem;
   }
-
   .doc-layout main > article > h1,
   .doc > h1,
   .api-reference-operation-header > h1 {
     margin-block: var(--doc-title-space) 0;
   }
-
   .doc-layout main > article > h1,
   .doc > h1,
   .doc-body > h1:first-child,
@@ -301,7 +246,6 @@
     overflow-wrap: anywhere;
     text-wrap: balance;
   }
-
   .breadcrumb {
     @apply flex items-center text-muted-foreground;
     gap: 0.375rem;
@@ -310,7 +254,6 @@
     line-height: var(--type-leading-ui);
     letter-spacing: 0.005em;
   }
-
   .breadcrumb-list,
   .breadcrumb-item {
     display: flex;
@@ -320,27 +263,22 @@
     padding: 0;
     list-style: none;
   }
-
   .breadcrumb a {
     @apply no-underline;
   }
-
   .breadcrumb a:hover {
     color: var(--color-brand);
   }
-
   .breadcrumb svg,
   .trust-panel-icon {
     @apply size-3.5;
   }
-
   .breadcrumb-details {
     display: flex;
     flex-wrap: wrap;
     align-items: center;
     gap: 0.375rem;
   }
-
   .breadcrumb-summary {
     display: inline-flex;
     align-items: center;
@@ -350,20 +288,16 @@
     cursor: pointer;
     list-style: none;
   }
-
   .breadcrumb-summary::-webkit-details-marker,
   .trust-panel-chip::-webkit-details-marker {
     display: none;
   }
-
   .breadcrumb-summary:hover {
     color: var(--color-brand);
   }
-
   .breadcrumb-overflow .breadcrumb-list {
     flex-wrap: wrap;
   }
-
   .eyebrow {
     @apply m-0 font-semibold uppercase;
     font-size: var(--type-size-xs);
@@ -371,7 +305,6 @@
     color: var(--color-brand);
     letter-spacing: 0.09em;
   }
-
   .doc-description {
     margin-block: var(--space-2) 0;
     max-inline-size: var(--type-measure);
@@ -381,7 +314,6 @@
     overflow-wrap: anywhere;
     text-wrap: pretty;
   }
-
   :is(.list, .post) .list-feed-link {
     display: inline-flex;
     align-items: center;
@@ -390,16 +322,13 @@
     font-size: var(--type-size-sm);
     text-decoration: none;
   }
-
   :is(.list, .post) .list-feed-link:is(:hover, :focus-visible) {
     text-decoration: underline;
   }
-
   :is(.list, .post) .list-feed-icon svg {
     inline-size: 1rem;
     block-size: 1rem;
   }
-
   .doc-meta {
     position: relative;
     display: flex;
@@ -411,33 +340,27 @@
     font-size: var(--type-size-xs);
     line-height: var(--type-leading-ui);
   }
-
   .doc-meta .trust-panel {
     position: static;
     margin: 0;
   }
-
   .doc-meta .trust-panel-chip {
     gap: 0.25rem;
     min-block-size: 1.75rem;
     padding: 0.125rem 0.5rem;
     font-size: var(--type-size-xs);
   }
-
   .doc-meta .trust-panel-icon {
     inline-size: 0.875rem;
     block-size: 0.875rem;
   }
-
   .doc-meta .trust-panel-body {
     font-size: var(--type-size-sm);
     line-height: var(--type-leading-ui);
   }
-
   .doc-meta:empty {
     display: none;
   }
-
   .guide-summary {
     margin-block: var(--space-3);
     padding: var(--space-3);
@@ -446,23 +369,18 @@
     font-size: var(--type-size-sm);
     overflow-wrap: anywhere;
   }
-
   .guide-summary-label {
     color: var(--color-muted);
   }
-
   .guide-summary-value {
     font-weight: 600;
   }
-
   .guide-summary .status {
     @apply inline-flex items-baseline gap-1;
   }
-
   .guide-summary .status svg {
     @apply size-4;
   }
-
   .guide-prerequisites {
     margin-block: 1.5rem 0;
     padding: 1rem 1.125rem;
@@ -470,7 +388,6 @@
     border-radius: var(--radius-lg);
     background: color-mix(in srgb, var(--color-surface-card) 70%, transparent);
   }
-
   .guide-prerequisites-title {
     margin: 0 0 0.5rem;
     color: var(--color-muted);
@@ -479,22 +396,18 @@
     letter-spacing: 0.09em;
     text-transform: uppercase;
   }
-
   .guide-prerequisites-list {
     margin: 0;
     padding-inline-start: 1.25rem;
   }
-
   .guide-prerequisites-optional {
     margin-inline-start: 0.375rem;
     color: var(--color-muted);
     font-size: var(--type-size-sm);
   }
-
   .doc-body {
     margin-block-start: 1.625rem;
   }
-
   .doc-body h2,
   .api-reference-section > h2 {
     position: relative;
@@ -504,22 +417,18 @@
     line-height: var(--type-leading-snug);
     letter-spacing: var(--type-tracking-heading);
   }
-
   .doc-body h3 {
     margin-block: var(--space-8) var(--space-2);
     font-size: var(--type-size-lg);
     line-height: var(--type-leading-snug);
   }
-
   /* A heading straight after a heading keeps the lower one close to it. */
   .doc-body :is(h2, h3, h4) + :is(h2, h3, h4) {
     margin-block-start: var(--space-4);
   }
-
   .doc-body > :first-child {
     margin-block-start: 0;
   }
-
   /* Fragment targets clear the sticky header on desktop and mobile. */
   .prose :is(h1, h2, h3, h4, h5, h6)[id],
   .doc-body :is(h1, h2, h3, h4, h5, h6)[id],
@@ -530,7 +439,6 @@
   details[id] {
     scroll-margin-block-start: 6.75rem;
   }
-
   .doc-body a,
   .trust-panel-body a,
   .record .list-subscribe-link {
@@ -539,23 +447,19 @@
     text-decoration-thickness: 0.08em;
     text-underline-offset: 3px;
   }
-
   .doc-body p {
     margin-block: 0 var(--space-5);
     overflow-wrap: anywhere;
   }
-
   .doc-body > :is(p, ul, ol, h1, h2, h3),
   .quickstart-step > p,
   .api-reference-operation-header > .api-reference-description {
     max-inline-size: var(--type-measure);
     overflow-wrap: anywhere;
   }
-
   .doc-body > p {
     text-wrap: pretty;
   }
-
   .doc-body :where(blockquote, li, .callout-body, .details-body, .tabs-body, .tutorial-intro, .tutorial-step-body) > :is(ul, ol):not([class]),
   .doc-body > :is(ul, ol):not([class]) {
     margin-block: 0 var(--space-5);
@@ -563,23 +467,18 @@
     list-style: disc outside;
     overflow-wrap: anywhere;
   }
-
   .doc-body ol:not([class]) {
     list-style-type: decimal;
   }
-
   .doc-body li > :is(ul, ol):not([class]) {
     margin-block: var(--space-1) 0;
   }
-
   .doc-body li > ul:not([class]) {
     list-style-type: circle;
   }
-
   .doc-body :is(ul, ol):not([class]) > li::marker {
     color: var(--color-muted);
   }
-
   .doc-body blockquote:not([class]):not(.quote *) {
     margin-block: 0 var(--space-5);
     padding-block: 0.125rem;
@@ -590,17 +489,14 @@
     & > :first-child { margin-block-start: 0; }
     & > :last-child { margin-block-end: 0; }
   }
-
   .doc-body :is(p, figure:not([class])) > :is(img, a > img) {
     max-inline-size: 100%;
     block-size: auto;
     border-radius: var(--radius-card);
   }
-
   .doc-body figure:not([class]) {
     margin-block: 0 var(--space-5);
   }
-
   .doc-body :is(figure:not([class]) > figcaption, .figure-caption) {
     margin-block-start: var(--space-2);
     max-inline-size: var(--type-measure);
@@ -609,11 +505,9 @@
     line-height: var(--type-leading-ui);
     overflow-wrap: anywhere;
   }
-
   .doc-body :is(p, li, th, td, figcaption) > a:hover {
     text-decoration-thickness: 0.12em;
   }
-
   .doc-body :is(p, li, th, td, figcaption) code:not(pre code) {
     padding: 0.075em 0.32em;
     border-radius: 0.25rem;
@@ -621,15 +515,12 @@
     box-decoration-break: clone;
     -webkit-box-decoration-break: clone;
   }
-
   .doc-body a > code {
     color: inherit;
   }
-
   .doc-body li + li {
     margin-block-start: var(--space-1);
   }
-
   :not(pre) > code {
     @apply rounded-md px-1.5 py-0.5 font-mono;
     font-size: var(--type-size-sm);
@@ -637,18 +528,15 @@
     color: var(--color-text);
     background: color-mix(in srgb, var(--color-surface) 65%, var(--color-canvas));
   }
-
   .edit-page-link {
     display: inline-flex;
     align-items: center;
     min-block-size: 1.5rem;
   }
-
   .stale-notice-file code {
     overflow-wrap: anywhere;
     word-break: break-word;
   }
-
   .stale-notice-file-link {
     direction: ltr;
     unicode-bidi: isolate;

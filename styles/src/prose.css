@@ -1,0 +1,466 @@
+/* Prose: tables, math and article media (images, diagrams, video and embeds).
+   Owned by the prose epic (#1309, #1311). */
+@media screen {
+/* Article components: tables, citations, callouts, tabs, steps, kbd, endpoints,
+   record fields, details, file tree, terminal, timeline, cards, changelog, figures,
+   media embeds, trust panel, tags, lists, swatches, gallery specimens. */
+/* Keep overflow local for custom tables that supply their own classes. */
+  .doc-body > table,
+  .doc-body :is(.callout-body, .step-content, .tabs-body) > table {
+    display: block;
+    max-inline-size: 100%;
+    overflow-x: auto;
+    overscroll-behavior-inline: contain;
+  }
+  math {
+    font-family: "Cambria Math", math;
+    font-size: 1em;
+    vertical-align: baseline;
+  }
+  .math-scroll {
+    max-inline-size: 100%;
+    margin-block: var(--space-4);
+    overflow-x: auto;
+    outline-offset: -2px;
+  }
+  /* Center small equations and keep both ends of wide equations reachable. */
+  .math-scroll > math {
+    min-inline-size: 100%;
+    inline-size: max-content;
+  }
+}
+@layer components {
+  .doc-body table {
+    @apply w-full;
+    font-size: var(--type-size-sm);
+    line-height: var(--type-leading-ui);
+    margin: 0 0 var(--space-5);
+    border-collapse: collapse;
+  }
+  .doc-body th,
+  .doc-body td {
+    @apply align-top;
+    padding-block: var(--space-3);
+    padding-inline: 0 var(--space-4);
+    border-bottom: 1px solid var(--color-border);
+    text-align: start;
+  }
+  .doc-body th {
+    @apply font-bold uppercase;
+    color: var(--color-muted);
+    font-size: var(--type-size-xs);
+    letter-spacing: 0.06em;
+  }
+  .markdown-table-scroll {
+    margin-block: 1.125rem;
+    outline-offset: -3px;
+  }
+  .markdown-table-scroll > table {
+    margin: 0;
+    line-height: var(--type-leading-ui);
+    overflow-wrap: break-word;
+  }
+  /* Leave room for prose in multi-column grids and let narrow viewports scroll the grid. */
+  .markdown-table-scroll > table:has(> thead th:nth-child(3)) {
+    min-inline-size: 29rem;
+  }
+  .markdown-table-scroll > table > :is(thead, tbody, tfoot) > tr > :is(th, td) {
+    padding: var(--space-2) var(--space-3);
+    border-block-end-color: color-mix(in srgb, var(--color-border) 75%, transparent);
+  }
+  .markdown-table-scroll :is(th, td)[align="left"] { text-align: left; }
+  .markdown-table-scroll :is(th, td)[align="center"] { text-align: center; }
+  .markdown-table-scroll :is(th, td)[align="right"] { text-align: right; }
+  .markdown-table-scroll thead th {
+    background: var(--color-surface);
+    color: var(--color-text);
+    font-size: inherit;
+    font-weight: 700;
+    letter-spacing: normal;
+    text-transform: none;
+  }
+  .markdown-table-scroll :is(a, code) {
+    overflow-wrap: anywhere;
+  }
+  .markdown-table-scroll td:first-child > code:only-child {
+    display: inline-block;
+    max-inline-size: 36ch;
+    overflow-wrap: break-word;
+  }
+  .markdown-table-scroll :is(th, td) > p {
+    margin-block: 0;
+  }
+  .markdown-table-scroll :is(th, td) > p + p {
+    margin-block-start: 0.4em;
+  }
+  .component-directory table {
+    table-layout: fixed;
+  }
+  .component-directory th:first-child {
+    width: 28%;
+  }
+  @media (max-width: 40rem) {
+    .component-directory th:first-child {
+      width: 37%;
+    }
+  }
+  .component-directory td:first-child a {
+    font-weight: 650;
+  }
+  .component-directory td:nth-child(2) {
+    color: var(--color-muted);
+  }
+  .component-directory tr:focus-within {
+    background: var(--color-surface);
+  }
+  /* The island marks the logical edges that hide content; a soft shade appears only there and
+     recedes as the reader reaches either end. It sits behind the grid, so text keeps its contrast,
+     and it is decoration: no pointer target and nothing added to the accessibility tree. */
+  .table-scroll {
+    --table-overflow-ink: color-mix(in srgb, var(--color-text) 12%, transparent);
+    overscroll-behavior-inline: contain;
+    background-image:
+      var(--table-overflow-start, none),
+      var(--table-overflow-end, none);
+    background-position: left top, right top;
+    background-repeat: no-repeat;
+    background-size: 2.5rem 100%, 2.5rem 100%;
+  }
+  .table-scroll[data-overflow-start] {
+    --table-overflow-start: linear-gradient(to right, var(--table-overflow-ink), transparent);
+  }
+  .table-scroll[data-overflow-end] {
+    --table-overflow-end: linear-gradient(to left, var(--table-overflow-ink), transparent);
+  }
+  .table-scroll:dir(rtl) {
+    background-position: right top, left top;
+  }
+  .table-scroll:dir(rtl)[data-overflow-start] {
+    --table-overflow-start: linear-gradient(to left, var(--table-overflow-ink), transparent);
+  }
+  .table-scroll:dir(rtl)[data-overflow-end] {
+    --table-overflow-end: linear-gradient(to right, var(--table-overflow-ink), transparent);
+  }
+  .table caption {
+    @apply font-semibold;
+    font-size: var(--type-size-sm);
+    line-height: var(--type-leading-ui);
+    padding-block-end: 0.5rem;
+    color: var(--color-muted);
+    text-align: start;
+  }
+  .table-description {
+    font-size: var(--type-size-sm);
+    line-height: var(--type-leading-ui);
+    margin-block-start: 0.5rem;
+    max-inline-size: 40em;
+    color: var(--color-muted);
+  }
+  /* An authored footer is a summary, not another header row: one strong top rule and lined-up figures. */
+  .table tfoot th,
+  .table tfoot td {
+    border-block-start: 2px solid var(--border-strong);
+    font-variant-numeric: tabular-nums;
+  }
+  .table tfoot th {
+    background: transparent;
+    color: var(--color-text);
+    font-size: inherit;
+    letter-spacing: normal;
+    text-transform: none;
+  }
+  /* The arrow beside a sortable header's label: the glyph says the direction, so it alone carries
+     the visible state. A logical margin keeps it on the far side of the label in RTL. */
+  .record-table-sort {
+    margin-inline-start: 0.4em;
+    padding: 0;
+    color: inherit;
+    background: none;
+    border: 0;
+    cursor: pointer;
+    line-height: 1;
+  }
+  .record-table-sort:hover {
+    color: var(--color-text);
+  }
+  /* Article media: an image or a diagram with the text around it. Both share one spacing and corner
+     radius, so they read as the same kind of block. A small image keeps the size it was drawn at and
+     never stretches; a diagram keeps its labels legible rather than shrinking to fit the column. */
+  .figure,
+  .mermaid {
+    margin-block: var(--space-6);
+  }
+  .figure-img {
+    display: block;
+    block-size: auto;
+    max-inline-size: 100%;
+    border-radius: var(--radius-xl);
+  }
+  .figure-images {
+    display: grid;
+    gap: var(--space-3);
+    grid-template-columns: repeat(auto-fit, minmax(14rem, 1fr));
+  }
+  .figure-images .figure-img {
+    inline-size: 100%;
+  }
+  .figure-pair {
+    display: grid;
+  }
+  .figure-img-dark {
+    display: none;
+  }
+  [data-theme="dark"] .figure-paired .figure-img-light {
+    display: none;
+  }
+  [data-theme="dark"] .figure-paired .figure-img-dark {
+    display: block;
+  }
+  .figure-caption {
+    margin-block-start: var(--space-2);
+    color: var(--color-muted);
+    font-size: var(--type-size-sm);
+    line-height: var(--type-leading-ui);
+    overflow-wrap: anywhere;
+  }
+  .figure-credit {
+    display: block;
+    margin-block-start: var(--space-1);
+    color: var(--color-muted);
+    font-size: var(--type-size-sm);
+  }
+  /* Zoom: a button opens the image larger in a native popover. The browser handles Escape, a click
+     outside, and returning focus to the button, so none of it needs script. */
+  .figure-zoom {
+    display: block;
+    padding: 0;
+    border: 0;
+    background: none;
+    color: inherit;
+    cursor: zoom-in;
+    border-radius: var(--radius-xl);
+  }
+  .figure-zoom-panel {
+    inline-size: min(96vw, 80rem);
+    max-block-size: 94vh;
+    margin: auto;
+    padding: var(--space-3);
+    overflow: auto;
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-xl);
+    background: var(--color-surface-card);
+    color: var(--color-text);
+  }
+  .figure-zoom-panel::backdrop {
+    background: color-mix(in oklab, var(--color-text) 55%, transparent);
+  }
+  .figure-zoom-img {
+    display: block;
+    max-inline-size: 100%;
+    block-size: auto;
+    margin-inline: auto;
+    border-radius: var(--radius-lg);
+  }
+  /* A diagram or chart in the panel is drawn from the same SVG as the inline one, scaled to fill the
+     panel instead of keeping its natural width. The trigger button wraps the inline copy, so its text
+     keeps the page's alignment. */
+  .figure-zoom-svg,
+  .figure-zoom-panel .mermaid-diagram > svg {
+    display: block;
+    inline-size: 100%;
+    block-size: auto;
+  }
+  .figure-zoom-panel .mermaid-diagram {
+    border: 0;
+    padding: 0;
+    overflow: visible;
+  }
+  .figure-zoomable:has(> .figure-zoom > .mermaid-diagram) > .figure-zoom {
+    inline-size: 100%;
+    text-align: start;
+  }
+  /* A paired figure's panel holds both full-size images and links; only the active scheme's shows, so
+     the other (hidden, lazy) is never fetched. Without script the page keeps its default scheme, so
+     the reader's `prefers-color-scheme` decides. */
+  .figure-zoom-img-dark,
+  .figure-zoom-full-dark {
+    display: none;
+  }
+  [data-theme="dark"] .figure-zoom-img-light,
+  [data-theme="dark"] .figure-zoom-full-light {
+    display: none;
+  }
+  [data-theme="dark"] .figure-zoom-img-dark {
+    display: block;
+  }
+  [data-theme="dark"] .figure-zoom-full-dark {
+    display: inline-flex;
+  }
+  /* A multi-image figure: previous and next buttons move between the figure's panels. The row follows the
+     reading direction, so previous sits first in either direction, and the chevrons mirror in RTL. */
+  .figure-images .figure-zoom {
+    inline-size: 100%;
+  }
+  .figure-zoom-nav {
+    display: flex;
+    gap: var(--space-2);
+    align-items: center;
+  }
+  .figure-zoom-prev,
+  .figure-zoom-next {
+    display: inline-flex;
+    padding: var(--space-1);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-lg);
+    background: var(--card);
+    color: inherit;
+    cursor: pointer;
+  }
+  .figure-zoom-nav-icon {
+    inline-size: 1.25rem;
+    block-size: 1.25rem;
+  }
+  [dir="rtl"] .figure-zoom-nav-icon {
+    transform: scaleX(-1);
+  }
+  .figure-zoom-bar {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--space-3);
+    justify-content: space-between;
+    align-items: center;
+    margin-block-start: var(--space-3);
+    font-size: var(--text-sm);
+  }
+  /* A target of at least 24 by 24 CSS pixels, like the close button. */
+  .figure-zoom-full {
+    display: inline-flex;
+    align-items: center;
+    min-block-size: 1.75rem;
+  }
+  .figure-zoom-close {
+    padding: var(--space-1) var(--space-3);
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-lg);
+    background: var(--color-surface-card);
+    color: inherit;
+    cursor: pointer;
+  }
+  @media (prefers-reduced-motion: no-preference) {
+    .figure-zoom-panel:popover-open {
+      animation: figure-zoom-in 120ms ease-out;
+    }
+  }
+  @supports not selector(:popover-open) {
+  /* A browser without popover has an inert button: show the full-size link instead. */
+    .figure-zoom {
+      pointer-events: none;
+      cursor: default;
+    }
+    .figure-zoom-panel {
+      display: block;
+      position: static;
+      border: 0;
+      padding: 0;
+      margin-block-start: var(--space-2);
+      inline-size: auto;
+    }
+    .figure-zoom-img,
+    .figure-zoom-close {
+      display: none;
+    }
+  }
+  /* Mermaid: the diagram sits on the same plate as an image — a quiet card with one hairline edge and
+     the shared corner radius — and scrolls inside its frame when the drawing is wider than the column,
+     so it never widens the page. */
+  .mermaid-diagram {
+    overflow-x: auto;
+    overscroll-behavior-inline: contain;
+    padding: var(--space-4);
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-xl);
+    background: var(--color-surface-card);
+  }
+  /* Mermaid writes its palette as literal colors in an inline `<style>`, which would stay dark-on-dark
+     in the dark theme. These rules repaint the common shapes from the page tokens instead, so the
+     diagram follows light and dark without a second render. `!important` beats Mermaid's id-scoped
+     inline rules; every selector is scoped under `.mermaid-diagram`, so no other block is touched. */
+  .mermaid-diagram > svg {
+    display: block;
+    block-size: auto;
+    margin-inline: auto;
+    inline-size: min(var(--mermaid-natural, 100%), max(100%, calc(var(--mermaid-natural, 100%) * 0.7)));
+    font-family: var(--type-font-body);
+  }
+  .mermaid-diagram > svg :where(text, tspan) {
+    fill: var(--color-text) !important;
+  }
+  .mermaid-diagram > svg :where(rect, circle, ellipse, polygon) {
+    fill: var(--color-canvas) !important;
+    stroke: var(--border-strong) !important;
+  }
+  .mermaid-diagram > svg :where(line) {
+    stroke: var(--border-strong) !important;
+  }
+  /* The transparent halos Mermaid draws behind labels, and the canvas rectangle, keep no fill. */
+  .mermaid-diagram > svg :where(.background, .label rect) {
+    fill: none !important;
+    stroke: none !important;
+  }
+  .mermaid-diagram > svg :where(.flowchart-link, .edgePaths path) {
+    fill: none !important;
+    stroke: var(--color-muted) !important;
+  }
+  .mermaid-diagram > svg :where(marker path, marker polygon, marker circle, .arrowMarkerPath) {
+    fill: var(--color-muted) !important;
+    stroke: var(--color-muted) !important;
+  }
+  .mermaid-diagram > svg .edgeLabel rect {
+    fill: var(--color-surface-card) !important;
+  }
+  /* Keep the source disclosure as it is: its spacing follows the diagram frame, the summary and the
+     code block stay Mermaid's existing markup and the shared `pre` styling. */
+  .mermaid-source {
+    margin-block-start: var(--space-3);
+  }
+  .video-box,
+  .embed-box {
+    position: relative;
+    aspect-ratio: 16 / 9;
+    overflow: hidden;
+  }
+  .video-poster,
+  .video-frame,
+  .embed-iframe {
+    position: absolute;
+    inset: 0;
+    inline-size: 100%;
+    block-size: 100%;
+  }
+  .video-poster-image {
+    inline-size: 100%;
+    block-size: 100%;
+    object-fit: cover;
+  }
+  .video-frame,
+  .embed-iframe {
+    border: 0;
+  }
+  .video-play {
+    position: absolute;
+    inset-block-start: 50%;
+    inset-inline-start: 50%;
+    transform: translate(-50%, -50%);
+  }
+  .embed-placeholder {
+    position: absolute;
+    inset: 0;
+    z-index: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: var(--space-2);
+    padding: var(--space-3);
+  }
+}

@@ -7,7 +7,7 @@ import { setTimeout as delay } from "node:timers/promises";
 import { chromium } from "playwright";
 import { all, attrs, build, serve, textOf } from "../integration-helpers.ts";
 
-const css = readFileSync(new URL("../../styles/src/content.css", import.meta.url), "utf8");
+const css = readFileSync(new URL("../../styles/src/prose.css", import.meta.url), "utf8");
 const withoutComments = css.replace(/\/\*[\s\S]*?\*\//g, "");
 
 const wide = `$$\n${Array.from({ length: 40 }, (_, i) => `a_${i}`).join(" + ")} = c\n$$`;

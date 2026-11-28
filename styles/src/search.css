@@ -1,0 +1,395 @@
+/* Search: the header trigger, the dialog and the results. Owned by the search-ui epic (#1355). */
+@layer components {
+  /* Header search control (not the dialog — that also uses class "search"). */
+  .site-header .search-trigger {
+    display: inline-flex;
+    flex: none;
+    align-items: center;
+    gap: 0.5rem;
+    block-size: 2rem;
+    min-inline-size: 2rem;
+    padding-inline: 0.65rem 0.35rem;
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-md);
+    background: var(--color-surface-card);
+    color: var(--color-muted);
+    font-size: var(--type-size-sm);
+    font-weight: 500;
+    white-space: nowrap;
+    cursor: pointer;
+  }
+  .site-header .search-trigger:is(:hover, :focus-visible) {
+    border-color: var(--border-strong);
+    color: var(--color-text);
+  }
+  @media screen and (width > 960px) {
+    .site-header .search-trigger {
+      min-inline-size: 12rem;
+    }
+  }
+  .search-trigger-key {
+    margin-inline-start: auto;
+    padding: 0.1rem 0.35rem;
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-sm);
+    color: var(--color-muted);
+    font-family: var(--type-font-mono);
+    font-size: var(--type-size-xs);
+    line-height: var(--type-leading-heading);
+  }
+  .search-trigger-key:empty {
+    display: none;
+  }
+  dialog.search {
+    inline-size: min(40rem, calc(100dvw - 2rem - env(safe-area-inset-left) - env(safe-area-inset-right)));
+    max-block-size: min(80dvh, 40rem);
+    margin-block: max(10svh, env(safe-area-inset-top)) auto;
+    margin-inline: auto;
+    padding: 0;
+    border: 1px solid var(--color-border);
+    border-radius: 1.25rem;
+    background: color-mix(in srgb, var(--color-canvas) 92%, var(--color-surface-card));
+    color: var(--color-text);
+    overflow: hidden;
+    box-shadow:
+      0 24px 64px -16px rgb(0 0 0 / 0.45),
+      0 0 0 1px color-mix(in srgb, var(--color-text) 6%, transparent);
+  }
+  dialog.search::backdrop {
+    background: rgb(0 0 0 / 0.4);
+    backdrop-filter: blur(4px);
+  }
+  .search-panel {
+    display: flex;
+    flex-direction: column;
+    max-block-size: min(80dvh, 40rem);
+  }
+  .search-field {
+    display: flex;
+    flex: none;
+    align-items: center;
+    gap: 0.65rem;
+    padding: 0.5rem 0.875rem;
+    border-bottom: 1px solid var(--color-border);
+    color: var(--color-muted);
+  }
+  .search-field input {
+    flex: 1;
+    min-inline-size: 0;
+    block-size: 2.75rem;
+    /* The value keeps its own direction inside a dialog that stays in the page language. */
+    unicode-bidi: plaintext;
+    border: 0;
+    background: transparent;
+    color: var(--color-text);
+    font-size: var(--type-size-base);
+  }
+  /* The field row carries the focus ring, so the input itself needs no box inside the dialog: a
+     second frame around a bare input read as a stray outline. A 2px accent rule under the row stays
+     visible in forced-colors and for low vision. */
+  .search-field input:focus {
+    outline: none;
+  }
+  .search-field {
+    position: relative;
+    transition: color 0.15s;
+  }
+  .search-field::after {
+    content: "";
+    position: absolute;
+    inset-inline: 0;
+    inset-block-end: -1px;
+    block-size: 2px;
+    background: var(--state-focus-ring);
+    opacity: 0;
+    transition: opacity 0.15s;
+
+    @media (forced-colors: active) {
+      background: Highlight;
+    }
+  }
+  .search-field:focus-within {
+    color: var(--color-text);
+  }
+  .search-field:focus-within::after {
+    opacity: 1;
+  }
+  .search-field > .iconbtn:focus-visible {
+    outline-offset: -3px;
+  }
+  .search-close-key {
+    display: none;
+  }
+  @media (hover: hover) and (pointer: fine) {
+    .search-close {
+      inline-size: auto;
+      padding-inline: var(--space-1);
+      border-radius: var(--radius-sm);
+    }
+    .search-close > svg {
+      display: none;
+    }
+    .search-close-key {
+      display: inline;
+      padding: 0.15rem 0.4rem;
+      border: 1px solid var(--color-border);
+      border-radius: var(--radius-sm);
+      font-family: var(--type-font-mono);
+      font-size: var(--type-size-xs);
+      line-height: var(--type-leading-heading);
+    }
+  }
+  /* The island's clear button is the only one: no second native × in WebKit. */
+  .search-field input[type="search"]::-webkit-search-cancel-button {
+    -webkit-appearance: none;
+  }
+  .search .search-scope {
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: var(--space-2);
+    margin: var(--space-2) var(--space-3);
+    color: var(--color-muted);
+    font-size: var(--type-size-sm);
+  }
+  .search .search-scope select {
+    color: var(--color-text);
+    background: var(--color-canvas);
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-sm);
+    padding: var(--space-1) var(--space-2);
+  }
+  /* The retry action appears under the status line only after a failed index load. */
+  .search-retry {
+    display: inline-flex;
+    align-items: center;
+    min-block-size: 1.5rem;
+    margin-block: 0.25rem 0.5rem;
+    margin-inline: 0.75rem;
+    padding: 0 0.6rem;
+    border: 1px solid var(--color-border);
+    border-radius: 0.5rem;
+    background: transparent;
+    color: var(--color-text);
+    font-size: var(--type-size-sm);
+    cursor: pointer;
+  }
+  .search-retry:hover {
+    background: var(--color-surface);
+  }
+  .search-results {
+    flex: 1 1 auto;
+    min-block-size: 0;
+    overflow: auto;
+    overscroll-behavior: contain;
+  }
+  .search-facet-fields:not([hidden]) {
+    @apply flex flex-wrap gap-2;
+  }
+  .search-facet-fields label {
+    @apply grid max-w-full gap-1;
+  }
+  .search-facet-fields select {
+    @apply max-w-full rounded border border-border bg-background text-foreground;
+  }
+  .search-group-title {
+    position: sticky;
+    inset-block-start: 0;
+    z-index: 1;
+    margin: 0;
+    padding: 0.7rem 0.75rem 0.35rem;
+    border-block-end: 0;
+    /* The heading stays legible over the rows it scrolls past, so it repeats the dialog's surface. */
+    background: color-mix(in srgb, var(--color-canvas) 92%, var(--color-surface-card));
+    color: var(--color-muted);
+    font-size: var(--type-size-xs);
+    font-weight: 700;
+    letter-spacing: 0.06em;
+    line-height: var(--type-leading-ui);
+    text-transform: uppercase;
+  }
+  .search-result-link {
+    display: flex;
+    flex-direction: column;
+    gap: 0.125rem;
+    padding: 0.625rem 0.875rem;
+    border-inline-start: 2px solid transparent;
+    border-block-end: 1px solid var(--color-border);
+    color: var(--color-text);
+    text-decoration: none;
+    overflow-wrap: anywhere;
+  }
+  .search-result-path,
+  .search-results-path {
+    color: var(--color-muted);
+    font-size: var(--type-size-xs);
+    line-height: var(--type-leading-ui);
+    unicode-bidi: isolate;
+  }
+  .search-result-heading,
+  .search-results-heading {
+    color: var(--color-muted);
+    font-size: var(--type-size-xs);
+    line-height: var(--type-leading-ui);
+    unicode-bidi: isolate;
+  }
+  .search-result-title {
+    font-weight: 700;
+  }
+  /* A path or a hyphenated name keeps its own order inside a right-to-left line. */
+  .search-result-excerpt {
+    color: var(--color-muted);
+    font-size: var(--type-size-sm);
+    line-height: var(--type-leading-ui);
+    unicode-bidi: isolate;
+  }
+  .search-result-excerpt mark {
+    border-radius: 0.25rem;
+    background: var(--color-selection);
+    color: var(--color-text);
+    unicode-bidi: isolate;
+  }
+  dialog.search .search-result-project,
+  .search-results-link .search-result-project,
+  .search-result-language,
+  .search-result-version {
+    display: inline-block;
+    margin-inline-end: 0.5rem;
+    color: var(--color-muted);
+    font-size: var(--type-size-xs);
+  }
+  /* The dialog's rows, scoped to the modal so the standalone result demo keeps its own metrics.
+     A reader comparing similar results reads down the titles and the section paths, so the title
+     leads as its own line, the heading and path share one quiet meta line under it, and the excerpt
+     follows as one block. The row is a block rather than a flex column, so the inline heading and
+     path sit together on one line without a wrapper element. */
+  dialog.search .search-results {
+    padding: 0.375rem;
+  }
+  dialog.search .search-result-link {
+    display: block;
+    padding: 0.7rem 0.9rem;
+    border-inline-start-width: 3px;
+    border-block-end-color: transparent;
+    border-radius: 0.75rem;
+  }
+  dialog.search .search-result-title {
+    display: block;
+    font-size: var(--type-size-sm);
+  }
+  /* The heading and the path read as one quiet line, a hairline between them, whether the index
+     supplies one, the other, or both. */
+  dialog.search :is(.search-result-heading, .search-result-path) {
+    display: inline;
+  }
+  dialog.search .search-result-heading + .search-result-path {
+    padding-inline-start: 0.55rem;
+    border-inline-start: 1px solid var(--color-border);
+  }
+  dialog.search .search-result-excerpt {
+    display: block;
+    margin-block-start: 0.3rem;
+  }
+  .search :is(.search-action-button, .search-ask-button) {
+    display: flex;
+    align-items: baseline;
+    gap: 0.25rem 0.5rem;
+    flex-wrap: wrap;
+    inline-size: 100%;
+    padding: 0.5rem 0.75rem;
+    border: 0;
+    border-inline-start: 2px solid transparent;
+    background: transparent;
+    color: var(--color-text);
+    font-size: var(--type-size-sm);
+    text-align: start;
+    cursor: pointer;
+  }
+  .search-result-link:hover,
+  .search [role="option"]:hover {
+    background: var(--color-surface);
+  }
+  .search [role="option"][aria-selected="true"] {
+    border-inline-start-color: var(--state-focus-ring);
+    background: var(--color-brand-subtle);
+
+    @media (forced-colors: active) {
+      border-inline-start-color: Highlight;
+    }
+  }
+  .search-action-hint {
+    color: var(--color-muted);
+    font-size: var(--type-size-sm);
+  }
+  /* The dialog's action and ask rows line up with the result rows above them: one label, one hint,
+     the same inset, and the same hairline between rows. */
+  dialog.search :is(.search-action-button, .search-ask-button) {
+    padding: 0.7rem 0.9rem;
+    border-block-end: 1px solid transparent;
+    border-radius: 0.75rem;
+    border-inline-start-width: 3px;
+    font-size: var(--type-size-sm);
+    font-weight: 600;
+  }
+  dialog.search .search-action-hint {
+    font-size: var(--type-size-xs);
+    font-weight: 400;
+  }
+  .search-status {
+    flex: none;
+    margin: 0;
+    color: var(--color-text);
+    font-size: var(--type-size-sm);
+    font-weight: 600;
+    overflow-wrap: anywhere;
+  }
+  /* A count is a quiet line above the ranked list it counts. */
+  .search-status:not(:empty) {
+    padding: 0.625rem 1.15rem 0;
+    color: var(--color-muted);
+    font-size: var(--type-size-xs);
+    font-weight: 500;
+  }
+  /* Waiting, empty, and failed all leave the list with nothing to show, so they share one calm
+     state block instead of a bare bar: the same height, centering, and type whichever message the
+     state puts there. A count bar never becomes a block, because its list has rows under it. */
+  dialog.search .search-panel:has(> .search-results:empty) > .search-status:not(:empty) {
+    display: grid;
+    place-items: center;
+    min-block-size: 7.5rem;
+    padding: 1.75rem 1.5rem;
+    background: transparent;
+    color: var(--color-muted);
+    font-weight: 500;
+    text-align: center;
+    text-wrap: balance;
+  }
+  .search-foot {
+    flex: none;
+    padding: 0.5rem 0.875rem max(0.5rem, env(safe-area-inset-bottom));
+    border-top: 1px solid var(--color-border);
+    font-size: var(--type-size-sm);
+  }
+  .search-foot:has([hidden]) {
+    display: none;
+  }
+  .search-all {
+    display: inline-flex;
+    align-items: center;
+    min-block-size: 1.5rem;
+    color: var(--color-link);
+  }
+  @media (max-width: 960px) {
+    .site-header .search-trigger {
+      inline-size: 2.125rem;
+      padding: 0;
+      justify-content: center;
+    }
+    .site-header .search-trigger span {
+      @apply sr-only;
+    }
+    .site-header .search-trigger-key {
+      display: none;
+    }
+  }
+}

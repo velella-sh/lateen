@@ -1,0 +1,25 @@
+/* API reference: endpoint lines, the generated operation page and its sections.
+   Owned by the api-reference-ui epic (#1336). */
+@layer components {
+  /* Endpoint introductions: the hand-written endpoint block, the generated operation page, and
+     the reference index share one line, one method badge, and one wrapping path. The method's
+     text is its label, so color is never the only signal. */
+  :is(.endpoint-line, .api-reference-line) {
+    overflow-wrap: anywhere;
+  }
+  .endpoint {
+    margin-block: var(--space-6);
+  }
+  .endpoint-param {
+    color: var(--color-link);
+  }
+  @media screen and (width > 74rem) {
+    /* Both grids span 72rem so navigation keeps its alignment.
+       API examples and field comparisons use the wider track. */
+    .doc-layout:has(> main > .doc:not(.api-reference, .api-reference-index)):not(:has(> main [data-compare])) {
+      grid-template-columns: 12.5rem minmax(0, 36rem) minmax(10.5rem, 14.5rem);
+      column-gap: 4.5rem;
+      --doc-aside-offset: 2.875rem;
+    }
+  }
+}
