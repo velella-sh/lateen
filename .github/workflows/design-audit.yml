@@ -28,6 +28,9 @@ jobs:
       - name: Install Chromium
         run: npx playwright install chromium
         working-directory: lateen
+      - name: Build the UI assets
+        run: npm run ui:build
+        working-directory: lateen
       - name: Shoot the audit matrix
         run: node scripts/design-audit.ts --shoot --out audit-shots
         working-directory: lateen
